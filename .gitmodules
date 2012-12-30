@@ -1,0 +1,3 @@
+[submodule "lib"]
+	path = lib
+	url = http://git@github.com/harisekhon/lib
