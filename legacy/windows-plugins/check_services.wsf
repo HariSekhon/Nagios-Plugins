@@ -1,0 +1,575 @@
+<?XML version="1.0"?>
+    <package>
+    <comment>
+
+        Author: Hari Sekhon
+        Date: 2008-01-31 13:30:06 +0000 (Thu, 31 Jan 2008)
+
+        http://github.com/harisekhon
+
+        License: see accompanying LICENSE file
+
+    </comment>
+    <job id="Check">
+        <resource id="About">
+Nagios Plugin - Check Services for Windows (Version 0.9)
+        </resource>
+        <script language="VBScript">
+            <![CDATA[
+
+
+            Option Explicit
+
+            '============================================='
+            '  V A R I A B L E S   &   C O N S T A N T S  '
+            '============================================='
+
+            Const wbemFlagReturnImmediately = &h10
+            Const wbemFlagForwardOnly = &h20
+
+            Dim arrAllArgs
+            Dim boolLabelSet
+            Dim boolServerSet
+            Dim boolServiceSeen
+            Dim boolShortName
+            Dim boolTimeoutSet
+            Dim colItems
+            Dim dictServices
+            Dim intIndex
+            Dim intMinimumServices 
+            Dim intNonExistentServices
+            Dim intNonRunningServices
+            Dim intRunningServices
+            Dim intServicesChecked
+            Dim intTimeout
+            Dim intTotalServices
+            Dim intVerbosity
+            Dim objExit
+            Dim objItem
+            Dim objShell
+            Dim objWMIService
+            Dim regOptionMangling
+            Dim regServerName
+            Dim strAllArgs
+            Dim strArg
+            Dim strErrorMsg
+            Dim strKey
+            Dim strLabel
+            Dim strMessage
+            Dim strNonExistentServices
+            Dim strNonRunningServices
+            Dim strOutput
+            Dim strRunningServices
+            Dim strScriptName
+            Dim strServer
+            Dim strService
+            Dim strServices
+            Dim strServicesGrammar
+            Dim strUsage
+            Dim strWshHost
+
+            boolLabelSet           = False
+            boolServiceSeen        = False
+            boolServerSet          = False
+            boolShortName          = False
+            boolTimeoutSet         = False
+            intIndex               = 0
+            intMinimumServices     = 10
+            intNonExistentServices = 0
+            intNonRunningServices  = 0
+            intServicesChecked     = 0
+            intTimeout             = 10
+            intVerbosity           = 0
+            strAllArgs             = ""
+            strErrorMsg            = "Unknown error within program - error message not set"
+            strKey                 = ""
+            strLabel               = "SERVICES"
+            strMessage             = ""
+            strNonRunningServices  = ""
+            strNonExistentServices = ""
+            strOutput              = "Unknown error within program - output not set"
+            strScriptName          = Left(WScript.ScriptName, InStrRev(WScript.ScriptName, ".")-1)
+            strServer              = "."
+            strService             = ""
+            strServices            = ""
+            strServicesGrammar     = "<Error in code determining services grammar>"
+            strUsage               = ""
+            strWshHost             = ""
+
+            '============================================='
+            '          N A G I O S   S T A T E S          '
+            '============================================='
+
+            ' Standard Nagios Exit Codes
+            Const intOK       = 0
+            Const intWARNING  = 1
+            Const intCRITICAL = 2
+            Const intUNKNOWN  = 3
+
+            ' Needed to override true exit status from the exit class
+            Sub exitOK()
+                objExit.intErrorLevel = intOK
+                WScript.Quit intOK
+            End Sub
+
+            Sub exitWARNING()
+                objExit.intErrorLevel = intWarning
+                WScript.Quit intWarning
+            End Sub
+
+            Sub exitCRITICAL()
+                objExit.intErrorLevel = intCritical
+                WScript.Quit intCritical
+            End Sub
+
+            Sub exitUNKNOWN()
+                objExit.intErrorLevel = intUnknown
+                WScript.Quit intUnknown
+            End Sub
+
+            ' Quick Result Returning Funcs
+            ' Standardized output across entire program
+            Sub OK(strMessage)
+                SERVICES "OK: " & strMessage
+                exitOK
+            End Sub
+
+            Sub WARNING(strMessage)
+                SERVICES "WARNING: " & strMessage
+                exitWARNING
+            End Sub
+
+            Sub CRITICAL(strMessage)
+                SERVICES "CRITICAL: " & strMessage
+                exitCRITICAL
+            End Sub
+
+            Sub UNKNOWN(strMessage)
+                SERVICES "UNKNOWN: " & strMessage
+                exitUNKNOWN
+            End Sub
+
+            Sub SERVICES(strMessage)
+                If boolLabelSet = True Then
+                    If strLabel = "" Then
+                        WScript.Echo strMessage
+                    Else
+                        WScript.Echo strLabel & " " & strMessage
+                    End If
+                Else
+                    WScript.Echo "SERVICES " & strMessage
+                End If
+            End Sub
+
+            '============================================='
+            '         T I M E O U T   H A N D L E R       '
+            '============================================='
+
+            ' Clever Hack to enforce the right exit codes
+            ' all the time including strictly adhering to
+            ' the Nagios coding guidelines on TIMEOUT
+            ' enforcement. This makes sure that the right
+            ' exit code is returned, otherwise Windows
+            ' Scripting Host timeout kills the plugin with
+            ' an OK exit code. All WSH code should have this!
+            Class cExit
+                Public intErrorLevel
+
+                Private Sub Class_Initialize()
+                  intErrorLevel = intUNKNOWN
+                End Sub
+
+                Private Sub Class_Terminate()
+                    WScript.Quit intErrorLevel
+                End Sub
+            End Class
+
+            Set objExit = New cExit
+
+            ' Now Set Timeout Value and Message
+            WScript.Timeout = intTimeout
+
+            '============================================='
+            '       S C R I P T H O S T   C H E C K       '
+            '============================================='
+
+            strWshHost = Ucase(Mid(WScript.FullName, InStrRev(WScript.FullName, "\")+1))
+
+            ' You wouldn't want this to execute with WScript and hang now would you?
+            If strWshHost <> "CSCRIPT.EXE" Then
+                ' If WScript, print a 2 second pop up error which will not hang, otherwise be silent for safety
+                If strWshHost = "WSCRIPT.EXE" Then
+                    Set objShell = CreateObject("WScript.Shell")
+                    objShell.PopUp "Nagios plugin not called with CScript - please re-run from the command line like so:" _
+                                   & vbCrLf & vbCrLf & "CSCRIPT //NOLOGO " & WScript.ScriptName & " [options]" _
+                                   & vbCrLf & vbCrLf & "or see /help for details" & vbCrLf & vbCrLf & "CSCRIPT " & WScript.ScriptName & " /HELP" & vbCrLf & vbCrLf, _
+                                   5, "Nagios Plugin - " & strScriptName, vbExclamation
+                End If
+                ' Exit silently for safety
+                exitUNKNOWN
+            End If
+
+            '============================================='
+            '       A R G U M E N T   H A N D L I N G     '
+            '============================================='
+
+            ' Unfortunately the standard named arg retrieval
+            ' method is not good enough so I've written my 
+            ' own which catches unrecognized args and this 
+            ' affords us unix style --args as well.
+
+            Sub Usage()
+                           ' Template for formatting to 80 col wide cmd window
+                           '123...........................................................................80
+                strUsage = ""                                                                                & vbCrLf & _
+                           "Nagios Plugin - Check Services for Windows"                                      & vbCrLf & _
+                           ""                                                                                & vbCrLf & _
+                           "Checks one or multiple Windows services are running. Can be given a label name"  & vbCrLf & _
+                           "for the test which is used as a general banner for a group of services"          & vbCrLf & _
+                           ""                                                                                & vbCrLf & _
+                           "Usage: " & strScriptName & " --services=SERVICENAME1,SERVICENAME2  [ options ]"  & vbCrLf & _
+                           ""                                                                                & vbCrLf & _
+                           "-svc --services   Services to check, comma separated. This can contain either"   & vbCrLf & _
+                           "                  the short name or the full display name of a service for"      & vbCrLf & _
+                           "                  convenience. Mandatory"                                        & vbCrLf & _
+                           "-s   --server     The server to check. Optional, defaults to localhost."         & vbCrLf & _
+                           "-sh  --shortname  Display the short name of non-running services instead of the" & vbCrLf & _
+                           "                  full display name. Optional."                                  & vbCrLf & _
+                           "-l   --label      Label to use as output eg 'LABEL NAME OK: All services"        & vbCrLf & _
+                           "                  running'. If switch is used without an argument, it shortens"  & vbCrLf & _
+                           "                  the output to just 'OK: services are running'. This is "       & vbCrLf & _
+                           "                  intentionally case sensitive so you can choose how to output"  & vbCrLf & _
+                           "                  the label yourself, ie Capitalized Something or SOMETHING"     & vbCrLf & _
+                           "                  depending on your preferences in order to fit in with your"    & vbCrLf & _
+                           "                  other services and give a more consistent feel. Optional."     & vbCrLf & _
+                           "-t   --timeout    Seconds after which this plugin will self-terminate"           & vbCrLf & _
+                           "                  Optional, defaults to 10 seconds."                             & vbCrLf & _
+                           "-v   --verbose    Verbose mode. Increases output details. Use 2-3 times for"     & vbCrLf & _
+                           "                  debugging output"                                              & vbCrLf & _
+                           "-ver --version    Print Version"                                                 & vbCrLf & _
+                           "-h   --help       Print Usage Help"                                              & vbCrLf & _
+                           ""                                                                                & vbCrLf & _
+                           "Examples:"                                                                       & vbCrLf & _
+                           ""                                                                                & vbCrLf & _
+                           "cscript //nologo check_services.wsf --services=""Automatic Updates, Security Center, Event Log"" --label=""Security Services""" & vbCrLf & _
+                           "Security Services OK: All Services Running"                                      & vbCrLf & _
+                           ""                                                                                & vbCrLf & _
+                           "cscript //nologo check_services.wsf --services=""McShield, McAfeeFramework, McTaskManager"" --label=""McAfee Anti-Virus""" & vbCrLf & _
+                           "McAfee Anti-Virus OK: All Services Running"                                      & vbCrLf & _
+                           ""                                                                                & vbCrLf & _
+                           "NSClient++ NSC.ini Example Definition:"                                          & vbCrLf & _
+                           ""                                                                                & vbCrLf & _
+                           "command[check_mcafee_services]=cmd /c cscript //nologo ""c:\Program Files\NSClient++\windows-plugins\check_all_services.wsf"" --services=""Automatic Updates, Security Center, Event Log"" --label=""Security Services"""                                              & vbCrLf
+                WScript.Echo strUsage
+                exitUNKNOWN
+            End Sub
+
+            Sub ArgumentError(strErrorMsg)
+                If strErrorMsg <> "" Then
+                    WScript.Echo "Argument Error: " & strErrorMsg & ". See --help for details on usage"
+                End If
+                exitUNKNOWN
+            End Sub
+
+            For Each strArg In WScript.Arguments
+                strAllArgs = strAllArgs & " " & strArg
+            Next
+
+            'strAllArgs = Lcase(strAllArgs)
+
+            Set regOptionMangling = New RegExp
+            regOptionMangling.Global     = True
+            regOptionMangling.IgnoreCase = True
+            regOptionMangling.Pattern    = " --"
+            strAllArgs = regOptionMangling.Replace(strAllArgs, " /")
+            regOptionMangling.Pattern    = " -"
+            strAllArgs = regOptionMangling.Replace(strAllArgs, " /")
+
+            strAllArgs = Replace(strAllArgs, "=", " ")
+            strAllArgs = Replace(strAllArgs, ":", " ")
+
+            arrAllArgs = Split(strAllArgs)
+
+            ' Some extra logic, let --help override all else
+            For intIndex=0 To Ubound(arrAllArgs)
+                strArg = arrAllArgs(intIndex)
+                If strArg = "/help" Or strArg = "/h" Then
+                    Usage
+                End If
+            Next
+
+            ' Now for full arg parsing
+            For intIndex=0 To Ubound(arrAllArgs)
+                strArg  = arrAllArgs(intIndex)
+                If strArg <> "" And strArg <> " " Then
+                    Select Case Lcase(strArg)
+                        Case "/h", "/help"
+                            Usage
+                        Case "/ve", "/ver", "/version"
+                            WScript.Echo getResource("About")
+                            exitUNKNOWN
+                        Case "/v", "/verbose"
+                            intVerbosity = intVerbosity + 1
+                        Case "/vv"
+                            intVerbosity = intVerbosity + 2
+                        Case "/vvv"
+                            intVerbosity = intVerbosity + 3
+                        Case "/s", "/server"
+                            If boolServerSet Then
+                                ArgumentError "Server switch cannot be used twice"
+                            End If
+                            boolServerSet = True
+                            If Ubound(arrAllArgs) >= intIndex + 1 Then
+                                strServer = arrAllArgs(intIndex+1)
+                                intIndex = intIndex + 1
+                            Else
+                                ArgumentError "No argument passed to server switch"
+                            End If
+                        Case "/l", "/label"
+                            If boolLabelSet Then
+                                ArgumentError "Label cannot be set twice"
+                            End If
+                            boolLabelSet = True
+                            If Ubound(arrAllArgs) >= intIndex + 1 Then
+                                strLabel = arrAllArgs(intIndex+1)
+                                intIndex = intIndex + 1
+                            Else
+                                'ArgumentError "No argument passed to label switch"
+                                ' Give option to shorten the output to just "OK: service is fine etc"
+                                strLabel = ""
+                            End If
+                        Case "/svc", "/services"
+                            Do Until intIndex + 1 > Ubound(arrAllArgs)
+                                If Left(arrAllArgs(intIndex+1), 1) = "/" Then
+                                    Exit Do
+                                End If
+                                strServices = strServices & " " &  arrAllArgs(intIndex+1)
+                                intIndex = intIndex + 1
+                            Loop
+                            If strServices = "" Then
+                                ArgumentError "Service switch must be followed by a service name"
+                            End If
+                            On Error Resume Next
+                            Int(strServices)
+                            If Err.Number = 0 Then
+                                ArgumentError "Services may not contain a number, must be service name(s)"
+                            End If
+                            On Error Goto 0
+                        Case "/sh", "/shortname"
+                            boolShortName = True
+                        Case "/t", "/timeout"
+                            If boolTimeoutSet Then
+                                ArgumentError "Timeout switch cannot be used twice"
+                            End If
+                            boolTimeoutSet = True
+                            If Ubound(arrAllArgs) >= intIndex + 1 Then
+                                intTimeout = arrAllArgs(intIndex+1)
+                                intIndex = intIndex + 1
+                                Err.Clear
+                                On Error Resume Next
+                                intTimeout = Int(intTimeout)
+                                If Err.Number Then
+                                    ArgumentError "Timeout must be specified as an integer"
+                                End If
+                                On Error Goto 0
+                            Else
+                                ArgumentError "No number passed to timeout switch"
+                            End If
+                        Case Else
+                            ArgumentError "Unrecognized Option - " & arrAllArgs(intIndex) & vbCrLf
+                    End Select
+                End If
+            Next
+
+
+            If strServer = "" Then
+                ArgumentError "No Server Supplied"
+            Else
+                Set regServerName = New RegExp
+                ' This could be stronger but it doesn't really matter, it is caught
+                ' correctly later on when WMI connection is attempted, and you don't
+                ' want this regex to make you blind...
+                regServerName.Pattern = "(^\.$)|(^[A-Za-z0-9]+$)|(^[A-Za-z0-9]+[\w\.-]*[A-Za-z0-9]+$)"
+                regServerName.IgnoreCase = True
+                If Not regServerName.Test(strServer) Then
+                    WScript.Echo "Argument Error: Server Name given is invalid"
+                    Usage
+                    exitUNKNOWN
+                End If
+            End If
+
+            If strServices = "" Then
+                ArgumentError "No Services Supplied"
+            End If
+
+            ' Label is optional, defaults to SERVICES
+            'If strLabel = "" Then
+            '   ArgumentError "No Label Supplied"
+            'End If
+
+            WScript.Timeout = intTimeout
+
+            If intVerbosity >= 2 Then
+                If strServer = "." Then
+                    WScript.Echo "Server:       " & "local"
+                Else
+                    WScript.Echo "Server:       " & strServer
+                End If
+                WScript.Echo "Timeout:      " & intTimeout & " seconds" & vbCrLf
+                WScript.Echo "Short Names:  " & boolShortName & vbCrLf
+            End If
+
+
+            '============================================='
+            '              T H E   T E S T                '
+            '============================================='
+
+            Err.Clear
+            On Error Resume Next
+            Set objWMIService = GetObject("winmgmts:\\" & strServer & "\root\CIMV2")
+            If Err.Number Then
+                If strServer = "." Then
+                    strServer = "localhost"
+                End If
+                strErrorMsg = "Error connecting to WMI service on """ & strServer & """"
+                If Err.Description <> "" Then
+                    strErrorMsg = strErrorMsg & " - " & Err.Description
+                End If
+                UNKNOWN strErrorMsg
+            End If
+            Set colItems = objWMIService.ExecQuery( _
+                "SELECT Name,DisplayName,StartMode,State FROM Win32_Service", "WQL", _
+                                                            wbemFlagReturnImmediately) '+ wbemFlagForwardOnly)
+            If Err.Number Then
+                strErrorMsg = "Error retrieving services from WMI"
+                If Err.Description <> "" Then
+                    strErrorMsg = strErrorMsg & " - " & Err.Description
+                End If
+                UNKNOWN strErrorMsg
+            End If
+            On Error Goto 0
+
+            Set dictServices = CreateObject("Scripting.Dictionary")
+            For Each strService In Split(strServices, ",")
+                dictServices.Add Trim(strService), ""
+            Next
+            If intVerbosity >= 2 Then
+                For Each strKey In dictServices.Keys
+                    WScript.Echo "Checking Service: " & strKey
+                Next
+                WScript.Echo vbCrLf
+            End If
+
+            Err.Clear
+            'On Error Resume Next
+            If intVerbosity >= 3 Then
+                WScript.Echo "--------------------"
+                WScript.Echo "Dump of All Services"
+                WScript.Echo "--------------------"
+                For Each objItem In colItems
+                    WScript.Echo "DisplayName: " & objItem.DisplayName
+                    WScript.Echo "Name: " & objItem.Name
+                    WScript.Echo "StartMode: " & objItem.StartMode
+                    WScript.Echo "State: " & objItem.State
+                    WScript.Echo 
+                Next
+            End If
+
+            For Each strService In dictServices.Keys
+                boolServiceSeen = False
+                For Each objItem In colItems
+                    If Lcase(objItem.Name) = Lcase(strService) Or _
+                       Lcase(objItem.DisplayName) = Lcase(strService) Then
+                        boolServiceSeen = True
+                        If objItem.State = "Running" Then
+                            intRunningServices = intRunningServices + 1
+                            If boolShortName = True Then
+                                strRunningServices = strRunningServices & objItem.Name & ", "
+                            Else
+                                strRunningServices = strRunningServices & objItem.DisplayName & ", "
+                            End If
+                        Else
+                            intNonRunningServices = intNonRunningServices + 1
+                            If boolShortName = True Then
+                                strNonRunningServices = strNonRunningServices & objItem.Name & ", "
+                            Else
+                                strNonRunningServices = strNonRunningServices & objItem.DisplayName & ", "
+                            End If
+                        End If
+                    End If
+                Next
+                If Not boolServiceSeen Then
+                    intNonExistentServices = intNonExistentServices + 1
+                    strNonExistentServices = strNonExistentServices & strService & ", "
+                End If
+            Next
+
+            intTotalServices = 0
+            For Each objItem In colItems
+                intTotalServices = intTotalServices + 1
+            Next
+
+            If Err.Number Then
+                UNKNOWN "Error parsing WMI results - " & Err.Description
+            End If
+            On Error Goto 0
+
+            If intTotalServices < intMinimumServices Then
+                WARNING "Too few services returned, possible problem with service enumeration. Try debug mode -vvv"
+            End If
+
+            If Len(strNonRunningServices) > 1 Then
+                strNonRunningServices = Left(strNonRunningServices, InStrRev(strNonRunningServices, ", ")-1)
+            End If
+
+            If Len(strRunningServices) > 1 Then
+                strRunningServices = Left(strRunningServices, InStrRev(strRunningServices, ", ")-1)
+            End If
+
+            If intNonExistentServices > 0 Then
+                If Len(strNonExistentServices) > 1 Then
+                    strNonExistentServices = Left(strNonExistentServices, InStrRev(strNonExistentServices, ", ")-1)
+                End If
+                If intNonExistentServices = 1 Then
+                    strServicesGrammar = " Service Does "
+                Else
+                    strServicesGrammar = " Services Do "
+                End If
+                If strNonExistentServices <> "" Then
+                    If intNonRunningServices = 1 Then
+                        strOutput = intNonExistentServices & strServicesGrammar & "Not Exist - " & strNonExistentServices
+                    Else
+                        strOutput = intNonExistentServices & strServicesGrammar & "Not Exist - " & strNonExistentServices
+                    End If
+                Else
+                    strOutput = intNonExistentServices & strServicesGrammar & "Not Exist. Details unavailable, please report this as a bug to the author"
+                End If
+                If intNonRunningServices > 0 Then
+                    strOutput = strOutput & ". "
+                End If
+            Else
+                strOutput = ""
+            End If
+
+            If intNonRunningServices = 0 And intNonExistentServices = 0 Then
+                If intVerbosity >= 1 Then
+                    OK "All Services Running - " & strRunningServices
+                Else
+                    OK "All Services Running"
+                End If
+            ElseIf intNonRunningServices = 0 Then
+                If intRunningServices >= 1 And intVerbosity >= 1 Then
+                    strOutput = strOutput & ". Running Services: " & strRunningServices
+                End If
+            ElseIf intNonRunningServices = 1 Then
+                strOutput = strOutput & intNonRunningServices & " Service Not Running - " & strNonRunningServices
+            Else
+                strOutput = strOutput & intNonRunningServices & " Services Not Running - " & strNonRunningServices
+            End If
+
+            CRITICAL strOutput
+
+            ]]>
+        </script>
+    </job>
+</package>
