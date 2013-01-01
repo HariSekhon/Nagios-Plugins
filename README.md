@@ -23,8 +23,14 @@ git submodule update
 ```
 This will pull in my git library repo which several of these plugins require to give very robust validation functions, utility functions, logging levels and debugging etc
 
-You're now ready to use these plugins
+You're now ready to use these programs.
 
 ### Other Dependencies ###
 
-Most plugins will now run as is with minimal dependencies. Some plugins, notably some of those under the legacy directory such as those that check raid controllers, SVN, VNC etc require external binaries to work, but the plugins will tell you if they are missing. Please see the respective vendor websites for 3ware, LSI etc to fetch those binaries and then re-run the plugins where needed
+Most plugins will now run as is with minimal dependencies. Some plugins, notably some of those under the legacy directory such as those that check 3ware/LSI raid controllers, SVN, VNC etc require external binaries to work, but the plugins will tell you if they are missing. Please see the respective vendor websites for 3ware, LSI etc to fetch those binaries and then re-run the plugins where needed.
+
+### Usage ###
+
+All plugins come with --help to list all these options and are named fairly intuitively as well as having a description in the header at the top of each file.
+
+Usage examples will be added here soon
