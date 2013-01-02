@@ -29,7 +29,7 @@ use warnings;
 use LWP::Simple qw/get $ua/;
 BEGIN {
     use File::Basename;
-    use lib dirname(__FILE__);
+    use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
 

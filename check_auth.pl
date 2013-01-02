@@ -24,7 +24,7 @@ use strict;
 use warnings;
 BEGIN {
     use File::Basename;
-    use lib dirname(__FILE__);
+    use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
 #Getopt::Long::Configure ("no_bundling");

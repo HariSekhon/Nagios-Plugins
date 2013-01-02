@@ -24,7 +24,7 @@ use Net::DNS;
 use Time::HiRes 'time';
 BEGIN {
     use File::Basename;
-    use lib dirname(__FILE__);
+    use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
 

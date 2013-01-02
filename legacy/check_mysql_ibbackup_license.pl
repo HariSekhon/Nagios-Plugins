@@ -16,7 +16,7 @@ use Getopt::Long qw(:config bundling);
 use POSIX;
 BEGIN {
     use File::Basename;
-    use lib dirname(__FILE__);
+    use lib dirname(__FILE__) . "/lib";
 }
 use utils qw(%ERRORS);
 

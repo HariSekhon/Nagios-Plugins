@@ -21,7 +21,7 @@ use warnings;
 use SMS::AQL;
 BEGIN {
     use File::Basename;
-    use lib dirname(__FILE__) . "../lib";
+    use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
 

@@ -19,7 +19,7 @@ use Fcntl ':flock';
 use Time::Local;
 BEGIN {
     use File::Basename;
-    use lib dirname(__FILE__);
+    use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
 

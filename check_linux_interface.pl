@@ -19,7 +19,7 @@ use Sys::Hostname;
 use Fcntl ':flock';
 BEGIN {
     use File::Basename;
-    use lib dirname(__FILE__);
+    use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
 
