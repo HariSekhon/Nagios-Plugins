@@ -5,10 +5,11 @@ I've been developing this Nagios Plugin Collection since around 2006. The basic 
 
 These programs can also be run standalone on the command line or used in scripts as well.
 
-Despite the recent timestamps this is actually an aggregation of various sources where I've previously released my code over the years such as Nagios Exchange and Monitoring Exchange. I finally got round to re-releasing them come under one place for better maintainance and support.
+Despite the recent timestamps this is actually an aggregation of various sources where I've previously released my code over the years such as Nagios Exchange and Monitoring Exchange. I finally got round to re-releasing them all under one place here at GitHub for better maintainance and support.
 
 I've tried to keep the quality here high so a lot of plugins I've written over the years haven't made it in to this collection, and a few others I've placed under TODO until I can do some rewrites, while others I've placed under the legacy directory indicating I haven't run or made updates to them in a few years so they may require tweaks and updates.
 
+Remember to check out the legacy/ directory for even more useful plugins.
 
 ### Setup ###
 The first thing you need to do is to get my library submodule since I share code between this and other things that I have written over the years.
