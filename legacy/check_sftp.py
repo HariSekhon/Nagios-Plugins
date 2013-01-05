@@ -12,6 +12,8 @@
 program "sftp". It is also intended to test an OpenSSH sftp server.
 Your mileage may vary if you try to use it with something else. -h """
 
+# TODO: meant to rewrite this with Paramiko years ago but didn't get round to it...
+
 __author__  = "Hari Sekhon"
 __title__   = "Nagios Plugin for SFTP"
 __version__ = "0.5"
