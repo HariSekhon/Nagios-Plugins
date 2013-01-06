@@ -22,9 +22,6 @@ BEGIN {
 }
 use HariSekhonUtils;
 
-delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
-$ENV{'PATH'} = '/bin:/usr/bin';
-
 my $openssl          = "/usr/bin/openssl";
 $port                = 443;
 my $default_critical = 14;
