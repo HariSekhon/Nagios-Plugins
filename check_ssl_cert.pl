@@ -11,7 +11,7 @@
 
 # Nagios Plugin to check SSL Certificate Validity
 
-$VERSION = "0.9.4";
+$VERSION = "0.9.5";
 
 use warnings;
 use strict;
@@ -99,11 +99,7 @@ isInt($warning)  || die "invalid warning threshold given, must be a positive int
 isInt($critical) || die "invalid critical threshold given, must be a positive integer\n";
 ($critical <= $warning) || die "critical threshold must be less than or equal to the warning threshold\n";
 
-if(! -r $openssl){
-    quit "UNKNOWN", "$openssl not found, missing or permission denied?";
-}elsif(! -x $openssl){
-    quit "UNKNOWN", "$openssl not executable";
-}
+$openssl = which($openssl, 1);
 
 vlog_options "warning  days", $warning;
 vlog_options "critical days", $critical;
@@ -116,7 +112,7 @@ set_timeout($timeout, sub { pkill("$openssl s_client -connect $host:$port", "-9"
 if (defined($CApath)) {
     print "CApath: $CApath\n\n" if $verbose;
 } else {
-    ($returncode, @output) = cmd("openssl version -a");
+    ($returncode, @output) = cmd("$openssl version -a");
     foreach(@output){
         if (/^OPENSSLDIR: "($dir_regex)"\s*\n?$/) {
             $CApath = $1;
