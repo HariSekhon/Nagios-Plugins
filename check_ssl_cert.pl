@@ -113,9 +113,7 @@ vlog_options "critical days", $critical;
 vlog_options "verbose level", $verbose;
 vlog2;
 
-# pkill is only available on Linux by default, not MAC, should really change this to be more portable
-#$SIG{ALRM} = sub { `pkill -9 -f "$openssl s_client -connect $host:$port"`; quit "UNKNOWN", "check timed out after $timeout seconds"; };
-#alarm($timeout);
+# pkill is available on Linux but not MAC by default, hence using pkill subroutine from my utils instead for portability
 set_timeout($timeout, sub { pkill("$openssl s_client -connect $host:$port", "-9") } );
 
 if (defined($CApath)) {
