@@ -10,12 +10,11 @@
 #
 
 # Nagios Plugin to check authentication mechanisms are working by validating:
-#
 # - certain users/groups are present
 # - there are no duplicate UID/GIDs
 # - groups.allow contain the expected groups and no others
 # - TODO: system-auth-ac matches the expected checksum
-
+# 
 # Useful to checking that AD integrated Linux servers are still able to authenticate AD users
 
 $VERSION = "0.8.4";
@@ -24,7 +23,7 @@ use strict;
 use warnings;
 BEGIN {
     use File::Basename;
-    use lib dirname(__FILE__) . "/lib";
+    use lib dirname(__FILE__);
 }
 use HariSekhonUtils;
 #Getopt::Long::Configure ("no_bundling");
@@ -147,7 +146,7 @@ my $found;
 # The reason I fetch each user is because getent behaves differently when enumerating all users vs a single user
 # and the single user scenario is the one that affects authentication, so until that works, your LDAP login isn't going to
 foreach(@users){
-    #$found = check_array($_, @users_present);
+    #$found = inArray($_, @users_present);
     $found = getent("passwd", $_);
     unless($found) {
         push(@users_not_found, $_);
@@ -156,7 +155,7 @@ foreach(@users){
     push(@user_duplicates, $_) if($found>1);
 }
 foreach(@groups){
-    #$found = check_array($_, @groups_present);
+    #$found = inArray($_, @groups_present);
     $found = getent("group", $_);
     unless($found) {
         push(@groups_not_found, $_);
