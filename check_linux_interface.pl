@@ -9,9 +9,9 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to test a Linux Interface for errors etc, designed to be run locally on machine via NRPE or similar
+# Nagios Plugin to test a Linux Interface for errors, promisc mode etc, designed to be run locally on machine over NRPE or similar
 
-$VERSION = "0.8.7";
+$VERSION = "0.8.8";
 
 use strict;
 use warnings;
@@ -48,36 +48,33 @@ my $short = 0;
 
 get_options();
 
-defined($interface)     || usage "must specify interface to check";
-$interface =~ /^((?:eth|bond|lo)\d+)$/ or usage "invalid interface specified, must be either ethN, bondN or loN";
-$interface = $1;
-vlog2 "selected interface: $interface";
+$interface = validate_interface($interface);
 my $bond = $interface =~ /^bond\d+$/;
 
 if(defined($expected_duplex)){
     $expected_duplex = ucfirst lc $expected_duplex;
     $expected_duplex =~ /^(Full|Half)$/ or usage "invalid duplex specified, must be either Full or Half";
     $expected_duplex = $1;
-    vlog2 "expected duplex: $expected_duplex";
+    vlog_options "expected duplex", $expected_duplex;
 }
 
 if(defined($expected_speed)){
     $expected_speed =~ /^(10{1,4})$/ or usage "invalid speed specified, must be one of: 10/100/1000/10000";
     $expected_speed = $1;
-    vlog2 "expected speed: $expected_speed";
+    vlog_options "expected speed", $expected_speed;
 }
 
 if(defined($expected_mtu)){
     $expected_mtu =~ /^(\d{1,4})$/ or usage "invalid mtu specified, must be 1-4 digits";
     $expected_mtu = $1;
-    vlog2 "expected mtu: $expected_mtu";
+    vlog_options "expected mtu", $expected_mtu;
 }
 
 if(defined($expected_promisc)){
     # lc $expected_promisc;
     $expected_promisc =~ /^(on|off)$/ or usage "promiscuous mode must be either set to either 'on' or 'off'";
     $expected_promisc = $1;
-    vlog2 "expected promiscuous mode: $expected_promisc";
+    vlog_options "expected promiscuous mode", $expected_promisc;
 }
 vlog2;
 
@@ -85,7 +82,7 @@ linux_only();
 
 set_timeout();
 
-which($ifconfig) or quit "UNKNOWN", "'$ifconfig' could not be found in path!";
+which($ifconfig, 1);
 
 my $cmd = "$ifconfig 2>&1";
 my $found_interface = 0;
@@ -117,9 +114,10 @@ while(<$fh>){
     vlog3 "$_";
     if(/\s+MTU:(\d+)\s+/){
         $mtu = $1;
+        # NOTE: due to kernel changes ifconfig doesn't report this correctly unless it has set it itself, check further down for a fix
         if (/PROMISC/){
             $promisc = "on";
-            $status = "WARNING" if ($status ne "CRITICAL");
+            warning;
         }
     } elsif(/^\s+RX packets:(\d+) errors:(\d+) dropped:(\d+) overruns:(\d+) frame:(\d+)\s*$/){
         $stats{"RX_packets"}  = $1;
@@ -146,6 +144,16 @@ while(<$fh>){
 }
 close $fh;
 
+# PROMISC fix:
+# TODO: review if this is a compound flag that can be different than 0x1103 in promisc mode
+my $int_flags_fh = open_file("/sys/class/net/$interface/flags");
+my $int_flags = <$int_flags_fh>;
+chomp $int_flags;
+if(trim($int_flags) eq "0x1103"){
+    $promisc = "on";
+    warning;
+}
+
 unless($mtu){
     quit "UNKNOWN", "could not find MTU in output from '$ifconfig'";
 }
@@ -159,6 +167,7 @@ foreach(qw/RX_packets RX_errors RX_dropped RX_overruns RX_frame TX_packets TX_er
     ($stats{$_} =~ /^\d+$/) or quit "UNKNOWN", "invalid non-digit value found for $_ in output from '$ifconfig'";
 }
 
+# TODO: I use this paradigm quite a bit, unify it in my personal lib
 my $tmpfh;
 my $statefile = "/tmp/$progname.$interface.state";
 my $statefile_found = ( -f $statefile );
@@ -280,14 +289,11 @@ if($statefile_found and not $stats_missing){
 
 my ($speed, $duplex, $link);
 
-$cmd = "$ethtool $interface 2>&1";
-unless($> eq 0){
-    $cmd = "echo | sudo -S $cmd";
-}
+set_sudo("root");
+$cmd = "$sudo $ethtool $interface 2>&1";
 
-vlog2 "cmd: $cmd";
-open $fh, "$cmd |" or quit "UNKNOWN", "failed to run '$ethtool': $!";
-while(<$fh>){
+my @output = cmd($cmd);
+foreach(@output){
     chomp;
     vlog3 "$_";
     if(/^\s*Speed:\s+(\d+)Mb\/s\s*$/){
@@ -341,7 +347,7 @@ if($errors and $statefile_found and not $stats_missing){
         }
     }
     if(scalar keys %interface_errors > 0){
-        $status = "CRITICAL";
+        critical;
         foreach(sort keys %interface_errors){
             $msg .= "$interface_errors{$_} ";
             if($interface_errors{$_} < 2){
@@ -353,7 +359,7 @@ if($errors and $statefile_found and not $stats_missing){
     }
 }
 
-$status = "CRITICAL" if (scalar @mismatch);
+critical if @mismatch;
 if(scalar @mismatch eq 1){
     $msg .= "$mismatch[0] mismatch! ";
 } elsif(scalar @mismatch > 1){
@@ -367,7 +373,7 @@ if(scalar @mismatch eq 1){
 if (defined($expected_promisc) and $promisc ne $expected_promisc){
     $msg .= "PROMISC Mode $promisc! ";
     $msg .= "(expected $expected_promisc) " unless $short;
-    $status = "CRITICAL";
+    critical;
 }
 unless($bond){
     $msg .= "Speed:${speed}Mb/s ";
