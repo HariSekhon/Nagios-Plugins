@@ -74,8 +74,7 @@ BEGIN {
     use File::Basename;
     use lib dirname(__FILE__);
 }
-use HariSekhonUtils;
-use HariSekhonUtils ':regex';
+use HariSekhonUtils qw/:DEFAULT :regex/;
 
 my $domain;
 my $whois_server;
@@ -528,7 +527,7 @@ if($results{"registrar"}){
     $results{"registrar"} =~ s/,?\s*(?:LLC|Inc|Ltd|S\.?A\.?S?|(?:Ltd )?R\d+-ASIA)?\.?(?:\s+\((?:[\w-]+|http:\/\/$hostname_regex)\))?\.?\s*$//io;
 } else {
     foreach(@output){
-        if (/^\[Querying\s+(?:http:\/\/)?($domain_regex)(?:$url_suffix_regex)?\]$/){
+        if (/^\[Querying\s+(?:http:\/\/)?($domain_regex)(?:$url_path_suffix_regex)?\]$/){
             $results{"registrar"} = $1;
             $results{"registrar"} =~ s/(?:www|whois)\.//o;
         }
