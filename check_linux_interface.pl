@@ -145,11 +145,12 @@ while(<$fh>){
 close $fh;
 
 # PROMISC fix:
-# TODO: review if this is a compound flag that can be different than 0x1103 in promisc mode
 my $int_flags_fh = open_file("/sys/class/net/$interface/flags");
 my $int_flags = <$int_flags_fh>;
 chomp $int_flags;
-if(trim($int_flags) eq "0x1103"){
+$int_flags = scalar trim($int_flags);
+isHex($int_flags) or quit "UNKNOWN", "failed to get hex flags from /sys/class/net/$interface/flags (got '$int_flags', failed regex validation)"; 
+if((hex $int_flags) & 0x100){
     $promisc = "on";
     warning;
 }
