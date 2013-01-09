@@ -19,7 +19,7 @@ BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
-use HariSekhonUtils;
+use HariSekhonUtils qw/:DEFAULT :regex/;
 
 my $DEFAULT_MAX_AGE = 60;
 
