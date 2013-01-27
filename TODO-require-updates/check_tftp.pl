@@ -9,12 +9,9 @@
 #  License: see accompanying LICENSE file
 #
 
-# TODO: reintegrate this with HariSekhonUtils
-
 # Nagios Plugin to check a TFTP Server
 
-$main::VERSION = 0.1;
-my $tftp       = "/usr/bin/tftp";
+$VERSION = "0.2";
 
 use warnings;
 use strict;
@@ -22,86 +19,31 @@ use Getopt::Long qw(:config bundling);
 use IPC::Open2;
 BEGIN {
     use File::Basename;
-    use lib dirname(__FILE__);
+    use lib dirname(__FILE__) . "/lib";
 }
-use utils qw(%ERRORS);
+use HariSekhonUtils;
 
-delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
-$ENV{'PATH'} = '/bin:/usr/bin';
-
-my $help;
-my $host;
-my $port             = 69;
+my $tftp = "/usr/bin/tftp";
 my $filename;
-my $progname         = basename $0;
-my $default_timeout  = 10;
-my $timeout          = $default_timeout;
-my $verbose;
-my $version;
+my $default_port = 69;
+$port = $default_port;
 
-sub quit{
-    print "TFTP $_[0]: $_[1]\n";
-    exit $ERRORS{$_[0]};
-}
+%options = (
+    "H|host=s"     => [ \$host,     "TFTP server" ],
+    "p|port=i"     => [ \$port,     "TFTP port (defaults to port $default_port)" ],
+    "f|file=s"     => [ \$filename, "File to retrieve over TFTP to check" ],
+);
+@usage_order = qw/host port file/;
 
-sub usage{
-    print "Error: @_\n\n" if defined(@_);
-    print "usage: $progname -H <host> [ -p <port> ] -f <filename>
+get_options();
 
---host     -h    The host to check
---port     -p    The port to check (defaults to port 69)
---filename -f    File to retrieve
---timeout  -t    Timeout in seconds (defaults to $default_timeout, min 1, max 60)
-\n";
-    exit $ERRORS{"UNKNOWN"};
-}
+$host     = validate_host($host);
+$port     = validate_port($port);
+$filename = validate_filename($filename);
 
-$SIG{ALRM} = sub {
-    `pkill -9 -f "$tftp $host $port"`;
-    quit "UNKNOWN", "check timed out after $timeout seconds";
-};
-alarm($timeout);
+set_timeout($timeout, sub { `pkill -9 -f "$tftp $host $port"` });
 
-GetOptions (
-            "H=s" => \$host,     "host=s"     => \$host,
-            "p=i" => \$port,     "port=i"     => \$port,
-            "f=s" => \$filename, "file=s"     => \$filename,    "filename=s" => \$filename,
-            "t=i" => \$timeout,  "timeout=i"  => \$timeout,
-            "v"   => \$verbose,  "verbose"    => \$verbose,
-            "V"   => \$verbose,  "version"    => \$version
-           );
-
-$version && die "$progname $main::VERSION\n";
-$help    && usage;
-
-$host                               || usage "hostname not specified";
-$host =~ /^([\w\.-]+)$/             || die "invalid hostname given\n";
-$host = $1;
-
-#$port                               || usage "port not specified";
-$port  =~ /^(\d+)$/                 || die "invalid port number given, must be a positive integer\n";
-$port = $1;
-($port >= 1 && $port <= 65535)      || die "invalid port number given, must be between 1-65535)\n";
-
-$filename                           || usage "filename not specified";
-$filename =~ /^([\w\.\/-]+)$/       || die "invalid file name given, must contain only alphanumeric characters and the following symbols . / - _";
-$filename = $1;
-
-$timeout =~ /^\d+$/                 || die "timeout value must be a positive integer\n";
-($timeout >= 1 && $timeout <= 60)   || die "timeout value must 1 - 60 secs\n";
-
-if(! -r $tftp){
-    quit "UNKNOWN", "$tftp not found, missing or permission denied?";
-}elsif(! -x $tftp){
-    quit "UNKNOWN", "$tftp not executable";
-}
-
-if($verbose){
-    print "verbose mode on\n\n";
-    print "host:     $host\n";
-    print "port:     $port\n";
-    print "filename: $filename\n\n";
-}
+which($tftp, 1);
 
 my $output;
 my $bytes_received;
@@ -115,7 +57,7 @@ open(CMD, "cd /tmp; exec $tftp -v $host $port -c get $filename 2>&1 |");
 #print "set tftp timeout\n" if $verbose;
 #print CMD "verbose\n";
 #print CMD "get $filename\n";
-print "sent request for file '$filename'\n\n" if $verbose;
+vlog2 "sent request for file '$filename'\n";
 while(<CMD>){
     print "output: $_" if $verbose;
     if(/Transfer timed out./){
@@ -137,9 +79,10 @@ while(<CMD>){
 }
 close (CMD);
 #close (CMDW);
-print "closed file handles\n" if $verbose;
+vlog2 "closed file handles";
 defined($output) || quit "CRITICAL", "transfer failed / unknown response from tftp";
 
-my $msg = "$output | 'Bits / second'=".$bits_per_second." 'Transfer Time'=".$transfer_seconds."s 'Bytes Received'=".$bytes_received."B";
+$status = "OK";
+$msg = "$output | 'Bits / second'=".$bits_per_second." 'Transfer Time'=".$transfer_seconds."s 'Bytes Received'=".$bytes_received."B";
 
-quit "OK", "$msg";
+quit $status, $msg;
