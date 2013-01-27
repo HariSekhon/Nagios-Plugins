@@ -1,8 +1,8 @@
 #!/usr/bin/perl -T
 # nagios: -epn
 #
-#   Author: Hari Sekhon
-#   Date: 2011-07-26 15:27:47 +0100 (Tue, 26 Jul 2011)
+#  Author: Hari Sekhon
+#  Date: 2011-07-26 15:27:47 +0100 (Tue, 26 Jul 2011)
 #
 #  http://github.com/harisekhon
 #
