@@ -9,11 +9,12 @@
 #  License: see accompanying LICENSE file
 #
 
-# TODO: updates and extensions pending on this plugin. Also must be reintegrated with HariSekhonUtils
-
 # Nagios Plugin to monitor Zookeeper
 
-$main::VERSION = "0.2";
+# Rewrote this code of mine more than a year later in my spare time in Nov 2012 to better leverage my personal library and extended it's features against ZooKeeper 3.4.1-1212694. This was prompted by studying for my CCAH CDH4 (wish I had also picked up the CDH3 version 1-2 years before like a couple of my colleagues did, the syllabus was half the size!).
+# Finally got round to finishing it on the plane ride back from San Francisco / Cloudera Jan 26 2013, tested against my local version 3.4.5-1392090, built on 09/30/2012 17:52 GMT
+
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -22,162 +23,248 @@ use IO::Socket;
 use Getopt::Long qw(:config bundling);
 BEGIN {
     use File::Basename;
-    use lib dirname(__FILE__);
+    use lib dirname(__FILE__) . "/lib";
 }
-use utils qw(%ERRORS $TIMEOUT);
+use HariSekhonUtils;
 
-delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
-$ENV{'PATH'} = '/bin:/usr/bin';
+my $DEFAULT_PORT = 2181;
+$port = $DEFAULT_PORT;
 
-my $progname = basename $0;
-$progname =~ /^([\w\.\/-]+)$/;
-$progname = $1;
+my $standalone;
+my @valid_states = qw/leader follower standalone/;
 
-my $default_timeout = 10;
-my $help;
-my $timeout = $default_timeout;
-my $verbose = 0;
-my $version;
-
-sub vlog{
-    print "@_\n" if $verbose;
-}
-
-sub quit{
-    print "$_[0]: $_[1]\n";
-    exit $ERRORS{$_[0]};
-}
-
-my $critical;
-my $default_port = 2181;
-my $host;
-my $port = $default_port;
-my $warning;
-sub usage {
-    print "@_\n\n" if defined(@_);
-    print "usage: $progname [ options ]
-
-    -H --host           Host to connect to
-    -p --port           Port to connect to (defaults to $default_port)
-    -t --timeout        Timeout in secs (default $default_timeout)
-    -v --verbose        Verbose mode
-    -V --version        Print version and exit
-    -h --help --usage   Print this help
-\n";
-    exit $ERRORS{"UNKNOWN"};
-}
-
-GetOptions (
-            "h|help|usage"  => \$help,
-            "H|host=s"      => \$host,
-            "p|port=s"      => \$port,
-#            "w|warning=i"   => \$warning,
-#            "c|critical=i"  => \$critical,
-            "t|timeout=i"   => \$timeout,
-            "v|verbose+"    => \$verbose,
-            "V|version"     => \$version,
-           ) or usage;
-
-defined($help) and usage;
-defined($version) and die "$progname version $main::VERSION\n";
-
-vlog "verbose mode on";
-
-defined($host)                  || usage "hostname not specified";
-$host =~ /^([\w\.-]+)$/         || die "invalid hostname given\n";
-$host = $1;
-
-defined($port)                 || usage "port not specified";
-$port  =~ /^(\d+)$/             || die "invalid port number given, must be a positive integer\n";
-$port = $1;
-($port >= 1 && $port <= 65535)  || die "invalid port number given, must be between 1-65535)\n";
-
-#defined($warning)       || usage "warning threshold not defined";
-#defined($critical)      || usage "critical threshold not defined";
-#$warning  =~ /^\d+$/    || usage "invalid warning threshold given, must be a positive numeric integer";
-#$critical =~ /^\d+$/    || usage "invalid critical threshold given, must be a positive numeric integer";
-#($critical >= $warning) || usage "critical threshold must be greater than or equal to the warning threshold";
-
-$timeout =~ /^\d+$/                 || die "timeout value must be a positive integer\n";
-($timeout >= 1 && $timeout <= 60)   || die "timeout value must be between 1 - 60 secs\n";
-
-$SIG{ALRM} = sub {
-    quit "UNKNOWN", "check timed out after $timeout seconds";
-};
-vlog "setting plugin timeout to $timeout secs\n";
-alarm($timeout);
-
-vlog "Host: $host";
-vlog "Port: $port\n";
-
-vlog "connecting to $host:$port\n";
-my $conn = IO::Socket::INET->new (
-                                    Proto    => "tcp",
-                                    PeerAddr => $host,
-                                    PeerPort => $port,
-                                 ) or quit "CRITICAL", "Failed to connect to '$host:$port': $!";
-vlog "OK connected";
-$conn->autoflush(1);
-vlog "set autoflush on";
-
-my %stats = (
-    "Received"      => "",
-    "Sent"          => "",
-    "Outstanding"   => "",
-    "Node count"    => "",
+%options = (
+    "H|host=s"       => [ \$host,       "Host to connect to" ],
+    "p|port=s"       => [ \$port,       "Port to connect to (defaults to $DEFAULT_PORT)" ],
+    "w|warning=s"    => [ \$warning,    "Warning threshold or ran:ge (inclusive)"  ],
+    "c|critical=s"   => [ \$critical,   "Critical threshold or ran:ge (inclusive)" ],
+    "s|standalone"   => [ \$standalone, "OK if mode is standalone (usually must be leader/follower)" ],
 );
 
-vlog "sending srvr request";
-print $conn "srvr\n" or quit "CRITICAL", "Failed to send srvr request: $!";
-vlog "srvr request sent";
-my $line;
-my $linecount = 0;
-my $err_msg;
-my $zookeeper_version;
-my $latency_stats;
-my $mode;
-#vlog "Output:";
-while (<$conn>){
+get_options();
+
+$host = validate_host($host);
+$port = validate_port($port);
+validate_thresholds(undef, undef, { "integer" => 1 });
+
+set_timeout();
+
+$status = "OK";
+
+#vlog2 "connecting to $host:$port\n";
+#my $conn = IO::Socket::INET->new (
+#                                    Proto    => "tcp",
+#                                    PeerAddr => $host,
+#                                    PeerPort => $port,
+#                                 ) or quit "CRITICAL", "Failed to connect to '$host:$port': $!";
+#vlog2 "OK connected";
+#$conn->autoflush(1);
+#vlog2 "set autoflush on";
+#$/ = "\r\n";
+
+my $conn;
+# TODO: ZooKeeper closes connection after 1 cmd, see if I can work around this, as having to use several TCP connections is inefficient
+sub zoo_cmd {
+    vlog3 "connecting to $host:$port";
+    $conn = IO::Socket::INET->new (
+                                        Proto    => "tcp",
+                                        PeerAddr => $host,
+                                        PeerPort => $port,
+                                     ) or quit "CRITICAL", "Failed to connect to '$host:$port': $!";
+    vlog3 "OK connected";
+    my $cmd = defined($_[0]) ? $_[0] : code_error "no cmd arg defined for zoo_cmd()";
+    vlog3 "sending request: '$cmd'";
+    print $conn $_[0] or quit "CRITICAL", "Failed to send request '$cmd': $!";
+    vlog3 "sent request:    '$cmd'";
+}
+
+$msg = "ZooKeeper ";
+
+# Check 1 - does ZooKeeper report itself as OK?
+zoo_cmd "ruok";
+my $response = <$conn>;
+vlog2 "ruok response  = '$response'";
+if($response ne "imok"){
+    critical;
+    $msg .= "reports '$response' (expected: 'imok'), ";
+}
+vlog2;
+
+# Check 2 - is ZooKeeper read-write or has a problem occurred with Quorum or similar?
+zoo_cmd "isro";
+# rw response or quit CRITICAL "ZooKeeper is not read-write (possible network partition?";
+$response = <$conn>;
+vlog2 "isro response  = '$response'";
+if($response ne "rw"){
+    critical;
+    $msg .= "is '$response' (expected: 'rw')";
+}
+vlog2;
+
+# Check 3 - check the number of connections and path/total watches
+#
+zoo_cmd "wchs";
+my %wchs;
+vlog3 "\nOutput from 'wchs':";
+while(<$conn>){
     chomp;
-    s/\r$//;
-    #vlog "$_";
-    if(/not currently serving requests/){
-        quit "CRITICAL", "$_";
+    vlog3 "=> $_";
+    if(/(\d+) connections watching (\d+) paths/i){
+        $wchs{"connections"}   = $1;
+        $wchs{"paths"}         = $2;
+    } elsif(/Total watches:\s*(\d+)/i){
+        $wchs{"total_watches"} = $1;
     }
-    if(/ERROR/i){
-        quit "CRITICAL", "unknown error returned from zookeeper on '$host:$port': '$_'";
-    }
-    #vlog "processing line: '$_'";
-    $line = $_;
-    $linecount++;
-    if(/^Zookeeper version/i){
-        $zookeeper_version = $line;
-    } elsif(/^Latency/i){
-        $latency_stats = $line;
-    } elsif(/^Mode:/i){
-        $mode = $line;
-    } else {
-        foreach(sort keys %stats){
-            #vlog "checking for stat $_";
-            if($line =~ /^$_: ([\d]+)$/){
-                #vlog "found $_";
-                $stats{$_} = $1;
-                next;
-            }
+}
+foreach(( 'connections', 'paths', 'total_watches' )){
+    defined($wchs{"$_"}) ? vlog2 "wchs $_ = $wchs{$_}" : quit "failed to determine $_ from output of wchs";
+}
+vlog2;
+
+## Obsolete, get all of this from mntr except for Zxid which isn't work the extra round trip
+## Check 4 - Stats & Mode
+## Zookeeper version: 3.4.1-1212694, built on 12/10/2011 00:05 GMT
+## Latency min/avg/max: 0/2/1306
+## Received: 422906808
+## Sent: 422913035
+## Outstanding: 0
+## Zxid: 0x10921c222
+## Mode: follower
+## Node count: 52587
+#my %stats = (
+#    "Received"          => undef,
+#    "Sent"              => undef,
+#    "Outstanding"       => undef,
+#    "Node count"        => undef,
+#);
+#my %srvr = (
+#    "Zookeeper version" => undef,
+#    "Latency min"       => undef,
+#    "Latency avg"       => undef,
+#    "Latency max"       => undef,
+#    "Zxid"              => undef,
+#    "Mode"              => undef,
+#    %stats
+#);
+#
+#zoo_cmd "srvr";
+#my $line;
+#my $linecount = 0;
+#my $err_msg;
+#my $zookeeper_version;
+#my $latency_stats;
+#my $mode;
+#vlog3 "\nOutput from 'srvr':";
+#while (<$conn>){
+#    chomp;
+#    $line = $_;
+#    #vlog3 "processing line: '$_'";
+#    vlog3 "=> $_";
+#    if($line =~ /not currently serving requests/){
+#        quit "CRITICAL", $line;
+#    }
+#    if($line =~ /ERROR/i){
+#        quit "CRITICAL", "unknown error returned from zookeeper on '$host:$port': '$line'";
+#    }
+#    $linecount++;
+#    if($line =~ /^Zookeeper version:\s*(.+)?\s*$/i){
+#        $srvr{"Zookeeper version"} = $1;
+#    } elsif($line =~ /^Latency min\/avg\/max\s*:?\s*(\d+)\/(\d+)\/(\d+)\s*$/i){
+#        $srvr{"Latency min"} = $1;
+#        $srvr{"Latency avg"} = $2;
+#        $srvr{"Latency max"} = $3;
+#    } elsif($line =~ /^Mode:\s*(.+?)\s*$/i){
+#        $srvr{"Mode"} = $1;
+#    } elsif($line =~ /^Zxid:\s*(.+?)\s*$/i){
+#        $srvr{"Zxid"} = $1;
+#    } else {
+#        foreach(sort keys %stats){
+#            #vlog "checking for stat $_";
+#            if($line =~ /^$_:\s*(\d+)\s*$/i){
+#                #vlog2 "found $_";
+#                $srvr{$_} = $1;
+#                last;
+#            }
+#        }
+#    }
+#}
+#vlog2;
+#
+#foreach my $key (sort keys %srvr){
+#    defined($srvr{$key}) ? vlog2 "srvr $key = $srvr{$key}" : quit "UNKNOWN", "failed to determine $key";
+#    if(grep {$key eq $_} keys %stats or $key =~ /Latency/){
+#        $srvr{$key} =~ /^\d+$/ or quit "UNKNOWN", "invalid value found for srvr $key '$srvr{key}'";
+#    }
+#}
+##vlog2 "got response" if ($linecount > 0);
+#vlog2;
+
+# Check 5 - Advanced Stats (also exposed via JMX)
+#
+# mntr
+# zk_version      3.4.3-1240972, built on 02/06/2012 10:48 GMT
+# zk_avg_latency  0
+# zk_max_latency  18
+# zk_min_latency  0
+# zk_packets_received     1647
+# zk_packets_sent 1675
+# zk_outstanding_requests 0
+# zk_server_state standalone
+# zk_znode_count  19
+# zk_watch_count  14
+# zk_ephemerals_count     2
+# zk_approximate_data_size        586
+# zk_open_file_descriptor_count   255
+# zk_max_file_descriptor_count    10240
+my %mntr = (
+    "zk_version",		                => undef,
+    "zk_avg_latency",		            => undef,
+    "zk_max_latency",		            => undef,
+    "zk_min_latency",		            => undef,
+    "zk_packets_received",              => undef,
+    "zk_packets_sent",		            => undef,
+    "zk_outstanding_requests",          => undef,
+    "zk_server_state",		            => undef,
+    "zk_znode_count",		            => undef,
+    "zk_watch_count",		            => undef,
+    "zk_ephemerals_count",		        => undef,
+    "zk_approximate_data_size",	        => undef,
+    "zk_open_file_descriptor_count",    => undef,
+    "zk_max_file_descriptor_count",		=> undef,
+);
+zoo_cmd "mntr";
+vlog3 "\nOutput from 'mntr':";
+while(<$conn>){
+    chomp;
+    my $line = $_;
+    vlog3 "=> $line";
+    foreach(keys %mntr){
+        if($line =~ /^\s*$_\s+(.+?)\s*$/){
+            $mntr{$_} = $1;
+            last;
         }
     }
 }
-vlog "got response" if ($linecount > 0);
-close $conn;
-vlog "closed connection\n";
+vlog3;
 
-foreach(sort keys %stats){
-    defined($stats{$_}) or quit "CRITICAL", "$_ was not found in output from zookeeper on '$host:$port'";
+foreach(sort keys %mntr){
+    defined($mntr{$_}) ? vlog2 "mntr $_ = $mntr{$_}" : quit "UNKNOWN", "failed to determine $_ from mntr";
+    next if (/zk_version/ or /zk_server_state/);
+    $mntr{$_} =~ /^\d+$/ or quit "UNKNOWN", "invalid value found for mntr $_ '$mntr{$_}'";
+}
+
+vlog2;
+
+#close $conn and
+#vlog2 "closed connection\n";
+
+foreach(sort keys %mntr){
+    defined($mntr{$_}) or quit "CRITICAL", "$_ was not found in output from zookeeper on '$host:$port'";
 }
 
 my $tmpfh;
 my $statefile = "/tmp/$progname.$host.$port.state";
-print "opening state file '$statefile'\n\n" if $verbose;
+vlog2 "opening state file '$statefile'\n";
 if(-f $statefile){
     open $tmpfh, "+<$statefile" or quit "UNKNOWN", "Error: failed to open state file '$statefile': $!";
 } else {
@@ -189,22 +276,20 @@ my $now = time;
 my $last_timestamp;
 my %last_stats;
 if($last_line){
-    print "last line of state file: <$last_line>\n\n" if $verbose;
+    vlog2 "last line of state file: <$last_line>\n";
     if($last_line =~ /^(\d+)\s+
                        (\d+)\s+
                        (\d+)\s+
-                       (\d+)\s+
                        (\d+)\s*$/x){
-        $last_timestamp             = $1;
-        $last_stats{"Node count"}   = $2,
-        $last_stats{"Outstanding"}  = $3,
-        $last_stats{"Received"}     = $4,
-        $last_stats{"Sent"}         = $5,
+        $last_timestamp                         = $1;
+        $last_stats{"zk_outstanding_requests"}  = $2,
+        $last_stats{"zk_packets_received"}      = $3,
+        $last_stats{"zk_packets_sent"}          = $4,
     } else {
         print "state file contents didn't match expected format\n\n";
     }
 } else {
-    print "no state file contents found\n\n" if $verbose;
+    vlog2 "no state file contents found\n\n";
 }
 my $missing_stats = 0;
 foreach(keys %last_stats){
@@ -221,8 +306,13 @@ if(not $last_timestamp or $missing_stats){
 seek($tmpfh, 0, 0)  or quit "UNKNOWN", "Error: seek failed: $!\n";
 truncate($tmpfh, 0) or quit "UNKNOWN", "Error: failed to truncate '$statefile': $!";
 print $tmpfh "$now ";
-foreach(sort keys %stats){
-    print $tmpfh "$stats{$_} ";
+my @stats = (
+    "zk_outstanding_requests",
+    "zk_packets_received",
+    "zk_packets_sent",
+);
+foreach(@stats){
+    print $tmpfh "$mntr{$_} ";
 }
 close $tmpfh;
 
@@ -235,26 +325,59 @@ if($secs < 0){
 }
 
 my %stats_diff;
-foreach(sort keys %stats){
-    $stats_diff{$_} = int((($stats{$_} - $last_stats{$_} ) / $secs) + 0.5);
+foreach(@stats){
+    #next if ($_ eq "Node count");
+    $stats_diff{$_} = int((($mntr{$_} - $last_stats{$_} ) / $secs) + 0.5);
     if ($stats_diff{$_} < 0) {
         quit "UNKNOWN", "recorded stat $_ is higher than current stat, resetting stats";
     }
 }
 
-if($verbose){
+if($verbose >= 2){
     print "epoch now:                           $now\n";
     print "last run epoch:                      $last_timestamp\n";
     print "secs since last check:               $secs\n\n";
-    printf "%-20s %-20s %-20s %-20s\n", "Stat", "Current", "Last", "Diff/sec";
+    printf "%-30s %-20s %-20s %-20s\n", "Stat", "Current", "Last", "Diff/sec";
     foreach(sort keys %stats_diff){
-        printf "%-20s %-20s %-20s %-20s\n", $_, $stats{$_}, $last_stats{$_}, $stats_diff{$_};
+        printf "%-30s %-20s %-20s %-20s\n", $_, $mntr{$_}, $last_stats{$_}, $stats_diff{$_};
     }
     print "\n\n";
 }
 
-my $msg = "$zookeeper_version, $latency_stats, $mode|";
-foreach(sort keys %stats_diff){
-    $msg .= "'$_'=$stats_diff{$_} ";
+#sub compare_zooresults {
+#    ($srvr{$_[0]} eq $mntr{$_[1]}) or quit "UNKNOWN", "inconsistency between srvr $_[0] ('$srvr{$_[0]}') and mntr $_[1] ('$mntr{$_[1]}')";
+#}
+#
+#compare_zooresults "Zookeeper version", "zk_version";
+#compare_zooresults "Mode", "zk_server_state";
+## This would introduce a race consition of these things changing in between calls. The above 2 should never fluctuate
+##compare_zooresults "Latency min", "zk_min_latency";
+##compare_zooresults "Latency avg", "zk_avg_latency";
+##compare_zooresults "Latency max", "zk_max_latency";
+
+unless(grep { $_ eq $mntr{"zk_server_state"} } @valid_states){
+    critical;
+    $mntr{"zk_server_state"} = uc $mntr{"zk_server_state"};
 }
-quit "OK", "$msg";
+if($mntr{"zk_server_state"} eq "standalone"){
+    unless($standalone){
+        $mntr{"zk_server_state"} = uc $mntr{"zk_server_state"};
+        warning;
+    }
+}
+
+$msg .= "Mode $mntr{zk_server_state}, ";
+#$msg .= "Latency min/avg/max $mntr{zk_min_latency}/$mntr{zk_avg_latency}/$mntr{zk_max_latency}, ";
+$msg .= "version $mntr{zk_version}";
+$msg .= " | ";
+foreach(sort keys %stats_diff){
+    $msg .= "'$_/sec'=$stats_diff{$_} ";
+}
+foreach(sort keys %mntr){
+    next if ($_ eq "zk_version" or $_ eq "zk_server_state");
+    $msg .= "$_=$mntr{$_} ";
+}
+foreach(sort keys %wchs){
+    $msg .= "wchs_$_=$wchs{$_} ";
+}
+quit $status, $msg;
