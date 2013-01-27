@@ -36,8 +36,8 @@ my @valid_states = qw/leader follower standalone/;
 %options = (
     "H|host=s"       => [ \$host,       "Host to connect to" ],
     "p|port=s"       => [ \$port,       "Port to connect to (defaults to $DEFAULT_PORT)" ],
-    "w|warning=s"    => [ \$warning,    "Warning threshold or ran:ge (inclusive)"  ],
-    "c|critical=s"   => [ \$critical,   "Critical threshold or ran:ge (inclusive)" ],
+    "w|warning=s"    => [ \$warning,    "Warning threshold or ran:ge (inclusive) for avg latency"  ],
+    "c|critical=s"   => [ \$critical,   "Critical threshold or ran:ge (inclusive) for avg latency" ],
     "s|standalone"   => [ \$standalone, "OK if mode is standalone (usually must be leader/follower)" ],
 );
 
@@ -86,7 +86,7 @@ my $response = <$conn>;
 vlog2 "ruok response  = '$response'";
 if($response ne "imok"){
     critical;
-    $msg .= "reports '$response' (expected: 'imok'), ";
+    $msg .= "ruok = '$response' (expected: 'imok'), ";
 }
 vlog2;
 
@@ -97,7 +97,7 @@ $response = <$conn>;
 vlog2 "isro response  = '$response'";
 if($response ne "rw"){
     critical;
-    $msg .= "is '$response' (expected: 'rw')";
+    $msg .= "isro = '$response' (expected: 'rw'), ";
 }
 vlog2;
 
@@ -367,8 +367,10 @@ if($mntr{"zk_server_state"} eq "standalone"){
 }
 
 $msg .= "Mode $mntr{zk_server_state}, ";
+$msg .= "avg latency $mntr{zk_avg_latency}";
+check_thresholds($mntr{"zk_avg_latency"});
 #$msg .= "Latency min/avg/max $mntr{zk_min_latency}/$mntr{zk_avg_latency}/$mntr{zk_max_latency}, ";
-$msg .= "version $mntr{zk_version}";
+$msg .= ", version $mntr{zk_version}";
 $msg .= " | ";
 foreach(sort keys %stats_diff){
     $msg .= "'$_/sec'=$stats_diff{$_} ";
