@@ -15,7 +15,6 @@ $VERSION = "0.2";
 
 use warnings;
 use strict;
-use Getopt::Long qw(:config bundling);
 use IPC::Open2;
 BEGIN {
     use File::Basename;
@@ -40,6 +39,8 @@ get_options();
 $host     = validate_host($host);
 $port     = validate_port($port);
 $filename = validate_filename($filename);
+
+linux_only();
 
 set_timeout($timeout, sub { `pkill -9 -f "$tftp $host $port"` });
 
