@@ -14,6 +14,14 @@
 # Rewrote this code of mine more than a year later in my spare time in Nov 2012 to better leverage my personal library and extended it's features against ZooKeeper 3.4.1-1212694. This was prompted by studying for my CCAH CDH4 (wish I had also picked up the CDH3 version 1-2 years before like a couple of my colleagues did, the syllabus was half the size!).
 # Finally got round to finishing it on the plane ride back from San Francisco / Cloudera Jan 26 2013, tested against my local version 3.4.5-1392090, built on 09/30/2012 17:52 GMT
 
+# CHECKS:
+# 1. ruok - checks to see if ZooKeeper reports itself as ok
+# 2. isro - checks to see if ZooKeeper is still writable
+# 3. mode - checks to see if ZooKeeper is in the proper mode (leader/follower) vs standalone
+# 4. avg latency - the average latency reported by ZooKeeper is within the thresholds given. Optional
+# 5. stats - full stats breakdown
+# 6. also reports ZooKeeper version
+
 $VERSION = "0.5";
 
 use strict;
