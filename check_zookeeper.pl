@@ -11,7 +11,7 @@
 
 # Nagios Plugin to monitor Zookeeper
 
-# Rewrote this code of mine more than a year later in my spare time in Nov 2012 to better leverage my personal library and extended it's features against ZooKeeper 3.4.1-1212694. This was prompted by studying for my CCAH CDH4 (wish I had also picked up the CDH3 version 1-2 years before like a couple of my colleagues did, the syllabus was half the size!).
+# Rewrote this code of mine more than a year later in my spare time in Nov 2012 to better leverage my personal library and extended it's features against ZooKeeper 3.4.1-1212694. This was prompted by studying for my CCAH CDH4 (wish I had also picked up the earlier versions 1-2 years before like a couple of my colleagues did, the syllabus was half the size!).
 # Finally got round to finishing it on the plane ride back from San Francisco / Cloudera Jan 26 2013, tested against my local version 3.4.5-1392090, built on 09/30/2012 17:52 GMT
 
 # CHECKS:
@@ -91,23 +91,21 @@ $msg = "ZooKeeper ";
 # Check 1 - does ZooKeeper report itself as OK?
 zoo_cmd "ruok";
 my $response = <$conn>;
-vlog2 "ruok response  = '$response'";
+vlog2 "ruok response  = '$response'\n";
 if($response ne "imok"){
     critical;
     $msg .= "ruok = '$response' (expected: 'imok'), ";
 }
-vlog2;
 
 # Check 2 - is ZooKeeper read-write or has a problem occurred with Quorum or similar?
 zoo_cmd "isro";
 # rw response or quit CRITICAL "ZooKeeper is not read-write (possible network partition?";
 $response = <$conn>;
-vlog2 "isro response  = '$response'";
+vlog2 "isro response  = '$response'\n";
 if($response ne "rw"){
     critical;
     $msg .= "isro = '$response' (expected: 'rw'), ";
 }
-vlog2;
 
 # Check 3 - check the number of connections and path/total watches
 #
@@ -129,7 +127,7 @@ foreach(( 'connections', 'paths', 'total_watches' )){
 }
 vlog2;
 
-## Obsolete, get all of this from mntr except for Zxid which isn't work the extra round trip
+## Obsolete, get all of this from mntr except for Zxid which isn't worth the extra round trip
 ## Check 4 - Stats & Mode
 ## Zookeeper version: 3.4.1-1212694, built on 12/10/2011 00:05 GMT
 ## Latency min/avg/max: 0/2/1306
@@ -256,11 +254,14 @@ while(<$conn>){
 vlog3;
 
 foreach(sort keys %mntr){
-    defined($mntr{$_}) ? vlog2 "mntr $_ = $mntr{$_}" : quit "UNKNOWN", "failed to determine $_ from mntr";
+    if(defined($mntr{$_})){
+        vlog2 "mntr $_ = $mntr{$_}"
+    } else {
+        quit "UNKNOWN", "failed to determine $_ from mntr";
+    }
     next if (/zk_version/ or /zk_server_state/);
     $mntr{$_} =~ /^\d+$/ or quit "UNKNOWN", "invalid value found for mntr $_ '$mntr{$_}'";
 }
-
 vlog2;
 
 #close $conn and
@@ -270,6 +271,8 @@ foreach(sort keys %mntr){
     defined($mntr{$_}) or quit "CRITICAL", "$_ was not found in output from zookeeper on '$host:$port'";
 }
 
+###############################
+# TODO: abstract out this store state block to my personal library since I use it in a few pieces of code
 my $tmpfh;
 my $statefile = "/tmp/$progname.$host.$port.state";
 vlog2 "opening state file '$statefile'\n";
@@ -323,6 +326,7 @@ foreach(@stats){
     print $tmpfh "$mntr{$_} ";
 }
 close $tmpfh;
+###############################
 
 my $secs = $now - $last_timestamp;
 
