@@ -35,7 +35,7 @@ use HariSekhonUtils;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-# this is really just for contraining the size of the output printed
+# this is really just for constraining the size of the output printed
 my $MAX_NODES_TO_DISPLAY_AS_ACTIVE  = 5;
 my $MAX_NODES_TO_DISPLAY_AS_MISSING = 30;
 
