@@ -65,7 +65,7 @@ my %months = (
 
 %options = (
     "H|host=s"                      => [ \$host, "The host to check" ],
-    "p|port=i"                      => [ \$port, "The port to check (defaults to port 443)" ],
+    "P|port=i"                      => [ \$port, "The port to check (defaults to port 443)" ],
     "d|domain=s"                    => [ \$expected_domain, "Expected domain of the certificate" ],
     "s|subject-alternative-names=s" => [ \$subject_alt_names, "Additional FQDNs to require on the certificate" ],
     "w|warning=i"                   => [ \$warning, "The warning threshold in days before expiry (defaults to $default_warning)" ],

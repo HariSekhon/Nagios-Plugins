@@ -28,7 +28,6 @@ use strict;
 use warnings;
 use Fcntl ':flock';
 use IO::Socket;
-use Getopt::Long qw(:config bundling);
 BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
@@ -43,7 +42,7 @@ my @valid_states = qw/leader follower standalone/;
 
 %options = (
     "H|host=s"       => [ \$host,       "Host to connect to" ],
-    "p|port=s"       => [ \$port,       "Port to connect to (defaults to $DEFAULT_PORT)" ],
+    "P|port=s"       => [ \$port,       "Port to connect to (defaults to $DEFAULT_PORT)" ],
     "w|warning=s"    => [ \$warning,    "Warning threshold or ran:ge (inclusive) for avg latency"  ],
     "c|critical=s"   => [ \$critical,   "Critical threshold or ran:ge (inclusive) for avg latency" ],
     "s|standalone"   => [ \$standalone, "OK if mode is standalone (usually must be leader/follower)" ],

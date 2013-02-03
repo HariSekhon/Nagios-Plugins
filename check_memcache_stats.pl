@@ -27,7 +27,7 @@ $timeout_max = 60;
 
 %options = (
     "H|host=s"           => [ \$host,       "Host to connect to" ],
-    "p|port=i"           => [ \$port,       "Port to connect to (defaults to $default_port)" ],
+    "P|port=i"           => [ \$port,       "Port to connect to (defaults to $default_port)" ],
     "w|warning=i"        => [ \$warning,    "Warning threshold for current connections" ],
     "c|critical=i"       => [ \$critical,   "Critical threshold for current connections" ],
 );
