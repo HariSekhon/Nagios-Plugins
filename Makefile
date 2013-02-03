@@ -1,13 +1,7 @@
 #
-#   Author: Hari Sekhon
-#   Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
-#  $LastChangedBy$
-#  $LastChangedDate$
-#  $Revision$
-#  $URL$
-#  $Id$
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
 #
-#  vim:ts=4:sw=4
 
 .PHONY: make
 make install:
