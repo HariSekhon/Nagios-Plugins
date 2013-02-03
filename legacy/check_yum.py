@@ -8,7 +8,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# UPDATED NOTE: This was written agees ago and is known to work only on RHEL5 based systems. I have had people ask me to update this for RHEL6, I am yet to get round to doing it but I will likely rewrite it from scratch using my Perl framework instead. Keep reminding me! TBA
+# UPDATED NOTE: This was written ages ago and is known to work only on RHEL5 based systems. I have had people ask me to update this for RHEL6, so I've written a new version in Perl which integrates better with my existing framework, see http://github.com/harisekhon/nagios-plugins
 
 """Nagios plugin to test for Yum updates on RedHat/CentOS Linux.
    Can optionally alert on any available updates as well as just
@@ -505,7 +505,7 @@ def main():
 
     parser.add_option( "--disablerepo",
                        dest="repository_to_disable",
-                       help="Explicitly disables a repository when calling yum "
+                       help="Explicitly disables a repository when calling yum. " \
                           + "Can take a comma separated list of repositories")
 
     parser.add_option( "-t",
