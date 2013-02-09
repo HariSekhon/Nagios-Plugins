@@ -194,8 +194,8 @@ vlog2 "Certificate Expires: $end_date\n";
 my ($month, $day, $time, $year, $tz) = split(/\s+/, $end_date);
 my ($hour, $min, $sec)               = split(/\:/, $time);
 
-my $expiry    = timegm($sec, $min, $hour, $day, $months{$month}, $year-1900);
-my $now       = time;
+my $expiry    = timegm($sec, $min, $hour, $day, $months{$month}, $year-1900) || quit "UNKNOWN", "Failed to convert timestamp $year-$months{$month}-$day $hour:$min:$sec";
+my $now       = time || quit "UNKNOWN", "Failed to get epoch timestamp";
 my $days_left = int( ($expiry - $now) / (86400) );
 
 vlog2 "* checking expected domain name on cert\n";
