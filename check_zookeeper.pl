@@ -263,6 +263,8 @@ foreach(sort keys %mntr){
 }
 vlog2;
 
+# Stat call could go here if I wanted to list clients
+
 #close $conn and
 #vlog2 "closed connection\n";
 
