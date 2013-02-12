@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to check the Linux Server's timezone is set as expected.
+$DESCRIPTION = "Nagios Plugin to check a Linux Server's timezone is set as expected";
 
 $VERSION = "0.5";
 
