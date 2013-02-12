@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to check all instances of a cluster are the same version. Uses Nagios macros containing output of host specific checks showing the version strings in their output. Requires each server having a check outputting it's application version which this plugin then aggregates using the Nagios macros in the cluster service definition
+$DESCRIPTION = "Nagios Plugin to check all instances of a cluster are the same version. Uses Nagios macros containing output of host specific checks showing the version strings in their output. Requires each server having a check outputting it's application version which this plugin then aggregates using the Nagios macros in the cluster service definition";
 
 $VERSION = "0.5";
 
