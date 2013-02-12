@@ -9,13 +9,15 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to check authentication mechanisms are working by validating:
-# - certain users/groups are present
-# - there are no duplicate UID/GIDs
-# - groups.allow contain the expected groups and no others
+$DESCRIPTION = "Nagios Plugin to check authentication mechanisms are working by validating:
+
+- certain users/groups are present
+- there are no duplicate UID/GIDs
+- groups.allow contain the expected groups and no others
+ 
+Useful for checking that AD integrated Linux servers are still able to authenticate AD users
+";
 # - TODO: system-auth-ac matches the expected checksum
-# 
-# Useful to checking that AD integrated Linux servers are still able to authenticate AD users
 
 $VERSION = "0.8.4";
 
@@ -23,7 +25,7 @@ use strict;
 use warnings;
 BEGIN {
     use File::Basename;
-    use lib dirname(__FILE__);
+    use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
 #Getopt::Long::Configure ("no_bundling");
