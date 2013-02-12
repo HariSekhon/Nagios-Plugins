@@ -9,10 +9,10 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to check a Git working copy is in the right branch.
+$DESCRIPTION = "Nagios Plugin to check a Git working copy is in the right branch.
 
-# Primarily written for puppetmasters to make sure prod and staging
-# environments dirs had the right branches checked out in them
+Primarily written for puppetmasters to make sure prod and staging
+environment dirs had the right branches checked out in them";
 
 $VERSION = "0.1";
 
