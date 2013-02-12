@@ -9,6 +9,8 @@
 #  License: see accompanying LICENSE file
 #
 
+$DESCRIPTION = "Nagios Plugin to check MemCache statistics";
+
 $VERSION = "0.7";
 
 use strict;
