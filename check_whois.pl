@@ -9,9 +9,9 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to check domain expiry via whois lookup
+$DESCRIPTION = "Nagios Plugin to check domain expiry via whois lookup
 
-# This is an important piece of code given that ppl overlook domain renewals till the last minute
+This is an important piece of code given that ppl overlook domain renewals till the last minute (and auto-renewals fail when their cached credit cards have expired)";
 
 # Whois perl libraries aren't great so calling whois binary and checking manually
 # so we have more control over this, can get sticky but it looks like this is the reason
@@ -72,7 +72,7 @@ use Time::HiRes 'time';
 use Time::Local;
 BEGIN {
     use File::Basename;
-    use lib dirname(__FILE__);
+    use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils qw/:DEFAULT :regex/;
 
