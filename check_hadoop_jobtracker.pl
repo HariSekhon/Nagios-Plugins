@@ -9,18 +9,18 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to run various checks against a Hadoop MapReduce cluster by querying the JobTracker
+$DESCRIPTION = "Nagios Plugin to run various checks against a Hadoop MapReduce cluster by querying the JobTracker
 
-# This is a consolidation/rewrite of two of my previous plugins for MapReduce cluster checks
+This is a consolidation/rewrite of two of my previous plugins for MapReduce cluster checks
 
-# Runs in 1 of 3 modes:
-#
-# 1. available MapReduce nodes and detect any Blacklisted nodes
-#    - any Blacklisted nodes raises Critical
-#    - checks optional thresholds for the minimum number of available MapReduce nodes available (default 0 == disabled)
-# 2. detect which MapReduce nodes aren't active in the JobTracker if given a node list
-#    - checks optional thresholds for the maximum number of missing nodes from the specified list (default 0 == CRITICAL on any missing, you may want to set these thresholds higher)
-# 3. checks the JobTracker Heap % Used
+Runs in 1 of 3 modes:
+
+1. available MapReduce nodes and detect any Blacklisted nodes
+   - any Blacklisted nodes raises Critical
+   - checks optional thresholds for the minimum number of available MapReduce nodes available (default 0 == disabled)
+2. detect which MapReduce nodes aren't active in the JobTracker if given a node list
+   - checks optional thresholds for the maximum number of missing nodes from the specified list (default 0 == CRITICAL on any missing, you may want to set these thresholds higher)
+3. checks the JobTracker Heap % Used";
 
 $VERSION = "0.8";
 
@@ -31,7 +31,7 @@ BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
-use HariSekhonUtils;
+use HariSekhonUtils qw/:DEFAULT :regex/;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
