@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to check MySQL arbitrary queries against regex matches or numerical ranges, with perfdata support
+$DESCRIPTION = "Nagios Plugin to check MySQL arbitrary queries against regex matches or numerical ranges, with perfdata support";
 
 # TODO: add retry switch if valid below threshold
 
@@ -102,7 +102,7 @@ $graph = 1 if $units;
 if($graph){
     unless($label){
         $label = "$field";
-        $label = validate_label($label, 1) || "Undefined";
+        $label = validate_label($label);
         vlog2("graphing enabled, defaulting label to $label");
     }
 }
