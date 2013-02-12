@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to check the remaining AQL SMS credits on an account for Nagios SMS Alerting
+$DESCRIPTION = "Nagios Plugin to check the remaining AQL SMS credits on an account for Nagios SMS Alerting";
 
 # Credit to Richard Harvey for coming up with this idea, this is a complete reimplementation
 # of that idea using my personal library for improved code quality, error handling, perfdata etc
