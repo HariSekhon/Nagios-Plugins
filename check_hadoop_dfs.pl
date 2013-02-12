@@ -9,15 +9,15 @@
 #  License: see accompanying LICENSE file
 #
 
-#  Nagios Hadoop Plugin to check various health aspects of HDFS via the Namenode's dfsadmin -report
-#
-# - checks % HDFS space used. Based off an earlier plugin I wrote in 2010 that we used in production for over 2 years. This heavily leverages HariSekhonUtils so code in this file is very short but still much tighter validated
-# - checks HDFS replication of blocks, again based off another plugin I wrote in 2010 around the same time as above and ran in production for 2 years. This code unifies/dedupes and improves on both those plugins
-# - checks HDFS % Used Balance is within thresholds
-# - checks number of available datanodes and if there are any dead datanodes
+$DESCRIPTION = "Nagios Hadoop Plugin to check various health aspects of HDFS via the Namenode's dfsadmin -report
+
+- checks % HDFS space used. Based off an earlier plugin I wrote in 2010 that we used in production for over 2 years. This heavily leverages HariSekhonUtils so code in this file is very short but still much tighter validated
+- checks HDFS replication of blocks, again based off another plugin I wrote in 2010 around the same time as above and ran in production for 2 years. This code unifies/dedupes and improves on both those plugins
+- checks HDFS % Used Balance is within thresholds
+- checks number of available datanodes and if there are any dead datanodes";
 
 # TODO:
-# Features to add: (the first 2 are Rob Dawson's idea from his check_hadoop_node_status plugin)
+# Features to add: (these are Rob Dawson's idea from his check_hadoop_node_status.pl plugin)
 # 1. Min Configured Capacity per node (from node section output).
 # 2. Last Contact: convert the date to secs and check against thresholds.
 
