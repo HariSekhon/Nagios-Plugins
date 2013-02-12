@@ -9,6 +9,12 @@
 #  License: see accompanying LICENSE file
 #
 
+$DESCRIPTION = "Nagios Plugin to check MySQL config file matches running MySQL server configuration
+
+Primarily written to check that DBAs hadn't changed any running DB from Puppet deployed config without backporting their changes
+
+A friend and ex-colleague of mine Tom Liakos @ Specificmedia pointed out a long time after I wrote this that Percona independently developed a similar tool called pt-config-diff (part of the Percona toolkit) around the same time.";
+
 $VERSION = "0.9.21";
 
 use strict;
