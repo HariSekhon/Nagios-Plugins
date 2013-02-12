@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to test SSH login credentials. Written primarily to verify the login credentials on Dell DRACs were all the same
+$DESCRIPTION = "Nagios Plugin to test SSH login credentials. Originally written to verify the login credentials across Dell DRAC infrastructure";
 
 $VERSION = "0.9.4";
 
