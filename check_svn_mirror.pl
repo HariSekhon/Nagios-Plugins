@@ -8,7 +8,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to check a Subversion mirror/slave against it's master
+$DESCRIPTION = "Nagios Plugin to check a Subversion mirror/slave against it's master";
 
 $VERSION = "0.4";
 
