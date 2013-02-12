@@ -9,7 +9,12 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to check SSL Certificate Validity
+$DESCRIPTION = "Nagios Plugin to check SSL Certificate Validity. Checks:
+
+1. Certificate Expiry in days
+2. Chain of Trust (especially import for Mobile)
+3. Domain matches expected
+4. Subject Alternative Names supported";
 
 $VERSION = "0.9.5";
 
