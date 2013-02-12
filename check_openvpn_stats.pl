@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to show OpenVPN stats by parsing the status log
+$DESCRIPTION = "Nagios Plugin to show OpenVPN stats by parsing the status log";
 
 $VERSION = "0.3";
 
