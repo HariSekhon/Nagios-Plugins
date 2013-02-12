@@ -9,6 +9,8 @@
 #  License: see accompanying LICENSE file
 #
 
+$DESCRIPTION = "Nagios Plugin to show the Nagios stats with perfdata for graphing purposes";
+
 $VERSION = "0.4";
 
 use strict;
