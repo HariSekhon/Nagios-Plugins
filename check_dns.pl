@@ -9,10 +9,11 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to test a DNS record
-#
-# primarily written to check things like NS and MX records for domains
-# which the standard check_dns Nagios plugin can't do
+$DESCRIPTION = "Nagios Plugin to test a DNS record
+
+Primarily written to check things like NS and MX records for domains
+which the standard check_dns Nagios plugin can't do
+";
 
 # TODO: root name servers switch, determine root name servers for the specific TLD and go straight to them to bypass intermediate caching
 
@@ -189,7 +190,7 @@ my $extended_command = dirname $progname;
 $extended_command .= "/$progname -s $server -r $record -q $type";
 $extended_command .= " -e $expected_result" if $expected_result;
 $extended_command .= " -R '$expected_regex'" if $expected_regex;
-$extended_command .= " -t $timeout"   if($timeout ne $default_timeout);
+$extended_command .= " -t $timeout"   if($timeout ne $timeout_default);
 vlog3 "\nextended command: $extended_command\n\n";
 
 quit "$status", "$msg";
