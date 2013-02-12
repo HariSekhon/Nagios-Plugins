@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to aggregate perfdata across services. Uses the existing stats in status.dat
+$DESCRIPTION = "Nagios Plugin to aggregate perfdata across services. Uses the existing stats in status.dat";
 
 $VERSION = "0.5";
 
