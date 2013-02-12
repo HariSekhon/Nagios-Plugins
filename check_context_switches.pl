@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# Nagios Plugin to check the number of context switches on the Linux server
+$DESCRIPTION = "Nagios Plugin to check the number of context switches on the Linux server";
 
 $VERSION = "0.2";
 
