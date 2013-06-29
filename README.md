@@ -25,7 +25,8 @@ git submodule init
 ```
 git submodule update
 ```
-This will pull in my git library repo which several of these plugins require to give very robust validation functions, utility functions, logging levels and debugging etc
+This will pull in my git library repo which my modern plugins leverage to give robust validation functions, utility functions, thresholds, default options, generated usage, logging levels and debug mo
+de etc
 
 You're now ready to use these programs.
 
