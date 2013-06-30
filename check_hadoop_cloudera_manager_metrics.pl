@@ -227,10 +227,21 @@ foreach(@{$json->{"items"}}){
                 $name .= "_$context";
             }
             $metric_results{$name}{"value"} = $_->{"data"}[-1]{"value"};
-            $metric_results{$name}{"unit"}  = $_->{"unit"} if defined($_->{"unit"});
+            if(defined($_->{"unit"})){
+                # isNagiosUnit returns undef if not castable to official Nagios PerfData units
+                $metric_results{$name}{"unit"} = isNagiosUnit($_->{"unit"});
+            }
+            if($verbose >= 2){
+                print $_->{"name"} . "\t=>\t$name\t\tvalue: $metric_results{$name}{value}" .
+                        (defined($_->{"unit"}) ?
+                            "\t\tunit: $_->{unit}\tunit castable to Nagios PerfData: " .
+                                (defined($metric_results{$name}{"unit"}) ? "yes" : "no")
+                            : "") . "\n";
+            }
         }
     }
 }
+vlog2;
 
 %metric_results or quit "CRITICAL", "no metrics returned by Cloudera Manager '$host:$port', no metrics collected or incorrect cluster/service/host/role combination for the given metric(s)?";
 
@@ -244,30 +255,35 @@ foreach(@metrics){
 $msg = "";
 foreach(sort keys %metric_results){
     $msg .= "$_=$metric_results{$_}{value}";
-    if(defined($metric_results{$_}{"unit"})){
-        my $units;
-        if($units = isNagiosUnit($metric_results{$_}{"unit"})){
-            $msg .= $units;
-        }
-    }
+    # Simplified this part by not saving the unit metrics in the first place if they are not castable to Nagios PerfData units
+    $msg .= $metric_results{$_}{"unit"} if defined($metric_results{$_}{"unit"});
+#    if(defined($metric_results{$_}{"unit"})){
+#        my $units;
+#        if($units = isNagiosUnit($metric_results{$_}{"unit"})){
+#            $msg .= $units;
+#        }
+#    }
     $msg .= " ";
 }
 $msg =~ s/\s*$//;
 if(@metrics_not_found){
     $msg = "Metrics not found: " . join(",", @metrics_not_found) . ". $msg";
 }
+# TODO: extend library to support simultaneous multi metric thresholding
 if(scalar keys %metric_results == 1){
     check_thresholds($metric_results{$metrics[0]}{"value"});
 }
 $msg .= " | ";
 foreach(sort keys %metric_results){
     $msg .= "$_=$metric_results{$_}{value}";
-    if(defined($metric_results{$_}{"unit"})){
-        my $units;
-        if($units = isNagiosUnit($metric_results{$_}{"unit"})){
-            $msg .= $units;
-        }
-    }
+    # Simplified this part by not saving the unit metrics in the first place if they are not castable to Nagios PerfData units
+    $msg .= $metric_results{$_}{"unit"} if defined($metric_results{$_}{"unit"});
+#    if(defined($metric_results{$_}{"unit"})){
+#        my $units;
+#        if($units = isNagiosUnit($metric_results{$_}{"unit"})){
+#            $msg .= $units;
+#        }
+#    }
     $msg .= " ";
 }
 
