@@ -224,7 +224,7 @@ foreach(@{$json->{"items"}}){
                 $context =~ s/$role:?//         if $role;
                 $context =~ s/$activity:?//     if $activity;
                 $context =~ s/$nameservice:?//  if $nameservice;
-                $name .= "_$context";
+                $name .= "_$context" if $context;
             }
             $metric_results{$name}{"value"} = $_->{"data"}[-1]{"value"};
             if(defined($_->{"unit"})){
@@ -232,11 +232,12 @@ foreach(@{$json->{"items"}}){
                 $metric_results{$name}{"unit"} = isNagiosUnit($_->{"unit"});
             }
             if($verbose >= 2){
-                print $_->{"name"} . "\t=>\t$name\t\tvalue: $metric_results{$name}{value}" .
-                        (defined($_->{"unit"}) ?
-                            "\t\tunit: $_->{unit}\tunit castable to Nagios PerfData: " .
-                                (defined($metric_results{$name}{"unit"}) ? "yes" : "no")
-                            : "") . "\n";
+                printf "%-20s\t%-20s\tvalue: %-12s", $_->{"name"}, $name, $metric_results{$name}{"value"};
+                if(defined($_->{"unit"})){
+                    printf "\tunit: %-10s\tunit castable to Nagios PerfData: ", $_->{unit};
+                    print defined($metric_results{$name}{"unit"}) ? "yes" : "no";
+                }
+                print "\n";
             }
         }
     }
