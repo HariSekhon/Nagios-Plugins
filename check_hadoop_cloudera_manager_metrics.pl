@@ -54,7 +54,7 @@ my @metrics_not_found;
     "u|user=s"         => [ \$user,         "Cloudera Manager user" ],
     "p|password=s"     => [ \$password,     "Cloudera Manager password" ],
     "m|metrics=s"      => [ \$metrics,      "Metric(s) to fetch, comma separated (eg. dfs_capacity,dfs_capacity_used,dfs_capacity_used_non_hdfs). Thresholds may optionally be applied if a single metric is given" ],
-    "a|all-metrics"    => [ \$all_metrics,  "Fetch all metrics for the given metric type combination from the options below. Caution, this could be a *lot* of metrics, best used to find available metrics for a given section ie. service or role" ],
+    "a|all-metrics"    => [ \$all_metrics,  "Fetch all metrics for the given service or host etc specified by the options below. Caution, this could be a *lot* of metrics, best used to find available metrics for a given section" ],
     "C|cluster=s"      => [ \$cluster,      "Cluster Name shown in Cloudera Manager (eg. \"Cluster - CDH4\")" ],
     "S|service=s"      => [ \$service,      "Service Name shown in Cloudera Manager (eg. hdfs1, mapreduce4)" ],
     "I|hostid=s"       => [ \$hostid,       "HostId to collect metric for (eg. datanode1.domain.com)" ],
