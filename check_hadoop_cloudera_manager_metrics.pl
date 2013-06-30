@@ -94,19 +94,19 @@ defined($hostid and ($cluster or $service or $activity or $nameservice or $role)
 if(defined($cluster) and defined($service)){
     $cluster    =~ /^\s*([\w\s\.-]+)\s*$/ or usage "Invalid cluster name given, may only contain alphanumeric, space, dash, dots or underscores";
     $cluster    = $1;
-    $service    =~ /^\s*(\w+)\s*$/ or usage "Invalid service name given, may only be alphanumeric";
+    $service    =~ /^\s*([\w-]+)\s*$/ or usage "Invalid service name given, must be alphanumeric with dashes";
     $service    = $1;
     $url = "$url_api/clusters/$cluster/services/$service";
     if(defined($activity)){
-        $activity =~ /^\s*(\w+)\s*$/ or usage "Invalid activity given, must be alphanumeric";
+        $activity =~ /^\s*([\w-]+)\s*$/ or usage "Invalid activity given, must be alphanumeric with dashes";
         $activity = $1;
         $url .= "/activities/$activity";
     } elsif(defined($nameservice)){
-        $nameservice =~ /^\s*([\w-]+)\s*$/ or usage "Invalid nameservice given, must be alphanumeric";
+        $nameservice =~ /^\s*([\w-]+)\s*$/ or usage "Invalid nameservice given, must be alphanumeric with dashes";
         $nameservice = $1;
         $url .= "/nameservices/$nameservice";
     } elsif(defined($role)){
-        $role =~ /^\s*(\w+-\w+-\w+)\s*$/ or usage "Invalid role id given, expected in format such as <service>-<role>-<hexid> (eg hdfs4-NAMENODE-73d774cdeca832ac6a648fa305019cef). Use --list-roleIds to see available roles + IDs for a given cluster service";
+        $role =~ /^\s*([\w-]+-\w+-\w+)\s*$/ or usage "Invalid role id given, expected in format such as <service>-<role>-<hexid> (eg hdfs4-NAMENODE-73d774cdeca832ac6a648fa305019cef). Use --list-roleIds to see available roles + IDs for a given cluster service";
         $role = $1;
         $url .= "/roles/$role";
     }
