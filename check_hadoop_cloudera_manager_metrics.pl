@@ -61,7 +61,7 @@ my @metrics_not_found;
     "A|activityId=s"   => [ \$activity,     "ActivityId to collect metric for. Requires --cluster and --service" ],
     "N|nameservice=s"  => [ \$nameservice,  "Nameservice to collect metric for. Requires --cluster and --service" ],
     "R|roleID=s"       => [ \$role,         "RoleId to collect metric for (eg. hdfs4-NAMENODE-73d774cdeca832ac6a648fa305019cef - use --list-roleIds to find CM's role ids for a given service). Requires --cluster and --service" ],
-    "list-roleIds"     => [ \$list_roles,   "List roleIds, convenience switch to find the above roleId, prints role ids and exits immediately. Requires --cluster and --service" ],
+    "list-roleIds"     => [ \$list_roles,   "List roleIds for a given cluster service. Convenience switch to find the roleId to query, prints role ids and exits immediately. Requires --cluster and --service" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive)" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
 );
