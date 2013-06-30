@@ -110,7 +110,8 @@ if(defined($cluster) and defined($service)){
         $url .= "/roles/$role";
     }
 } elsif(defined($hostid)){
-    $hostid = validate_hostname($hostid);
+    $hostid = isHostname($hostid) || usage "invalid host id given";
+    vlog_options "hostid", "$hostid";
     $url .= "$url_api/hosts/$hostid";
 } else {
     usage "must specify the type of metric to be collected using one of the following combinations:
