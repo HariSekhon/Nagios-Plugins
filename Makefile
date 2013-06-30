@@ -8,6 +8,8 @@ install:
 	@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
 	cpan DBD::mysql
 	cpan DBI
+	cpan JSON
+	cpan JSON:XS
 	cpan LWP::Simple
 	cpan LWP::UserAgent
 	cpan Net::DNS
