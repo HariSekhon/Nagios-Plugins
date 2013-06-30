@@ -9,11 +9,12 @@
 #  License: see accompanying LICENSE file
 #
 
+# still calling v1 for compatability with older CM versions but referencing v3, so far everything has been available via v1
+# http://cloudera.github.io/cm_api/apidocs/v3/index.html
+
 $DESCRIPTION = "Nagios Plugin to check given Hadoop metric(s) via Cloudera Manager Rest API
 
-http://cloudera.github.io/cm_api/apidocs/v3/index.html
-
-It can be tricky to get the cluster/service/host/role etc qualifier for a given metric, please see the Charts section in CM";
+See the Charts section in CM or --all-metrics for a given --cluster --service [--role] or --hostid to see what's available";
 
 $VERSION = "0.2";
 
@@ -60,13 +61,13 @@ my @metrics_not_found;
     "I|hostid=s"       => [ \$hostid,       "HostId to collect metric for (eg. datanode1.domain.com)" ],
     "A|activityId=s"   => [ \$activity,     "ActivityId to collect metric for. Requires --cluster and --service" ],
     "N|nameservice=s"  => [ \$nameservice,  "Nameservice to collect metric for. Requires --cluster and --service" ],
-    "R|roleID=s"       => [ \$role,         "RoleId to collect metric for (eg. hdfs4-NAMENODE-73d774cdeca832ac6a648fa305019cef - use --list-roleIds to find CM's role ids for a given service). Requires --cluster and --service" ],
+    "R|role=s"         => [ \$role,         "RoleId to collect metric for (eg. hdfs4-NAMENODE-73d774cdeca832ac6a648fa305019cef - use --list-roleIds to find CM's role ids for a given service). Requires --cluster and --service" ],
     "list-roleIds"     => [ \$list_roles,   "List roleIds for a given cluster service. Convenience switch to find the roleId to query, prints role ids and exits immediately. Requires --cluster and --service" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive)" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
 );
 
-@usage_order = qw/host port user password metrics all-metrics cluster service hostid activity nameservice roleId list-roleIds warning critical/;
+@usage_order = qw/host port user password metrics all-metrics cluster service hostid activity nameservice role list-roleIds warning critical/;
 get_options();
 
 $host       = validate_hostname($host);
@@ -105,7 +106,7 @@ if(defined($cluster) and defined($service)){
         $nameservice = $1;
         $url .= "/nameservices/$nameservice";
     } elsif(defined($role)){
-        $role =~ /^\s*([\w-]+)\s*$/ or usage "Invalid role given, must be alphanumeric";
+        $role =~ /^\s*(\w+-\w+-\w+)\s*$/ or usage "Invalid role id given, expected in format such as <service>-<role>-<hexid> (eg hdfs4-NAMENODE-73d774cdeca832ac6a648fa305019cef). Use --list-roleIds to see available roles + IDs for a given cluster service";
         $role = $1;
         $url .= "/roles/$role";
     }
@@ -184,7 +185,7 @@ if($list_roles){
             code_error "no 'name' field returned in item from role listing from Cloudera Manager, check -vvv to see the output returned by CM";
         }
     }
-    quit "UNKNOWN", "no checks performed, roles available for cluster '$cluster', service '$service': " . join(" , ", @role_list);
+    usage "no checks performed, roles available for cluster '$cluster', service '$service':\n\n" . join("\n", @role_list);
 }
 
 unless(@{$json->{"items"}}){
