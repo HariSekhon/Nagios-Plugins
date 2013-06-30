@@ -60,7 +60,7 @@ my @metrics_not_found;
     "S|service=s"      => [ \$service,      "Service Name shown in Cloudera Manager (eg. hdfs1, mapreduce4). Requires --cluster" ],
     "I|hostid=s"       => [ \$hostid,       "HostId to collect metric for (eg. datanode1.domain.com)" ],
     "A|activityId=s"   => [ \$activity,     "ActivityId to collect metric for. Requires --cluster and --service" ],
-    "N|nameservice=s"  => [ \$nameservice,  "Nameservice to collect metric for. Requires --cluster and --service" ],
+    "N|nameservice=s"  => [ \$nameservice,  "Nameservice to collect metric for (as specified in your HA configuration under dfs.nameservices). Requires --cluster and --service" ],
     "R|role=s"         => [ \$role,         "RoleId to collect metric for (eg. hdfs4-NAMENODE-73d774cdeca832ac6a648fa305019cef - use --list-roleIds to find CM's role ids for a given service). Requires --cluster and --service" ],
     "list-roleIds"     => [ \$list_roles,   "List roleIds for a given cluster service. Convenience switch to find the roleId to query, prints role ids and exits immediately. Requires --cluster and --service" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive)" ],
