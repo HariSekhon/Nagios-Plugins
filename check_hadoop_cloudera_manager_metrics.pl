@@ -269,9 +269,18 @@ $msg =~ s/\s*$//;
 if(@metrics_not_found){
     $msg = "Metrics not found: " . join(",", @metrics_not_found) . ". $msg";
 }
-# TODO: extend library to support simultaneous multi metric thresholding
-if(scalar keys %metric_results == 1){
-    check_thresholds($metric_results{$metrics[0]}{"value"});
+# TODO: extend library to support simultaneous multi metric thresholding, non-trivial to do, requires significant code and design decisions
+# For now will only check upper bound for highest metric if a single metric yields multiple contextual metrics such as host write_ios per partition
+if(scalar @metrics == 1){
+    if(scalar keys %metric_results > 1){
+        my $highest_metric = 0;
+        foreach(sort keys %metric_results){
+            $highest_metric = $metric_results{$_}{"value"} if $metric_results{$_}{"value"} > $highest_metric;
+        }
+        check_thresholds($highest_metric);
+    } else {
+        check_thresholds($metric_results{$metrics[0]}{"value"});
+    }
 }
 $msg .= " | ";
 foreach(sort keys %metric_results){
