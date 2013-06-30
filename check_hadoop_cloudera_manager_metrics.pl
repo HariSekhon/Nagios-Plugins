@@ -233,9 +233,9 @@ foreach(@{$json->{"items"}}){
                 $metric_results{$name}{"unit"} = isNagiosUnit($_->{"unit"});
             }
             if($verbose >= 2){
-                printf "%-20s\t%-20s\tvalue: %-12s", $_->{"name"}, $name, $metric_results{$name}{"value"};
+                printf "%-20s \t%-20s \tvalue: %-12s", $_->{"name"}, $name, $metric_results{$name}{"value"};
                 if(defined($_->{"unit"})){
-                    printf "\tunit: %-10s\tunit castable to Nagios PerfData: ", $_->{unit};
+                    printf " \tunit: %-10s \tunit castable to Nagios PerfData: ", $_->{unit};
                     print defined($metric_results{$name}{"unit"}) ? "yes" : "no";
                 }
                 print "\n";
