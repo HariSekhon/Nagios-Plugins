@@ -245,7 +245,7 @@ foreach(@{$json->{"items"}}){
 }
 vlog2;
 
-%metric_results or quit "CRITICAL", "no metrics returned by Cloudera Manager '$host:$port', no metrics collected or incorrect cluster/service/host/role combination for the given metric(s)?";
+%metric_results or quit "CRITICAL", "no metrics returned by Cloudera Manager '$host:$port', no metrics collected in last 5 mins or incorrect cluster/service/role/host for the given metric(s)?";
 
 foreach(@metrics){
     unless(defined($metrics_found{$_})){
