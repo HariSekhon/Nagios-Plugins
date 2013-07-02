@@ -16,4 +16,4 @@ install:
 	cpan Net::SSH::Expect
 	cpan SMS::AQL
 	git submodule init
-	git sudmodule update
+	git submodule update
