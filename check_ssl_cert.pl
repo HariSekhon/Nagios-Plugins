@@ -16,7 +16,7 @@ Checks:
 1. Certificate Expiry in days
 2. Chain of Trust
    2a. Root CA certificate is trusted
-   2b, Any intermediate certificates are present, especially important for Mobile devices
+   2b. Any intermediate certificates are present, especially important for Mobile devices
 3. Domain name on certificate (optional)
 4. Subject Alternative Names supported by certificate (optional)";
 
