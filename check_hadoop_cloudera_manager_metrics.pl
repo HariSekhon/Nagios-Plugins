@@ -14,9 +14,9 @@
 
 $DESCRIPTION = "Nagios Plugin to check given Hadoop metric(s) via Cloudera Manager Rest API
 
-See the Charts section in CM or --all-metrics for a given --cluster --service [--role] or --hostid to see what's available";
+See the Charts section in CM or --all-metrics for a given --cluster --service [--roleId] or --hostId to see what's available";
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -67,16 +67,16 @@ my @metrics_not_found;
     "a|all-metrics"    => [ \$all_metrics,  "Fetch all metrics for the given service/host/role specified by the options below. Caution, this could be a *lot* of metrics, best used to find available metrics for a given section" ],
     "C|cluster=s"      => [ \$cluster,      "Cluster Name shown in Cloudera Manager (eg. \"Cluster - CDH4\")" ],
     "S|service=s"      => [ \$service,      "Service Name shown in Cloudera Manager (eg. hdfs1, mapreduce4). Requires --cluster" ],
-    "I|hostid=s"       => [ \$hostid,       "HostId to collect metric for (eg. datanode1.domain.com)" ],
+    "I|hostId=s"       => [ \$hostid,       "HostId to collect metric for (eg. datanode1.domain.com)" ],
     "A|activityId=s"   => [ \$activity,     "ActivityId to collect metric for. Requires --cluster and --service" ],
     "N|nameservice=s"  => [ \$nameservice,  "Nameservice to collect metric for (as specified in your HA configuration under dfs.nameservices). Requires --cluster and --service" ],
-    "R|role=s"         => [ \$role,         "RoleId to collect metric for (eg. hdfs4-NAMENODE-73d774cdeca832ac6a648fa305019cef - use --list-roleIds to find CM's role ids for a given service). Requires --cluster and --service" ],
+    "R|roleId=s"       => [ \$role,         "RoleId to collect metric for (eg. hdfs4-NAMENODE-73d774cdeca832ac6a648fa305019cef - use --list-roleIds to find CM's role ids for a given service). Requires --cluster and --service" ],
     "list-roleIds"     => [ \$list_roles,   "List roleIds for a given cluster service. Convenience switch to find the roleId to query, prints role ids and exits immediately. Requires --cluster and --service" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive)" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
 );
 
-@usage_order = qw/host port user password tls ssl-CA-path tls-noverify metrics all-metrics cluster service hostid activity nameservice role list-roleIds warning critical/;
+@usage_order = qw/host port user password tls ssl-CA-path tls-noverify metrics all-metrics cluster service hostId activityId nameservice roleId list-roleIds warning critical/;
 get_options();
 
 $host       = validate_hostname($host);
@@ -112,7 +112,7 @@ if($all_metrics){
     @metrics = sort @metrics;
     vlog_options "metrics", "[ " . join(" ", @metrics) . " ]"; 
 }
-defined($hostid and ($cluster or $service or $activity or $nameservice or $role)) and usage "cannot specify both --hostid and --cluster/service/role type metrics at the same time";
+defined($hostid and ($cluster or $service or $activity or $nameservice or $role)) and usage "cannot specify both --hostId and --cluster/service/roleId type metrics at the same time";
 if(defined($cluster) and defined($service)){
     $cluster    =~ /^\s*([\w\s\.-]+)\s*$/ or usage "Invalid cluster name given, may only contain alphanumeric, space, dash, dots or underscores";
     $cluster    = $1;
@@ -134,21 +134,21 @@ if(defined($cluster) and defined($service)){
     } elsif(defined($role)){
         $role =~ /^\s*([\w-]+-\w+-\w+)\s*$/ or usage "Invalid role id given, expected in format such as <service>-<role>-<hexid> (eg hdfs4-NAMENODE-73d774cdeca832ac6a648fa305019cef). Use --list-roleIds to see available roles + IDs for a given cluster service";
         $role = $1;
-        vlog_options "role", $role;
+        vlog_options "roleId", $role;
         $url .= "/roles/$role";
     }
 } elsif(defined($hostid)){
     $hostid = isHostname($hostid) || usage "invalid host id given";
-    vlog_options "hostid", "$hostid";
+    vlog_options "hostId", "$hostid";
     $url .= "$api/hosts/$hostid";
 } else {
     usage "must specify the type of metric to be collected using one of the following combinations:
 
 --cluster --service
---cluster --service --activity
+--cluster --service --activityId
 --cluster --service --nameservice
---cluster --service --role
---hostid
+--cluster --service --roleId
+--hostId
 ";
 }
 if($list_roles){
