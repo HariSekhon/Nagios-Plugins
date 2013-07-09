@@ -81,8 +81,16 @@ unless($hdfs_space or $replication or $balance or $nodes){
 if($hdfs_space + $replication + $balance + $nodes > 1){
     usage "can only check one of HDFS space used %, replication, HDFS balance, datanodes available at one time, otherwise the warning/critical thresholds will conflict or require a large number of switches";
 }
-if($hdfs_space or $replication or $balance){
-    validate_thresholds(1, 1);
+if($replication){
+    validate_thresholds(1, 1, {
+                            "positive" => 1,
+                            "integer"  => 1
+                            });
+} elsif($hdfs_space or $replication or $balance){
+    validate_thresholds(1, 1, {
+                            "positive" => 1,
+                            "max"      => 100
+                            });
 } elsif($nodes){
     validate_thresholds(1, 1, {
                             "simple"   => "lower",
