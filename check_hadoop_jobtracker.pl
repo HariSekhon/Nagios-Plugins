@@ -22,7 +22,7 @@ Runs in 1 of 3 modes:
    - checks optional thresholds for the maximum number of missing nodes from the specified list (default 0 == CRITICAL on any missing, you may want to set these thresholds higher)
 3. checks the JobTracker Heap % Used
 
-Originally written on old vanilla Apache Hadoop 0.20.x, updated for CDH 4.3 (2.0.0-mr1-cdh4.3.0)
+Originally written on old vanilla Apache Hadoop 0.20.x, backwards untested rewrite for CDH 4.3 (2.0.0-mr1-cdh4.3.0)
 
 Seriously recommend you consider using check_hadoop_cloudera_manager_metrics.pl instead if possible (disclaimer I work for Cloudera but seriously it's better it uses the CM API instead of scraping output which can break betweens versions and requires more maintenance)";
 
@@ -125,10 +125,34 @@ unless($content){
 # Note: This was created for Apache Hadoop 0.20.2, r911707. If they change this page across versions, this plugin will need to be updated
 vlog2 "parsing output from JobTracker\n";
 
+my @stats;
+sub check_stats_parsed(){
+    foreach(@stats){
+        unless(defined($stats{$_})){
+            vlog2;
+            quit "UNKNOWN", "failed to find $_ in JobTracker output";
+        }
+        vlog2 "stats $_ = $stats{$_}";
+    }
+    vlog2;
+}
+
+sub parse_stats(){
+    foreach my $line (split("\n", $content)){
+        foreach my $stat (@stats){
+            if($line =~ /^\s*$stat\s*=\s*(\d+(?:\.\d+)?)\s*$/){
+                $stats{$stat} = $1;
+                last;
+            }
+        }
+    }
+    check_stats_parsed();
+}
+
 if(defined($nodes)){
     my @missing_nodes;
     foreach my $node (@nodes){
-        unless($content =~ /<td>$node(?:\.$domain_regex)?<\/td>/){
+        unless($content =~ /<td>$node(?:\.$domain_regex|\.local)?<\/td>/){
             push(@missing_nodes, $node);
         }
     }
@@ -162,31 +186,28 @@ if(defined($nodes)){
     check_thresholds($missing_nodes);
 
 } elsif($heap){
-    foreach(split("\n", $content)){
-        if(/Cluster Summary \(Heap Size is (\d+(?:\.\d+)?) (.B)\/(\d+(?:\.\d+)?) (.B)\)/i){
-            $stats{"heap_used"}       = $1;
-            $stats{"heap_used_units"} = $2;
-            $stats{"heap_max"}        = $3;
-            $stats{"heap_max_units"}  = $4;
-            $stats{"heap_used_bytes"} = expand_units($stats{"heap_used"}, $stats{"heap_used_units"}, "Heap Used");
-            $stats{"heap_max_bytes"}  = expand_units($stats{"heap_max"},  $stats{"heap_max_units"},  "Heap Max" );
-            $stats{"heap_used_pc"}    = sprintf("%.2f", $stats{"heap_used_bytes"} / $stats{"heap_max_bytes"} * 100);
-            last;
-        }
-    }
-    foreach(qw/heap_used heap_used_units heap_max heap_max_units heap_used_bytes heap_max_bytes heap_used_pc/){
-        unless(defined($stats{$_})){
-            vlog2;
-            quit "UNKNOWN", "failed to find $_ in JobTracker output";
-        }
-        vlog2 "stats $_ = $stats{$_}";
-    }
-    vlog2;
+#    foreach(split("\n", $content)){
+#        if(/Cluster Summary \(Heap Size is (\d+(?:\.\d+)?) (.B)\/(\d+(?:\.\d+)?) (.B)\)/i){
+#            $stats{"heap_used"}       = $1;
+#            $stats{"heap_used_units"} = $2;
+#            $stats{"heap_max"}        = $3;
+#            $stats{"heap_max_units"}  = $4;
+#            $stats{"heap_used_bytes"} = expand_units($stats{"heap_used"}, $stats{"heap_used_units"}, "Heap Used");
+#            $stats{"heap_max_bytes"}  = expand_units($stats{"heap_max"},  $stats{"heap_max_units"},  "Heap Max" );
+#            $stats{"heap_used_pc"}    = sprintf("%.2f", $stats{"heap_used_bytes"} / $stats{"heap_max_bytes"} * 100);
+#            last;
+#        }
+#    }
+#    foreach(qw/heap_used heap_used_units heap_max heap_max_units heap_used_bytes heap_max_bytes heap_used_pc/){
+    @stats = qw/memHeapUsedM maxMemoryM/;
+    parse_stats();
+    $stats{"heap_used_pc"} = $stats{"memHeapUsedM"} / $stats{"maxMemoryM"} * 100;
     $status = "OK";
-    $msg    = sprintf("JobTracker Heap %.2f%% Used (%s %s used, %s %s total)", $stats{"heap_used_pc"}, $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_max"}, $stats{"heap_max_units"});
+    #$msg    = sprintf("JobTracker Heap %.2f%% Used (%s %s used, %s %s total)", $stats{"heap_used_pc"}, $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_max"}, $stats{"heap_max_units"});
+    $msg    = sprintf("JobTracker Heap %.2f%% Used (%s MB used, %s MB total)", $stats{"heap_used_pc"}, $stats{"memHeapUsedM"}, $stats{"maxMemoryM"});
     check_thresholds($stats{"heap_used_pc"});
-    $msg .= " | 'JobTracker Heap % Used'=$stats{heap_used_pc}%;" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "" ) . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "" ) . ";0;100 'JobTracker Heap Used'=$stats{heap_used_bytes}B";
-
+    #$msg .= " | 'JobTracker Heap % Used'=$stats{heap_used_pc}%;" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "" ) . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "" ) . ";0;100 'JobTracker Heap Used'=$stats{heap_used_bytes}B";
+    $msg .= " | 'JobTracker Heap % Used'=$stats{heap_used_pc}%;" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "" ) . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "" ) . ";0;100 'JobTracker Heap Used'=$stats{memHeapUsedM}MB";
 } else {
     # Old Apache 0.20.x
     #if($content =~ /<tr><th>Maps<\/th><th>Reduces<\/th><th>Total Submissions<\/th><th>Nodes<\/th><th>Map Task Capacity<\/th><th>Reduce Task Capacity<\/th><th>Avg\. Tasks\/Node<\/th><th>Blacklisted Nodes<\/th><\/tr>\n<tr><td>(\d+)<\/td><td>(\d+)<\/td><td>(\d+)<\/td><td><a href="machines\.jsp\?type=active">(\d+)<\/a><\/td><td>(\d+)<\/td><td>(\d+)<\/td><td>(\d+(?:\.\d+)?)<\/td><td><a href="machines\.jsp\?type=blacklisted">(\d+)<\/a><\/td><\/tr>/mi or
@@ -212,25 +233,10 @@ if(defined($nodes)){
 #        #"avg_tasks_node"        => 
 #        "blacklisted_nodes"     => "trackers_blacklisted",
 #    );
-    my @stats = qw/jobs_submitted map_slots reduce_slots running_maps running_reduces trackers trackers_blacklisted/;
-    foreach my $line (split("\n", $content)){
-        foreach my $stat (@stats){
-            if($line =~ /^\s*$stat\s*=\s*(\d+)\s*$/){
-                $stats{$stat} = $1;
-                last;
-            }
-        }
-    }
+    @stats = qw/jobs_submitted map_slots reduce_slots running_maps running_reduces trackers trackers_blacklisted/;
+    parse_stats();
     #foreach(qw/maps reduces total_submissions nodes map_task_capacity reduce_task_capacity avg_tasks_node blacklisted_nodes/){
-    foreach(@stats){
-        unless(defined($stats{$_})){
-            vlog2;
-            quit "UNKNOWN", "failed to find $_ in JobTracker output";
-        }
-        vlog2 "stats $_ = $stats{$_}";
-    }
     $stats{"avg_tasks_node"} = ($stats{"map_slots"} + $stats{"reduce_slots"}) / $stats{"trackers"}; 
-    vlog2;
 
     $status = "OK";
     #$msg = sprintf("%d MapReduce nodes available, %d blacklisted nodes", $stats{"nodes"}, $stats{"blacklisted_nodes"});
