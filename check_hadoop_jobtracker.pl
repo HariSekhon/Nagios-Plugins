@@ -20,7 +20,11 @@ Runs in 1 of 3 modes:
    - checks optional thresholds for the minimum number of available MapReduce nodes available (default 0 == disabled)
 2. detect which MapReduce nodes aren't active in the JobTracker if given a node list
    - checks optional thresholds for the maximum number of missing nodes from the specified list (default 0 == CRITICAL on any missing, you may want to set these thresholds higher)
-3. checks the JobTracker Heap % Used";
+3. checks the JobTracker Heap % Used
+
+Originally written on old vanilla Apache Hadoop 0.20.x, updated for CDH 4.3 (2.0.0-mr1-cdh4.3.0)
+
+Seriously recommend you consider using check_hadoop_cloudera_manager_metrics.pl instead if possible (disclaimer I work for Cloudera but seriously it's better it uses the CM API instead of scraping output which can break betweens versions and requires more maintenance)";
 
 $VERSION = "0.8";
 
@@ -41,7 +45,9 @@ my $MAX_NODES_TO_DISPLAY_AS_MISSING = 30;
 
 my $nodes;
 my $heap;
-my $jobtracker_urn                  = "jobtracker.jsp";
+# originally scraped the HTML in Apache 0.20.x, instead using metrics page now as it's clearner
+#my $jobtracker_urn                  = "jobtracker.jsp";
+my $jobtracker_urn                  = "metrics";
 my $jobtracker_urn_machines_active  = "machines.jsp?type=active";
 my $default_port                    = "50030";
 $port = $default_port;
@@ -54,12 +60,12 @@ $critical = $default_critical;
 %options = (
     "H|host=s"         => [ \$host,         "JobTracker to connect to" ],
     "P|port=s"         => [ \$port,         "JobTracker port to connect to (defaults to $default_port)" ],
-    "n|nodes=s"        => [ \$nodes,        "List of nodes to check are alive in the JobTracker (non-switch args are appended to this list for convenience)" ],
+    "n|nodes=s"        => [ \$nodes,        "Optional list of nodes to check are alive in the JobTracker (non-switch args are appended to this list for convenience)" ],
     "heap-usage"       => [ \$heap,         "Check JobTracker Heap % Used. Optional % thresholds may be supplied for warning and/or critical" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive) for min number of available nodes or max missing/inactive nodes if node list is given (defaults to $default_warning)"  ],
     "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive) for min number of available nodes or max missing/inactive nodes if node list is given (defaults to $default_critical)" ],
 );
-@usage_order = qw/host port node heap warning critical/;
+@usage_order = qw/host port nodes heap-usage warning critical/;
 
 get_options();
 
@@ -71,7 +77,7 @@ if($nodes and $heap){
     usage "Cannot specify both --nodes and --heap-usage";
 }
 $host = isHost($host) || usage "JobTracker host invalid, must be hostname/FQDN or IP address";
-vlog2 "host:     '$host'";
+vlog_options "host", "'$host'";
 $port = validate_port($port);
 
 my $url;
@@ -94,7 +100,7 @@ if(defined($nodes)){
     $url = "http://$host:$port/$jobtracker_urn";
     undef $warning  unless $warning;
     undef $critical unless $critical;
-    validate_thresholds(undef, undef, { "positive" => 1 });
+    validate_thresholds(undef, undef, { "positive" => 1, "max" => 100 });
 } else {
     $url = "http://$host:$port/$jobtracker_urn";
     validate_thresholds(undef, undef, { "simple" => "lower", "positive" => 1, "integer" => 1 });
@@ -182,45 +188,71 @@ if(defined($nodes)){
     $msg .= " | 'JobTracker Heap % Used'=$stats{heap_used_pc}%;" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "" ) . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "" ) . ";0;100 'JobTracker Heap Used'=$stats{heap_used_bytes}B";
 
 } else {
-    if($content =~ /<tr><th>Maps<\/th><th>Reduces<\/th><th>Total Submissions<\/th><th>Nodes<\/th><th>Map Task Capacity<\/th><th>Reduce Task Capacity<\/th><th>Avg\. Tasks\/Node<\/th><th>Blacklisted Nodes<\/th><\/tr>\n<tr><td>(\d+)<\/td><td>(\d+)<\/td><td>(\d+)<\/td><td><a href="machines\.jsp\?type=active">(\d+)<\/a><\/td><td>(\d+)<\/td><td>(\d+)<\/td><td>(\d+(?:\.\d+)?)<\/td><td><a href="machines\.jsp\?type=blacklisted">(\d+)<\/a><\/td><\/tr>/mi){
-        $stats{"maps"}                  = $1;
-        $stats{"reduces"}               = $2;
-        $stats{"total_submissions"}     = $3;
-        $stats{"nodes"}                 = $4;
-        $stats{"map_task_capacity"}     = $5;
-        $stats{"reduce_task_capacity"}  = $6;
-        $stats{"avg_tasks_node"}        = $7;
-        $stats{"blacklisted_nodes"}     = $8;
+    # Old Apache 0.20.x
+    #if($content =~ /<tr><th>Maps<\/th><th>Reduces<\/th><th>Total Submissions<\/th><th>Nodes<\/th><th>Map Task Capacity<\/th><th>Reduce Task Capacity<\/th><th>Avg\. Tasks\/Node<\/th><th>Blacklisted Nodes<\/th><\/tr>\n<tr><td>(\d+)<\/td><td>(\d+)<\/td><td>(\d+)<\/td><td><a href="machines\.jsp\?type=active">(\d+)<\/a><\/td><td>(\d+)<\/td><td>(\d+)<\/td><td>(\d+(?:\.\d+)?)<\/td><td><a href="machines\.jsp\?type=blacklisted">(\d+)<\/a><\/td><\/tr>/mi or
+#        $stats{"maps"}                  = $1;
+#        $stats{"reduces"}               = $2;
+#        $stats{"total_submissions"}     = $3;
+#        $stats{"nodes"}                 = $4;
+#        $stats{"map_task_capacity"}     = $5;
+#        $stats{"reduce_task_capacity"}  = $6;
+#        $stats{"avg_tasks_node"}        = $7;
+#        $stats{"blacklisted_nodes"}     = $8;
+    # Apache 2.0.x MR1 from CDH 4.3, unfinished, switch to /metrics instead
+#       $content =~ /<tr><th>Running Map Tasks<\/th><th>Running Reduce Tasks<\/th><th>Total Submissions<\/th><th>Nodes<\/th><th>Occupied Map Slots<\/th><th>Occupied Reduce Slots<\/th><th>Reserved Map Slots<\/th><th>Reserved Reduce Slots<\/th><th>Map Task Capacity<\/th><th>Reduce Task Capacity<\/th><th>Avg. Tasks\/Node<\/th><th>Blacklisted Nodes<\/th><th>Excluded Nodes<\/th><\/tr>
+#<tr><td>(\d+)<\/td><td>(\d+)<\/td><td>(\d+)<\/td><td><a href="machines\.jsp?type=active">(\d+)<\/a><\/td><td>\d+<\/td><td>\d+<\/td><td>\d+<\/td><td>\d+<\/td><td>(\d+)<\/td><td>(\d+)<\/td><td>(\d+(?:\.\d+)?)<\/td><td><a href="machines.jsp?type=blacklisted">(\d+)<\/a><\/td><td><a href="machines.jsp?type=excluded">\d+<\/a><\/td><\/tr>/mi){
+#    my $stats_map = (
+#        "maps"                  => "running_maps",
+#        "reduces"               => "running_reduces",
+#        "total_submissions"     => "jobs_submitted",
+#        "nodes"                 => "trackers",
+#        "map_task_capacity"     => "map_slots"
+#        "reduce_task_capacity"  => "reduce_slots",
+#        # not supplied in /metrics
+#        #"avg_tasks_node"        => 
+#        "blacklisted_nodes"     => "trackers_blacklisted",
+#    );
+    my @stats = qw/jobs_submitted map_slots reduce_slots running_maps running_reduces trackers trackers_blacklisted/;
+    foreach my $line (split("\n", $content)){
+        foreach my $stat (@stats){
+            if($line =~ /^\s*$stat\s*=\s*(\d+)\s*$/){
+                $stats{$stat} = $1;
+                last;
+            }
+        }
     }
-    foreach(qw/maps reduces total_submissions nodes map_task_capacity reduce_task_capacity avg_tasks_node blacklisted_nodes/){
+    #foreach(qw/maps reduces total_submissions nodes map_task_capacity reduce_task_capacity avg_tasks_node blacklisted_nodes/){
+    foreach(@stats){
         unless(defined($stats{$_})){
             vlog2;
             quit "UNKNOWN", "failed to find $_ in JobTracker output";
         }
         vlog2 "stats $_ = $stats{$_}";
     }
+    $stats{"avg_tasks_node"} = ($stats{"map_slots"} + $stats{"reduce_slots"}) / $stats{"trackers"}; 
     vlog2;
 
     $status = "OK";
-    $msg = sprintf("%d MapReduce nodes available, %d blacklisted nodes", $stats{"nodes"}, $stats{"blacklisted_nodes"});
+    #$msg = sprintf("%d MapReduce nodes available, %d blacklisted nodes", $stats{"nodes"}, $stats{"blacklisted_nodes"});
+    $msg = sprintf("%d MapReduce nodes available, %d blacklisted nodes", $stats{"trackers"}, $stats{"trackers_blacklisted"});
     $thresholds{"warning"}{"lower"}  = 0 unless $thresholds{"warning"}{"lower"};
     $thresholds{"critical"}{"lower"} = 0 unless $thresholds{"critical"}{"lower"};
-    check_thresholds($stats{"nodes"});
+    check_thresholds($stats{"trackers"});
     # TODO: This requires a pnp4nagios config for Maps and Tasks which are basically counters
     $msg .= sprintf(" | 'MapReduce Nodes'=%d;%d;%d 'Blacklisted Nodes'=%d Maps=%d Reduces=%d 'Total Submissions'=%d 'Map Task Capacity'=%d 'Reduce Task Capacity'=%d 'Avg. Tasks/Node'=%.2f",
-                        $stats{"nodes"},
+                        $stats{"trackers"},
                         $thresholds{"warning"}{"lower"},
                         $thresholds{"critical"}{"lower"},
-                        $stats{"blacklisted_nodes"},
-                        $stats{"maps"},
-                        $stats{"reduces"},
-                        $stats{"total_submissions"},
-                        $stats{"map_task_capacity"},
-                        $stats{"reduce_task_capacity"},
+                        $stats{"trackers_blacklisted"},
+                        $stats{"running_maps"},
+                        $stats{"running_reduces"},
+                        $stats{"jobs_submitted"},
+                        $stats{"map_slots"},
+                        $stats{"reduce_slots"},
                         $stats{"avg_tasks_node"}
                    );
 
-    if($stats{"blacklisted_nodes"}){
+    if($stats{"trackers_blacklisted"}){
         critical;
     }
 }
