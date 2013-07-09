@@ -16,7 +16,7 @@ $DESCRIPTION = "Nagios Hadoop Plugin to check various health aspects of HDFS via
 - checks HDFS % Used Balance is within thresholds
 - checks number of available datanodes and if there are any dead datanodes
 
-Originally written for vanilla Apache Hadoop 0.20.x but updated for CDH 4.3 (2.0.0-cdh4.3.0)";
+Originally written for old vanilla Apache Hadoop 0.20.x, updated for CDH 4.3 (2.0.0-cdh4.3.0)";
 
 # TODO:
 # Features to add: (these are Rob Dawson's idea from his check_hadoop_node_status.pl plugin)
