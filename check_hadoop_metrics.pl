@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to parse metrics from a given Hadoop daemon's /met
 
 Currently only supporting the jvm/mapred sections, Fair Scheduler stats from JobTracker may be supported in a later version";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -29,7 +29,7 @@ my $all_metrics;
 
 %options = (
     "H|host=s"         => [ \$host,         "Host to connect to" ],
-    "P|port=s"         => [ \$port,         "Port to connect to" ],
+    "P|port=s"         => [ \$port,         "Port to connect to (eg. 50030 for JobTracker or 50060 for TaskTracker)" ],
     "m|metrics=s"      => [ \$metrics,      "Metric(s) to collect, comma separated. Output in the order specified for convenience. Optional thresholds will only be applied when a single metrics is given" ],
     "a|all-metrics"    => [ \$all_metrics,  "Grab all metrics. Useful if you don't know what to monitor yet or just want to graph everything" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive)" ],
@@ -46,9 +46,9 @@ my %stats;
 my @stats;
 unless($all_metrics){
     defined($metrics) or usage "no metrics specified";
-    foreach(split(/\s*[,\s]\s*/, $metrics)){
-        /^\w+$/ or usage "invalid metrics $_ given, must be alphanumeric with underscores";
-        push(@stats, $_);
+    foreach my $metric (split(/\s*[,\s]\s*/, $metrics)){
+        $metric =~ /^\w+$/ or usage "invalid metrics '$metric' given, must be alphanumeric with underscores";
+        grep(/^$metric$/, @stats) or push(@stats, $metric);
     }
     @stats or usage "no valid metrics specified";
 }
@@ -136,6 +136,7 @@ if($all_metrics){
         $msg .= "$_=$stats{$_} ";
     }
 } elsif(!$all_metrics and scalar @stats == 1){
+    $msg =~ s/ $//;
     check_thresholds($stats{$stats[0]});
     $msg .= " | $stats[0]=$stats{$stats[0]};" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "") . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "");
 } else {
