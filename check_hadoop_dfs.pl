@@ -252,7 +252,8 @@ $msg    = "NO TESTS DONE!!! Please choose something to test";
 
 if($hdfs_space){
     $status = "OK"; # ok unless check_thresholds says otherwise
-    $msg = sprintf("%.2f%% HDFS space used on %d available datanodes", $dfs{"dfs_used_pc"}, $dfs{"datanodes_available"});
+    plural $dfs{"datanodes_available"};
+    $msg = sprintf("%.2f%% HDFS space used on %d available datanode$plural", $dfs{"dfs_used_pc"}, $dfs{"datanodes_available"});
     check_thresholds($dfs{"dfs_used_pc"});
     $msg .= " | 'HDFS Space Used'=$dfs{dfs_used_pc}%;$thresholds{warning}{upper};$thresholds{critical}{upper} 'HDFS Used Capacity'=$dfs{dfs_used}B;;0;$dfs{configured_capacity} 'HDFS Present Capacity'=$dfs{present_capacity}B 'HDFS Configured Capacity'=$dfs{configured_capacity}B 'Datanodes Available'=$dfs{datanodes_available}";
 } elsif($replication){
@@ -287,7 +288,8 @@ if($hdfs_space){
     ( $largest_datanode_used_pc_diff >= 0 ) or code_error "largest_datanode_used_pc_diff is less than 0, this is not possible";
     $largest_datanode_used_pc_diff = sprintf("%.2f", $largest_datanode_used_pc_diff);
     $status = "OK";
-    $msg = sprintf("%.2f%% HDFS imbalance on space used %% across %d datanodes", $largest_datanode_used_pc_diff, scalar keys %datanodes);
+    plural scalar keys %datanodes;
+    $msg = sprintf("%.2f%% HDFS imbalance on space used %% across %d datanode$plural", $largest_datanode_used_pc_diff, scalar keys %datanodes);
     check_thresholds($largest_datanode_used_pc_diff);
     if(is_warning or is_critical){
         my $msg2 = " [imbalanced nodes: ";
@@ -302,7 +304,8 @@ if($hdfs_space){
     $msg .= " | 'HDFS imbalance on space used %'=$largest_datanode_used_pc_diff%;$thresholds{warning}{upper};$thresholds{critical}{upper}";
 } elsif($nodes){
     $status = "OK";
-    $msg = sprintf("%d datanodes available, %d dead, %d total", $dfs{"datanodes_available"}, $dfs{"datanodes_dead"}, $dfs{"datanodes_total"});
+    plural $dfs{"datanodes_available"};
+    $msg = sprintf("%d datanode$plural available, %d dead, %d total", $dfs{"datanodes_available"}, $dfs{"datanodes_dead"}, $dfs{"datanodes_total"});
     check_thresholds($dfs{"datanodes_available"});
     warning if $dfs{"datanodes_dead"};
     $msg .= " | 'Datanodes Available'=$dfs{datanodes_available};$thresholds{warning}{lower};$thresholds{critical}{lower} 'Datanodes Dead'=$dfs{datanodes_dead} 'Datanodes Total'=$dfs{datanodes_total}";
