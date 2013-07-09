@@ -30,11 +30,11 @@ $VERSION = "0.9";
 
 use strict;
 use warnings;
-use LWP::Simple qw/get $ua/;
 BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
+use LWP::Simple qw/get $ua/;
 use HariSekhonUtils qw/:DEFAULT :regex/;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
