@@ -14,14 +14,16 @@ $DESCRIPTION = "Nagios Hadoop Plugin to check various health aspects of HDFS via
 - checks % HDFS space used. Based off an earlier plugin I wrote in 2010 that we used in production for over 2 years. This heavily leverages HariSekhonUtils so code in this file is very short but still much tighter validated
 - checks HDFS replication of blocks, again based off another plugin I wrote in 2010 around the same time as above and ran in production for 2 years. This code unifies/dedupes and improves on both those plugins
 - checks HDFS % Used Balance is within thresholds
-- checks number of available datanodes and if there are any dead datanodes";
+- checks number of available datanodes and if there are any dead datanodes
+
+Originally written for vanilla Apache Hadoop 0.20.x but updated for CDH 4.3 (2.0.0-cdh4.3.0)";
 
 # TODO:
 # Features to add: (these are Rob Dawson's idea from his check_hadoop_node_status.pl plugin)
 # 1. Min Configured Capacity per node (from node section output).
 # 2. Last Contact: convert the date to secs and check against thresholds.
 
-$VERSION = "0.6.2";
+$VERSION = "0.7";
 
 use strict;
 use warnings;
@@ -33,8 +35,10 @@ use HariSekhonUtils;
 
 $ENV{"PATH"} .= ":/opt/hadoop/bin:/usr/local/hadoop/bin";
 
-my $default_hadoop_user = "hadoop";
-my $default_hadoop_bin  = "hadoop";
+my $default_hadoop_user = "hdfs";
+my $default_hadoop_bin  = "hdfs";
+my $legacy_hadoop_user  = "hadoop";
+my $legacy_hadoop_bin   = "hadoop";
 
 my $hadoop_bin  = $default_hadoop_bin;
 my $hadoop_user = $default_hadoop_user;
@@ -51,8 +55,8 @@ my $nodes       = 0;
     "n|nodes-available" => [ \$nodes,        "Checks the number of available datanodes against the given warning/critical thresholds as the lower limits (inclusive). Any dead datanodes raises warning" ],
     "w|warning=s"       => [ \$warning,      "Warning threshold or ran:ge (inclusive)"  ],
     "c|critical=s"      => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
-    "hadoop-bin=s"      => [ \$hadoop_bin,   "Path to 'hadoop' command if not in \$PATH" ],
-    "hadoop-user=s"     => [ \$hadoop_user,  "Checks that this plugin is being run by the hadoop user (defaults to $default_hadoop_user)" ],
+    "hadoop-bin=s"      => [ \$hadoop_bin,   "Path to 'hdfs' or 'hadoop' command if not in \$PATH" ],
+    "hadoop-user=s"     => [ \$hadoop_user,  "Checks that this plugin is being run by the hadoop user (defaults to '$default_hadoop_user', falls back to trying '$legacy_hadoop_user' unless specified)" ],
 );
 
 @usage_order = qw/hdfs-space replication balance nodes-available warning critical hadoop-bin hadoop-user/;
@@ -88,14 +92,30 @@ if($hdfs_space or $replication or $balance){
 }
 
 $hadoop_user = validate_user($hadoop_user);
-$hadoop_bin  = which($hadoop_bin, 1);
-$hadoop_bin  =~ /\b\/?hadoop$/ or quit "UNKNOWN", "invalid hadoop program '$hadoop_bin' given, should be called hadoop!";
-vlog2 "hadoop path: $hadoop_bin";
+my $hadoop_bin_tmp;
+unless($hadoop_bin_tmp = which($hadoop_bin)){
+    if($hadoop_bin eq $default_hadoop_bin){
+        vlog2 "cannot find command '$hadoop_bin', trying '$legacy_hadoop_bin'";
+        $hadoop_bin_tmp = which($legacy_hadoop_bin) || quit "UNKNOWN", "cannot find command '$hadoop_bin' or '$legacy_hadoop_bin' in PATH ($ENV{PATH})";
+    } else {
+        quit "UNKNOWN", "cannot find command '$hadoop_bin' in PATH ($ENV{PATH})";
+    }
+}
+$hadoop_bin = $hadoop_bin_tmp;
+$hadoop_bin  =~ /\b\/?(?:hadoop|hdfs)$/ or quit "UNKNOWN", "invalid hadoop program '$hadoop_bin' given, should be called hadoop or hdfs!";
+vlog_options "hadoop path", $hadoop_bin;
 vlog2;
 set_timeout();
 
 my $cmd;
-usage "'$hadoop_user' user does not exist, specify different --hadoop-user?" unless user_exists($hadoop_user);
+if(!user_exists($hadoop_user)){
+    if($hadoop_user eq $default_hadoop_user and user_exists($legacy_hadoop_user)){
+        vlog2 "user '$default_hadoop_user' does not exist, but found user '$legacy_hadoop_user', trying that instead for compatability";
+        $hadoop_user = $legacy_hadoop_user;
+    } else {
+        usage "user '$hadoop_user' does not exist, specify different --hadoop-user?"
+    }
+}
 unless(getpwuid($>) eq $hadoop_user){
     # Quit if we're not the right user to ensure we don't sudo command and hang or return with a generic timeout error message
     #quit "UNKNOWN", "not running as '$hadoop_user' user";
@@ -116,7 +136,7 @@ if(join("", @output) =~ /^\s*$/){
 }
 foreach(@output){
     # skip blank lines and lines with just --------------------
-    if (/^(?:-+|\s*)$/){
+    if (/^(?:-+|\s*)$/ or /DEPRECATED|Instead use the hdfs command for it|Live datanodes:/){
         next;
     } elsif (/^Configured Capacity:\s*(\d+)\s+\((.+)\)\s*$/i){
         $dfs{"configured_capacity"}       = $1;
@@ -142,7 +162,7 @@ foreach(@output){
         $dfs{"datanodes_available"} = $1;
         $dfs{"datanodes_total"}     = $2 if defined($2);
         $dfs{"datanodes_dead"}      = $3 if defined($3);
-    } elsif(/^Name:/){
+    } elsif(/^Name:/ or /Dead datanodes:/){
         last;
     } else {
         quit "UNKNOWN", "Unrecognized line in output while parsing totals: $_";
@@ -152,7 +172,7 @@ if($balance){
     my $i = 0;
     foreach(@output){
         $i++;
-        if(/^Datanodes available:/){
+        if(/^(?:Datanodes available):/){
             last;
         }
         next;
@@ -165,6 +185,8 @@ if($balance){
             $name = "";
         } elsif(/^Name:\s*(.+?)\s*$/){
             $name = $1;
+        } elsif(/^Hostname:/){
+            next;
         } elsif(/^Configured Capacity: 0 \(0 KB\)$/){
             $name or code_error $no_name_err;
             $datanodes{$name}{"dead"} = 1;
@@ -175,6 +197,10 @@ if($balance){
         # TODO: could add exception for Decommissioning Nodes to not be considered part of the cluster balance
         } elsif(/^(?:Rack|Decommission Status|Configured Capacity|DFS Used|Non DFS Used|DFS Remaining|DFS Remaining%|Last contact|)\s*:|^\s*$/){
             next;
+        } elsif(/Live datanodes:/){
+            next;
+        } elsif(/Dead datanodes:/){
+            last;
         } else {
             quit "UNKNOWN", "Unrecognized line in output while parsing nodes: $_";
         }
