@@ -9,8 +9,6 @@
 #  License: see accompanying LICENSE file
 #
 
-# TODO: needs a little more work and validation
-
 $DESCRIPTION = "Nagios Plugin to run various checks against the Hadoop HDFS Cluster via the Namenode JSP pages
 
 This is an alternate rewrite of the functionality from my previous check_hadoop_dfs.pl plugin
@@ -109,10 +107,10 @@ if($node_list){
     @nodes or usage "must specify nodes if using -n / --node-list switch";
 }
 unless($hdfs_space or $replication or $balance or $node_count or $node_list or $heap){
-    usage "must specify one of --hdfs-space / --replication / --balance / --node-count / --node-list / --heap to check";
+    usage "must specify one of --hdfs-space / --replication / --balance / --node-count / --node-list / --heap-usage to check";
 }
 if($hdfs_space + $replication + $balance + $node_count + ($node_list?1:0) + $heap > 1){
-    usage "can only check one of --hdfs-space / --replication / --balance / --node-count / --node-list / --heap at one time in order to make sense of thresholds";
+    usage "can only check one of --hdfs-space / --replication / --balance / --node-count / --node-list / --heap-usage at one time in order to make sense of thresholds";
 }
 if($node_count){
     validate_thresholds(1, 1, {
@@ -161,6 +159,7 @@ sub parse_dfshealth {
     # These multiplier calculations are slightly less accurate than the actual amount given by the hadoop dfsadmin -report that my other plugin uses but since the web page doesn't give the bytes count I have to estimate it by plain multiplier (JSP pages are only giving the rounded summary that I am then having to multiply
     if($content =~ /$regex_dfs_used/o){
         $dfs{"dfs_used_human"} = $1;
+        $dfs{"dfs_used_units"} = $2;
         $dfs{"dfs_used"} = expand_units($1, $2, "DFS Used");
     }
     if($content =~ /$regex_dfs_used_pc/o){
@@ -168,6 +167,7 @@ sub parse_dfshealth {
     }
     if($content =~ /$regex_configured_capacity/o){
         $dfs{"configured_capacity_human"} = $1;
+        $dfs{"configured_capacity_units"} = $2;
         $dfs{"configured_capacity"} = expand_units($1, $2, "Configured Capacity");
     }
 #    print "Present Capacity: $regex_present_capacity\n";
@@ -180,8 +180,10 @@ sub parse_dfshealth {
     check_parsed(qw/
             configured_capacity
             configured_capacity_human
+            configured_capacity_units
             dfs_used
             dfs_used_human
+            dfs_used_units
             dfs_used_pc
             datanodes_available
             datanodes_dead
@@ -212,7 +214,6 @@ if($balance){
     }
     my %datanodes_used_pc;
     my $regex_datanode_used_pc = qr/<td\s+class="name"><a[^>]+>\s*($hostname_regex|$ip_regex)\s*<\/a>.+<td\s+align="right"\s+class="pcused">\s*(\d+(?:\.\d+)?)\s*</o;
-    #print "regex datanode used pc: $regex_datanode_used_pc\n";
     foreach(split(/\n/, $content)){
         if(/$regex_datanode_used_pc/){
             $datanodes_used_pc{$1} = $2;
@@ -252,7 +253,7 @@ if($balance){
 } elsif($hdfs_space){
     parse_dfshealth();
     $status = "OK"; # ok unless check_thresholds says otherwise
-    $msg = sprintf("%.2f%% HDFS space used on %d available datanodes", $dfs{"dfs_used_pc"}, $dfs{"datanodes_available"});
+    $msg = sprintf("%.2f%% HDFS space used ($dfs{dfs_used_human}$dfs{dfs_used_units}/$dfs{configured_capacity_human}$dfs{configured_capacity_units}) on %d available datanodes", $dfs{"dfs_used_pc"}, $dfs{"datanodes_available"});
     check_thresholds($dfs{"dfs_used_pc"});
     # JSP Pages don't give Present Capacity
     #$msg .= " | 'HDFS Space Used'=$dfs{dfs_used_pc}%;$thresholds{warning}{upper};$thresholds{critical}{upper} 'HDFS Used Capacity'=$dfs{dfs_used}B;;0;$dfs{configured_capacity} 'HDFS Present Capacity'=$dfs{present_capacity}B 'HDFS Configured Capacity'=$dfs{configured_capacity}B 'Datanodes Available'=$dfs{datanodes_available}";
