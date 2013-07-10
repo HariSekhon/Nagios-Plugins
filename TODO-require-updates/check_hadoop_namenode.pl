@@ -24,9 +24,9 @@ Caveats:
 1. Cannot currently detect corrupt or under-replicated blocks since JSP doesn't offer this information
 2. There are no byte counters, so we can only use the human summary and multiply out, and being a multiplier of a summary figure it's marginally less accurate
 
-Note: This was created for Apache Hadoop 0.20.2, r911707. If JSP output changes across versions, this plugin will need to be updated to parse the changes";
+Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for CDH 4.3 (2.0.0-cdh4.3.0). If JSP output changes across versions, this plugin will need to be updated to parse the changes";
 
-$VERSION = "0.8";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -40,10 +40,11 @@ use HariSekhonUtils qw/:DEFAULT :regex/;
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 my $balance         = 0;
+my $dead_nodes      = 0;
 my $hdfs_space      = 0;
 my $heap            = 0;
-my $nodes           = 0;
-my $nodes_available = 0;
+my $node_list        = "";
+my $node_count      = 0;
 my $replication     = 0;
 
 # this is really just for contraining the size of the output printed
@@ -63,14 +64,15 @@ $port                        = $default_port;
     "P|port=s"          => [ \$port,            "Namenode port to connect to (defaults to $default_port)" ],
     "s|hdfs-space"      => [ \$hdfs_space,      "Checks % HDFS Space used against given warning/critical thresholds" ],
     "r|replication"     => [ \$replication,     "Checks replication state: under replicated blocks, blocks with corrupt replicas, missing blocks. Warning/critical thresholds apply to under replicated blocks. Corrupt replicas and missing blocks if any raise critical since this can result in data loss" ],
-    "heap-usage"        => [ \$heap,            "Check Namenode Heap % Used. Optional % thresholds may be supplied for warning and/or critical" ],
     "b|balance"         => [ \$balance,         "Checks Balance of HDFS Space used % across datanodes is within thresholds. Lists the nodes out of balance in verbose mode" ],
-    "m|nodes-available" => [ \$nodes_available, "Checks the number of available datanodes against the given warning/critical thresholds as the lower limits (inclusive). Any dead datanodes raises warning" ],
-    "n|nodes=s"         => [ $nodes,            "List of datanodes to expect are available in namenode (non-switch args are appended to this list for convenience)." ],
+    "m|node-count"      => [ \$node_count,      "Checks the number of available datanodes against the given warning/critical thresholds as the lower limits (inclusive). Any dead datanodes raises warning" ],
+    "n|node-list=s"     => [ \$node_list,       "List of datanodes to expect are available on namenode (non-switch args are appended to this list for convenience). Warning/Critical thresholds default to zero if not specified" ],
+    "d|dead-nodes"      => [ \$dead_nodes,      "List all dead datanodes" ],
+    "heap-usage"        => [ \$heap,            "Check Namenode Heap % Used. Optional % thresholds may be supplied for warning and/or critical" ],
     "w|warning=s"       => [ \$warning,         "Warning  threshold or ran:ge (inclusive)" ],
     "c|critical=s"      => [ \$critical,        "Critical threshold or ran:ge (inclusive)" ],
 );
-@usage_order = qw/host port hdfs-space replication balance nodes-available heap-usage warning critical hadoop-bin hadoop-user/;
+@usage_order = qw/host port hdfs-space replication balance node-count node-list heap-usage warning critical/;
 
 get_options();
 
@@ -88,26 +90,37 @@ if($progname eq "check_hadoop_hdfs_space.pl"){
     vlog2 "checking HDFS balance";
     $balance = 1;
 } elsif($progname eq "check_hadoop_datanodes.pl"){
-    vlog2 "checking HDFS datanodes available";
-    # TODO
-    $nodes_available = 1;
+    vlog2 "checking HDFS datanodes number available";
+    $node_count = 1;
+} elsif($progname eq "check_hadoop_datanode_list.pl"){
+    vlog "checking HDFS datanode list";
 }
 
 my $url;
-my $url2;
-my %nodes;
 my @nodes;
-unless($hdfs_space or $replication or $balance or $nodes_available or $heap){
-    usage "must specify one of --hdfs-space / --replication / --balance / --nodes-available / --heap to check";
+
+if($node_list){
+    @nodes = split(/\s*,\s*/, $node_list);
+    push(@nodes, @ARGV); # for convenience as mentioned in usage
+    vlog_options "nodes", "[ " . join(", ", @nodes) . " ]";
+    @nodes or usage "must specify nodes if using -n / --node-list switch";
 }
-if($hdfs_space + $replication + $balance + $nodes_available + $heap > 1){
-    usage "can only check one of HDFS space used %, replication, HDFS balance, datanodes available at one time, otherwise the warning/critical thresholds will conflict or require a large number of switches";
+unless($hdfs_space or $replication or $balance or $node_count or $node_list or $heap){
+    usage "must specify one of --hdfs-space / --replication / --balance / --node-count / --node-list / --heap to check";
 }
-if($nodes_available){
+if($hdfs_space + $replication + $balance + $node_count + ($node_list?1:0) + $heap > 1){
+    usage "can only check one of --hdfs-space / --replication / --balance / --node-count / --node-list / --heap at one time in order to make sense of thresholds";
+}
+if($node_count){
+    validate_thresholds(1, 1, {
+                            "simple"   => "lower",
+                            "integer"  => 1
+                            });
+} elsif($node_list){
     $warning  = 0 unless $warning;
     $critical = 0 unless $critical;
     validate_thresholds(1, 1, {
-                            "simple"   => "lower",
+                            "simple"   => "upper",
                             "integer"  => 1
                             });
 } else {
@@ -115,9 +128,8 @@ if($nodes_available){
 }
 
 $url = "http://$host:$port/$namenode_urn";
-if($balance){
-    $url2 = "http://$host:$port/$namenode_urn_live_nodes";
-}
+my $url_live_nodes = "http://$host:$port/$namenode_urn_live_nodes";
+my $url_dead_nodes = "http://$host:$port/$namenode_urn_dead_nodes";
 
 vlog2;
 set_timeout();
@@ -135,9 +147,13 @@ sub parse_dfshealth {
     my $regex_dfs_used            = qr/>\s*DFS Used$regex_td(\d+(?:\.\d+)?)\s(\w+)\s*</o;
     my $regex_dfs_used_pc         = qr/>\s*DFS Used%\s*<td\s+id="\w+">\s*:\s*<td\s+id="\w+">\s*(\d+(?:\.\d+)?)\s*%\s*</o;
     my $regex_live_nodes          = qr/>\s*Live Nodes$regex_td(\d+)\s*/o;
+    my $regex_dead_nodes          = qr/>\s*Dead Nodes$regex_td(\d+)\s*/o;
 #    my $regex_present_capacity    = qr/>\s*Present Capacity$regex_td(\d+(?:\.\d+)?)\s(\w+)\s*</o;
     if($content =~ /$regex_live_nodes/o){
         $dfs{"datanodes_available"} = $1;
+    }
+    if($content =~ /$regex_dead_nodes/o){
+        $dfs{"datanodes_dead"} = $1;
     }
     # These multiplier calculations are slightly less accurate than the actual amount given by the hadoop dfsadmin -report that my other plugin uses but since the web page doesn't give the bytes count I have to estimate it by plain multiplier (JSP pages are only giving the rounded summary that I am then having to multiply
     if($content =~ /$regex_dfs_used/o){
@@ -165,6 +181,7 @@ sub parse_dfshealth {
             dfs_used_human
             dfs_used_pc
             datanodes_available
+            datanodes_dead
             /);
     vlog2;
 }
@@ -183,7 +200,7 @@ sub check_parsed {
 #############
 if($balance){
     parse_dfshealth();
-    $content = curl $url2;
+    $content = curl $url_live_nodes;
     vlog2 "parsing Namenode datanode % usage\n";
     if($content =~ />\s*Live Datanodes\s*:*\s*(\d+)\s*</){
         $dfs{"datanodes_available"} = $1;
@@ -239,18 +256,13 @@ if($balance){
     $msg .= " | 'HDFS Space Used'=$dfs{dfs_used_pc}%;$thresholds{warning}{upper};$thresholds{critical}{upper} 'HDFS Used Capacity'=$dfs{dfs_used}B;;0;$dfs{configured_capacity} 'HDFS Configured Capacity'=$dfs{configured_capacity}B 'Datanodes Available'=$dfs{datanodes_available}";
 
 ######################
-# TODO:
 } elsif($replication){
-    # TODO: dfsadmin report currently shows in US cluster 96 missing, 96 under-replicated and 9 corrupt blocks, yet only missing appear in JSP interface. Do not use --replication feature until determined why. Other plugin check_hadoop_dfs.pl is better at this time as it'll detect this properly. If JSP doesn't serve this information we're stuck on this point
-    #quit "UNKNOWN", "JSP doesn't give corrupt and under-replicated blocks at time of coding, cannot use this feature yet, use the other better check_hadoop_dfs.pl plugin";
-    # TODO: check this when we actually have corrupt blocks
     if($content =~ /(\d+) corrupt blocks/i or $content =~ />\s*Number of Corrupt Blocks\b$regex_td\s*(\d+)/i){
         $dfs{"corrupt_blocks"} = $1;
     }
     if($content =~ /(\d+) missing blocks/i or $content =~ />\s*Number of Missing Blocks\b$regex_td\s*(\d+)/i){
         $dfs{"missing_blocks"} = $1;
     }
-    # TODO: check this when we actually have under-replicated blocks
     if($content =~ /(\d+) under-replicated blocks/i or $content =~ />\s*Number of Under-Replicated Blocks\b$regex_td\s*(\d+)/i){
         $dfs{"under_replicated_blocks"} = $1;
     }
@@ -286,42 +298,54 @@ if($balance){
     $msg .= " | 'under replicated blocks'=$dfs{under_replicated_blocks};$thresholds{warning}{upper};$thresholds{critical}{upper} 'corrupt blocks'=$dfs{corrupt_blocks} 'missing blocks'=$dfs{missing_blocks}";
 
 ################
-# TODO:
-} elsif($nodes_available){
+} elsif($node_count){
+    $status = "OK";
+    parse_dfshealth();
+    $msg = "";
+    if($dfs{"datanodes_dead"}){
+        warning;
+        $msg .= sprintf("%d dead datanodes, ", $dfs{"datanodes_dead"});
+    }
+    $msg .= sprintf("%d datanodes available", $dfs{"datanodes_available"});
+    check_thresholds($dfs{"datanodes_available"});
+    $msg .= sprintf(" | datanodes_available=%d datanodes_dead=%d", $dfs{"datanodes_available"}, $dfs{"datanodes_dead"});
+################
+} elsif($node_list){
     my @missing_nodes;
+    $content = curl $url_live_nodes;
     foreach my $node (@nodes){
-        unless($content =~ /<td>$node(?:\.$domain_regex)?<\/td>/){
+        unless($content =~ />$node(?:\.$domain_regex)?<\//m){
             push(@missing_nodes, $node);
         }
     }
 
-    $nodes_available = scalar @nodes;
-    plural($nodes_available);
+    $node_count = scalar @nodes;
+    plural($node_count);
     my $missing_nodes = scalar @missing_nodes;
     $status = "OK";
-    if($missing_nodes){
+    if(@missing_nodes){
         if($missing_nodes <= $MAX_NODES_TO_DISPLAY_AS_MISSING){
             $msg = "'" . join(",", sort @missing_nodes) . "'";
         } else {
-            $msg = "$missing_nodes/$nodes_available node$plural";
+            $msg = "$missing_nodes/$node_count node$plural";
         }
         $msg .= " not";
     } else {
-        if($nodes_available <= $MAX_NODES_TO_DISPLAY_AS_ACTIVE){
+        if($node_count <= $MAX_NODES_TO_DISPLAY_AS_ACTIVE){
             $msg = "'" . join(",", sort @nodes) . "'";
         } else {
-            $msg = "$nodes_available/$nodes_available checked node$plural";
+            $msg = "$node_count/$node_count checked node$plural";
         }
     }
-    $msg .= " found in the active machines list on the Namenode" . ($verbose ? " at '$host:$port'" : "");
+    $msg .= " found in the active nodes list on the Namenode" . ($verbose ? " at '$host:$port'" : "");
     if($verbose){
         if($missing_nodes and $missing_nodes <= $MAX_NODES_TO_DISPLAY_AS_MISSING){
-            $msg .= " ($missing_nodes/$nodes_available checked node$plural)";
-        } elsif ($nodes_available <= $MAX_NODES_TO_DISPLAY_AS_ACTIVE){
-            $msg .= " ($nodes_available/$nodes_available checked node$plural)";
+            $msg .= " ($missing_nodes/$node_count checked node$plural)";
+        } elsif ($node_count <= $MAX_NODES_TO_DISPLAY_AS_ACTIVE){
+            $msg .= " ($node_count/$node_count checked node$plural)";
         }
     }
-    check_thresholds($missing_nodes);
+    check_thresholds(scalar @missing_nodes);
 ###############
 } elsif($heap){
     if($content =~ /\bHeap\s+Size\s+is\s+(\d+(?:\.\d+)?)\s+(\wB)\s*\/\s*(\d+(?:\.\d+)?)\s+(\wB)\s+\((\d+(?:\.\d+)?)%\)/io){
@@ -346,47 +370,7 @@ if($balance){
 
 ########
 } else {
-    if($content =~ /<tr><th>Maps<\/th><th>Reduces<\/th><th>Total Submissions<\/th><th>Nodes<\/th><th>Map Task Capacity<\/th><th>Reduce Task Capacity<\/th><th>Avg\. Tasks\/Node<\/th><th>Blacklisted Nodes<\/th><\/tr>\n<tr><td>(\d+)<\/td><td>(\d+)<\/td><td>(\d+)<\/td><td><a href="machines\.jsp\?type=active">(\d+)<\/a><\/td><td>(\d+)<\/td><td>(\d+)<\/td><td>(\d+(?:\.\d+)?)<\/td><td><a href="machines\.jsp\?type=blacklisted">(\d+)<\/a><\/td><\/tr>/mi){
-        $stats{"maps"}                  = $1;
-        $stats{"reduces"}               = $2;
-        $stats{"total_submissions"}     = $3;
-        $stats{"nodes"}                 = $4;
-        $stats{"map_task_capacity"}     = $5;
-        $stats{"reduce_task_capacity"}  = $6;
-        $stats{"avg_tasks_node"}        = $7;
-        $stats{"blacklisted_nodes"}     = $8;
-    }
-    foreach(qw/maps reduces total_submissions nodes map_task_capacity reduce_task_capacity avg_tasks_node blacklisted_nodes/){
-        unless(defined($stats{$_})){
-            vlog2;
-            quit "UNKNOWN", "failed to find $_ in Namenode output";
-        }
-        vlog2 "stats $_ = $stats{$_}";
-    }
-    vlog2;
-
-    $status = "OK";
-    $msg = sprintf("%d MapReduce nodes available, %d blacklisted nodes", $stats{"nodes"}, $stats{"blacklisted_nodes"});
-    $thresholds{"warning"}{"lower"}  = 0 unless $thresholds{"warning"}{"lower"};
-    $thresholds{"critical"}{"lower"} = 0 unless $thresholds{"critical"}{"lower"};
-    check_thresholds($stats{"nodes"});
-    # TODO: This requires a pnp4nagios config for Maps and Tasks which are basically counters
-    $msg .= sprintf(" | 'MapReduce Nodes'=%d;%d;%d 'Blacklisted Nodes'=%d Maps=%d Reduces=%d 'Total Submissions'=%d 'Map Task Capacity'=%d 'Reduce Task Capacity'=%d 'Avg. Tasks/Node'=%.2f",
-                        $stats{"nodes"},
-                        $thresholds{"warning"}{"lower"},
-                        $thresholds{"critical"}{"lower"},
-                        $stats{"blacklisted_nodes"},
-                        $stats{"maps"},
-                        $stats{"reduces"},
-                        $stats{"total_submissions"},
-                        $stats{"map_task_capacity"},
-                        $stats{"reduce_task_capacity"},
-                        $stats{"avg_tasks_node"}
-                   );
-
-    if($stats{"blacklisted_nodes"}){
-        critical;
-    }
+    usage "error no check specified";
 }
 
 quit $status, $msg;
