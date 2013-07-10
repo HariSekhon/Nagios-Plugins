@@ -112,17 +112,26 @@ unless($hdfs_space or $replication or $balance or $node_count or $node_list or $
 if($hdfs_space + $replication + $balance + $node_count + ($node_list?1:0) + $heap > 1){
     usage "can only check one of --hdfs-space / --replication / --balance / --node-count / --node-list / --heap-usage at one time in order to make sense of thresholds";
 }
-if($node_count){
+if($hdfs_space or $balance or $heap){
+    validate_thresholds(1, 1, {
+                            "simple"   => "upper",
+                            "integer"  => 0,
+                            "positive" => 1,
+                            "max"      => 100
+                            });
+} elsif($node_count){
     validate_thresholds(1, 1, {
                             "simple"   => "lower",
-                            "integer"  => 1
+                            "integer"  => 1,
+                            "positive" => 1
                             });
 } elsif($node_list){
     $warning  = 0 unless $warning;
     $critical = 0 unless $critical;
     validate_thresholds(1, 1, {
                             "simple"   => "upper",
-                            "integer"  => 1
+                            "integer"  => 1,
+                            "positive" => 1
                             });
 } else {
     validate_thresholds(1, 1);
