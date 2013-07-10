@@ -20,13 +20,13 @@ $VERSION = "0.3.1";
 
 use strict;
 use warnings;
+use LWP::UserAgent;
+use JSON 'decode_json';
 BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use LWP::UserAgent;
-use JSON 'decode_json';
 
 my $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
