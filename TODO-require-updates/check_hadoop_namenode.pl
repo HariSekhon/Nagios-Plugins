@@ -11,20 +11,20 @@
 
 # TODO: needs a little more work and validation
 
-# Nagios Plugin to run various checks against the Hadoop HDFS Cluster via the Namenode JSP pages
+$DESCRIPTION = "Nagios Plugin to run various checks against the Hadoop HDFS Cluster via the Namenode JSP pages
 
-# This is a rewrite of the functionality from my previous check_hadoop_dfs.pl plugin
-# using the Namenode JSP interface instead of the hadoop dfsadmin -report output
-#
-# The original plugin is better/tighter than this one, but this one is useful for the following reasons:
-# 1. we can run it against the US remotely without needing to adjust the US setup
-# 2. it can check Namenode Heap Usage
-#
-# Caveats:
-# 1. Cannot currently detect corrupt or under-replicated blocks since JSP doesn't offer this information
-# 2. There are not byte counters, so we can only use the human summary and multiply out, and being a multiplier of a summary figure it's marginally less accurate
+This is an alternate rewrite of the functionality from my previous check_hadoop_dfs.pl plugin
+using the Namenode JSP interface instead of the hadoop dfsadmin -report output
 
-# Note: This was created for Apache Hadoop 0.20.2, r911707. If JSP output changes across versions, this plugin will need to be updated to parse the changes
+The original plugin is better/tighter than this one, but this one is useful for the following reasons:
+1. you can check your NameNode remotely via JSP without having to adjust the NameNode setup to install the check_hadoop_dfs.pl plugin
+2. it can check Namenode Heap Usage
+
+Caveats:
+1. Cannot currently detect corrupt or under-replicated blocks since JSP doesn't offer this information
+2. There are no byte counters, so we can only use the human summary and multiply out, and being a multiplier of a summary figure it's marginally less accurate
+
+Note: This was created for Apache Hadoop 0.20.2, r911707. If JSP output changes across versions, this plugin will need to be updated to parse the changes";
 
 $VERSION = "0.8";
 
@@ -33,9 +33,9 @@ use warnings;
 use LWP::Simple qw/get $ua/;
 BEGIN {
     use File::Basename;
-    use lib dirname(__FILE__);
+    use lib dirname(__FILE__) . "/lib";
 }
-use HariSekhonUtils;
+use HariSekhonUtils qw/:DEFAULT :regex/;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
@@ -56,12 +56,7 @@ my $namenode_urn             = "dfshealth.jsp";
 my $namenode_urn_live_nodes  = "dfsnodelist.jsp?whatNodes=LIVE";
 my $namenode_urn_dead_nodes  = "dfsnodelist.jsp?whatNodes=DEAD";
 my $default_port             = "50070";
-$port = $default_port;
-
-#my $default_warning  = 0;
-#my $default_critical = 0;
-#$warning  = $default_warning;
-#$critical = $default_critical;
+$port                        = $default_port;
 
 %options = (
     "H|host=s"          => [ \$host,            "Namenode to connect to" ],
@@ -72,7 +67,7 @@ $port = $default_port;
     "b|balance"         => [ \$balance,         "Checks Balance of HDFS Space used % across datanodes is within thresholds. Lists the nodes out of balance in verbose mode" ],
     "m|nodes-available" => [ \$nodes_available, "Checks the number of available datanodes against the given warning/critical thresholds as the lower limits (inclusive). Any dead datanodes raises warning" ],
     "n|nodes=s"         => [ $nodes,            "List of datanodes to expect are available in namenode (non-switch args are appended to this list for convenience)." ],
-    "w|warning=s"       => [ \$warning,         "Warning threshold or ran:ge (inclusive)"  ],
+    "w|warning=s"       => [ \$warning,         "Warning  threshold or ran:ge (inclusive)" ],
     "c|critical=s"      => [ \$critical,        "Critical threshold or ran:ge (inclusive)" ],
 );
 @usage_order = qw/host port hdfs-space replication balance nodes-available heap-usage warning critical hadoop-bin hadoop-user/;
@@ -81,7 +76,7 @@ get_options();
 
 defined($host)  or usage "Namenode host not specified";
 $host = isHost($host) || usage "Namenode host invalid, must be hostname/FQDN or IP address";
-vlog2 "host:     '$host'";
+vlog_options "host", "'$host'";
 $port = validate_port($port);
 if($progname eq "check_hadoop_hdfs_space.pl"){
     vlog2 "checking HDFS % space used";
@@ -130,15 +125,16 @@ set_timeout();
 
 my $content = curl $url;
 
+my $regex_td = '\s*(?:<\/a>\s*)?<td\s+id="\w+">\s*:\s*<td\s+id="\w+">\s*';
+
 sub parse_dfshealth {
     # Note: This was created for Apache Hadoop 0.20.2, r911707. If they change this page across versions, this plugin will need to be updated to parse the changes
     vlog2 "parsing Namenode dfs health output";
 
-    my $regex_td = '\s*(?:<\/a>\s*)?<td\s+id="\w+">\s*:\s*<td\s+id="\w+">\s*';
     my $regex_configured_capacity = qr/>\s*Configured Capacity$regex_td(\d+(?:\.\d+)?)\s(\w+)\s*</o;
     my $regex_dfs_used            = qr/>\s*DFS Used$regex_td(\d+(?:\.\d+)?)\s(\w+)\s*</o;
     my $regex_dfs_used_pc         = qr/>\s*DFS Used%\s*<td\s+id="\w+">\s*:\s*<td\s+id="\w+">\s*(\d+(?:\.\d+)?)\s*%\s*</o;
-    my $regex_live_nodes          = qr/>\s*Live Nodes$regex_td(\d+)\s*</o;
+    my $regex_live_nodes          = qr/>\s*Live Nodes$regex_td(\d+)\s*/o;
 #    my $regex_present_capacity    = qr/>\s*Present Capacity$regex_td(\d+(?:\.\d+)?)\s(\w+)\s*</o;
     if($content =~ /$regex_live_nodes/o){
         $dfs{"datanodes_available"} = $1;
@@ -248,14 +244,14 @@ if($balance){
     # TODO: dfsadmin report currently shows in US cluster 96 missing, 96 under-replicated and 9 corrupt blocks, yet only missing appear in JSP interface. Do not use --replication feature until determined why. Other plugin check_hadoop_dfs.pl is better at this time as it'll detect this properly. If JSP doesn't serve this information we're stuck on this point
     #quit "UNKNOWN", "JSP doesn't give corrupt and under-replicated blocks at time of coding, cannot use this feature yet, use the other better check_hadoop_dfs.pl plugin";
     # TODO: check this when we actually have corrupt blocks
-    if($content =~ /(\d+) corrupt blocks/){
+    if($content =~ /(\d+) corrupt blocks/i or $content =~ />\s*Number of Corrupt Blocks\b$regex_td\s*(\d+)/i){
         $dfs{"corrupt_blocks"} = $1;
     }
-    if($content =~ /(\d+) missing blocks/){
+    if($content =~ /(\d+) missing blocks/i or $content =~ />\s*Number of Missing Blocks\b$regex_td\s*(\d+)/i){
         $dfs{"missing_blocks"} = $1;
     }
     # TODO: check this when we actually have under-replicated blocks
-    if($content =~ /(\d+) under-replicated blocks/){
+    if($content =~ /(\d+) under-replicated blocks/i or $content =~ />\s*Number of Under-Replicated Blocks\b$regex_td\s*(\d+)/i){
         $dfs{"under_replicated_blocks"} = $1;
     }
     if(not (defined($dfs{"corrupt_blocks"}) or defined($dfs{"missing_blocks"})) ){
@@ -281,15 +277,13 @@ if($balance){
     }
     $status = "OK";
     #$msg = sprintf("under replicated blocks: %d, corrupt blocks: %d, missing blocks: %d", $dfs{"under_replicated_blocks"}, $dfs{"corrupt_blocks"}, $dfs{"missing_blocks"});
-    #check_thresholds($dfs{"under_replicated_blocks"});
-    $msg = sprintf("%d missing blocks detected (JSP doesn't show us corrupt or under-replicated blocks at this time!)", $dfs{"missing_blocks"});
-    #if($dfs{"corrupt_blocks"} or $dfs{"missing_blocks"}){
-    if($dfs{"missing_blocks"}){
+    check_thresholds($dfs{"under_replicated_blocks"});
+    $msg = sprintf("under replicated blocks: %d, corrupt blocks: %d, missing blocks: %d", $dfs{"under_replicated_blocks"}, $dfs{"corrupt_blocks"}, $dfs{"missing_blocks"});
+    if($dfs{"corrupt_blocks"} or $dfs{"missing_blocks"}){
         critical;
-        #$msg = "corrupt/missing blocks detected. $msg";
+        $msg = "corrupt/missing blocks detected. $msg";
     }
-    #$msg .= " | 'under replicated blocks'=$dfs{under_replicated_blocks};$thresholds{warning}{upper};$thresholds{critical}{upper} 'corrupt blocks'=$dfs{corrupt_blocks} 'missing blocks'=$dfs{missing_blocks}";
-    $msg .= " | 'missing blocks'=$dfs{missing_blocks}";
+    $msg .= " | 'under replicated blocks'=$dfs{under_replicated_blocks};$thresholds{warning}{upper};$thresholds{critical}{upper} 'corrupt blocks'=$dfs{corrupt_blocks} 'missing blocks'=$dfs{missing_blocks}";
 
 ################
 # TODO:
