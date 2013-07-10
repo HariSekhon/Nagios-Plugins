@@ -187,7 +187,7 @@ if($tls){
     $protocol = "https";
     if($port == 7180){
         vlog2 "overriding default http port 7180 to default tls port 7183";
-        $port = 7183
+        $port = 7183;
     }
 }
 my $url_prefix = "$protocol://$host:$port";
