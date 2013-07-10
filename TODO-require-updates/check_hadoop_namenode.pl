@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to run various checks against the Hadoop HDFS Clus
 This is an alternate rewrite of the functionality from my previous check_hadoop_dfs.pl plugin
 using the Namenode JSP interface instead of the hadoop dfsadmin -report output
 
-The original plugin is better/tighter than this one, but this one is useful for the following reasons:
+Recommend to use the original check_hadoop_dfs.pl plugin it's better tested and has better/tighter output validation than this one, but this one is useful for the following reasons:
 1. you can check your NameNode remotely via JSP without having to adjust the NameNode setup to install the check_hadoop_dfs.pl plugin
 2. it can check Namenode Heap Usage
 
