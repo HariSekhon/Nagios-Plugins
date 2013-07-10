@@ -9,6 +9,9 @@
 #  License: see accompanying LICENSE file
 #
 
+# TODO: node list checks
+# TODO: list dead datanodes
+
 $DESCRIPTION = "Nagios Hadoop Plugin to check various health aspects of HDFS via the Namenode's dfsadmin -report
 
 - checks % HDFS space used. Based off an earlier plugin I wrote in 2010 that we used in production for over 2 years. This heavily leverages HariSekhonUtils so code in this file is very short but still much tighter validated
