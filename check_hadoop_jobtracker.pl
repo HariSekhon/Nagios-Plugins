@@ -30,11 +30,11 @@ $VERSION = "0.9";
 
 use strict;
 use warnings;
+use LWP::Simple qw/get $ua/;
 BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
-use LWP::Simple qw/get $ua/;
 use HariSekhonUtils qw/:DEFAULT :regex/;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
@@ -61,7 +61,7 @@ $critical = $default_critical;
     "H|host=s"         => [ \$host,         "JobTracker to connect to" ],
     "P|port=s"         => [ \$port,         "JobTracker port to connect to (defaults to $default_port)" ],
     "n|nodes=s"        => [ \$nodes,        "Optional list of nodes to check are alive in the JobTracker (non-switch args are appended to this list for convenience)" ],
-    "heap-usage"       => [ \$heap,         "Check JobTracker Heap % Used. Optional % thresholds may be supplied for warning and/or critical" ],
+    "heap-usage"       => [ \$heap,         "Check JobTracker Heap % Used. Optional % thresholds may be supplied for warning and/or critical. Recommend you use JMX instead, there is a known issue where this is committed rather than used heap so it appears nearly at max after some run time" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive) for min number of available nodes or max missing/inactive nodes if node list is given (defaults to $default_warning)"  ],
     "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive) for min number of available nodes or max missing/inactive nodes if node list is given (defaults to $default_critical)" ],
 );
