@@ -40,7 +40,7 @@ use HariSekhonUtils qw/:DEFAULT :regex/;
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 my $balance         = 0;
-my $dead_nodes      = 0;
+#my $dead_nodes      = 0;
 my $hdfs_space      = 0;
 my $heap            = 0;
 my $node_list        = "";
@@ -67,7 +67,8 @@ $port                        = $default_port;
     "b|balance"         => [ \$balance,         "Checks Balance of HDFS Space used % across datanodes is within thresholds. Lists the nodes out of balance in verbose mode" ],
     "m|node-count"      => [ \$node_count,      "Checks the number of available datanodes against the given warning/critical thresholds as the lower limits (inclusive). Any dead datanodes raises warning" ],
     "n|node-list=s"     => [ \$node_list,       "List of datanodes to expect are available on namenode (non-switch args are appended to this list for convenience). Warning/Critical thresholds default to zero if not specified" ],
-    "d|dead-nodes"      => [ \$dead_nodes,      "List all dead datanodes" ],
+    # TODO:
+    #"d|dead-nodes"      => [ \$dead_nodes,      "List all dead datanodes" ],
     "heap-usage"        => [ \$heap,            "Check Namenode Heap % Used. Optional % thresholds may be supplied for warning and/or critical" ],
     "w|warning=s"       => [ \$warning,         "Warning  threshold or ran:ge (inclusive)" ],
     "c|critical=s"      => [ \$critical,        "Critical threshold or ran:ge (inclusive)" ],
@@ -94,6 +95,8 @@ if($progname eq "check_hadoop_hdfs_space.pl"){
     $node_count = 1;
 } elsif($progname eq "check_hadoop_datanode_list.pl"){
     vlog "checking HDFS datanode list";
+#} elsif($progname eq "check_hadoop_dead_datanodes.pl"){
+#    vlog "checking HDFS dead datanode list";
 }
 
 my $url;
@@ -346,27 +349,68 @@ if($balance){
         }
     }
     check_thresholds(scalar @missing_nodes);
+################
+#} elsif($dead_nodes){
+#    my @dead_nodes;
+#    $content = curl $url_dead_nodes;
+#    foreach my $node (@nodes){
+#        unless($content =~ />$node(?:\.$domain_regex)?<\//m){
+#            push(@missing_nodes, $node);
+#        }
+#    }
+#
+#    $node_count = scalar @nodes;
+#    plural($node_count);
+#    my $missing_nodes = scalar @missing_nodes;
+#    $status = "OK";
+#    if(@missing_nodes){
+#        if($missing_nodes <= $MAX_NODES_TO_DISPLAY_AS_MISSING){
+#            $msg = "'" . join(",", sort @missing_nodes) . "'";
+#        } else {
+#            $msg = "$missing_nodes/$node_count node$plural";
+#        }
+#        $msg .= " not";
+#    } else {
+#        if($node_count <= $MAX_NODES_TO_DISPLAY_AS_ACTIVE){
+#            $msg = "'" . join(",", sort @nodes) . "'";
+#        } else {
+#            $msg = "$node_count/$node_count checked node$plural";
+#        }
+#    }
+#    $msg .= " found in the active nodes list on the Namenode" . ($verbose ? " at '$host:$port'" : "");
+#    if($verbose){
+#        if($missing_nodes and $missing_nodes <= $MAX_NODES_TO_DISPLAY_AS_MISSING){
+#            $msg .= " ($missing_nodes/$node_count checked node$plural)";
+#        } elsif ($node_count <= $MAX_NODES_TO_DISPLAY_AS_ACTIVE){
+#            $msg .= " ($node_count/$node_count checked node$plural)";
+#        }
+#    }
+#    check_thresholds(scalar @missing_nodes);
 ###############
 } elsif($heap){
-    if($content =~ /\bHeap\s+Size\s+is\s+(\d+(?:\.\d+)?)\s+(\wB)\s*\/\s*(\d+(?:\.\d+)?)\s+(\wB)\s+\((\d+(?:\.\d+)?)%\)/io){
-        $stats{"heap_used"}       = $1;
-        $stats{"heap_used_units"} = $2;
-        $stats{"heap_max"}        = $3;
-        $stats{"heap_max_units"}  = $4;
-        $stats{"heap_used_pc"}    = $5;
-        $stats{"heap_used_bytes"} = expand_units($stats{"heap_used"}, $stats{"heap_used_units"}, "Heap Used");
-        $stats{"heap_max_bytes"}  = expand_units($stats{"heap_max"},  $stats{"heap_max_units"},  "Heap Max" );
+    #if($content =~ /\bHeap\s+Size\s+is\s+(\d+(?:\.\d+)?)\s+(\wB)\s*\/\s*(\d+(?:\.\d+)?)\s+(\wB)\s+\((\d+(?:\.\d+)?)%\)/io){
+    if($content =~ /Heap\s+Memory\s+used\s+(\d+(?:\.\d+)?)\s+(\w+)\s+is\s+(\d+(?:\.\d+)?)%\s+of\s+Commited\s+Heap\s+Memory\s+(\d+(?:\.\d+)?)\s+(\w+)\.\s+Max\s+Heap\s+Memory\s+is\s+(\d+(?:\.\d+)?)\s+(\w+)/){
+        $stats{"heap_used"}             = $1;
+        $stats{"heap_used_units"}       = $2;
+        $stats{"heap_used_pc"}          = $3;
+        $stats{"heap_committed"}        = $4;
+        $stats{"heap_committed_units"}  = $5;
+        $stats{"heap_max"}              = $6;
+        $stats{"heap_max_units"}        = $7;
+        $stats{"heap_used_bytes"}       = expand_units($stats{"heap_used"}, $stats{"heap_used_units"}, "Heap Used");
+        $stats{"heap_committed_bytes"}  = expand_units($stats{"heap_committed"}, $stats{"heap_committed_units"}, "Heap committed");
+        $stats{"heap_max_bytes"}        = expand_units($stats{"heap_max"},  $stats{"heap_max_units"},  "Heap Max" );
         $stats{"heap_used_pc_calculated"} =  $stats{"heap_used_bytes"} / $stats{"heap_max_bytes"} * 100;
-        unless(sprintf("%d", $stats{"heap_used_pc_calculated"}) eq sprintf("%d", $stats{"heap_used_pc"})){
-            code_error "mismatch on calculated vs parsed % heap used";
+        if(abs(int($stats{"heap_used_pc_calculated"}) - $stats{"heap_used_pc"}) > 2){
+            code_error "mismatch on calculated ($stats{heap_used_pc_calculated}) vs parsed % heap used ($stats{heap_used_pc})";
         }
     } else {
         code_error "failed to find Heap Size in output from Namenode, code error or output from Namenode JSP has changed";
     }
     $status = "OK";
-    $msg    = sprintf("Namenode Heap %.2f%% Used (%s %s used, %s %s total)", $stats{"heap_used_pc"}, $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_max"}, $stats{"heap_max_units"});
+    $msg    = sprintf("Namenode Heap %.2f%% Used of Committed (%s %s used, %s %s committed, %s %s total)", $stats{"heap_used_pc"}, $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_committed"}, $stats{"heap_committed_units"}, $stats{"heap_max"}, $stats{"heap_max_units"});
     check_thresholds($stats{"heap_used_pc"});
-    $msg .= " | 'Namenode Heap % Used'=$stats{heap_used_pc}%;" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "" ) . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "" ) . ";0;100 'Namenode Heap Used'=$stats{heap_used_bytes}B";
+    $msg .= " | 'Namenode Heap % Used'=$stats{heap_used_pc}%;" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "" ) . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "" ) . ";0;100 'Namenode Heap Used'=$stats{heap_used_bytes}B 'NameNode Heap Committed'=$stats{heap_committed_bytes}B";
 
 ########
 } else {
