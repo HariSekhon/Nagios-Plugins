@@ -20,13 +20,13 @@ $VERSION = "0.3.1";
 
 use strict;
 use warnings;
-use LWP::UserAgent;
-use JSON 'decode_json';
 BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use LWP::UserAgent;
+use JSON 'decode_json';
 
 my $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
@@ -61,8 +61,8 @@ my @metrics_not_found;
     "u|user=s"         => [ \$user,         "Cloudera Manager user" ],
     "p|password=s"     => [ \$password,     "Cloudera Manager password" ],
     "T|tls"            => [ \$tls,          "Use TLS connection to Cloudera Manager (automatically updates port to 7183 if still set to 7180 to save one 302 redirect round trip)" ],
-    "ssl-CA-path=s"    => [ \$ssl_ca_path,  "Path to CA certificate directory (automatically enables --tls)" ],
-    "tls-noverify"     => [ \$tls_noverify, "Do not verify TLS certificate from Cloudera Manager (automatically enables --tls)" ],
+    "ssl-CA-path=s"    => [ \$ssl_ca_path,  "Path to CA certificate directory for validating SSL certificate (automatically enables --tls)" ],
+    "tls-noverify"     => [ \$tls_noverify, "Do not verify SSL certificate from Cloudera Manager (automatically enables --tls)" ],
     "m|metrics=s"      => [ \$metrics,      "Metric(s) to fetch, comma separated (eg. dfs_capacity,dfs_capacity_used,dfs_capacity_used_non_hdfs). Thresholds may optionally be applied if a single metric is given" ],
     "a|all-metrics"    => [ \$all_metrics,  "Fetch all metrics for the given service/host/role specified by the options below. Caution, this could be a *lot* of metrics, best used to find available metrics for a given section" ],
     "C|cluster=s"      => [ \$cluster,      "Cluster Name shown in Cloudera Manager (eg. \"Cluster - CDH4\")" ],
