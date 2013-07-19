@@ -13,16 +13,17 @@ $DESCRIPTION = "Nagios Plugin to parse metrics from a given Hadoop daemon's /met
 
 Currently only supporting the jvm/mapred sections, Fair Scheduler stats from JobTracker may be supported in a later version";
 
-$VERSION = "0.2.1";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
-use LWP::Simple qw/get $ua/;
 BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use LWP::Simple qw/get $ua/;
+use JSON::XS;
 
 my $metrics;
 my $all_metrics;
@@ -41,7 +42,7 @@ get_options();
 
 $host       = validate_hostname($host);
 $port       = validate_port($port);
-my $url     = "http://$host:$port/metrics";
+my $url     = "http://$host:$port/metrics?format=json";
 my %stats;
 my @stats;
 unless($all_metrics){
@@ -95,20 +96,30 @@ sub check_stats_parsed(){
 }
 
 sub parse_stats(){
-    my $jvm_seen = 0;
-    foreach my $line (split("\n", $content)){
-        # TODO: support Fair Scheduler metrics for MAP and REDUCE sections later, right now only doing JVM and Mapred stats
-        $line =~ /^jvm/ and $jvm_seen = 1;
-        next unless $jvm_seen;
-        if($all_metrics){
-            if($line =~ /^\s*(\w+)\s*=\s*(\d+(?:\.\d+)?)\s*$/){
-                $stats{$1} = $2;
+    isJson($content) or quit "CRITICAL", "invalid json returned by '$host:$port'";
+    my $json = decode_json $content;
+    if($debug){
+        use Data::Dumper;
+        print Dumper($json);
+    }
+    # TODO: support Fair Scheduler metrics for MAP and REDUCE sections later, right now only doing JVM and Mapred stats
+    foreach my $section (qw/mapred jvm/){
+        defined($json->{$section}) or quit "UNKNOWN", "no $section section found in json output";
+        foreach my $subsection (sort keys %{$json->{$section}}){
+            if(scalar(@{$json->{$section}->{$subsection}}) > 1){
+                quit "UNKNOWN", "more than one $section $subsection section detected, code updates and user specification required to delve deeper";
             }
-        } else {
-            foreach my $stat (@stats){
-                if($line =~ /^\s*$stat\s*=\s*(\d+(?:\.\d+)?)\s*$/){
-                    $stats{$stat} = $1;
-                    last;
+            foreach my $stat (sort keys %{$json->{$section}->{$subsection}[0][1]}){
+                if($all_metrics){
+                    $stats{$stat} = $json->{$section}->{$subsection}[0][1]{$stat};
+                    isFloat($stats{$stat}) or quit "UNKNOWN", "non-float metric returned '$stat' = $stats{$stat} from $section $subsection";
+                } else {
+                    foreach my $metric (@stats){
+                        if($metric eq $stat){
+                            $stats{$metric} = $json->{$section}->{$subsection}[0][1]{$stat};
+                            last;
+                        }
+                    }
                 }
             }
         }
