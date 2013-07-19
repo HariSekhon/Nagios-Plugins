@@ -11,17 +11,22 @@
 
 $DESCRIPTION = "Nagios Plugin to parse metrics from a given Hadoop daemon's /metrics page
 
-Currently supports metrics for:
+Currently supports metrics for sections:
 
-JobTracker:  jvm
-             mapred
-             fairscheduler (specify -m 'pool:<name>:<map|reduce>:<metric_name>')
+JobTracker:     jvm
+                mapred
+                fairscheduler (specify -m 'pool:<name>:<map|reduce>:<metric_name>')
                          
-TaskTracker: jvm
-             mapred 
+TaskTracker:    jvm
+                mapred 
 
-HBase Master/RegionServer: jvm
-                           rpc
+HBase Master /
+      RegionServer:     jvm
+                        rpc
+                        hbase  (requires -m <metric> prefix of one of the following to disambiguate metrics since some appear in more than one section)
+                               - 'master:',
+                               - 'regionserver:'
+                               - 'RegionServerDynamicStatistics:'
 ";
 
 $VERSION = "0.3";
@@ -56,7 +61,9 @@ $port       = validate_port($port);
 my $url     = "http://$host:$port/metrics?format=json";
 my %stats;
 my @stats;
-unless($all_metrics){
+if($all_metrics){
+    defined($metrics) and usage "cannot specify --all-metrics and specific --metrics at the same time!";
+} else {
     defined($metrics) or usage "no metrics specified";
     foreach my $metric (split(/\s*[,\s]\s*/, $metrics)){
         $metric =~ /^[A-Z]+[\w:]*[A-Z]+$/i or usage "invalid metrics '$metric' given, must be alphanumeric, may contain underscores and colons in middle";
@@ -113,7 +120,7 @@ sub parse_stats(){
         use Data::Dumper;
         print Dumper($json);
     }
-    foreach my $section (qw/mapred jvm rpc/){
+    foreach my $section (qw/mapred jvm rpc hbase/){
         #defined($json->{$section}) or quit "UNKNOWN", "no $section section found in json output";
         defined($json->{$section}) or next;
         foreach my $subsection (sort keys %{$json->{$section}}){
@@ -122,12 +129,18 @@ sub parse_stats(){
             }
             defined($json->{$section}->{$subsection}[0][1]) or next;
             foreach my $stat (sort keys %{$json->{$section}->{$subsection}[0][1]}){
+                defined($stats{$stat}) and quit "UNKNOWN", "detected more than one metric of the same name ($stat), code may need extension to handle extra context";
+                my $context = "";
+                if($section eq "hbase"){
+                    $context = "$subsection:";
+                }
                 if($all_metrics){
-                    $stats{$stat} = $json->{$section}->{$subsection}[0][1]{$stat};
-                    isFloat($stats{$stat}) or quit "UNKNOWN", "non-float metric returned '$stat' = $stats{$stat} from $section $subsection";
+                    defined($json->{$section}->{$subsection}[0][1]{$stat}) or quit "UNKNOWN", "\$json->{$section}->{$subsection}[0][1]{$stat} is not defined";
+                    $stats{$context . $stat} = $json->{$section}->{$subsection}[0][1]{$stat};
+                    isFloat($stats{$context . $stat}) or quit "UNKNOWN", "non-float metric returned '$stat' = " . $stats{$context . $stat} . " from $section $subsection";
                 } else {
                     foreach my $metric (@stats){
-                        if($metric eq $stat){
+                        if($metric eq $context . $stat){
                             $stats{$metric} = $json->{$section}->{$subsection}[0][1]{$stat};
                             last;
                         }
@@ -140,6 +153,7 @@ sub parse_stats(){
         foreach (@{$json->{"fairscheduler"}{"pools"}}){
             my $pool = "pool:" . $_->[0]{"name"} . ":" . lc $_->[0]{"taskType"};
             foreach my $stat (sort keys %{$_->[1]}){
+                defined($stats{"pool:$stat"}) and quit "UNKNOWN", "detected more than one metric of the same name (pool:$stat), code may need extension to handle extra context";
                 $stats{"$pool:$stat"} = $_->[1]{$stat};
             }
         }
