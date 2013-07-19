@@ -16,7 +16,7 @@ $DESCRIPTION = "Nagios Plugin to check given Hadoop metric(s) via Cloudera Manag
 
 See the Charts section in CM or --all-metrics for a given --cluster --service [--roleId] or --hostId to see what's available";
 
-$VERSION = "0.3.1";
+$VERSION = "0.3.2";
 
 use strict;
 use warnings;
@@ -217,11 +217,8 @@ unless($content){
 
 vlog2 "parsing output from Cloudera Manager\n";
 
-# wish there was a better way of validating the JSON returned but Test::JSON is_valid_json() also errored out badly from underlying JSON::Any module, similar to JSON's decode_json
-if($content =~ /^[^A-Za-z]*$/ and $content !~ /{/){
-    # give a more user friendly message than the decode_json's die 'malformed JSON string, neither array, object, number, string or atom, at character offset ...'
-    quit "CRITICAL", "invalid json returned by Cloudera Manager at '$url_prefix', did you try to connect to the SSL port without --tls?";
-}
+# give a more user friendly message than the decode_json's die 'malformed JSON string, neither array, object, number, string or atom, at character offset ...'
+isJson($content) or quit "CRITICAL", "invalid json returned by Cloudera Manager at '$url_prefix', did you try to connect to the SSL port without --tls?";
 my $json = decode_json $content;
 
 if($list_roles){
