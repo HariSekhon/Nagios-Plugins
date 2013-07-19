@@ -11,7 +11,18 @@
 
 $DESCRIPTION = "Nagios Plugin to parse metrics from a given Hadoop daemon's /metrics page
 
-Currently only supporting the jvm/mapred sections, Fair Scheduler stats from JobTracker may be supported in a later version";
+Currently supports metrics for:
+
+JobTracker:  jvm
+             mapred
+             fairscheduler (specify -m 'pool:<name>:<map|reduce>:<metric_name>')
+                         
+TaskTracker: jvm
+             mapred 
+
+HBase Master/RegionServer: jvm
+                           rpc
+";
 
 $VERSION = "0.3";
 
@@ -48,7 +59,7 @@ my @stats;
 unless($all_metrics){
     defined($metrics) or usage "no metrics specified";
     foreach my $metric (split(/\s*[,\s]\s*/, $metrics)){
-        $metric =~ /^\w+$/ or usage "invalid metrics '$metric' given, must be alphanumeric with underscores";
+        $metric =~ /^[A-Z]+[\w:]*[A-Z]+$/i or usage "invalid metrics '$metric' given, must be alphanumeric, may contain underscores and colons in middle";
         grep(/^$metric$/, @stats) or push(@stats, $metric);
     }
     @stats or usage "no valid metrics specified";
@@ -87,7 +98,7 @@ sub check_stats_parsed(){
         foreach(@stats){
             unless(defined($stats{$_})){
                 vlog2;
-                quit "UNKNOWN", "failed to find $_ in JobTracker output";
+                quit "UNKNOWN", "failed to find $_ in output from '$host:$port'";
             }
             vlog2 "stats $_ = $stats{$_}";
         }
@@ -102,13 +113,14 @@ sub parse_stats(){
         use Data::Dumper;
         print Dumper($json);
     }
-    # TODO: support Fair Scheduler metrics for MAP and REDUCE sections later, right now only doing JVM and Mapred stats
-    foreach my $section (qw/mapred jvm/){
-        defined($json->{$section}) or quit "UNKNOWN", "no $section section found in json output";
+    foreach my $section (qw/mapred jvm rpc/){
+        #defined($json->{$section}) or quit "UNKNOWN", "no $section section found in json output";
+        defined($json->{$section}) or next;
         foreach my $subsection (sort keys %{$json->{$section}}){
             if(scalar(@{$json->{$section}->{$subsection}}) > 1){
                 quit "UNKNOWN", "more than one $section $subsection section detected, code updates and user specification required to delve deeper";
             }
+            defined($json->{$section}->{$subsection}[0][1]) or next;
             foreach my $stat (sort keys %{$json->{$section}->{$subsection}[0][1]}){
                 if($all_metrics){
                     $stats{$stat} = $json->{$section}->{$subsection}[0][1]{$stat};
@@ -121,6 +133,14 @@ sub parse_stats(){
                         }
                     }
                 }
+            }
+        }
+    }
+    if(defined($json->{"fairscheduler"})){
+        foreach (@{$json->{"fairscheduler"}{"pools"}}){
+            my $pool = "pool:" . $_->[0]{"name"} . ":" . lc $_->[0]{"taskType"};
+            foreach my $stat (sort keys %{$_->[1]}){
+                $stats{"$pool:$stat"} = $_->[1]{$stat};
             }
         }
     }
