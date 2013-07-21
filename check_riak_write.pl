@@ -106,6 +106,7 @@ sub riak_key($){
         } else {
             quit "CRITICAL", "failed to $node_action after $time_taken secs: $status_line";
         }
+        vlog2 "\nchecking key value content is '$value'";
         if($content ne $value){
             quit "CRITICAL", "value mismatch on read back of written $bucket_key on $node! Wrote '$value', but '$content' returned by same node!";
         }
