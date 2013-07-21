@@ -84,7 +84,7 @@ unless($content){
 sub check_stats_parsed(){
     if($all_metrics){
         if(scalar keys %stats < 10){
-            quit "UNKNOWN", "<10 stats collected from /metrics page, this must be an error, try running with -vvv to see what the deal is";
+            quit "UNKNOWN", "<10 stats collected from /stats page, this must be an error, try running with -vvv to see what the deal is";
         }
         foreach(sort keys %stats){
             vlog2 "stats $_ = $stats{$_}";
@@ -163,8 +163,15 @@ if($all_metrics){
     }
 }
 if($all_metrics){
-    $msg .= "| ";
+    my $metrics_found=0;
     foreach(sort keys %stats){
+        print "$stats{$_}\n";
+        isFloat($stats{$_}) or next;
+        $metrics_found = 1;
+    }
+    $msg .= "| " if $metrics_found;
+    foreach(sort keys %stats){
+        isFloat($stats{$_}) or next;
         $msg .= "$_=$stats{$_} ";
     }
 } elsif(!$all_metrics and scalar @stats == 1){
@@ -180,12 +187,12 @@ if($all_metrics){
     }
 } else {
     my $metrics_found=0;
-    foreach(@stats){
+    foreach(sort keys %stats){
         isFloat($stats{$_}) or next;
         $metrics_found = 1;
     }
     $msg .= "| " if $metrics_found;
-    foreach(@stats){
+    foreach(sort keys %stats){
         isFloat($stats{$_}) or next;
         $msg .= "$_=$stats{$_} ";
     }
