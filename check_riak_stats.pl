@@ -165,7 +165,6 @@ if($all_metrics){
 if($all_metrics){
     my $metrics_found=0;
     foreach(sort keys %stats){
-        print "$stats{$_}\n";
         isFloat($stats{$_}) or next;
         $metrics_found = 1;
     }
