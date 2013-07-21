@@ -51,7 +51,9 @@ my $bytes_received;
 my $bits_per_second;
 my $transfer_seconds;
 
-open(CMD, "cd /tmp; exec $tftp -v $host $port -c get $filename 2>&1 |");
+my $cmd = "$tftp -v $host $port -c get $filename";
+vlog3 "cmd: $cmd\n";
+open(CMD, "cd /tmp; exec $cmd 2>&1 |");
 #local (*CMDR, *CMDW);
 #open2(\*CMDR, \*CMDW, "$tftp $host $port 2>&1") or quit "CRITICAL", "can't open $tftp to $host on port $port: $!";
 #print CMD "timeout " . ($timeout - 1) . "\n";
@@ -60,7 +62,8 @@ open(CMD, "cd /tmp; exec $tftp -v $host $port -c get $filename 2>&1 |");
 #print CMD "get $filename\n";
 vlog2 "sent request for file '$filename'\n";
 while(<CMD>){
-    print "output: $_" if $verbose;
+    chomp;
+    vlog3 "tftp: $_";
     if(/Transfer timed out./){
         quit "CRITICAL", "$_";
     }elsif(/Permission denied/){
@@ -68,20 +71,25 @@ while(<CMD>){
     }elsif(/unknown host/){
         quit "CRITICAL", "$_";
     }
-    next if /^getting from/;
+    #next if /^getting from/;
     if(/^Received (\d+) bytes in ([\d\.]+) seconds \[(\d+) bit\/s\]$/){
         #/^Received (\d+) bytes in ([\d\.]+) seconds \[(\d+) bit\/s\]$/
         $output           = $_;
         $bytes_received   = $1;
         $transfer_seconds = $2;
         $bits_per_second  = $3;
-        chomp $output;
     }
 }
 close (CMD);
 #close (CMDW);
-vlog2 "closed file handles";
-defined($output) || quit "CRITICAL", "transfer failed / unknown response from tftp";
+#vlog2 "closed tftp pipe";
+vlog3;
+if(defined($output)){
+} elsif(-f "/tmp/$filename" and -z "/tmp/$filename"){
+    quit "OK", "fetched empty file from tftp server '$host:$port', not a great test, recommend to use a file with content instead";
+} else {
+    quit "CRITICAL", "transfer failed / unknown response from tftp";
+}
 
 $status = "OK";
 $msg = "$output | 'Bits / second'=".$bits_per_second." 'Transfer Time'=".$transfer_seconds."s 'Bytes Received'=".$bytes_received."B";
