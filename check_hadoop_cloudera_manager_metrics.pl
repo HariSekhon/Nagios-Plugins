@@ -209,7 +209,7 @@ if(!$response->is_success){
     if($response->message =~ /Can't verify SSL peers without knowning which Certificate Authorities to trust/){
         $err .= ". Do you need to use --ssl-CA-path or --tls-noverify?";
     }
-    quit "CRITICAL", "$err";
+    quit "CRITICAL", $err;
 }
 unless($content){
     quit "CRITICAL", "blank content returned by Cloudera Manager at '$url_prefix'";
