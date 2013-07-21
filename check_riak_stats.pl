@@ -31,7 +31,7 @@ my $all_metrics;
 my $expected_string;
 
 %options = (
-    "H|host=s"            => [ \$host,              "Host to connect to" ],
+    "H|host=s"            => [ \$host,              "Riak node to connect to" ],
     "P|port=s"            => [ \$port,              "Port to connect to (defaults to $default_port)" ],
     "m|metrics=s"         => [ \$metrics,           "Metric(s) to collect, comma separated. Output in the order specified for convenience. Optional thresholds will only be applied when a single metrics is given" ],
     "a|all-metrics"       => [ \$all_metrics,       "Grab all metrics. Useful if you don't know what to monitor yet or just want to graph everything" ],
