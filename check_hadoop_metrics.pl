@@ -29,7 +29,7 @@ HBase Master /
                                - 'RegionServerDynamicStatistics:'
 ";
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -95,8 +95,10 @@ unless($content){
 
 sub check_stats_parsed(){
     if($all_metrics){
-        if(scalar keys %stats < 10){
-            quit "UNKNOWN", "<10 stats collected from /metrics page, this must be an error, try running with -vvv to see what the deal is";
+        if(scalar keys %stats == 0){
+            quit "UNKNOWN", "no stats collected from /metrics page (daemon recently started?)";
+        }elsif(scalar keys %stats < 10){
+            quit "UNKNOWN", "<10 stats collected from /metrics page (daemon recently started?). This could also be an error, try running with -vvv to see what the deal is";
         }
         foreach(sort keys %stats){
             vlog2 "stats $_ = $stats{$_}";
@@ -186,7 +188,7 @@ if($all_metrics){
     $msg .= " | $stats[0]=$stats{$stats[0]};" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "") . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "");
 } else {
     $msg .= "| ";
-    foreach(@stats){
+    foreach(sort keys %stats){
         $msg .= "$_=$stats{$_} ";
     }
 }
