@@ -33,8 +33,8 @@ $port = $default_port;
 %options = (
     "H|host=s"         => [ \$host,         "Riak node to connect to" ],
     "P|port=s"         => [ \$port,         "Port to connect to (defaults to $default_port)" ],
-    "w|warning=s"      => [ \$warning,      "Warning  threshold in seconds for each read/write/delete operation" ],
-    "c|critical=s"     => [ \$critical,     "Critical threshold in seconds for each read/write/delete operation" ],
+    "w|warning=s"      => [ \$warning,      "Warning  threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
+    "c|critical=s"     => [ \$critical,     "Critical threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
 );
 
 @usage_order = qw/host port warning critical/;
