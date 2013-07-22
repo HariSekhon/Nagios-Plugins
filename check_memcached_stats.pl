@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check MemCache statistics";
+$DESCRIPTION = "Nagios Plugin to check MemCached statistics";
 
 $VERSION = "0.7";
 
