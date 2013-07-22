@@ -49,7 +49,7 @@ my $key    = "$host-$epoch";
 my $bucket_key = "key '$key' bucket '$bucket'";
 my @chars = ("A".."Z", "a".."z", 0..9);
 my $value  = "";
-$value    .= $chars[rand @chars] for 1..12;
+$value    .= $chars[rand @chars] for 1..20;
 my $url    = "http://$host:$port/riak/$bucket/$key";
 vlog_options "bucket", $bucket;
 vlog_options "key",    $key;
@@ -117,7 +117,7 @@ sub riak_key($){
             quit "CRITICAL", "failed to $node_action after $time_taken secs: $status_line";
         }
     } else {
-        code_error "invalid action passed to riak_key()";
+        code_error "invalid action '$action' passed to riak_key(), must be one of read/write/delete";
     }
     vlog2;
     return $time_taken;
@@ -140,4 +140,4 @@ check_thresholds($read_time, 1);
 check_thresholds($write_time);
 $msg .= $msg_perf;
 
-quit "$status", "$msg";
+quit $status, $msg;
