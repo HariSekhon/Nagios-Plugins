@@ -34,6 +34,8 @@ get_options();
 validate_thresholds(1,1);
 vlog2;
 
+linux_only();
+
 set_timeout();
 
 my $fh = open_file $procfile;;
