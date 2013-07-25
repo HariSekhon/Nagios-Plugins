@@ -21,7 +21,7 @@ $DESCRIPTION = "Nagios Hadoop Plugin to check various health aspects of HDFS via
 
 Originally written for old vanilla Apache Hadoop 0.20.x, updated for CDH 4.3 (2.0.0-cdh4.3.0)
 
-Recommend you consider using check_hadoop_cloudera_manager_metrics.pl instead if possible (disclaimer I work for Cloudera but seriously it's better it uses the CM API instead of scraping output which can break betweens versions and requires more maintenance)";
+Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclaimer I work for Cloudera but seriously it's good it gives you access to a wealth of information)";
 
 # TODO:
 # Features to add: (these are Rob Dawson's idea from his check_hadoop_node_status.pl plugin)
