@@ -158,8 +158,8 @@ close $conn;
 vlog2 "closed connection\n";
 
 $write_time_taken = sprintf("%0.${precision}f", $write_time_taken);
-$read_time_taken = sprintf("%0.${precision}f", $read_time_taken);
-$msg = "write + read key/value in $time_taken secs";
+$read_time_taken  = sprintf("%0.${precision}f", $read_time_taken);
+$msg = "write key in $write_time_taken secs, read key in $read_time_taken secs, total time $time_taken";
 check_thresholds($read_time_taken,1);
 check_thresholds($write_time_taken);
 $msg .= " | total_time=${time_taken}s write_time=${write_time_taken}s read_time=${read_time_taken}s";
