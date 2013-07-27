@@ -9,7 +9,15 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check a Memcached server is available by connecting, writing a unique short lived key with dynamically generated value and reading it back, ensuring the value is identical and recording the read/write and overall timings to a given precision";
+$DESCRIPTION = "Nagios Plugin to check a Memcached server reads + writes
+
+Checks:
+
+1. writes a unique short lived key with dynamically generated value
+2. reads back key
+3. checks the returned value is identical to that written
+4. records the read/write and overall timings to a given precision
+5. compares timing of each read and write operation against warning/critical thresholds if given";
 
 $VERSION = "0.8";
 
