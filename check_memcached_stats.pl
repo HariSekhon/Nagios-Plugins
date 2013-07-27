@@ -136,15 +136,15 @@ while (<$conn>){
 vlog3 "got response" if ($linecount > 0);
 close $conn;
 vlog2 "closed connection\n";
-# Different versions of memcache output different stats unfortunately so this sanity check while good may break stuff
-#£foreach(sort keys %stats){
-#    defined($stats{$_}) or quit "CRITICAL", "$_ was not found in output from memcache on '$host:$port'";
+# Different versions of memcached output different stats unfortunately so this sanity check while good may break stuff
+#foreach(sort keys %stats){
+#    defined($stats{$_}) or quit "CRITICAL", "$_ was not found in output from memcached on '$host:$port'";
 #    #vlog "$_: $stats{$_}";
 #}
 
-my $msg = "Memcache ";
+my $msg = "Memcached ";
 foreach(qw/curr_connections threads curr_items total_items version uptime/){
-    defined($stats{$_}) or quit "CRITICAL", "$_ was not found in output from memcache on '$host:$port'";
+    defined($stats{$_}) or quit "CRITICAL", "$_ was not found in output from memcached on '$host:$port'";
     $msg .= "$_: " . $stats{$_};
     $msg .= "(w=$warning/c=$critical)" if /^curr_connections$/;
     $msg .= ", ";
@@ -159,7 +159,7 @@ foreach(sort keys %stats2){
         next;
     }
     if(!defined($stats{$_})){
-        vlog2 "$_ not found in output, probably due to the memcache version on the server not supporting this stat... skipping...";
+        vlog2 "$_ not found in output, probably due to the memcached version on the server not supporting this stat... skipping...";
         next;
     }
     if($stats2{$_}[1]){
