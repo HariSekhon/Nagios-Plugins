@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check a Memcached server is available by connecting, writing a unique ephemeral key with dynamically generated value and reading it back, ensuring the value is identical and recording the read/write and overall timings to a given precision";
+$DESCRIPTION = "Nagios Plugin to check a Memcached server is available by connecting, writing a unique short lived key with dynamically generated value and reading it back, ensuring the value is identical and recording the read/write and overall timings to a given precision";
 
 $VERSION = "0.8";
 
@@ -37,8 +37,8 @@ my $precision = $default_precision;
     "H|host=s"      => [ \$host,        "Host to connect to" ],
     "P|port=s"      => [ \$port,        "Port to connect to (defaults to $default_port)" ],
     "precision=i"   => [ \$precision,   "Number of decimal places for timings (default: $default_precision)" ],
-    "w|warning=s"   => [ \$warning,     "Warning  threshold in seconds for each read/write operation (use float for milliseconds). Cannot be more than a third of the total plugin timeout (default: $timeout_default)" ],
-    "c|critical=s"  => [ \$critical,    "Critical threshold in seconds for each read/write operation (use float for milliseconds). Cannot be more than a third of the total plugin timeout (default: $timeout_default)" ],
+    "w|warning=s"   => [ \$warning,     "Warning  threshold in seconds for each read/write operation (use float for milliseconds). Cannot be more than a third of the total plugin --timeout" ],
+    "c|critical=s"  => [ \$critical,    "Critical threshold in seconds for each read/write operation (use float for milliseconds). Cannot be more than a third of the total plugin --timeout" ],
 );
 
 get_options();
@@ -86,7 +86,7 @@ my $memcached_write_cmd = "add $key $flags $timeout $bytes\r\n$value\r\n";
 my $memcached_read_cmd  = "get $key\r\n"; 
 vlog3 "\nsending write request: $memcached_write_cmd";
 my $write_start_time = time;
-print $conn $memcached_write_cmd or quit "CRITICAL", "failed to write memcached key value on '$host:$port': $!";
+print $conn $memcached_write_cmd or quit "CRITICAL", "failed to write memcached key/value on '$host:$port': $!";
 
 my $line;
 my $linecount = 0;
@@ -158,6 +158,9 @@ vlog2 "closed connection\n";
 
 $write_time_taken = sprintf("%0.${precision}f", $write_time_taken);
 $read_time_taken = sprintf("%0.${precision}f", $read_time_taken);
-$msg = "Memcached write + read back successful in $time_taken secs | total_time=${time_taken}s write_time=${write_time_taken}s read_time=${read_time_taken}s";
+$msg = "write + read key/value in $time_taken secs";
+check_thresholds($read_time_taken,1);
+check_thresholds($write_time_taken);
+$msg .= " | total_time=${time_taken}s write_time=${write_time_taken}s read_time=${read_time_taken}s";
 
 quit $status, $msg;
