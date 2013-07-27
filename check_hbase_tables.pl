@@ -18,7 +18,7 @@ Checks:
 3. Table has Columns
 4. Table's regions are all assigned to regionservers
 
-Performance using the Thrift Server is much better than trying to leverate the HBase API using JVM languages or the Rest API which lacks good structure for parsing and is slower as well.
+Performance using the Thrift Server is much faster than trying to leverage the HBase API using JVM languages or the Rest API which lacks good structure for parsing and is slower as well.
 
 Requires the CPAN Thrift perl module
 
