@@ -9,40 +9,39 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to monitor Zookeeper";
-
 # Rewrote this code of mine more than a year later in my spare time in Nov 2012 to better leverage my personal library and extended it's features against ZooKeeper 3.4.1-1212694. This was prompted by studying for my CCAH CDH4 (wish I had also picked up the earlier versions 1-2 years before like a couple of my colleagues did, the syllabus was half the size!).
 # Finally got round to finishing it on the plane ride back from San Francisco / Cloudera Jan 26 2013, tested against my local version 3.4.5-1392090, built on 09/30/2012 17:52 GMT
 
-# CHECKS:
-# 1. ruok - checks to see if ZooKeeper reports itself as ok
-# 2. isro - checks to see if ZooKeeper is still writable
-# 3. mode - checks to see if ZooKeeper is in the proper mode (leader/follower) vs standalone
-# 4. avg latency - the average latency reported by ZooKeeper is within the thresholds given. Optional
-# 5. stats - full stats breakdown
-# 6. also reports ZooKeeper version
+$DESCRIPTION = "Nagios Plugin to monitor Zookeeper
 
-$VERSION = "0.5";
+Checks:
+
+1. ruok - checks to see if ZooKeeper reports itself as ok
+2. isro - checks to see if ZooKeeper is still writable
+3. mode - checks to see if ZooKeeper is in the proper mode (leader/follower) vs standalone
+4. avg latency - the average latency reported by ZooKeeper is within the thresholds given. Optional
+5. stats - full stats breakdown
+6. also reports ZooKeeper version";
+
+$VERSION = "0.6";
 
 use strict;
 use warnings;
 use Fcntl ':flock';
-use IO::Socket;
 BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-
-my $DEFAULT_PORT = 2181;
-$port = $DEFAULT_PORT;
+use HariSekhon::ZooKeeper;
 
 my $standalone;
-my @valid_states = qw/leader follower standalone/;
+
+$port = $ZK_DEFAULT_PORT;
 
 %options = (
     "H|host=s"       => [ \$host,       "Host to connect to" ],
-    "P|port=s"       => [ \$port,       "Port to connect to (defaults to $DEFAULT_PORT)" ],
+    "P|port=s"       => [ \$port,       "Port to connect to (defaults to $ZK_DEFAULT_PORT)" ],
     "w|warning=s"    => [ \$warning,    "Warning threshold or ran:ge (inclusive) for avg latency"  ],
     "c|critical=s"   => [ \$critical,   "Critical threshold or ran:ge (inclusive) for avg latency" ],
     "s|standalone"   => [ \$standalone, "OK if mode is standalone (usually must be leader/follower)" ],
@@ -69,27 +68,11 @@ $status = "OK";
 #vlog2 "set autoflush on";
 #$/ = "\r\n";
 
-my $conn;
-# TODO: ZooKeeper closes connection after 1 cmd, see if I can work around this, as having to use several TCP connections is inefficient
-sub zoo_cmd {
-    vlog3 "connecting to $host:$port";
-    $conn = IO::Socket::INET->new (
-                                        Proto    => "tcp",
-                                        PeerAddr => $host,
-                                        PeerPort => $port,
-                                     ) or quit "CRITICAL", "Failed to connect to '$host:$port': $!";
-    vlog3 "OK connected";
-    my $cmd = defined($_[0]) ? $_[0] : code_error "no cmd arg defined for zoo_cmd()";
-    vlog3 "sending request: '$cmd'";
-    print $conn $_[0] or quit "CRITICAL", "Failed to send request '$cmd': $!";
-    vlog3 "sent request:    '$cmd'";
-}
-
 $msg = "ZooKeeper ";
 
 # Check 1 - does ZooKeeper report itself as OK?
 zoo_cmd "ruok";
-my $response = <$conn>;
+my $response = <$zk_conn>;
 vlog2 "ruok response  = '$response'\n";
 if($response ne "imok"){
     critical;
@@ -99,7 +82,7 @@ if($response ne "imok"){
 # Check 2 - is ZooKeeper read-write or has a problem occurred with Quorum or similar?
 zoo_cmd "isro";
 # rw response or quit CRITICAL "ZooKeeper is not read-write (possible network partition?";
-$response = <$conn>;
+$response = <$zk_conn>;
 vlog2 "isro response  = '$response'\n";
 if($response ne "rw"){
     critical;
@@ -111,7 +94,7 @@ if($response ne "rw"){
 zoo_cmd "wchs";
 my %wchs;
 vlog3 "\nOutput from 'wchs':";
-while(<$conn>){
+while(<$zk_conn>){
     chomp;
     vlog3 "=> $_";
     if(/(\d+) connections watching (\d+) paths/i){
@@ -160,7 +143,7 @@ vlog2;
 #my $latency_stats;
 #my $mode;
 #vlog3 "\nOutput from 'srvr':";
-#while (<$conn>){
+#while (<$zk_conn>){
 #    chomp;
 #    $line = $_;
 #    #vlog3 "processing line: '$_'";
@@ -239,7 +222,7 @@ my %mntr = (
 );
 zoo_cmd "mntr";
 vlog3 "\nOutput from 'mntr':";
-while(<$conn>){
+while(<$zk_conn>){
     chomp;
     my $line = $_;
     vlog3 "=> $line";
@@ -265,7 +248,7 @@ vlog2;
 
 # Stat call could go here if I wanted to list clients
 
-#close $conn and
+#close $zk_conn and
 #vlog2 "closed connection\n";
 
 foreach(sort keys %mntr){
@@ -368,7 +351,7 @@ if($verbose >= 2){
 ##compare_zooresults "Latency avg", "zk_avg_latency";
 ##compare_zooresults "Latency max", "zk_max_latency";
 
-unless(grep { $_ eq $mntr{"zk_server_state"} } @valid_states){
+unless(grep { $_ eq $mntr{"zk_server_state"} } @zk_valid_states){
     critical;
     $mntr{"zk_server_state"} = uc $mntr{"zk_server_state"};
 }
