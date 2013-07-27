@@ -36,11 +36,12 @@ my $precision = $default_precision;
 %options = (
     "H|host=s"      => [ \$host,        "Host to connect to" ],
     "P|port=s"      => [ \$port,        "Port to connect to (defaults to $default_port)" ],
-    "precision=i"   => [ \$precision,   "Number of decimal places for timings (default: $default_precision)" ],
     "w|warning=s"   => [ \$warning,     "Warning  threshold in seconds for each read/write operation (use float for milliseconds). Cannot be more than a third of the total plugin --timeout" ],
     "c|critical=s"  => [ \$critical,    "Critical threshold in seconds for each read/write operation (use float for milliseconds). Cannot be more than a third of the total plugin --timeout" ],
+    "precision=i"   => [ \$precision,   "Number of decimal places for timings (default: $default_precision)" ],
 );
 
+@usage_order = qw/host port warning critical precision/;
 get_options();
 
 $host = validate_host($host);
