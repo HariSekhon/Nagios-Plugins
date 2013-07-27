@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check Nginx stats from the nginx stub_status page";
 
-$VERSION = "0.4";
+$VERSION = "0.4.1";
 
 use strict;
 use warnings;
@@ -142,7 +142,7 @@ sub not_found {
 unless($res->code eq 200){
     quit "CRITICAL", "'$status_line'";
 }
-if($content =~ /^\s*$/){
+if($content =~ /\A\s*\Z/){
     quit "CRITICAL", "empty body returned from '$url'";
 }
 unless($content =~ /Active connections:\s+(\d+)/){
