@@ -17,8 +17,7 @@ Checks:
 2. reads key back, checking the value is identical to the value generated and written
 3. deletes the key
 4. records the write/read/delete timings to a given precision
-5. compares each operation's time taken against the warning/critical thresholds if given
-";
+5. compares each operation's time taken against the warning/critical thresholds if given";
 
 $VERSION = "0.2";
 
