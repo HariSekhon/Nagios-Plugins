@@ -9,9 +9,18 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to check Riak is working by writing + reading back a new uniq key/value via HTTP Rest API on a given node";
+$DESCRIPTION = "Nagios Plugin to check Riak is working via the HTTP Rest API
 
-$VERSION = "0.1";
+Checks:
+
+1. writes a new unique key to the nagios bucket with dynamically generated value
+2. reads key back, checking the value is identical to the value generated and written
+3. deletes the key
+4. records the write/read/delete timings to a given precision
+5. compares each operation's time taken against the warning/critical thresholds if given
+";
+
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -30,22 +39,34 @@ $ua->agent($header);
 my $default_port = 8098;
 $port = $default_port;
 
+my $default_precision = 4;
+my $precision = $default_precision;
+
 %options = (
     "H|host=s"         => [ \$host,         "Riak node to connect to" ],
     "P|port=s"         => [ \$port,         "Port to connect to (defaults to $default_port)" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
+    "precision=i"      => [ \$precision,    "Number of decimal places for timings (default: $default_precision)" ],
 );
 
-@usage_order = qw/host port warning critical/;
+@usage_order = qw/host port warning critical precision/;
 get_options();
 
 $host      = validate_hostname($host);
 $port      = validate_port($port);
+validate_int($precision, 1, 20, "precision");
+unless($precision =~ /^(\d+)$/){
+    code_error "precision is not a digit and has already passed validate_int()";
+}
+$precision = $1;
+validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integer" => 0 } );
+vlog2;
+
 my $node   = "riak node '$host:$port'";
 my $epoch  = time;
 my $bucket = "nagios";
-my $key    = "$host-$epoch";
+my $key    = "HariSekhon:$progname:$host:$epoch";
 my $bucket_key = "key '$key' bucket '$bucket'";
 my @chars = ("A".."Z", "a".."z", 0..9);
 my $value  = "";
@@ -55,7 +76,6 @@ vlog_options "bucket", $bucket;
 vlog_options "key",    $key;
 vlog_options "value",  $value;
 vlog_options "url",    $url;
-validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integer" => 0 } );
 
 $ua->show_progress(1) if $debug;
 
@@ -84,7 +104,7 @@ sub riak_key($){
     my $start_time  = time;
     my $response    = $ua->request($req);
     my $end_time    = time;
-    my $time_taken  = sprintf("%.4f", $end_time - $start_time);
+    my $time_taken  = sprintf("%0.${precision}f", $end_time - $start_time);
     my $status_line = $response->status_line;
     my $content     = $response->content;
     chomp $content;
