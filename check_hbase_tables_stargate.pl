@@ -67,6 +67,7 @@ $status = "OK";
 
 my $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->show_progress(1) if $debug;
 
 vlog2 "querying Stargate";
 my $res = $ua->get($url);
