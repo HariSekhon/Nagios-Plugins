@@ -18,7 +18,7 @@ http://www.linkedin.com/in/harisekhon
 - check_ssl_cert.pl     - SSL expiry, chain of trust (including intermediate certs important for certain mobile devices), domain, wildcard and multi-domain support validation
 - check_mysql_query.pl  - this alone obsoleted a dozen custom plugins and prevented many more when I wrote it
 - check_mysql_config.pl - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes without saving to my.cnf or backporting to puppet
-- check_hadoop_cloudera_manager_metrics.pl - fetch a wealth of Hadoop monitoring metrics from Cloudera Manager. Modern Hadoop users with Cloudera Manager will want to use this (Disclaimer: I work for Cloudera, but seriously it's a nice thing to be able to do)
+- check_hadoop_cloudera_manager_metrics.pl - fetch a wealth of Hadoop monitoring metrics from Cloudera Manager. Modern Hadoop users with Cloudera Manager will want to use this (Disclaimer: I work for Cloudera)
 - check_puppet.rb                   - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's puppetd --disabled, right puppet version etc
 - check_hadoop_* / check_hbase_*    - range of useful hadoop monitoring utilities
 - check_memcached_*                 - check API writes/reads with timings, gather stats
