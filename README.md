@@ -22,8 +22,8 @@ http://www.linkedin.com/in/harisekhon
 - check_puppet.rb                   - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's puppetd --disabled, right puppet version etc
 - check_hadoop_* / check_hbase_*    - various hadoop monitoring utilities covering lots of different aspects of HDFS, MapReduce MRv1 and HBase
 - check_memcached_*                 - check Memcached API writes/reads with timings, gather stats
-- check_riak_*                      - check Riak API writes/reads/deletes with timings, gather stats, check nodes agree on ring status
-- check_zookeeper.pl                - multiple layers of checks of ZooKeeper, is ok and writable (quorum), operating mode (leader/follower vs standalone), statistics
+- check_riak_*                      - check Riak API writes/reads/deletes with timings, gather stats, check nodes agree on ring status, gather statistics
+- check_zookeeper.pl                - multiple layers of checks of ZooKeeper, is ok and writable (quorum), operating mode (leader/follower vs standalone), gather statistics
 
 ... and there are many more ...
 
