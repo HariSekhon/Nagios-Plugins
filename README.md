@@ -69,4 +69,4 @@ Most plugins run with minimal dependencies for operational ease of use. Some plu
 
 ### Usage ###
 
-All plugins come with --help to list all options as well as a program description, often including a detailed account of what is checked in the code.
+All plugins come with --help which lists all options as well as giving a program description, often including a detailed account of what is checked in the code.
