@@ -20,7 +20,7 @@ http://www.linkedin.com/in/harisekhon
 - check_mysql_config.pl - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes without saving to my.cnf or backporting to puppet
 - check_hadoop_cloudera_manager_metrics.pl - fetch a wealth of Hadoop monitoring metrics from Cloudera Manager. Modern Hadoop users with Cloudera Manager will want to use this (Disclaimer: I work for Cloudera, but seriously CM collects an impressive amount of metrics)
 - check_puppet.rb                   - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's puppetd --disabled, right puppet version etc
-- check_hadoop_* / check_hbase_*    - range of useful hadoop monitoring utilities
+- check_hadoop_* / check_hbase_*    - various hadoop monitoring utilities covering lots of different aspects of HDFS, MapReduce MRv1 and HBase
 - check_memcached_*                 - check API writes/reads with timings, gather stats
 - check_riak_*                      - check API writes/reads/deletes with timings, gather stats, check nodes agree on ring status
 - check_zookeeper.pl                - multiple layers of checks of ZooKeeper, is ok and writable (quorum), operating mode (leader/follower vs standalone), statistics
