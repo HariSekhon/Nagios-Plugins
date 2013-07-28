@@ -1,7 +1,9 @@
 Advanced Nagios Plugins Collection
 ==================================
 
-I've been developing this Nagios Plugin Collection since around 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc. I highly recommended that all Nagios users consider becoming familiar with this suite of tools.
+I've been developing this Nagios Plugin Collection since around 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
+
+I highly recommended that all Nagios users consider becoming familiar with this suite of tools.
 
 These programs can also be run standalone on the command line or used in scripts as well as called in Nagios.
 
