@@ -96,15 +96,20 @@ foreach $table (@tables){
 vlog2;
 
 $msg = "HBase ";
-if(@tables_not_available){
-    @tables_not_available = uniq_array @tables_not_available;
-    plural @tables_not_available;
-    $msg .= "table$plural not available: " . join(" , ", @tables_not_available) . " , ";
+
+sub print_tables($@){
+    my $str = shift;
+    my @arr = @_;
+    if(@arr){
+        @arr = uniq_array @arr;
+        plural scalar @arr;
+        $msg .= "table$plural $str: " . join(" , ", @arr) . " -- ";
+    }
 }
-if(@tables_online){
-    plural @tables_online;
-    $msg .= "table$plural online: " . join(" , ", @tables_online);
-}
-$msg =~ s/ , $//;
+
+print_tables("not available", @tables_not_available);
+print_tables("online",        @tables_online);
+
+$msg =~ s/ -- $//;
 
 quit $status, $msg;
