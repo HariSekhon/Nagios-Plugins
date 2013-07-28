@@ -11,7 +11,9 @@
 
 $DESCRIPTION = "Nagios Plugin to check given HBase table(s) are online via the HBase Stargate Rest API Server
 
-More simplistic check than the check_hbase_tables.pl program which uses the better programmatic Thrift API and has more levels of checks. This plugin only checks to see if the given tables have regions listed on the cluster status page of the Stargate"; 
+More simplistic check than the check_hbase_tables.pl program which uses the better programmatic Thrift API and has more levels of checks. This plugin only checks to see if the given tables have regions listed on the cluster status page of the Stargate
+
+Written on CDH 4.3 (HBase 0.94.6-cdh4.3.0), also tested on CDH 4.2.1";
 
 $VERSION = "0.1";
 
