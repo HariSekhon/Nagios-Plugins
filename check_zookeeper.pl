@@ -23,7 +23,7 @@ Checks:
 5. stats - full stats breakdown
 6. also reports ZooKeeper version";
 
-$VERSION = "0.6";
+$VERSION = "0.6.1";
 
 use strict;
 use warnings;
@@ -37,36 +37,23 @@ use HariSekhon::ZooKeeper;
 
 my $standalone;
 
-$port = $ZK_DEFAULT_PORT;
-
 %options = (
-    "H|host=s"       => [ \$host,       "Host to connect to" ],
-    "P|port=s"       => [ \$port,       "Port to connect to (defaults to $ZK_DEFAULT_PORT)" ],
-    "w|warning=s"    => [ \$warning,    "Warning threshold or ran:ge (inclusive) for avg latency"  ],
+    "H|host=s"       => [ \$host,       "ZooKeeper Host to connect to" ],
+    "P|port=s"       => [ \$zk_port,    "ZooKeeper Client Port to connect to (defaults to $ZK_DEFAULT_PORT)" ],
+    "w|warning=s"    => [ \$warning,    "Warning  threshold or ran:ge (inclusive) for avg latency"  ],
     "c|critical=s"   => [ \$critical,   "Critical threshold or ran:ge (inclusive) for avg latency" ],
-    "s|standalone"   => [ \$standalone, "OK if mode is standalone (usually must be leader/follower)" ],
+    "s|standalone"   => [ \$standalone, "OK if mode is standalone (by default expects leader/follower mode as part of a proper ZooKeeper cluster with quorum)" ],
 );
 
 get_options();
 
-$host = validate_host($host);
-$port = validate_port($port);
+$host    = validate_host($host);
+$zk_port = validate_port($zk_port);
 validate_thresholds(undef, undef, { "integer" => 1 });
 
 set_timeout();
 
 $status = "OK";
-
-#vlog2 "connecting to $host:$port\n";
-#my $conn = IO::Socket::INET->new (
-#                                    Proto    => "tcp",
-#                                    PeerAddr => $host,
-#                                    PeerPort => $port,
-#                                 ) or quit "CRITICAL", "Failed to connect to '$host:$port': $!";
-#vlog2 "OK connected";
-#$conn->autoflush(1);
-#vlog2 "set autoflush on";
-#$/ = "\r\n";
 
 $msg = "ZooKeeper ";
 
@@ -152,7 +139,7 @@ vlog2;
 #        quit "CRITICAL", $line;
 #    }
 #    if($line =~ /ERROR/i){
-#        quit "CRITICAL", "unknown error returned from zookeeper on '$host:$port': '$line'";
+#        quit "CRITICAL", "unknown error returned from zookeeper on '$host:$zk_port': '$line'";
 #    }
 #    $linecount++;
 #    if($line =~ /^Zookeeper version:\s*(.+)?\s*$/i){
@@ -252,13 +239,13 @@ vlog2;
 #vlog2 "closed connection\n";
 
 foreach(sort keys %mntr){
-    defined($mntr{$_}) or quit "CRITICAL", "$_ was not found in output from zookeeper on '$host:$port'";
+    defined($mntr{$_}) or quit "CRITICAL", "$_ was not found in output from zookeeper on '$host:$zk_port'";
 }
 
 ###############################
 # TODO: abstract out this store state block to my personal library since I use it in a few pieces of code
 my $tmpfh;
-my $statefile = "/tmp/$progname.$host.$port.state";
+my $statefile = "/tmp/$progname.$host.$zk_port.state";
 vlog2 "opening state file '$statefile'\n";
 if(-f $statefile){
     open $tmpfh, "+<$statefile" or quit "UNKNOWN", "Error: failed to open state file '$statefile': $!";
