@@ -29,7 +29,7 @@ Known Issues/Limitations:
 1. The HBase Rest API doesn't seem to expose details on -ROOT- and .META. regions so the code only checks they are present, enabled and we can get Column descriptors for them
 2. The HBase Thrift Server takes around 10 seconds to time out when there are no regionservers online, resulting in \"UNKNOWN: self timed out after 10 seconds\" if the timeout is too short and \"CRITICAL: failed to get regions for table '\$tablename': Thrift::TException: TSocket: timed out reading 4 bytes from \$host:\$port\" otherwise. For this reason the default timeout on this plugin is set to 20 seconds instead of the usual 10 to try to get a better error message to show what specific call has failed but you'll probably need to increase your Nagios service_check_timeout in nagios.cfg to see it";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -54,9 +54,9 @@ $port = $default_port;
 my $tables;
 
 %options = (
-    "H|host=s"         => [ \$host,     "HBase thrift server address to connect to" ],
-    "P|port=s"         => [ \$port,     "HBase thrift server port to connect to (defaults to $default_port)" ],
-    "T|tables=s"       => [ \$tables,   "Table(s) to check. This should be a list of user tables, not -ROOT- or .META. catalog tables which are checked additionally" ],
+    "H|host=s"         => [ \$host,     "HBase Thrift server address to connect to" ],
+    "P|port=s"         => [ \$port,     "HBase Thrift server port to connect to (defaults to $default_port)" ],
+    "T|tables=s"       => [ \$tables,   "Table(s) to check. This should be a list of user tables, not -ROOT- or .META. catalog tables which are checked additionally. If no tables are given then only -ROOT- and .META. are checked" ],
 );
 
 @usage_order = qw/host port tables/;
@@ -64,8 +64,8 @@ get_options();
 
 $host  = validate_hostname($host);
 $port  = validate_port($port);
-defined($tables) or usage "no tables specified";
-my @tables = grep { $_ ne "-ROOT-" and $_ ne ".META." } split(/\s*,\s*/, $tables);
+my @tables = qw/-ROOT- .META./;
+push(@tables, split(/\s*,\s*/, $tables)) if defined($tables);
 @tables or usage "no valid tables specified";
 @tables = uniq_array @tables;
 my $table;
@@ -145,6 +145,7 @@ my %table_regioncount;
 sub check_table_enabled($){
     my $table = shift;
     my $state;
+    # XXX: This seems to always return 1 unless the table is explicitly disabled
     try {
         $state = $client->isTableEnabled($table);
     };
@@ -222,59 +223,50 @@ sub check_table($){
     push(@tables_ok, $table);
 }
 
-# XXX: Thrift API doesn't give us region info on -ROOT- and .META. so running check_table* individually without check_table_regions
-foreach(qw/-ROOT- .META./){
-    check_table_enabled($_) and
-    check_table_columns($_) and
-    push(@tables_ok, $_);
-}
 foreach $table (@tables){
-    unless(grep { $table eq $_ } @hbase_tables){
-        critical;
-        push(@tables_not_found, $table);
-        next;
+    # XXX: Thrift API doesn't give us region info on -ROOT- and .META. so running check_table* individually without check_table_regions
+    if(grep { $table eq $_ } qw/-ROOT- .META./){
+        check_table_enabled($table) and
+        check_table_columns($table) and
+        push(@tables_ok, $table);
+    } else {
+        unless(grep { $table eq $_ } @hbase_tables){
+            vlog2 "table '$table' not found in list of returned HBase tables";
+            critical;
+            push(@tables_not_found, $table);
+            next;
+        }
+        check_table($table);
     }
-    check_table($table);
 }
 vlog2;
 
-if(@tables_not_found){
-    @tables_not_found = uniq_array @tables_not_found;
-    plural scalar @tables_not_found;
-    $msg .= "table$plural not found: '" . join(",", @tables_not_found) . "', ";
+$msg = "HBase ";
+
+sub print_tables($@){
+    my $str = shift;
+    my @arr = @_;
+    if(@arr){
+        @arr = uniq_array @arr;
+        plural scalar @arr;
+        $msg .= "table$plural $str: " . join(" , ", @arr) . " -- ";
+    }
 }
-if(@tables_disabled){
-    @tables_disabled = uniq_array @tables_disabled;
-    plural scalar @tables_disabled;
-    $msg .= "table$plural disabled: '" . join(",", @tables_disabled) . "', ";
-}
-if(@tables_without_columns){
-    @tables_without_columns = uniq_array @tables_without_columns;
-    plural scalar @tables_without_columns;
-    $msg .= "table$plural with no columns: '" . join(",", @tables_without_columns) . "', ";
-}
-if(@tables_without_regions){
-    @tables_without_regions = uniq_array @tables_without_regions;
-    plural scalar @tables_without_regions;
-    $msg .= "table$plural with no regions: '" . join(",", @tables_without_regions) . "', ";
-}
-if(@tables_without_regionservers){
-    @tables_without_regionservers = uniq_array @tables_without_regionservers;
-    plural scalar @tables_without_regionservers;
-    $msg .= "table$plural with no regionservers: '" . join(",", @tables_without_regionservers) . "', ";
-}
-if(@tables_with_unassigned_regions){
-    @tables_with_unassigned_regions = grep { ! grep($_, @tables_without_regionservers) } @tables_with_unassigned_regions;
-    @tables_with_unassigned_regions = uniq_array @tables_with_unassigned_regions;
-    plural scalar @tables_with_unassigned_regions;
-    $msg .= "table$plural with unassigned regions: '" . join(",", @tables_with_unassigned_regions) . "', ";
-}
-plural @tables_ok;
-$msg .= "table$plural ok: '" . join(",", @tables_ok) . "'";
-$msg =~ s/, $//;
-$msg .= " |";
-foreach $table (sort keys %table_regioncount){
-    $msg .= " '$table regions'=$table_regioncount{$table}";
+
+print_tables("not found",               @tables_not_found);
+print_tables("disabled",                @tables_disabled);
+print_tables("with no columns",         @tables_without_columns);
+print_tables("without regions",         @tables_without_regions);
+print_tables("without regionservers",   @tables_without_regionservers);
+print_tables("with unassigned regions", @tables_with_unassigned_regions);
+print_tables("ok",                      @tables_ok);
+
+$msg =~ s/ -- $//;
+if(keys %table_regioncount){
+    $msg .= " |";
+    foreach $table (sort keys %table_regioncount){
+        $msg .= " '$table regions'=$table_regioncount{$table}";
+    }
 }
 
 quit $status, $msg;
