@@ -145,7 +145,7 @@ my %table_regioncount;
 sub check_table_enabled($){
     my $table = shift;
     my $state;
-    # XXX: This seems to always return 1 unless the table is explicitly disabled
+    # XXX: This seems to always return 1 unless the table is explicitly disabled, even returns 1 for tables that don't exist.
     try {
         $state = $client->isTableEnabled($table);
     };
