@@ -18,6 +18,7 @@ install:
 	 Net::SSH::Expect \
 	 Thrift \
 	 Time::HiRes \
-	 SMS::AQL
+	 SMS::AQL \
+	 ; echo
 	git submodule init
 	git submodule update
