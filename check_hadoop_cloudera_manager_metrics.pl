@@ -260,8 +260,8 @@ foreach(@{$json->{"items"}}){
     if(defined($_->{"data"}[-1])){
         if(defined($_->{"data"}[-1]{"value"})){
             my $name = $_->{"name"};
+            $metrics_found{$name} = 1;
             if($context){
-                $metrics_found{$name} = 1;
                 # context defined was just checked in the context check above, not re-checking here
                 my $context = $_->{"context"};
                 $context =~ s/$hostid:?//       if $hostid;
