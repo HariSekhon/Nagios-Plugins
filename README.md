@@ -13,7 +13,7 @@ Hari Sekhon
 
 http://www.linkedin.com/in/harisekhon
 
-### A few of my Favourites (yes I'm from the UK so there is a "u" in favourites :)  ) ###
+### A few of my Favourites - yes I'm from the UK so there is a "u" in favourites :) ###
 
 - check_ssl_cert.pl     - SSL expiry, chain of trust (including intermediate certs important for certain mobile devices), domain, wildcard and multi-domain support validation
 - check_mysql_query.pl  - this alone obsoleted a dozen custom plugins and prevented many more when I wrote it)
