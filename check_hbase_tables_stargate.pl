@@ -48,7 +48,7 @@ my $table;
 foreach $table (@tables){
     if($table =~ /^(-ROOT-|\.META\.)$/){
     } else {
-        $table = isDatabaseTableName($table) or usage "invalid table name $table given";
+        $table = isDatabaseTableName($table) || usage "invalid table name $table given";
     }
 }
 vlog_options "tables", "[ " . join(" , ", @tables) . " ]";
