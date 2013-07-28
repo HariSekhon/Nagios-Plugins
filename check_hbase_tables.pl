@@ -29,7 +29,7 @@ Known Issues/Limitations:
 1. The HBase Rest API doesn't seem to expose details on -ROOT- and .META. regions so the code only checks they are present, enabled and we can get Column descriptors for them
 2. The HBase Thrift Server takes around 10 seconds to time out when there are no regionservers online, resulting in \"UNKNOWN: self timed out after 10 seconds\" if the timeout is too short and \"CRITICAL: failed to get regions for table '\$tablename': Thrift::TException: TSocket: timed out reading 4 bytes from \$host:\$port\" otherwise. For this reason the default timeout on this plugin is set to 20 seconds instead of the usual 10 to try to get a better error message to show what specific call has failed but you'll probably need to increase your Nagios service_check_timeout in nagios.cfg to see it";
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -38,6 +38,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use HariSekhon::HBase::Thrift;
 use Data::Dumper;
 use Thrift;
 use Thrift::Socket;
@@ -46,6 +47,7 @@ use Thrift::BufferedTransport;
 # Thrift generated bindings for HBase, provided in lib
 use Hbase::Hbase;
 
+# Thrift Server timeout is around 10 secs so we need to give a bit longer to get the more specific error rather than self terminating in the default 10 seconds
 set_timeout_default 20;
 
 my $default_port = 9090;
@@ -80,51 +82,13 @@ vlog_options "tables", "[ " . join(" , ", @tables) . " ]";
 vlog2;
 set_timeout();
 
-my $client;
-my $socket;
-my $transport;
-my $protocol;
+my $client = connect_hbase_thrift($host, $port);
 my @hbase_tables;
 
-sub catch_error ($) {
-    my $errmsg = $_[0];
-    catch {
-        if(defined($@->{"message"})){
-            quit "CRITICAL", "$errmsg: " . ref($@) . ": " . $@->{"message"};
-        } else {
-            quit "CRITICAL", "$errmsg: " . Dumper($@);
-        }
-    }
-}
-
-# using custom try/catch from my library as it's necessary to disable the custom die handler for this to work
-try {
-    $socket    = new Thrift::Socket($host, $port);
-};
-catch_error "failed to connect to Thrift server at '$host:$port'";
-try {
-    $transport = new Thrift::BufferedTransport($socket,1024,1024);
-};
-catch_error "failed to initiate Thrift Buffered Transport";
-try {
-    $protocol  = new Thrift::BinaryProtocol($transport);
-};
-catch_error "failed to initiate Thrift Binary Protocol";
-try {
-    $client    = Hbase::HbaseClient->new($protocol);
-};
-catch_error "failed to initiate HBase Thrift Client";
-
-$status = "OK";
-
-try {
-    $transport->open();
-};
-catch_error "failed to open Thrift transport to $host:$port";
 try {
     @hbase_tables = @{$client->getTableNames()};
 };
-catch_error "failed to get tables from HBase";
+catch_quit "failed to get tables from HBase";
 @hbase_tables or quit "CRITICAL", "no tables found in HBase";
 if($verbose >= 3){
     hr;
@@ -149,7 +113,7 @@ sub check_table_enabled($){
     try {
         $state = $client->isTableEnabled($table);
     };
-    catch_error "failed to get table state (enabled/disabled) for table '$table'";
+    catch_quit "failed to get table state (enabled/disabled) for table '$table'";
     if($state){
         vlog2 "table '$table' enabled";
     } else {
@@ -168,7 +132,7 @@ sub check_table_columns($){
     try {
         $table_columns = $client->getColumnDescriptors($table);
     };
-    catch_error "failed to get Column descriptors for table '$table'";
+    catch_quit "failed to get Column descriptors for table '$table'";
     vlog3 "table '$table' columns: " . Dumper($table_columns);
     unless($table_columns){
         push(@tables_without_columns, $table);
@@ -186,7 +150,7 @@ sub check_table_regions($){
     try {
         $table_regions = $client->getTableRegions($table);
     };
-    catch_error "failed to get regions for table '$table'";
+    catch_quit "failed to get regions for table '$table'";
     $table_regions or quit "UNKNOWN", "failed to get regions for table '$table'";
     vlog3 "table '$table' regions: " . Dumper($table_regions);
     unless(@{$table_regions}){
