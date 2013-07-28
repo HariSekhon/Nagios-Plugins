@@ -83,7 +83,7 @@ if($content =~ /\A\s*\Z/){
 
 my @tables_online;
 my @tables_not_available;
-foreach my $table (@tables){
+foreach $table (@tables){
     if($content =~ /^ {8}$table,[^,]*,[\w\.]+$/m){
         vlog2 "found table $table";
         push(@tables_online, $table);
@@ -99,12 +99,12 @@ $msg = "HBase ";
 if(@tables_not_available){
     @tables_not_available = uniq_array @tables_not_available;
     plural @tables_not_available;
-    $msg .= "table$plural not available: '" . join(",", @tables_not_available) . "', ";
+    $msg .= "table$plural not available: " . join(" , ", @tables_not_available) . " , ";
 }
 if(@tables_online){
     plural @tables_online;
-    $msg .= "table$plural online: '" . join(",", @tables_online) . "'";
+    $msg .= "table$plural online: " . join(" , ", @tables_online);
 }
-$msg =~ s/, $//;
+$msg =~ s/ , $//;
 
 quit $status, $msg;
