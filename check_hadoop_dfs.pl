@@ -24,7 +24,7 @@ Originally written for old vanilla Apache Hadoop 0.20.x, updated for CDH 4.3 (2.
 Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclaimer I work for Cloudera but seriously it's good it gives you access to a wealth of information)";
 
 # TODO:
-# Features to add: (these are Rob Dawson's idea from his check_hadoop_node_status.pl plugin)
+# Features to add: (these are my old colleague Rob Dawson's idea from his check_hadoop_node_status.pl plugin)
 # 1. Min Configured Capacity per node (from node section output).
 # 2. Last Contact: convert the date to secs and check against thresholds.
 
@@ -318,4 +318,4 @@ if($hdfs_space){
     quit "UNKNOWN", "no test section specified";
 }
 
-quit "$status", "$msg";
+quit $status, $msg;
