@@ -74,9 +74,8 @@ my $res = $ua->get($url);
 vlog2 "got response";
 my $status_line  = $res->status_line;
 vlog2 "status line: $status_line";
-my $content = my $content_single_line = $res->content;
+my $content = $res->content;
 vlog3 "\ncontent:\n\n$content\n";
-$content_single_line =~ s/\n/ /g;
 vlog2;
 
 unless($res->code eq 200){
