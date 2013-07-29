@@ -21,8 +21,8 @@ http://www.linkedin.com/in/harisekhon
 - check_hadoop_cloudera_manager_metrics.pl - fetch a wealth of Hadoop monitoring metrics from Cloudera Manager. Modern Hadoop users with Cloudera Manager will want to use this (Disclaimer: I work for Cloudera, but seriously CM collects an impressive amount of metrics)
 - check_puppet.rb                   - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's puppetd --disabled, right puppet version etc
 - check_hadoop_* / check_hbase_*    - various hadoop monitoring utilities covering lots of different aspects of HDFS, MapReduce and HBase functionality
-- check_memcached_*                 - check Memcached API writes/reads with timings, gather stats
-- check_riak_*                      - check Riak API writes/reads/deletes with timings, gather stats, check nodes agree on ring status, gather statistics
+- check_memcached_*                 - check Memcached API writes/reads with timings, gather statistics
+- check_riak_*                      - check Riak API writes/reads/deletes with timings, check nodes agree on ring status, gather statistics
 - check_zookeeper.pl                - multiple layers of checks of ZooKeeper, is ok and writable (quorum), operating mode (leader/follower vs standalone), gather statistics
 
 ... and there are many more ...
