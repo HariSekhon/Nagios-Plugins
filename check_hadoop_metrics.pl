@@ -29,7 +29,7 @@ HBase Master /
                                - 'RegionServerDynamicStatistics:'
 ";
 
-$VERSION = "0.3.1";
+$VERSION = "0.3.2";
 
 use strict;
 use warnings;
@@ -66,10 +66,11 @@ if($all_metrics){
 } else {
     defined($metrics) or usage "no metrics specified";
     foreach my $metric (split(/\s*[,\s]\s*/, $metrics)){
-        $metric =~ /^[A-Z]+[\w:]*[A-Z]+$/i or usage "invalid metrics '$metric' given, must be alphanumeric, may contain underscores and colons in middle";
+        $metric =~ /^[A-Z]+[\w:]*[A-Z]+$/i or usage "invalid metric '$metric' given, must be alphanumeric, may contain underscores and colons in middle";
         grep(/^$metric$/, @stats) or push(@stats, $metric);
     }
     @stats or usage "no valid metrics specified";
+    @stats = uniq_array @stats;
 }
 validate_thresholds();
 
@@ -121,6 +122,7 @@ sub parse_stats(){
     if($debug){
         use Data::Dumper;
         print Dumper($json);
+        print "\n";
     }
     foreach my $section (qw/mapred jvm rpc hbase/){
         #defined($json->{$section}) or quit "UNKNOWN", "no $section section found in json output";
@@ -164,7 +166,7 @@ sub parse_stats(){
 }
 # ============================================================================ #
 
-vlog2 "parsing metrics from '$host:$port'";
+vlog2 "parsing metrics from '$host:$port'\n";
 parse_stats();
 
 $msg = "";
@@ -193,4 +195,4 @@ if($all_metrics){
     }
 }
 
-quit "$status", "$msg";
+quit $status, $msg;
