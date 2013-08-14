@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to fetch metrics from a given Impalad/StateStore debug UI";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -21,34 +21,42 @@ BEGIN {
 }
 use HariSekhonUtils;
 use LWP::UserAgent;
+use JSON::XS;
 
 my $default_port = 25000;
 $port = $default_port;
 
-my $metrics = "";
+my $metrics;
+my $all_metrics = 0;
 
 %options = (
     "H|host=s"         => [ \$host,         "Impalad or StateStore to connect to" ],
     "P|port=s"         => [ \$port,         "Impalad or StateStore debug UI port (defaults to $default_port for Impalad, specify 25010 for StateStore)" ],
-    "m|metrics=s"      => [ \$metrics,      "Metrics to fetch, comma separated. If one metric is given then warning and critical thresholds may optionally be applied to that metric. By default all metrics are fetched" ],
+    "m|metrics=s"      => [ \$metrics,      "Metrics to fetch, comma separated. If one metric is given then warning and critical thresholds may optionally be applied to that metric" ],
+    "a|all-metrics"    => [ \$all_metrics,  "Grab all metrics. Useful if you don't know what to monitor yet or just want to graph everything" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive)" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
 );
 
-@usage_order = qw/host port metrics warning critical/;
+@usage_order = qw/host port metrics all-metrics warning critical/;
 get_options();
 
 my $metric_regex = '[A-Za-z][\w\.-]+';
 
 $host       = validate_hostname($host);
 $port       = validate_port($port);
-my @metrics;
-if($metrics){
-    @metrics = split(/\s*,\s*/, $metrics);
-    foreach(@metrics){
-        /$metric_regex/ or usage "invalid metric '$_' given";
+my %stats;
+my @stats;
+if($all_metrics){
+    defined($metrics) and usage "cannot specify --all-metrics and specific --metrics at the same time!";
+} else {
+    defined($metrics) or usage "no metrics specified";
+    foreach my $metric (split(/\s*[,\s]\s*/, $metrics)){
+        $metric =~ /^$metric_regex$/io or usage "invalid metric '$metric' given, must be alphanumeric, may contain dashes, dots and underscores";
+        grep(/^$metric$/, @stats) or push(@stats, $metric);
     }
-    @metrics = uniq_array @metrics;
+    @stats or usage "no valid metrics specified";
+    @stats = uniq_array @stats;
 }
 validate_thresholds();
 
@@ -58,13 +66,15 @@ set_timeout();
 $status = "OK";
 
 # Impala 1.0 / 1.0.1 doesn't currently support &raw on this URI handler
-my $url = "http://$host:$port/metrics";
+#my $url = "http://$host:$port/metrics";
+# switched to /jsonmetrics
+my $url = "http://$host:$port/jsonmetrics";
 
 my $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 $ua->show_progress(1) if $debug;
 
-vlog2 "querying Impalad debug UI metrics";
+vlog2 "querying Impala debug UI metrics";
 my $res = $ua->get($url);
 vlog2 "got response";
 my $status_line  = $res->status_line;
@@ -80,45 +90,140 @@ if($content =~ /\A\s*\Z/){
     quit "CRITICAL", "empty body returned from '$url'";
 }
 
-my %stats;
-foreach(split("\n", $content)){
-    if(/($metric_regex)\s*:\s*(\d+)\s*$/io){
-        $stats{$1} = $2;
-    } elsif(/($metric_regex):\s+(?:\w+:\s+\d+,\s+)*last\s*:\s*(\d+)\s*/io){
-        # to catch last heartbeat stats
-        $stats{$1} = $2;
-    }
-}
 
-my @metrics_not_found;
-if(@metrics){
-    if(scalar @metrics eq 1){
-        defined($metrics[0]) or quit "CRITICAL", "metric '$metrics[0] not found";
-        $msg = "$metrics[0]=$stats{$metrics[0]}";
-        check_thresholds($stats{$metrics[0]});
-        $msg .= " | $metrics[0]=$stats{$metrics[0]}";
-        quit $status, $msg;
+sub check_stats_parsed(){
+    if($all_metrics){
+        if(scalar keys %stats == 0){
+            quit "UNKNOWN", "no stats collected from /metrics page (daemon recently started?)";
+        }elsif(scalar keys %stats < 5){
+            quit "UNKNOWN", "<5 stats collected from /metrics page (daemon recently started?). This could also be an error, try running with -vvv to see what the deal is";
+        }
+        foreach(sort keys %stats){
+            vlog2 "stats $_ = $stats{$_}";
+        }
     } else {
-        foreach(@metrics){
+        foreach(@stats){
             unless(defined($stats{$_})){
-                push(@metrics_not_found, $_);
-                next;
+                vlog2;
+                quit "UNKNOWN", "failed to find $_ in output from '$host:$port'";
             }
-            $msg .= "$_=$stats{$_} ";
+            vlog2 "stats $_ = $stats{$_}";
         }
     }
-} else {
+    vlog2;
+}
+
+
+sub parse_stats(){
+    isJson($content) or quit "CRITICAL", "invalid json returned by '$host:$port'";
+    my $json = decode_json $content;
+    if($debug){
+        use Data::Dumper;
+        print Dumper($json);
+        print "\n";
+    }
+    if($all_metrics){
+        foreach my $metric (keys %{$json}){
+            if(isFloat($json->{$metric})){
+                $stats{$metric} = $json->{$metric};
+            }
+        }
+    } else {
+        foreach my $metric (@stats){
+            defined($json->{$metric}) or quit "UNKNOWN", "metric '$metric' not found in output from Impala";
+            if(isHash($json->{$metric})){
+                defined($json->{$metric}{"last"}) or quit "UNKNOWN", "unrecognized metric/format detected for '$metric', ask author Hari Sekhon for an update";
+                if(isFloat($json->{$metric}{"last"})){
+                    $stats{$metric} = $json->{$metric}{"last"};
+                }
+            } else {
+                if(isFloat($json->{$metric})){
+                    $stats{$metric} = $json->{$metric};
+                } else {
+                    quit "UNKNOWN", "given metric '$metric' is not a float, cannot be used";
+                }
+            }
+        }
+    }
+    check_stats_parsed();
+}
+
+# ============================================================================ #
+
+vlog2 "parsing metrics from '$host:$port'\n";
+parse_stats();
+
+# ============================================================================ #
+
+#foreach(split("\n", $content)){
+#    if(/($metric_regex)\s*:\s*(\d+)\s*$/io){
+#        $stats{$1} = $2;
+#    } elsif(/($metric_regex):\s+(?:\w+:\s+\d+,\s+)*last\s*:\s*(\d+)\s*/io){
+#        # to catch last heartbeat stats
+#        $stats{$1} = $2;
+#    }
+#}
+#unless(%stats){
+#    quit "UNKNOWN", "no metrics found!";
+#}
+#
+#my @metrics_not_found;
+#if(@metrics){
+#    if(scalar @metrics eq 1){
+#        defined($metrics[0]) or quit "CRITICAL", "metric '$metrics[0] not found";
+#        $msg = "$metrics[0]=$stats{$metrics[0]}";
+#        check_thresholds($stats{$metrics[0]});
+#        $msg .= " | $metrics[0]=$stats{$metrics[0]}";
+#        quit $status, $msg;
+#    } else {
+#        foreach(@metrics){
+#            unless(defined($stats{$_})){
+#                push(@metrics_not_found, $_);
+#                next;
+#            }
+#            $msg .= "$_=$stats{$_} ";
+#        }
+#    }
+#} else {
+#    foreach(sort keys %stats){
+#        $msg .= "$_=$stats{$_} ";
+#    }
+#}
+#
+#$msg .= "| $msg";
+#$msg =~ s/ $//;
+#
+#if(@metrics_not_found){
+#    critical;
+#    $msg = "metrics not found: " . join(",", @metrics_not_found) . " -- $msg";
+#}
+
+# ============================================================================ #
+
+$msg = "";
+if($all_metrics){
     foreach(sort keys %stats){
         $msg .= "$_=$stats{$_} ";
     }
+} else {
+    foreach(@stats){
+        $msg .= "$_=$stats{$_} ";
+    }
 }
-
-$msg .= "| $msg";
-$msg =~ s/ $//;
-
-if(@metrics_not_found){
-    critical;
-    $msg = "metrics not found: " . join(",", @metrics_not_found) . " -- $msg";
+if($all_metrics){
+    $msg .= "| ";
+    foreach(sort keys %stats){
+        $msg .= "$_=$stats{$_} ";
+    }
+} elsif(!$all_metrics and scalar @stats == 1){
+    $msg =~ s/ $//;
+    check_thresholds($stats{$stats[0]});
+    $msg .= " | $stats[0]=$stats{$stats[0]};" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "") . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "");
+} else {
+    $msg .= "| ";
+    foreach(sort keys %stats){
+        $msg .= "$_=$stats{$_} ";
+    }
 }
 
 quit $status, $msg;
