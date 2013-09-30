@@ -16,7 +16,7 @@ $DESCRIPTION = "Nagios Plugin to check given Hadoop metric(s) via Cloudera Manag
 
 See the Charts section in CM or --all-metrics for a given --cluster --service [--roleId] or --hostId to see what's available
 
-You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) to allow the API to be used
+You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) to allow the API to be used, but it should work on all version of Cloudera Manager Enterprise Edition
 
 This is still using v1 of the API for compatability purposes";
 
