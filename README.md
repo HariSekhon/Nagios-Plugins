@@ -57,11 +57,11 @@ Then install the CPAN modules for whichever plugins you want to use, which are l
 
 ### One-shot Makefile setup ###
 
-Running make as root will install all required CPAN modules by calling cpan <list of modules> and then doing the git submodule init and git submodule update to pull in my library git repo. You may not want to do this if you're not owning the repo as root and also because you may want to install some of the stock Perl modules such as Net::DNS and LWP::* using your OS packages instead of CPAN.
-
 ```
 make
 ```
+
+Running make as root will install all required CPAN modules by calling cpan <list of modules> and then doing the git submodule init and git submodule update to pull in my library git repo. You may not want to do this if you're not owning the repo as root and also because you may want to install some of the stock Perl modules such as Net::DNS and LWP::* using your OS packages instead of CPAN.
 
 ### Other Dependencies ###
 
