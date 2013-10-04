@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check a TFTP Server";
+$DESCRIPTION = "Nagios Plugin to check a TFTP Server is working by fetching a given file from the server";
 
 $VERSION = "0.2";
 
