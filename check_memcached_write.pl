@@ -25,7 +25,7 @@ use strict;
 use warnings;
 BEGIN {
     use File::Basename;
-    use lib dirname(__FILE__);
+    use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
 # Why am I using a socket connection instead of one of the libraries out there? Easy portability. Plus the text protocol isn't hard :)
