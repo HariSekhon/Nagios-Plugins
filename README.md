@@ -63,11 +63,11 @@ make
 
 Running make as root will install all required CPAN modules by calling cpan <list of modules> and then doing the git submodule init and git submodule update to pull in my library git repo. You may not want to do this if you're not owning the repo as root and also because you may want to install some of the stock Perl modules such as Net::DNS and LWP::* using your OS packages instead of CPAN.
 
+If installing the CPAN modules via your package manager or even by hand, read the 'Makefile' for the list of Perl CPAN modules that you need to install
+
 ### Other Dependencies ###
 
 Most plugins run with minimal dependencies for operational ease of use. Some plugins require CPAN modules as mentioned above, and some of those under the legacy directory such as those that check 3ware/LSI raid controllers, SVN, VNC etc require external binaries to work, but the plugins will tell you if they are missing. Please see the respective vendor websites for 3ware, LSI etc to fetch those binaries and then re-run the plugins where needed.
-
-See 'Makefile' for the list of Perl modules that you need to install
 
 ### Usage ###
 
