@@ -41,7 +41,7 @@ Remember to check out the legacy/ directory for more plugins that are less curre
 
 ### Setup ###
 
-Fetch my library repo which is included as a submodule (it's shared between these Nagios Plugins and other programs I've written over the years)
+Fetch my library repo which is included as a submodule (it's shared between these Nagios Plugins and other programs I've written over the years).
 
 ```
 cd nagios-plugins
@@ -53,7 +53,7 @@ git submodule init
 git submodule update
 ```
 
-Then install the CPAN modules for whichever plugins you want to use, which are listed in the Makefile
+Then install the CPAN modules for whichever plugins you want to use, which are listed in the Makefile.
 
 ### One-shot Makefile setup ###
 
