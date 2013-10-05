@@ -65,7 +65,7 @@ Running make as root will install all required CPAN modules by calling cpan <lis
 
 ### CPAN Modules ###
 
-If installing the CPAN modules via your package manager or by hand instead of using 'make' as listed above, then read the 'Makefile' for the list of Perl CPAN modules that you need to install
+If installing the CPAN modules via your package manager or by hand instead of using 'make' as listed above, then read the 'Makefile' for the list of Perl CPAN modules that you need to install.
 
 ### Other Dependencies ###
 
