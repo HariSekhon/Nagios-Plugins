@@ -44,7 +44,7 @@ my $expected_string;
 @usage_order = qw/host port metrics all-metrics warning critical/;
 get_options();
 
-$host       = validate_hostname($host);
+$host       = validate_host($host);
 $port       = validate_port($port);
 my $url     = "http://$host:$port/stats";
 my %stats;
@@ -69,6 +69,7 @@ $status = "OK";
 # ============================================================================ #
 # lifted from my check_hadoop_jobtracker.pl plugin, modified to support $all_metrics
 vlog2 "querying $url";
+validate_resolveable($host);
 my $content = get $url;
 my ($result, $err) = ($?, $!);
 vlog3 "returned HTML:\n\n" . ( $content ? $content : "<blank>" ) . "\n";

@@ -9,7 +9,9 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to check Riak is working via the HTTP Rest API
+# TODO: --n-val support
+
+$DESCRIPTION = "Nagios Plugin to check Riak is working and writeable via the HTTP Rest API
 
 Checks:
 
@@ -54,7 +56,7 @@ my $precision = $default_precision;
 @usage_order = qw/host port warning critical precision/;
 get_options();
 
-$host      = validate_hostname($host);
+$host      = validate_host($host);
 $port      = validate_port($port);
 validate_int($precision, 1, 20, "precision");
 unless($precision =~ /^(\d+)$/){
@@ -148,6 +150,7 @@ $status = "OK";
 
 my $msg_perf = " | ";
 my $msg_thresholds = "s;" . ($thresholds{"warning"}{"upper"} ? $thresholds{"warning"}{"upper"} : "") . ";" . ($thresholds{"critical"}{"upper"} ? $thresholds{"critical"}{"upper"} : "") . ";0;";
+validate_resolveable($host);
 my $write_time  = riak_key("write");
 my $read_time   = riak_key("read");
 my $delete_time = riak_key("delete");
