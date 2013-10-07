@@ -63,6 +63,7 @@ $ua->show_progress(1) if $debug;
 $status = "OK";
 
 vlog2 "querying HBase Master JSP";
+validate_resolveable($host);
 my $res = $ua->get($url);
 vlog2 "got response";
 my $status_line  = $res->status_line;
