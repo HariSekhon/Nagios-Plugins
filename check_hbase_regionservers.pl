@@ -43,7 +43,7 @@ $critical = $default_critical;
 @usage_order = qw/host port warning critical/;
 get_options();
 
-$host   = validate_hostname($host);
+$host   = validate_host($host);
 $port   = validate_port($port);
 my $url = "http://$host:$port/status/cluster";
 vlog_options "url", $url;

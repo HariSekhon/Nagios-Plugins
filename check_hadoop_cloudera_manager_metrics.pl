@@ -83,7 +83,7 @@ my @metrics_not_found;
 @usage_order = qw/host port user password tls ssl-CA-path tls-noverify metrics all-metrics cluster service hostId activityId nameservice roleId list-roleIds warning critical/;
 get_options();
 
-$host       = validate_hostname($host);
+$host       = validate_host($host);
 $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);

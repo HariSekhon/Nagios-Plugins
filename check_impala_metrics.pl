@@ -43,7 +43,7 @@ get_options();
 
 my $metric_regex = '[A-Za-z][\w\.-]+';
 
-$host       = validate_hostname($host);
+$host       = validate_host($host);
 $port       = validate_port($port);
 my %stats;
 my @stats;

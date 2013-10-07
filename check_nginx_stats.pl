@@ -55,7 +55,7 @@ my $url;
 
 get_options();
 
-$host = validate_hostname($host);
+$host = validate_host($host);
 $port = validate_port($port);
 $url  = validate_url_path_suffix($url, "nginx stub");
 $url  =~ s/^\///;

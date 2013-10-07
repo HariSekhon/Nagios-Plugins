@@ -48,7 +48,7 @@ my $tables;
 @usage_order = qw/host port tables/;
 get_options();
 
-$host       = validate_hostname($host);
+$host       = validate_host($host);
 $port       = validate_port($port);
 my @tables = qw/-ROOT- .META./;
 push(@tables, split(/\s*,\s*/, $tables)) if defined($tables);
