@@ -13,6 +13,7 @@ install:
 		Data::Dumper \
      	DBD::mysql \
 	 	DBI \
+		Digest::SHA \
 	 	JSON \
 	 	JSON:XS \
 	 	LWP::Simple \
@@ -23,6 +24,7 @@ install:
 	 	Thrift \
 	 	Time::HiRes \
 	 	SMS::AQL \
+		XML::Simple \
 	 	; echo
 	git submodule init
 	git submodule update
