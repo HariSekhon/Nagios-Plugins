@@ -192,7 +192,7 @@ class YumTester:
             if not 'Loading "security" plugin' in output \
                or "Command line error: no such option: --security" in output:
                 end(UNKNOWN, "Security plugin for yum is required. Try to "    \
-                           + "'yum install yum-security' and then re-run "     \
+                           + "'yum install yum-security' (RHEL5) or 'yum install yum-plugin-security' (RHEL6) and then re-run "     \
                            + "this plugin. Alternatively, to just alert on "   \
                            + "any update which does not require the security " \
                            + "plugin, try --all-updates")
