@@ -44,6 +44,9 @@ Remember to check out the legacy/ directory for more plugins that are less curre
 Fetch my library repo which is included as a submodule (it's shared between these Nagios Plugins and other programs I've written over the years).
 
 ```
+git clone https://github.com/harisekhon/nagios-plugins
+```
+```
 cd nagios-plugins
 ```
 ```
