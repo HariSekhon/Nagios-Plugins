@@ -11,20 +11,20 @@ install:
 	@# putting modules one per line just for ease of maintenance
 	cpan \
 		Data::Dumper \
-     	DBD::mysql \
-	 	DBI \
+		DBD::mysql \
+		DBI \
 		Digest::SHA \
-	 	JSON \
-	 	JSON:XS \
-	 	LWP::Simple \
-	 	LWP::UserAgent \
-	 	MongoDB::MongoClient \
-	 	Net::DNS \
-	 	Net::SSH::Expect \
-	 	Thrift \
-	 	Time::HiRes \
-	 	SMS::AQL \
+		JSON \
+		JSON:XS \
+		LWP::Simple \
+		LWP::UserAgent \
+		MongoDB::MongoClient \
+		Net::DNS \
+		Net::SSH::Expect \
+		Thrift \
+		Time::HiRes \
+		SMS::AQL \
 		XML::Simple \
-	 	; echo
+		; echo
 	git submodule init
 	git submodule update
