@@ -45,14 +45,8 @@ Fetch my library repo which is included as a submodule (it's shared between thes
 
 ```
 git clone https://github.com/harisekhon/nagios-plugins
-```
-```
 cd nagios-plugins
-```
-```
 git submodule init
-```
-```
 git submodule update
 ```
 
