@@ -56,7 +56,7 @@ git submodule init
 git submodule update
 ```
 
-Then install the CPAN modules for whichever plugins you want to use, which are listed in the Makefile.
+Then install the Perl CPAN modules for whichever plugins you want to use, which are all listed in the Makefile. I suggest just installing them all for quick simplicity.
 
 ### One-shot Makefile setup ###
 
@@ -64,16 +64,18 @@ Then install the CPAN modules for whichever plugins you want to use, which are l
 make
 ```
 
-Running make as root will install all required CPAN modules by calling cpan <list of modules> and then doing the git submodule init and git submodule update to pull in my library git repo. You may not want to do this if you're not owning the repo as root and also because you may want to install some of the stock Perl modules such as Net::DNS and LWP::* using your OS packages instead of CPAN.
+Running make as root will install all required Perl CPAN modules by calling 'cpan <list of modules>' and then doing the 'git submodule init' and 'git submodule update' to pull in my library git repo. You may not want to do this if you're not owning the repo as root and also because you may want to install some of the stock Perl modules such as Net::DNS and LWP::* using your OS packages instead of compiling them straight from CPAN.
 
-### CPAN Modules ###
+### Perl CPAN Modules ###
 
-If installing the CPAN modules via your package manager or by hand instead of using 'make' as listed above, then read the 'Makefile' for the list of Perl CPAN modules that you need to install.
+If installing the Perl CPAN modules via your package manager or by hand instead of running the 'make' command as listed above, then read the 'Makefile' file for the list of Perl CPAN modules that you need to install.
 
 ### Other Dependencies ###
 
-Most plugins run with minimal dependencies for operational ease of use. Some plugins require CPAN modules as mentioned above, and some of those under the legacy directory such as those that check 3ware/LSI raid controllers, SVN, VNC etc require external binaries to work, but the plugins will tell you if they are missing. Please see the respective vendor websites for 3ware, LSI etc to fetch those binaries and then re-run the plugins where needed.
+Most plugins run with minimal dependencies for operational ease of use. Some plugins require Perl CPAN modules as mentioned above, and some of those under the legacy directory such as those that check 3ware/LSI raid controllers, SVN, VNC etc require external binaries to work, but the plugins will tell you if they are missing. Please see the respective vendor websites for 3ware, LSI etc to fetch those binaries and then re-run the plugins where needed. The Syslog to MySQL checker will need the Python MySQL module to be installed which you should be able to find via your package manager.
 
-### Usage ###
+### Usage --help ###
 
 All plugins come with --help which lists all options as well as giving a program description, often including a detailed account of what is checked in the code.
+
+Just make sure to install the Perl CPAN modules listed above first as some plugins won't run until you've installed the required Perl modules.
