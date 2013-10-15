@@ -272,7 +272,10 @@ class CheckPuppet
         end
         file.close
         if facter_environment and not facter_environment.empty?
-            @puppet_environment = facter_environment
+            facter_environment = facter_environment.gsub(/^environment => /, "")
+            if not facter_environment.empty?
+                @puppet_environment = facter_environment
+            end
         elsif ENV['FACTER_environment'] and not ENV['FACTER_environment'].empty?
             @puppet_environment = ENV['FACTER_environment']
         end
