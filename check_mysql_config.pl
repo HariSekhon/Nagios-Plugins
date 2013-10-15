@@ -442,4 +442,4 @@ if($variables_found ne scalar keys %mysql_config and scalar @variables_not_found
 $msg .= ". $uptime_msg";
 $msg .= ". MySQL Server Version $mysql_version";
 
-quit "$status", "$msg";
+quit $status, $msg;

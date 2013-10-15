@@ -787,4 +787,4 @@ $extended_command .= " --timeout=$timeout"   if($timeout ne $timeout_default);
 
 vlog2;
 vlog3("\nextended command: $extended_command\n\n");
-quit "$status", "$msg";
+quit $status, $msg;

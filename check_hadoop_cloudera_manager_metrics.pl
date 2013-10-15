@@ -348,4 +348,4 @@ foreach(sort keys %metric_results){
     $msg .= " ";
 }
 
-quit "$status", "$msg";
+quit $status, $msg;

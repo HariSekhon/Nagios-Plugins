@@ -404,4 +404,4 @@ if(not $statefile_found) {
     }
 }
 
-quit "$status", "$msg";
+quit $status, $msg;

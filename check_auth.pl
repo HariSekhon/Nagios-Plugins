@@ -123,7 +123,7 @@ foreach(@getent_passwd){
 foreach(sort keys %uid){
     if(scalar(@{$uid{$_}}) > 1){
         $msg .= scalar(@{$uid{$_}}) . " users with UID '$_' found: " . join(",", sort @{$uid{$_}}) . ". ";
-        quit "CRITICAL", "$msg";
+        quit "CRITICAL", $msg;
     }
 }
 vlog2("checking for duplicate GIDs");
@@ -134,7 +134,7 @@ foreach(@getent_group){
 foreach(sort keys %gid){
     if(scalar(@{$gid{$_}}) > 1){
         $msg .= scalar(@{$gid{$_}}) . " users with GID '$_' found: " . join(",", sort @{$gid{$_}}) . ". ";
-        quit "CRITICAL", "$msg";
+        quit "CRITICAL", $msg;
     }
 }
 ##############################
@@ -245,4 +245,4 @@ if($groups_file and @groups_allowed){
     $msg .= " (" . join(",", @groups_allowed) . ")" if $verbose;
 }
 
-quit("$status", "$msg");
+quit $status, $msg;

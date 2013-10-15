@@ -137,4 +137,4 @@ if($critical > 0 && $context_switches_per_sec >= $critical){
     $status = "WARNING";
 }
 
-quit "$status", "$context_switches_per_sec context switches per second | 'context switches per second'=$context_switches_per_sec;$warning;$critical";
+quit $status, "$context_switches_per_sec context switches per second | 'context switches per second'=$context_switches_per_sec;$warning;$critical";

@@ -198,4 +198,4 @@ if($all_metrics){
     }
 }
 
-quit "$status", "$msg";
+quit $status, $msg;

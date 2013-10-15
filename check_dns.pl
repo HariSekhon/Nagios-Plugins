@@ -192,4 +192,4 @@ $extended_command .= " -R '$expected_regex'" if $expected_regex;
 $extended_command .= " -t $timeout"   if($timeout ne $timeout_default);
 vlog3 "\nextended command: $extended_command\n\n";
 
-quit "$status", "$msg";
+quit $status, $msg;

@@ -116,4 +116,4 @@ foreach(($localtime_file, $sysconfig_clock)){
     }
 }
 
-quit "$status", "$msg";
+quit $status, $msg;

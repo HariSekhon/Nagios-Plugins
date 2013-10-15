@@ -154,7 +154,7 @@ sub execute_query{
                 $errstr .= "'$_', ";
             }
             $errstr =~ s/, $/)/;
-            quit "CRITICAL", "$errstr";
+            quit "CRITICAL", $errstr;
         }
         $result = $$data{$field};
     }
@@ -226,4 +226,4 @@ if ($graph and isFloat($result, 1)) {
 }
 $msg .= "mysql_query_time=${query_time}s" unless $no_querytime;
 
-quit "$status", "$msg";
+quit $status, $msg;

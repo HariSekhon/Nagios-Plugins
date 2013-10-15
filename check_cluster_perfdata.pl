@@ -119,4 +119,4 @@ $msg .= "$units" if $units;
 msg_perf_thresholds();
 $msg .= " Services=" . scalar @stats;
 
-quit "$status", "$msg";
+quit $status, $msg;

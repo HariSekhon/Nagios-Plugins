@@ -65,11 +65,11 @@ while(<CMD>){
     chomp;
     vlog3 "tftp: $_";
     if(/Transfer timed out./){
-        quit "CRITICAL", "$_";
+        quit "CRITICAL", $_;
     }elsif(/Permission denied/){
-        quit "CRITICAL", "$_";
+        quit "CRITICAL", $_;
     }elsif(/unknown host/){
-        quit "CRITICAL", "$_";
+        quit "CRITICAL", $_;
     }
     #next if /^getting from/;
     if(/^Received (\d+) bytes in ([\d\.]+) seconds \[(\d+) bit\/s\]$/){

@@ -262,4 +262,4 @@ if($status ne "CRITICAL"){
 if($san_names_checked){
     $msg .= " [$san_names_checked SAN name$plural checked]";
 }
-quit "$status", "$msg";
+quit $status, $msg;

@@ -266,4 +266,4 @@ if(defined($vars3{"MAXACTSVCLAT"}) and defined($vars3{"MAXPSVSVCLAT"})){
     }
 }
 
-quit "$status", "$msg";
+quit $status, $msg;

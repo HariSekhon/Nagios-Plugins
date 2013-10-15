@@ -155,7 +155,7 @@ if(not $output =~ /^1 data packet\(s\) sent to host successfully\.$/){
     quit "CRITICAL", "Failed to send NSCA result:  $output";
 }
 chomp $output;
-quit "OK", "$output" if($host);
+quit "OK", $output if($host);
 print "sleeping for $sleep_secs secs to allow NSCA to feed result to Nagios\n" if $verbose;
 sleep $sleep_secs;
 $cmd = "grep '^$nsca_log\$' '$nagios_log'";
