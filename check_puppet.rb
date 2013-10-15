@@ -135,7 +135,6 @@ class CheckPuppet
     Puppet.parse_config
 
     if OPTIONS[:lockfile].empty?
-        # Puppet 3.2, haven't checked if this works on older 2.7 since I don't have 2.7 any more
         OPTIONS[:lockfile] = Puppet.settings.value(:agent_disabled_lockfile)
     end
     if OPTIONS[:statefile].empty?
