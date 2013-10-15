@@ -14,8 +14,6 @@
 # should just run anywhere puppet works without worrying about Gems.
 # comm -1 -2 shows no lines in common apart from the #!/usr/bin/env ruby
 
-# NOTE: Only supported on LINUX at this time
-
 # NOTE: client_yaml/catalog/$(hostname -f).yaml mtime updates every time puppet
 # runs. When this is out of date, so too is state.yaml so we don't need an extra
 # check for non-cached catalog runs since state.yaml covers it
@@ -28,8 +26,10 @@
 require "optparse"
 require "puppet"
 require "puppet/defaults"
+#require 'sys/proctable'
+#include Sys
 
-PUPPETD     = "/usr/sbin/puppetd"
+PUPPETD     = [ "/usr/sbin/puppetd", "/usr/bin/puppet" ]
 PUPPET_CONF = "/etc/puppet/puppet.conf"
 
 # Standard Nagios Exit Codes
@@ -47,7 +47,7 @@ end
 
 class CheckPuppet
 
-    VERSION = '0.9.2'
+    VERSION = '0.9.3'
     script_name = File.basename($0)
 
     # default options
@@ -58,7 +58,6 @@ class CheckPuppet
         :critical    => 70, # mins
     #    :lockfile    => "/var/lib/puppet/state/puppetdlock",
         :lockfile    => "",
-        :process     => "puppetd",
     #    :statefile   => "/var/lib/puppet/state/state.yaml",
         :statefile   => "",
         :version     => nil,
@@ -73,7 +72,7 @@ class CheckPuppet
     #              "Puppet process is running and the state file is no " +
     #              "older than specified interval."
     o.separator   "The #{script_name} Nagios plugin checks the following:\n" +
-                  "1. Exactly 1 puppetd process is running\n"  +
+                  "1. Exactly 1 'puppetd' or 'puppet agent' process is running\n"  +
                   "2. Puppet has run successfully recently (state file has been updated)\n" +
                   "3. Puppet runs are enabled\n"         +
                   "4. The puppet version installed\n"    +
@@ -92,8 +91,8 @@ class CheckPuppet
          "Default: #{OPTIONS[:critical]} minutes")  { |OPTIONS[:critical]| }
     o.on("-l", "--lockfile=lockfile", String, "The lock file",
          "Default: uses puppet config / default") { |OPTIONS[:lockfile]| }
-    o.on("-p", "--process=processname", String, "The process to check",
-         "Default: #{OPTIONS[:process]}")           { |OPTIONS[:process]| }
+    #o.on("-p", "--process=processname", String, "The process to check",
+    #     "Default: #{OPTIONS[:process]}")           { |OPTIONS[:process]| }
     o.on("-s", "--statefile=statefile", String, "The state file",
          "Default: uses puppet config / default") { |OPTIONS[:statefile]| }
     o.on("-v", "--verbose", String, "Verbose mode",
@@ -136,33 +135,37 @@ class CheckPuppet
     Puppet.parse_config
 
     if OPTIONS[:lockfile].empty?
-        OPTIONS[:lockfile]  = Puppet.settings.value(:statedir) + "/puppetdlock"
+        # Puppet 3.2, haven't checked if this works on older 2.7 since I don't have 2.7 any more
+        OPTIONS[:lockfile] = Puppet.settings.value(:agent_disabled_lockfile)
     end
     if OPTIONS[:statefile].empty?
         OPTIONS[:statefile] = Puppet.settings.value(:statefile)
     end
 
     def check_proc
-        # This is the bit that makes it Linux only as otherwise we have to go
-        # around installing Gems for sys/proctable whereas this will just run
-        # straight off like this
-        procs = `ps h -C #{OPTIONS[:process]}`
+        #num_procs = 0
+        #ProcTable.ps{ |process|
+        #    if process.cmdline.include? "puppetd" or process.cmdline.include? "puppet agent"
+        #        num_procs += 1
+        #    end
+        #}
+        procs = `ps -ef | grep -e 'puppet[d]' -e 'puppet agen[t]'`
         # On upgrades it has happened before where we have 2 procs running if
         # the old one doesn't exit properly so I check to make sure we have
         # exactly 1 proc running
         num_procs = procs.split("\n").size
         if procs.empty?
             @process_status = "CRITICAL"
-            @process_msg    = "'#{OPTIONS[:process]}' PROCESS NOT RUNNING"
+            @process_msg    = "'puppetd/puppet agent' PROCESS NOT RUNNING"
         elsif num_procs > 1
             @process_status = "WARNING"
-            @process_msg    = "#{num_procs} '#{OPTIONS[:process]}' PROCESSES RUNNING"
+            @process_msg    = "#{num_procs} 'puppetd/puppet agent' PROCESSES RUNNING"
         elsif num_procs == 1
             @process_status = "OK"
-            @process_msg    = "'#{OPTIONS[:process]}' process running"
+            @process_msg    = "'puppetd/puppet agent' process running"
         else
             @process_status = EXIT["UNKNOWN"]
-            @process_msg    = "code error determining the number of '#{OPTIONS[:process]}' processes"
+            @process_msg    = "code error determining the number of 'puppetd/puppet agent' processes"
         end
     end
 
@@ -201,13 +204,14 @@ class CheckPuppet
 
     def check_enabled
         if FileTest.exist?("#{OPTIONS[:lockfile]}")
-            if File.zero?("#{OPTIONS[:lockfile]}")
+            # This used to be the case pre 2.6, not supporting that any more
+            #if File.zero?("#{OPTIONS[:lockfile]}")
                 @enabled_status = "CRITICAL"
                 @enabled_msg = "PUPPET RUNS DISABLED"
-            else
-                @enabled_status = "OK"
-                @enabled_msg = "puppet runs enabled (currently in progress)"
-            end
+            #else
+            #    @enabled_status = "OK"
+            #    @enabled_msg = "puppet runs enabled (currently in progress)"
+            #end
         else
             @enabled_status = "OK"
             @enabled_msg = "puppet runs enabled"
@@ -215,7 +219,15 @@ class CheckPuppet
     end
 
     def check_version
-        puppet_version_cmd = "#{PUPPETD} -V"
+        for puppet in PUPPETD
+            if FileTest.exist? puppet
+                puppet_version_cmd = "#{puppet} -V"
+                break
+            end
+        end
+        unless defined? puppet_version_cmd
+            quit "UNKNOWN", "failed to find puppet command to test version"
+        end
         @puppet_version = `#{puppet_version_cmd}`.chomp
         unless /^\d+(\.\d+)+$/.match(@puppet_version)
             quit "UNKNOWN", "version retrieved from '#{puppet_version_cmd}' did not match expected regex (returned '#{@puppet_version}')"
