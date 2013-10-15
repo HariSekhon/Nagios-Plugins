@@ -47,7 +47,7 @@ end
 
 class CheckPuppet
 
-    VERSION = '0.9.3'
+    VERSION = '0.9.4'
     script_name = File.basename($0)
 
     # default options
@@ -250,7 +250,7 @@ class CheckPuppet
 
     def check_environment
         @puppet_environment = "production"
-        facter_environment  = `RUBYLIB=$RUBYLIB:/var/lib/puppet/lib facter environment`.chomp!
+        facter_environment  = `RUBYLIB=$RUBYLIB:/var/lib/puppet/lib facter | grep ^environment`.chomp!
         agent_regex         = Regexp.compile('^\s*\[\s*(?:agent|puppetd)\s*\]\s*$')
         section_regex       = Regexp.compile('^\s*\[\s*[^\]]*\]\s*\]\s*$')
         environment_regex   = Regexp.compile('^\s*environment\s*=\s*(.+?)\s*$')
