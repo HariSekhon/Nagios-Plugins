@@ -13,6 +13,8 @@ $DESCRIPTION = "Nagios Plugin to parse Cassandra's 'nodetool tpstats' for Nagios
 
 TODO: add alerting for Dropped, Pending, Blocked etc
 
+BUGS: nodetool tpstats unfortunately takes too long to run, you'll need to use -t 20 or -t 30 and increase Nagios command timeout too
+
 Written against Cassandra 2.0";
 
 $VERSION = "0.1";
