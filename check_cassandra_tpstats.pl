@@ -9,7 +9,9 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to parse Cassandra's 'nodetool tpstats' for Nagios graphing
+$DESCRIPTION = "Nagios Plugin to parse Cassandra's 'nodetool tpstats' for Nagios graphing.
+
+Call over NRPE on each Cassandra node to graph these metrics over time as several of them are indicative of performance problems (ironically nodetool is so slow it won't help performance :-/)
 
 TODO: add alerting for Dropped, Pending, Blocked etc
 
