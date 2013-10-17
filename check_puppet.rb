@@ -47,7 +47,7 @@ end
 
 class CheckPuppet
 
-    VERSION = '0.9.4'
+    VERSION = '0.9.5'
     script_name = File.basename($0)
 
     # default options
@@ -72,7 +72,7 @@ class CheckPuppet
     #              "Puppet process is running and the state file is no " +
     #              "older than specified interval."
     o.separator   "The #{script_name} Nagios plugin checks the following:\n" +
-                  "1. Exactly 1 'puppetd' or 'puppet agent' process is running\n"  +
+                  "1. No more than 2 'puppetd' or 'puppet agent' processes are running\n"  +
                   "2. Puppet has run successfully recently (state file has been updated)\n" +
                   "3. Puppet runs are enabled\n"         +
                   "4. The puppet version installed\n"    +
@@ -156,12 +156,12 @@ class CheckPuppet
         if procs.empty?
             @process_status = "CRITICAL"
             @process_msg    = "'puppetd/puppet agent' PROCESS NOT RUNNING"
-        elsif num_procs > 1
+        elsif num_procs > 2
             @process_status = "WARNING"
             @process_msg    = "#{num_procs} 'puppetd/puppet agent' PROCESSES RUNNING"
-        elsif num_procs == 1
+        elsif num_procs == 1 or num_procs == 2
             @process_status = "OK"
-            @process_msg    = "'puppetd/puppet agent' process running"
+            @process_msg    = "#{num_procs} 'puppetd/puppet agent' process running"
         else
             @process_status = EXIT["UNKNOWN"]
             @process_msg    = "code error determining the number of 'puppetd/puppet agent' processes"
