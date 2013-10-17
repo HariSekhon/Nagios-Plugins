@@ -80,13 +80,13 @@ $ua->show_progress(1) if $debug;
 
 # very tricky, had to read the docs to get this
 # http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html
-my $canonicalized_string = "GET\n\n\n$date_header\n/$bucket/$file";
+my $canonicalized_string = "HEAD\n\n\n$date_header\n/$bucket/$file";
 # converts in place
 utf8::encode($canonicalized_string);
 #vlog_options "canonicalized_string", "'$canonicalized_string'";
 
 validate_resolveable($aws_host);
-my $request = HTTP::Request->new(GET => "http://$aws_host/$file");
+my $request = HTTP::Request->new(HEAD => "http://$aws_host/$file");
 $request->header("Host" => $host_header);
 $request->header("Date" => $date_header);
 my $signature = encode_base64(hmac_sha1($canonicalized_string, $aws_secret_key));
