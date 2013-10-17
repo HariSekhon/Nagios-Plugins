@@ -15,7 +15,7 @@ Call over NRPE on each Cassandra node to graph these metrics over time as severa
 
 TODO: add alerting for Dropped, Pending, Blocked etc
 
-BUGS: nodetool tpstats unfortunately takes too long to run, you'll need to use -t 20 or -t 30 and increase Nagios command timeout too
+Limitations: nodetool tpstats unfortunately sometimes takes a few too many seconds to run, may need to increase --timeout (and possibly Nagios service_check_timeout in nagios.cfg)
 
 Written against Cassandra 2.0";
 
