@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to parse Cassandra's 'nodetool tpstats' for Pendin
 
 Call over NRPE on each Cassandra node, check the baseline first and then set appropriate thresholds to alert on too many Pending/Blocked operations which is indicative of performance problems.
 
-Written and tested against Cassandra 2.0, DataStax Community Distribution";
+Written and tested against Cassandra 2.0, DataStax Community Edition";
 
 $VERSION = "0.2";
 
