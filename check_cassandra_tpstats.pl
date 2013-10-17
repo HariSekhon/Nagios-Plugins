@@ -9,17 +9,13 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to parse Cassandra's 'nodetool tpstats' for Nagios graphing.
+$DESCRIPTION = "Nagios Plugin to parse Cassandra's 'nodetool tpstats' for Pending/Blocked operations, as well as also graphing Active and Dropped operations.
 
-Call over NRPE on each Cassandra node to graph these metrics over time as several of them are indicative of performance problems (ironically nodetool is so slow it won't help performance :-/)
+Call over NRPE on each Cassandra node, check the baseline first and then set appropriate thresholds to alert on too many Pending/Blocked operations which is indicative of performance problems.
 
-TODO: add alerting for Dropped, Pending, Blocked etc
+Written and tested against Cassandra 2.0, DataStax Community Distribution";
 
-Limitations: nodetool tpstats unfortunately sometimes takes a few too many seconds to run, may need to increase --timeout (and possibly Nagios service_check_timeout in nagios.cfg)
-
-Written against Cassandra 2.0";
-
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -31,16 +27,25 @@ use HariSekhonUtils;
 
 my $nodetool = "nodetool";
 
+my $default_warning  = 0;
+my $default_critical = 0;
+
+$warning  = $default_warning;
+$critical = $default_critical;
+
 %options = (
-    "n|nodetool=s"         => [ \$nodetool,         "Path to 'nodetool' command if not in \$PATH ($ENV{PATH})" ],
+    "n|nodetool=s"  => [ \$nodetool, "Path to 'nodetool' command if not in \$PATH ($ENV{PATH})" ],
+    "w|warning=s"   => [ \$warning,  "Warning  threshold max (inclusive) for Pending/Blocked operations (default: $default_warning)"  ],
+    "c|critical=s"  => [ \$critical, "Critical threshold max (inclusive) for Pending/Blocked operations (default: $default_critical)" ],
 );
 
-@usage_order = qw/nodetool/;
+@usage_order = qw/nodetool warning critical/;
 get_options();
 
 $nodetool = validate_filename($nodetool, 0, "nodetool");
 $nodetool =~ /(?:^|\/)nodetool$/ or usage "invalid path to nodetool, must end in nodetool";
 which($nodetool, 1);
+validate_thresholds(1, 1, { "simple" => "upper", "integer" => 1, "positive" => 1 } );
 
 vlog2;
 set_timeout();
@@ -60,11 +65,11 @@ foreach(@output[1..15]){
     /^(\w+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$/ or die_format_changed($_);
     push(@stats,
         (
-            { "$1_Active"           => $2, },
-            { "$1_Pending"          => $3, },
-            { "$1_Completed"        => $4, },
             { "$1_Blocked"          => $5, },
-            { "$1_All_time_blocked" => $6, },
+            { "$1_Pending"          => $3, },
+            { "$1_Active"           => $2, },
+            #{ "$1_Completed"        => $4, },
+            #{ "$1_All_time_blocked" => $6, },
         )
     );
 }
@@ -76,22 +81,38 @@ foreach(; $lineno < scalar @output; $lineno += 1){
 
 $output[$lineno] =~ /^Message type\s+Dropped/ or die_format_changed($output[$lineno]);
 $lineno += 1;
+my @stats2;
 foreach(; $lineno < scalar @output; $lineno += 1){
     $output[$lineno] =~ /^(\w+)\s+(\d+)$/ or die_format_changed($output[$lineno]);
-    push(@stats,
+    push(@stats2,
         (
-            { "$1_Dropped" => $2 }
+            { ucfirst(lc($1)) . "_Dropped" => $2 }
         )
     );
 }
 
-foreach(my $i = 0; $i < scalar @stats; $i++){
-    foreach my $stat2 ($stats[$i]){
-        foreach my $key (keys %$stat2){
-            $msg .= "$key=$$stat2{$key} ";
+push(@stats2, @stats);
+
+my $msg2;
+my $msg3;
+foreach(my $i = 0; $i < scalar @stats2; $i++){
+    foreach my $stat3 ($stats2[$i]){
+        foreach my $key (keys %$stat3){
+            $msg2 = "$key=$$stat3{$key} ";
+            $msg3 .= $msg2;
+            if($key =~ /Pending|Blocked/i){
+                unless(check_thresholds($$stat3{$key}, 1)){
+                    $msg2 = uc $msg2;
+                }
+            }
+            $msg .= $msg2;
         }
     }
 }
-$msg .= "| $msg";
+$msg  =~ s/\s$//;
+if($verbose or $status ne "OK"){
+    msg_thresholds();
+}
+$msg .= "| $msg3";
 
 quit $status, $msg;
