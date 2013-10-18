@@ -9,13 +9,18 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to parse Cassandra's 'nodetool tpstats' for Pending/Blocked operations, as well as also graphing Active and Dropped operations.
+$DESCRIPTION = "Nagios Plugin to fetch Cassandra's thread pool stats by parsing 'nodetool tpstats'.
 
-Call over NRPE on each Cassandra node, check the baseline first and then set appropriate thresholds to alert on too many Pending/Blocked operations which is indicative of performance problems.
+Checks Pending/Blocked operations against warning/critical thresholds.
+Check the baseline first and then set appropriate thresholds since a build up of Pending/Blocked operations is indicative of performance problems.
+
+Also returns Active and Dropped operations with perfdata for graphing.
+
+Can specify a remote host and port otherwise it checks the local node's stats (for calling over NRPE on each Cassandra node)
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -27,6 +32,9 @@ use HariSekhonUtils;
 
 my $nodetool = "nodetool";
 
+my $host;
+my $port;
+
 my $default_warning  = 0;
 my $default_critical = 0;
 
@@ -35,16 +43,20 @@ $critical = $default_critical;
 
 %options = (
     "n|nodetool=s"  => [ \$nodetool, "Path to 'nodetool' command if not in \$PATH ($ENV{PATH})" ],
+    "H|host=s"      => [ \$host,     "Cassandra node to connect to" ],
+    "P|port=s"      => [ \$port,     "Cassandra JMX port to connect to" ],
     "w|warning=s"   => [ \$warning,  "Warning  threshold max (inclusive) for Pending/Blocked operations (default: $default_warning)"  ],
     "c|critical=s"  => [ \$critical, "Critical threshold max (inclusive) for Pending/Blocked operations (default: $default_critical)" ],
 );
 
-@usage_order = qw/nodetool warning critical/;
+@usage_order = qw/nodetool host port warning critical/;
 get_options();
 
 $nodetool = validate_filename($nodetool, 0, "nodetool");
 $nodetool =~ /(?:^|\/)nodetool$/ or usage "invalid path to nodetool, must end in nodetool";
 which($nodetool, 1);
+$host = validate_host($host) if defined($host);
+$port = validate_port($port) if defined($port);
 validate_thresholds(1, 1, { "simple" => "upper", "integer" => 1, "positive" => 1 } );
 
 vlog2;
@@ -52,17 +64,31 @@ set_timeout();
 
 $status = "OK";
 
-my @output = cmd("$nodetool tpstats");
+my $options = "";
+if(defined($host)){
+    $options .= "--host '$host' ";
+}
+if(defined($port)){
+    $options .= "--port '$port' ";
+}
+my $cmd = "${nodetool} ${options}tpstats";
 
-my $format_changed_err = "unrecognized header line '%s', nodetool output format may have changed, aborting. ";
+my @output = cmd($cmd);
+
+my $format_changed_err = "unrecognized line '%s', nodetool output format may have changed, aborting. ";
 sub die_format_changed($){
     quit "UNKNOWN", sprintf("$format_changed_err$nagios_plugins_support_msg", $_[0]);
 }
 
+if($output[0] =~ /connection refused|unknown host|cannot|resolve|error/i){
+    quit "CRITICAL", join(", ", @output);
+}
 $output[0] =~ /Pool\s+Name\s+Active\s+Pending\s+Completed\s+Blocked\s+All time blocked\s*$/i or die_format_changed($output[0]);
 my @stats;
-foreach(@output[1..15]){
-    /^(\w+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$/ or die_format_changed($_);
+my $i = 1;
+foreach(; $i < scalar @output; $i++){
+    $output[$i] =~ /^\s*$/ and $i++ and last;
+    $output[$i] =~ /^(\w+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$/ or die_format_changed($output[$i]);
     push(@stats,
         (
             { "$1_Blocked"          => $5, },
@@ -73,17 +99,16 @@ foreach(@output[1..15]){
         )
     );
 }
-my $lineno = 16;
-foreach(; $lineno < scalar @output; $lineno += 1){
-    next if $output[$lineno] =~ /^\s*$/;
+foreach(; $i < scalar @output; $i++){
+    next if $output[$i] =~ /^\s*$/;
     last;
 }
 
-$output[$lineno] =~ /^Message type\s+Dropped/ or die_format_changed($output[$lineno]);
-$lineno += 1;
+$output[$i] =~ /^Message type\s+Dropped/ or die_format_changed($output[$i]);
+$i++;
 my @stats2;
-foreach(; $lineno < scalar @output; $lineno += 1){
-    $output[$lineno] =~ /^(\w+)\s+(\d+)$/ or die_format_changed($output[$lineno]);
+foreach(; $i < scalar @output; $i++){
+    $output[$i] =~ /^(\w+)\s+(\d+)$/ or die_format_changed($output[$i]);
     push(@stats2,
         (
             { ucfirst(lc($1)) . "_Dropped" => $2 }
