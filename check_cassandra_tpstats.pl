@@ -43,13 +43,15 @@ $critical = $default_critical;
 
 %options = (
     "n|nodetool=s"  => [ \$nodetool, "Path to 'nodetool' command if not in \$PATH ($ENV{PATH})" ],
-    "H|host=s"      => [ \$host,     "Cassandra node to connect to" ],
-    "P|port=s"      => [ \$port,     "Cassandra JMX port to connect to" ],
+    "H|host=s"      => [ \$host,     "Cassandra node to connect to     (default: localhost)" ],
+    "P|port=s"      => [ \$port,     "Cassandra JMX port to connect to (default: 7199)" ],
+    "u|user=s"      => [ \$user,     "Cassandra JMX user (optional)" ],
+    "p|password=s"  => [ \$password, "Cassandra JMX user (optional)" ],
     "w|warning=s"   => [ \$warning,  "Warning  threshold max (inclusive) for Pending/Blocked operations (default: $default_warning)"  ],
     "c|critical=s"  => [ \$critical, "Critical threshold max (inclusive) for Pending/Blocked operations (default: $default_critical)" ],
 );
 
-@usage_order = qw/nodetool host port warning critical/;
+@usage_order = qw/nodetool host port user password warning critical/;
 get_options();
 
 $nodetool = validate_filename($nodetool, 0, "nodetool");
@@ -57,6 +59,12 @@ $nodetool =~ /(?:^|\/)nodetool$/ or usage "invalid path to nodetool, must end in
 which($nodetool, 1);
 $host = validate_host($host) if defined($host);
 $port = validate_port($port) if defined($port);
+$user = validate_user($user) if defined($user);
+if(defined($password)){
+    $password =~ /^([^']+)$/ or usage "invalid password supplied, may not contain '";
+    $password = $1;
+    vlog_options "password", $password;
+}
 validate_thresholds(1, 1, { "simple" => "upper", "integer" => 1, "positive" => 1 } );
 
 vlog2;
@@ -65,12 +73,10 @@ set_timeout();
 $status = "OK";
 
 my $options = "";
-if(defined($host)){
-    $options .= "--host '$host' ";
-}
-if(defined($port)){
-    $options .= "--port '$port' ";
-}
+$options .= "--host '$host' " if defined($host);
+$options .= "--port '$port' " if defined($port);
+$options .= "--username '$user' " if defined($user);
+$options .= "--password '$password' " if defined($password);
 my $cmd = "${nodetool} ${options}tpstats";
 
 my @output = cmd($cmd);
@@ -80,7 +86,7 @@ sub die_format_changed($){
     quit "UNKNOWN", sprintf("$format_changed_err$nagios_plugins_support_msg", $_[0]);
 }
 
-if($output[0] =~ /connection refused|unknown host|cannot|resolve|error/i){
+if($output[0] =~ /connection refused|unknown host|cannot|resolve|error|user|password/i){
     quit "CRITICAL", join(", ", @output);
 }
 $output[0] =~ /Pool\s+Name\s+Active\s+Pending\s+Completed\s+Blocked\s+All time blocked\s*$/i or die_format_changed($output[0]);
