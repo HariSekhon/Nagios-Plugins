@@ -30,27 +30,37 @@ Checks 3-6 are skipped when specifying --null znodes
 
 * Check we have an active HBase Root Master (this is an ephemeral node that will disappear if Master is down):
 
-$progname -H <zookeepers> -z /hbase/master
+check_hbase_master_znode.pl -H <zookeepers>
+    or
+check_zookeeper_znode.pl -H <zookeepers> -z /hbase/master
 ________________________________________________________________________________
 
 * Check we have an HBase Root RegionServer assigned:
 
-$progname -H <zookeepers> -z /hbase/root-region-server
+check_hbase_root_regionserver_znode.pl -H <zookeepers>
+    or
+check_zookeeper_znode.pl -H <zookeepers> -z /hbase/root-region-server
 ________________________________________________________________________________
 
 * Check there are no HBase unassigned regions (should be blank hence -d \"\"):
 
-$progname -H <zookeepers> -z /hbase/unassigned -d \"\"
+check_hbase_unassigned_regions_znode.pl -H <zookeepers>
+    or
+check_zookeeper_znode.pl -H <zookeepers> -z /hbase/unassigned -d \"\"
 ________________________________________________________________________________
 
 * Check there are HBase Backup Masters:
 
-$progname -H <zookeepers> -z /hbase/backup-masters
+check_hbase_backup_masters_znode.pl -H <zookeepers>
+    or
+check_zookeeper_znode.pl -H <zookeepers> -z /hbase/backup-masters
 ________________________________________________________________________________
 
 * Check given SolrCloud server is alive and holding it's ephemeral znode:
 
-$progname -H <zookeepers> -z /solr/live_nodes/<hostname>:8983_solr --null
+check_solrcloud_server_znode.pl -H <zookeepers> -z /solr/live_nodes/<solrhost>:8983_solr
+    or
+check_zookeeper_znode.pl -H <zookeepers> -z /solr/live_nodes/<solrhost>:8983_solr --null
 
 ================================================================================
 
@@ -62,7 +72,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 2. API segfaults if you try to check the contents of a null znode such as those kept by SolrCloud servers eg. /solr/live_nodes/<hostname>:8983_solr, must use --null to skip checks other than existence
 ";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -96,11 +106,27 @@ $port = $ZK_DEFAULT_PORT;
     "c|critical=s"  => [ \$critical,        "Critical threshold or ran:ge (inclusive) for znode age (optional)" ],
 );
 
+if($progname eq "check_hbase_backup_masters_znode.pl"){
+    $znode = "/hbase/backup-masters";
+} elsif($progname eq "check_hbase_master_znode.pl"){
+    $znode = "/hbase/master";
+} elsif($progname eq "check_hbase_root_regionserver_znode.pl"){
+    $znode = "/hbase/root-region-server";
+} elsif($progname eq "check_hbase_unassigned_regions_znode.pl"){
+    $znode = "/hbase/unassigned";
+    $expected_data  = "";
+} elsif($progname eq "check_solrcloud_server_znode.pl"){
+    # can't auto determine znode since it's based on the server's hostname
+    $null = 1;
+}
+
 @usage_order = qw/host port znode data regex user password warning critical/;
 get_options();
 
 $port = isPort($port) or usage "invalid ZooKeeper port given for all nodes";
+defined($host) or usage "ZooKeepers not defined";
 my @hosts = split(/\s*,\s*/, $host);
+@hosts or usage "ZooKeepers not defined";
 my $node_port;
 foreach(my $i = 0; $i < scalar @hosts; $i++){
     undef $node_port;
