@@ -76,6 +76,26 @@ The check_logserver.py "Syslog to MySQL" plugin will need the Python MySQL modul
 yum install MySQL-python
 ```
 
+The check_zookeeper_znode.pl plugin requires the Net::ZooKeeper Perl CPAN module but this is not a simple ```cpan Net::ZooKeeper```, that will fail. Follow these instructions precisely or debug at your own peril:
+
+```
+# install C client library
+export ZOOKEEPER_VERSION=3.4.5
+wget http://www.mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-$ZOOKEEPER_VERSION/zookeeper-$ZOOKEEPER_VERSION.tar.gz
+tar zxvf zookeeper-$ZOOKEEPER_VERSION.tar.gz
+cd zookeeper-$ZOOKEEPER_VERSION/src/c
+./configure
+make install
+
+# now install Perl module using C library with the correct linking
+cd ../contrib/zkperl
+perl Makefile.PL --zookeeper-include=/usr/local/include/zookeeper --zookeeper-lib=/usr/local/lib
+LD_RUN_PATH=/usr/local/lib make install
+```
+After this check it's properly installed by doing
+```perl -e "use Net::ZooKeeper"```
+which should return without errors or output if successful.
+
 ### Usage --help ###
 
 All plugins come with --help which lists all options as well as giving a program description, often including a detailed account of what is checked in the code.
