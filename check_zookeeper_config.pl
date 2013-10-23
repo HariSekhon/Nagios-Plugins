@@ -78,7 +78,7 @@ while(<$fh>){
     s/^\s*//;
     s/\s*$//;
     vlog3 "config:  $_";
-    /^\s*\w+\s*=\s*.+$/ or quit "UNKNOWN", "unrecognized line in config file '$conf': $_";
+    /^\s*[\w\.]+\s*=\s*.+$/ or quit "UNKNOWN", "unrecognized line in config file '$conf': $_";
     my ($key, $value) = split(/\s*=\s*/, $_, 2);
     if($key eq "dataDir" or $key eq "dataLogDir"){
         $value =~ s/\/$//;
