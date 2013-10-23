@@ -176,10 +176,10 @@ if(scalar keys %mysql_config < 1){
     quit "CRITICAL", "No MySQL config variables found in config file '$config_file' for instance ['$mysql_instance']. Is this a valid MySQL config file or do you need to specify a different instance name?";
 }
 
-vlog3 "
-===========================;
-MySQL Config File Variables;
-===========================";
+vlog3;
+vlog3 "===========================";
+vlog3 "MySQL Config File Variables";
+vlog3 "===========================";
 foreach(sort keys %mysql_config){
     vlog3 "$_ = $mysql_config{$_}";
 }
@@ -200,10 +200,10 @@ my $sth = $dbh->prepare($sql);
 vlog2 "executing query: $sql";
 $sth->execute or quit "CRITICAL", "SQL Error - $DBI::errstr";
 my %mysql_variables;
-vlog3 "
-======================;
-MySQL Global Variables;
-======================";
+vlog3;
+vlog3 "======================";
+vlog3 "MySQL Global Variables";
+vlog3 "======================";
 my $ref;
 while($ref = $sth->fetchrow_arrayref){
     vlog3 "$$ref[0] = $$ref[1]";
