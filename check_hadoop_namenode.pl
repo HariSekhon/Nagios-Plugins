@@ -145,7 +145,7 @@ vlog2;
 set_timeout();
 #$ua->timeout($timeout);
 
-validate_resolveable($host);
+validate_resolvable($host);
 my $content = curl $url;
 
 my $regex_td = '\s*(?:<\/a>\s*)?<td\s+id="\w+">\s*:\s*<td\s+id="\w+">\s*';

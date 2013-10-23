@@ -69,7 +69,7 @@ $status = "OK";
 # ============================================================================ #
 # lifted from my check_hadoop_jobtracker.pl plugin, modified to support $all_metrics
 vlog2 "querying $url";
-validate_resolveable($host);
+validate_resolvable($host);
 my $content = get $url;
 my ($result, $err) = ($?, $!);
 vlog3 "returned HTML:\n\n" . ( $content ? $content : "<blank>" ) . "\n";

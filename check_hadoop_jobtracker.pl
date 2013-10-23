@@ -111,7 +111,7 @@ set_timeout();
 #$ua->timeout($timeout);
 
 vlog2 "querying $url";
-validate_resolveable($host);
+validate_resolvable($host);
 my $content = get $url;
 my ($result, $err) = ($?, $!);
 vlog3 "returned HTML:\n\n" . ( $content ? $content : "<blank>" ) . "\n";

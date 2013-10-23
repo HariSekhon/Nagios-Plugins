@@ -70,7 +70,7 @@ $ua->agent("Hari Sekhon $progname $main::VERSION");
 $ua->show_progress(1) if $debug;
 
 vlog2 "querying Stargate";
-validate_resolveable($host);
+validate_resolvable($host);
 my $res = $ua->get($url);
 vlog2 "got response";
 my $status_line  = $res->status_line;

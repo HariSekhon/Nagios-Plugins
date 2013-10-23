@@ -197,7 +197,7 @@ if($tls){
 my $url_prefix = "$protocol://$host:$port";
 $url = "$url_prefix$url";
 vlog2 "querying $url";
-validate_resolveable($host);
+validate_resolvable($host);
 my $req = HTTP::Request->new('GET',$url);
 $req->authorization_basic($user, $password);
 my $response = $ua->request($req);

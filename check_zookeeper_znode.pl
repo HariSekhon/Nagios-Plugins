@@ -135,7 +135,7 @@ foreach(my $i = 0; $i < scalar @hosts; $i++){
         $hosts[$i] =~ s/:$node_port$//;
     }
     $hosts[$i]  = validate_host($hosts[$i]);
-    validate_resolveable($hosts[$i]);
+    validate_resolvable($hosts[$i]);
     $node_port  = $port unless defined($node_port);
     $hosts[$i] .= ":$node_port";
     vlog_options "port", $node_port;

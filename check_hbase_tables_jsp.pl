@@ -79,7 +79,7 @@ my @tables_ok;
 my @tables_not_found;
 my @tables_not_available;
 
-validate_resolveable($host);
+validate_resolvable($host);
 foreach $table (@tables){
     $url = "http://$host:$port/table.jsp?name=$table";
     vlog2 "querying HBase Master for table $table";

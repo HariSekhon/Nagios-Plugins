@@ -124,7 +124,7 @@ vlog2 "$diff_secs secs since last run\n";
 
 my $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon $progname $main::VERSION");
-validate_resolveable($host);
+validate_resolvable($host);
 my $req = HTTP::Request->new(GET => $url);
 
 #my $time = strftime("%F %T", localtime);

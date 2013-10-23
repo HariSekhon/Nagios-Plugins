@@ -150,7 +150,7 @@ $status = "OK";
 
 my $msg_perf = " | ";
 my $msg_thresholds = "s;" . ($thresholds{"warning"}{"upper"} ? $thresholds{"warning"}{"upper"} : "") . ";" . ($thresholds{"critical"}{"upper"} ? $thresholds{"critical"}{"upper"} : "") . ";0;";
-validate_resolveable($host);
+validate_resolvable($host);
 my $write_time  = riak_key("write");
 my $read_time   = riak_key("read");
 my $delete_time = riak_key("delete");

@@ -85,7 +85,7 @@ my $canonicalized_string = "HEAD\n\n\n$date_header\n/$bucket/$file";
 utf8::encode($canonicalized_string);
 #vlog_options "canonicalized_string", "'$canonicalized_string'";
 
-validate_resolveable($aws_host);
+validate_resolvable($aws_host);
 my $request = HTTP::Request->new(HEAD => "http://$aws_host/$file");
 $request->header("Host" => $host_header);
 $request->header("Date" => $date_header);
