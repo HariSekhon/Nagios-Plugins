@@ -78,6 +78,7 @@ yum install MySQL-python
 
 The check_zookeeper_znode.pl plugin requires the Net::ZooKeeper Perl CPAN module but this is not a simple ```cpan Net::ZooKeeper```, that will fail. Follow these instructions precisely or debug at your own peril:
 
+Run these commands as root.
 ```
 # install C client library
 export ZOOKEEPER_VERSION=3.4.5
