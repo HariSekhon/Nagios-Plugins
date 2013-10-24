@@ -16,10 +16,12 @@ Useful for checking
 1. Configuration Compliance against a baseline
 2. Puppet has correctly deployed revision controlled config version
 
-Inspired by check_mysql_config.pl (also part of Advanced Nagios Plugins Collection)
+Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Collection)
+
+BUGS: there are bugs in ZooKeeper's live running config where it doesn't report all the configuration variables from the config file. I checked this with my colleague Patrick Hunt @ Cloudera who reviewed those additions. If you get a warning about missing config not found on running server then you can use the -m switch to ignore it but please also raise a ticket to create an exception for that variable at https://github.com/harisekhon/nagios-plugins/issues/new
 ";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -31,6 +33,8 @@ BEGIN {
 use HariSekhonUtils;
 use HariSekhon::ZooKeeper;
 
+# Turns out these not being present is a bug
+# Try to find time to patch this in ZooKeeper later
 my @config_file_only = qw(
                              autopurge.purgeInterval
                              autopurge.snapRetainCount
@@ -45,13 +49,15 @@ $port = $ZK_DEFAULT_PORT;
 
 my $ZK_DEFAULT_CONFIG = "/etc/zookeeper/conf/zoo.cfg";
 my $conf              = $ZK_DEFAULT_CONFIG;
-my $no_warn_extra = 0;
+my $no_warn_extra     = 0;
+my $no_warn_missing   = 0;
 
 %options = (
-    "H|host=s"         => [ \$host,             "Host to connect to (defaults: localhost)" ],
-    "P|port=s"         => [ \$port,             "Port to connect to (defaults: $ZK_DEFAULT_PORT)" ],
-    "C|config=s"       => [ \$conf,             "ZooKeeper config file (defaults to $ZK_DEFAULT_CONFIG)" ],
-    "e|no-warn-extra"  => [ \$no_warn_extra,    "Don't warn on extra config detected on ZooKeeper server that isn't specified in config file (serverId is omitted either way)" ],
+    "H|host=s"          => [ \$host,             "Host to connect to (defaults: localhost)" ],
+    "P|port=s"          => [ \$port,             "Port to connect to (defaults: $ZK_DEFAULT_PORT)" ],
+    "C|config=s"        => [ \$conf,             "ZooKeeper config file (defaults to $ZK_DEFAULT_CONFIG)" ],
+    "e|no-warn-extra"   => [ \$no_warn_extra,    "Don't warn on extra config detected on ZooKeeper server that isn't specified in config file (serverId is omitted either way)" ],
+    "m|no-warn-missing" => [ \$no_warn_missing,  "Don't warn on missing config detected on ZooKeeper server that was expected from config file (see Bug note in --help description header" ],
 );
 
 @usage_order = qw/host port config no-warn-extra/;
@@ -78,16 +84,11 @@ while(<$fh>){
     s/^\s*//;
     s/\s*$//;
     vlog3 "config:  $_";
-    /^\s*[\w\.]+\s*=\s*.+$/ or quit "UNKNOWN", "unrecognized line in config file '$conf': $_";
+    /^\s*[\w\.]+\s*=\s*.+$/ or quit "UNKNOWN", "unrecognized line in config file '$conf': '$_'. $nagios_plugins_support_msg";
     my ($key, $value) = split(/\s*=\s*/, $_, 2);
     if($key eq "dataDir" or $key eq "dataLogDir"){
         $value =~ s/\/$//;
         $value .= "/version-2";
-    }
-    #next if $key =~ /^server\.\d+$/;
-    if(grep { $key =~ /^$_$/ } @config_file_only){
-        vlog3 "omitted: $key (config file only)";
-        next;
     }
     $config{$key} = $value;
 }
@@ -119,13 +120,18 @@ vlog3;
 my @missing_config;
 my @mismatched_config;
 my @extra_config;
-foreach(sort keys %config){
-    unless(defined($running_config{$_})){
-        push(@missing_config, $_);
+foreach my $key (sort keys %config){
+    unless(defined($running_config{$key})){
+        if(grep { $key =~ /^$_$/ } @config_file_only){
+            vlog3 "skipping: $key (config file only due to bug)";
+            next;
+        } else {
+            push(@missing_config, $key);
+        }
         next;
     }
-    unless($config{$_} eq $running_config{$_}){
-        push(@mismatched_config, $_);
+    unless($config{$key} eq $running_config{$key}){
+        push(@mismatched_config, $key);
     }
 }
 
@@ -143,9 +149,9 @@ if(@mismatched_config){
         $msg .= "$_ value mismatch '$config{$_}' in config vs '$running_config{$_}' live on server, ";
     }
 }
-if(@missing_config){
-    critical;
-    $msg .= "config not found on running server: ";
+if((!$no_warn_missing) and @missing_config){
+    warning;
+    $msg .= "config missing on running server: ";
     foreach(sort @missing_config){
         $msg .= "$_, ";
     }
