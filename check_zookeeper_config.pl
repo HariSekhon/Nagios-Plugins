@@ -98,7 +98,7 @@ $status = "OK";
 
 vlog2 "getting running zookeeper config from '$host:$port'";
 vlog3;
-zoo_cmd "conf";
+zoo_cmd "conf", $timeout - 1;
 vlog3;
 vlog3 "========================";
 vlog3 "ZooKeeper running config";
