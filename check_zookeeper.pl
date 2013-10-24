@@ -23,7 +23,7 @@ Checks:
 5. stats - full stats breakdown
 6. also reports ZooKeeper version";
 
-$VERSION = "0.6.1";
+$VERSION = "0.6.2";
 
 use strict;
 use warnings;
@@ -58,7 +58,7 @@ $status = "OK";
 $msg = "ZooKeeper ";
 
 # Check 1 - does ZooKeeper report itself as OK?
-zoo_cmd "ruok";
+zoo_cmd "ruok", $timeout / 5;
 my $response = <$zk_conn>;
 vlog2 "ruok response  = '$response'\n";
 if($response ne "imok"){
@@ -67,7 +67,7 @@ if($response ne "imok"){
 }
 
 # Check 2 - is ZooKeeper read-write or has a problem occurred with Quorum or similar?
-zoo_cmd "isro";
+zoo_cmd "isro", $timeout / 5;
 # rw response or quit CRITICAL "ZooKeeper is not read-write (possible network partition?";
 $response = <$zk_conn>;
 vlog2 "isro response  = '$response'\n";
@@ -78,7 +78,7 @@ if($response ne "rw"){
 
 # Check 3 - check the number of connections and path/total watches
 #
-zoo_cmd "wchs";
+zoo_cmd "wchs", $timeout / 5;
 my %wchs;
 vlog3 "\nOutput from 'wchs':";
 while(<$zk_conn>){
@@ -207,7 +207,7 @@ my %mntr = (
     "zk_open_file_descriptor_count",    => undef,
     "zk_max_file_descriptor_count",		=> undef,
 );
-zoo_cmd "mntr";
+zoo_cmd "mntr", $timeout / 5;
 vlog3 "\nOutput from 'mntr':";
 while(<$zk_conn>){
     chomp;
