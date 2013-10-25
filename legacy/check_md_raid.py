@@ -13,7 +13,7 @@
 
 __author__  = "Hari Sekhon"
 __title__   = "Nagios Plugin for Linux MD Software RAID"
-__version__ = "0.7.2"
+__version__ = "0.7.3"
 
 import os
 import re
@@ -102,7 +102,7 @@ def test_raid(verbosity):
         for line in detailed_output:
             if "State :" in line:
                 state = line.split(":")[-1][1:-1]
-        re_clean = re.compile('^clean(, no-errors)?$')
+        re_clean = re.compile('^clean( )?(, no-errors)?$')
         if not re_clean.match(state) and state != "active":
             arrays_not_ok += 1
             raidlevel = detailed_output[3].split()[-1]
