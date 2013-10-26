@@ -9,7 +9,11 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Simple Nagios Plugin which calls 'riak-admin ringready' to check that all nodes agree on state. Useful to check that ring state has settled after changing cluster memberships";
+$DESCRIPTION = "Simple Nagios Plugin which calls 'riak-admin ringready' to check that all nodes agree on state
+
+Useful to check that ring state has settled after changing cluster memberships
+
+Designed to be run on a Riak node over NRPE";
 
 $VERSION = "0.1";
 
