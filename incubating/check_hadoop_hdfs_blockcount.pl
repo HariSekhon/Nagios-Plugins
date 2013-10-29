@@ -9,15 +9,15 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop HDFS block counts or per datanode or cluster wide level
+$DESCRIPTION = "Nagios Plugin to check Hadoop HDFS block counts per datanode or cluster wide level
 
 Checks:
 
-1. Per DataNode block count against given --warning and --critical thresholds
+1. Per DataNode block count against given --warning and --critical thresholds, reports highest datanode count
 
 or
 
-2. Cluster wide block count (--cluster switch) against --warning and --critical thresholds
+2. --cluster - Cluster wide block count against --warning and --critical thresholds
 
 Calls hadoop / hdfs command.
 
