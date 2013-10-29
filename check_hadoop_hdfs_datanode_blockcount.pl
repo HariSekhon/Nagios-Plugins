@@ -52,7 +52,7 @@ my $block_count;
 if($blockScannerReport =~ /Total Blocks\s+:\s+(\d+)/){
     $block_count = $1;
 } else {
-    quit "CRITICAL", "failed to find total block count from blockScannerReport";
+    quit "CRITICAL", "failed to find total block count from blockScannerReport, $nagios_plugins_support_msg";
 }
 
 $msg = "$block_count blocks on datanode $host";
