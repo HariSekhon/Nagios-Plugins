@@ -21,7 +21,7 @@ Known Limitations:
 
 Known Issues/Limitations:
 
-1. The HBase REST API doesn't seem to expose details on -ROOT- and .META. regions so the code only checks they are present (it does however check everything for user specified tables)
+1. The HBase REST API doesn't seem to expose details on -ROOT- and .META. regions so the code only checks they are present (it does check regions for user specified tables though)
 2. The HBase REST API doesn't distinguish between disabled and otherwise unavailable/nonexistent tables, instead use the thrift monitoring plugin check_hbase_tables.pl (aka check_hbase_tables_thrift.pl), or as a fallback the check_hbase_tables_jsp.pl for that distinction
 3. The HBase REST Server will timeout the request for information if the HBase Master is down, you will see this as \"CRITICAL: '500 read timeout'\"";
 
@@ -73,11 +73,8 @@ set_timeout();
 
 $status = "OK";
 
-
 my $ua_timeout = $timeout - 1;
-if($ua_timeout < 1){
-    $ua_timeout = 1;
-}
+$ua_timeout = 1 if($ua_timeout < 1);
 
 my $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon $progname $main::VERSION");
@@ -127,7 +124,7 @@ sub print_tables($@){
     }
 }
 
-print_tables("not available", @tables_not_available);
+print_tables("not found/available", @tables_not_available);
 print_tables("online",        @tables_online);
 
 $msg =~ s/ -- $//;
