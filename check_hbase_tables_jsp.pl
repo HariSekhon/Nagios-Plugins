@@ -18,9 +18,13 @@ Checks:
 
 Strongly recommended to use check_hbase_table.pl instead which uses the HBase Thrift API, it's must tighter programmatically, this is only doing a basic scrape of the HBase Master JSP which could break across releases. The only advantage this program has is that it doesn't require having an HBase Thrift Server
 
-Written and tested on CDH 4.3 (HBase 0.94.6-cdh4.3.0). Also tested on CDH 4.4.0";
+Written and tested on CDH 4.3 (HBase 0.94.6-cdh4.3.0). Also tested on CDH 4.4.0
 
-$VERSION = "0.2";
+Limitations:
+
+1. If RegionServers are down you may get a timeout when querying the HBase Master JSP for the table details (CRITICAL: '500 read timeout'). The Stargate handles this better (check_hbase_tables_stargate.pl)";
+
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -66,8 +70,12 @@ vlog_options "tables", "[ " . join(" , ", @tables) . " ]";
 vlog2;
 set_timeout();
 
+my $ua_timeout = $timeout / 2;
+$ua_timeout = 1 if ($ua_timeout < 1);
+
 my $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->timeout($ua_timeout);
 $ua->show_progress(1) if $debug;
 
 $status = "OK";
