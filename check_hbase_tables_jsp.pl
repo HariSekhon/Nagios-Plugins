@@ -18,9 +18,9 @@ Checks:
 
 Strongly recommended to use check_hbase_table.pl instead which uses the HBase Thrift API, it's must tighter programmatically, this is only doing a basic scrape of the HBase Master JSP which could break across releases. The only advantage this program has is that it doesn't require having an HBase Thrift Server
 
-Written and tested on CDH 4.3 (HBase 0.94.6-cdh4.3.0)";
+Written and tested on CDH 4.3 (HBase 0.94.6-cdh4.3.0). Also tested on CDH 4.4.0";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -76,6 +76,7 @@ my $url;
 my $html_tree;
 
 my @tables_ok;
+my @tables_not_enabled;
 my @tables_not_found;
 my @tables_not_available;
 
@@ -109,7 +110,10 @@ foreach $table (@tables){
     #$dom = Mojo::DOM->new($content);
     #$html_tree = HTML::TreeBuilder->new_from_content($content);
     # Check we have a regionserver listed for the table, this only happens when the table exists and is available and has a region assigned to a regionserver
-    if($content =~ /<tr>            [\r\n\s]*
+    if($table ne "-ROOT-" and $table ne ".META." and $content !~ /<td>Enabled<\/td>\s*<td>true<\/td>/i){
+        vlog2 "table '$table' not enabled";
+        push(@tables_not_enabled, $table);
+    } elsif($content =~ /<tr>            [\r\n\s]*
                         <td>
                             $table(?:,[^,]*,[\w\.]+)?
                         <\/td>      [\r\n\s]*
@@ -139,6 +143,7 @@ sub print_tables($@){
 }
 
 print_tables("not found",     @tables_not_found);
+print_tables("not enabled",   @tables_not_enabled);
 print_tables("not available", @tables_not_available);
 print_tables("ok",            @tables_ok);
 $msg =~ s/ -- $//;
