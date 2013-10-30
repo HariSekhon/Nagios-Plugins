@@ -15,7 +15,9 @@ More simplistic than check_hbase_tables.pl program which uses the better program
 
 This plugin only checks to see if the given tables have regions listed on the cluster status page of the Stargate. Recommend to use check_hbase_tables.pl instead if possible
 
-Written on CDH 4.3 (HBase 0.94.6-cdh4.3.0), also tested on CDH 4.2.1";
+Written on CDH 4.3 (HBase 0.94.6-cdh4.3.0), also tested on CDH 4.2.1 and CDH 4.4.0
+
+Limitations: the Stargate doesn't distinguish between disabled and otherwise unavailable/nonexistent tables, instead use the thrift monitoring plugin check_hbase_tables.pl (aka check_hbase_tables_thrift.pl), or as a fallback the check_hbase_tables_jsp.pl for that distinction";
 
 $VERSION = "0.1";
 
