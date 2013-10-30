@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop HDFS block counts per datanode or cluster wide level
+$DESCRIPTION = "Nagios Plugin to check Hadoop HDFS block counts per datanode or cluster wide
 
 Checks:
 
