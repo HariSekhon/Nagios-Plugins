@@ -24,6 +24,8 @@ Requires the CPAN Thrift perl module
 
 HBase Thrift bindings were generated using Thrift 0.9.0 on CDH 4.3 (HBase 0.94.6-cdh4.3.0) CentOS 6.4 and placed under lib/Hbase
 
+Also tested on CDH 4.4.0
+
 Known Issues/Limitations:
 
 1. The HBase Rest API doesn't seem to expose details on -ROOT- and .META. regions so the code only checks they are present, enabled and we can get Column descriptors for them
