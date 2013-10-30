@@ -171,12 +171,8 @@ if($cluster){
 }
 
 $msg .= " | Cluster_block_count=$total_blocks";
-if($cluster){
-    $msg .= ";$warning;$critical:0;";
-}
+msg_perf_thresholds() if $cluster;
 $msg .= " DN_highest_block_count=$highest_blockcount";
-if(!$cluster){
-    $msg .= ";$warning;$critical;0;";
-}
+msg_perf_thresholds() if !$cluster;
 
 quit $status, $msg;
