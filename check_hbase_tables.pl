@@ -28,10 +28,18 @@ Also tested on CDH 4.4.0
 
 Known Issues/Limitations:
 
-1. The HBase Rest API doesn't seem to expose details on -ROOT- and .META. regions so the code only checks they are present, enabled and we can get Column descriptors for them
-2. The HBase Thrift Server takes around 10 seconds to time out when there are no regionservers online, resulting in \"UNKNOWN: self timed out after 10 seconds\" if the timeout is too short and \"CRITICAL: failed to get regions for table '\$tablename': Thrift::TException: TSocket: timed out reading 4 bytes from \$host:\$port\" otherwise. For this reason the default timeout on this plugin is set to 20 seconds instead of the usual 10 to try to get a better error message to show what specific call has failed but you'll probably need to increase your Nagios service_check_timeout in nagios.cfg to see it";
+1. The HBase Thrift API doesn't seem to expose details on -ROOT- and .META. regions so the code only checks they are present, enabled and we can get Column descriptors for them (does check everything for user defined tables)
+2. You will see Thrift timeout exceptions if your RegionServers are offline when trying to get Column descriptors or Region assignments (the Stargate handles this better - check_hbase_tables_stargate.pl):
 
-$VERSION = "0.4";
+CRITICAL: failed to get Column descriptors for table '.META.': Thrift::TException: TSocket: timed out reading 4 bytes from <hbase_thrift_server>:9090
+
+3. The HBase Thrift server will not fully start up without the HBase Master being online, resulting in a connection refused error.
+4. If the HBase Master is shut down after the Thrift server is already started, then you will get an error from the Thrift server similar to this:
+
+CRITICAL: failed to get tables from HBase: TApplicationException: Internal error processing getTableNames
+";
+
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -50,7 +58,8 @@ use Thrift::BufferedTransport;
 use Hbase::Hbase;
 
 # Thrift Server timeout is around 10 secs so we need to give a bit longer to get the more specific error rather than self terminating in the default 10 seconds
-set_timeout_default 20;
+# update: calculated send + recv timeouts instead now
+#set_timeout_default 20;
 
 my $default_port = 9090;
 $port = $default_port;
@@ -84,9 +93,22 @@ vlog_options "tables", "[ " . join(" , ", @tables) . " ]";
 vlog2;
 set_timeout();
 
-my $client = connect_hbase_thrift($host, $port);
+my $send_timeout = ($timeout*1000) - 1000;
+if($send_timeout < 1000){
+    $send_timeout = 9000;
+# First attempt but this seems to be the timeout for the total connection so it should be just under the total execution time
+#} else {
+#    $send_timeout /= 2;
+}
+my $recv_timeout = $send_timeout;
+vlog2 sprintf("calculated Thrift send timeout as %s secs", $send_timeout / 1000);
+vlog2 sprintf("calculated Thrift recv timeout as %s secs", $recv_timeout / 1000);
+vlog2;
+
+my $client = connect_hbase_thrift($host, $port, $send_timeout, $recv_timeout);
 my @hbase_tables;
 
+vlog2 "checking tables";
 try {
     @hbase_tables = @{$client->getTableNames()};
 };
@@ -112,6 +134,7 @@ sub check_table_enabled($){
     my $table = shift;
     my $state;
     # XXX: This seems to always return 1 unless the table is explicitly disabled, even returns 1 for tables that don't exist.
+    vlog2 "checking table '$table' enabled/disabled";
     try {
         $state = $client->isTableEnabled($table);
     };
@@ -131,6 +154,7 @@ sub check_table_enabled($){
 sub check_table_columns($){
     my $table = shift;
     my $table_columns;
+    vlog2 "checking table '$table' has column descriptors";
     try {
         $table_columns = $client->getColumnDescriptors($table);
     };
@@ -149,6 +173,7 @@ sub check_table_regions($){
     my $table = shift;
     my $table_regions;
     my @regionservers = ();
+    vlog2 "checking table '$table' has regions";
     try {
         $table_regions = $client->getTableRegions($table);
     };
@@ -161,6 +186,7 @@ sub check_table_regions($){
     }
     $table_regioncount{$table} = scalar @{$table_regions};
     vlog2 "table '$table' regions: $table_regioncount{$table}";
+    vlog2 "checking table '$table' regions are all assigned to regionservers";
     foreach my $ref (@{$table_regions}){
         if(defined($ref->serverName) and $ref->serverName){
             push(@regionservers, $ref->serverName);
