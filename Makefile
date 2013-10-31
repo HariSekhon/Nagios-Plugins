@@ -7,9 +7,9 @@
 
 .PHONY: install
 install:
-	@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
+	@#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
 	@# putting modules one per line just for ease of maintenance
-	cpan \
+	sudo cpan \
 		Data::Dumper \
 		DBD::mysql \
 		DBI \
