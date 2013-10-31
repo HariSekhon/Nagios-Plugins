@@ -15,15 +15,17 @@ http://www.linkedin.com/in/harisekhon
 
 ### A Sample of cool Nagios Plugins in this collection ###
 
-- check_ssl_cert.pl     - SSL expiry, chain of trust (including intermediate certs important for certain mobile devices), domain, wildcard and multi-domain support validation
-- check_mysql_query.pl  - generic enough it obsoleted a dozen custom plugins and prevented writing many more
-- check_mysql_config.pl - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes without saving to my.cnf or backporting to puppet
-- check_hadoop_cloudera_manager_metrics.pl - fetch a wealth of Hadoop monitoring metrics from Cloudera Manager. Modern Hadoop users with Cloudera Manager will want to use this (Disclaimer: I work for Cloudera, but seriously CM collects an impressive amount of metrics)
-- check_puppet.rb                   - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
-- check_hadoop_* / check_hbase_*    - various hadoop monitoring utilities covering lots of different aspects of HDFS, MapReduce and HBase functionality and metrics
-- check_memcached_*                 - check Memcached API writes/reads with timings, gather statistics
-- check_riak_*                      - check Riak API writes/reads/deletes with timings, check nodes agree on ring status, gather statistics
-- check_zookeeper.pl                - multiple layers of checks of ZooKeeper, is ok and writable (quorum), operating mode (leader/follower vs standalone), gather statistics
+- ```check_ssl_cert.pl``` - SSL expiry, chain of trust (including intermediate certs important for certain mobile devices), domain, wildcard and multi-domain support validation
+- ```check_mysql_query.pl``` - generic enough it obsoleted a dozen custom plugins and prevented writing many more
+- ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes without saving to my.cnf or backporting to puppet
+- ```check_hadoop_*``` - various Hadoop monitoring utilities covering health and metrics for HDFS & MapReduce
+- ```check_hbase_*``` - various HBase monitoring utilities, covering Masters, RegionServers, table availability and metrics
+- ```check_cloudera_manager_metrics.pl``` - fetch a wealth of Hadoop monitoring metrics from Cloudera Manager. Modern Hadoop users with Cloudera Manager will want to use this (Disclaimer: I work for Cloudera, but seriously CM collects an impressive amount of metrics)
+- ```check_puppet.rb``` - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
+- ```check_memcached_*``` - check Memcached API writes/reads with timings, gathers statistics
+- ```check_riak_*``` - check Riak API writes/reads/deletes with timings, check nodes agree on ring status, gathers statistics
+- ```check_zookeeper.pl``` - ZooKeeper server checks, multiple layers: is ok and writable (quorum), operating mode (leader/follower vs standalone), gathers statistics
+- ```check_zookeeper_znode.pl``` - ZooKeeper content checks, useful for HBase, SolrCloud and any other ZooKeeper based service
 
 ... and there are many more ...
 
