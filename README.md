@@ -41,7 +41,17 @@ I've tried to keep the quality here high so a lot of plugins I've written over t
 
 Remember to check out the legacy/ directory for more plugins that are less current but that you might find useful.
 
-### Setup ###
+### Quick Setup ###
+
+```
+git clone https://github.com/harisekhon/nagios-plugins
+cd nagios-plugins
+make
+```
+
+This will use 'sudo' to install all required Perl modules from CPAN and then initialize my library git repo as a submodule. If you want to install some of the common Perl CPAN modules such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN then follow the Manual Setup section below.
+
+### Manual Setup ###
 
 Fetch my library repo which is included as a submodule (it's shared between these Nagios Plugins and other programs I've written over the years).
 
@@ -54,14 +64,6 @@ git submodule update
 
 Then install the Perl CPAN modules for whichever plugins you want to use, which are all listed in the Makefile. I suggest just installing them all for quick simplicity using one of the two methods listed next.
 
-### One-shot Makefile setup ###
-
-```
-make
-```
-
-Running make as root will install all required Perl CPAN modules by calling 'cpan \<list of modules\>' and then doing the 'git submodule init' and 'git submodule update' to pull in my library git repo. You may not want to do this if you're not owning the repo as root and also because you may want to install some of the common Perl CPAN modules such as Net::DNS and LWP::* using your OS packages instead of compiling them straight from CPAN.
-
 ### Perl CPAN Modules ###
 
 If installing the Perl CPAN modules via your package manager or by hand instead of running the 'make' command as listed above, then read the 'Makefile' file for the list of Perl CPAN modules that you need to install.
@@ -70,15 +72,15 @@ If installing the Perl CPAN modules via your package manager or by hand instead 
 
 Most plugins run with minimal dependencies for operational ease of use. Some plugins require Perl CPAN modules as mentioned above, and some of those under the legacy directory such as those that check 3ware/LSI raid controllers, SVN, VNC etc require external binaries to work, but the plugins will tell you if they are missing. Please see the respective vendor websites for 3ware, LSI etc to fetch those binaries and then re-run the plugins where needed.
 
-The check_puppet.rb plugin uses Puppet's native Ruby libraries to parse the Puppet config and as such will only be run where Puppet is properly installed.
+The ```check_puppet.rb``` plugin uses Puppet's native Ruby libraries to parse the Puppet config and as such will only be run where Puppet is properly installed.
 
-The check_logserver.py "Syslog to MySQL" plugin will need the Python MySQL module to be installed which you should be able to find via your package manager. If using RHEL/CentOS do:
+The ```check_logserver.py``` "Syslog to MySQL" plugin will need the Python MySQL module to be installed which you should be able to find via your package manager. If using RHEL/CentOS do:
 
 ```
 yum install MySQL-python
 ```
 
-The check_zookeeper_znode.pl plugin requires the Net::ZooKeeper Perl CPAN module but this is not a simple ```cpan Net::ZooKeeper```, that will fail. Follow these instructions precisely or debug at your own peril:
+The ```check_zookeeper_znode.pl``` plugin requires the Net::ZooKeeper Perl CPAN module but this is not a simple ```cpan Net::ZooKeeper```, that will fail. Follow these instructions precisely or debug at your own peril:
 
 Run these commands as root.
 ```
