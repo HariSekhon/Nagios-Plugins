@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the contents of a znode in ZooKeeper.
 
-Useful for a wide variety of checks against ZooKeeper based services such as HBase and SolrCloud.
+Useful for a wide variety of checks against ZooKeeper based services such as HBase, SolrCloud, NameNode & JobTracker HA ZKFC
 
 Checks:
 
@@ -114,7 +114,7 @@ $port = $ZK_DEFAULT_PORT;
 %options = (
     "H|host=s"      => [ \$host,            "ZooKeeper node(s) to connect to, should be a comma separated list of ZooKeepers the same as are configured on the ZooKeeper servers themselves (node1:$ZK_DEFAULT_PORT,node2:$ZK_DEFAULT_PORT,node3:$ZK_DEFAULT_PORT). It takes longer to connect to 3 ZooKeepers than just one of them (it's around 5 seconds per ZooKeeper specified)" ],
     "P|port=s"      => [ \$port,            "Port to connect to on ZooKeepers for any nodes not suffixed with :<port> (defaults to $ZK_DEFAULT_PORT)" ],
-    "z|znode=s"     => [ \$znode,           "Znode to check exists. Useful for a variety of checks of ZooKeeper based services like HBase and SolrCloud" ],
+    "z|znode=s"     => [ \$znode,           "Znode to check exists. Useful for a variety of checks of ZooKeeper based services like HBase, SolrCloud, NameNode & JobTracker HA ZKFC" ],
     "n|null"        => [ \$null,            "Do not check znode contents, use on null znodes such as SolrCloud /solr/live_nodes/<hostname>:8983_solr as the API segfaults when trying to retrieve data for these null znodes" ],
     "d|data=s"      => [ \$expected_data,   "Expected data to be contained in the znode. Optional check. This is a partial substring match, for more control use --regex with anchors. Careful when specifying non-printing characters which may appear as ?, may need to use regex to work around them with \".+\" to match any character" ],
     "r|regex=s"     => [ \$expected_regex,  "Regex of expected data to be contained in the znode, case insensitive. Optional check. Checked after --data" ],
