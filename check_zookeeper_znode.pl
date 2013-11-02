@@ -61,6 +61,24 @@ ________________________________________________________________________________
 check_solrcloud_server_znode.pl -H <zookeepers> -z /solr/live_nodes/<solrhost>:8983_solr
     or
 check_zookeeper_znode.pl -H <zookeepers> -z /solr/live_nodes/<solrhost>:8983_solr --null
+________________________________________________________________________________
+
+* Check HDFS NameNode HA ZKFC is working
+
+check_hadoop_namenode_ha_zkfc_znode.pl -H <zookeepers>
+    or
+check_zookeeper_znode.pl -H <zookeepers> -z /hadoop-ha/nameservice1/ActiveStandbyElectorLock
+
+(ActiveBreadCrumb doesn't change to reflect real state without ZKFC when tested on CDH 4.3, so may as well test only the ZKFC elector lock which is released if the NameNode for that ZKFC is down anyway)
+________________________________________________________________________________
+
+* Check MapReduce v1 JobTracker HA ZKFC is working
+
+check_hadoop_jobtracker_ha_zkfc_znode.pl -H <zookeepers>
+    or
+check_zookeeper_znode.pl -H <zookeepers> -z /hadoop-ha/logicaljt/ActiveStandbyElectorLock
+
+(ActiveBreadCrumb doesn't change to reflect real state without ZKFC when tested on CDH 4.3, so may as well test only the ZKFC elector lock which is released if the JobTracker for that ZKFC is down anyway)
 
 ================================================================================
 
@@ -68,11 +86,11 @@ API / BUGS / Limitations:
 
 Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. Instructions for installing Net::ZooKeeper are found at https://github.com/harisekhon/nagios-plugins
 
-1. Net::ZooKeeper API is slow, takes 5 seconds to create a connection object (before it even tries to connect to ZooKeeper which happenes sub-second). Unfortunately there isn't much I can do about that, it's the API. Sorry!
+1. Net::ZooKeeper API is slow, takes 5 seconds to create a connection object per ZooKeeper node specified (before it even tries to connect to ZooKeeper which happenes sub-second). Unfortunately there isn't much I can do about that, it's the API. Sorry!
 2. API segfaults if you try to check the contents of a null znode such as those kept by SolrCloud servers eg. /solr/live_nodes/<hostname>:8983_solr, must use --null to skip checks other than existence
 ";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -94,7 +112,7 @@ my $expected_regex;
 $port = $ZK_DEFAULT_PORT;
 
 %options = (
-    "H|host=s"      => [ \$host,            "ZooKeeper nodes to connect to, should be a comma separated list of ZooKeepers the same as are configured on the ZooKeeper servers themselves (node1:$ZK_DEFAULT_PORT,node2:$ZK_DEFAULT_PORT,node3:$ZK_DEFAULT_PORT)" ],
+    "H|host=s"      => [ \$host,            "ZooKeeper node(s) to connect to, should be a comma separated list of ZooKeepers the same as are configured on the ZooKeeper servers themselves (node1:$ZK_DEFAULT_PORT,node2:$ZK_DEFAULT_PORT,node3:$ZK_DEFAULT_PORT). It takes longer to connect to 3 ZooKeepers than just one of them (it's around 5 seconds per ZooKeeper specified)" ],
     "P|port=s"      => [ \$port,            "Port to connect to on ZooKeepers for any nodes not suffixed with :<port> (defaults to $ZK_DEFAULT_PORT)" ],
     "z|znode=s"     => [ \$znode,           "Znode to check exists. Useful for a variety of checks of ZooKeeper based services like HBase and SolrCloud" ],
     "n|null"        => [ \$null,            "Do not check znode contents, use on null znodes such as SolrCloud /solr/live_nodes/<hostname>:8983_solr as the API segfaults when trying to retrieve data for these null znodes" ],
@@ -118,6 +136,10 @@ if($progname eq "check_hbase_backup_masters_znode.pl"){
 } elsif($progname eq "check_solrcloud_server_znode.pl"){
     # can't auto determine znode since it's based on the server's hostname
     $null = 1;
+} elsif($progname eq "check_hadoop_namenode_ha_zkfc_znode.pl"){
+    $znode = "/hadoop-ha/nameservice1/ActiveStandbyElectorLock";
+} elsif($progname eq "check_hadoop_jobtracker_ha_zkfc_znode.pl"){
+    $znode = "/hadoop-ha/logicaljt/ActiveStandbyElectorLock";
 }
 
 @usage_order = qw/host port znode data regex user password warning critical/;
@@ -184,7 +206,7 @@ if(defined($user) and defined($password)){
 }
 
 my $session_timeout = ($zkh->{session_timeout} / 1000) or quit "UNKNOWN", "invalid session timeout determined from ZooKeeper handle, possibly not connected to ZooKeeper?";
-vlog2 sprintf("session timeout is %.2f secs", $zk_timeout);
+vlog2 sprintf("session timeout is %.2f secs\n", $zk_timeout);
 
 sub translate_zoo_error($){
     my $errno = shift;
@@ -227,7 +249,7 @@ sub translate_zoo_error($){
 
 vlog2 "checking znode '/' exists to determine if we're properly connected to ZooKeeper";
 $zkh->exists("/") or quit "CRITICAL", "connection error, failed to find znode '/': " . translate_zoo_error($zkh->get_error());
-vlog2 "found znode '/'";
+vlog2 "found znode '/'\n";
 
 vlog3 "creating ZooKeeper stat object";
 my $stat = $zkh->stat();
@@ -249,7 +271,10 @@ if($null){
                          #'stat' => $stat, 'watch' => $watch)
                          #|| quit "CRITICAL", "failed to read data from znode $znode: $!";
     defined($data) or quit "CRITICAL", "no data returned for znode '$znode' from zookeepers '$zookeepers': " . $zkh->get_error();
-    vlog3 "znode '$znode' data:\n\n$data";
+    # /hadoop-ha/logicaljt/ActiveStandbyElectorLock contains carriage returns which messes up the output in terminal by causing the second line to overwrite the first
+    $data =~ s/\r//g;
+    $data = trim($data);
+    vlog3 "znode '$znode' data:\n\n$data\n";
 
     if(defined($expected_data)){
         unless(index($data, $expected_data) != -1){
@@ -262,7 +287,7 @@ if($null){
         }
     }
     if((!defined($expected_data))){
-        vlog2 "no data defined, checking znode is not blank";
+        vlog2 "no expected data defined, checking znode is not blank";
         if($data =~ /^\s*$/){
             quit "CRITICAL", "znode '$znode' is empty!" . ( $verbose ? " (if this intentional supply -d \"\")" : "" );
         }
@@ -296,4 +321,6 @@ if(defined($stat)){
 if($null){
     $msg .= ( $verbose ? " (--null specified, remaining checks skipped)" : "");
 }
+
+vlog2;
 quit $status, $msg;
