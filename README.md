@@ -25,7 +25,7 @@ http://www.linkedin.com/in/harisekhon
 - ```check_memcached_*``` - check Memcached API writes/reads with timings, gathers statistics
 - ```check_riak_*``` - check Riak API writes/reads/deletes with timings, checks diagnostics, checks nodes agree on ring status, gathers statistics
 - ```check_zookeeper.pl``` - ZooKeeper server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gathers statistics
-- ```check_zookeeper_znode.pl``` - ZooKeeper content checks, useful for HBase, SolrCloud and any other ZooKeeper based service
+- ```check_zookeeper_znode.pl``` - ZooKeeper content checks, useful for HBase, SolrCloud, Hadoop NameNode HA & JobTracker HA (ZKFC) and any other ZooKeeper based service
 
 ... and there are many more ...
 
