@@ -67,20 +67,15 @@ if(defined($host)){
 }
 my @output = cmd($cmd);
 
-my $format_changed_err = "unrecognized line '%s', nodetool output format may have changed, aborting. ";
-sub die_format_changed($){
-    quit "UNKNOWN", sprintf("$format_changed_err$nagios_plugins_support_msg", $_[0]);
-}
-
 if($output[0] =~ $nodetool_errors_regex){
-    quit "CRITICAL", join(", ", @output);
+    quit "CRITICAL", $output[0];
 }
-$output[0] =~ /Pool\s+Name\s+Active\s+Pending\s+Completed\s+Blocked\s+All time blocked\s*$/i or die_format_changed($output[0]);
+$output[0] =~ /Pool\s+Name\s+Active\s+Pending\s+Completed\s+Blocked\s+All time blocked\s*$/i or die_nodetool_unrecognized_output($output[0]);
 my @stats;
 my $i = 1;
 foreach(; $i < scalar @output; $i++){
     $output[$i] =~ /^\s*$/ and $i++ and last;
-    $output[$i] =~ /^(\w+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$/ or die_format_changed($output[$i]);
+    $output[$i] =~ /^(\w+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$/ or die_nodetool_unrecognized_output($output[$i]);
     push(@stats,
         (
             { "$1_Blocked"          => $5, },
