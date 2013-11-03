@@ -99,7 +99,7 @@ foreach(@output){
     } elsif(/^D/){
         $dead_nodes++;
     } else {
-        quit "UNKNOWN", "unrecognized line in output from nodetool, intentionally failing check for conservative monitoring. $nagios_plugins_support_msg";
+        die_nodetool_unrecognized_output($_);
     }
 }
 
