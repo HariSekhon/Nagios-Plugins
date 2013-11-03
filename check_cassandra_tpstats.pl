@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to fetch Cassandra's thread pool stats by parsing 'nodetool tpstats'.
+$DESCRIPTION = "Nagios Plugin to fetch Cassandra's thread pool stats per node by parsing 'nodetool tpstats'.
 
 Checks Pending/Blocked operations against warning/critical thresholds.
 Check the baseline first and then set appropriate thresholds since a build up of Pending/Blocked operations is indicative of performance problems.
