@@ -20,7 +20,7 @@ Checks:
 3. given znode's literal contents, substring match (eg. server we expect is the Master. optional)
 4. given znode's contents against regex (eg. one of the servers we expect is the Master, flexible, anchoring etc. optional)
 5. given znode is not blank/empty (unless -d \"\" is intentionally specified)
-6. given znode is ephemeral (optiona)
+6. given znode is ephemeral (optional)
 7. given znode has children / no children znodes (optional. Useful when the child znodes are dynamic but you just need to check for their existence)
 8. given znode's age against --warning/--critical thresholds (optional)
 
