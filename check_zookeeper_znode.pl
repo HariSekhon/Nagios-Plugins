@@ -15,7 +15,7 @@ Useful for a wide variety of checks against ZooKeeper based services such as HBa
 
 Checks:
 
-1. root znode (\"/\") exists ( we are successfully connected to ZooKeeper(s), retries all ZooKeepers )
+1. root znode (\"/\") exists ( we are successfully connected to ZooKeeper(s), tries all given ZooKeepers in turn )
 2. given znode exists (useful for checking ephemeral znodes eg. HBase Master is reporting alive by holding ephemeral node in ZooKeeper)
 3. given znode's literal contents, substring match (eg. server we expect is the Master. optional)
 4. given znode's contents against regex (eg. one of the servers we expect is the Master, flexible, anchoring etc. optional)
