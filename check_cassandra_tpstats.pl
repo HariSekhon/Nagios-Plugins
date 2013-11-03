@@ -20,7 +20,7 @@ Can specify a remote host and port otherwise it checks the local node's stats (f
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -29,11 +29,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-
-my $nodetool = "nodetool";
-
-my $host;
-my $port;
+use HariSekhon::Cassandra;
 
 my $default_warning  = 0;
 my $default_critical = 0;
@@ -42,11 +38,7 @@ $warning  = $default_warning;
 $critical = $default_critical;
 
 %options = (
-    "n|nodetool=s"  => [ \$nodetool, "Path to 'nodetool' command if not in \$PATH ($ENV{PATH})" ],
-    "H|host=s"      => [ \$host,     "Cassandra node to connect to     (default: localhost)" ],
-    "P|port=s"      => [ \$port,     "Cassandra JMX port to connect to (default: 7199)" ],
-    "u|user=s"      => [ \$user,     "Cassandra JMX user (optional)" ],
-    "p|password=s"  => [ \$password, "Cassandra JMX user (optional)" ],
+    %nodetool_options,
     "w|warning=s"   => [ \$warning,  "Warning  threshold max (inclusive) for Pending/Blocked operations (default: $default_warning)"  ],
     "c|critical=s"  => [ \$critical, "Critical threshold max (inclusive) for Pending/Blocked operations (default: $default_critical)" ],
 );
@@ -54,17 +46,11 @@ $critical = $default_critical;
 @usage_order = qw/nodetool host port user password warning critical/;
 get_options();
 
-$nodetool = validate_filename($nodetool, 0, "nodetool");
-$nodetool =~ /(?:^|\/)nodetool$/ or usage "invalid path to nodetool, must end in nodetool";
-which($nodetool, 1);
-$host = validate_host($host) if defined($host);
-$port = validate_port($port) if defined($port);
-$user = validate_user($user) if defined($user);
-if(defined($password)){
-    $password =~ /^([^']+)$/ or usage "invalid password supplied, may not contain '";
-    $password = $1;
-    vlog_options "password", $password;
-}
+$nodetool = validate_nodetool($nodetool);
+$host     = validate_host($host)         if defined($host);
+$port     = validate_port($port)         if defined($port);
+$user     = validate_user($user)         if defined($user);
+$password = validate_password($password) if defined($password);
 validate_thresholds(1, 1, { "simple" => "upper", "integer" => 1, "positive" => 1 } );
 
 vlog2;
@@ -72,14 +58,10 @@ set_timeout();
 
 $status = "OK";
 
-my $options = "";
-$options .= "--host '$host' "           if defined($host);
-$options .= "--port '$port' "           if defined($port);
-$options .= "--username '$user' "       if defined($user);
-$options .= "--password '$password' "   if defined($password);
-my $cmd = "${nodetool} ${options}tpstats";
+my $options = nodetool_options($host, $port, $user, $password);
+my $cmd     = "${nodetool} ${options}tpstats";
 
-vlog2 "fetching threadpool stats"
+vlog2 "fetching threadpool stats";
 if(defined($host)){
     validate_resolvable($host);
 }
@@ -90,7 +72,7 @@ sub die_format_changed($){
     quit "UNKNOWN", sprintf("$format_changed_err$nagios_plugins_support_msg", $_[0]);
 }
 
-if($output[0] =~ /connection refused|unknown host|cannot|resolve|error|user|password/i){
+if($output[0] =~ $nodetool_errors_regex){
     quit "CRITICAL", join(", ", @output);
 }
 $output[0] =~ /Pool\s+Name\s+Active\s+Pending\s+Completed\s+Blocked\s+All time blocked\s*$/i or die_format_changed($output[0]);
@@ -150,4 +132,5 @@ if($verbose or $status ne "OK"){
 }
 $msg .= "| $msg3";
 
+vlog2;
 quit $status, $msg;
