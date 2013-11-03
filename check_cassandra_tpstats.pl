@@ -73,12 +73,16 @@ set_timeout();
 $status = "OK";
 
 my $options = "";
-$options .= "--host '$host' " if defined($host);
-$options .= "--port '$port' " if defined($port);
-$options .= "--username '$user' " if defined($user);
-$options .= "--password '$password' " if defined($password);
+$options .= "--host '$host' "           if defined($host);
+$options .= "--port '$port' "           if defined($port);
+$options .= "--username '$user' "       if defined($user);
+$options .= "--password '$password' "   if defined($password);
 my $cmd = "${nodetool} ${options}tpstats";
 
+vlog2 "fetching threadpool stats"
+if(defined($host)){
+    validate_resolvable($host);
+}
 my @output = cmd($cmd);
 
 my $format_changed_err = "unrecognized line '%s', nodetool output format may have changed, aborting. ";
