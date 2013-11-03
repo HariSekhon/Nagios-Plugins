@@ -46,9 +46,9 @@ $critical = $default_critical;
 get_options();
 
 $nodetool = validate_nodetool($nodetool);
-$host     = validate_host($host) if defined($host);
-$port     = validate_port($port) if defined($port);
-$user     = validate_user($user) if defined($user);
+$host     = validate_host($host)         if defined($host);
+$port     = validate_port($port)         if defined($port);
+$user     = validate_user($user)         if defined($user);
 $password = validate_password($password) if defined($password);
 validate_thresholds(undef, undef, { "simple" => "upper", "integer" => 1, "positive" => 1});
 
