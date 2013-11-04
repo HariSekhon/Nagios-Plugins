@@ -25,7 +25,7 @@ BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
-use HariSekhonUtils qw/:DEFAULT :regex/;
+use HariSekhonUtils;
 use HariSekhon::Cassandra;
 
 my $default_warning  = 5;
@@ -36,8 +36,8 @@ $critical = $default_critical;
 
 %options = (
     %nodetool_options,
-    "w|warning=s"      => [ \$warning,      "Warning  threshold max (inclusive. Default: $default_warning)"  ],
-    "c|critical=s"     => [ \$critical,     "Critical threshold max (inclusive. Default: $default_critical)" ],
+    "w|warning=s"      => [ \$warning,      "Warning  threshold max % difference (inclusive. Default: $default_warning)"  ],
+    "c|critical=s"     => [ \$critical,     "Critical threshold max % difference (inclusive. Default: $default_critical)" ],
 );
 
 @usage_order = qw/nodetool host port user password warning critical/;
@@ -48,7 +48,7 @@ $host     = validate_host($host)         if defined($host);
 $port     = validate_port($port)         if defined($port);
 $user     = validate_user($user)         if defined($user);
 $password = validate_password($password) if defined($password);
-validate_thresholds(undef, undef, { "simple" => "upper", "integer" => 0, "positive" => 1});
+validate_thresholds(undef, undef, { "simple" => "upper", "integer" => 0, "positive" => 1, "max" => "100" });
 
 vlog2;
 set_timeout();
