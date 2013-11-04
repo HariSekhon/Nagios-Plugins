@@ -19,7 +19,7 @@ Can specify a remote host and port otherwise it checks the local node's stats (f
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
-$VERSION = "0.2.3";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -61,22 +61,16 @@ if(defined($host)){
     validate_resolvable($host);
 }
 my @output = cmd($cmd);
-my $live_nodes   = 0;
+
+my $up_nodes      = 0;
 my $down_nodes    = 0;
 my $normal_nodes  = 0;
 my $leaving_nodes = 0;
 my $joining_nodes = 0;
 my $moving_nodes  = 0;
-foreach(@output){
-    if($_ =~ $nodetool_status_header_regex){
-       next;
-    }
-    # Don't know what remote JMX auth failure looks like yet so will go critical on any user/password related message returned assuming that's an auth failure
-    if($_ =~ $nodetool_errors_regex){
-        quit "CRITICAL", $_;
-    }
-    if(/^U[NLJM]\s+($host_regex)/){
-        $live_nodes++;
+
+sub parse_state ($) {
+    if(/^[UD][NLJM]\s+($host_regex)/){
         if(/^.N/){
             $normal_nodes++;
         } elsif(/^.L/){
@@ -88,21 +82,37 @@ foreach(@output){
         } else {
             quit "UNKNOWN", "unrecognized second column for node status, $nagios_plugins_support_msg";
         }
+    }
+}
+
+
+foreach(@output){
+    if($_ =~ $nodetool_status_header_regex){
+       next;
+    }
+    # Don't know what remote JMX auth failure looks like yet so will go critical on any user/password related message returned assuming that's an auth failure
+    if($_ =~ $nodetool_errors_regex){
+        quit "CRITICAL", $_;
+    }
+    if(/^U/){
+        $up_nodes++;
+        parse_state($_);
     } elsif(/^D/){
         $down_nodes++;
+        parse_state($_);
     } else {
         die_nodetool_unrecognized_output($_);
     }
 }
 
 vlog2 "checking node counts";
-unless($live_nodes == ($normal_nodes + $leaving_nodes + $joining_nodes + $moving_nodes)){
-    quit "UNKNOWN", "live node count vs (normal/leaving/joining/moving) nodes are not equal, investigation required";
+unless( ($up_nodes + $down_nodes ) == ($normal_nodes + $leaving_nodes + $joining_nodes + $moving_nodes)){
+    quit "UNKNOWN", "live+down node counts vs (normal/leaving/joining/moving) nodes are not equal, investigation required";
 }
 
-$msg = "$live_nodes nodes up, $down_nodes down";
+$msg = "$up_nodes nodes up, $down_nodes down";
 check_thresholds($down_nodes);
-$msg .= ", node states: $normal_nodes normal, $leaving_nodes leaving, $joining_nodes joining, $moving_nodes moving | live_nodes=$live_nodes down_nodes=$down_nodes";
+$msg .= ", node states: $normal_nodes normal, $leaving_nodes leaving, $joining_nodes joining, $moving_nodes moving | up_nodes=$up_nodes down_nodes=$down_nodes";
 msg_perf_thresholds();
 $msg .= " normal_nodes=$normal_nodes leaving_nodes=$leaving_nodes joining_nodes=$joining_nodes moving_nodes=$moving_nodes";
 
