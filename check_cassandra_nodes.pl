@@ -19,7 +19,7 @@ Can specify a remote host and port otherwise it checks the local node's stats (f
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -66,7 +66,7 @@ if(defined($host)){
 }
 my @output = cmd($cmd);
 my $alive_nodes   = 0;
-my $dead_nodes    = 0;
+my $down_nodes    = 0;
 my $normal_nodes  = 0;
 my $leaving_nodes = 0;
 my $joining_nodes = 0;
@@ -97,7 +97,7 @@ foreach(@output){
             quit "UNKNOWN", "unrecognized second column for node status, $nagios_plugins_support_msg";
         }
     } elsif(/^D/){
-        $dead_nodes++;
+        $down_nodes++;
     } else {
         die_nodetool_unrecognized_output($_);
     }
@@ -108,9 +108,9 @@ unless($alive_nodes == ($normal_nodes + $leaving_nodes + $joining_nodes + $movin
     quit "UNKNOWN", "alive node count vs (normal/leaving/joining/moving) nodes are not equal, investigation required";
 }
 
-$msg = "$alive_nodes nodes up, $dead_nodes dead";
-check_thresholds($dead_nodes);
-$msg .= ", node states: $normal_nodes normal, $leaving_nodes leaving, $joining_nodes joining, $moving_nodes moving | alive_nodes=$alive_nodes dead_nodes=$dead_nodes";
+$msg = "$alive_nodes nodes up, $down_nodes down";
+check_thresholds($down_nodes);
+$msg .= ", node states: $normal_nodes normal, $leaving_nodes leaving, $joining_nodes joining, $moving_nodes moving | alive_nodes=$alive_nodes down_nodes=$down_nodes";
 msg_perf_thresholds();
 $msg .= " normal_nodes=$normal_nodes leaving_nodes=$leaving_nodes joining_nodes=$joining_nodes moving_nodes=$moving_nodes";
 
