@@ -47,7 +47,7 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - code reuse, especially for more complex validations
 - easy rapid development of new high quality Nagios plugins
 
-Some older plugins (especially those written in languages other than Perl) may not adhere to all of these criteria so most have been filed away under the legacy/ directory (they were used in production so I didn't want to remove them entirely).
+Some older plugins (especially those written in languages other than Perl) may not adhere to all of these criteria so most have been filed away under the legacy/ directory (they were used by people out there in production so I didn't want to remove them entirely).
 
 ##### Library #####
 
