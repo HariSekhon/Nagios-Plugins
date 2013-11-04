@@ -86,7 +86,7 @@ git submodule update
 
 Then install the Perl CPAN modules for whichever plugins you want to use, which are all listed in the Makefile. I suggest just installing them all for quick simplicity using one of the two methods listed next.
 
-#### Perl CPAN Modules ####
+##### Perl CPAN Modules #####
 
 If installing the Perl CPAN modules via your package manager or by hand instead of running the 'make' command as listed above, then read the 'Makefile' file for the list of Perl CPAN modules that you need to install.
 
