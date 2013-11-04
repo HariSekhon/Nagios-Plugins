@@ -40,8 +40,8 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - specific error messages to aid faster Root Cause Analysis
 - consistent behaviour
 - standardized switches
+- strict input/output validation at all stages
 - multiple verbosity levels
-- strict input/output validation
 - self-timeouts
 - graphing data where appropriate
 - code reuse, especially for more complex validations
