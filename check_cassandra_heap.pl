@@ -79,7 +79,7 @@ my $heap_used_percent = sprintf("%.2f", $heap{"used"} / $heap{"total"} * 100);
 
 $msg = "$heap_used_percent% heap used ($heap{used}/$heap{total} $heap{units})";
 check_thresholds($heap_used_percent);
-$msg .= " | heap_used_percentage=$heap_used_percent%";
+$msg .= " | 'heap_used_%'=$heap_used_percent%";
 msg_perf_thresholds();
 $heap{"units"} = isNagiosUnit($heap{"units"}) || "";
 $msg .= " heap_used=$heap{used}$heap{units} heap_total=$heap{total}$heap{units}";
