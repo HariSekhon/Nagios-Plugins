@@ -62,28 +62,26 @@ if(defined($host)){
 }
 my @output = cmd($cmd);
 
-my $heap_used;
-my $heap_total;
-my $heap_units;
+my %heap;
 foreach(@output){
     if(/^\s*Heap\s*Memory\s*\((\w+)\)\s*:\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/){
-        $heap_units = $1;
-        $heap_used  = $2;
-        $heap_total = $3;
+        $heap{"units"} = $1;
+        $heap{"used"}  = $2;
+        $heap{"total"} = $3;
         last;
     }
 }
-quit "UNKNOWN", "failed to determine heap used from nodetool output"  unless(defined($heap_used));
-quit "UNKNOWN", "failed to determine heap total from nodetool output" unless(defined($heap_total));
-quit "UNKNOWN", "failed to determine heap units from nodetool output" unless(defined($heap_units));
+foreach(sort keys %heap){
+    quit "UNKNOWN", "failed to determine heap $_ from nodetool output"  unless(defined($heap{$_}));
+}
 
-my $heap_used_percent = sprintf("%.2f", $heap_used / $heap_total * 100);
+my $heap_used_percent = sprintf("%.2f", $heap{"used"} / $heap{"total"} * 100);
 
-$msg = "$heap_used_percent% heap used ($heap_used/$heap_total $heap_units)";
+$msg = "$heap_used_percent% heap used ($heap{used}/$heap{total} $heap{units})";
 check_thresholds($heap_used_percent);
 $msg .= " | heap_used_percentage=$heap_used_percent%";
 msg_perf_thresholds();
-$heap_units = isNagiosUnit($heap_units) || "";
-$msg .= " heap_used=$heap_used$heap_units heap_total=$heap_total$heap_units";
+$heap{"units"} = isNagiosUnit($heap{"units"}) || "";
+$msg .= " heap_used=$heap{used}$heap{units} heap_total=$heap{total}$heap{units}";
 
 quit $status, $msg;
