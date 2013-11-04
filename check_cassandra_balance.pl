@@ -43,11 +43,7 @@ $critical = $default_critical;
 @usage_order = qw/nodetool host port user password warning critical/;
 get_options();
 
-$nodetool = validate_nodetool($nodetool);
-$host     = validate_host($host)         if defined($host);
-$port     = validate_port($port)         if defined($port);
-$user     = validate_user($user)         if defined($user);
-$password = validate_password($password) if defined($password);
+($nodetool, $host, $port, $user, $password) = validate_nodetool_options($nodetool, $host, $port, $user, $password);
 validate_thresholds(undef, undef, { "simple" => "upper", "integer" => 0, "positive" => 1, "max" => "100" });
 
 vlog2;

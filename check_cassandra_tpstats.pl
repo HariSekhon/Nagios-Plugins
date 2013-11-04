@@ -20,7 +20,7 @@ Can specify a remote host and port otherwise it checks the local node's stats (f
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
-$VERSION = "0.4";
+$VERSION = "0.4.1";
 
 use strict;
 use warnings;
@@ -46,11 +46,7 @@ $critical = $default_critical;
 @usage_order = qw/nodetool host port user password warning critical/;
 get_options();
 
-$nodetool = validate_nodetool($nodetool);
-$host     = validate_host($host)         if defined($host);
-$port     = validate_port($port)         if defined($port);
-$user     = validate_user($user)         if defined($user);
-$password = validate_password($password) if defined($password);
+($nodetool, $host, $port, $user, $password) = validate_nodetool_options($nodetool, $host, $port, $user, $password);
 validate_thresholds(1, 1, { "simple" => "upper", "integer" => 1, "positive" => 1 } );
 
 vlog2;
