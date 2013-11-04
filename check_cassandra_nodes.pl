@@ -65,7 +65,7 @@ if(defined($host)){
     validate_resolvable($host);
 }
 my @output = cmd($cmd);
-my $alive_nodes   = 0;
+my $live_nodes   = 0;
 my $down_nodes    = 0;
 my $normal_nodes  = 0;
 my $leaving_nodes = 0;
@@ -84,7 +84,7 @@ foreach(@output){
         quit "CRITICAL", $_;
     }
     if(/^U[NLJM]\s+($host_regex)/){
-        $alive_nodes++;
+        $live_nodes++;
         if(/^.N/){
             $normal_nodes++;
         } elsif(/^.L/){
@@ -104,13 +104,13 @@ foreach(@output){
 }
 
 vlog2 "checking node counts";
-unless($alive_nodes == ($normal_nodes + $leaving_nodes + $joining_nodes + $moving_nodes)){
-    quit "UNKNOWN", "alive node count vs (normal/leaving/joining/moving) nodes are not equal, investigation required";
+unless($live_nodes == ($normal_nodes + $leaving_nodes + $joining_nodes + $moving_nodes)){
+    quit "UNKNOWN", "live node count vs (normal/leaving/joining/moving) nodes are not equal, investigation required";
 }
 
-$msg = "$alive_nodes nodes up, $down_nodes down";
+$msg = "$live_nodes nodes up, $down_nodes down";
 check_thresholds($down_nodes);
-$msg .= ", node states: $normal_nodes normal, $leaving_nodes leaving, $joining_nodes joining, $moving_nodes moving | alive_nodes=$alive_nodes down_nodes=$down_nodes";
+$msg .= ", node states: $normal_nodes normal, $leaving_nodes leaving, $joining_nodes joining, $moving_nodes moving | live_nodes=$live_nodes down_nodes=$down_nodes";
 msg_perf_thresholds();
 $msg .= " normal_nodes=$normal_nodes leaving_nodes=$leaving_nodes joining_nodes=$joining_nodes moving_nodes=$moving_nodes";
 
