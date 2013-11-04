@@ -31,15 +31,37 @@ http://www.linkedin.com/in/harisekhon
 
 ### Quality ###
 
-Most of the plugins I've read from Nagios Exchange and Monitoring Exchange in the last 8 years have not been of the quality required to run in production environments I've worked in (ever seen plugins written in Bash with little validation, or mere 200-300 line plugins without robust input/output validation and error handling, resulting in "UNKNOWN: (null)" right when you need them - then you know what I mean). That prompted me to write my own plugins whenever I had an idea, requirement or request, with an emphasis on input validation, error handling and reporting as specific information as possible in an error situation to allow for faster, easier and more accurate diagnosis of the problem. This naturally evolved in to this plugins collection over the years, especially when I began standardizing and reusing code between plugins.
+Most of the plugins I've read from Nagios Exchange and Monitoring Exchange in the last 8 years have not been of the quality required to run in production environments I've worked in (ever seen plugins written in Bash with little validation, or mere 200-300 line plugins without robust input/output validation and error handling, resulting in "UNKNOWN: (null)" when something goes wrong - right when you need them - then you know what I mean). That prompted me to write my own plugins whenever I had an idea or requirement.
 
-Library - Having written a large number of Nagios Plugins in the last several years in a variety of languages (Python, Perl, Ruby, Bash, VBS) I abstracted out common components of a good robust Nagios Plugin program in to a library of reusable components that I leverage very heavily in all my modern plugins and other programs found under my other repos here on GitHub, which are now mostly written in Perl for both concise rapid development and speed of execution.
+That naturally evolved in to this, a relatively Advanced Collection of Nagios Plugins, especially when I began standardizing and reusing code between plugins and improving the quality of all those plugins while doing so.
 
-This Library enables writing much more thoroughly validated production quality code, to achieve in quick 200 lines of Perl what might otherwise take 1500-2000 lines (including some of the more complicated supporting code such as robust validation functions with long complex regexs, configurable self-timeouts, warning/critical threshold range logic, common options and generated usage, multiple levels of verbosity, debug mode etc), dramatically reducing the time to write high quality plugins down to mere hours and at the same time vastly improving the quality of the final code through code reuse, as well as benefitting from generic future improvements to the library. This gives each plugin the appearance of being very short, because only the core logic of what you're trying to achieve is displayed in the plugin itself.
+##### Goals #####
 
-I've tried to keep the quality here high so a lot of plugins I've written over the years haven't made it in to this collection, and a couple others are in TODO-require-updates until I can reintegrate and test them with my current framework, although they should still work with the tiny utils.pm from the standard plugins collection. Several other older plugins are under the "legacy" directory indicating I haven't run or made updates to them in a few years so they may require tweaks and updates.
+- specific error messages to aid faster Root Cause Analysis
+- consistent behaviour
+- standardized switches
+- multiple verbosity levels
+- strict input/output validation
+- self-timeouts
+- graphing data where appropriate
+- code reuse, especially for more complex validations
+- easy rapid development of new high quality Nagios plugins
 
-Remember to check out the legacy/ directory for more plugins that are less current but that you might find useful.
+Some older plugins (especially those written in languages other than Perl) may not adhere to all of these criteria so most have been filed away under the legacy/ directory (they were used in production so I didn't want to remove them entirely).
+
+##### Library #####
+
+Having written a large number of Nagios Plugins in the last several years in a variety of languages (Python, Perl, Ruby, Bash, VBS) I abstracted out common components of a good robust Nagios Plugin program in to a library of reusable components that I leverage very heavily in all my modern plugins and other programs found under my other repos here on GitHub, which are now mostly written in Perl using this library, for reasons of both concise rapid development and speed of execution.
+
+This Library enables writing much more thoroughly validated production quality code, to achieve in quick 200 lines of Perl what might otherwise take 1500-2000 lines (including some of the more complicated supporting code such as robust validation functions with long complex regexs, configurable self-timeouts, warning/critical threshold range logic, common options and generated usage, multiple levels of verbosity, debug mode etc), dramatically reducing the time to write high quality plugins down to mere hours and at the same time vastly improving the quality of the final code through code reuse, as well as benefitting from generic future improvements to the library.
+
+This gives each plugin the appearance of being very short, because only the core logic of what you're trying to achieve is displayed in the plugin itself.
+
+I've tried to keep the quality here high so a lot of plugins I've written over the years haven't made it in to this collection, and a couple others are in TODO-require-updates until I can reintegrate and test them with my current framework, although they should still work with the tiny utils.pm from the standard nagios plugins collection.
+
+Several other older plugins are under the "legacy" directory indicating I haven't run or made updates to them in a few years so they may require tweaks and updates but were useful in production at one point so I didn't want to remove them entirely as I know people out there are using them.
+
+If you're new remember to check out the legacy/ directory for more plugins that are less current but that you might find useful.
 
 ### Quick Setup ###
 
