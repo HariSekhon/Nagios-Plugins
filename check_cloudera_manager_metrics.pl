@@ -20,7 +20,7 @@ You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) 
 
 This is still using v1 of the API for compatability purposes";
 
-$VERSION = "0.3.2";
+$VERSION = "0.3.3";
 
 use strict;
 use warnings;
@@ -197,9 +197,9 @@ if($tls){
 my $url_prefix = "$protocol://$host:$port";
 $url = "$url_prefix$url";
 vlog2 "querying $url";
-validate_resolvable($host);
 my $req = HTTP::Request->new('GET',$url);
 $req->authorization_basic($user, $password);
+validate_resolvable($host);
 my $response = $ua->request($req);
 my $content  = $response->content;
 chomp $content;
