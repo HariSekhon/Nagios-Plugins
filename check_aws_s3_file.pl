@@ -9,13 +9,11 @@
 #  License: see accompanying LICENSE file
 #  
 
-# TODO: add SSL support similar to the Cloudera Manager plugin
-
 $DESCRIPTION = "Nagios Plugin to check if a given file is present in AWS S3 via the HTTP Rest API
 
 Bucket names must follow the more restrictive 3 to 63 alphanumeric character international standard, dots are not supported in the bucket name due to using strict DNS shortname regex validation";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -28,7 +26,11 @@ use Digest::SHA 'hmac_sha1';
 use LWP::UserAgent;
 use MIME::Base64;
 use POSIX 'strftime';
+use Time::HiRes 'time';
 use XML::Simple;
+
+my $ua = LWP::UserAgent->new;
+$ua->agent("Hari Sekhon $progname $main::VERSION");
 
 my $aws_host = "s3.amazonaws.com";
 my $bucket;
@@ -37,14 +39,23 @@ my $file;
 my $aws_access_key;
 my $aws_secret_key;
 
+my $GET    = 0;
+my $no_ssl = 0;
+my $ssl_ca_path;
+my $ssl_noverify;
+
 %options = (
-    "f|file=s"         => [ \$file,           "AWS S3 object path for the file" ],
-    "b|bucket=s"       => [ \$bucket,         "AWS S3 bucket" ],
-    "aws-access-key=s" => [ \$aws_access_key, "\$AWS_ACCESS_KEY - can be passed on command line or preferably taken from environment variable" ],
-    "aws-secret-key=s" => [ \$aws_secret_key, "\$AWS_SECRET_KEY - can be passed on command line or preferably taken from environment variable" ],
+    "f|file=s"         => [ \$file,             "AWS S3 object path for the file" ],
+    "b|bucket=s"       => [ \$bucket,           "AWS S3 bucket" ],
+    "aws-access-key=s" => [ \$aws_access_key,   "\$AWS_ACCESS_KEY - can be passed on command line or preferably taken from environment variable" ],
+    "aws-secret-key=s" => [ \$aws_secret_key,   "\$AWS_SECRET_KEY - can be passed on command line or preferably taken from environment variable" ],
+    "G|get"            => [ \$GET,              "Perform full HTTP GET request instead of default HTTP HEAD. This will download the whole file, useful if you want to see the full download time from AWS S3. You may need to increase the --timeout to fetch file if more than a few MB" ],
+    "no-ssl"           => [ \$no_ssl,           "Don't use SSL, connect to AWS S3 with plaintext HTTP instead of HTTPS (not recommended)" ],
+    "ssl-CA-path=s"    => [ \$ssl_ca_path,      "Path to CA certificate directory for validating SSL certificate" ],
+    "ssl-noverify"     => [ \$ssl_noverify,     "Do not verify SSL certificate from AWS S3 (not recommended)" ],
 );
 
-@usage_order = qw/file bucket aws-access-key aws-secret-key/;
+@usage_order = qw/file bucket aws-access-key aws-secret-key get no-ssl ssl-CA-path ssl-noverify/;
 get_options();
 
 if(not defined($aws_access_key) and defined($ENV{"AWS_ACCESS_KEY"})){
@@ -63,6 +74,23 @@ $bucket         = validate_aws_bucket($bucket);
 $aws_access_key = validate_aws_access_key($aws_access_key);
 $aws_secret_key = validate_aws_secret_key($aws_secret_key);
 
+if((defined($ssl_ca_path) or defined($ssl_noverify)) and $no_ssl){
+    usage "cannot specify ssl options and --no-ssl at the same time";
+}
+if(defined($ssl_noverify)){
+    $ua->ssl_opts( verify_hostname => 0 );
+}
+if(defined($ssl_ca_path)){
+    $ssl_ca_path = validate_directory($ssl_ca_path, undef, "SSL CA directory", "no vlog");
+    $ua->ssl_opts( ssl_ca_path => $ssl_ca_path );
+}
+if($no_ssl){
+    vlog_options "ssl enabled",  "false";
+} else {
+    vlog_options "ssl enabled",  "true";
+    vlog_options "SSL CA Path",  $ssl_ca_path  if defined($ssl_ca_path);
+    vlog_options "ssl noverify", "true" if $ssl_noverify;
+}
 vlog2;
 set_timeout();
 
@@ -73,30 +101,47 @@ my $date_header = strftime("%a, %d %b %Y %T %z", gmtime);
 
 $file =~ s/^\///;
 
-my $ua = LWP::UserAgent->new;
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+my $protocol = "https";
+$protocol = "http" if $no_ssl;
+my $url = "$protocol://$aws_host/$file";
+
 $ua->timeout($timeout - 2);
 $ua->show_progress(1) if $debug;
 
+my $request_type = "HEAD";
+$request_type = "GET" if $GET;
+
 # very tricky, had to read the docs to get this
 # http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html
-my $canonicalized_string = "HEAD\n\n\n$date_header\n/$bucket/$file";
+my $canonicalized_string = "$request_type\n\n\n$date_header\n/$bucket/$file";
 # converts in place
 utf8::encode($canonicalized_string);
 #vlog_options "canonicalized_string", "'$canonicalized_string'";
 
-validate_resolvable($aws_host);
-my $request = HTTP::Request->new(HEAD => "http://$aws_host/$file");
+vlog2 "crafting authenticated request";
+my $request = HTTP::Request->new($request_type => $url);
 $request->header("Host" => $host_header);
 $request->header("Date" => $date_header);
 my $signature = encode_base64(hmac_sha1($canonicalized_string, $aws_secret_key));
 my $authorization_header = "AWS $aws_access_key:$signature";
 $request->header("Authorization" => $authorization_header);
+
+validate_resolvable($aws_host);
+vlog2 "querying $request_type $url";
+my $start_time = time;
 my $res = $ua->request($request);
-vlog3 "status line: " . $res->status_line . "\ncontent: " . $res->content . "\n";
+my $end_time = time;
+my $time_taken = sprintf("%.2f", $end_time - $start_time);
+vlog3 "status line: " . $res->status_line . "\n";
+debug "content: " . $res->content . "\n";
 
 if($res->code eq 200){
-    $msg = "retrieved file '$file' from $aws_host";
+    if($GET){
+        $msg = "retrieved file '$file' from";
+    } else {
+        $msg = "verified file '$file' exists in";
+    }
+    $msg .= " $aws_host in $time_taken secs | time_taken=${time_taken}s";
 } else {
     critical;
     my $data = XMLin($res->content, forcearray => 1, keyattr => []);
