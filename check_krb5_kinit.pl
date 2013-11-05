@@ -11,17 +11,17 @@
 
 $DESCRIPTION = "Nagios Plugin to check Kerberos is working by getting a TGT from the KDC using a keytab
 
-You should first create a keytab for a test nagios principal and then specify the path to that keytab as well as the username if not nagios
+Create a nagios kerberos principal and export a keytab for it to use in this check
 
 Requirements:
 
 1. Kerberos KDC(s)
 2. /etc/krb5.conf
-3. nagios or similar kerberos principal
-4. exported keytab for the principal from step 3
+3. nagios kerberos principal
+4. exported keytab for the nagios kerberos principal
 ";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -59,11 +59,13 @@ my $fh = File::Temp->new(TEMPLATE => "/tmp/${progname}_krb5cc_$>_XXXXXX");
 my $ticket_cache = $fh->filename;
 vlog2 "temporary ticket cache is '$ticket_cache'\n";
 
+vlog2 "requesting TGT";
 my @output = cmd("kinit -c '$ticket_cache' -k -t '$keytab' '$principal'");
 if(@output){
     quit "CRITICAL", join(" ", @output);
 }
 
+vlog2 "validating TGT\n";
 @output = cmd("klist -c '$ticket_cache'");
 foreach(@output){
     next if(
