@@ -41,7 +41,7 @@ my $cluster = 0;
 
 %options = (
     "cluster"       => [ \$cluster,     "Check the number of total blocks in the cluster instead of per datanode" ],
-    "hadoop-bin=s"  => [ \$hadoop_bin,  "Path to 'hdfs' or 'hadoop' command if not in \$PATH" ],
+    "hadoop-bin=s"  => [ \$hadoop_bin,  "Path to 'hdfs' or 'hadoop' command if not in \$PATH ($ENV{PATH})" ],
     "w|warning=s"   => [ \$warning,     "Warning  threshold or ran:ge (inclusive)" ],
     "c|critical=s"  => [ \$critical,    "Critical threshold or ran:ge (inclusive)" ],
 );
