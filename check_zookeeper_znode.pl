@@ -86,7 +86,7 @@ check_zookeeper_znode.pl -H <zookeepers> -z /hadoop-ha/logicaljt/ActiveStandbyEl
 
 Here is an excellent blog post by my fellow Clouderans on HBase znodes (apparently this will change in C5 though):
 
-https://blog.cloudera.com/blog/2013/10/what-are-hbase-znodes/
+http://blog.cloudera.com/blog/2013/10/what-are-hbase-znodes/
 
 
 API / BUGS / Limitations:
