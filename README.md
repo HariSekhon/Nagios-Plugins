@@ -27,7 +27,7 @@ http://www.linkedin.com/in/harisekhon
 - ```check_zookeeper.pl``` - ZooKeeper server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gathers statistics
 - ```check_zookeeper_znode.pl``` - ZooKeeper content checks, useful for HBase, SolrCloud, Hadoop NameNode HA & JobTracker HA (ZKFC) and any other ZooKeeper based service
 
-... and there are many more ...
+... and there are many more. This code base is also under active development and there are many more cool plugins pending import.
 
 ### Quality ###
 
