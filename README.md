@@ -3,7 +3,7 @@ Advanced Nagios Plugins Collection
 
 I've been developing this Nagios Plugin Collection since around 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
-I highly recommended that all Nagios users consider becoming familiar with this suite of tools.
+This should be the next stop after the standard nagios plugins collection, especially for those running advanced technologies such as Hadoop and other NoSQL technologies in production.
 
 These programs can also be run standalone on the command line or used in scripts as well as called in Nagios.
 
@@ -47,7 +47,9 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - code reuse, especially for more complex validations
 - easy rapid development of new high quality Nagios plugins
 
-Some older plugins (especially those written in languages other than Perl) may not adhere to all of these criteria so most have been filed away under the legacy/ directory (they were used by people out there in production so I didn't want to remove them entirely).
+Several plugins have been merged together and replaced with symlinks to the unified plugins bookmarking their areas of functionality, similar to some plugins from the standard nagios plugins collection.
+
+ePN support may be added in future but given that I've run 13,000 checks per Nagios server without ePN optimization it's not that high on the priority list right now.
 
 ##### Library #####
 
@@ -59,7 +61,11 @@ This gives each plugin the appearance of being very short, because only the core
 
 I've tried to keep the quality here high so a lot of plugins I've written over the years haven't made it in to this collection, and a couple others are in TODO-require-updates until I can reintegrate and test them with my current framework, although they should still work with the tiny utils.pm from the standard nagios plugins collection.
 
-Several other older plugins are under the "legacy" directory indicating I haven't run or made updates to them in a few years so they may require tweaks and updates but were useful in production at one point so I didn't want to remove them entirely as I know people out there are using them.
+I'm aware of Nagios::Plugin and will re-review whether to integrate it's usage into my library at some point.
+
+###### Legacy ######
+
+Some older plugins (especially those written in languages other than Perl) may not adhere to all of the criteria above so most have been filed away under the legacy/ directory (they were used by people out there in production so I didn't want to remove them entirely). Legacy plugins also indicate that I haven't run or made updates to them in a few years so those may require tweaks and updates.
 
 If you're new remember to check out the legacy/ directory for more plugins that are less current but that you might find useful.
 
