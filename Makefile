@@ -18,6 +18,7 @@ install:
 		JSON:XS \
 		LWP::Simple \
 		LWP::UserAgent \
+		Net::Async::CassandraCQL \
 		MongoDB::MongoClient \
 		Net::DNS \
 		Net::SSH::Expect \
@@ -28,3 +29,21 @@ install:
 		; echo
 	git submodule init
 	git submodule update
+
+# Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
+ZOOKEEPER_VERSION = 3.4.5
+.PHONY: zookeeper
+zookeeper:
+	[ -f zookeeper-$(ZOOKEEPER_VERSION).tar.gz ] || wget -O zookeeper-$(ZOOKEEPER_VERSION).tar.gz http://www.mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-$(ZOOKEEPER_VERSION)/zookeeper-$(ZOOKEEPER_VERSION).tar.gz
+	tar zxvf zookeeper-$(ZOOKEEPER_VERSION).tar.gz
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				./configure
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				make
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				sudo make install
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	perl Makefile.PL --zookeeper-include=/usr/local/include/zookeeper --zookeeper-lib=/usr/local/lib
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	LD_RUN_PATH=/usr/local/lib make
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	sudo LD_RUN_PATH=/usr/local/lib make install
+	perl -e "use Net::ZooKeeper"
+
+.PHONY: zookeeper-clean
+zookeeper-clean:
+	rm -fr zookeeper-$(ZOOKEEPER_VERSION).tar.gz zookeeper-$(ZOOKEEPER_VERSION)
