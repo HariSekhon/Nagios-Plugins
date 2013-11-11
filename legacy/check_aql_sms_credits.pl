@@ -11,10 +11,11 @@
 
 $DESCRIPTION = "Nagios Plugin to check the remaining AQL SMS credits on an account for Nagios SMS Alerting";
 
-# Credit to Richard Harvey for coming up with this idea, this is a complete reimplementation
-# of that idea using my personal library for improved code quality, error handling, perfdata etc
+# Credit to my ex-colleague Richard Harvey @ Specific Media for coming up with this idea
+#
+# This is a complete reimplementation of that idea using my personal library for improved code quality, error handling, perfdata
 
-$VERSION = "0.4.1";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -34,6 +35,16 @@ my $aql_password;
     "w|warning=s"       => [ \$warning,      "Warning threshold or ran:ge (inclusive)"  ],
     "c|critical=s"      => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
 );
+
+if(defined($ENV{"AQL_USERNAME"})){
+    $aql_user = $ENV{"AQL_USERNAME"};
+}
+if(defined($ENV{"AQL_USER"})){
+    $aql_user = $ENV{"AQL_USER"};
+}
+if(defined($ENV{"AQL_PASSWORD"})){
+    $aql_password = $ENV{"AQL_PASSWORD"};
+}
 
 get_options;
 $aql_user     = validate_user($aql_user);
