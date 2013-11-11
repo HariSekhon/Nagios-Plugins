@@ -106,17 +106,7 @@ Then install the Perl CPAN modules for whichever plugins you want to use, which 
 
 If installing the Perl CPAN modules via your package manager or by hand instead of running the 'make' command as listed in Quick Setup, then read the 'Makefile' file for the list of Perl CPAN modules that you need to install.
 
-### Other Dependencies ###
-
-Most plugins run with minimal dependencies for operational ease of use. Some plugins require Perl CPAN modules as mentioned above, and some of those under the legacy directory such as those that check 3ware/LSI raid controllers, SVN, VNC etc require external binaries to work, but the plugins will tell you if they are missing. Please see the respective vendor websites for 3ware, LSI etc to fetch those binaries and then re-run the plugins where needed.
-
-The ```check_puppet.rb``` plugin uses Puppet's native Ruby libraries to parse the Puppet config and as such will only be run where Puppet is properly installed.
-
-The ```check_logserver.py``` "Syslog to MySQL" plugin will need the Python MySQL module to be installed which you should be able to find via your package manager. If using RHEL/CentOS do:
-
-```
-yum install MySQL-python
-```
+###### Net::ZooKeeper for check_zookeeper_znode.pl (various znode checks for HBase/SolrCloud) ######
 
 The ```check_zookeeper_znode.pl``` plugin requires the Net::ZooKeeper Perl CPAN module but this is not a simple ```cpan Net::ZooKeeper```, that will fail. Follow these instructions precisely or debug at your own peril:
 
@@ -138,6 +128,18 @@ LD_RUN_PATH=/usr/local/lib make install
 After this check it's properly installed by doing
 ```perl -e "use Net::ZooKeeper"```
 which should return without errors or output if successful.
+
+### Other Dependencies ###
+
+Most plugins run with minimal dependencies for operational ease of use. Some plugins require Perl CPAN modules as mentioned above, and some of those under the legacy directory such as those that check 3ware/LSI raid controllers, SVN, VNC etc require external binaries to work, but the plugins will tell you if they are missing. Please see the respective vendor websites for 3ware, LSI etc to fetch those binaries and then re-run the plugins where needed.
+
+The ```check_puppet.rb``` plugin uses Puppet's native Ruby libraries to parse the Puppet config and as such will only be run where Puppet is properly installed.
+
+The ```check_logserver.py``` "Syslog to MySQL" plugin will need the Python MySQL module to be installed which you should be able to find via your package manager. If using RHEL/CentOS do:
+
+```
+yum install MySQL-python
+```
 
 ### Usage --help ###
 
