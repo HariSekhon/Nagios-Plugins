@@ -110,7 +110,6 @@ If installing the Perl CPAN modules via your package manager or by hand instead 
 
 The ```check_zookeeper_znode.pl``` plugin requires the Net::ZooKeeper Perl CPAN module but this is not a simple ```cpan Net::ZooKeeper```, that will fail. Follow these instructions precisely or debug at your own peril:
 
-Run these commands as root.
 ```
 # install C client library
 export ZOOKEEPER_VERSION=3.4.5
@@ -118,12 +117,14 @@ export ZOOKEEPER_VERSION=3.4.5
 tar zxvf zookeeper-$ZOOKEEPER_VERSION.tar.gz
 cd zookeeper-$ZOOKEEPER_VERSION/src/c
 ./configure
-make install
+make
+sudo make install
 
 # now install Perl module using C library with the correct linking
 cd ../contrib/zkperl
 perl Makefile.PL --zookeeper-include=/usr/local/include/zookeeper --zookeeper-lib=/usr/local/lib
-LD_RUN_PATH=/usr/local/lib make install
+LD_RUN_PATH=/usr/local/lib make
+sudo make install
 ```
 After this check it's properly installed by doing
 ```perl -e "use Net::ZooKeeper"```
