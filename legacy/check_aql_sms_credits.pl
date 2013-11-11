@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check the remaining AQL SMS credits on an accou
 # Credit to Richard Harvey for coming up with this idea, this is a complete reimplementation
 # of that idea using my personal library for improved code quality, error handling, perfdata etc
 
-$VERSION = "0.4";
+$VERSION = "0.4.1";
 
 use strict;
 use warnings;
@@ -25,18 +25,18 @@ BEGIN {
 }
 use HariSekhonUtils;
 
-my $aql_username;
+my $aql_user;
 my $aql_password;
 
 %options = (
-    "u|user=s"          => [ \$aql_username, "AQL account user" ],
+    "u|user=s"          => [ \$aql_user,     "AQL account user" ],
     "p|password=s"      => [ \$aql_password, "AQL account password" ],
     "w|warning=s"       => [ \$warning,      "Warning threshold or ran:ge (inclusive)"  ],
     "c|critical=s"      => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
 );
 
 get_options;
-$aql_username = validate_username($aql_username);
+$aql_user     = validate_user($aql_user);
 $aql_password = validate_password($aql_password);
 validate_thresholds(1, 1, { "simple" => "lower", "integer" => 1 } );
 
@@ -44,7 +44,7 @@ set_timeout();
 
 vlog2 "creating AQL instance";
 my $sms = new SMS::AQL({
-                        username => $aql_username,
+                        username => $aql_user,
                         password => $aql_password,
                        }) || quit "UNKNOWN", "Failed to connect to AQL: $!";
 defined($sms) or quit "UNKNOWN", "failed to create AQL instance";
