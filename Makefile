@@ -41,7 +41,7 @@ zookeeper:
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				sudo make install
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	perl Makefile.PL --zookeeper-include=/usr/local/include/zookeeper --zookeeper-lib=/usr/local/lib
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	LD_RUN_PATH=/usr/local/lib make
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	sudo LD_RUN_PATH=/usr/local/lib make install
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	sudo make install
 	perl -e "use Net::ZooKeeper"
 
 .PHONY: zookeeper-clean
