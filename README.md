@@ -86,7 +86,7 @@ make zookeeper
 ```
 This downloads, builds and installs the ZooKeeper C bindings which Net::ZooKeeper needs. To clean up the working directory afterwards runs
 ```
-make zookeeper-clean
+make clean
 ```
 
 ### Manual Setup ###
