@@ -1,7 +1,7 @@
 Advanced Nagios Plugins Collection
 ==================================
 
-Largest and most advanced collection of unified Nagios monitoring code in the wild (that I am aware of).
+Largest and most advanced collection of unified Nagios monitoring code in the wild.
 
 Largest collection of Hadoop & NoSQL monitoring code for Nagios, written by a former Clouderan (Cloudera is the first Hadoop Big Data company).
 
