@@ -1,15 +1,21 @@
 Advanced Nagios Plugins Collection
 ==================================
 
+Largest and most advanced collection of unified Nagios monitoring code in the wild (that I am aware of).
+
+Largest collection of Hadoop & NoSQL monitoring code for Nagios, written by a former Clouderan (Cloudera is the first Hadoop Big Data company).
+
 I've been developing this Nagios Plugin Collection since around 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
-This should be the next stop after the standard nagios plugins collection, especially for those running advanced technologies such as Hadoop and other NoSQL technologies in production.
+This should be the next stop after the standard nagios plugins collection, especially for those running web infrastructure or advanced technologies (Hadoop, Cassandara, HBase etc) in production.
 
 These programs can also be run standalone on the command line or used in scripts as well as called in Nagios.
 
 Enjoy
 
 Hari Sekhon
+
+Big Data Contractor
 
 http://www.linkedin.com/in/harisekhon
 
