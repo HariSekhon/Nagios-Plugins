@@ -44,6 +44,6 @@ zookeeper:
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	sudo make install
 	perl -e "use Net::ZooKeeper"
 
-.PHONY: zookeeper-clean
-zookeeper-clean:
+.PHONY: clean
+clean:
 	rm -fr zookeeper-$(ZOOKEEPER_VERSION).tar.gz zookeeper-$(ZOOKEEPER_VERSION)
