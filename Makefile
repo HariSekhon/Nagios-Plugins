@@ -9,6 +9,24 @@
 install:
 	@#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
 	@# putting modules one per line just for ease of maintenance
+	#
+	# Dependencies:
+	#
+	# DBD::mysql
+	#
+	# yum install perl-DBD-MySQL.x86_64
+	#
+	# if building CPAN module then
+	#
+	# yum install mysql mysql-devel  (need to start MySQL for make test to pass)
+	#
+	#
+	# XML::Simple
+	#
+	# yum install expat-devel
+	# 	or
+	# apt-get install libexpat1-dev
+	#
 	sudo cpan \
 		Data::Dumper \
 		DBD::mysql \
