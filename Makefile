@@ -27,7 +27,7 @@ install:
 	# 	or
 	# apt-get install libexpat1-dev
 	#
-	sudo cpan \
+	sudo -A cpan \
 		Data::Dumper \
 		DBD::mysql \
 		DBI \
@@ -45,6 +45,7 @@ install:
 		SMS::AQL \
 		XML::Simple \
 		; echo
+	# Intentionally ignoring CPAN module build failures since some modules may fail for a multitude of reasons but this isn't really important unless you need the pieces of code that use them in which case you can solve those dependencies later
 	git submodule init
 	git submodule update
 
