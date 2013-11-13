@@ -9,7 +9,7 @@
 install:
 	@#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
 	@# putting modules one per line just for ease of maintenance
-	sudo cpan \
+	sudo -s cpan \
 		Data::Dumper \
 		DBD::mysql \
 		DBI \
@@ -38,10 +38,10 @@ zookeeper:
 	tar zxvf zookeeper-$(ZOOKEEPER_VERSION).tar.gz
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				./configure
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				make
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				sudo make install
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				sudo -s make install
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	perl Makefile.PL --zookeeper-include=/usr/local/include/zookeeper --zookeeper-lib=/usr/local/lib
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	LD_RUN_PATH=/usr/local/lib make
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	sudo make install
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	sudo -s make install
 	perl -e "use Net::ZooKeeper"
 
 .PHONY: clean
