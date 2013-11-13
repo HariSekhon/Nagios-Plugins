@@ -28,6 +28,7 @@ install:
 	# apt-get install libexpat1-dev
 	#
 	sudo cpan \
+		Class:Accessor \
 		Data::Dumper \
 		DBD::mysql \
 		DBI \
