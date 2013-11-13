@@ -54,7 +54,7 @@ ZOOKEEPER_VERSION = 3.4.5
 .PHONY: zookeeper
 zookeeper:
 	[ -f zookeeper-$(ZOOKEEPER_VERSION).tar.gz ] || wget -O zookeeper-$(ZOOKEEPER_VERSION).tar.gz http://www.mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-$(ZOOKEEPER_VERSION)/zookeeper-$(ZOOKEEPER_VERSION).tar.gz
-	tar zxvf zookeeper-$(ZOOKEEPER_VERSION).tar.gz
+	[ -d zookeeper-$(ZOOKEEPER_VERSION) ] || tar zxvf zookeeper-$(ZOOKEEPER_VERSION).tar.gz
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				./configure
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				make
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				sudo make install
