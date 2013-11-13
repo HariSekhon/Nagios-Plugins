@@ -1,1 +1,1 @@
-check_hadoop_jobtracker_ha_zkfc.pl
+./check_zookeeper_znode.pl
