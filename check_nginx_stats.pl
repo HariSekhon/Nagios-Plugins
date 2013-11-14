@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Nginx stats from the nginx stub_status page";
+$DESCRIPTION = "Nagios Plugin to check Nginx stats. Nginx will need to be configured to support this, see documentation at http://wiki.nginx.org/HttpStubStatusModule";
 
 $VERSION = "0.4.1";
 
