@@ -90,7 +90,7 @@ If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on
 ```
 make zookeeper
 ```
-This downloads, builds and installs the ZooKeeper C bindings which Net::ZooKeeper needs. To clean up the working directory afterwards runs
+This downloads, builds and installs the ZooKeeper C bindings which Net::ZooKeeper needs. To clean up the working directory afterwards run:
 ```
 make clean
 ```
