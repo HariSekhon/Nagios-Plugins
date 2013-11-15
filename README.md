@@ -46,11 +46,11 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - specific error messages to aid faster Root Cause Analysis
 - consistent behaviour
 - standardized switches
-- strict input/output validation at all stages
+- strict input/output validation at all stages, written for security and robustness
 - multiple verbosity levels
 - self-timeouts
 - graphing data where appropriate
-- code reuse, especially for more complex validations
+- code reuse, especially for more complex input/output validations
 - easy rapid development of new high quality Nagios plugins
 
 Several plugins have been merged together and replaced with symlinks to the unified plugins bookmarking their areas of functionality, similar to some plugins from the standard nagios plugins collection.
