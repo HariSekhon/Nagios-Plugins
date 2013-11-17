@@ -147,7 +147,7 @@ if(scalar @stats == 1){
         if(isFloat($$info_hash{$stats[0]})){
             check_thresholds($$info_hash{$stats[0]});
         } else {
-            quit "UNKNOWN", "non-float value returned for stat '$stats[0]', cannot evaluate";
+            quit "UNKNOWN", "non-float value returned for stat '$stats[0]', got '$$info_hash{$stats[0]}', cannot evaluate";
         }
     }
 }
