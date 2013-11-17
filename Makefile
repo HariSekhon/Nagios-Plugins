@@ -42,6 +42,7 @@ install:
 		Net::DNS \
 		Net::SSH::Expect \
 		Redis \
+		Test::SharedFork \
 		Thrift \
 		Time::HiRes \
 		SMS::AQL \
