@@ -36,12 +36,12 @@ my $precision = $default_precision;
 %options = (
     "H|host=s"         => [ \$host,         "Redis Host to connect to" ],
     "P|port=s"         => [ \$port,         "Redis Port to connect to (default: $default_port)" ],
-    "s|stats=s"        => [ \$statlist,     "Stats to retrieve, comma separated (default: all). If specifying one stat then optionally check result against --warning/--critical thresholds" ],
+    "s|stats=s"        => [ \$statlist,     "Stats to retrieve, comma separated (default: all). If specifying one stat then optionally check result against --warning/--critical thresholds or --expected value" ],
     #"u|user=s"         => [ \$user,         "User to connect with" ],
     #"p|password=s"     => [ \$password,     "Password to connect with" ],
-    "e|expected=s"     => [ \$expected,     "Expected value for stat, only used when a single stat is given" ],
-    "w|warning=s"      => [ \$warning,      "Warning  threshold ra:nge (inclusive)" ],
-    "c|critical=s"     => [ \$critical,     "Critical threshold ra:nge (inclusive)" ],
+    "e|expected=s"     => [ \$expected,     "Expected value for stat. Optional, only valid when a single stat is given" ],
+    "w|warning=s"      => [ \$warning,      "Warning  threshold ra:nge (inclusive). Optional, only valid when a single stat is given" ],
+    "c|critical=s"     => [ \$critical,     "Critical threshold ra:nge (inclusive). Optional, only valid when a single stat is given" ],
     "precision=i"      => [ \$precision,    "Number of decimal places for timings (default: $default_precision)" ],
 );
 
@@ -151,7 +151,9 @@ if(scalar @stats == 1){
     }
 }
 
-$msg .= " | $msgperf" if $msgperf;
+$msg .= ", queried server in $time_taken secs | ";
+$msg .= "$msgperf " if $msgperf;
+$msg .= "query_time=${time_taken}s";
 
 vlog2;
 quit $status, $msg;
