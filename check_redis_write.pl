@@ -72,9 +72,7 @@ vlog2;
 
 my $epoch  = time;
 my $key    = "HariSekhon:$progname:$host:$epoch";
-my @chars  = ("A".."Z", "a".."z", 0..9);
-my $value  = "";
-$value    .= $chars[rand @chars] for 1..20;
+my $value  = random_alnum(20);
 vlog_options "key",    $key;
 vlog_options "value",  $value;
 vlog2;
