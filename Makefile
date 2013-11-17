@@ -41,6 +41,7 @@ install:
 		MongoDB::MongoClient \
 		Net::DNS \
 		Net::SSH::Expect \
+		Redis \
 		Thrift \
 		Time::HiRes \
 		SMS::AQL \
@@ -67,3 +68,7 @@ zookeeper:
 .PHONY: clean
 clean:
 	rm -fr zookeeper-$(ZOOKEEPER_VERSION).tar.gz zookeeper-$(ZOOKEEPER_VERSION)
+
+update:
+	git pull
+	git submodule update
