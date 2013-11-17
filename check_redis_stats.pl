@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to check a Redis server's stats";
+our $DESCRIPTION = "Nagios Plugin to check a Redis server's stats";
 
 $VERSION = "0.1";
 
@@ -46,7 +46,10 @@ my $precision = $default_precision;
 );
 
 if($progname eq "check_redis_version.pl"){
+    $DESCRIPTION = "Nagios Plugin to check a Redis server's version";
     $statlist = "redis_version";
+    $options{"e|expected=s"} = [ \$expected,     "Expected Redis version" ],
+    #"u|user=s"         => [ \$user,         "User to connect with" ],
     delete $options{"s|stats=s"};
     delete $options{"w|warning=s"};
     delete $options{"c|critical=s"};
