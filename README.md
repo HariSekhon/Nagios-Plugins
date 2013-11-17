@@ -153,3 +153,7 @@ yum install MySQL-python
 All plugins come with --help which lists all options as well as giving a program description, often including a detailed account of what is checked in the code.
 
 Just make sure to install the Perl CPAN modules listed above first as some plugins won't run until you've installed the required Perl modules.
+
+### Further Utilities ###
+
+Check out the https://github.com/harisekhon/sysadmin repository adjacent to this nagios-plugins repo for some other useful tools such as HDFS per block read performance + location debugging tool (hadoop_time_block_reads.jy), URL watcher for load balanced environments and other useful utilities programs.
