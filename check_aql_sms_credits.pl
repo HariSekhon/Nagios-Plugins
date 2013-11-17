@@ -71,7 +71,12 @@ defined($credit) or quit "UNKNOWN", "Failed to fetch AQL credit number";
 isInt($credit) or quit "UNKNOWN", "invalid credit '$credit' returned by AQL, not a positive integer as expected";
 
 $status = "OK";
+
 $msg = "$credit SMS credits";
+
 check_thresholds($credit);
+
 $msg .= " | 'SMS Credits'=$credit;$thresholds{warning}{lower};$thresholds{critical}{lower};0;";
+
+vlog2;
 quit $status, $msg;
