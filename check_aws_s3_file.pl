@@ -60,11 +60,11 @@ get_options();
 
 if(not defined($aws_access_key) and defined($ENV{"AWS_ACCESS_KEY"})){
     $aws_access_key = $ENV{"AWS_ACCESS_KEY"};
-    vlog2 "read AWS_ACCESS_KEY from environment: $aws_access_key";
+    vlog2 "read AWS_ACCESS_KEY environment variable";
 }
 if(not defined($aws_secret_key) and defined($ENV{"AWS_SECRET_KEY"})){
     $aws_secret_key = $ENV{"AWS_SECRET_KEY"};
-    vlog2 "read AWS_SECRET_KEY from environment: $aws_secret_key";
+    vlog2 "read AWS_SECRET_KEY environment variable";
 }
 vlog2;
 
