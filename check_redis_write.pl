@@ -82,7 +82,7 @@ $status = "OK";
 
 my $hostport = $host . ( $verbose ? ":$port" : "" );
 $host = validate_resolvable($host);
-vlog2 "connecting to redis server '$hostport'";
+vlog2 "connecting to redis server '$host:$port'";
 my $redis;
 try {
     $redis = Redis->new(server => "$host:$port");
