@@ -45,12 +45,15 @@ my $precision = $default_precision;
     "precision=i"      => [ \$precision,    "Number of decimal places for timings (default: $default_precision)" ],
 );
 
-@usage_order = qw/host port stats user password expected warning critical precision/;
-get_options();
-
 if($progname eq "check_redis_version.pl"){
     $statlist = "redis_version";
+    delete $options{"s|stats=s"};
+    delete $options{"w|warning=s"};
+    delete $options{"c|critical=s"};
 }
+
+@usage_order = qw/host port stats user password expected warning critical precision/;
+get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
