@@ -142,7 +142,8 @@ if(scalar @stats == 1){
         unless($$info_hash{$stats[0]} eq $expected){
             quit "CRITICAL", "$stats[0] returned '$$info_hash{$stats[0]}', expected '$expected'";
         }
-    } elsif(defined($warning) or defined($critical)){
+    }
+    if(defined($warning) or defined($critical)){
         if(isFloat($$info_hash{$stats[0]})){
             check_thresholds($$info_hash{$stats[0]});
         } else {
