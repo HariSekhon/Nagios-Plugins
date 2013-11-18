@@ -7,15 +7,17 @@
 #  http://github.com/harisekhon
 #
 #  License: see accompanying LICENSE file
-#  
+#
 
 our $DESCRIPTION = "Nagios Plugin to check a Redis server's stats
 
 1. Fetches one or more stats from specified Redis server. Defaults to fetching all stats
 2. If specifying a single stat, checks the result matches expected value or warning/critical thresholds if specified
-3. Outputs perfdata for all float value stats for graphing";
+3. Outputs perfdata for all float value stats for graphing
 
-$VERSION = "0.2.1";
+Developed on Redis 2.4.10";
+
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -29,6 +31,8 @@ use Redis;
 use Time::HiRes 'time';
 
 my $statlist;
+
+my $check_replication_slave = 0;
 
 my $expected;
 
@@ -47,6 +51,22 @@ if($progname eq "check_redis_version.pl"){
     delete $options{"s|stats=s"};
     delete $options{"w|warning=s"};
     delete $options{"c|critical=s"};
+} elsif($progname eq "check_redis_slave.pl" or $progname eq "check_redis_slave_replication.pl"){
+    $check_replication_slave = 1;
+    $DESCRIPTION = "Nagios Plugin to check a Redis slave and replication\n\n"
+                 . "Checks:\n\n"
+                 . "1. server is in 'slave' role\n"
+                 . "2. replication last I/O is within warning/critical thresholds\n"
+                 . "3. prints if server is currently replicating\n";
+    $statlist = "role,master_host,master_port,master_link_status,master_last_io_seconds_ago,master_sync_in_progress";
+    delete $options{"s|stats=s"};
+    delete $options{"e|expected=s"};
+    # This is the default in redis.conf
+    my $default_last_replication = 60;
+    $warning  = $default_last_replication / 2;
+    $critical = $default_last_replication;
+    $options{"w|warning=s"}  = [ \$warning,  "Warning  threshold ra:nge in secs for replication last I/O (inclusive, default: " . $default_last_replication/2 . ")" ],
+    $options{"c|critical=s"} = [ \$critical, "Critical threshold ra:nge in secs for replication last I/O (inclusive, default: $default_last_replication)" ],
 }
 
 @usage_order = qw/host port password stats expected warning critical precision/;
@@ -57,7 +77,7 @@ $port       = validate_port($port);
 my @stats;
 if(defined($statlist)){
     unless($statlist eq "all"){
-        @stats = split(",", $statlist);
+        @stats = split(/\s*,\s*/, $statlist);
         foreach my $stat (@stats){
             $stat =~ /^([\w_-]+)$/;
             $stat = $1;
@@ -67,11 +87,12 @@ if(defined($statlist)){
     }
 }
 @stats = uniq_array @stats if @stats;
-if(scalar @stats > 1 and (defined($warning) or defined($critical) or defined($expected))){
-    usage "cannot specify expected value or thresholds when specifying more than one statistic";
+unless($check_replication_slave){
+    if(scalar @stats > 1 and (defined($warning) or defined($critical) or defined($expected))){
+        usage "cannot specify expected value or thresholds when specifying more than one statistic";
+    }
 }
-#$user       = validate_user($user);
-#$password   = validate_password($password) if $password;
+$password   = validate_password($password) if $password;
 validate_int($precision, 1, 20, "precision");
 validate_thresholds();
 
@@ -106,6 +127,7 @@ if($verbose > 2){
 $msg = "";
 my $msgperf = "";
 my $stat_value;
+
 if(@stats){
     foreach(@stats){
         unless(defined($$info_hash{$_})){
@@ -114,6 +136,7 @@ if(@stats){
         $msg .= "$_=$$info_hash{$_} ";
         vlog3 "$_=$$info_hash{$_}";
         if(isFloat($$info_hash{$_})){
+            next if $_ =~ /port/;
             $msgperf .= "$_=$$info_hash{$_} ";
         }
     }
@@ -122,6 +145,7 @@ if(@stats){
         $msg .= "$_=$$info_hash{$_} ";
         vlog3 "$_=$$info_hash{$_}";
         if(isFloat($$info_hash{$_})){
+            next if $_ =~ /port/;
             $msgperf .= "$_=$$info_hash{$_} ";
         }
     }
@@ -145,6 +169,17 @@ if(scalar @stats == 1){
             quit "UNKNOWN", "non-float value returned for stat '$stats[0]', got '$$info_hash{$stats[0]}', cannot evaluate";
         }
     }
+} elsif($check_replication_slave){
+    $$info_hash{"role"} eq "slave" or quit "CRITICAL", "redis server is not configured as a slave";
+    quit "CRITICAL", "no master host configured" unless($$info_hash{"master_host"});
+    quit "CRITICAL", "no master port configured" unless($$info_hash{"master_port"});
+    quit "CRITICAL", "master link is down" unless($$info_hash{"master_link_status"} eq "up");
+    isInt($$info_hash{"master_sync_in_progress"}) or quit "UNKNOWN", "non-integer returned for master_sync_in_progress ('$$info_hash{master_sync_in_progress})' from redis server '$hostport'";
+    $msg  = "role:$$info_hash{role}, master link $$info_hash{master_link_status}, ";
+    $msg .= "last replication I/O $$info_hash{master_last_io_seconds_ago} secs ago, ";
+    $msg .= "master sync in progress" if $$info_hash{"master_sync_in_progress"} != 0;
+    $msg .= "master $$info_hash{master_host}:$$info_hash{master_port}";
+    check_thresholds($$info_hash{"master_last_io_seconds_ago"});
 }
 
 $msg .= ", queried server in $time_taken secs | ";
