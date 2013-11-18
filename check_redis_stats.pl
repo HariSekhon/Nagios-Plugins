@@ -73,10 +73,6 @@ if(scalar @stats > 1 and (defined($warning) or defined($critical) or defined($ex
 #$user       = validate_user($user);
 #$password   = validate_password($password) if $password;
 validate_int($precision, 1, 20, "precision");
-unless($precision =~ /^(\d+)$/){
-    code_error "precision is not a digit and has already passed validate_int()";
-}
-$precision = $1;
 validate_thresholds();
 
 vlog2;
