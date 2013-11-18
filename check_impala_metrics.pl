@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to fetch metrics from a given Impalad/StateStore debug UI";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -44,6 +44,7 @@ get_options();
 my $metric_regex = '[A-Za-z][\w\.-]+';
 
 $host       = validate_host($host);
+$host       = validate_resolvable($host);
 $port       = validate_port($port);
 my %stats;
 my @stats;
@@ -116,8 +117,14 @@ sub check_stats_parsed(){
 
 
 sub parse_stats(){
-    isJson($content) or quit "CRITICAL", "invalid json returned by '$host:$port'";
-    my $json = decode_json $content;
+    #isJson($content) or quit "CRITICAL", "invalid json returned by '$host:$port'";
+    my $json;
+    try{
+        $json = decode_json $content;
+    };
+    catch{
+        quit "CRITICAL", "invalid json returned by '$host:$port'";
+    };
     if($debug){
         use Data::Dumper;
         print Dumper($json);
