@@ -78,6 +78,7 @@ get_options();
 defined($host)  or usage "Namenode host not specified";
 $host = isHost($host) || usage "Namenode host invalid, must be hostname/FQDN or IP address";
 vlog_options "host", "'$host'";
+$host = validate_resolvable($host);
 $port = validate_port($port);
 if($progname eq "check_hadoop_hdfs_space.pl"){
     vlog2 "checking HDFS % space used";
@@ -137,7 +138,7 @@ if($hdfs_space or $balance or $heap){
     validate_thresholds(1, 1);
 }
 
-$url = "http://$host:$port/$namenode_urn";
+$url  = "http://$host:$port/$namenode_urn";
 my $url_live_nodes = "http://$host:$port/$namenode_urn_live_nodes";
 my $url_dead_nodes = "http://$host:$port/$namenode_urn_dead_nodes";
 
@@ -145,7 +146,6 @@ vlog2;
 set_timeout();
 #$ua->timeout($timeout);
 
-validate_resolvable($host);
 my $content = curl $url;
 
 my $regex_td = '\s*(?:<\/a>\s*)?<td\s+id="\w+">\s*:\s*<td\s+id="\w+">\s*';
