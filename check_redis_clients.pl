@@ -16,7 +16,7 @@ $DESCRIPTION = "Nagios Plugin to check a Redis server's client list
 3. Checks the the number of connected clients against warning/critical thresholds (optional)";
 
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -25,43 +25,29 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils qw/:DEFAULT :regex/;
+use HariSekhon::Redis;
 use Redis;
 use Time::HiRes 'time';
 
-my $default_port = 6379;
-$port            = $default_port;
-
 my $expected;
 
-my $default_precision = 5;
-my $precision = $default_precision;
-
 %options = (
-    "H|host=s"         => [ \$host,         "Redis Host to connect to" ],
-    "P|port=s"         => [ \$port,         "Redis Port to connect to (default: $default_port)" ],
-    #"u|user=s"         => [ \$user,         "User to connect with" ],
-    #"p|password=s"     => [ \$password,     "Password to connect with" ],
+    %redis_options,
     "e|expected=s"     => [ \$expected,     "Allowed clients, raises critical if unauthorized clients are detected. Optional, regex" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold ra:nge (inclusive). Optional" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold ra:nge (inclusive). Optional" ],
-    "precision=i"      => [ \$precision,    "Number of decimal places for timings (default: $default_precision)" ],
 );
 
-@usage_order = qw/host port stats user password expected warning critical precision/;
+@usage_order = qw/host port password expected warning critical precision/;
 get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
-#$user       = validate_user($user);
-#$password   = validate_password($password) if $password;
+$password   = validate_password($password) if $password;
 if(defined($expected)){
     $expected = validate_regex($expected, "expected");
 }
 validate_int($precision, 1, 20, "precision");
-unless($precision =~ /^(\d+)$/){
-    code_error "precision is not a digit and has already passed validate_int()";
-}
-$precision = $1;
 validate_thresholds();
 
 vlog2;
@@ -69,16 +55,7 @@ set_timeout();
 
 $status = "OK";
 
-my $hostport = $host . ( $verbose ? ":$port" : "" );
-$host  = validate_resolvable($host);
-vlog2 "connecting to redis server '$host:$port'";
-my $redis;
-try {
-    $redis = Redis->new(server => "$host:$port");
-};
-catch_quit "failed to connect to redis server $hostport";
-vlog2 "API ping";
-$redis->ping or quit "CRITICAL", "API ping failed, not connected to server?";
+my $redis = connect_redis(host => $host, port => $port, password => $password) || quit "CRITICAL", "failed to connect to redis server '$hostport'";
 
 my $clients;
 my $start_time = time;
