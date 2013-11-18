@@ -125,7 +125,7 @@ sub parse_stats(){
     };
     catch{
         quit "CRITICAL", "invalid json returned by '$host:$port'";
-    }
+    };
     if($debug){
         use Data::Dumper;
         print Dumper($json);
