@@ -11,8 +11,9 @@
 
 our $DESCRIPTION = "Nagios Plugin to check a Redis server's stats
 
-1. Fetches one or more stats, if none specified fetches all stats from Redis server
-2. If specifying a single stat, checks the result matches expected value or warning/critical thresholds if specified";
+1. Fetches one or more stats from specified Redis server. Defaults to fetching all stats
+2. If specifying a single stat, checks the result matches expected value or warning/critical thresholds if specified
+3. Outputs perfdata for all float value stats for graphing";
 
 $VERSION = "0.1.1";
 
