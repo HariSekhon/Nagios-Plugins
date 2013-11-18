@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check a Redis server's client list
 
-1. Returns count or (in verbose mode) list of all connected clients
+1. Returns counts of all connected clients, and in verbose mode unique clients address list
 2. Checks all connected client addresses match expected address regex (optional)
 3. Checks the the number of connected clients against warning/critical thresholds (optional)";
 
