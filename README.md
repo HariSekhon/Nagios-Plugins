@@ -151,7 +151,7 @@ yum install MySQL-python
 
 ### Updating ###
 
-Run ```make update``` which will do a git submodule update as well as a git pull. The git submodule update is necessary to pick up corresponding library updates.
+Run ```make update```. This will git pull and then git submodule update which is necessary to pick up corresponding library updates in the lib submodule
 
 ### Usage --help ###
 
