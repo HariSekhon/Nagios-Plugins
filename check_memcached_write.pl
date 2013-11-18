@@ -1,8 +1,8 @@
 #!/usr/bin/perl -T
 # nagios: -epn
 #
-#   Author: Hari Sekhon
-#   Date: 2011-05-28 22:23:05 +0000 (Sat, 28 May 2011)
+#  Author: Hari Sekhon
+#  Date: 2011-05-28 22:23:05 +0000 (Sat, 28 May 2011)
 #
 #  http://github.com/harisekhon
 #
@@ -43,7 +43,7 @@ my $precision = $default_precision;
 
 %options = (
     "H|host=s"      => [ \$host,        "Host to connect to" ],
-    "P|port=s"      => [ \$port,        "Port to connect to (defaults to $default_port)" ],
+    "P|port=s"      => [ \$port,        "Port to connect to (default: $default_port)" ],
     "w|warning=s"   => [ \$warning,     "Warning  threshold in seconds for each read/write operation (use float for milliseconds). Cannot be more than a third of the total plugin --timeout" ],
     "c|critical=s"  => [ \$critical,    "Critical threshold in seconds for each read/write operation (use float for milliseconds). Cannot be more than a third of the total plugin --timeout" ],
     "precision=i"   => [ \$precision,   "Number of decimal places for timings (default: $default_precision)" ],

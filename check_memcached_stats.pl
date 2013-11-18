@@ -24,12 +24,13 @@ use HariSekhonUtils;
 
 my $default_port = 11211;
 $port = $default_port;
+
 $timeout_min = 1;
 $timeout_max = 60;
 
 %options = (
     "H|host=s"           => [ \$host,       "Host to connect to" ],
-    "P|port=i"           => [ \$port,       "Port to connect to (defaults to $default_port)" ],
+    "P|port=i"           => [ \$port,       "Port to connect to (default: $default_port)" ],
     "w|warning=i"        => [ \$warning,    "Warning threshold for current connections" ],
     "c|critical=i"       => [ \$critical,   "Critical threshold for current connections" ],
 );
