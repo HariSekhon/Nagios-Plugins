@@ -42,8 +42,8 @@ my $precision = $default_precision;
     #"u|user=s"         => [ \$user,         "User to connect with" ],
     #"p|password=s"     => [ \$password,     "Password to connect with" ],
     "e|expected=s"     => [ \$expected,     "Allowed clients, raises critical if unauthorized clients are detected. Optional, regex" ],
-    "w|warning=s"      => [ \$warning,      "Warning  threshold ra:nge (inclusive). Optional, only valid when a single stat is given" ],
-    "c|critical=s"     => [ \$critical,     "Critical threshold ra:nge (inclusive). Optional, only valid when a single stat is given" ],
+    "w|warning=s"      => [ \$warning,      "Warning  threshold ra:nge (inclusive). Optional" ],
+    "c|critical=s"     => [ \$critical,     "Critical threshold ra:nge (inclusive). Optional" ],
     "precision=i"      => [ \$precision,    "Number of decimal places for timings (default: $default_precision)" ],
 );
 
