@@ -102,7 +102,8 @@ def test_raid(verbosity):
         for line in detailed_output:
             if "State :" in line:
                 state = line.split(":")[-1][1:-1]
-        re_clean = re.compile('^clean(, no-errors)?$')
+                state = state.rstrip()
+        re_clean = re.compile('^clean|active(,.*)?$')
         if not re_clean.match(state) and state != "active":
             arrays_not_ok += 1
             raidlevel = detailed_output[3].split()[-1]
