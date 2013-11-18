@@ -44,6 +44,7 @@ $critical = $default_critical;
 get_options();
 
 $host   = validate_host($host);
+$host   = validate_resolvable($host);
 $port   = validate_port($port);
 my $url = "http://$host:$port/status/cluster";
 vlog_options "url", $url;
@@ -57,7 +58,6 @@ $ua->agent("Hari Sekhon $progname $main::VERSION");
 $ua->show_progress(1) if $debug;
 
 vlog2 "querying Stargate";
-validate_resolvable($host);
 my $res = $ua->get($url);
 vlog2 "got response";
 my $status_line  = $res->status_line;
