@@ -29,7 +29,7 @@ HBase Master /
                                - 'RegionServerDynamicStatistics:'
 ";
 
-$VERSION = "0.3.2";
+$VERSION = "0.3.3";
 
 use strict;
 use warnings;
@@ -57,6 +57,7 @@ my $all_metrics;
 get_options();
 
 $host       = validate_host($host);
+$host       = validate_resolvable($host);
 $port       = validate_port($port);
 my $url     = "http://$host:$port/metrics?format=json";
 my %stats;
@@ -82,7 +83,6 @@ $status = "OK";
 # ============================================================================ #
 # lifted from my check_hadoop_jobtracker.pl plugin, modified to support $all_metrics
 vlog2 "querying $url";
-validate_resolvable($host);
 my $content = get $url;
 my ($result, $err) = ($?, $!);
 vlog3 "returned HTML:\n\n" . ( $content ? $content : "<blank>" ) . "\n";
@@ -118,8 +118,14 @@ sub check_stats_parsed(){
 }
 
 sub parse_stats(){
-    isJson($content) or quit "CRITICAL", "invalid json returned by '$host:$port'";
-    my $json = decode_json $content;
+    #isJson($content) or quit "CRITICAL", "invalid json returned by '$host:$port'";
+    my $json;
+    try{
+        $json = decode_json $content;
+    };
+    catch{
+        quit "CRITICAL", "invalid json returned by '$host:$port'";
+    }
     if($debug){
         use Data::Dumper;
         print Dumper($json);
