@@ -51,6 +51,7 @@ my $tables;
 get_options();
 
 $host  = validate_host($host);
+$host  = validate_resolvable($host);
 $port  = validate_port($port);
 my @tables = ( "-ROOT-", ".META.");
 push(@tables, split(/\s*,\s*/, $tables)) if defined($tables);
@@ -82,7 +83,6 @@ $ua->timeout($ua_timeout);
 $ua->show_progress(1) if $debug;
 
 vlog2 "querying Stargate";
-validate_resolvable($host);
 my $res = $ua->get($url);
 vlog2 "got response";
 my $status_line  = $res->status_line;
