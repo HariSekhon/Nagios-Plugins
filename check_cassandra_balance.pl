@@ -55,9 +55,6 @@ my $options = nodetool_options($host, $port, $user, $password);
 my $cmd     = "${nodetool} ${options}status";
 
 vlog2 "fetching cluster nodes information";
-if(defined($host)){
-    validate_resolvable($host);
-}
 my @output = cmd($cmd);
 #               name                  %    rack
 my @max_node = ("uninitialized_node", 0,   "uninitialized_rack");

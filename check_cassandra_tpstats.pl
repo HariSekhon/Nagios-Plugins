@@ -58,9 +58,6 @@ my $options = nodetool_options($host, $port, $user, $password);
 my $cmd     = "${nodetool} ${options}tpstats";
 
 vlog2 "fetching threadpool stats";
-if(defined($host)){
-    validate_resolvable($host);
-}
 my @output = cmd($cmd);
 
 if($output[0] =~ $nodetool_errors_regex){

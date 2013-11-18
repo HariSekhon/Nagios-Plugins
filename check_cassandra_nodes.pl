@@ -57,9 +57,6 @@ my $options = nodetool_options($host, $port, $user, $password);
 my $cmd     = "${nodetool} ${options}status";
 
 vlog2 "fetching cluster nodes information";
-if(defined($host)){
-    validate_resolvable($host);
-}
 my @output = cmd($cmd);
 
 my $up_nodes      = 0;

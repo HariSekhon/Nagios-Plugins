@@ -53,9 +53,6 @@ my $options = nodetool_options($host, $port, $user, $password);
 my $cmd     = "${nodetool} ${options}info";
 
 vlog2 "fetching cluster node heap information";
-if(defined($host)){
-    validate_resolvable($host);
-}
 my @output = cmd($cmd);
 
 my %heap;
