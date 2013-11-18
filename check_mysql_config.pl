@@ -15,7 +15,7 @@ Primarily written to check that DBAs hadn't changed any running DB from Puppet d
 
 A friend and ex-colleague of mine Tom Liakos @ Specificmedia pointed out a long time after I wrote this that Percona independently developed a similar tool called pt-config-diff (part of the Percona toolkit) around the same time.";
 
-$VERSION = "0.9.21";
+$VERSION = "1.0.0";
 
 use strict;
 use warnings;
@@ -95,14 +95,21 @@ my %mysql_modes = (
     "H|host=s"                  => [ \$host,            "MySQL host to check (default: $default_host). Set to blank to connect via socket" ],
     "P|port=i"                  => [ \$port,            "MySQL port to connect to (default: $default_port)" ],
     "c|config|config-file=s"    => [ \$config_file,     "Path to MySQL my.cnf config file (default: $default_config_file)" ],
-    "u|mysql-user=s"            => [ \$user,            "MySQL username to use to connect to local MySQL connection (default: $default_user)" ],
-    "p|mysql-password=s"        => [ \$password,        "MySQL Password to use to connect to local MySQL connection (default: empty)" ],
+    "u|mysql-user=s"            => [ \$user,            "MySQL username to use to connect to local MySQL connection (default: $default_user). Alternatively use \$MYSQL_USER environment variable" ],
+    "p|mysql-password=s"        => [ \$password,        "MySQL Password to use to connect to local MySQL connection (default: empty). Use \$MYSQL_PASSWORD environment variable instead to prevent this appearing in the process list" ],
     "d|mysql-instance=s"        => [ \$mysql_instance,  "MySQL [instance] in my.cnf to test (default: $default_mysql_instance)" ],
     "s|mysql-socket=s"          => [ \$mysql_socket,    "MySQL socket file through which to connect (default: $default_mysql_socket)" ],
     "skip-name-resolve"         => [ \$ensure_skip_name_resolve, "Ensure that skip-name-resolve is specified in the config file" ],
     "warn-on-missing"           => [ \$warn_on_missing_variables, "Return warning when there my.cnf variables missing from running MySQL config. Default is just to list them but return OK unless there is an actual mismatch. Useful if you want to make sure they're all accounted for as sometimes they only appear in config file or the live name is different to the config file name" ],
 );
 @usage_order = qw/config-file host port mysql-user mysql-password mysql-instance skip-name-resolve warn-on-missing/;
+
+if(defined($ENV{"MYSQL_USER"})){
+    $user = $ENV{"MYSQL_USER"};
+}
+if(defined($ENV{"MYSQL_PASSWORD"})){
+    $password = $ENV{"MYSQL_PASSWORD"};
+}
 
 get_options();
 
