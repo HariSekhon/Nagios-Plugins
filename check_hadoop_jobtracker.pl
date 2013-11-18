@@ -78,6 +78,7 @@ if($nodes and $heap){
 }
 $host = isHost($host) || usage "JobTracker host invalid, must be hostname/FQDN or IP address";
 vlog_options "host", "'$host'";
+$host = validate_resolvable($host);
 $port = validate_port($port);
 
 my $url;
@@ -111,7 +112,6 @@ set_timeout();
 #$ua->timeout($timeout);
 
 vlog2 "querying $url";
-validate_resolvable($host);
 my $content = get $url;
 my ($result, $err) = ($?, $!);
 vlog3 "returned HTML:\n\n" . ( $content ? $content : "<blank>" ) . "\n";
