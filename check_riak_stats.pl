@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check Riak's /stats metrics";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -41,10 +41,11 @@ my $expected_string;
     "c|critical=s"        => [ \$critical,          "Critical threshold or ran:ge (inclusive). Only applied when a single metric is given and that metric is a float" ],
 );
 
-@usage_order = qw/host port metrics all-metrics warning critical/;
+@usage_order = qw/host port metrics all-metrics warning critical expected-string/;
 get_options();
 
 $host       = validate_host($host);
+$host       = validate_resolvable($host);
 $port       = validate_port($port);
 my $url     = "http://$host:$port/stats";
 my %stats;
@@ -69,7 +70,6 @@ $status = "OK";
 # ============================================================================ #
 # lifted from my check_hadoop_jobtracker.pl plugin, modified to support $all_metrics
 vlog2 "querying $url";
-validate_resolvable($host);
 my $content = get $url;
 my ($result, $err) = ($?, $!);
 vlog3 "returned HTML:\n\n" . ( $content ? $content : "<blank>" ) . "\n";
@@ -127,8 +127,13 @@ sub riakStatToString($){
 
 
 sub parse_stats(){
-    isJson($content) or quit "CRITICAL", "invalid json returned by '$host:$port'";
-    my $json = decode_json $content;
+    my $json;
+    try{
+        $json = decode_json $content;
+    };
+    catch{
+        quit "CRITICAL", "invalid json returned by '$host:$port'";
+    };
     if($debug){
         use Data::Dumper;
         print Dumper($json);
