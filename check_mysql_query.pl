@@ -9,13 +9,15 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check MySQL arbitrary queries against regex matches or numerical ranges, with perfdata support";
+$DESCRIPTION = "Nagios Plugin to check MySQL arbitrary queries against regex matches or numerical ranges, with perfdata support
+
+It looks like a similar plugin has now been added to the standard Nagios Plugins collection, although this one still has more features";
 
 # TODO: add retry switch if valid below threshold
 
 # DO NOT ADD a semi-colon to the end of your query in Nagios, although the plugin can handle this fine and it works on the command line, in Nagios the command will end up being prematurely terminated and result in a null critical error that is hard to debug and that this plugin cannot catch since it's raised by the shell before plugin is executed
 
-$VERSION = "0.9.12";
+$VERSION = "1.0.0";
 
 use strict;
 use warnings;
@@ -53,9 +55,9 @@ my $units = "";
 %options = (
     "H|host=s"      => [ \$host,     "MySQL Host" ],
     "P|port=s"      => [ \$port,     "MySQL Port" ],
-    "u|user=s"      => [ \$user,     "MySQL user" ],
-    "p|password=s"  => [ \$password, "MySQL password" ],
     "d|database=s"  => [ \$database, "MySQL database" ],
+    "u|user=s"      => [ \$user,     "MySQL user (\$MYSQL_USER environment variable)" ],
+    "p|password=s"  => [ \$password, "MySQL password (use \$MYSQL_PASSWORD environment variable to prevent this appearing in the process list)" ],
     "q|query=s"     => [ \$query,    "MySQL query to execute" ],
     "f|field=s"     => [ \$field,    "Field number/name to check the results of (defaults to '1')" ],
     "e|epoch"       => [ \$epoch,    "Subtract result from current time in epoch format from result (useful for timestamp based comparisons)" ],
@@ -71,7 +73,14 @@ my $units = "";
     "s|short"       => [ \$short,    "Shorten output, do not output message just result" ],
     "no-querytime"  => [ \$no_querytime, "Do not output the mysql query time" ],
 );
-@usage_order = qw/host port user password database query field epoch message message-prepend output regex warning critical graph label units short no-querytime/;
+@usage_order = qw/host port database user password query field epoch message message-prepend output regex warning critical graph label units short no-querytime/;
+
+if(defined($ENV{"MYSQL_USER"})){
+    $user = $ENV{"MYSQL_USER"};
+}
+if(defined($ENV{"MYSQL_PASSWORD"})){
+    $password = $ENV{"MYSQL_PASSWORD"};
+}
 
 #add_options(\%hostoptions);
 get_options();
