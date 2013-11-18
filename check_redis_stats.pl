@@ -15,7 +15,7 @@ our $DESCRIPTION = "Nagios Plugin to check a Redis server's stats
 2. If specifying a single stat, checks the result matches expected value or warning/critical thresholds if specified
 3. Outputs perfdata for all float value stats for graphing";
 
-$VERSION = "0.1.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -24,29 +24,20 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use HariSekhon::Redis;
 use Redis;
 use Time::HiRes 'time';
-
-my $default_port = 6379;
-$port            = $default_port;
 
 my $statlist;
 
 my $expected;
 
-my $default_precision = 5;
-my $precision = $default_precision;
-
 %options = (
-    "H|host=s"         => [ \$host,         "Redis Host to connect to" ],
-    "P|port=s"         => [ \$port,         "Redis Port to connect to (default: $default_port)" ],
+    %redis_options,
     "s|stats=s"        => [ \$statlist,     "Stats to retrieve, comma separated (default: all)" ],
-    #"u|user=s"         => [ \$user,         "User to connect with" ],
-    #"p|password=s"     => [ \$password,     "Password to connect with" ],
     "e|expected=s"     => [ \$expected,     "Expected value for stat. Optional, only valid when a single stat is given" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold ra:nge (inclusive). Optional, only valid when a single stat is given" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold ra:nge (inclusive). Optional, only valid when a single stat is given" ],
-    "precision=i"      => [ \$precision,    "Number of decimal places for timings (default: $default_precision)" ],
 );
 
 if($progname eq "check_redis_version.pl"){
@@ -58,7 +49,7 @@ if($progname eq "check_redis_version.pl"){
     delete $options{"c|critical=s"};
 }
 
-@usage_order = qw/host port stats user password expected warning critical precision/;
+@usage_order = qw/host port stats expected password warning critical precision/;
 get_options();
 
 $host       = validate_host($host);
@@ -93,16 +84,7 @@ set_timeout();
 
 $status = "OK";
 
-my $hostport = $host . ( $verbose ? ":$port" : "" );
-$host  = validate_resolvable($host);
-vlog2 "connecting to redis server '$host:$port'";
-my $redis;
-try {
-    $redis = Redis->new(server => "$host:$port");
-};
-catch_quit "failed to connect to redis server $hostport";
-vlog2 "API ping";
-$redis->ping or quit "CRITICAL", "API ping failed, not connected to server?";
+my $redis = connect_redis(host => $host, port => $port, password => $password) || quit "CRITICAL", "failed to connect to redis server '$hostport'";;
 
 my $start_time = time;
 my $info_hash;
