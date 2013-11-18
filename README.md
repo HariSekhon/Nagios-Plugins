@@ -149,6 +149,10 @@ The ```check_logserver.py``` "Syslog to MySQL" plugin will need the Python MySQL
 yum install MySQL-python
 ```
 
+### Updateing ###
+
+Run ```make update``` which will do a git submodule update as well as a git pull. The git submodule update is necessary to pick up corresponding library updates.
+
 ### Usage --help ###
 
 All plugins come with --help which lists all options as well as giving a program description, often including a detailed account of what is checked in the code.
