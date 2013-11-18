@@ -16,7 +16,7 @@ $DESCRIPTION = "Nagios Plugin to check a Redis server's client list
 3. Checks the the number of connected clients against warning/critical thresholds (optional)";
 
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -70,7 +70,9 @@ my @clients = split("\n", $clients);
 @clients or quit "UNKNOWN", "no clients returned, not even this code, must be an error, investigation required";
 
 vlog2 "closing connection";
-$redis->quit;
+try {
+    $redis->quit;
+};
 
 if($verbose > 2){
     print "\n";
