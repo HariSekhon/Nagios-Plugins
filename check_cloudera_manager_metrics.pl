@@ -20,7 +20,7 @@ You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) 
 
 This is still using v1 of the API for compatability purposes";
 
-$VERSION = "0.3.3";
+$VERSION = "0.4.1";
 
 use strict;
 use warnings;
@@ -62,8 +62,8 @@ my @metrics_not_found;
 %options = (
     "H|host=s"         => [ \$host,         "Cloudera Manager host" ],
     "P|port=s"         => [ \$port,         "Cloudera Manager port (defaults to $default_port)" ],
-    "u|user=s"         => [ \$user,         "Cloudera Manager user" ],
-    "p|password=s"     => [ \$password,     "Cloudera Manager password" ],
+    "u|user=s"         => [ \$user,         "Cloudera Manager user (\$CM_USER environment variable)" ],
+    "p|password=s"     => [ \$password,     "Cloudera Manager password (use \$CM_PASSWORD environment variable to prevent this appearing in the process list)" ],
     "T|tls"            => [ \$tls,          "Use TLS connection to Cloudera Manager (automatically updates port to 7183 if still set to 7180 to save one 302 redirect round trip)" ],
     "ssl-CA-path=s"    => [ \$ssl_ca_path,  "Path to CA certificate directory for validating SSL certificate (automatically enables --tls)" ],
     "tls-noverify"     => [ \$tls_noverify, "Do not verify SSL certificate from Cloudera Manager (automatically enables --tls)" ],
@@ -81,6 +81,14 @@ my @metrics_not_found;
 );
 
 @usage_order = qw/host port user password tls ssl-CA-path tls-noverify metrics all-metrics cluster service hostId activityId nameservice roleId list-roleIds warning critical/;
+
+if(defined($ENV{"CM_USER"})){
+    $user = $ENV{"CM_USER"};
+}
+if(defined($ENV{"CM_PASSWORD"})){
+    $password = $ENV{"CM_PASSWORD"};
+}
+
 get_options();
 
 $host       = validate_host($host);
@@ -194,12 +202,12 @@ if($tls){
         $port = 7183;
     }
 }
+$host = validate_resolvable($host);
 my $url_prefix = "$protocol://$host:$port";
 $url = "$url_prefix$url";
 vlog2 "querying $url";
 my $req = HTTP::Request->new('GET',$url);
 $req->authorization_basic($user, $password);
-validate_resolvable($host);
 my $response = $ua->request($req);
 my $content  = $response->content;
 chomp $content;
@@ -223,8 +231,18 @@ unless($content){
 vlog2 "parsing output from Cloudera Manager\n";
 
 # give a more user friendly message than the decode_json's die 'malformed JSON string, neither array, object, number, string or atom, at character offset ...'
-isJson($content) or quit "CRITICAL", "invalid json returned by Cloudera Manager at '$url_prefix', did you try to connect to the SSL port without --tls?";
-my $json = decode_json $content;
+#isJson() used recursive regex which broke older clients
+# is_valid_json give ugly errors
+#try{
+#    is_valid_json($content) or quit "CRITICAL", "invalid json returned by Cloudera Manager at '$url_prefix', did you try to connect to the SSL port without --tls?";
+#};
+my $json;
+try{
+    $json = decode_json $content;
+};
+catch{
+    quit "invalid json returned by Cloudera Manager at '$url_prefix', did you try to connect to the SSL port without --tls?";
+};
 
 if($list_roles){
     my @role_list;
