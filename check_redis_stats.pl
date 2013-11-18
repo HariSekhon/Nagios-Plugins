@@ -9,7 +9,10 @@
 #  License: see accompanying LICENSE file
 #  
 
-our $DESCRIPTION = "Nagios Plugin to check a Redis server's stats";
+our $DESCRIPTION = "Nagios Plugin to check a Redis server's stats
+
+1. Fetches one or more stats, if none specified fetches all stats from Redis server
+2. If specifying a single stat, checks the result matches expected value or warning/critical thresholds if specified";
 
 $VERSION = "0.1.1";
 
@@ -36,7 +39,7 @@ my $precision = $default_precision;
 %options = (
     "H|host=s"         => [ \$host,         "Redis Host to connect to" ],
     "P|port=s"         => [ \$port,         "Redis Port to connect to (default: $default_port)" ],
-    "s|stats=s"        => [ \$statlist,     "Stats to retrieve, comma separated (default: all). If specifying one stat then optionally check result against --warning/--critical thresholds or --expected value" ],
+    "s|stats=s"        => [ \$statlist,     "Stats to retrieve, comma separated (default: all)" ],
     #"u|user=s"         => [ \$user,         "User to connect with" ],
     #"p|password=s"     => [ \$password,     "Password to connect with" ],
     "e|expected=s"     => [ \$expected,     "Expected value for stat. Optional, only valid when a single stat is given" ],
