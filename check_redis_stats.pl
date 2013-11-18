@@ -15,7 +15,7 @@ our $DESCRIPTION = "Nagios Plugin to check a Redis server's stats
 2. If specifying a single stat, checks the result matches expected value or warning/critical thresholds if specified
 3. Outputs perfdata for all float value stats for graphing";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -93,7 +93,9 @@ $info_hash or quit "UNKNOWN", "failed to retrieve stats (empty info hash returne
 vlog2 "collected stats in $time_taken secs";
 
 vlog2 "closing connection";
-$redis->quit;
+try {
+    $redis->quit;
+};
 
 if($verbose > 2){
     print "\n";
