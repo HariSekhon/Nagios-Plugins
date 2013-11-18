@@ -49,7 +49,7 @@ if($progname eq "check_redis_version.pl"){
     delete $options{"c|critical=s"};
 }
 
-@usage_order = qw/host port stats expected password warning critical precision/;
+@usage_order = qw/host port password stats expected warning critical precision/;
 get_options();
 
 $host       = validate_host($host);
