@@ -53,6 +53,7 @@ my $tables;
 get_options();
 
 $host       = validate_host($host);
+$host       = validate_resolvable($host);
 $port       = validate_port($port);
 my @tables = qw/-ROOT- .META./;
 push(@tables, split(/\s*,\s*/, $tables)) if defined($tables);
@@ -88,7 +89,6 @@ my @tables_not_enabled;
 my @tables_not_found;
 my @tables_not_available;
 
-validate_resolvable($host);
 foreach $table (@tables){
     $url = "http://$host:$port/table.jsp?name=$table";
     vlog2 "querying HBase Master for table $table";
