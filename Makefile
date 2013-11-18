@@ -73,3 +73,4 @@ clean:
 update:
 	git pull
 	git submodule update
+	make install
