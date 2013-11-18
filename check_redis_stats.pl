@@ -11,7 +11,7 @@
 
 our $DESCRIPTION = "Nagios Plugin to check a Redis server's stats";
 
-$VERSION = "0.1";
+$VERSION = "0.1.1";
 
 use strict;
 use warnings;
@@ -101,14 +101,20 @@ vlog2 "API ping";
 $redis->ping or quit "CRITICAL", "API ping failed, not connected to server?";
 
 my $start_time = time;
-my $info_hash  = $redis->info || quit "CRITICAL", "failed to retrieve stats from redis server '$hostport'";;
+my $info_hash;
+try {
+    $info_hash  = $redis->info
+};
+catch_quit "failed to retrieve stats from redis server '$hostport'";
 my $time_taken = sprintf("%0.${precision}f", time - $start_time);
+$info_hash or quit "UNKNOWN", "failed to retrieve stats (empty info hash returned) from redis server '$hostport'";
 vlog2 "collected stats in $time_taken secs";
 
 vlog2 "closing connection";
 $redis->quit;
 
 if($verbose > 2){
+    print "\n";
     hr;
     print "#" . " " x 35 . "Stats\n";
     hr;
