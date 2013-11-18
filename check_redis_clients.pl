@@ -16,7 +16,7 @@ $DESCRIPTION = "Nagios Plugin to check a Redis server's client list
 3. Checks all connected client addresses match expected addresses (optional)";
 
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -140,9 +140,12 @@ if(@authorized_clients){
 }
 
 plural $total_clients;
-$msg .= "$total_clients total client$plural, ";
-$msg .= "queried server in $time_taken secs | ";
-$msg .= "total_clients=$total_clients authorized_clients=" . scalar @authorized_clients . " unauthorized_clients=" . scalar @unauthorized_clients . " query_time=${time_taken}s";
+$msg .= "$total_clients total client$plural";
+check_thresholds($total_clients);
+$msg .= ", queried server in $time_taken secs | ";
+$msg .= "total_clients=$total_clients";
+msg_perf_thresholds();
+$msg .= " authorized_clients=" . scalar @authorized_clients . " unauthorized_clients=" . scalar @unauthorized_clients . " query_time=${time_taken}s";
 
 vlog2;
 quit $status, $msg;
