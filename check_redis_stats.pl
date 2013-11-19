@@ -129,6 +129,11 @@ my $msgperf = "";
 my $stat_value;
 
 if(@stats){
+    if($check_replication_slave){
+        unless(defined($$info_hash{"role"}) and $$info_hash{"role"} eq "slave"){
+            quit "CRITICAL", "redis server is not configured as a slave (role=$$info_hash{role})";
+        }
+    }
     foreach(@stats){
         unless(defined($$info_hash{$_})){
             quit "UNKNOWN", "no stat found: $_";
