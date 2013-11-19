@@ -185,6 +185,7 @@ if(scalar @stats == 1){
 $msg .= ", queried server in $time_taken secs | ";
 if($check_replication_slave){
     $msgperf = "master_last_io_seconds_ago=$$info_hash{master_last_io_seconds_ago}" . msg_perf_thresholds(1);
+    $msgperf .= " master_sync_in_progress=$$info_hash{master_sync_in_progress}";
 }
 $msg .= "$msgperf " if $msgperf;
 $msg .= "query_time=${time_taken}s";
