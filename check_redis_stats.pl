@@ -175,14 +175,17 @@ if(scalar @stats == 1){
     quit "CRITICAL", "no master port configured" unless($$info_hash{"master_port"});
     quit "CRITICAL", "master link is down" unless($$info_hash{"master_link_status"} eq "up");
     isInt($$info_hash{"master_sync_in_progress"}) or quit "UNKNOWN", "non-integer returned for master_sync_in_progress ('$$info_hash{master_sync_in_progress})' from redis server '$hostport'";
-    $msg  = "role:$$info_hash{role}, master link $$info_hash{master_link_status}, ";
-    $msg .= "last replication I/O $$info_hash{master_last_io_seconds_ago} secs ago, ";
-    $msg .= "master sync in progress" if $$info_hash{"master_sync_in_progress"} != 0;
-    $msg .= "master $$info_hash{master_host}:$$info_hash{master_port}";
+    $msg  = "$$info_hash{role} role, master link $$info_hash{master_link_status}, ";
+    $msg .= "last replication I/O $$info_hash{master_last_io_seconds_ago} secs ago";
     check_thresholds($$info_hash{"master_last_io_seconds_ago"});
+    $msg .= ", master sync in progress" if $$info_hash{"master_sync_in_progress"} != 0;
+    $msg .= ", master $$info_hash{master_host}:$$info_hash{master_port}";
 }
 
 $msg .= ", queried server in $time_taken secs | ";
+if($check_replication_slave){
+    $msgperf = "master_last_io_seconds_ago=$$info_hash{master_last_io_seconds_ago}" . msg_perf_thresholds(1);
+}
 $msg .= "$msgperf " if $msgperf;
 $msg .= "query_time=${time_taken}s";
 
