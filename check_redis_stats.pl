@@ -9,15 +9,17 @@
 #  License: see accompanying LICENSE file
 #
 
+our $developed_on = "Developed on Redis 2.4.10";
+
 our $DESCRIPTION = "Nagios Plugin to check a Redis server's stats
 
 1. Fetches one or more stats from specified Redis server. Defaults to fetching all stats
 2. If specifying a single stat, checks the result matches expected value or warning/critical thresholds if specified
 3. Outputs perfdata for all float value stats for graphing
 
-Developed on Redis 2.4.10";
+$developed_on";
 
-$VERSION = "0.6";
+$VERSION = "0.7";
 
 use strict;
 use warnings;
@@ -58,7 +60,8 @@ if($progname eq "check_redis_version.pl"){
                  . "1. server is in 'slave' role\n"
                  . "2. link to master is up\n"
                  . "3. replication last I/O is within warning/critical thresholds\n"
-                 . "4. checks if master sync is in progress (raises warning)\n";
+                 . "4. checks if master sync is in progress (raises warning)\n"
+                 . "\n" . $developed_on . "\n";
     $statlist = "role,master_host,master_port,master_link_status,master_last_io_seconds_ago,master_sync_in_progress";
     delete $options{"s|stats=s"};
     delete $options{"e|expected=s"};
@@ -102,7 +105,8 @@ set_timeout();
 
 $status = "OK";
 
-my $redis = connect_redis(host => $host, port => $port, password => $password) || quit "CRITICAL", "failed to connect to redis server '$hostport'";;
+# all the checks are done in connect_redis, will error out on failure
+my ($redis, $hostport) = connect_redis(host => $host, port => $port, password => $password);
 
 my $start_time = time;
 my $info_hash;
