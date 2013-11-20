@@ -57,7 +57,7 @@ if($progname eq "check_redis_version.pl"){
                  . "Checks:\n\n"
                  . "1. server is in 'slave' role\n"
                  . "2. link to master is up\n"
-                 . "3. replication last I/O is within warning/critical thresholds (optional)\n"
+                 . "3. replication last I/O is within warning/critical thresholds\n"
                  . "4. shows if master sync is in progress\n";
     $statlist = "role,master_host,master_port,master_link_status,master_last_io_seconds_ago,master_sync_in_progress";
     delete $options{"s|stats=s"};
