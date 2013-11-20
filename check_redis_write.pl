@@ -10,7 +10,7 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to check a Redis server
+our $DESCRIPTION = "Nagios Plugin to check a Redis server is up and read/writable via API
 
 Checks:
 
@@ -19,9 +19,12 @@ Checks:
 3. checks returned value is identical to the value generated and written
 4. deletes the key
 5. records the write/read/delete timings to a given precision for reporting and graphing
-6. compares each operation's time taken against the warning/critical thresholds if given";
+6. compares each operation's time taken against the warning/critical thresholds if given
 
-$VERSION = "0.1";
+Developed on Redis 2.4.10";
+
+
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -30,43 +33,64 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use HariSekhon::Redis;
 use Redis;
-use Time::HiRes 'time';
+use Time::HiRes qw/time sleep/;
 
-my $default_port = 6379;
-$port = $default_port;
+my $slave;
+my $slave_port = $REDIS_DEFAULT_PORT;
+my $slave_password;
 
-my $database;
-
-my $default_precision = 5;
-my $precision = $default_precision;
+my $default_slave_read_delay = 0;
+my $slave_read_delay = $default_slave_read_delay;
+my ($slave_read_delay_min, $slave_read_delay_max) = (0, 10);
 
 %options = (
-    "H|host=s"         => [ \$host,         "Redis Host to connect to" ],
-    "P|port=s"         => [ \$port,         "Redis Port to connect to (default: $default_port)" ],
-    "d|database=s"     => [ \$database,     "Database to select (optional, will default to the default database 0)" ],
-    #"u|user=s"         => [ \$user,         "User to connect with" ],
-    #"p|password=s"     => [ \$password,     "Password to connect with" ],
-    "w|warning=s"      => [ \$warning,      "Warning  threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
-    "c|critical=s"     => [ \$critical,     "Critical threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
-    "precision=i"      => [ \$precision,    "Number of decimal places for timings (default: $default_precision)" ],
+    %redis_options,
+    %redis_options_database,
+    "w|warning=s"        => [ \$warning,          "Warning  threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
+    "c|critical=s"       => [ \$critical,         "Critical threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
 );
 
-@usage_order = qw/host port database user password warning critical/;
+if($progname eq "check_redis_write_replication.pl"){
+    $DESCRIPTION =~ s/check a Redis server is up and read\/writable via API/check Redis replication via API write to master and read from slave/;
+    $DESCRIPTION =~ s/(dynamically generated value)/$1 to master/;
+    $DESCRIPTION =~ s/(reads same key back)/$1 from slave/;
+    $DESCRIPTION =~ s/(generated and written)/$1 to master/;
+    $DESCRIPTION =~ s/(deletes the key)/$1 on the master/;
+    %options = (
+        %options,
+        "S|slave=s"          => [ \$slave,            "Redis slave to read key back from to test replication (defaults to reading key back from master --host)" ],
+        "slave-port=s"       => [ \$slave_port,       "Redis slave port to connect to (default: $REDIS_DEFAULT_PORT)" ],
+        "slave-password=s"   => [ \$slave_password,   "Redis slave password. Defaults to using the same password as for the master if specified. If wanting to use password on master but not on slave, set this to a blank string" ],
+        "slave-read-delay=s" => [ \$slave_read_delay, "Wait this many secs before reading from slave to give the slave replica time to process the replication update (default: $default_slave_read_delay, min: $slave_read_delay_min, max: $slave_read_delay_max)" ],
+    );
+}
+@usage_order = qw/host port database password slave slave-port slave-password slave-read-delay warning critical precision/;
 get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
-#$user       = validate_user($user);
-#$password   = validate_password($password) if $password;
+$password   = validate_password($password) if defined($password);
+if(defined($slave)){
+    $slave         = validate_host($slave, "slave");
+    $slave_port    = validate_port($slave_port, "slave");
+    if(defined($slave_password)){
+        if($slave_password){
+            $slave_password = validate_password($slave_password, "slave");
+        }
+    } else {
+        $slave_password = $password;
+    }
+    if($slave_read_delay){
+        # If you have more than a 10 sec delay your Redis replication is probably quite problematic so not allowing user to set more than this
+        $slave_read_delay = validate_float($slave_read_delay, $slave_read_delay_min, $slave_read_delay_max, "slave-read-delay");
+    }
+}
 if(defined($database)){
     $database = validate_int($database, 0, 10000, "database");
 }
 validate_int($precision, 1, 20, "precision");
-unless($precision =~ /^(\d+)$/){
-    code_error "precision is not a digit and has already passed validate_int()";
-}
-$precision = $1;
 validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integer" => 0 } );
 vlog2;
 
@@ -80,33 +104,61 @@ set_timeout();
 
 $status = "OK";
 
-my $hostport = $host . ( $verbose ? ":$port" : "" );
-$host = validate_resolvable($host);
-vlog2 "connecting to redis server '$host:$port'";
-my $redis;
-try {
-    $redis = Redis->new(server => "$host:$port");
-};
-catch_quit "failed to connect to redis server $hostport";
-vlog2 "API ping";
-$redis->ping or quit "CRITICAL", "API ping failed, not connected to server?";
+# all the checks are done in connect_redis, will error out on failure
+my ($redis, $hostport) = connect_redis(host => $host, port => $port, password => $password);
+my ($redis_slave, $slavehostport);
+if(defined($slave)){
+    ($redis_slave, $slavehostport) = connect_redis(host => $slave, port => $slave_port, password => $slave_password);
+}
 
 if(defined($database)){
-    vlog2 "selecting database $database";
-    $redis->select($database);
+    vlog2 "selecting database $database on $hostport\n";
+    try {
+        $redis->select($database);
+    };
+    catch_quit "failed to change to database $database on $hostport";
+
+    if(defined($slave)){
+        vlog2 "selecting database $database on $slavehostport\n";
+        try {
+            $redis_slave->select($database);
+        };
+        catch_quit "failed to change to database $database on $slavehostport";
+    }
 }
 
 # TODO: Could consider setting hashes, lists, sets, pub-sub etc later...
 
-vlog2 "writing key";
+vlog2 "writing key to $hostport";
 my $start_time   = time;
-$redis->set($key => $value) || quit "CRITICAL", "failed to write key '$key' to redis server '$hostport'";
+# XXX: should set expiry on this to something like 1 day but API doesn't support setex or expiry
+try {
+    $redis->set($key => $value);
+};
+catch_quit "failed to write key '$key' to redis server $hostport";
 my $write_time   = time - $start_time;
 $write_time      = sprintf("%0.${precision}f", $write_time);
 
-vlog2 "reading key back";
+my $hostport_read;
+my $redis_read;
+if($slave){
+    if($slave_read_delay){
+        vlog2 "\nwaiting $slave_read_delay secs before reading from slave";
+        sleep $slave_read_delay;
+    }
+    $hostport_read = $slavehostport;
+    $redis_read    = $redis_slave;
+} else {
+    $hostport_read = $hostport;
+    $redis_read    = $redis;
+}
+vlog2 "\nreading key back from $hostport_read";
+my $returned_value;
 $start_time         = time;
-my $returned_value  = $redis->get($key) || quit "CRITICAL", "key '$key' not found during get operation from redis host '$hostport'";
+try {
+    $returned_value  = $redis_read->get($key) || quit "CRITICAL", "failed to get key '$key' from redis host $hostport_read";
+};
+catch_quit "failed to get key '$key' from redis host $hostport_read";
 my $read_time       = time - $start_time;
 $read_time          = sprintf("%0.${precision}f", $read_time);
 
@@ -114,28 +166,37 @@ $read_time          = sprintf("%0.${precision}f", $read_time);
 vlog2 "testing key value returned";
 vlog3 "key returned value '$value'";
 if($value eq $returned_value){
-    vlog3 "key returned expected value";
+    vlog3 "returned value matches value originally sent";
 } else {
     quit "CRITICAL", "key '$key' returned wrong value '$returned_value', expected '$value' that was just written, not deleting key, INVESTIGATION REQUIRED";
 }
 
-vlog2 "deleting key";
+vlog2 "\ndeleting key";
 $start_time      = time;
-$redis->del($key) || quit "CRITICAL", "key '$key' not found during delete operation on redis host '$hostport'";
+try {
+    $redis->del($key) || quit "CRITICAL", "failed to delete key '$key' on redis host $hostport";
+};
+catch_quit "failed to delete key '$key' on redis host $hostport";
 my $delete_time  = time - $start_time;
 $delete_time     = sprintf("%0.${precision}f", $delete_time);
 
 vlog2 "closing connection";
-$redis->quit;
+try {
+    $redis->quit;
+};
 
 vlog2;
-my $msg_perf = " | ";
+my $msg_perf = " |";
 my $msg_thresholds = "s" . msg_perf_thresholds(1);
 $msg_perf .= " write_time=${write_time}${msg_thresholds}";
 $msg_perf .= " read_time=${read_time}${msg_thresholds}";
 $msg_perf .= " delete_time=${delete_time}${msg_thresholds}";
 
-$msg = "wrote key in $write_time secs, read key in $read_time secs, deleted key in $delete_time secs on redis server $host" . ( $verbose ? ":$port" : "");
+if($slave){
+    $msg = "wrote key on master in $write_time secs, read key from slave in $read_time secs, deleted key from master in $delete_time secs" . ( $verbose ? " (master=$host, slave=$slave)" : "");
+} else {
+    $msg = "wrote key in $write_time secs, read key in $read_time secs, deleted key in $delete_time secs on redis server $host" . ( $verbose ? ":$port" : "");
+}
 
 check_thresholds($delete_time, 1);
 check_thresholds($read_time, 1);
