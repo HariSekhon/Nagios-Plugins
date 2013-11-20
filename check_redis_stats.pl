@@ -51,7 +51,7 @@ if($progname eq "check_redis_version.pl"){
     delete $options{"s|stats=s"};
     delete $options{"w|warning=s"};
     delete $options{"c|critical=s"};
-} elsif($progname eq "check_redis_slave.pl" or $progname eq "check_redis_slave_replication.pl"){
+} elsif($progname eq "check_redis_slave.pl" or $progname eq "check_redis_replication.pl"){
     $check_replication_slave = 1;
     $DESCRIPTION = "Nagios Plugin to check a Redis slave and replication\n\n"
                  . "Checks:\n\n"
