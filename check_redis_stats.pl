@@ -179,7 +179,7 @@ if(scalar @stats == 1){
     $$info_hash{"role"} eq "slave" or quit "CRITICAL", "redis server is not configured as a slave";
     quit "CRITICAL", "no master host configured" unless($$info_hash{"master_host"});
     quit "CRITICAL", "no master port configured" unless($$info_hash{"master_port"});
-    quit "CRITICAL", "master link is down" unless($$info_hash{"master_link_status"} eq "up");
+    quit "CRITICAL", "master link is down (networking or authentication error?)" unless($$info_hash{"master_link_status"} eq "up");
     isInt($$info_hash{"master_sync_in_progress"}) or quit "UNKNOWN", "non-integer returned for master_sync_in_progress ('$$info_hash{master_sync_in_progress})' from redis server '$hostport'";
     $msg  = "$$info_hash{role} role, master link $$info_hash{master_link_status}, ";
     $msg .= "last replication I/O $$info_hash{master_last_io_seconds_ago} secs ago";
