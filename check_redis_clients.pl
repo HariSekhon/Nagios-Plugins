@@ -16,7 +16,7 @@ $DESCRIPTION = "Nagios Plugin to check a Redis server's client list
 3. Checks the the number of connected clients against warning/critical thresholds (optional)";
 
 
-$VERSION = "0.3.1";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -55,7 +55,8 @@ set_timeout();
 
 $status = "OK";
 
-my $redis = connect_redis(host => $host, port => $port, password => $password) || quit "CRITICAL", "failed to connect to redis server '$hostport'";
+# all the checks are done in connect_redis, will error out on failure
+my ($redis, $hostport) = connect_redis(host => $host, port => $port, password => $password);
 
 my $clients;
 my $start_time = time;
