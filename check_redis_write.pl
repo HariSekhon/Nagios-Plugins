@@ -87,6 +87,10 @@ if(defined($slave)){
         $slave_read_delay = validate_float($slave_read_delay, $slave_read_delay_min, $slave_read_delay_max, "slave-read-delay");
     }
 }
+if($progname eq "check_redis_write_replication.pl"){
+    defined($slave) or usage "slave not defined";
+    ($host eq $slave) and usage "cannot specify same master and slave";
+}
 if(defined($database)){
     $database = validate_int($database, 0, 10000, "database");
 }
