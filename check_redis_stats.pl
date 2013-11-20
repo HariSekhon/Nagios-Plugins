@@ -17,7 +17,7 @@ our $DESCRIPTION = "Nagios Plugin to check a Redis server's stats
 
 Developed on Redis 2.4.10";
 
-$VERSION = "0.4";
+$VERSION = "0.6";
 
 use strict;
 use warnings;
@@ -58,7 +58,7 @@ if($progname eq "check_redis_version.pl"){
                  . "1. server is in 'slave' role\n"
                  . "2. link to master is up\n"
                  . "3. replication last I/O is within warning/critical thresholds\n"
-                 . "4. shows if master sync is in progress\n";
+                 . "4. checks if master sync is in progress (raises warning)\n";
     $statlist = "role,master_host,master_port,master_link_status,master_last_io_seconds_ago,master_sync_in_progress";
     delete $options{"s|stats=s"};
     delete $options{"e|expected=s"};
@@ -184,7 +184,10 @@ if(scalar @stats == 1){
     $msg  = "$$info_hash{role} role, master link $$info_hash{master_link_status}, ";
     $msg .= "last replication I/O $$info_hash{master_last_io_seconds_ago} secs ago";
     check_thresholds($$info_hash{"master_last_io_seconds_ago"});
-    $msg .= ", master sync in progress" if $$info_hash{"master_sync_in_progress"} != 0;
+    if($$info_hash{"master_sync_in_progress"} != 0){
+        warning;
+        $msg .= ", MASTER SYNC IN PROGRESS";
+    }
     $msg .= ", master $$info_hash{master_host}:$$info_hash{master_port}";
 }
 
