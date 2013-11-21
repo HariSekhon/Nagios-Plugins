@@ -24,7 +24,7 @@ Checks:
 Developed on Redis 2.4.10";
 
 
-$VERSION = "0.4";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -41,9 +41,10 @@ my $slave;
 my $slave_port = $REDIS_DEFAULT_PORT;
 my $slave_password;
 
-my $default_slave_read_delay = 0;
-my $slave_read_delay = $default_slave_read_delay;
-my ($slave_read_delay_min, $slave_read_delay_max) = (0, 10);
+my $default_slave_delay = 1;
+my $slave_delay = $default_slave_delay;
+my ($slave_delay_min, $slave_delay_max) = (0, 10);
+my $check_deleted = 0;
 
 %options = (
     %redis_options,
@@ -57,16 +58,17 @@ if($progname eq "check_redis_write_replication.pl"){
     $DESCRIPTION =~ s/(dynamically generated value)/$1 to master/;
     $DESCRIPTION =~ s/(reads same key back)/$1 from slave/;
     $DESCRIPTION =~ s/(generated and written)/$1 to master/;
-    $DESCRIPTION =~ s/(deletes the key)/$1 on the master/;
+    $DESCRIPTION =~ s/(deletes the key)/$1 on the master (optionally checks delete replicated to slave)/;
     %options = (
         %options,
         "S|slave=s"          => [ \$slave,            "Redis slave to read key back from to test replication (defaults to reading key back from master --host)" ],
         "slave-port=s"       => [ \$slave_port,       "Redis slave port to connect to (default: $REDIS_DEFAULT_PORT)" ],
         "slave-password=s"   => [ \$slave_password,   "Redis slave password. Defaults to using the same password as for the master if specified. If wanting to use password on master but not on slave, set this to a blank string" ],
-        "slave-read-delay=s" => [ \$slave_read_delay, "Wait this many secs before reading from slave to give the slave replica time to process the replication update (default: $default_slave_read_delay, min: $slave_read_delay_min, max: $slave_read_delay_max)" ],
+        "slave-delay=s"      => [ \$slave_delay,      "Wait this many secs between write to master and read from slave to give the slave replica time to process the replication update, accepts floats (default: $default_slave_delay, min: $slave_delay_min, max: $slave_delay_max)" ],
+        "slave-deleted"      => [ \$check_deleted,    "Additional optional check that the key was cleaned up and deleted on the slave (waits --slave-delay secs after delete)" ],
     );
 }
-@usage_order = qw/host port database password slave slave-port slave-password slave-read-delay warning critical precision/;
+@usage_order = qw/host port database password slave slave-port slave-password slave-delay slave-deleted warning critical precision/;
 get_options();
 
 $host       = validate_host($host);
@@ -79,12 +81,12 @@ if(defined($slave)){
         if($slave_password){
             $slave_password = validate_password($slave_password, "slave");
         }
-    } else {
+    } elsif($password) {
         $slave_password = $password;
     }
-    if($slave_read_delay){
+    if($slave_delay){
         # If you have more than a 10 sec delay your Redis replication is probably quite problematic so not allowing user to set more than this
-        $slave_read_delay = validate_float($slave_read_delay, $slave_read_delay_min, $slave_read_delay_max, "slave-read-delay");
+        $slave_delay = validate_float($slave_delay, $slave_delay_min, $slave_delay_max, "slave-read-delay");
     }
 }
 if($progname eq "check_redis_write_replication.pl"){
@@ -111,7 +113,7 @@ $status = "OK";
 # all the checks are done in connect_redis, will error out on failure
 my ($redis, $hostport) = connect_redis(host => $host, port => $port, password => $password);
 my ($redis_slave, $slavehostport);
-if(defined($slave)){
+if($slave){
     ($redis_slave, $slavehostport) = connect_redis(host => $slave, port => $slave_port, password => $slave_password);
 }
 
@@ -122,7 +124,7 @@ if(defined($database)){
     };
     catch_quit "failed to change to database $database on $hostport";
 
-    if(defined($slave)){
+    if($slave){
         vlog2 "selecting database $database on $slavehostport\n";
         try {
             $redis_slave->select($database);
@@ -146,9 +148,10 @@ $write_time      = sprintf("%0.${precision}f", $write_time);
 my $hostport_read;
 my $redis_read;
 if($slave){
-    if($slave_read_delay){
-        vlog2 "\nwaiting $slave_read_delay secs before reading from slave";
-        sleep $slave_read_delay;
+    if($slave_delay){
+        plural $slave_delay;
+        vlog2 "\nwaiting $slave_delay sec$plural before reading from slave $slavehostport";
+        sleep $slave_delay;
     }
     $hostport_read = $slavehostport;
     $redis_read    = $redis_slave;
@@ -175,7 +178,7 @@ if($value eq $returned_value){
     quit "CRITICAL", "key '$key' returned wrong value '$returned_value', expected '$value' that was just written, not deleting key, INVESTIGATION REQUIRED";
 }
 
-vlog2 "\ndeleting key";
+vlog2 "\ndeleting key on $hostport";
 $start_time      = time;
 try {
     $redis->del($key) || quit "CRITICAL", "failed to delete key '$key' on redis host $hostport";
@@ -183,6 +186,24 @@ try {
 catch_quit "failed to delete key '$key' on redis host $hostport";
 my $delete_time  = time - $start_time;
 $delete_time     = sprintf("%0.${precision}f", $delete_time);
+
+#my $key_exists_time;
+if($slave and $check_deleted){
+    try {
+        plural $slave_delay;
+        vlog2 "\nwaiting $slave_delay sec$plural before checking deleted on slave $slavehostport";
+        vlog2 "checking key was deleted from slave";
+        #$start_time = time;
+        if($redis_slave->exists($key)){
+            quit "CRITICAL", "delete was not replicated from master to slave within $slave_delay sec$plural";
+        } else {
+            #$key_exists_time = time - $start_time;
+            #$key_exists_time = sprintf("%0.${precision}f", $key_exists_time);
+            vlog "key does not exist on slave, delete replication succeeded";
+        }
+    };
+    catch_quit "failed while checking if key was deleted from slave $hostport";
+}
 
 vlog2 "closing connection";
 try {
@@ -197,7 +218,9 @@ $msg_perf .= " read_time=${read_time}${msg_thresholds}";
 $msg_perf .= " delete_time=${delete_time}${msg_thresholds}";
 
 if($slave){
-    $msg = "wrote key on master in $write_time secs, read key from slave in $read_time secs, deleted key from master in $delete_time secs" . ( $verbose ? " (master=$host, slave=$slave)" : "");
+    $msg  = "wrote key on master in $write_time secs, read key from slave in $read_time secs, deleted key from master in $delete_time secs";
+    #$msg .= ", key existence check on slave took $key_exists_time secs" if $check_deleted;
+    $msg .= ( $verbose ? " (master=$host, slave=$slave)" : "");
 } else {
     $msg = "wrote key in $write_time secs, read key in $read_time secs, deleted key in $delete_time secs on redis server $host" . ( $verbose ? ":$port" : "");
 }
