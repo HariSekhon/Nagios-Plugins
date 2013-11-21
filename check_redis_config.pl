@@ -9,7 +9,14 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to check a Redis server's config";
+$DESCRIPTION = "Nagios Plugin to check a Redis server's running config against a given configuration file
+
+Useful for checking
+
+1. Configuration Compliance against a baseline
+2. Puppet has correctly deployed revision controlled config version
+
+Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Collection)";
 
 $VERSION = "0.1";
 
@@ -86,10 +93,12 @@ while(<$fh>){
     s/\s*$//;
     debug "conf file:  $_";
     /^\s*([\w\.-]+)\s+(.+)$/ or quit "UNKNOWN", "unrecognized line in config file '$conf': '$_'. $nagios_plugins_support_msg";
-    $key   = $1;
-    $value = $2;
+    $key   = lc $1;
+    $value = lc $2;
     if($key eq "dir"){
         $value = abs_path($2);
+    } elsif ($key eq "requirepass"){
+        $value = "<omitted>";
     }
     if($value =~ /^(\d+(?:\.\d+)?)([KMGTP]B)$/i){
         $value = expand_units($1, $2);
@@ -128,12 +137,20 @@ vlog2;
 if($password){
     vlog2 "sending redis password";
     print $redis_conn "auth $password\r\n";
-    my @output = <$redis_conn>;
-    quit "CRITICAL", "auth failed, returned: " . join(" ", @output) if @output;
+    my $output = <$redis_conn>;
+    chomp $output;
+    unless($output =~ /^\+OK$/){
+        quit "CRITICAL", "auth failed, returned: $output";
+    }
     vlog2;
 }
 print $redis_conn "config get *\r\n";
 my $num_args = <$redis_conn>;
+if($num_args =~ /ERR|operation not permitted/){
+    chomp $num_args;
+    $num_args =~ s/^-//;
+    quit "CRITICAL", "$num_args (authentication required? try --password)";
+}
 $num_args =~ /^\*(\d+)\r$/ or quit "CRITICAL", "unexpected response: $num_args";
 $num_args = $1;
 my ($key_bytes, $value_bytes);
@@ -150,6 +167,7 @@ foreach(my $i=0; $i < ($num_args / 2); $i++){
     $key        = <$redis_conn>;
     chomp $key;
     debug "key:        $key";
+    $key   = lc $key;
     ($key_bytes eq length($key)) or quit "UNKNOWN", "protocol error, num bytes does not match length of argument for $key ($key_bytes bytes expected, got " . length($key) . ")";
     $value_bytes = <$redis_conn>;
     chomp $value_bytes;
@@ -161,8 +179,12 @@ foreach(my $i=0; $i < ($num_args / 2); $i++){
     }
     $value       = <$redis_conn>;
     chomp $value;
-    debug "data:       $value";
+    $value = lc $value;
     ($value_bytes eq length($value)) or quit "UNKNOWN", "protocol error, num bytes does not match length of argument for $value ($value_bytes bytes expected, got " . length($value) . ")";
+    if($key eq "requirepass"){
+        $value = "<omitted>";
+    }
+    debug "data:       $value";
     vlog3 "running config:  $key=$value";
     $running_config{$key} = $value;
 }
