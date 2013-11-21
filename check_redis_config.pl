@@ -18,7 +18,7 @@ Useful for checking
 
 Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Collection)";
 
-$VERSION = "0.1";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -30,6 +30,9 @@ use HariSekhonUtils qw/:DEFAULT :regex/;
 use Cwd 'abs_path';
 use IO::Socket;
 
+my $default_config_cmd = "config";
+my $config_cmd = $default_config_cmd;
+
 # REGEX
 my @config_file_only = qw(
                            activerehashing
@@ -39,6 +42,7 @@ my @config_file_only = qw(
                            pidfile
                            port
                            rdbcompression
+                           rename-command
                            slaveof
                            syslog-.*
                            vm-.*
@@ -99,6 +103,12 @@ while(<$fh>){
         $value = abs_path($2);
     } elsif ($key eq "requirepass"){
         $value = "<omitted>";
+    } elsif ($key eq "rename-command"){
+        my @tmp = split(/\s+/, $value);
+        if(scalar @tmp == 2){
+            $config_cmd = $tmp[1];
+            $config_cmd =~ s/["'`]//g;
+        }
     }
     if($value =~ /^(\d+(?:\.\d+)?)([KMGTP]B)$/i){
         $value = expand_units($1, $2);
@@ -112,7 +122,14 @@ while(<$fh>){
     $config{$key} = $value;
 }
 vlog3 "=====================";
-vlog3;
+
+vlog2;
+if($config_cmd ne $default_config_cmd){
+    vlog2 "found alternative config command '$config_cmd' from config file '$conf'";
+}
+$config_cmd =~ /^([\w-]+)$/ || quit "UNKNOWN", "config command was set to a non alphanumeric string '$config_cmd', aborting, check config file '$conf' for 'rename-command CONFIG'";
+$config_cmd = $1;
+vlog2;
 
 $status = "OK";
 
@@ -144,20 +161,30 @@ if($password){
     }
     vlog2;
 }
-print $redis_conn "config get *\r\n";
+
+vlog2 "sending redis command: $config_cmd get *\n";
+print $redis_conn "$config_cmd get *\r\n";
 my $num_args = <$redis_conn>;
-if($num_args =~ /ERR|operation not permitted/){
+if($num_args =~ /ERR/){
     chomp $num_args;
     $num_args =~ s/^-//;
-    quit "CRITICAL", "$num_args (authentication required? try --password)";
+    if($num_args =~ /operation not permitted/){
+        quit "CRITICAL", "$num_args (authentication required? try --password)";
+    } elsif ($num_args =~ /unknown command/){
+        quit "CRITICAL", "$num_args (command disabled or renamed via 'rename-command' in config file 'conf'?)";
+    } else {
+        quit "CRITICAL", "error: $num_args";
+    }
 }
 $num_args =~ /^\*(\d+)\r$/ or quit "CRITICAL", "unexpected response: $num_args";
 $num_args = $1;
+vlog2 sprintf("%s config settings offered by server\n", $num_args / 2);
 my ($key_bytes, $value_bytes);
-my %running_config;;
+my %running_config;
 vlog3 "========================";
 vlog3 "  Redis running config";
 vlog3 "========================";
+my $null_configs_counter = 0;
 foreach(my $i=0; $i < ($num_args / 2); $i++){
     $key_bytes  = <$redis_conn>;
     chomp $key_bytes;
@@ -175,6 +202,7 @@ foreach(my $i=0; $i < ($num_args / 2); $i++){
     $value_bytes =~ /^\$(-?\d+)$/ or quit "UNKNOWN", "protocol error, invalid data bytes line received: $value_bytes";
     $value_bytes = $1;
     if($value_bytes == -1){
+        $null_configs_counter++;
         next;
     }
     $value       = <$redis_conn>;
@@ -186,9 +214,19 @@ foreach(my $i=0; $i < ($num_args / 2); $i++){
     }
     debug "data:       $value";
     vlog3 "running config:  $key=$value";
+    if(defined($running_config{$key})){
+        quit "UNKNOWN", "duplicate running config key detected. $nagios_plugins_support_msg";
+    }
     $running_config{$key} = $value;
 }
 vlog3 "========================";
+plural $null_configs_counter;
+vlog2 sprintf("%s config settings parsed from server, %s null config$plural skipped\n", scalar keys %running_config, $null_configs_counter);
+vlog3 "========================";
+
+unless(($num_args/2) == ((scalar keys %running_config) + $null_configs_counter)){
+    quit "UNKNOWN", "mismatch on number of config settings expected and parsed";
+}
 
 my @missing_config;
 my @mismatched_config;
@@ -248,4 +286,5 @@ if((!$no_warn_extra) and @extra_config){
 $msg = sprintf("%d config values tested from config file '$conf', %s", scalar keys %config, $msg);
 $msg =~ s/, $//;
 
+vlog2;
 quit $status, $msg;
