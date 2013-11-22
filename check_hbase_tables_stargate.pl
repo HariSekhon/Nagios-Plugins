@@ -21,7 +21,7 @@ Known Limitations:
 
 Known Issues/Limitations:
 
-1. The HBase REST API doesn't seem to expose details on -ROOT- and .META. regions so the code only checks they are present (it does check regions for user specified tables though)
+1. The HBase REST API doesn't seem to expose details on -ROOT- and .META. regions so the code only checks they are present (user specified tables are checked for online regions)
 2. The HBase REST API doesn't distinguish between disabled and otherwise unavailable/nonexistent tables, instead use the thrift monitoring plugin check_hbase_tables.pl (aka check_hbase_tables_thrift.pl), or as a fallback the check_hbase_tables_jsp.pl for that distinction
 3. The HBase REST Server will timeout the request for information if the HBase Master is down, you will see this as \"CRITICAL: '500 read timeout'\"";
 
