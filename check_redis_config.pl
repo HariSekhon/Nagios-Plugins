@@ -18,7 +18,7 @@ Useful for checking
 
 Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Collection)";
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -165,7 +165,7 @@ if($password){
 vlog2 "sending redis command: $config_cmd get *\n";
 print $redis_conn "$config_cmd get *\r\n";
 my $num_args = <$redis_conn>;
-if($num_args =~ /ERR/){
+if($num_args =~ /^-|ERR/){
     chomp $num_args;
     $num_args =~ s/^-//;
     if($num_args =~ /operation not permitted/){
