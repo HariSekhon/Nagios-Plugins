@@ -10,14 +10,14 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to check a Redis server is up and working via publish/subscribe
+$DESCRIPTION = "Nagios Plugin to check a Redis server is up and working via publish/subscribe API calls
 
 Checks:
 
-1. Subscribes to a channel unique to this program and calling host
-2. Publishes to that same channel with a randomly generated and timestamped token
+1. Subscribes to a unique channel
+2. Publishes to that same unique channel with a randomly generated and timestamped token
 3. Waits for the channel to feed the message through for a given number of secs
-4. Checks the message received is the same as the one sent
+4. Checks the message received is the same as the one published
 5. compares each operation's time taken against the warning/critical thresholds if given
 
 Developed on Redis 2.4.10";
