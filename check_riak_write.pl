@@ -11,19 +11,20 @@
 
 # TODO: --n-val support
 
-$DESCRIPTION = "Nagios Plugin to check Riak is working and writeable via the HTTP Rest API
+$DESCRIPTION = "Nagios Plugin to check Riak is fully functional read/write via HTTP Rest API
 
 Checks:
 
 1. writes a new unique key to the nagios bucket with dynamically generated value
-2. reads key back, checking the value is identical to the value generated and written
-3. deletes the key
-4. records the write/read/delete timings to a given precision
-5. compares each operation's time taken against the warning/critical thresholds if given
+2. reads back same unique key
+3. checks returned value is identical to the value generated and written
+4. deletes the key
+5. records the write/read/delete timings to a given precision for reporting and graphing
+6. compares each operation's time taken against the warning/critical thresholds if given
 
 Control of Riak's n_val for the nagios bucket should be done separately, preferably by pre-creating the bucket with the desired n_val";
 
-$VERSION = "0.2";
+$VERSION = "0.6";
 
 use strict;
 use warnings;
@@ -35,6 +36,7 @@ use HariSekhonUtils;
 use LWP::UserAgent;
 use Time::HiRes 'time';
 
+my $ip;
 my $ua = LWP::UserAgent->new;
 my $header = "Hari Sekhon $progname version $main::VERSION";
 $ua->agent($header);
@@ -57,6 +59,7 @@ my $precision = $default_precision;
 get_options();
 
 $host      = validate_host($host);
+$ip        = validate_resolvable($host);
 $port      = validate_port($port);
 validate_int($precision, 1, 20, "precision");
 unless($precision =~ /^(\d+)$/){
@@ -69,12 +72,10 @@ vlog2;
 my $node   = "riak node '$host:$port'";
 my $epoch  = time;
 my $bucket = "nagios";
-my $key    = "HariSekhon:$progname:$host:$epoch";
+my $value  = random_alnum(20);
+my $key    = "HariSekhon:$progname:$host:$epoch:" . substr($value, 0, 10);
 my $bucket_key = "key '$key' bucket '$bucket'";
-my @chars = ("A".."Z", "a".."z", 0..9);
-my $value  = "";
-$value    .= $chars[rand @chars] for 1..20;
-my $url    = "http://$host:$port/riak/$bucket/$key";
+my $url    = "http://$ip:$port/riak/$bucket/$key";
 vlog_options "bucket", $bucket;
 vlog_options "key",    $key;
 vlog_options "value",  $value;
@@ -86,7 +87,7 @@ vlog2;
 set_timeout();
 
 sub riak_key($){
-    my $action = $_[0];
+    my $action = shift;
     my $node_action;
     my $req;
     if($action eq "write"){
@@ -148,20 +149,23 @@ sub riak_key($){
 
 $status = "OK";
 
-my $msg_perf = " | ";
-my $msg_thresholds = "s;" . ($thresholds{"warning"}{"upper"} ? $thresholds{"warning"}{"upper"} : "") . ";" . ($thresholds{"critical"}{"upper"} ? $thresholds{"critical"}{"upper"} : "") . ";0;";
-validate_resolvable($host);
 my $write_time  = riak_key("write");
 my $read_time   = riak_key("read");
 my $delete_time = riak_key("delete");
+
+my $msg_perf = " | ";
+my $msg_thresholds = "s" . msg_perf_thresholds(1);
 $msg_perf .= " write_time=${write_time}${msg_thresholds}";
 $msg_perf .= " read_time=${read_time}${msg_thresholds}";
 $msg_perf .= " delete_time=${delete_time}${msg_thresholds}";
+
 $msg =~ s/^,\s*//;
 $msg .= " from $node";
+
 check_thresholds($delete_time, 1);
 check_thresholds($read_time, 1);
 check_thresholds($write_time);
+
 $msg .= $msg_perf;
 
 quit $status, $msg;
