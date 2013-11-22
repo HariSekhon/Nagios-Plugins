@@ -23,7 +23,6 @@ Checks:
 
 Developed on Redis 2.4.10";
 
-
 $VERSION = "0.5";
 
 use strict;
