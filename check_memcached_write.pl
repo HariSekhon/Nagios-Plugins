@@ -16,7 +16,7 @@ Checks:
 1. writes a unique ephemeral key with dynamically generated value
 2. reads back same unique key
 3. checks the returned value is identical to that written
-4. records the read/write/delete and overall timings (including tcp connection and close) to a given precision
+4. records the read/write/delete timings and total time (including tcp connection and close) to a given precision
 5. compares timing of each read/write/delete operation against warning/critical thresholds if given";
 
 $VERSION = "0.9";
