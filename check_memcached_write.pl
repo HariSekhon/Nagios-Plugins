@@ -9,17 +9,17 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check a Memcached server reads + writes
+$DESCRIPTION = "Nagios Plugin to check a Memcached server via API read/write
 
 Checks:
 
-1. writes a unique short lived key with dynamically generated value
-2. reads back key
+1. writes a unique ephemeral key with dynamically generated value
+2. reads back same unique key
 3. checks the returned value is identical to that written
-4. records the read/write and overall timings to a given precision
-5. compares timing of each read and write operation against warning/critical thresholds if given";
+4. records the read/write/delete and overall timings (including tcp connection and close) to a given precision
+5. compares timing of each read/write/delete operation against warning/critical thresholds if given";
 
-$VERSION = "0.8";
+$VERSION = "0.9";
 
 use strict;
 use warnings;
@@ -38,14 +38,14 @@ $port = $default_port;
 $timeout_min = 1;
 $timeout_max = 60;
 
-my $default_precision = 8;
+my $default_precision = 5;
 my $precision = $default_precision;
 
 %options = (
     "H|host=s"      => [ \$host,        "Host to connect to" ],
     "P|port=s"      => [ \$port,        "Port to connect to (default: $default_port)" ],
-    "w|warning=s"   => [ \$warning,     "Warning  threshold in seconds for each read/write operation (use float for milliseconds). Cannot be more than a third of the total plugin --timeout" ],
-    "c|critical=s"  => [ \$critical,    "Critical threshold in seconds for each read/write operation (use float for milliseconds). Cannot be more than a third of the total plugin --timeout" ],
+    "w|warning=s"   => [ \$warning,     "Warning  threshold in seconds for each read/write/delete operation (use float for milliseconds). Cannot be more than 1/4 of the total plugin --timeout (must increase timeout)" ],
+    "c|critical=s"  => [ \$critical,    "Critical threshold in seconds for each read/write/delete operation (use float for milliseconds). Cannot be more than 1/4 of the total plugin --timeout (must increase timeout)" ],
     "precision=i"   => [ \$precision,   "Number of decimal places for timings (default: $default_precision)" ],
 );
 
@@ -59,15 +59,13 @@ unless($precision =~ /^(\d+)$/){
     code_error "precision is not a digit and has already passed validate_int()";
 }
 $precision = $1;
-validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integer" => 0, "max" => $timeout/3 } );
+validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integer" => 0, "max" => $timeout/4 } );
 vlog2;
 
 my $epoch  = time;
 # there cannot be any space in the memcached key
-my $key    = "nagios:HariSekhon:$progname:$epoch";
-my @chars  = ("A".."Z", "a".."z", 0..9);
-my $value  = "";
-$value    .= $chars[rand @chars] for 1..20;
+my $value  = random_alnum(20);
+my $key    = "nagios:HariSekhon:$progname:$epoch:" . substr($value, 0, 10);
 vlog_options "key",   $key;
 vlog_options "value", $value;
 my $flags  = 0;
@@ -80,30 +78,28 @@ $status = "OK";
 
 vlog2 "connecting to $host:$port";
 my $start_time = time;
+my $ip = validate_resolvable($host);
 my $conn = IO::Socket::INET->new (
                                     Proto    => "tcp",
-                                    PeerAddr => $host,
+                                    PeerAddr => $ip,
                                     PeerPort => $port,
                                  ) or quit "CRITICAL", "Failed to connect to '$host:$port': $!";
-my $connect_time = time - $start_time;
+my $connect_time = sprintf("%0.${precision}f", time - $start_time);
 vlog2 "OK connected in $connect_time secs\n";
 $conn->autoflush(1) or quit "UNKNOWN", "failed to set autoflush on socket: $!";
 vlog3 "set autoflush on";
 
 # using add instead of set here to intentionally fail if the key is already present which it shouldn't be
-my $memcached_write_cmd = "add $key $flags $timeout $bytes\r\n$value\r\n";
-my $memcached_read_cmd  = "get $key\r\n"; 
+my $memcached_write_cmd  = "add $key $flags $timeout $bytes\r\n$value\r\n";
+my $memcached_read_cmd   = "get $key\r\n"; 
+my $memcached_delete_cmd = "delete $key\r\n";
 vlog3 "\nsending write request: $memcached_write_cmd";
 my $write_start_time = time;
 print $conn $memcached_write_cmd or quit "CRITICAL", "failed to write memcached key/value on '$host:$port': $!";
 
-my $line;
-my $linecount = 0;
-my $err_msg;
-while (<$conn>){
-    s/\r\n$//;
-    vlog3 "memcached response: $_";
-    s/\r$//;
+sub check_memcached_response($){
+    my $_ = shift;
+    my $err_msg;
     if(/ERROR/){
         if(/^ERROR$/){
             $err_msg = "unknown command sent to";
@@ -116,13 +112,20 @@ while (<$conn>){
         }
         quit "CRITICAL", "$err_msg memcached '$host:$port': '$_'";
     }
+}
+
+while (<$conn>){
+    s/\r\n$//;
+    vlog3 "memcached response: $_";
+    s/\r$//;
+    check_memcached_response($_);
     if(/^STORED$/){
         last;
     } else {
          quit "CRITICAL", "failed to store key/value to memcached on '$host:$port': $_";
     }
 }
-my $write_time_taken = time - $write_start_time;
+my $write_time_taken = sprintf("%0.${precision}f", time - $write_start_time);
 vlog2 "write request completed in $write_time_taken secs\n";
 
 vlog3 "\nsending read request: $memcached_read_cmd";
@@ -144,7 +147,7 @@ while(<$conn>){
     quit "CRITICAL", "unexpected response returned instead of VALUE <key> <flags> <bytes>: $_" unless $value_seen;
     $read_value .= $_;
 }
-my $read_time_taken = time - $read_start_time;
+my $read_time_taken  = sprintf("%0.${precision}f", time - $read_start_time);
 vlog2 "read request completed in $read_time_taken secs\n";
 
 unless(defined($read_value)){
@@ -153,23 +156,48 @@ unless(defined($read_value)){
 
 vlog2 "comparing read back value for key";
 if($value eq $read_value){
-    vlog2 "read back key has the same value '$read_value'";
+    vlog2 "read back key has the same value '$read_value'\n";
 } else {
     quit "CRITICAL", "read back for just written key '$key' mismatched! (original value: $value, read value: $read_value)";
 }
 
-my $time_taken = time - $start_time;
-vlog2 "\ncompleted write + read back in $time_taken secs";
-$time_taken = sprintf("%.${precision}f", $time_taken);
+my $delete_start_time = time;
+print $conn $memcached_delete_cmd or quit "CRITICAL", "failed to delete memcached key/value on '$host:$port': $!";
+
+while (<$conn>){
+    s/\r\n$//;
+    vlog3 "memcached response: $_";
+    s/\r$//;
+    check_memcached_response($_);
+    if(/^DELETED$/){
+        last;
+    } else {
+         quit "CRITICAL", "failed to store key/value to memcached on '$host:$port': $_";
+    }
+}
+my $delete_time_taken = sprintf("%0.${precision}f", time - $delete_start_time);
+vlog2 "delete request completed in $delete_time_taken secs\n";
 
 close $conn;
 vlog2 "closed connection\n";
 
-$write_time_taken = sprintf("%0.${precision}f", $write_time_taken);
-$read_time_taken  = sprintf("%0.${precision}f", $read_time_taken);
-$msg = "write key in $write_time_taken secs, read key in $read_time_taken secs, total time $time_taken";
-check_thresholds($read_time_taken,1);
+my $time_taken = time - $start_time;
+$time_taken = sprintf("%.${precision}f", $time_taken);
+vlog2 "total time taken for connect => write => read => delete => close: $time_taken secs\n";
+
+$msg  = "wrote key in $write_time_taken secs, ";
+$msg .= "read key in $read_time_taken secs, ",
+$msg .= "deleted key in $delete_time_taken secs, ",
+$msg .= "total time $time_taken secs";
+check_thresholds($delete_time_taken, 1);
+check_thresholds($read_time_taken, 1);
 check_thresholds($write_time_taken);
-$msg .= " | total_time=${time_taken}s write_time=${write_time_taken}s read_time=${read_time_taken}s";
+$msg .= " | total_time=${time_taken}s";
+$msg .= " write_time=${write_time_taken}s";
+msg_perf_thresholds();
+$msg .= " read_time=${read_time_taken}s";
+msg_perf_thresholds();
+$msg .= " delete_time=${delete_time_taken}s";
+msg_perf_thresholds();
 
 quit $status, $msg;
