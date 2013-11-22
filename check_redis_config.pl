@@ -171,7 +171,7 @@ if($num_args =~ /^-|ERR/){
     if($num_args =~ /operation not permitted/){
         quit "CRITICAL", "$num_args (authentication required? try --password)";
     } elsif ($num_args =~ /unknown command/){
-        quit "CRITICAL", "$num_args (command disabled or renamed via 'rename-command' in config file 'conf'?)";
+        quit "CRITICAL", "$num_args (command disabled or renamed via 'rename-command' in config file '$conf'?)";
     } else {
         quit "CRITICAL", "error: $num_args";
     }
