@@ -30,10 +30,17 @@ $password       = "";
     "M|master-url=s"  => [ \$master_url,  "Master SVN url (the url to the master svn server)" ],
     "S|slave-url=s"   => [ \$slave_url,   "Slave/Mirror SVN url (run this from the mirror svn server as eu ops backup mirror is only accessible to localhost)" ],
     "m|max-rev-lag=i" => [ \$max_rev_lag, "Maximum revisions the mirror is allowed to be behind the master (defaults to 0, min 0, max 50)" ],
-    "u|username=s"    => [ \$user,        "SVN username" ],
-    "p|password=s"    => [ \$password,    "SVN password (will use cached svn creds if not supplied)" ],
+    "u|username=s"    => [ \$user,        "SVN username (\$SVN_USER environment variable)" ],
+    "p|password=s"    => [ \$password,    "SVN password (will use cached svn creds if not supplied. May also use \$SVN_PASSWORD environment variable to prevent this appearing in the process list)" ],
 );
 @usage_order = qw/master-url slave-url max-rev-lag username password/;
+
+if($ENV{"SVN_USER"}){
+    $user = $ENV{"SVN_USER"};
+}
+if($ENV{"SVN_PASSWORD"}){
+    $password = $ENV{"SVN_PASSWORD"};
+}
 
 get_options();
 
