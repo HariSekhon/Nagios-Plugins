@@ -24,7 +24,7 @@ Checks:
 
 Control of Riak's n_val for the nagios bucket should be done separately, preferably by pre-creating the bucket with the desired n_val";
 
-$VERSION = "0.6";
+$VERSION = "0.7";
 
 use strict;
 use warnings;
@@ -81,6 +81,10 @@ vlog_options "key",    $key;
 vlog_options "value",  $value;
 vlog_options "url",    $url;
 
+my $http_timeout = sprintf("%.2f", $timeout/3);
+$http_timeout = 1 if $http_timeout < 1;
+vlog2 "\nsetting http timeout to $http_timeout secs";
+$ua->timeout($http_timeout);
 $ua->show_progress(1) if $debug;
 
 vlog2;
