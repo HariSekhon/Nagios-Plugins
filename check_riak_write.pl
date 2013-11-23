@@ -59,7 +59,6 @@ my $precision = $default_precision;
 get_options();
 
 $host      = validate_host($host);
-$ip        = validate_resolvable($host);
 $port      = validate_port($port);
 validate_int($precision, 1, 20, "precision");
 unless($precision =~ /^(\d+)$/){
@@ -75,14 +74,16 @@ my $bucket = "nagios";
 my $value  = random_alnum(20);
 my $key    = "HariSekhon:$progname:$host:$epoch:" . substr($value, 0, 10);
 my $bucket_key = "key '$key' bucket '$bucket'";
-my $url    = "http://$ip:$port/riak/$bucket/$key";
 vlog_options "bucket", $bucket;
 vlog_options "key",    $key;
 vlog_options "value",  $value;
-vlog_options "url",    $url;
 
 vlog2;
 set_timeout();
+
+$ip        = validate_resolvable($host);
+my $url    = "http://$ip:$port/riak/$bucket/$key";
+vlog_options "url",    $url;
 
 my $http_timeout = sprintf("%.2f", $timeout/3);
 $http_timeout = 1 if $http_timeout < 1;
