@@ -151,7 +151,7 @@ yum install MySQL-python
 
 ### Updating ###
 
-Run ```make update```. This will git pull and then git submodule update which is necessary to pick up corresponding library updates, then try to build using make install again for any new/missing CPAN modules.
+Run ```make update```. This will git pull and then git submodule update which is necessary to pick up corresponding library updates, then try to build again using 'make install' to fetch any new CPAN dependencies.
 
 ### Usage --help ###
 
