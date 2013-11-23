@@ -52,6 +52,7 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - self-timeouts
 - graphing data where appropriate
 - code reuse, especially for more complex input/output validations
+- support for use of $PASSWORD environment variables to avoid to need to use --password (leaking credentials in the process list for all users to see)
 - easy rapid development of new high quality Nagios plugins
 
 Several plugins have been merged together and replaced with symlinks to the unified plugins bookmarking their areas of functionality, similar to some plugins from the standard nagios plugins collection.
