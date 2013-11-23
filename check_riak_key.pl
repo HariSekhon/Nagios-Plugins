@@ -66,7 +66,6 @@ my $units;
 get_options();
 
 $host      = validate_host($host);
-$ip        = validate_resolvable($host);
 $port      = validate_port($port);
 $key       = validate_nosql_key($key, "riak");
 $bucket    = validate_alnum($bucket, "bucket");
@@ -85,13 +84,15 @@ $precision = $1;
 validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 0, "integer" => 0 } );
 vlog2;
 
+vlog2;
+set_timeout();
+
+$ip        = validate_resolvable($host);
+
 my $node   = "riak node '$host:$port'";
 my $url    = "http://$ip:$port/riak/$bucket/$key";
 vlog_options "url",    $url;
 my $bucket_key = "key '$key' bucket '$bucket'";
-
-vlog2;
-set_timeout();
 
 my $http_timeout = sprintf("%.2f", $timeout - 0.5);
 $http_timeout = 1 if $http_timeout < 1;
