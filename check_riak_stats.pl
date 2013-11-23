@@ -9,9 +9,16 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to check Riak's /stats metrics";
+$DESCRIPTION = "Nagios Plugin to check Riak's /stats metrics
 
-$VERSION = "0.2";
+Checks:
+
+1. fetches one or more stats
+2. checks stat's value against expected regex (optional)
+3. checks stat's value against warning/critical range thresholds (optional)
+   raises warning/critical if the value is outside thresholds or not a floating point number";
+
+$VERSION = "0.6";
 
 use strict;
 use warnings;
@@ -28,20 +35,19 @@ $port = $default_port;
 
 my $metrics;
 my $all_metrics;
-my $expected_string;
+my $expected;
 
 %options = (
     "H|host=s"            => [ \$host,              "Riak node to connect to" ],
     "P|port=s"            => [ \$port,              "Port to connect to (defaults to $default_port)" ],
     "m|metrics=s"         => [ \$metrics,           "Metric(s) to collect, comma separated. Output in the order specified for convenience. Optional thresholds will only be applied when a single metrics is given" ],
     "a|all-metrics"       => [ \$all_metrics,       "Grab all metrics. Useful if you don't know what to monitor yet or just want to graph everything" ],
-    # TODO: add regex match here later
-    "s|expected-string=s" => [ \$expected_string,   "Expected string for metric if one metric is given. Takes priority over threshold range metrics" ],
-    "w|warning=s"         => [ \$warning,           "Warning  threshold or ran:ge (inclusive). Only applied when a single metric is given and that metric is a float" ],
-    "c|critical=s"        => [ \$critical,          "Critical threshold or ran:ge (inclusive). Only applied when a single metric is given and that metric is a float" ],
+    "e|expected=s"        => [ \$expected,          "Expected regex for metric if one metric is given. Checked before range thresholds. Optional" ],
+    "w|warning=s"         => [ \$warning,           "Warning  threshold or ran:ge (inclusive). Optional" ],
+    "c|critical=s"        => [ \$critical,          "Critical threshold or ran:ge (inclusive). Optional" ],
 );
 
-@usage_order = qw/host port metrics all-metrics warning critical expected-string/;
+@usage_order = qw/host port metrics all-metrics expected warning critical/;
 get_options();
 
 $host       = validate_host($host);
@@ -60,7 +66,21 @@ if($all_metrics){
     }
     @stats or usage "no valid metrics specified";
 }
-validate_thresholds();
+if(defined($expected)){
+    ($all_metrics or scalar @stats != 1) and usage "can only specify expected value when giving a single stat";
+    $expected = validate_regex($expected);
+}
+if(($all_metrics or scalar @stats != 1) and ($warning or $critical)){
+    usage "can only specify warning/critical thresholds when giving a single stat";
+}
+validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 0, "integer" => 0 } );
+vlog2;
+
+my $http_timeout = sprintf("%.2f", $timeout/3);
+$http_timeout = 1 if $http_timeout < 1;
+vlog2 "\nsetting http timeout to $http_timeout secs";
+$ua->timeout($http_timeout);
+$ua->show_progress(1) if $debug;
 
 vlog2;
 set_timeout();
@@ -168,6 +188,8 @@ if($all_metrics){
         $msg .= "$_=$stats{$_} ";
     }
 }
+
+my $value;
 if($all_metrics){
     my $metrics_found=0;
     foreach(sort keys %stats){
@@ -180,15 +202,35 @@ if($all_metrics){
         $msg .= "$_=$stats{$_} ";
     }
 } elsif(!$all_metrics and scalar @stats == 1){
-    if(defined($expected_string)){
-        unless($stats{$stats[0]} eq $expected_string){
-            $msg .= "does not match expected string '$expected_string' !!";
+    $msg =~ s/ $//;
+    $value = $stats{$stats[0]};
+    if(defined($expected)){
+        vlog2 "\nchecking stat value '$value' against expected regex '$expected'\n";
+        unless($value =~ $expected){
+            $msg .= " does not match expected regex '$expected'!!";
             quit "CRITICAL", $msg;
         }
-    } elsif(isFloat($stats{$stats[0]})){ # or quit "UNKNOWN", "threshold validation given for non-float metric '$stats[0]'";
-        $msg =~ s/ $//;
-        check_thresholds($stats{$stats[0]});
-        $msg .= " | $stats[0]=$stats{$stats[0]};" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "") . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "");
+    }
+    my $isFloat = isFloat($value);
+    my $non_float_err = ". Value is not a floating point number!";
+    if($critical){
+        unless($isFloat){
+            critical;
+            $msg .= $non_float_err;
+        }
+    } elsif($warning){
+        unless($isFloat){
+            warning;
+            $msg .= $non_float_err;
+        }
+    }
+    my ($threshold_ok, $threshold_msg);
+    if($isFloat){
+        ($threshold_ok, $threshold_msg) = check_thresholds($value, 1);
+        if(!$threshold_ok){
+            $msg .= " $threshold_msg";
+        }
+        $msg .= " | $stats[0]=$value" . msg_perf_thresholds(1);
     }
 } else {
     my $metrics_found=0;
