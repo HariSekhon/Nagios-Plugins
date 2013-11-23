@@ -74,6 +74,10 @@ vlog2;
 
 set_timeout();
 
+my $socket_timeout = sprintf("%.2f", $timeout / 4);
+$socket_timeout = 1 if $socket_timeout < 1;
+vlog2 "setting socket timeout to $socket_timeout secs as 1/4 of timeout since there are 3 more operations to do on socket\n";
+
 $status = "OK";
 
 vlog2 "connecting to $host:$port";
@@ -83,6 +87,7 @@ my $conn = IO::Socket::INET->new (
                                     Proto    => "tcp",
                                     PeerAddr => $ip,
                                     PeerPort => $port,
+                                    Timeout  => $socket_timeout,
                                  ) or quit "CRITICAL", "Failed to connect to '$host:$port': $!";
 my $connect_time = sprintf("%0.${precision}f", time - $start_time);
 vlog2 "OK connected in $connect_time secs\n";
