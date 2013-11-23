@@ -60,11 +60,7 @@ get_options();
 
 $host      = validate_host($host);
 $port      = validate_port($port);
-validate_int($precision, 1, 20, "precision");
-unless($precision =~ /^(\d+)$/){
-    code_error "precision is not a digit and has already passed validate_int()";
-}
-$precision = $1;
+$precision = validate_int($precision, 1, 20, "precision");
 validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integer" => 0 } );
 vlog2;
 
