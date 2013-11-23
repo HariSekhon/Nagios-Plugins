@@ -1,5 +1,5 @@
 =======================================
-HARI SEKHON LICENSE Revision 2012123000
+HARI SEKHON LICENSE Revision 2013112300
 =======================================
 
 Copyright (c) 2006 onwards, Hari Sekhon
@@ -19,15 +19,19 @@ modification, is permitted provided that the following conditions are met:
    promote products derived from this software without specific prior written
    permission.
 5. Modifications may be released to the public only with prior written permission
-   from Hari Sekhon
+   from Hari Sekhon. Forking on GitHub is permitted for the purpose of creating
+   patch pull requests back to the original repository.
 6. Private modifications may be made to suit requirements, but any modifications
    to this work whether publicly disclosed or not must be sent back to
-   Hari Sekhon (hari.sekhon.code@gmail.com) and must come under this same
-   license. Any such modifications may be reincorporated for the improvement
-   of this software.
+   Hari Sekhon via GitHub (https://github.com/harisekhon) or
+                   LinkedIn (https://www.linkedin.com/in/harisekhon)
+   and must come under this same license. Any such modifications may be
+   reincorporated for the improvement of this software.
 7. This work may not be sold without prior written permission from Hari Sekhon
 8. This license may change at any time and the latest revision supersedes
    all prior revisions.
+9. Alternative licensing must be agreed in writing with Hari Sekhon prior
+   to public availability.
 
 THIS SOFTWARE IS PROVIDED BY Hari Sekhon ''AS IS'' AND ANY
 EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
