@@ -57,7 +57,7 @@ my $units;
     "e|expected=s"     => [ \$expected,     "Expected regex for the given Riak key's value. Optional" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold ra:nge (inclusive) for the key's value. Optional" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold ra:nge (inclusive) for the key's value. Optional" ],
-    "g|graph"          => [ \$graph,        "Graph key's value, use only if a floating point number is normally returned for it's values, otherwise will print NaN (Not a Number). The reason this is not determined automatically is because keys that change between floats and non-floats will result in variable numbers of perfdata which will break PNP4Nagios" ],
+    "g|graph"          => [ \$graph,        "Graph key's value, use only if a floating point number is normally returned for it's values, otherwise will print NaN (Not a Number). The reason this is not determined automatically is because keys that change between floats and non-floats will result in variable numbers of perfdata tokens which will break PNP4Nagios" ],
     "u|units=s"        => [ \$units,        "Units to use if graphing key's value" ],
     "precision=i"      => [ \$precision,    "Number of decimal places for timings (default: $default_precision)" ],
 );
