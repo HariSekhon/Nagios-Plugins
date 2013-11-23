@@ -90,14 +90,14 @@ my $url    = "http://$ip:$port/riak/$bucket/$key";
 vlog_options "url",    $url;
 my $bucket_key = "key '$key' bucket '$bucket'";
 
+vlog2;
+set_timeout();
+
 my $http_timeout = sprintf("%.2f", $timeout - 0.5);
 $http_timeout = 1 if $http_timeout < 1;
 vlog2 "\nsetting http timeout to $http_timeout secs";
 $ua->timeout($http_timeout);
 $ua->show_progress(1) if $debug;
-
-vlog2;
-set_timeout();
 
 $status = "OK";
 
