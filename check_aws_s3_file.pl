@@ -54,19 +54,16 @@ my $ssl_noverify;
     "ssl-CA-path=s"    => [ \$ssl_ca_path,      "Path to CA certificate directory for validating SSL certificate" ],
     "ssl-noverify"     => [ \$ssl_noverify,     "Do not verify SSL certificate from AWS S3 (not recommended)" ],
 );
-
 @usage_order = qw/file bucket aws-access-key aws-secret-key get no-ssl ssl-CA-path ssl-noverify/;
-get_options();
 
 if(not defined($aws_access_key) and defined($ENV{"AWS_ACCESS_KEY"})){
     $aws_access_key = $ENV{"AWS_ACCESS_KEY"};
-    vlog2 "read AWS_ACCESS_KEY environment variable";
 }
 if(not defined($aws_secret_key) and defined($ENV{"AWS_SECRET_KEY"})){
     $aws_secret_key = $ENV{"AWS_SECRET_KEY"};
-    vlog2 "read AWS_SECRET_KEY environment variable";
 }
-vlog2;
+
+get_options();
 
 $aws_host       = validate_host($aws_host);
 $file           = validate_filename($file);
