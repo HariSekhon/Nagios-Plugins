@@ -20,7 +20,7 @@ Can specify a remote host and port otherwise it checks the local node's stats (f
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
-$VERSION = "0.4.1";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -100,13 +100,15 @@ push(@stats2, @stats);
 
 my $msg2;
 my $msg3;
+my ($thresholds_ok, $thresholds_msg);
 foreach(my $i = 0; $i < scalar @stats2; $i++){
     foreach my $stat3 ($stats2[$i]){
         foreach my $key (keys %$stat3){
             $msg2 = "$key=$$stat3{$key} ";
             $msg3 .= $msg2;
             if($key =~ /Pending|Blocked/i){
-                unless(check_thresholds($$stat3{$key}, 1)){
+                ($thresholds_ok, $thresholds_msg) = check_thresholds($$stat3{$key}, 1);
+                unless($thresholds_ok){
                     $msg2 = uc $msg2;
                 }
             }
