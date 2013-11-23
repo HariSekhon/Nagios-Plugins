@@ -156,10 +156,10 @@ if($critical){
     }
 }
 
-my ($threshold_status, $threshold_msg);
+my ($threshold_ok, $threshold_msg);
 if($isFloat){
-    ($threshold_status, $threshold_msg) = check_thresholds($value, 1);
-    if(!$threshold_status or $verbose){
+    ($threshold_ok, $threshold_msg) = check_thresholds($value, 1);
+    if(!$threshold_ok or $verbose){
         $msg .= " $threshold_msg.";
     } else {
         $msg .= ".";
