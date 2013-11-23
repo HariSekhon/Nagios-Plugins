@@ -183,13 +183,10 @@ if($isFloat){
     ($threshold_ok, $threshold_msg) = check_thresholds($value, 1);
     if((!$threshold_ok or $verbose) and $threshold_msg){
         $msg .= " $threshold_msg.";
-    } else {
-        $msg =~ s/ $//;
-        $msg .= ".";
     }
 } else {
     $msg =~ s/ $//;
-    $msg .= ".";
+    $msg .= "." unless $msg =~ /[\.\!]$/;
 }
 
 $msg .= $read_msg;
