@@ -95,7 +95,7 @@ if($progname eq "check_redis_write_replication.pl"){
 if(defined($database)){
     $database = validate_int($database, 0, 10000, "database");
 }
-validate_int($precision, 1, 20, "precision");
+$precision = validate_int($precision, 1, 20, "precision");
 validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integer" => 0 } );
 vlog2;
 

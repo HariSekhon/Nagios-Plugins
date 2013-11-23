@@ -69,11 +69,7 @@ vlog_options "graph", "true" if $graph;
 if(defined($units)){
     $units = validate_units($units);
 }
-validate_int($precision, 1, 20, "precision");
-unless($precision =~ /^(\d+)$/){
-    code_error "precision is not a digit and has already passed validate_int()";
-}
-$precision = $1;
+$precision = validate_int($precision, 1, 20, "precision");
 validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integer" => 0 } );
 
 vlog2;

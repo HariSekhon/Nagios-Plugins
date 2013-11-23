@@ -97,7 +97,7 @@ unless($check_replication_slave){
     }
 }
 $password   = validate_password($password) if $password;
-validate_int($precision, 1, 20, "precision");
+$precision  = validate_int($precision, 1, 20, "precision");
 validate_thresholds();
 
 vlog2;
