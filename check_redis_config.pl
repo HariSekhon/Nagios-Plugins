@@ -66,9 +66,13 @@ my $no_warn_missing   = 0;
 our %options = (
     "H|host=s"      => [ \$host,        "Redis Host to connect to (default: localhost)" ],
     "P|port=s"      => [ \$port,        "Redis Port to connect to (default: $REDIS_DEFAULT_PORT)" ],
-    "p|password=s"  => [ \$password,    "Password to connect with (use if Redis is configured with requirepass)" ],
+    "p|password=s"  => [ \$password,    "Password to connect with (use if Redis is configured with requirepass. Recommended to set \$REDIS_PASSWORD environment variable to avoid password showing up in the process list)" ],
     "C|config=s"    => [ \$conf,        "Redis config file (default: $default_config)" ],
 );
+
+if($ENV{'REDIS_PASSWORD'}){
+    $password = $ENV{'REDIS_PASSWORD'};
+}
 
 @usage_order = qw/host port password config/;
 get_options();
