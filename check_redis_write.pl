@@ -132,7 +132,8 @@ if(defined($database)){
     }
 }
 
-# TODO: Could consider setting hashes, lists, sets, pub-sub etc later...
+# TODO: Could consider setting hashes, lists, sets etc later...
+# Update: pub-sub is done under check_redis_publish_subscribe.pl
 
 vlog2 "writing key to $hostport";
 my $start_time   = time;
