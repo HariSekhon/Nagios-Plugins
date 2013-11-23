@@ -130,7 +130,7 @@ my $read_time= sprintf("%0.${precision}f", time - $read_start_time);
 vlog2 "read request completed in $read_time secs\n";
 
 unless(defined($value)){
-    quit "CRITICAL", "failed to find key content from memcached at '$host:$port', try running with -vv or -vvv to debug";
+    quit "CRITICAL", "key '$key' does not exist";
 }
 
 close $conn;
@@ -184,10 +184,9 @@ if($isFloat){
     if((!$threshold_ok or $verbose) and $threshold_msg){
         $msg .= " $threshold_msg.";
     }
-} else {
-    $msg =~ s/ $//;
-    $msg .= "." unless $msg =~ /[\.\!]$/;
 }
+$msg =~ s/ $//;
+$msg .= "." unless $msg =~ /[\.\!]$/;
 
 $msg .= $read_msg;
 
