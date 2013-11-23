@@ -160,12 +160,12 @@ if($critical){
 my ($threshold_ok, $threshold_msg);
 if($isFloat){
     ($threshold_ok, $threshold_msg) = check_thresholds($value, 1);
-    if(!$threshold_ok or $verbose){
+    if((!$threshold_ok or $verbose) and $threshold_msg){
         $msg .= " $threshold_msg.";
-    } else {
-        $msg .= ".";
     }
 }
+$msg =~ s/ $//;
+$msg .= "." unless $msg =~ /[\.\!]$/;
 
 $msg .= $read_msg;
 
