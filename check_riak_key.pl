@@ -68,17 +68,6 @@ get_options();
 $host      = validate_host($host);
 $ip        = validate_resolvable($host);
 $port      = validate_port($port);
-# TODO: move this to lib for other nosql key reading plugins to leverage
-sub validate_nosql_key($;$){
-    my $key  = shift;
-    my $name = shift || "";
-    $name .= " " if $name;
-    defined($key) or usage "${name}key not defined";
-    $key =~ /^([\w\_\,\.\:\+\-]+)$/ or usage "invalid ${name}key name given, may only contain characters: alphanumeric, commas, colons, underscores, pluses, dashes";
-    $key = $1;
-    vlog_options "${name}key", $key;
-    return $key;
-}
 $key       = validate_nosql_key($key, "riak");
 $bucket    = validate_alnum($bucket, "bucket");
 validate_int($precision, 1, 20, "precision");
