@@ -70,7 +70,6 @@ $ip        = validate_resolvable($host);
 $port      = validate_port($port);
 $key       = validate_nosql_key($key, "riak");
 $bucket    = validate_alnum($bucket, "bucket");
-validate_int($precision, 1, 20, "precision");
 if(defined($expected)){
     $expected = validate_regex($expected);
 }
@@ -78,6 +77,7 @@ vlog_options "graph", "true" if $graph;
 if(defined($units)){
     $units = validate_units($units);
 }
+validate_int($precision, 1, 20, "precision");
 unless($precision =~ /^(\d+)$/){
     code_error "precision is not a digit and has already passed validate_int()";
 }
@@ -158,11 +158,11 @@ if($critical){
 
 my ($threshold_status, $threshold_msg);
 if($isFloat){
-    ($threshold_status, $threshold_msg) = check_thresholds($value);
-    if($threshold_status){
-        $msg .= ".";
+    ($threshold_status, $threshold_msg) = check_thresholds($value, 1);
+    if(!$threshold_status or $verbose){
+        $msg .= " $threshold_msg.";
     } else {
-        $msg .= "$threshold_msg.";
+        $msg .= ".";
     }
 }
 
