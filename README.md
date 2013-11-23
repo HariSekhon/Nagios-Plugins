@@ -107,7 +107,7 @@ git submodule init
 git submodule update
 ```
 
-Then install the Perl CPAN modules for whichever plugins you want to use, which are all listed in the Makefile. I suggest just installing them all for quick simplicity using one of the two methods listed next.
+Then install the Perl CPAN and Python modules as listed in the next sections.
 
 ##### Perl CPAN Modules #####
 
