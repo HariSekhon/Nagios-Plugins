@@ -132,5 +132,5 @@ $msg .= "total_clients=$total_clients";
 msg_perf_thresholds();
 $msg .= " authorized_hosts=" . scalar @authorized_hosts . " unauthorized_hosts=" . scalar @unauthorized_hosts . " query_time=${time_taken}s";
 
-vlog2;
+vlog2 if is_ok;
 quit $status, $msg;
