@@ -11,12 +11,14 @@
 
 $DESCRIPTION = "Nagios Plugin to check a Redis server's client list
 
-1. Returns counts of all connected clients, and in verbose mode unique clients address list
-2. Checks all connected client addresses match expected address regex (optional)
-3. Checks the the number of connected clients against warning/critical thresholds (optional)";
+1. Returns counts of total connected clients and unique hosts
+2. In verbose mode returns unique hosts address list
+3. Checks all connected client host addresses match expected address regex (optional)
+4. Checks the total number of connected clients against warning/critical thresholds (optional). There may be multiple client connections from each host and each one consumes a file descriptor on the server so it is the number of client connections rather than the number of hosts that are checked against thresholds
 
+Developed on Redis 2.4.10";
 
-$VERSION = "0.4";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -33,7 +35,7 @@ my $expected;
 
 %options = (
     %redis_options,
-    "e|expected=s"     => [ \$expected,     "Allowed clients, raises critical if unauthorized clients are detected. Optional, regex" ],
+    "e|expected=s"     => [ \$expected,     "Allowed client addresses, raises critical if unauthorized clients are detected. Optional, regex" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold ra:nge (inclusive). Optional" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold ra:nge (inclusive). Optional" ],
 );
@@ -81,51 +83,54 @@ if($verbose > 2){
     print "#" . " " x 32 . "Client List\n";
     hr;
 }
-$msg = "";
-my %authorized_clients;
-my %unauthorized_clients;
+my %authorized_hosts;
+my %unauthorized_hosts;
 my $client;
+my $total_clients = 0;
 foreach(@clients){
     vlog3 $_;
-    /^addr=($ip_regex):\d+\s+/ or quit "UNKNOWN", "failed to parse client list. $nagios_plugins_support_msg";
+    /^addr=(($ip_regex):\d+)\s+/ or quit "UNKNOWN", "failed to parse client list. $nagios_plugins_support_msg";
     $client = $1;
+    $host   = $2;
+    $total_clients++;
     if(defined($expected)){
-        unless($client =~ $expected){
-            $unauthorized_clients{$client} = 1;
+        unless($host =~ $expected){
+            $unauthorized_hosts{$host} = 1;
         } else {
-            $authorized_clients{$client} = 1;
+            $authorized_hosts{$host} = 1;
         }
     } else {
-        $authorized_clients{$client} = 1;
+        $authorized_hosts{$host} = 1;
     }
 }
 hr if $verbose > 2;
 
-my @authorized_clients   = sort keys %authorized_clients;
-my @unauthorized_clients = sort keys %unauthorized_clients;
-my $total_clients = scalar @authorized_clients + scalar @unauthorized_clients;
-
-if(@unauthorized_clients){
-    critical;
-    plural @unauthorized_clients;
-    $msg .= scalar @unauthorized_clients . " unauthorized client$plural";
-    $msg .= ": @unauthorized_clients" if $verbose;
-    $msg .= ", ";
-}
-if(@authorized_clients){
-    plural @authorized_clients;
-    $msg .= scalar @authorized_clients . " authorized client$plural";
-    $msg .= ": @authorized_clients" if $verbose;
-    $msg .= ", ";
-}
+my @authorized_hosts   = sort keys %authorized_hosts;
+my @unauthorized_hosts = sort keys %unauthorized_hosts;
+my $total_hosts        = scalar @authorized_hosts + scalar @unauthorized_hosts;
 
 plural $total_clients;
-$msg .= "$total_clients total client$plural";
+$msg  = "$total_clients total client$plural";
 check_thresholds($total_clients);
+plural $total_hosts;
+$msg .= " from $total_hosts unique host$plural";
+
+if(@unauthorized_hosts){
+    critical;
+    plural @unauthorized_hosts;
+    $msg .= ", " . scalar @unauthorized_hosts . " UNAUTHORIZED host$plural";
+    $msg .= ": @unauthorized_hosts" if $verbose;
+}
+if(@authorized_hosts){
+    plural @authorized_hosts;
+    $msg .= ", " . scalar @authorized_hosts . " authorized host$plural";
+    $msg .= ": @authorized_hosts" if $verbose;
+}
+
 $msg .= ", queried server in $time_taken secs | ";
 $msg .= "total_clients=$total_clients";
 msg_perf_thresholds();
-$msg .= " authorized_clients=" . scalar @authorized_clients . " unauthorized_clients=" . scalar @unauthorized_clients . " query_time=${time_taken}s";
+$msg .= " authorized_hosts=" . scalar @authorized_hosts . " unauthorized_hosts=" . scalar @unauthorized_hosts . " query_time=${time_taken}s";
 
 vlog2;
 quit $status, $msg;
