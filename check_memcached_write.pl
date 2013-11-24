@@ -19,7 +19,7 @@ Checks:
 4. records the read/write/delete timings and total time (including tcp connection and close) to a given precision
 5. compares timing of each read/write/delete operation against warning/critical thresholds if given";
 
-$VERSION = "0.9";
+$VERSION = "0.9.1";
 
 use strict;
 use warnings;
@@ -99,19 +99,19 @@ my $write_start_time = time;
 print $conn $memcached_write_cmd or quit "CRITICAL", "failed to write memcached key/value on '$host:$port': $!";
 
 sub check_memcached_response($){
-    my $_ = shift;
+    my $response = shift;
     my $err_msg;
     if(/ERROR/){
-        if(/^ERROR$/){
+        if($response =~ /^ERROR$/){
             $err_msg = "unknown command sent to";
-        } elsif(/CLIENT_ERROR/){
+        } elsif($response =~ /CLIENT_ERROR/){
             $err_msg = "client error returned from";
-        } elsif (/SERVER_ERROR/){
+        } elsif ($response =~ /SERVER_ERROR/){
             $err_msg = "server error returned from";
         } else {
             $err_msg = "unknown error returned from";
         }
-        quit "CRITICAL", "$err_msg memcached '$host:$port': '$_'";
+        quit "CRITICAL", "$err_msg memcached '$host:$port': '$response'";
     }
 }
 
