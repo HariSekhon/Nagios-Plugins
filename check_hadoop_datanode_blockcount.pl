@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the number of blocks on a Hadoop HDFS Datanode via it's blockScannerReport";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -25,11 +25,18 @@ use LWP::Simple qw/get $ua/;
 my $default_port = 50075;
 $port = $default_port;
 
+# This is based on experience, real clusters seem to run in to problems after 300,000 blocks per DN. Cloudera Manager also alerts around thsi point
+my $default_warning  = 300000;
+my $default_critical = 500000;
+
+$warning  = $default_warning;
+$critical = $default_critical;
+
 %options = (
     "H|host=s"         => [ \$host,         "DataNode host to connect to" ],
     "P|port=s"         => [ \$port,         "DataNode HTTP port (default: $default_port)" ],
-    "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive)" ],
-    "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
+    "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive, default: $default_warning)"  ],
+    "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive, default: $default_critical)" ],
 );
 
 @usage_order = qw/host port warning critical/;
