@@ -16,9 +16,15 @@ Useful for checking
 1. Configuration Compliance against a baseline
 2. Puppet has correctly deployed revision controlled config version
 
+Detects password in this order of priority (highest first):
+
+1. --password command line switch
+2. \$REDIS_PASSWORD environment variable (recommended)
+3. requirepass setting in config file
+
 Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Collection)";
 
-$VERSION = "0.3.1";
+$VERSION = "0.6";
 
 use strict;
 use warnings;
@@ -27,7 +33,8 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils qw/:DEFAULT :regex/;
-use Cwd 'abs_path';
+use HariSekhon::Redis;
+#use Cwd 'abs_path';
 use IO::Socket;
 
 my $default_config_cmd = "config";
@@ -57,22 +64,14 @@ my $conf = $default_config;
 
 $host = "localhost";
 
-our $REDIS_DEFAULT_PORT = 6379;
-our $port               = $REDIS_DEFAULT_PORT;
-
 my $no_warn_extra     = 0;
 my $no_warn_missing   = 0;
 
 our %options = (
-    "H|host=s"      => [ \$host,        "Redis Host to connect to (default: localhost)" ],
-    "P|port=s"      => [ \$port,        "Redis Port to connect to (default: $REDIS_DEFAULT_PORT)" ],
-    "p|password=s"  => [ \$password,    "Password to connect with (use if Redis is configured with requirepass. Recommended to set \$REDIS_PASSWORD environment variable to avoid password showing up in the process list)" ],
+    %redis_options,
     "C|config=s"    => [ \$conf,        "Redis config file (default: $default_config)" ],
 );
-
-if($ENV{'REDIS_PASSWORD'}){
-    $password = $ENV{'REDIS_PASSWORD'};
-}
+delete $options{"precision=i"};
 
 @usage_order = qw/host port password config/;
 get_options();
@@ -80,6 +79,7 @@ get_options();
 $host       = validate_host($host);
 $port       = validate_port($port);
 $password   = validate_password($password) if $password;
+$conf       = validate_file($conf, 0, "config");
 validate_thresholds();
 
 vlog2;
@@ -100,13 +100,20 @@ while(<$fh>){
     s/^\s*//;
     s/\s*$//;
     debug "conf file:  $_";
-    /^\s*([\w\.-]+)\s+(.+)$/ or quit "UNKNOWN", "unrecognized line in config file '$conf': '$_'. $nagios_plugins_support_msg";
+    /^\s*([\w\.-]+)\s+(.+?)\s*$/ or quit "UNKNOWN", "unrecognized line in config file '$conf': '$_'. $nagios_plugins_support_msg";
     $key   = lc $1;
     $value = lc $2;
     if($key eq "dir"){
-        $value = abs_path($2);
+        # this checks the file system and returns undef when /var/lib/redis isn't found when checking from my remote Mac
+        #$value = abs_path($value);
+        # Redis live running server displays the dir without trailing slash unlike default config
+        $value =~ s/\/+$//;
     } elsif ($key eq "requirepass"){
         $value = "<omitted>";
+        unless($password){
+            vlog2 "detected and using password from config file";
+            $password = $2;
+        }
     } elsif ($key eq "rename-command"){
         my @tmp = split(/\s+/, $value);
         if(scalar @tmp == 2){
@@ -127,9 +134,8 @@ while(<$fh>){
 }
 vlog3 "=====================";
 
-vlog2;
 if($config_cmd ne $default_config_cmd){
-    vlog2 "found alternative config command '$config_cmd' from config file '$conf'";
+    vlog2 "\nfound alternative config command '$config_cmd' from config file '$conf'";
 }
 $config_cmd =~ /^([\w-]+)$/ || quit "UNKNOWN", "config command was set to a non alphanumeric string '$config_cmd', aborting, check config file '$conf' for 'rename-command CONFIG'";
 $config_cmd = $1;
@@ -287,7 +293,7 @@ if((!$no_warn_extra) and @extra_config){
     $msg .= ", ";
 }
 
-$msg = sprintf("%d config values tested from config file '$conf', %s", scalar keys %config, $msg);
+$msg = sprintf("%d config values tested from config file '%s', %s", scalar keys %config, $conf, $msg);
 $msg =~ s/, $//;
 
 vlog2;
