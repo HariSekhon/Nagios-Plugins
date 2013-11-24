@@ -28,11 +28,19 @@ $timeout_max = 130;
 $timeout_min = 10;
 
 %options = (
-    "H|host=s"          => [ \$host, "Host to connect to" ],
-    "P|port=s"          => [ \$port, "Port to connect to" ],
-    "u|user|username=s" => [ \$user, "User to connect with" ],
-    "p|pass|password=s" => [ \$password, "Password to connect with" ]
+    "H|host=s"      => [ \$host, "Host to connect to" ],
+    "P|port=s"      => [ \$port, "Port to connect to" ],
+    "u|user=s"      => [ \$user, "User to connect with (\$SSH_USER environment variable)" ],
+    "p|password=s"  => [ \$password, "Password to connect with (\$SSH_PASSWORD environment variable)" ]
 );
+@usage_order = qw/host port user password/;
+
+if($ENV{"SSH_USER"}){
+    $user = $ENV{"SSH_USER"};
+}
+if($ENV{"SSH_PASSWORD"}){
+    $password = $ENV{"SSH_PASSWORD"};
+}
 
 get_options();
 
