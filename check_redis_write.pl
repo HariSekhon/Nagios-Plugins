@@ -23,7 +23,7 @@ Checks:
 
 Developed on Redis 2.4.10";
 
-$VERSION = "0.5";
+$VERSION = "0.6";
 
 use strict;
 use warnings;
@@ -100,8 +100,8 @@ validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integ
 vlog2;
 
 my $epoch  = time;
-my $key    = "HariSekhon:$progname:$host:$epoch";
 my $value  = random_alnum(20);
+my $key    = "HariSekhon:$progname:$host:$epoch:" . substr($value, 0, 10);
 vlog_options "key",    $key;
 vlog_options "value",  $value;
 vlog2;
