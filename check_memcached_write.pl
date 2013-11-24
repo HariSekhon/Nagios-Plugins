@@ -44,8 +44,8 @@ my $precision = $default_precision;
 %options = (
     "H|host=s"      => [ \$host,        "Host to connect to" ],
     "P|port=s"      => [ \$port,        "Port to connect to (default: $default_port)" ],
-    "w|warning=s"   => [ \$warning,     "Warning  threshold in seconds for each read/write/delete operation (use float for milliseconds). Cannot be more than 1/4 of the total plugin --timeout (must increase timeout)" ],
-    "c|critical=s"  => [ \$critical,    "Critical threshold in seconds for each read/write/delete operation (use float for milliseconds). Cannot be more than 1/4 of the total plugin --timeout (must increase timeout)" ],
+    "w|warning=s"   => [ \$warning,     "Warning  threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
+    "c|critical=s"  => [ \$critical,    "Critical threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
     "precision=i"   => [ \$precision,   "Number of decimal places for timings (default: $default_precision)" ],
 );
 
@@ -55,7 +55,7 @@ get_options();
 $host = validate_host($host);
 $port = validate_port($port);
 $precision = validate_int($precision, 1, 20, "precision");
-validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integer" => 0, "max" => $timeout/4 } );
+validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integer" => 0 } );
 vlog2;
 
 my $epoch  = time;
