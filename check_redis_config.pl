@@ -118,9 +118,11 @@ while(<$fh>){
         my @tmp = split(/\s+/, $value);
         # if rename-command config " " this block is never entered
         if(scalar @tmp == 2){
-            $config_cmd = $tmp[1];
-            $config_cmd =~ s/["'`]//g;
-            quit "UNKNOWN", "config command was disabled in config file '$conf' using rename-command" unless $config_cmd;
+            if($tmp[0] eq "config"){
+                $config_cmd = $tmp[1];
+                $config_cmd =~ s/["'`]//g;
+                quit "UNKNOWN", "config command was disabled in config file '$conf' using rename-command" unless $config_cmd;
+            }
         }
     }
     if($value =~ /^(\d+(?:\.\d+)?)([KMGTP]B)$/i){
