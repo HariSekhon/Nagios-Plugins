@@ -22,7 +22,7 @@ Checks:
 
 Developed on Redis 2.4.10";
 
-$VERSION = "0.5";
+$VERSION = "0.6";
 
 use strict;
 use warnings;
@@ -58,8 +58,9 @@ validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integ
 vlog2;
 
 my $epoch  = time;
-my $channel  = "HariSekhon:$progname:$host:$epoch";
-my $message  = "This is a publish-subscribe test message from HariSekhon:$progname:$host at epoch $epoch with random token: " . random_alnum(20);
+my $random_string = random_alnum(20);
+my $channel  = "HariSekhon:$progname:$host:$epoch:" . substr($random_string, 0, 10);
+my $message  = "This is a publish-subscribe test message from HariSekhon:$progname:$host at epoch $epoch with random token: $random_string";
 vlog_options "channel", $channel;
 vlog_options "message", $message;
 vlog2;
