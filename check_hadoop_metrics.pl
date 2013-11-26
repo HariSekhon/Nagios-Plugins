@@ -27,6 +27,8 @@ HBase Master /
                                - 'master:',
                                - 'regionserver:'
                                - 'RegionServerDynamicStatistics:'
+
+NOTE: NameNode and DataNode metrics pages are currently blank. See check_hadoop_jmx.pl for some jmx metrics instead
 ";
 
 $VERSION = "0.3.3";
@@ -98,7 +100,11 @@ unless($content){
 sub check_stats_parsed(){
     if($all_metrics){
         if(scalar keys %stats == 0){
-            quit "UNKNOWN", "no stats collected from /metrics page (daemon recently started?)";
+            if($port == 50070 or $port == 50075){
+                usage "no stats collected from /metrics page, NameNode and DataNode /metrics pages did not export any metrics at the time of writing";
+            } else {
+                quit "UNKNOWN", "no stats collected from /metrics page (daemon recently started?)";
+            }
         }elsif(scalar keys %stats < 10){
             quit "UNKNOWN", "<10 stats collected from /metrics page (daemon recently started?). This could also be an error, try running with -vvv to see what the deal is";
         }
