@@ -9,22 +9,28 @@
 #  License: see accompanying LICENSE file
 #
 
+# TODO: this heap can be misleading, should use /jmx instead or make a note of this. How come check_hadoop_metrics.pl doesn't support NameNode/DataNode are they not supporting metrics??
+
 $DESCRIPTION = "Nagios Plugin to run various checks against the Hadoop HDFS Cluster via the Namenode JSP pages
 
-This is an alternate rewrite of the functionality from my previous check_hadoop_dfs.pl plugin
-using the Namenode JSP interface instead of the hadoop dfsadmin -report output
+This is an alternate rewrite of the functionality from my original check_hadoop_dfs.pl plugin using the Namenode JSP interface instead of the 'hadoop dfsadmin -report' output. Reason for writing is not only to allow checking your NameNode remotely via JSP without having to adjust the NameNode setup to install the check_hadoop_dfs.pl plugin, but it also gives the following additional checks not available via that method:
 
-Recommend to use the original check_hadoop_dfs.pl plugin it's better tested and has better/tighter output validation than this one, but this one is useful for the following reasons:
-1. you can check your NameNode remotely via JSP without having to adjust the NameNode setup to install the check_hadoop_dfs.pl plugin
-2. it can check Namenode Heap Usage
+Extra checks not available via check_hadoop_dfs.pl
+
+1. Namenode Heap Usage
+3. Datanode block counts
+4. Datanode block count imbalance %
+
+For the rest of the checks which are also served via check_hadoop_dfs.pl it's recommended to use that original check_hadoop_dfs.pl plugin since it's better tested and has better/tighter output validation than this is possible via JSP.
 
 Caveats:
-1. Cannot currently detect corrupt or under-replicated blocks since JSP doesn't offer this information
+
+1. In Replication check cannot currently detect corrupt or under-replicated blocks since JSP doesn't offer this information
 2. There are no byte counters, so we can only use the human summary and multiply out, and being a multiplier of a summary figure it's marginally less accurate
 
 Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for CDH 4.3 (2.0.0-cdh4.3.0). If JSP output changes across versions, this plugin will need to be updated to parse the changes";
 
-$VERSION = "0.2";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -41,9 +47,11 @@ my $balance         = 0;
 #my $dead_nodes      = 0;
 my $hdfs_space      = 0;
 my $heap            = 0;
-my $node_list        = "";
+my $node_list       = "";
 my $node_count      = 0;
 my $replication     = 0;
+my $datanode_blocks = 0;
+my $datanode_block_balance = 0;
 
 # this is really just for contraining the size of the output printed
 my $MAX_NODES_TO_DISPLAY_AS_ACTIVE  = 5;
@@ -68,10 +76,12 @@ $port                        = $default_port;
     # TODO:
     #"d|dead-nodes"      => [ \$dead_nodes,      "List all dead datanodes" ],
     "heap-usage"        => [ \$heap,            "Check Namenode Heap % Used. Optional % thresholds may be supplied for warning and/or critical" ],
+    "datanode-blocks"   => [ \$datanode_blocks, "Check DataNode Blocks counts against warning/critical thresholds, alerts if any datanode breaches any threshold, reports number of offending datanodes" ],
+    "datanode-block-balance" => [ \$datanode_block_balance, "Checks max imbalance of HDFS blocks across datanodes is within % thresholds" ],
     "w|warning=s"       => [ \$warning,         "Warning  threshold or ran:ge (inclusive)" ],
     "c|critical=s"      => [ \$critical,        "Critical threshold or ran:ge (inclusive)" ],
 );
-@usage_order = qw/host port hdfs-space replication balance node-count node-list heap-usage warning critical/;
+@usage_order = qw/host port hdfs-space replication balance datanode-blocks datanode-block-balance node-count node-list heap-usage warning critical/;
 
 get_options();
 
@@ -107,13 +117,27 @@ if($node_list){
     vlog_options "nodes", "[ " . join(", ", @nodes) . " ]";
     @nodes or usage "must specify nodes if using -n / --node-list switch";
 }
-unless($hdfs_space or $replication or $balance or $node_count or $node_list or $heap){
+unless($hdfs_space  or
+       $replication or
+       $balance     or
+       $node_count  or
+       $node_list   or
+       $datanode_blocks or
+       $datanode_block_balance or
+       $heap){
     usage "must specify one of --hdfs-space / --replication / --balance / --node-count / --node-list / --heap-usage to check";
 }
-if($hdfs_space + $replication + $balance + $node_count + ($node_list?1:0) + $heap > 1){
+if($hdfs_space +
+   $replication +
+   $balance +
+   $node_count + 
+   ($node_list?1:0) +
+   $datanode_blocks +
+   $datanode_block_balance +
+   $heap > 1){
     usage "can only check one of --hdfs-space / --replication / --balance / --node-count / --node-list / --heap-usage at one time in order to make sense of thresholds";
 }
-if($hdfs_space or $balance or $heap){
+if($hdfs_space or $balance or $heap or $datanode_block_balance){
     validate_thresholds(1, 1, {
                             "simple"   => "upper",
                             "integer"  => 0,
@@ -146,7 +170,11 @@ vlog2;
 set_timeout();
 #$ua->timeout($timeout);
 
-my $content = curl $url;
+# exclude node lists too?
+my $content;
+unless($datanode_blocks or $datanode_block_balance){
+    $content = curl $url;
+}
 
 my $regex_td = '\s*(?:<\/a>\s*)?<td\s+id="\w+">\s*:\s*<td\s+id="\w+">\s*';
 
@@ -199,6 +227,19 @@ sub parse_dfshealth {
             datanodes_dead
             /);
     vlog2;
+}
+
+
+my %datanode_blocks;
+sub parse_datanode_blockcounts {
+    vlog2 "parsing DataNode block counts from NameNode JSP output";
+
+    my $regex_blockcount = qr{<a title="$ip_regex:\d+"[^>]*>($host_regex)</a>.+class="blocks">(\d+)}m;
+    foreach(split("\n", $content)){
+        if(/$regex_blockcount/){
+            $datanode_blocks{$1} = $2;
+        }
+    }
 }
 
 
@@ -422,7 +463,72 @@ if($balance){
     $msg    = sprintf("Namenode Heap %.2f%% Used of Committed (%s %s used, %s %s committed, %s %s total)", $stats{"heap_used_pc"}, $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_committed"}, $stats{"heap_committed_units"}, $stats{"heap_max"}, $stats{"heap_max_units"});
     check_thresholds($stats{"heap_used_pc"});
     $msg .= " | 'Namenode Heap % Used'=$stats{heap_used_pc}%;" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "" ) . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "" ) . ";0;100 'Namenode Heap Used'=$stats{heap_used_bytes}B 'NameNode Heap Committed'=$stats{heap_committed_bytes}B";
-
+###############
+} elsif($datanode_blocks){
+    $content = curl $url_live_nodes;
+    parse_datanode_blockcounts();
+    unless(%datanode_blocks){
+        quit "UNKNOWN", "no datanode block counts were recorded, either there are no datanodes or there was a parsing error. $nagios_plugins_support_msg";
+    }
+    my $datanodes_warning_blocks  = 0;
+    my $datanodes_critical_blocks = 0;
+    my $max_blocks = 0;
+    foreach my $datanode (keys %datanode_blocks){
+        vlog2 "datanode $datanode has $datanode_blocks{$datanode} blocks";
+        $max_blocks = $datanode_blocks{$datanode} if $datanode_blocks{$datanode} > $max_blocks;
+        unless(check_threshold("critical", $datanode_blocks{$datanode})){
+            $datanodes_critical_blocks++;
+            next;
+        }
+        unless(check_threshold("warning", $datanode_blocks{$datanode})){
+            $datanodes_warning_blocks++;
+        }
+    }
+    if($datanodes_critical_blocks){
+        $msg .= "$datanodes_critical_blocks datanodes with critical block counts, ";
+    }
+    if($datanodes_warning_blocks){
+        $msg .= "$datanodes_warning_blocks datanodes with warning block counts, ";
+    }
+    $msg =~ s/, $//;
+    my $num_datanodes =  scalar keys %datanode_blocks;
+    if(not($datanodes_critical_blocks or $datanodes_warning_blocks)){
+        $status = "OK";
+        $msg .= sprintf("%d datanode block counts within thresholds, highest block count on single datanode is %d", $num_datanodes, $max_blocks);
+    } else {
+        $msg .= sprintf(" out of %d detected datanodes", $num_datanodes);
+    }
+    vlog2 "highest block count on a single datanode = $max_blocks";
+    check_thresholds($max_blocks);
+    $msg .= " | highest_block_count=$max_blocks";
+    msg_perf_thresholds();
+    $msg .= " num_datanodes=$num_datanodes";
+    $msg .= " num_datanodes_exceeding_block_thresholds=" . ($datanodes_critical_blocks + $datanodes_warning_blocks);
+} elsif($datanode_block_balance){
+    $content = curl $url_live_nodes;
+    parse_datanode_blockcounts();
+    unless(%datanode_blocks){
+        quit "UNKNOWN", "no datanode block counts were recorded, either there are no datanodes or there was a parsing error. $nagios_plugins_support_msg";
+    }
+    my $max_blocks = 0;
+    my $min_blocks;
+    foreach my $datanode(sort keys %datanode_blocks){
+        vlog2 "datanode $datanode has $datanode_blocks{$datanode} blocks";
+        $max_blocks = $datanode_blocks{$datanode} if $datanode_blocks{$datanode} > $max_blocks;
+        $min_blocks = $datanode_blocks{$datanode} if(!defined($min_blocks) or $datanode_blocks{$datanode} < $min_blocks);
+    }
+    vlog2 "max blocks on a single datanode = $max_blocks";
+    vlog2 "min blocks on a single datanode = $min_blocks";
+    my $block_imbalance = sprintf("%.2f", ( ($max_blocks - $min_blocks) / $min_blocks) * 100);
+    my $num_datanodes =  scalar keys %datanode_blocks;
+    $msg .= "$block_imbalance% block imbalance across $num_datanodes datanodes";
+    $status = "OK";
+    check_thresholds($block_imbalance);
+    $msg .= " | block_imbalance=$block_imbalance%";
+    msg_perf_thresholds();
+    $msg .= " num_datanodes=$num_datanodes";
+    $msg .= " max_blocks=$max_blocks";
+    $msg .= " min_blocks=$min_blocks";
 ########
 } else {
     usage "error no check specified";
