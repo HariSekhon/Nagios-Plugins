@@ -50,6 +50,10 @@ my $heap            = 0;
 my $node_list       = "";
 my $node_count      = 0;
 my $replication     = 0;
+
+my $default_blockcount_warning  = 250000;
+my $default_blockcount_critical = 350000;
+
 my $datanode_blocks = 0;
 my $datanode_block_balance = 0;
 
@@ -76,20 +80,13 @@ $port                        = $default_port;
     # TODO:
     #"d|dead-nodes"      => [ \$dead_nodes,      "List all dead datanodes" ],
     "heap-usage"        => [ \$heap,            "Check Namenode Heap % Used. Optional % thresholds may be supplied for warning and/or critical" ],
-    "datanode-blocks"   => [ \$datanode_blocks, "Check DataNode Blocks counts against warning/critical thresholds, alerts if any datanode breaches any threshold, reports number of offending datanodes" ],
+    "datanode-blocks"   => [ \$datanode_blocks, "Check DataNode Blocks counts against warning/critical thresholds, alerts if any datanode breaches any threshold, reports number of offending datanodes (default warning: $default_blockcount_warning, critical: $default_blockcount_critical)" ],
     "datanode-block-balance" => [ \$datanode_block_balance, "Checks max imbalance of HDFS blocks across datanodes is within % thresholds" ],
     "w|warning=s"       => [ \$warning,         "Warning  threshold or ran:ge (inclusive)" ],
     "c|critical=s"      => [ \$critical,        "Critical threshold or ran:ge (inclusive)" ],
 );
 @usage_order = qw/host port hdfs-space replication balance datanode-blocks datanode-block-balance node-count node-list heap-usage warning critical/;
 
-get_options();
-
-defined($host)  or usage "Namenode host not specified";
-$host = isHost($host) || usage "Namenode host invalid, must be hostname/FQDN or IP address";
-vlog_options "host", "'$host'";
-$host = validate_resolvable($host);
-$port = validate_port($port);
 if($progname eq "check_hadoop_hdfs_space.pl"){
     vlog2 "checking HDFS % space used";
     $hdfs_space = 1;
@@ -106,8 +103,21 @@ if($progname eq "check_hadoop_hdfs_space.pl"){
     vlog "checking HDFS datanode list";
 #} elsif($progname eq "check_hadoop_dead_datanodes.pl"){
 #    vlog "checking HDFS dead datanode list";
+} elsif($progname eq "check_hadoop_datanodes_blockcounts.pl"){
+    $datanode_blocks = 1;
+} elsif($progname eq "check_hadoop_datanodes_block_balance.pl"){
+    $datanode_block_balance = 1;
 }
 
+get_options();
+
+$host = validate_host($host, "Namenode");
+$port = validate_port($port);
+
+if($datanode_blocks){
+    $warning  = $default_blockcount_warning  unless defined($warning);
+    $critical = $default_blockcount_critical unless defined($critical);
+}
 my $url;
 my @nodes;
 
@@ -168,6 +178,7 @@ my $url_dead_nodes = "http://$host:$port/$namenode_urn_dead_nodes";
 
 vlog2;
 set_timeout();
+$host = validate_resolvable($host);
 #$ua->timeout($timeout);
 
 # exclude node lists too?
