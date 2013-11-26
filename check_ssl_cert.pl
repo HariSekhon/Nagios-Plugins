@@ -20,7 +20,7 @@ Checks:
 3. Domain name on certificate (optional)
 4. Subject Alternative Names supported by certificate (optional)";
 
-$VERSION = "0.9.5";
+$VERSION = "0.9.6";
 
 use warnings;
 use strict;
@@ -29,28 +29,23 @@ BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
-use HariSekhonUtils;
+use HariSekhonUtils qw/:DEFAULT :regex/;
 
 my $openssl          = "/usr/bin/openssl";
 $port                = 443;
-my $default_critical = 14;
-my $default_warning  = 30;
+my $default_critical = 15;
+my $default_warning  = 31;
 
 $critical            = $default_critical;
 $warning             = $default_warning;
 
-$status = "OK";
-
 my $CApath;
 my $cmd;
-my $dir_regex = '[\w\.\/-]+';
 my $domain;
 my $end_date;
 my $expected_domain;
 my $no_validate;
 my $openssl_output_for_shell_regex = '[\w\s_:=@\*,\/\.\(\)\n+-]+';
-my $output;
-my $returncode;
 my @subject_alt_names;
 my $subject_alt_names;
 my $verify_code = "";
@@ -86,8 +81,10 @@ my %months = (
 
 get_options();
 
-$host = validate_host($host);
-$port = validate_port($port);
+$host   = validate_host($host);
+$port   = validate_port($port);
+$CApath = validate_dir($CApath, 0, "CA path") if defined($CApath);
+validate_thresholds(1, 1, { "simple" => "lower", "integer" => 0, "positive" => 1 } );
 
 if($expected_domain){
     # Allow wildcard certs
@@ -98,47 +95,37 @@ if($expected_domain){
     }
 }
 if($subject_alt_names){
-    @subject_alt_names = split(",", "$subject_alt_names");
+    @subject_alt_names = split(",", $subject_alt_names);
     foreach(@subject_alt_names){
         validate_domain($_);
     }
 }
 
-isInt($warning)  || die "invalid warning threshold given, must be a positive integer\n";
-isInt($critical) || die "invalid critical threshold given, must be a positive integer\n";
-($critical <= $warning) || die "critical threshold must be less than or equal to the warning threshold\n";
-
-$openssl = which($openssl, 1);
-
-vlog_options "warning  days", $warning;
-vlog_options "critical days", $critical;
-vlog_options "verbose level", $verbose;
 vlog2;
 
 # pkill is available on Linux but not MAC by default, hence using pkill subroutine from my utils instead for portability
 set_timeout($timeout, sub { pkill("$openssl s_client -connect $host:$port", "-9") } );
 
-if (defined($CApath)) {
-    print "CApath: $CApath\n\n" if $verbose;
-} else {
-    ($returncode, @output) = cmd("$openssl version -a");
+$openssl = which($openssl, 1);
+
+unless(defined($CApath)){
+    @output = cmd("$openssl version -a");
     foreach(@output){
-        if (/^OPENSSLDIR: "($dir_regex)"\s*\n?$/) {
+        if (/^OPENSSLDIR: "($filename_regex)"\s*\n?$/) {
             $CApath = $1;
             vlog2 "Found CApath from openssl binary as: $CApath\n";
             last;
         }
     }
-    if (not defined($CApath)) {
+    unless(defined($CApath)){
         usage "CApath to root certs was not specified and could not be found from openssl binary";
     }
+    $CApath = validate_dir($CApath, 0, "CA path");
 }
 
-$CApath = validate_filename($CApath, 1) || die "CApath '$CApath' is invalid\n";
+vlog2;
 
-( -e "$CApath" ) || die "CApath directory '$CApath' does not exist!\n";
-( -d "$CApath" ) || die "CApath '$CApath' is not a directory!\n";
-( -r "$CApath" ) || die "CApath directory '$CApath' was not readable!\n";
+$status = "OK";
 
 vlog2 "* checking validity of cert (chain of trust)";
 $cmd = "echo | $openssl s_client -connect $host:$port -CApath $CApath 2>&1";
@@ -159,7 +146,7 @@ foreach (@output){
         $verify_msg = "$verify_msg$1, ";
     }
 }
-($verify_code ne "") or quit "CRITICAL", "Certificate validation failed (failed to find verify code in openssl output - failed to get certificate correctly or possible code error)";
+($verify_code ne "") or quit "UNKNOWN", "Certificate validation failed - failed to find verify code in openssl output - failed to get certificate correctly or possible code error. $nagios_plugins_support_msg";
 $verify_code =~ s/,\s*$//;
 $verify_msg  =~ s/,\s*$//;
 vlog2 "Verify return code: $verify_code ($verify_msg)\n";
@@ -171,7 +158,7 @@ if (not $no_validate and $verify_code ne 0){
     }
 }
 
-$output = join("\n", @output);
+my $output = join("\n", @output);
 $output =~ /^($openssl_output_for_shell_regex)$/ or die "Error: unexpected/illegal chars in openssl output, refused to pass to shell for safety\n";
 $output = $1;
 
@@ -195,25 +182,34 @@ foreach (@output){
     }
 }
 
+sub validate_cert_domain ($) {
+    my $domain = shift;
+    if($domain =~ /^\*\./){
+        $domain =~ s/^\*\.//;
+    }
+    isFqdn($domain) or isDomain($domain);
+}
+
 defined($domain)   or quit "CRITICAL", "failed to determine certificate domain name";
 defined($end_date) or quit "CRITICAL", "failed to determine certificate expiry date";
 vlog2 "Domain: $domain";
 vlog2 "Certificate Expires: $end_date\n";
+validate_cert_domain($domain) or quit "UNKNOWN", "unrecognized domain certficate returned. $nagios_plugins_support_msg";
 
 my ($month, $day, $time, $year, $tz) = split(/\s+/, $end_date);
 my ($hour, $min, $sec)               = split(/\:/, $time);
 
 my $expiry    = timegm($sec, $min, $hour, $day, $months{$month}, $year-1900) || quit "UNKNOWN", "Failed to convert timestamp $year-$months{$month}-$day $hour:$min:$sec";
-my $now       = time || quit "UNKNOWN", "Failed to get epoch timestamp";
+my $now       = time || code_error "Failed to get epoch timestamp. $nagios_plugins_support_msg";
 my $days_left = int( ($expiry - $now) / (86400) );
+isInt($days_left, 1) or code_error "non-integer returned for days left calculation. $nagios_plugins_support_msg";
 
 vlog2 "* checking expected domain name on cert\n";
 if ($expected_domain and $domain ne $expected_domain) {
-    $status = "CRITICAL";
+    critical;
     $msg .= "domain '$domain' did not match expected domain '$expected_domain'! ";
 }
 
-my $plural = "";
 my $san_names_checked = 0;
 if($subject_alt_names){
     vlog2 "* testing subject alternative names";
@@ -229,36 +225,29 @@ if($subject_alt_names){
         }
         if (not grep { $_ eq $subject_alt_name } @found_alt_names){
             push(@missing_alt_names, $subject_alt_name);
-            $status = "CRITICAL";
+            critical;
         }
     }
     if(scalar @missing_alt_names){
-        if(scalar @missing_alt_names > 1){
-            $plural = "s";
-        }
+        plural scalar @missing_alt_names;
         $msg .= scalar @missing_alt_names . " SAN name$plural missing: " . join(",", @missing_alt_names) . ".";
     }
-    vlog2 "";
+    vlog2;
 }
 
-if($status ne "CRITICAL"){
-    (abs($days_left) eq 1) and $plural="" or $plural="s";
+if(!is_critical){
+    plural abs($days_left);
     if($days_left < 0){
-        $status = "CRITICAL";
+        critical;
         $days_left = abs($days_left);
         $msg .= "Certificate EXPIRED $days_left day$plural ago for '$domain'. Expiry Date: '$end_date'";
     } else { 
         $msg .= "$days_left day$plural remaining for '$domain'. Certificate Expires: '$end_date'";
-        $msg .= " (w=$warning/c=$critical days)" if $verbose;
-        if($days_left <= $critical){
-            $status = "CRITICAL";
-        }elsif($days_left <= $warning){
-            $status = "WARNING";
-        }
+        check_thresholds($days_left);
     }
 }
 
-($san_names_checked eq 1) and $plural="" or $plural="s";
+plural $san_names_checked;
 if($san_names_checked){
     $msg .= " [$san_names_checked SAN name$plural checked]";
 }
