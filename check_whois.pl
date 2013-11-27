@@ -212,7 +212,7 @@ my @valid_statuses2 = (
     "Registered until renewal date.?"
 );
 foreach(@valid_statuses2){
-    validate_regex($_,1) or code_error "invalid regex '$_' in \@valid_statuses";
+    validate_regex($_, "status", 1) or code_error "invalid regex '$_' in \@valid_statuses";
 }
 sub valid_status {
     my $status = shift;
