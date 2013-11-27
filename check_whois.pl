@@ -636,7 +636,7 @@ if($no_nameservers){
 }
 
 my @invalid_statuses = ();
-if(defined(@{$results{"status"}})){
+if(@{$results{"status"}}){
     foreach my $domain_status (@{$results{"status"}}){
         unless(valid_status($domain_status)){
             $domain_status =~ s/\.$//;
