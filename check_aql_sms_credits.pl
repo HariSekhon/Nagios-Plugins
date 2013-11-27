@@ -30,7 +30,7 @@ my $aql_user;
 my $aql_password;
 
 %options = (
-    "u|user=s"          => [ \$aql_user,     "AQL account user (\$AQL_USERNAME environment variable)" ],
+    "u|user=s"          => [ \$aql_user,     "AQL account user (\$AQL_USER environment variable)" ],
     "p|password=s"      => [ \$aql_password, "AQL account password (use \$AQL_PASSWORD environment variable instead to prevent this showing in the process list)" ],
     "w|warning=s"       => [ \$warning,      "Warning threshold or ran:ge (inclusive)"  ],
     "c|critical=s"      => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
