@@ -11,7 +11,7 @@
 
 # http://documentation.datameer.com/documentation/display/DAS21/Accessing+Datameer+Using+the+REST+API
 
-$DESCRIPTION = "Nagios Plugin to the number of running Datameer jobs using the Datameer Rest API
+$DESCRIPTION = "Nagios Plugin to check the number of active Datameer jobs using the Datameer Rest API
 
 Tested against Datameer 2.0.0";
 
