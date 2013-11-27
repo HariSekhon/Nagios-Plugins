@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to aggregate perfdata across all instances of a service check, optionally using a given host regex to only aggregate for a given cluster of hosts. Must be run on the Nagios server itself, uses the existing stats in status.dat";
 
-$VERSION = "0.5";
+$VERSION = "0.5.1";
 
 use strict;
 use warnings;
@@ -43,7 +43,7 @@ my $units;
 get_options();
 
 if($host_regex){
-    $host_regex = validate_regex($host_regex2,1) or quit "CRITICAL", "invalid host regex given";
+    $host_regex = validate_regex($host_regex2, "host");
 }
 $service_desc or usage "service description not defined";
 $perf_label   or usage "perfdata label not defined";
