@@ -101,7 +101,7 @@ sub check_stats_parsed(){
     if($all_metrics){
         if(scalar keys %stats == 0){
             if($port == 50070 or $port == 50075){
-                usage "no stats collected from /metrics page, NameNode and DataNode /metrics pages did not export any metrics at the time of writing";
+                quit "UNKNOWN", "no stats collected from /metrics page, NameNode and DataNode /metrics pages did not export any metrics at the time of writing, see --help description for daemons supporting this information";
             } else {
                 quit "UNKNOWN", "no stats collected from /metrics page (daemon recently started?)";
             }
