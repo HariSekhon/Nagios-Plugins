@@ -64,7 +64,7 @@ This is an important piece of code given that ppl overlook domain renewals till 
 # Update: I have used this in production for nearly 800 domains across a great variety of over 100 TLDs/second-level domains last I checked, including:
 # ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at, co.il, co.in, co.kr, co.nz, co.nz, co.uk, co.uk, com, com, com.au, com.au, com.bo, com.br, com.cn, com.ee, com.hk, com.hk, com.mx, com.mx, com.my, com.pe, com.pl, com.pt, com.sg, com.sg, com.tr, com.tw, com.tw, com.ve, de, dk, dk, eu, fi, fm, fm, fr, gs, hk, hk, hu, idv.tw, ie, in, info, info, io, it, it, jp, jp, kr, lu, me, me.uk, mobi, mobi, ms, mx, mx, my, name, net, net, net.au, net.br, net.cn, net.nz, nf, nl, no, nu, org, org, org.cn, org.nz, org.tw, org.uk, org.uk, pl, ru, se, sg, sg, sh, tc, tel, tel, tl, tm, tv, tv, tv.br, tw, us, us, vg, xxx
 
-$VERSION = "0.9.113";
+$VERSION = "0.9.114";
 
 use strict;
 use warnings;
