@@ -24,7 +24,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use Data::Dumper;
+#use Data::Dumper;
 use JSON::XS;
 use LWP::UserAgent;
 use Time::Local;
@@ -99,7 +99,7 @@ my %job_statuses = (
     "waiting_for_other_job" => 0,
 );
 foreach(@{$json}){
-    vlog3 "job: " . Dumper($_);
+    #vlog3 "job: " . Dumper($_);
     $running_jobs++;
     defined($_->{"jobStatus"}) or quit "UNKNOWN", "no jobstatus returned from Datameer server. Format may have changed. $nagios_plugins_support_msg";
     $job_statuses{lc $_->{"jobStatus"}}++;
