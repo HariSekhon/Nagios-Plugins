@@ -13,7 +13,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the Datameer version using the Datameer Rest API
 
-Tested against Datameer 2.0.0";
+Tested against Datameer 2.1.x.x";
 
 $VERSION = "0.1";
 
@@ -66,7 +66,7 @@ set_timeout();
 $status = "OK";
 
 my $ua = LWP::UserAgent->new;
-#$ua->agent("Hari Sekhon $prog $main::VERSION");
+$ua->agent("Hari Sekhon $progname $main::VERSION");
 $ua->credentials($host, '', $user, $password);
 
 # Lifted from check_cloudera_manager_metrics.pl TODO: move to lib
@@ -101,7 +101,7 @@ my $datameer_version = $json->{"ProductVersion"};
 $datameer_version =~ /^\d+(\.\d+)+$/ or quit "UNKNOWN", "unrecognized Datameer version, expecting x.y.z.. format. Format may have changed. $nagios_plugins_support_msg";
 
 $msg = "Datameer version is '$datameer_version'";
-if($datameer_version !~ /^$expected$/){
+if(defined($expected) and $datameer_version !~ /^$expected$/){
     critical;
     $msg .= " (expected: $expected)";
 }
