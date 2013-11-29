@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to test SSH login credentials. Originally written to verify the login credentials across Dell DRAC infrastructure";
 
-$VERSION = "0.9.4";
+$VERSION = "0.9.5";
 
 use strict;
 use warnings;
@@ -56,17 +56,17 @@ vlog2;
 set_timeout();
 
 my $login_timeout = int($timeout / 5);
-vlog "setting login timeout to $login_timeout secs\n";
+vlog2 "setting login timeout to $login_timeout secs\n";
 
-vlog "logging in to host '$host' with username '$user', password '$password' (login timeout: $login_timeout secs)";
+vlog2 "logging in to host '$host' with username '$user', password '<omitted>' (login timeout: $login_timeout secs)";
 my $ssh = Net::SSH::Expect->new(
                                 host       => $host,
                                 user       => $user,
                                 password   => $password,
                                 # login timeout needs to be at least 4 secs to allow for slow ass Drac controller prompts, which is why I restrict min $timeout to be 10 secs causing min $login_timeout to be 5 secs
                                 timeout    => $login_timeout,
-                                log_stdout => $verbose,
-                                ssh_option => "-p $port"
+                                log_stdout => ($verbose > 1 ? $verbose : 0 ),
+                                ssh_option => "-p $port -oPreferredAuthentications=keyboard-interactive,password"
                                 ) or quit "CRITICAL", "failed to connect to host '$host:$port': $!";
 
 # Workaround as the Net::SSH:Expect module errors out with an exit code 5 due to a die call in the module
@@ -85,14 +85,16 @@ $SIG{__DIE__} = sub {
 # alternative way of handling this manually, login() doesn't seem to be handling host key auth right now
 #
 $ssh->run_ssh() or quit "CRITICAL", "SSH login failed with user '$user'";
-vlog "ssh forked\n";
+vlog2 "ssh forked\n";
+my $shell_prompt = '.*?[>$#]'; # no space at end, disparate ssh login prompts don't always have \s$
+my $login_prompt = '.*?:'; # no space at end, disparate ssh login prompts don't always have \s$
 $ssh->waitfor('.*(?::|\?|\n)\s*', $login_timeout, "-re");
 my $result = $ssh->match();
 $result =~ s/^\r?\n?$//o if $result;
 quit "CRITICAL", "timeout after $login_timeout secs waiting for initial prompt" unless $result;
 $result =~ /Name or service not known/io and quit "CRITICAL", "DNS lookup failure on '$host'";
 $result =~ /Connection refused/io and quit "CRITICAL", "Connection refused to '$host:$port'";
-vlog "\n\nchecking for host key prompt";
+vlog2 "\n\nchecking for host key prompt";
 while($result =~ /The authenticity of host .+ can't be established|key fingerprint is/){
     $ssh->waitfor('.*(?::|\?|\n)\s*', $login_timeout, "-re");
     $result = $ssh->match();
@@ -100,22 +102,22 @@ while($result =~ /The authenticity of host .+ can't be established|key fingerpri
 }
 quit "CRITICAL", "timeout after $login_timeout secs waiting for password/host key prompt" unless $result;
 if($result and $result =~ /Are you sure you want to continue connecting \(yes\/no\)\?/smio){
-    vlog "host key prompt detected, sending 'yes'";
+    vlog2 "host key prompt detected, sending 'yes'";
     $ssh->send("yes");
-    vlog "\nattempting to read prompt again (timeout: $login_timeout seconds)\n";
+    vlog2 "\nattempting to read prompt again (timeout: $login_timeout seconds)\n";
     #$result = $ssh->read_all($login_timeout);
     $ssh->waitfor('(?:[Pp]assword|[Pp]assphrase).*:\s', $login_timeout, "-re");
     $result = $ssh->match();
     $result =~ s/^\r?\n?$//o if $result;
     quit "CRITICAL", "password prompt not returned within $login_timeout seconds" unless $result;
 }
-vlog "\n\nchecking for password prompt";
+vlog2 "\n\nchecking for password prompt";
 if($result){
     if($result =~ /(?:password|passphrase).*:/io){
-        vlog "caught password prompt, sending password '$password'";
+        vlog2 "caught password prompt, sending password '<omitted>'";
         $ssh->send($password);
-        vlog "\nreading password response (timeout: $login_timeout seconds)\n";
-        $ssh->waitfor('.*?[>$#:]', $login_timeout, "-re");
+        vlog2 "\nreading password response (timeout: $login_timeout seconds)\n";
+        $ssh->waitfor($login_prompt, $login_timeout, "-re");
         $result = $ssh->match();
         $result =~ s/\r?\n?// if $result;
         quit "CRITICAL", "password prompt response not received within $login_timeout seconds" unless $result;
@@ -126,15 +128,23 @@ if($result){
 }
 $result =~ s/\s*$//;
 
-#vlog "";
+#vlog3 "result:\n\n$result";
 $result =~ s/^\s*\n//mo;
-$result =~ s/^Last login.+\n//mio;
-vlog "\n\nprompt: '$result'";
+if($result =~ /^Last\s+login.+?$/mio){
+    $ssh->waitfor($shell_prompt, $login_timeout, "-re");
+    $result = $ssh->match();
+}
+if($result =~ /(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun).*$/s){
+    $ssh->waitfor($shell_prompt, $login_timeout, "-re");
+    $result = $ssh->match();
+}
+#vlog3 "\n\nprompt: '$result'";
 
+vlog2 "\n";
 if($result =~ /(?:password|passphrase).*:/io){
-    vlog "password prompt has been re-displayed, username/password combination has failed";
+    vlog2 "password prompt has been re-displayed, username/password combination has failed";
     quit "CRITICAL", "SSH login failed with user '$user'";
-} elsif($result =~ /[>#~]/o){
+} elsif($result =~ /$shell_prompt/o){
     quit "OK", "SSH login successful with user '$user' (prompt returned: '$result')";
 } else {
     quit "CRITICAL", "SSH login failed with user '$user' (unconfirmed prompt: '$result')";
