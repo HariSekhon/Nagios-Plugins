@@ -130,11 +130,11 @@ $result =~ s/\s*$//;
 
 #vlog3 "result:\n\n$result";
 $result =~ s/^\s*\n//mo;
-if($result =~ /^Last\s+login.+?$/mio){
+if($result =~ /^Last\s+login.+?$/io){
     $ssh->waitfor($shell_prompt, $login_timeout, "-re");
     $result = $ssh->match();
 }
-if($result =~ /(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun).*$/s){
+if($result =~ /(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun).*$/io){
     $ssh->waitfor($shell_prompt, $login_timeout, "-re");
     $result = $ssh->match();
 }
