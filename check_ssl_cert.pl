@@ -20,7 +20,7 @@ Checks:
 3. Domain name on certificate (optional)
 4. Subject Alternative Names supported by certificate (optional)";
 
-$VERSION = "0.9.6";
+$VERSION = "0.9.7";
 
 use warnings;
 use strict;
@@ -45,7 +45,10 @@ my $domain;
 my $end_date;
 my $expected_domain;
 my $no_validate;
-my $openssl_output_for_shell_regex = '[\w\s_:=@\*,\/\.\(\)\n+-]+';
+# Worked on OpenSSL 0.98.x on RHEL5 and Mac OS X 10.6-10.9
+#my $openssl_output_for_shell_regex = '[\w\s_:=@\*,\/\.\(\)\n+-]+';
+# OpenSSL 1.0.x on RHEL6 outputs session tickets and prints hex which can include single quotes, and quotemeta breaks certificate interpretation so not using this now
+#my $openssl_output_for_shell_regex = qr/^[\w\s\_\:\;\=\@\*\.\,\/\(\)\{\}\<\>\[\]\r\n\#\^\$\&\%\~\|\\\!\"\`\+\-]+$/; # will be single quoted, don't allow single quotes in here
 my @subject_alt_names;
 my $subject_alt_names;
 my $verify_code = "";
@@ -158,13 +161,19 @@ if (not $no_validate and $verify_code ne 0){
     }
 }
 
-my $output = join("\n", @output);
-$output =~ /^($openssl_output_for_shell_regex)$/ or die "Error: unexpected/illegal chars in openssl output, refused to pass to shell for safety\n";
-$output = $1;
+#my $output = join("\n", @output);
+# This breaks session tickets which have an ascii dump of any char and seems to have changed recently on Linux
+#$output =~ /^($openssl_output_for_shell_regex)$/ or die "Error: unexpected/illegal chars in openssl output, refused to pass to shell for safety\n";
+#$output = $1;
+# This breaks the certificate input
+#$output = quotemeta($output);
 
 vlog2 "* checking domain and expiry on cert";
 #$cmd = "echo '$output' | $openssl x509 -noout -enddate -subject 2>&1";
-$cmd = "echo '$output' | $openssl x509 -noout -text 2>&1";
+#$cmd = "echo '$output' | $openssl x509 -noout -text 2>&1";
+
+# Avoiding the IPC stuff as blocking is a problem, using extra openssl fetch, not ideal but a better fix than the alternatives
+$cmd .= " | $openssl x509 -noout -text 2>&1";
 @output = cmd($cmd);
 
 foreach (@output){
