@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to test SSH login credentials. Originally written to verify the login credentials across Dell DRAC infrastructure";
 
-$VERSION = "0.9.5";
+$VERSION = "0.9.6";
 
 use strict;
 use warnings;
@@ -108,6 +108,7 @@ if($result and $result =~ /Are you sure you want to continue connecting \(yes\/n
     #$result = $ssh->read_all($login_timeout);
     $ssh->waitfor('(?:[Pp]assword|[Pp]assphrase).*:\s', $login_timeout, "-re");
     $result = $ssh->match();
+    defined($result) or quit "UNKNOWN", "no prompt received after accepting ssh host key within $login_timeout secs";
     $result =~ s/^\r?\n?$//o if $result;
     quit "CRITICAL", "password prompt not returned within $login_timeout seconds" unless $result;
 }
@@ -119,6 +120,7 @@ if($result){
         vlog2 "\nreading password response (timeout: $login_timeout seconds)\n";
         $ssh->waitfor($login_prompt, $login_timeout, "-re");
         $result = $ssh->match();
+        defined($result) or quit "UNKNOWN", "no prompt received after sending password within $login_timeout secs";
         $result =~ s/\r?\n?// if $result;
         quit "CRITICAL", "password prompt response not received within $login_timeout seconds" unless $result;
     } else {
@@ -133,10 +135,12 @@ $result =~ s/^\s*\n//mo;
 if($result =~ /^Last\s+login.+?$/io){
     $ssh->waitfor($shell_prompt, $login_timeout, "-re");
     $result = $ssh->match();
+    defined($result) or quit "UNKNOWN", "no prompt received after Last login within $login_timeout secs";
 }
 if($result =~ /(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun).*$/io){
     $ssh->waitfor($shell_prompt, $login_timeout, "-re");
     $result = $ssh->match();
+    defined($result) or quit "UNKNOWN", "no prompt received after Last login date within $login_timeout secs";
 }
 #vlog3 "\n\nprompt: '$result'";
 
