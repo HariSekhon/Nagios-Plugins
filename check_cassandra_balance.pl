@@ -34,13 +34,16 @@ my $default_critical = 10;
 $warning  = $default_warning;
 $critical = $default_critical;
 
+my $exclude_joining_leaving = 0;
+
 %options = (
     %nodetool_options,
-    "w|warning=s"      => [ \$warning,      "Warning  threshold max % difference (inclusive. Default: $default_warning)"  ],
-    "c|critical=s"     => [ \$critical,     "Critical threshold max % difference (inclusive. Default: $default_critical)" ],
+    "exclude-joining-leaving" => [ \$exclude_joining_leaving,   "Exclude Joining/Leaving nodes from the balance calculation (Downed nodes are already excluded)" ],
+    "w|warning=s"             => [ \$warning,                   "Warning  threshold max % difference (inclusive. Default: $default_warning)"  ],
+    "c|critical=s"            => [ \$critical,                  "Critical threshold max % difference (inclusive. Default: $default_critical)" ],
 );
 
-@usage_order = qw/nodetool host port user password warning critical/;
+@usage_order = qw/nodetool host port user password exclude-joining-leaving warning critical/;
 get_options();
 
 ($nodetool, $host, $port, $user, $password) = validate_nodetool_options($nodetool, $host, $port, $user, $password);
@@ -66,6 +69,7 @@ foreach(@output){
     }
     # Only consider up nodes
     next if(/^D[NLMJ]\s+/);
+    next if($exclude_joining_leaving and /^U[JL]\s+/);
     if(/^[^\s]+\s+([^\s]+)\s+[^\s]+(?:\s+[A-Za-z][A-Za-z])?\s+[^\s]+\s+(\d+(?:\.\d+)?)\%\s+[^\s]+\s+([^\s]+)/){
         my $node       = $1;
         my $percentage = $2;
