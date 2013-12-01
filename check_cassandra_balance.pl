@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check the balance of ownership of tokens across
 
 Uses nodetool's status command to find token % across all nodes and alerts if the largest difference is greater than warning/critical thresholds. Returns perfdata of the max imbalance % for graphing.
 
-Can specify a remote host and port otherwise it checks the local node's stats (for calling over NRPE on each Cassandra node)
+Use --verbose mode to also output max & min node % token ownership and rack information
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
