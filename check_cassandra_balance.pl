@@ -17,7 +17,7 @@ Can specify a remote host and port otherwise it checks the local node's stats (f
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -60,6 +60,7 @@ my @output = cmd($cmd);
 my @max_node = ("uninitialized_node", 0,   "uninitialized_rack");
 my @min_node = ("uninitialized_node", 100, "uninitialized_rack");
 foreach(@output){
+    check_nodetool_errors($_);
     if($_ =~ $nodetool_status_header_regex){
        next;
     }
