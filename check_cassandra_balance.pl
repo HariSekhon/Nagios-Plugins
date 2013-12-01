@@ -17,7 +17,7 @@ Can specify a remote host and port otherwise it checks the local node's stats (f
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -64,6 +64,8 @@ foreach(@output){
     if($_ =~ $nodetool_status_header_regex){
        next;
     }
+    # Only consider up nodes
+    next if(/^D[NLMJ]\s+/);
     if(/^[^\s]+\s+([^\s]+)\s+[^\s]+(?:\s+[A-Za-z][A-Za-z])?\s+[^\s]+\s+(\d+(?:\.\d+)?)\%\s+[^\s]+\s+([^\s]+)/){
         my $node       = $1;
         my $percentage = $2;
