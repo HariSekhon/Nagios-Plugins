@@ -29,7 +29,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use HariSekhon::Cassandra;
+use HariSekhon::Cassandra::Nodetool;
 
 my $default_warning  = 0;
 my $default_critical = 0;
