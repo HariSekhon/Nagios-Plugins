@@ -15,6 +15,8 @@ Uses nodetool's status command to find token % across all nodes and alerts if th
 
 Use --verbose mode to also output max & min node % token ownership and rack information
 
+Can specify a remote host and port otherwise assumes to check via localhost
+
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
 $VERSION = "0.3";
