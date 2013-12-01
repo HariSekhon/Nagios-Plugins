@@ -19,7 +19,7 @@ Can specify a remote host and port otherwise it checks the local node's stats (f
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -88,9 +88,7 @@ foreach(@output){
        next;
     }
     # Don't know what remote JMX auth failure looks like yet so will go critical on any user/password related message returned assuming that's an auth failure
-    if($_ =~ $nodetool_errors_regex){
-        quit "CRITICAL", $_;
-    }
+    check_nodetool_errors($_);
     if(/^U/){
         $up_nodes++;
         parse_state($_);
