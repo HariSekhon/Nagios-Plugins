@@ -107,7 +107,7 @@ unless( ($up_nodes + $down_nodes ) == ($normal_nodes + $leaving_nodes + $joining
 
 $msg = "$up_nodes nodes up, $down_nodes down";
 check_thresholds($down_nodes);
-$msg .= ", node states: $normal_nodes normal, $leaving_nodes leaving, $joining_nodes joining, $moving_nodes moving | up_nodes=$up_nodes down_nodes=$down_nodes";
+$msg .= ", node states: $normal_nodes normal, $leaving_nodes leaving, $joining_nodes joining, $moving_nodes moving | nodes_up=$up_nodes nodes_down=$down_nodes";
 msg_perf_thresholds();
 $msg .= " normal_nodes=$normal_nodes leaving_nodes=$leaving_nodes joining_nodes=$joining_nodes moving_nodes=$moving_nodes";
 
