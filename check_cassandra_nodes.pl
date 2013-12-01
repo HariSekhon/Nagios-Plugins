@@ -28,7 +28,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils qw/:DEFAULT :regex/;
-use HariSekhon::Cassandra;
+use HariSekhon::Cassandra::Nodetool;
 
 my $default_warning  = 0;
 my $default_critical = 1;
