@@ -68,7 +68,7 @@ foreach(@output){
        next;
     }
     # Only consider up nodes
-    next if(/^D[NLMJ]\s+/);
+    next if(/^D[NJLM]\s+/);
     next if($exclude_joining_leaving and /^U[JL]\s+/);
     if(/^[^\s]+\s+([^\s]+)\s+[^\s]+(?:\s+[A-Za-z][A-Za-z])?\s+[^\s]+\s+(\d+(?:\.\d+)?)\%\s+[^\s]+\s+([^\s]+)/){
         my $node       = $1;
