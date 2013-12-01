@@ -15,7 +15,7 @@ $DESCRIPTION = "Nagios Plugin to check the number of available cassandra nodes a
 
 Uses nodetool's status command to determine how many downed nodes there are to compare against the warning/critical thresholds, also returns perfdata for graphing the node counts and states.
 
-Can specify a remote host and port otherwise it checks the local node's stats (for calling over NRPE on each Cassandra node)
+Can specify a remote host and port otherwise assumes to check via localhost
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
