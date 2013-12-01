@@ -15,7 +15,7 @@ Can specify a remote host and port otherwise it checks the local node's stats (f
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -55,8 +55,9 @@ my $cmd     = "${nodetool} ${options}info";
 vlog2 "fetching cluster node heap information";
 my @output = cmd($cmd);
 
-my %heap;
+my %heap = ( units => undef, used => undef, total => undef);
 foreach(@output){
+    check_nodetool_errors($_);
     if(/^\s*Heap\s*Memory\s*\((\w+)\)\s*:\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/){
         $heap{"units"} = $1;
         $heap{"used"}  = $2;
