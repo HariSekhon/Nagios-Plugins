@@ -36,13 +36,13 @@ my $aql_password;
     "c|critical=s"      => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
 );
 
-if(defined($ENV{"AQL_USERNAME"})){
+if($ENV{"AQL_USERNAME"}){
     $aql_user = $ENV{"AQL_USERNAME"};
 }
-if(defined($ENV{"AQL_USER"})){
+if($ENV{"AQL_USER"}){
     $aql_user = $ENV{"AQL_USER"};
 }
-if(defined($ENV{"AQL_PASSWORD"})){
+if($ENV{"AQL_PASSWORD"}){
     $aql_password = $ENV{"AQL_PASSWORD"};
 }
 
