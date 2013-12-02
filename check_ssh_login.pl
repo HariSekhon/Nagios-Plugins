@@ -11,9 +11,11 @@
 
 $DESCRIPTION = "Nagios Plugin to test SSH login credentials
 
-Originally written to verify the login credentials were set properly across Dell DRAC infrastructure
+Originally written for Dell DRAC controllers to verify the login credentials were set properly across the infrastructure
 
 Updated for HP iLO controllers for the same reason, people tend to forget and leave them with default credentials!
+
+Also tested on Linux servers and Mac OS X. May need tweaks for other platforms, or with custom shell prompts
 
 Since Dracs and iLOs are very slow, you will need to increase the --timeout for those to something like 50-60 seconds to allow 10-12 secs each password prompt / response as it auto-calculates it to be 1/5th of global --timeout";
 
