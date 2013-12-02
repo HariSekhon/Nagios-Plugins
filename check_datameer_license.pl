@@ -48,12 +48,7 @@ $critical = $default_critical;
 
 @usage_order = qw/host port user password warning critical/;
 
-if(defined($ENV{"DATAMEER_USER"})){
-    $user = $ENV{"DATAMEER_USER"};
-}
-if(defined($ENV{"DATAMEER_PASSWORD"})){
-    $password = $ENV{"DATAMEER_PASSWORD"};
-}
+env_creds("DATAMEER");
 
 get_options();
 
