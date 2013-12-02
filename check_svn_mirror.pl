@@ -35,12 +35,7 @@ $password       = "";
 );
 @usage_order = qw/master-url slave-url max-rev-lag username password/;
 
-if($ENV{"SVN_USER"}){
-    $user = $ENV{"SVN_USER"};
-}
-if($ENV{"SVN_PASSWORD"}){
-    $password = $ENV{"SVN_PASSWORD"};
-}
+env_creds("SVN");
 
 get_options();
 
