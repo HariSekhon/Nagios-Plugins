@@ -49,12 +49,7 @@ $timeout_min = 10;
 );
 @usage_order = qw/host port user password/;
 
-if($ENV{"SSH_USER"}){
-    $user = $ENV{"SSH_USER"};
-}
-if($ENV{"SSH_PASSWORD"}){
-    $password = $ENV{"SSH_PASSWORD"};
-}
+env_creds("SSH");
 
 get_options();
 
