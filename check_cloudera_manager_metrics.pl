@@ -82,12 +82,7 @@ my @metrics_not_found;
 
 @usage_order = qw/host port user password tls ssl-CA-path tls-noverify metrics all-metrics cluster service hostId activityId nameservice roleId list-roleIds warning critical/;
 
-if($ENV{"CM_USER"}){
-    $user = $ENV{"CM_USER"};
-}
-if($ENV{"CM_PASSWORD"}){
-    $password = $ENV{"CM_PASSWORD"};
-}
+env_creds("CM");
 
 get_options();
 
