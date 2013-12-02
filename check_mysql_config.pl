@@ -104,12 +104,7 @@ my %mysql_modes = (
 );
 @usage_order = qw/config-file host port mysql-user mysql-password mysql-instance skip-name-resolve warn-on-missing/;
 
-if($ENV{"MYSQL_USER"}){
-    $user = $ENV{"MYSQL_USER"};
-}
-if($ENV{"MYSQL_PASSWORD"}){
-    $password = $ENV{"MYSQL_PASSWORD"};
-}
+env_creds("MYSQL");
 
 get_options();
 
