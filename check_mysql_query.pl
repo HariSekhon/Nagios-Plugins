@@ -75,10 +75,10 @@ my $units = "";
 );
 @usage_order = qw/host port database user password query field epoch message message-prepend output regex warning critical graph label units short no-querytime/;
 
-if(defined($ENV{"MYSQL_USER"})){
+if($ENV{"MYSQL_USER"}){
     $user = $ENV{"MYSQL_USER"};
 }
-if(defined($ENV{"MYSQL_PASSWORD"})){
+if($ENV{"MYSQL_PASSWORD"}){
     $password = $ENV{"MYSQL_PASSWORD"};
 }
 
