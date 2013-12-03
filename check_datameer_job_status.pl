@@ -40,7 +40,7 @@ my $job_id;
     "j|job-id=s"       => [ \$job_id,       "Job Configuration Id (get this from the web UI)" ],
 );
 
-@usage_order = qw/host port user password warning critical/;
+@usage_order = qw/host port user password job-id/;
 
 env_creds("DATAMEER");
 
