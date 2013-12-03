@@ -11,11 +11,11 @@
 
 # http://documentation.datameer.com/documentation/display/DAS21/Accessing+Datameer+Using+the+REST+API
 
-$DESCRIPTION = "Nagios Plugin to check the number of Datameer Workbooks using the Datameer Rest API
+$DESCRIPTION = "Nagios Plugin to show Datameer stats on number of Workbooks, Connections (Data Connectors), Import and Export Jobs, Dashboards and Infographics using the Datameer Rest API
 
 Tested against Datameer 2.1.4.6 and 3.0.11";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -25,7 +25,9 @@ BEGIN {
 }
 use HariSekhonUtils;
 use JSON::XS;
-use LWP::UserAgent;
+use LWP::Simple '$ua';
+
+$ua->agent("Hari Sekhon $progname $main::VERSION");
 
 my $default_port = 8080;
 $port = $default_port;
@@ -50,39 +52,31 @@ $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
 
-my $url = "http://$host:$port/rest/workbook";
+$status = "OK";
 
-vlog2;
+$msg = "";
+my $content;
+my $json;
+my %num;
+foreach(qw/workbook connections import-job export-job dashboard infographics/){
+    my $url = "http://$host:$port/rest/$_";
 
-my $ua = LWP::UserAgent->new;
-$ua->agent("Hari Sekhon $progname $main::VERSION");
-$ua->credentials($host, '', $user, $password);
+    vlog2;
 
-# Lifted from check_cloudera_manager_metrics.pl TODO: move to lib
-#my $content = get $url;
-vlog2 "querying $url";
-my $req = HTTP::Request->new('GET',$url);
-$req->authorization_basic($user, $password);
-my $response = $ua->request($req);
-my $content  = $response->content;
-chomp $content;
-vlog3 "returned HTML:\n\n" . ( $content ? $content : "<blank>" ) . "\n";
-vlog2 "http code: " . $response->code;
-vlog2 "message: " . $response->message;
+    $content = curl $url, $user, $password;
 
-unless($response->code eq "200"){
-    quit "UNKNOWN", $response->code . " " . $response->message;
+    $json;
+    try{
+        $json = decode_json $content;
+    };
+    catch{
+        quit "CRITICAL", "invalid json returned by '$host:$port'";
+    };
+
+    $num{$_} = scalar @{$json};
+    $msg .= "$_=$num{$_} ";
 }
 
-my $json;
-try{
-    $json = decode_json $content;
-};
-catch{
-    quit "CRITICAL", "invalid json returned by '$host:$port'";
-};
-
-my $num_workbooks = scalar @{$json};
-$msg = "$num_workbooks data connectors configured | data_connectors=$num_workbooks";
+$msg .= "| $msg";
 
 quit $status, $msg;
