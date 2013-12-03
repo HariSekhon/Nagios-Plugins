@@ -13,6 +13,8 @@
 
 $DESCRIPTION = "Nagios Plugin to show Datameer stats on number of Workbooks, Connections (Data Connectors), Import and Export Jobs, Dashboards and Infographics using the Datameer Rest API
 
+Outputs perfdata for Nagios graphing of these usage trends over time
+
 Tested against Datameer 2.1.4.6 and 3.0.11";
 
 $VERSION = "0.2";
