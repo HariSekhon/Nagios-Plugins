@@ -15,7 +15,7 @@ $DESCRIPTION = "Nagios Plugin to check the Datameer version using the Datameer R
 
 Tested against Datameer 2.1.4.6 and 3.0.11";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
