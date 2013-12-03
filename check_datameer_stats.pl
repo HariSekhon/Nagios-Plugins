@@ -67,7 +67,6 @@ foreach(qw/workbook connections import-job export-job dashboard infographics/){
 
     $content = curl $url, $user, $password;
 
-    $json;
     try{
         $json = decode_json $content;
     };
