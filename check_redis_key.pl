@@ -60,7 +60,7 @@ $port       = validate_port($port);
 $key        = validate_nosql_key($key, "redis");
 $password   = validate_password($password) if defined($password);
 if(defined($database)){
-    $database = validate_int($database, 0, 15, "database");
+    $database = validate_int($database, "database", 0, 15);
 }
 if(defined($expected)){
     $expected = validate_regex($expected);

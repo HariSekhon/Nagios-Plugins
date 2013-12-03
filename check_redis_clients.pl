@@ -49,7 +49,7 @@ $password   = validate_password($password) if $password;
 if(defined($expected)){
     $expected = validate_regex($expected, "expected");
 }
-$precision  = validate_int($precision, 1, 20, "precision");
+$precision  = validate_int($precision, "precision", 1, 20);
 validate_thresholds();
 
 vlog2;

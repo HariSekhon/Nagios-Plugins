@@ -93,7 +93,7 @@ if($progname eq "check_redis_write_replication.pl"){
     ($host eq $slave) and usage "cannot specify same master and slave";
 }
 if(defined($database)){
-    $database = validate_int($database, 0, 15, "database");
+    $database = validate_int($database, "database", 0, 15);
 }
 $precision = validate_int($precision, 1, 20, "precision");
 validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integer" => 0 } );

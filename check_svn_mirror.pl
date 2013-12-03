@@ -41,7 +41,7 @@ get_options();
 
 $master_url  = validate_url($master_url, "master");
 $slave_url   = validate_url($slave_url,  "slave/mirror");
-$max_rev_lag = validate_int($max_rev_lag, 0, 50, "max revision lag");
+$max_rev_lag = validate_int($max_rev_lag, "max revision lag", 0, 50);
 if($user){
     $user = validate_user($user);
     $user = " --username=$user";
