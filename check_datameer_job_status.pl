@@ -77,7 +77,7 @@ $json->{"id"} == $job_id or quit "CRITICAL", "datameer server returned wrong job
 my $job_status = $json->{"jobStatus"};
 
 my %job_state;
-$job_state{"OK"}       = [qw/RUNNING WAITING_FOR_OTHER_JOB COMPLETED/];
+$job_state{"OK"}       = [qw/RUNNING WAITING_FOR_OTHER_JOB COMPLETED QUEUED/];
 $job_state{"WARNING"}  = [qw/COMPLETED_WITH_Warnings CANCELED CANCELLED/];
 $job_state{"CRITICAL"} = [qw/ERROR/];
 
