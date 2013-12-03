@@ -73,7 +73,7 @@ vlog_options "graph", "true" if $graph;
 if(defined($units)){
     $units = validate_units($units);
 }
-$precision = validate_int($precision, 1, 20, "precision");
+$precision = validate_int($precision, "precision", 1, 20);
 validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 0, "integer" => 0 } );
 
 vlog2;
