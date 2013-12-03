@@ -15,7 +15,7 @@ $DESCRIPTION = "Nagios Plugin to check Datameer license expiry using the Datamee
 
 Tested against Datameer 2.1.4.6 and 3.0.11";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -25,8 +25,10 @@ BEGIN {
 }
 use HariSekhonUtils;
 use JSON::XS;
-use LWP::UserAgent;
+use LWP::Simple '$ua';
 use Time::Local;
+
+$ua->agent("Hari Sekhon $progname $main::VERSION");
 
 my $default_port = 8080;
 $port = $default_port;
@@ -58,7 +60,6 @@ $user       = validate_user($user);
 $password   = validate_password($password);
 validate_thresholds(1, 1, { "simple" => "lower", "positive" => 1} );
 
-# TODO: check running jobs /rest/jobs/list-running
 my $url = "http://$host:$port/rest/license-details";
 
 vlog2;
@@ -66,25 +67,7 @@ set_timeout();
 
 $status = "OK";
 
-my $ua = LWP::UserAgent->new;
-$ua->agent("Hari Sekhon $progname $main::VERSION");
-$ua->credentials($host, '', $user, $password);
-
-# Lifted from check_cloudera_manager_metrics.pl TODO: move to lib
-#my $content = get $url;
-vlog2 "querying $url";
-my $req = HTTP::Request->new('GET',$url);
-$req->authorization_basic($user, $password);
-my $response = $ua->request($req);
-my $content  = $response->content;
-chomp $content;
-vlog3 "returned HTML:\n\n" . ( $content ? $content : "<blank>" ) . "\n";
-vlog2 "http code: " . $response->code;
-vlog2 "message: " . $response->message;
-
-unless($response->code eq "200"){
-    quit "UNKNOWN", $response->code . " " . $response->message;
-}
+my $content = curl $url, $user, $password;
 
 my $json;
 try{
