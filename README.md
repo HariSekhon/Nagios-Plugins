@@ -7,7 +7,7 @@ Largest collection of Hadoop & NoSQL monitoring code for Nagios, written by a fo
 
 I've been developing this Nagios Plugin Collection since around 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
-This should be the next stop after the standard nagios plugins collection, especially for those running web infrastructure or advanced technologies (Hadoop, Cassandra, HBase etc) in production.
+This should be the next stop after installing Nagios with it's basic plugins, especially for those running web or NoSQL technologies (Hadoop, Cassandra, HBase, Redis etc) in production.
 
 These programs can also be run standalone on the command line or used in scripts as well as called in Nagios.
 
@@ -23,13 +23,13 @@ http://www.linkedin.com/in/harisekhon
 
 - ```check_ssl_cert.pl``` - SSL expiry, chain of trust (including intermediate certs important for certain mobile devices), domain, wildcard and multi-domain support validation
 - ```check_mysql_query.pl``` - generic enough it obsoleted a dozen custom plugins and prevented writing many more
-- ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes without saving to my.cnf or backporting to puppet
+- ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes without saving to my.cnf or backporting to puppet, validate configuration compliance against a baseline
 - ```check_hadoop_*``` - various Hadoop monitoring utilities covering health and metrics for HDFS & MapReduce
 - ```check_hbase_*``` - various HBase monitoring utilities, covering Masters, RegionServers, table availability and metrics
 - ```check_cloudera_manager_metrics.pl``` - fetch a wealth of Hadoop monitoring metrics from Cloudera Manager. Modern Hadoop users with Cloudera Manager will want to use this (Disclaimer: I worked for Cloudera, but seriously CM collects an impressive amount of metrics)
 - ```check_puppet.rb``` - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
 - ```check_riak_*``` - check Riak API writes/reads/deletes with timings, check specific key, check diagnostics, check nodes agree on ring status, gather statistics, alert on any single stat
-- ```check_redis_*``` - check Redis API writes/reads/deletes with timings, check specific key, replication, replicated writes, publish/subscribe, connected clients, gather statistics, alert on any single stat
+- ```check_redis_*``` - check Redis API writes/reads/deletes with timings, check specific key, replication slaves, replicated writes, publish/subscribe, connected clients, validate configuration compliance, gather statistics, alert on any single stat
 - ```check_memcached_*``` - check Memcached API writes/reads/deletes with timings, check specific key, current connections, gather statistics
 - ```check_zookeeper.pl``` - ZooKeeper server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gathers statistics
 - ```check_zookeeper_znode.pl``` - ZooKeeper content checks, useful for HBase, SolrCloud, Hadoop NameNode HA & JobTracker HA (ZKFC) and any other ZooKeeper based service
@@ -52,7 +52,7 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - self-timeouts
 - graphing data where appropriate
 - code reuse, especially for more complex input/output validations
-- support for use of $PASSWORD environment variables to give administrators the option to avoid leaking --password credentials in the process list for all users to see
+- support for use of $USERNAME and $PASSWORD environment variables as well as more specific $<SOFTWARE_NAME>_USERNAME and $<SOFTWARE_NAME>_PASSWORD overrides (eg. $REDIS_PASSWORD) to give administrators the option to avoid leaking --password credentials in the process list for all users to see
 - easy rapid development of new high quality Nagios plugins
 
 Several plugins have been merged together and replaced with symlinks to the unified plugins bookmarking their areas of functionality, similar to some plugins from the standard nagios plugins collection.
