@@ -26,7 +26,6 @@ BEGIN {
 use HariSekhonUtils;
 use JSON::XS;
 use LWP::UserAgent;
-use Time::Local;
 
 my $default_port = 8080;
 $port = $default_port;
