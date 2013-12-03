@@ -94,7 +94,7 @@ my $job_status = $json{"jobStatus"};
 
 my %job_state;
 $job_state{"OK"}       = qw/RUNNING WAITING_FOR_OTHER_JOB COMPLETED/;
-$job_state{"WARNING"}  = qw/COMPLETED_WITH_Warnings/;
+$job_state{"WARNING"}  = qw/COMPLETED_WITH_Warnings CANCELED CANCELLED/;
 $job_state{"CRITICAL"} = qw/ERROR/;
 
 $status = "UNKNOWN";
@@ -105,6 +105,6 @@ foreach my $state (qw/CRITICAL WARNING OK/){
     }
 }
 
-$msg = "job $job_id status " . lc $status;
+$msg = "job $job_id state '" . lc $job_status . "'";
 
 quit $status, $msg;
