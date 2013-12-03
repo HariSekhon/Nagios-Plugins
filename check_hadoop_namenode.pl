@@ -34,7 +34,7 @@ $VERSION = "0.5";
 
 use strict;
 use warnings;
-use LWP::Simple qw/get $ua/;
+use LWP::Simple '$ua';
 BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
