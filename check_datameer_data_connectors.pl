@@ -39,7 +39,7 @@ my $job_id;
     "p|password=s"     => [ \$password,     "Password to connect with (\$DATAMEER_PASSWORD)" ],
 );
 
-@usage_order = qw/host port user password warning critical/;
+@usage_order = qw/host port user password/;
 
 env_creds("DATAMEER");
 
