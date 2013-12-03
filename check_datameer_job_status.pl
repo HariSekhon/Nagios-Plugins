@@ -15,7 +15,7 @@ $DESCRIPTION = "Nagios Plugin to check the status of a specific Datameer job usi
 
 Tested against Datameer 2.1.4.6 and 3.0.11";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -25,7 +25,9 @@ BEGIN {
 }
 use HariSekhonUtils;
 use JSON::XS;
-use LWP::UserAgent;
+use LWP::Simple '$ua';
+
+$ua->agent("Hari Sekhon $progname $main::VERSION");
 
 my $default_port = 8080;
 $port = $default_port;
@@ -56,25 +58,7 @@ my $url = "http://$host:$port/rest/job-configuration/job-status/$job_id";
 
 vlog2;
 
-my $ua = LWP::UserAgent->new;
-$ua->agent("Hari Sekhon $progname $main::VERSION");
-$ua->credentials($host, '', $user, $password);
-
-# Lifted from check_cloudera_manager_metrics.pl TODO: move to lib
-#my $content = get $url;
-vlog2 "querying $url";
-my $req = HTTP::Request->new('GET',$url);
-$req->authorization_basic($user, $password);
-my $response = $ua->request($req);
-my $content  = $response->content;
-chomp $content;
-vlog3 "returned HTML:\n\n" . ( $content ? $content : "<blank>" ) . "\n";
-vlog2 "http code: " . $response->code;
-vlog2 "message: " . $response->message;
-
-unless($response->code eq "200"){
-    quit "UNKNOWN", $response->code . " " . $response->message;
-}
+my $content = curl $url, $user, $password;
 
 my $json;
 try{
@@ -85,17 +69,17 @@ catch{
 };
 
 foreach(qw/id jobStatus/){
-    defined($json->{$_}) or quit "UNKNOWN", "$_ not returned for job $job_id in json from Datameer server. $nagios_plugins_support_msg";
+    defined($json->{$_}) or quit "UNKNOWN", "job $job_id not found on Datameer server";
 }
 
 $json->{"id"} == $job_id or quit "CRITICAL", "datameer server returned wrong job id!!";
 
-my $job_status = $json{"jobStatus"};
+my $job_status = $json->{"jobStatus"};
 
 my %job_state;
-$job_state{"OK"}       = qw/RUNNING WAITING_FOR_OTHER_JOB COMPLETED/;
-$job_state{"WARNING"}  = qw/COMPLETED_WITH_Warnings CANCELED CANCELLED/;
-$job_state{"CRITICAL"} = qw/ERROR/;
+$job_state{"OK"}       = [qw/RUNNING WAITING_FOR_OTHER_JOB COMPLETED/];
+$job_state{"WARNING"}  = [qw/COMPLETED_WITH_Warnings CANCELED CANCELLED/];
+$job_state{"CRITICAL"} = [qw/ERROR/];
 
 $status = "UNKNOWN";
 foreach my $state (qw/CRITICAL WARNING OK/){
