@@ -9,6 +9,8 @@
 #  License: see accompanying LICENSE file
 #  
 
+# TODO: check - Also ask for grep you grep "BlockReport" in the DN logs to get the current timeout.
+
 $DESCRIPTION = "Nagios Plugin to check the number of blocks on a Hadoop HDFS Datanode via it's blockScannerReport";
 
 $VERSION = "0.2";
@@ -20,7 +22,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use LWP::Simple qw/get $ua/;
+use LWP::Simple '$ua';
 
 my $default_port = 50075;
 $port = $default_port;
