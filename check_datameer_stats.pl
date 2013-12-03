@@ -60,8 +60,12 @@ $msg = "";
 my $content;
 my $json;
 my %num;
+my $url;
+#my $stat;
+# Datameer 3.0 no longer supports user management via the Rest API
+# user-management\/users user-management\/groups user-management\/roles/){
 foreach(qw/workbook connections import-job export-job dashboard infographics/){
-    my $url = "http://$host:$port/rest/$_";
+    $url = "http://$host:$port/rest/$_";
 
     vlog2;
 
@@ -75,6 +79,8 @@ foreach(qw/workbook connections import-job export-job dashboard infographics/){
     };
 
     $num{$_} = scalar @{$json};
+    #($stat = $_ ) =~ s/.*\///;
+    #$msg .= "$stat=$num{$_} ";
     $msg .= "$_=$num{$_} ";
 }
 
