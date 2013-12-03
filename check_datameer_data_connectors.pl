@@ -82,6 +82,7 @@ catch{
     quit "CRITICAL", "invalid json returned by '$host:$port'";
 };
 
-$msg = scalar @{$json} . " data connectors configured";
+my $num_connectors = scalar @{$json};
+$msg = "$num_connectors data connectors configured | data_connectors=$num_connectors";
 
 quit $status, $msg;
