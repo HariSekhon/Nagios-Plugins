@@ -109,9 +109,9 @@ if(defined($nodes)){
 
 vlog2;
 set_timeout();
-#$ua->timeout($timeout);
+set_http_timeout($timeout - 1);
 
-my $content = curl $url;
+my $content = curl $url, "JobTracker";
 
 # Note: This was created for Apache Hadoop 0.20.2, r911707. If they change this page across versions, this plugin will need to be updated
 vlog2 "parsing output from JobTracker\n";
