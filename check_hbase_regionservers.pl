@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check the number of RegionServers that are dead
 
 Checks the number of dead RegionServers against warning/critical thresholds and lists the dead RegionServers";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
