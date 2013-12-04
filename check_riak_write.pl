@@ -24,7 +24,7 @@ Checks:
 
 Control of Riak's n_val for the nagios bucket should be done separately, preferably by pre-creating the bucket with the desired n_val";
 
-$VERSION = "0.7";
+$VERSION = "0.8";
 
 use strict;
 use warnings;
@@ -33,11 +33,10 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use LWP::UserAgent;
+use LWP::Simple '$ua';
 use Time::HiRes 'time';
 
-my $ip;
-my $ua = LWP::UserAgent->new;
+# used in X-Riak-Meta-Nagios http header below as well
 my $header = "Hari Sekhon $progname version $main::VERSION";
 $ua->agent($header);
 
@@ -76,16 +75,14 @@ vlog_options "value",  $value;
 
 vlog2;
 set_timeout();
+set_http_timeout($timeout/3);
 
-$ip        = validate_resolvable($host);
+$ua->show_progress(1) if $debug;
+
+my $ip     = validate_resolvable($host);
 my $url    = "http://$ip:$port/riak/$bucket/$key";
 vlog_options "url",    $url;
 
-my $http_timeout = sprintf("%.2f", $timeout/3);
-$http_timeout = 1 if $http_timeout < 1;
-vlog2 "\nsetting http timeout to $http_timeout secs";
-$ua->timeout($http_timeout);
-$ua->show_progress(1) if $debug;
 
 sub riak_key($){
     my $action = shift;
