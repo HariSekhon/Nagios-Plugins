@@ -91,7 +91,7 @@ if($no_ssl){
 
 vlog2;
 set_timeout();
-set_http_timeout($timeout - 2);
+set_http_timeout($timeout - 1);
 
 $ua->show_progress(1) if $debug;
 
