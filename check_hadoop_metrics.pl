@@ -31,7 +31,7 @@ HBase Master /
 NOTE: NameNode and DataNode metrics pages are currently blank. See check_hadoop_jmx.pl for some jmx metrics instead
 ";
 
-$VERSION = "0.3.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
