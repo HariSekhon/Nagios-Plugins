@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# TODO: this heap can be misleading, should use /jmx instead or make a note of this. How come check_hadoop_metrics.pl doesn't support NameNode/DataNode are they not supporting metrics??
+# TODO: this heap can be misleading, should use /jmx instead or make a note of this
 
 $DESCRIPTION = "Nagios Plugin to run various checks against the Hadoop HDFS Cluster via the Namenode JSP pages
 
@@ -30,7 +30,7 @@ Caveats:
 
 Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for CDH 4.3 (2.0.0-cdh4.3.0). If JSP output changes across versions, this plugin will need to be updated to parse the changes";
 
-$VERSION = "0.5";
+$VERSION = "0.6";
 
 use strict;
 use warnings;
