@@ -172,19 +172,20 @@ if($hdfs_space or $balance or $heap or $datanode_block_balance){
     validate_thresholds(1, 1);
 }
 
-$url  = "http://$host:$port/$namenode_urn";
-my $url_live_nodes = "http://$host:$port/$namenode_urn_live_nodes";
-my $url_dead_nodes = "http://$host:$port/$namenode_urn_dead_nodes";
-
 vlog2;
 set_timeout();
-$host = validate_resolvable($host);
+
+$url   = "http://$host:$port/$namenode_urn";
+my $url_live_nodes = "http://$host:$port/$namenode_urn_live_nodes";
+my $url_dead_nodes = "http://$host:$port/$namenode_urn_dead_nodes";
+my $url_name = "namenode $host";
+
 #$ua->timeout($timeout);
 
 # exclude node lists too?
 my $content;
 unless($datanode_blocks or $datanode_block_balance){
-    $content = curl $url;
+    $content = curl $url, $url_name;
 }
 
 my $regex_td = '\s*(?:<\/a>\s*)?<td\s+id="\w+">\s*:\s*<td\s+id="\w+">\s*';
@@ -267,7 +268,7 @@ sub check_parsed {
 #############
 if($balance){
     parse_dfshealth();
-    $content = curl $url_live_nodes;
+    $content = curl $url_live_nodes, $url_name;
     vlog2 "parsing Namenode datanode % usage\n";
     if($content =~ />\s*Live Datanodes\s*:*\s*(\d+)\s*</){
         $dfs{"datanodes_available"} = $1;
@@ -378,7 +379,7 @@ if($balance){
 ################
 } elsif($node_list){
     my @missing_nodes;
-    $content = curl $url_live_nodes;
+    $content = curl $url_live_nodes, $url_name;
     foreach my $node (@nodes){
         unless($content =~ />$node(?:\.$domain_regex)?<\//m){
             push(@missing_nodes, $node);
@@ -415,7 +416,7 @@ if($balance){
 ################
 #} elsif($dead_nodes){
 #    my @dead_nodes;
-#    $content = curl $url_dead_nodes;
+#    $content = curl $url_dead_nodes, $url_name;
 #    foreach my $node (@nodes){
 #        unless($content =~ />$node(?:\.$domain_regex)?<\//m){
 #            push(@missing_nodes, $node);
@@ -476,7 +477,7 @@ if($balance){
     $msg .= " | 'Namenode Heap % Used'=$stats{heap_used_pc}%;" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "" ) . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "" ) . ";0;100 'Namenode Heap Used'=$stats{heap_used_bytes}B 'NameNode Heap Committed'=$stats{heap_committed_bytes}B";
 ###############
 } elsif($datanode_blocks){
-    $content = curl $url_live_nodes;
+    $content = curl $url_live_nodes, $url_name;
     parse_datanode_blockcounts();
     unless(%datanode_blocks){
         quit "UNKNOWN", "no datanode block counts were recorded, either there are no datanodes or there was a parsing error. $nagios_plugins_support_msg";
@@ -516,7 +517,7 @@ if($balance){
     $msg .= " num_datanodes=$num_datanodes";
     $msg .= " num_datanodes_exceeding_block_thresholds=" . ($datanodes_critical_blocks + $datanodes_warning_blocks);
 } elsif($datanode_block_balance){
-    $content = curl $url_live_nodes;
+    $content = curl $url_live_nodes, $url_name;
     parse_datanode_blockcounts();
     unless(%datanode_blocks){
         quit "UNKNOWN", "no datanode block counts were recorded, either there are no datanodes or there was a parsing error. $nagios_plugins_support_msg";
