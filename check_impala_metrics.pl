@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to fetch metrics from a given Impalad/StateStore debug UI";
 
-$VERSION = "0.2.1";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
