@@ -84,18 +84,7 @@ $status = "OK";
 
 # ============================================================================ #
 # lifted from my check_hadoop_jobtracker.pl plugin, modified to support $all_metrics
-vlog2 "querying $url";
-my $content = get $url;
-my ($result, $err) = ($?, $!);
-vlog3 "returned HTML:\n\n" . ( $content ? $content : "<blank>" ) . "\n";
-vlog2 "result: $result";
-vlog2 "error:  " . ( $err ? $err : "<none>" ) . "\n";
-if($result ne 0 or $err){
-    quit "CRITICAL", "failed to connect to '$host:$port': $err";
-}
-unless($content){
-    quit "CRITICAL", "blank content returned from '$host:$port'";
-}
+my $content = curl $url;
 
 sub check_stats_parsed(){
     if($all_metrics){
