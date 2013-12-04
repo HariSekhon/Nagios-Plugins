@@ -24,7 +24,7 @@ Limitations:
 
 1. If RegionServers are down you may get a timeout when querying the HBase Master JSP for the table details (CRITICAL: '500 read timeout'). The Stargate handles this better (check_hbase_tables_stargate.pl)";
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
