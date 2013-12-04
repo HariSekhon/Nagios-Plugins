@@ -40,7 +40,7 @@ foreach(@diags){
 
 
 %options = (
-    "riak-admin-path=s"  => [ \$path, "Path to riak-admin command if differing from the default /usr/sbin" ],
+    "riak-admin-path=s"  => [ \$path, "Path to directory containing riak-admin command if differing from the default /usr/sbin" ],
 );
 
 get_options();
