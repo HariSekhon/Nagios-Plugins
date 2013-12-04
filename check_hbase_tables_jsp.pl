@@ -36,7 +36,9 @@ use HariSekhonUtils;
 # Mojo::DOM causes this error on Mac OSX 10.8: Your vendor has not defined Time::HiRes macro CLOCK_MONOTONIC, used at (eval 11) line 1.
 #use Mojo::DOM;
 #use HTML::TreeBuilder;
-use LWP::UserAgent;
+use LWP::Simple '$ua';
+
+$ua->agent("Hari Sekhon $progname $main::VERSION");
 
 my $default_port = 60010;
 $port = $default_port;
@@ -70,13 +72,8 @@ foreach $table (@tables){
 vlog_options "tables", "[ " . join(" , ", @tables) . " ]";
 vlog2;
 set_timeout();
+set_http_timeout($timeout / 2);
 
-my $ua_timeout = $timeout / 2;
-$ua_timeout = 1 if ($ua_timeout < 1);
-
-my $ua = LWP::UserAgent->new;
-$ua->agent("Hari Sekhon $progname $main::VERSION");
-$ua->timeout($ua_timeout);
 $ua->show_progress(1) if $debug;
 
 $status = "OK";
