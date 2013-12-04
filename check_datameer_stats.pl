@@ -54,6 +54,9 @@ $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
 
+set_timeout();
+set_http_timeout($timeout/3); # divided by 6 is a bit tight since the first request may be slower than the others and trip timeout
+
 $status = "OK";
 
 $msg = "";
@@ -69,7 +72,7 @@ foreach(qw/workbook connections import-job export-job dashboard infographics/){
 
     vlog2;
 
-    $content = curl $url, $user, $password;
+    $content = curl $url, "Datameer", $user, $password;
 
     try{
         $json = decode_json $content;

@@ -64,10 +64,11 @@ my $url = "http://$host:$port/rest/license-details";
 
 vlog2;
 set_timeout();
+set_http_timeout($timeout - 1);
 
 $status = "OK";
 
-my $content = curl $url, $user, $password;
+my $content = curl $url, "Datameer", $user, $password;
 
 my $json;
 try{

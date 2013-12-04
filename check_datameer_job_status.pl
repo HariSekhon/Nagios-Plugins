@@ -57,8 +57,10 @@ $job_id     = validate_int($job_id, "job-id", 1, 100000);
 my $url = "http://$host:$port/rest/job-configuration/job-status/$job_id";
 
 vlog2;
+set_timeout();
+set_http_timeout($timeout - 1);
 
-my $content = curl $url, $user, $password;
+my $content = curl $url, "Datameer", $user, $password;
 
 my $json;
 try{
