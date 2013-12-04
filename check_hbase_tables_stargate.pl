@@ -34,7 +34,9 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use LWP::UserAgent;
+use LWP::Simple '$ua';
+
+$ua->agent("Hari Sekhon $progname $main::VERSION");
 
 my $default_port = 20550;
 $port = $default_port;
@@ -71,29 +73,13 @@ vlog_options "url", $url;
 
 vlog2;
 set_timeout();
+set_http_timeout($timeout - 1);
+
+$ua->show_progress(1) if $debug;
 
 $status = "OK";
 
-my $ua_timeout = $timeout - 1;
-$ua_timeout = 1 if($ua_timeout < 1);
-
-my $ua = LWP::UserAgent->new;
-$ua->agent("Hari Sekhon $progname $main::VERSION");
-$ua->timeout($ua_timeout);
-$ua->show_progress(1) if $debug;
-
-vlog2 "querying Stargate";
-my $res = $ua->get($url);
-vlog2 "got response";
-my $status_line  = $res->status_line;
-vlog2 "status line: $status_line";
-my $content = $res->content;
-vlog3 "\ncontent:\n\n$content\n";
-vlog2;
-
-unless($res->code eq 200){
-    quit "CRITICAL", "'$status_line'";
-}
+my $content = curl $url, "HBase Stargate";
 if($content =~ /\A\s*\Z/){
     quit "CRITICAL", "empty body returned from '$url'";
 }
