@@ -175,12 +175,14 @@ if($hdfs_space or $balance or $heap or $datanode_block_balance){
 vlog2;
 set_timeout();
 
+my $http_timeout = minimum_value($timeout - 1, 1);
+vlog2 "setting per http request timeout to $http_timeout secs\n";
+$ua->timeout($http_timeout);
+
 $url   = "http://$host:$port/$namenode_urn";
 my $url_live_nodes = "http://$host:$port/$namenode_urn_live_nodes";
 my $url_dead_nodes = "http://$host:$port/$namenode_urn_dead_nodes";
 my $url_name = "namenode $host";
-
-#$ua->timeout($timeout);
 
 # exclude node lists too?
 my $content;
