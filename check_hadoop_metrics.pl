@@ -79,12 +79,13 @@ validate_thresholds();
 
 vlog2;
 set_timeout();
+set_http_timeout($timeout - 1);
 
 $status = "OK";
 
 # ============================================================================ #
 # lifted from my check_hadoop_jobtracker.pl plugin, modified to support $all_metrics
-my $content = curl $url;
+my $content = curl $url, "hadoop daemon $host:$port";
 
 sub check_stats_parsed(){
     if($all_metrics){
