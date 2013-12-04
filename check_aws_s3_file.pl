@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check if a given file is present in AWS S3 via 
 
 Bucket names must follow the more restrictive 3 to 63 alphanumeric character international standard, dots are not supported in the bucket name due to using strict DNS shortname regex validation";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
