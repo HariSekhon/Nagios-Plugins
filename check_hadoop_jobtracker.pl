@@ -111,18 +111,8 @@ vlog2;
 set_timeout();
 #$ua->timeout($timeout);
 
-vlog2 "querying $url";
-my $content = get $url;
-my ($result, $err) = ($?, $!);
-vlog3 "returned HTML:\n\n" . ( $content ? $content : "<blank>" ) . "\n";
-vlog2 "result: $result";
-vlog2 "error:  " . ( $err ? $err : "<none>" ) . "\n";
-if($result ne 0 or $err){
-    quit "CRITICAL", "failed to connect to JobTracker at '$host:$port': $err";
-}
-unless($content){
-    quit "CRITICAL", "blank content returned by JobTracker at '$host:$port'";
-}
+my $content = curl $url;
+
 # Note: This was created for Apache Hadoop 0.20.2, r911707. If they change this page across versions, this plugin will need to be updated
 vlog2 "parsing output from JobTracker\n";
 
