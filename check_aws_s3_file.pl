@@ -29,7 +29,7 @@ use POSIX 'strftime';
 use Time::HiRes 'time';
 use XML::Simple;
 
-my $ua = LWP::UserAgent->new;
+our $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
 my $aws_host = "s3.amazonaws.com";
@@ -88,8 +88,12 @@ if($no_ssl){
     vlog_options "SSL CA Path",  $ssl_ca_path  if defined($ssl_ca_path);
     vlog_options "ssl noverify", "true" if $ssl_noverify;
 }
+
 vlog2;
 set_timeout();
+set_http_timeout($timeout - 2);
+
+$ua->show_progress(1) if $debug;
 
 $status = "OK";
 
@@ -101,9 +105,6 @@ $file =~ s/^\///;
 my $protocol = "https";
 $protocol = "http" if $no_ssl;
 my $url = "$protocol://$aws_host/$file";
-
-$ua->timeout($timeout - 2);
-$ua->show_progress(1) if $debug;
 
 my $request_type = "HEAD";
 $request_type = "GET" if $GET;
