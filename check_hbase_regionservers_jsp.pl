@@ -17,7 +17,7 @@ Recommended to use check_hbase_regionservers.pl instead which uses the HBase Sta
 
 Written and tested on CDH 4.3 (HBase 0.94.6-cdh4.3.0)";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -26,7 +26,9 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use LWP::UserAgent;
+use LWP::Simple '$ua';
+
+$ua->agent("Hari Sekhon $progname $main::VERSION");
 
 my $default_port = 60010;
 $port = $default_port;
@@ -56,28 +58,13 @@ validate_thresholds();
 
 vlog2;
 set_timeout();
+set_http_timeout($timeout - 1);
 
-my $ua = LWP::UserAgent->new;
-$ua->agent("Hari Sekhon $progname $main::VERSION");
 $ua->show_progress(1) if $debug;
 
 $status = "OK";
 
-vlog2 "querying HBase Master JSP";
-my $res = $ua->get($url);
-vlog2 "got response";
-my $status_line  = $res->status_line;
-vlog2 "status line: $status_line";
-my $content = $res->content;
-vlog3 "\ncontent:\n\n$content\n";
-vlog2;
-
-unless($res->code eq 200){
-    quit "CRITICAL", "'$status_line'";
-}
-if($content =~ /\A\s*\Z/){
-    quit "CRITICAL", "empty body returned from '$url'";
-}
+my $content = curl $url, "HBase Master JSP";
 
 my $live_servers_section = 0;
 my $dead_servers_section = 0;
