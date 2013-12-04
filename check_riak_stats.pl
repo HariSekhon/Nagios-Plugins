@@ -18,7 +18,7 @@ Checks:
 3. checks stat's value against warning/critical range thresholds (optional)
    raises warning/critical if the value is outside thresholds or not a floating point number";
 
-$VERSION = "0.6";
+$VERSION = "0.7";
 
 use strict;
 use warnings;
@@ -27,7 +27,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use LWP::Simple qw/get $ua/;
+use LWP::Simple '$ua';
 use JSON::XS;
 
 my $default_port = 8098;
@@ -74,33 +74,18 @@ if(($all_metrics or scalar @stats != 1) and ($warning or $critical)){
     usage "can only specify warning/critical thresholds when giving a single stat";
 }
 validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 0, "integer" => 0 } );
-vlog2;
-
-my $http_timeout = sprintf("%.2f", $timeout/3);
-$http_timeout = 1 if $http_timeout < 1;
-vlog2 "\nsetting http timeout to $http_timeout secs";
-$ua->timeout($http_timeout);
-$ua->show_progress(1) if $debug;
 
 vlog2;
 set_timeout();
+set_http_timeout($timeout - 1);
+
+$ua->show_progress(1) if $debug;
 
 $status = "OK";
 
 # ============================================================================ #
 # lifted from my check_hadoop_jobtracker.pl plugin, modified to support $all_metrics
-vlog2 "querying $url";
-my $content = get $url;
-my ($result, $err) = ($?, $!);
-vlog3 "returned HTML:\n\n" . ( $content ? $content : "<blank>" ) . "\n";
-vlog2 "result: $result";
-vlog2 "error:  " . ( $err ? $err : "<none>" ) . "\n";
-if($result ne 0 or $err){
-    quit "CRITICAL", "failed to connect to '$host:$port': $err";
-}
-unless($content){
-    quit "CRITICAL", "blank content returned from '$host:$port'";
-}
+my $content = curl $url,"Riak node $host";
 
 sub check_stats_parsed(){
     if($all_metrics){
