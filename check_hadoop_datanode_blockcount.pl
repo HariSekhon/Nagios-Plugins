@@ -9,8 +9,6 @@
 #  License: see accompanying LICENSE file
 #  
 
-# TODO: check - Also ask for grep you grep "BlockReport" in the DN logs to get the current timeout.
-
 $DESCRIPTION = "Nagios Plugin to check the number of blocks on a Hadoop HDFS Datanode via it's blockScannerReport";
 
 $VERSION = "0.2";
@@ -50,12 +48,13 @@ validate_thresholds(undef, undef, { "simple" => "upper", "integer" => 1, "positi
 
 vlog2;
 set_timeout();
+set_http_timeout($timeout - 1);
 
 $status = "OK";
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
-my $blockScannerReport = curl "http://$host:$port/blockScannerReport";
+my $blockScannerReport = curl "http://$host:$port/blockScannerReport", "datanode $host";
 
 my $block_count;
 if($blockScannerReport =~ /Total Blocks\s+:\s+(\d+)/){
