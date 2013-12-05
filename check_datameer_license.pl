@@ -63,15 +63,7 @@ set_http_timeout($timeout - 1);
 
 $status = "OK";
 
-my $content = curl $url, "Datameer", $user, $password;
-
-my $json;
-try{
-    $json = decode_json $content;
-};
-catch{
-    quit "CRITICAL", "invalid json returned by '$host:$port'";
-};
+my $json = datameer_curl $url, $user, $password;
 
 foreach(qw/LicenseStartDate LicenseExpirationDate LicenseType/){
     unless(defined($json->{$_})){
