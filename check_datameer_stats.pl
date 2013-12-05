@@ -17,7 +17,7 @@ Outputs perfdata for Nagios graphing of these usage trends over time
 
 Tested against Datameer 2.1.4.6 and 3.0.11";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -26,33 +26,23 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use HariSekhon::Datameer;
 use JSON::XS;
 use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
-my $default_port = 8080;
-$port = $default_port;
-
 my $job_id;
 
 %options = (
-    "H|host=s"         => [ \$host,         "Datameer server" ],
-    "P|port=s"         => [ \$port,         "Datameer port (default: $default_port)" ],
-    "u|user=s"         => [ \$user,         "User to connect with (\$DATAMEER_USER)" ],
-    "p|password=s"     => [ \$password,     "Password to connect with (\$DATAMEER_PASSWORD)" ],
+    %datameer_options,
 );
 
 @usage_order = qw/host port user password/;
 
-env_creds("DATAMEER");
-
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
-$user       = validate_user($user);
-$password   = validate_password($password);
+($host, $port, $user, $password) = validate_host_port_user_password($host, $port, $user, $password);
 
 set_timeout();
 set_http_timeout($timeout/3); # divided by 6 is a bit tight since the first request may be slower than the others and trip timeout
@@ -60,7 +50,6 @@ set_http_timeout($timeout/3); # divided by 6 is a bit tight since the first requ
 $status = "OK";
 
 $msg = "";
-my $content;
 my $json;
 my %num;
 my $url;
@@ -72,14 +61,7 @@ foreach(qw/workbook connections import-job export-job dashboard infographics/){
 
     vlog2;
 
-    $content = curl $url, "Datameer", $user, $password;
-
-    try{
-        $json = decode_json $content;
-    };
-    catch{
-        quit "CRITICAL", "invalid json returned by '$host:$port'";
-    };
+    $json = datameer_curl $url, $user, $password;
 
     $num{$_} = scalar @{$json};
     #($stat = $_ ) =~ s/.*\///;
