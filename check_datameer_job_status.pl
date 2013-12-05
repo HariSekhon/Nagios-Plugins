@@ -53,7 +53,7 @@ set_http_timeout($timeout - 1);
 my $json = datameer_curl $url, $user, $password;
 
 foreach(qw/id jobStatus/){
-    defined($json->{$_}) or quit "UNKNOWN", "job $job_id not found on Datameer server";
+    defined($json->{$_}) or quit "UNKNOWN", "job $job_id '$_' field not returned by Datameer server";
 }
 
 $json->{"id"} == $job_id or quit "CRITICAL", "datameer server returned wrong job id!!";
