@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# http://documentation.datameer.com/documentation/display/DAS21/Accessing+Datameer+Using+the+REST+API
+# http://documentation.datameer.com/documentation/display/DAS30/Accessing+Datameer+Using+the+REST+API
 
 $DESCRIPTION = "Nagios Plugin to check the volume of imported data for specific Datameer job using the Rest API
 
