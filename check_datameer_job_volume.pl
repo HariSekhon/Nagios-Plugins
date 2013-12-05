@@ -17,7 +17,7 @@ Use this to keep track of the amount of data imported by each job since Datameer
 
 Tested against Datameer 3.0.11";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;

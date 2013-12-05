@@ -15,7 +15,7 @@ $DESCRIPTION = "Nagios Plugin to check the number of active Datameer jobs using 
 
 Tested against Datameer 2.1.4.6 and 3.0.11";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
