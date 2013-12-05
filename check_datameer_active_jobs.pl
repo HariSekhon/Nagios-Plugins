@@ -24,34 +24,24 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use HariSekhon::Datameer;
 use JSON::XS;
 use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
-my $default_port = 8080;
-$port = $default_port;
-
 %options = (
-    "H|host=s"         => [ \$host,         "Datameer server" ],
-    "P|port=s"         => [ \$port,         "Datameer port (default: $default_port)" ],
-    "u|user=s"         => [ \$user,         "User to connect with (\$DATAMEER_USER)" ],
-    "p|password=s"     => [ \$password,     "Password to connect with (\$DATAMEER_PASSWORD)" ],
+    %datameer_options,
     "w|warning=s"      => [ \$warning,      "Warning  threshold (inclusive)" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold (inclusive)" ],
 );
 
 @usage_order = qw/host port user password warning critical/;
 
-env_creds("DATAMEER");
-
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
-$user       = validate_user($user);
-$password   = validate_password($password);
-validate_thresholds(0, 0, { "simple" => "upper", "integer" => 1, "positive" => 1} );
+($host, $port, $user, $password) = validate_host_port_user_password($host, $port, $user, $password);
+validate_thresholds(0, 0, { "simple" => "upper", "integer" => 1, "positive" => 1 } );
 
 my $url = "http://$host:$port/rest/jobs/list-running";
 
@@ -61,15 +51,7 @@ set_http_timeout($timeout - 1);
 
 $status = "OK";
 
-my $content = curl $url, "Datameer", $user, $password;
-
-my $json;
-try{
-    $json = decode_json $content;
-};
-catch{
-    quit "CRITICAL", "invalid json returned by '$host:$port'";
-};
+my $json = datameer_curl $url, $user, $password;
 
 my $running_jobs = 0;
 my %job_statuses = (
