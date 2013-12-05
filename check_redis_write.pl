@@ -85,7 +85,7 @@ if(defined($slave)){
     }
     if($slave_delay){
         # If you have more than a 10 sec delay your Redis replication is probably quite problematic so not allowing user to set more than this
-        $slave_delay = validate_float($slave_delay, $slave_delay_min, $slave_delay_max, "slave-read-delay");
+        $slave_delay = validate_float($slave_delay, "slave-read-delay", $slave_delay_min, $slave_delay_max);
     }
 }
 if($progname eq "check_redis_write_replication.pl"){
