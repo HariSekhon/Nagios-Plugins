@@ -24,35 +24,25 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use HariSekhon::Datameer;
 use JSON::XS;
 use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
-my $default_port = 8080;
-$port = $default_port;
-
 my $job_id;
 
 %options = (
-    "H|host=s"         => [ \$host,         "Datameer server" ],
-    "P|port=s"         => [ \$port,         "Datameer port (default: $default_port)" ],
-    "u|user=s"         => [ \$user,         "User to connect with (\$DATAMEER_USER)" ],
-    "p|password=s"     => [ \$password,     "Password to connect with (\$DATAMEER_PASSWORD)" ],
+    %datameer_options,
     "j|job-id=s"       => [ \$job_id,       "Job Configuration Id (get this from the web UI)" ],
 );
 
 @usage_order = qw/host port user password job-id/;
 
-env_creds("DATAMEER");
-
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
-$user       = validate_user($user);
-$password   = validate_password($password);
-$job_id     = validate_int($job_id, "job-id", 1, 100000);
+($host, $port, $user, $password) = validate_host_port_user_password($host, $port, $user, $password);
+$job_id = validate_int($job_id, "job-id", 1, 100000);
 
 my $url = "http://$host:$port/rest/job-configuration/job-status/$job_id";
 
@@ -60,15 +50,7 @@ vlog2;
 set_timeout();
 set_http_timeout($timeout - 1);
 
-my $content = curl $url, "Datameer", $user, $password;
-
-my $json;
-try{
-    $json = decode_json $content;
-};
-catch{
-    quit "CRITICAL", "invalid json returned by '$host:$port'";
-};
+my $json = datameer_curl $url, $user, $password;
 
 foreach(qw/id jobStatus/){
     defined($json->{$_}) or quit "UNKNOWN", "job $job_id not found on Datameer server";
