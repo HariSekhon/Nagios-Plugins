@@ -13,6 +13,8 @@
 
 $DESCRIPTION = "Nagios Plugin to check Datameer license expiry using the Datameer Rest API
 
+Also checks that the license mode is set to 'Enterprise'
+
 Tested against Datameer 2.1.4.6 and 3.0.11";
 
 $VERSION = "0.2";
@@ -39,6 +41,8 @@ my $default_critical = 15;
 $warning  = $default_warning;
 $critical = $default_critical;
 
+my $trial = 0;
+
 %options = (
     "H|host=s"         => [ \$host,         "Datameer server" ],
     "P|port=s"         => [ \$port,         "Datameer port (default: $default_port)" ],
@@ -46,6 +50,7 @@ $critical = $default_critical;
     "p|password=s"     => [ \$password,     "Password to connect with (\$DATAMEER_PASSWORD)" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold in days (default: $default_warning)" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold in days (default: $default_critical)" ],
+    "l|trial-license"  => [ \$trial,        "Allows trial license, otherwise raises critical. Don't use this after you take Datameer in to production" ],
 );
 
 @usage_order = qw/host port user password warning critical/;
@@ -58,7 +63,7 @@ $host       = validate_host($host);
 $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
-validate_thresholds(1, 1, { "simple" => "lower", "positive" => 1} );
+validate_thresholds(1, 1, { "simple" => "lower", "positive" => 1 } );
 
 my $url = "http://$host:$port/rest/license-details";
 
@@ -78,15 +83,73 @@ catch{
     quit "CRITICAL", "invalid json returned by '$host:$port'";
 };
 
-unless(defined($json->{"LicenseExpirationDate"})){
-    quit "UNKNOWN", "LicenseExpirationDate was not defined in json output returned from Datameer server. Format may have changed. $nagios_plugins_support_msg";
+foreach(qw/LicenseStartDate LicenseExpirationDate LicenseType/){
+    unless(defined($json->{$_})){
+        quit "UNKNOWN", "$_ was not defined in json output returned from Datameer server. API may have changed. $nagios_plugins_support_msg";
+    }
 }
-my $expiry_date = $json->{"LicenseExpirationDate"};
+my $start_date   = $json->{"LicenseStartDate"};
+my $expiry_date  = $json->{"LicenseExpirationDate"};
+my $license_type = $json->{"LicenseType"};
 
-unless($expiry_date =~ /^(\w{3})\s+(\d{1,2}),\s+(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})\s+([AP]M)$/){
-    quit "UNKNOWN", "failed to recognize expiry date format retrieved from Datameer server. Format may have changed or date may be invalid. $nagios_plugins_support_msg";
+# ============================================================================ #
+# Check License mode
+
+if($license_type eq "Enterprise"){
+    # OK
+} elsif($trial and $license_type eq "Trial"){
+    # OK if --trial-license
+} else {
+    critical;
+    $msg .= "License type = '$license_type', expected 'Enterprise'. ";
 }
 
+# TODO: move to lib and reintegrate with check_ssl_cert.pl
+sub month2int($){
+    my $month = shift;
+    defined($month) or code_error "no arg passed to month2int";
+    my %months = (
+        "Jan" => 0,
+        "Feb" => 1,
+        "Mar" => 2,
+        "Apr" => 3,
+        "May" => 4,
+        "Jun" => 5,
+        "Jul" => 6,
+        "Aug" => 7,
+        "Sep" => 8,
+        "Oct" => 9,
+        "Nov" => 10,
+        "Dec" => 11
+    );
+    grep { $month eq $_ } keys %months or code_error "non-month passed to month2int()";
+    return $months{$month};
+}
+
+sub timecomponents2days($$$$$$){
+    my $year  = shift;
+    my $month = shift;
+    my $day   = shift;
+    my $hour  = shift;
+    my $min   = shift;
+    my $sec   = shift;
+    my $month_int;
+    if(isInt($month)){
+        $month_int = $month;
+    } else {
+        $month_int = month2int($month);
+    }
+    my $epoch = timegm($sec, $min, $hour, $day, $month_int, $year-1900) || code_error "failed to convert timestamp $year-$month-$day $hour:$min:$sec";
+    my $now   = time || code_error "failed to get epoch timestamp";
+    return int( ($epoch - $now) / (86400) );
+}
+
+# ============================================================================ #
+# Check Start Date
+
+unless($start_date =~ /^(\w{3})\s+(\d{1,2}),\s+(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})\s+([AP]M)$/){
+    quit "UNKNOWN", "failed to recognize start date format retrieved from Datameer server. API format may have changed or date may be invalid. $nagios_plugins_support_msg";
+}
 my $month = $1;
 my $day   = $2;
 my $year  = $3;
@@ -97,25 +160,30 @@ if($7 eq "PM"){
     $hour += 12 if $hour < 12;
 }
 
-# Lifted from check_ssl_cert.pl, TODO: move to lib
-my %months = (
-    "Jan" => 0,
-    "Feb" => 1,
-    "Mar" => 2,
-    "Apr" => 3,
-    "May" => 4,
-    "Jun" => 5,
-    "Jul" => 6,
-    "Aug" => 7,
-    "Sep" => 8,
-    "Oct" => 9,
-    "Nov" => 10,
-    "Dec" => 11
-);
+my $epoch = timegm($sec, $min, $hour, $day, month2int($month), $year-1900) || code_error "failed to convert timestamp $year-$month-$day $hour:$min:$sec";
+my $now   = time || code_error "failed to get epoch timestamp";
+if($epoch > $now){
+    critical;
+    $msg .= "license start date is in the future! ";
+}
 
-my $expiry    = timegm($sec, $min, $hour, $day, $months{$month}, $year-1900) || quit "UNKNOWN", "Failed to convert timestamp $year-$months{$month}-$day $hour:$min:$sec";
-my $now       = time || code_error "Failed to get epoch timestamp. $nagios_plugins_support_msg";
-my $days_left = int( ($expiry - $now) / (86400) );
+# ============================================================================ #
+# Check Expiry
+
+unless($expiry_date =~ /^(\w{3})\s+(\d{1,2}),\s+(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})\s+([AP]M)$/){
+    quit "UNKNOWN", "failed to recognize expiry date format retrieved from Datameer server. API format may have changed or date may be invalid. $nagios_plugins_support_msg";
+}
+$month = $1;
+$day   = $2;
+$year  = $3;
+$hour  = $4;
+$min   = $5;
+$sec   = $6;
+if($7 eq "PM"){
+    $hour += 12 if $hour < 12;
+}
+
+my $days_left = timecomponents2days($year, $month, $day, $hour, $min, $sec);
 isInt($days_left, 1) or code_error "non-integer returned for days left calculation. $nagios_plugins_support_msg";
 
 plural abs($days_left);
