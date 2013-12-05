@@ -26,14 +26,12 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use HariSekhon::Datameer;
 use JSON::XS;
 use LWP::Simple '$ua';
 use Time::Local;
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
-
-my $default_port = 8080;
-$port = $default_port;
 
 my $default_warning  = 31;
 my $default_critical = 15;
@@ -44,10 +42,7 @@ $critical = $default_critical;
 my $trial = 0;
 
 %options = (
-    "H|host=s"         => [ \$host,         "Datameer server" ],
-    "P|port=s"         => [ \$port,         "Datameer port (default: $default_port)" ],
-    "u|user=s"         => [ \$user,         "User to connect with (\$DATAMEER_USER)" ],
-    "p|password=s"     => [ \$password,     "Password to connect with (\$DATAMEER_PASSWORD)" ],
+    %datameer_options,
     "w|warning=s"      => [ \$warning,      "Warning  threshold in days (default: $default_warning)" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold in days (default: $default_critical)" ],
     "l|trial-license"  => [ \$trial,        "Allows trial license, otherwise raises critical. Don't use this after you take Datameer in to production" ],
@@ -55,14 +50,9 @@ my $trial = 0;
 
 @usage_order = qw/host port user password warning critical/;
 
-env_creds("DATAMEER");
-
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
-$user       = validate_user($user);
-$password   = validate_password($password);
+($host, $port, $user, $password) = validate_host_port_user_password($host, $port, $user, $password);
 validate_thresholds(1, 1, { "simple" => "lower", "positive" => 1 } );
 
 my $url = "http://$host:$port/rest/license-details";
