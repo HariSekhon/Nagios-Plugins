@@ -198,7 +198,7 @@ $password = validate_password($password) if defined($password);
 
 $expected_regex = validate_regex($expected_regex) if defined($expected_regex);
 
-$zk_timeout = validate_float($zk_timeout, 0.001, 100, "zookeeper session timeout");
+$zk_timeout = validate_float($zk_timeout, "zookeeper session timeout", 0.001, 100);
 
 vlog2;
 set_timeout();
