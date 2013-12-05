@@ -77,7 +77,7 @@ foreach(qw/TotalVolumeConsumedInBytes LicenseVolumelimitInBytes LicenseVolumePer
 my $volume_used_pc = sprintf("%.2f", $json->{"TotalVolumeConsumedInBytes"} / $json->{"LicenseVolumelimitInBytes"});
 vlog2 sprintf("Volume Used % = %s", $volume_used_pc);
 
-$msg = sprintf("%s license volume used", $volume_used_pc);
+$msg = sprintf("%s%% license volume used", trim_float($volume_used_pc));
 check_thresholds($volume_used_pc):
 $msg .= sprintf(", %s / %s, %s month licensing period",
                     human_units($json->{"TotalVolumeConsumedInBytes"}) ,
