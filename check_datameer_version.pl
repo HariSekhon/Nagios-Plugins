@@ -15,7 +15,7 @@ $DESCRIPTION = "Nagios Plugin to check the Datameer version using the Datameer R
 
 Tested against Datameer 2.1.4.6 and 3.0.11";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -24,35 +24,25 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use HariSekhon::Datameer;
 use JSON::XS;
 use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
-my $default_port = 8080;
-$port = $default_port;
-
 my $expected;
 
 %options = (
-    "H|host=s"         => [ \$host,         "Datameer server" ],
-    "P|port=s"         => [ \$port,         "Datameer port (default: $default_port)" ],
-    "u|user=s"         => [ \$user,         "User to connect with (\$DATAMEER_USER)" ],
-    "p|password=s"     => [ \$password,     "Password to connect with (\$DATAMEER_PASSWORD)" ],
+    %datameer_options,
     "e|expected=s"     => [ \$expected,     "Expected version regex, raises CRITICAL if not matching, optional" ],
 );
 
 @usage_order = qw/host port user password warning critical/;
 
-env_creds("DATAMEER");
-
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
-$user       = validate_user($user);
-$password   = validate_password($password);
-$expected   = validate_regex($expected, "expected version") if defined($expected);
+($host, $port, $user, $password) = validate_host_port_user_password($host, $port, $user, $password);
+$expected = validate_regex($expected, "expected version") if defined($expected);
 
 my $url = "http://$host:$port/rest/license-details";
 
@@ -62,15 +52,7 @@ set_http_timeout($timeout - 1);
 
 $status = "OK";
 
-my $content = curl $url, "Datameer", $user, $password;
-
-my $json;
-try{
-    $json = decode_json $content;
-};
-catch{
-    quit "CRITICAL", "invalid json returned by '$host:$port'";
-};
+my $json = datameer_curl $url, $user, $password;
 
 unless(defined($json->{"ProductVersion"})){
     quit "UNKNOWN", "ProductVersion was not defined in json output returned from Datameer server. Format may have changed. $nagios_plugins_support_msg";
