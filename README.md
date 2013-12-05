@@ -51,9 +51,9 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - multiple verbosity levels
 - self-timeouts
 - graphing data where appropriate
-- code reuse, especially for more complex input/output validations
+- code reuse, especially for more complex input/output validations and error handling
 - support for use of $USERNAME and $PASSWORD environment variables as well as more specific overrides (eg. $MYSQL_USERNAME, $REDIS_PASSWORD) to give administrators the option to avoid leaking --password credentials in the process list for all users to see
-- easy rapid development of new high quality Nagios plugins
+- easy rapid development of new high quality robust Nagios plugins with minimal lines of code
 
 Several plugins have been merged together and replaced with symlinks to the unified plugins bookmarking their areas of functionality, similar to some plugins from the standard nagios plugins collection.
 
@@ -65,9 +65,9 @@ Having written a large number of Nagios Plugins in the last several years in a v
 
 This Library enables writing much more thoroughly validated production quality code, to achieve in quick 200 lines of Perl what might otherwise take 1500-2000 lines (including some of the more complicated supporting code such as robust validation functions with long complex regexs, configurable self-timeouts, warning/critical threshold range logic, common options and generated usage, multiple levels of verbosity, debug mode etc), dramatically reducing the time to write high quality plugins down to mere hours and at the same time vastly improving the quality of the final code through code reuse, as well as benefitting from generic future improvements to the library.
 
-This gives each plugin the appearance of being very short, because only the core logic of what you're trying to achieve is displayed in the plugin itself.
+This gives each plugin the appearance of being very short, because only the core logic of what you're trying to achieve is displayed in the plugin itself, the error handling is often handled in a library, so it may appear that a simple one line 'curl()' function call has no error handling at all around it but under the hood the error handling is handled inside the function inside a library, same for HBase Thrift API connection, Redis API connection etc so the client code as seen in the top level plugins knows it succeeded or otherwise the framework would have errored out with a specific error message such as "connection refused" etc...
 
-I've tried to keep the quality here high so a lot of plugins I've written over the years haven't made it in to this collection, and a couple others are in TODO-require-updates until I can reintegrate and test them with my current framework, although they should still work with the tiny utils.pm from the standard nagios plugins collection.
+I've tried to keep the quality here high so a lot of plugins I've written over the years haven't made it in to this collection, there are a lot still pending import, a couple others are in TODO-require-updates until I can reintegrate and test them with my current framework to modernize them, although they should still work with the tiny utils.pm from the standard nagios plugins collection.
 
 I'm aware of Nagios::Plugin and will re-review whether to integrate it's usage into my library at some point.
 
