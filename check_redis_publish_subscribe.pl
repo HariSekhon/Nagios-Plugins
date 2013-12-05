@@ -52,7 +52,7 @@ get_options();
 $host            = validate_host($host);
 $port            = validate_port($port);
 $password        = validate_password($password) if defined($password);
-$subscriber_wait = validate_float($subscriber_wait, $subscriber_wait_min, $subscriber_wait_max, "subscriber-wait secs");
+$subscriber_wait = validate_float($subscriber_wait, "subscriber-wait secs", $subscriber_wait_min, $subscriber_wait_max);
 $precision       = validate_int($precision, "precision", 1, 20);
 validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integer" => 0 } );
 vlog2;
