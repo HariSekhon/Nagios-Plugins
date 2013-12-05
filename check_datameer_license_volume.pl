@@ -47,7 +47,7 @@ $critical = $default_critical;
 get_options();
 
 ($host, $port, $user, $password) = validate_host_port_user_password($host, $port, $user, $password);
-validate_thresholds(1, 1, { "simple" => "upper", "positive" => 1 } );
+validate_thresholds(1, 1, { "simple" => "upper", "positive" => 1, "integer" => 0 } );
 
 my $url = "http://$host:$port/rest/license-details";
 
@@ -79,10 +79,8 @@ vlog2 sprintf("Volume Used % = %s", $volume_used_pc);
 
 $msg = sprintf("%s license volume used", $volume_used_pc);
 check_thresholds($volume_used_pc):
-$msg .= sprintf(", %s%s / %s%s, %s month licensing period",
-                                $json->{"TotalVolumeConsumedInBytes"}  ,
+$msg .= sprintf(", %s / %s, %s month licensing period",
                     human_units($json->{"TotalVolumeConsumedInBytes"}) ,
-                                $json->{"LicenseVolumelimitInBytes"}   ,
                     human_units($json->{"LicenseVolumelimitInBytes"})  ,
                                 $json->{"LicenseVolumePeriodInMonths"}
                     );
