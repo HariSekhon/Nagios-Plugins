@@ -20,16 +20,16 @@ Checks:
 3. Domain name on certificate (optional)
 4. Subject Alternative Names supported by certificate (optional)";
 
-$VERSION = "0.9.7";
+$VERSION = "0.9.8";
 
 use warnings;
 use strict;
-use Time::Local;
 BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils qw/:DEFAULT :regex/;
+use POSIX 'floor';
 
 my $openssl          = "/usr/bin/openssl";
 $port                = 443;
@@ -55,30 +55,15 @@ my $verify_code = "";
 my $verify_msg  = "";
 my @output;
 
-my %months = (
-    "Jan" => 0,
-    "Feb" => 1,
-    "Mar" => 2,
-    "Apr" => 3,
-    "May" => 4,
-    "Jun" => 5,
-    "Jul" => 6,
-    "Aug" => 7,
-    "Sep" => 8,
-    "Oct" => 9,
-    "Nov" => 10,
-    "Dec" => 11
-);
-
 %options = (
-    "H|host=s"                      => [ \$host, "The host to check" ],
-    "P|port=i"                      => [ \$port, "The port to check (defaults to port 443)" ],
-    "d|domain=s"                    => [ \$expected_domain, "Expected domain of the certificate" ],
-    "s|subject-alternative-names=s" => [ \$subject_alt_names, "Additional FQDNs to require on the certificate" ],
-    "w|warning=i"                   => [ \$warning, "The warning threshold in days before expiry (defaults to $default_warning)" ],
-    "c|critical=i"                  => [ \$critical, "The critical threshold in days before expiry (defaults to $default_critical)" ],
-    "C|CApath=s"                    => [ \$CApath, "Path to ssl root certs dir (will attempt to determine from openssl binary if not supplied)" ],
-    "N|no-validate"                 => [ \$no_validate, "Do not validate the SSL certificate chain" ]
+    "H|host=s"                      => [ \$host,                "SSL host to check" ],
+    "P|port=s"                      => [ \$port,                "SSL port to check (defaults to port 443)" ],
+    "d|domain=s"                    => [ \$expected_domain,     "Expected domain of the certificate" ],
+    "s|subject-alternative-names=s" => [ \$subject_alt_names,   "Additional FQDNs to require on the certificate" ],
+    "w|warning=s"                   => [ \$warning,             "The warning threshold in days before expiry (defaults to $default_warning)" ],
+    "c|critical=s"                  => [ \$critical,            "The critical threshold in days before expiry (defaults to $default_critical)" ],
+    "C|CApath=s"                    => [ \$CApath,              "Path to ssl root certs dir (will attempt to determine from openssl binary if not supplied)" ],
+    "N|no-validate"                 => [ \$no_validate,         "Do not validate the SSL certificate chain" ]
 );
 @usage_order = qw/host port domain subject-alternative-names warning critical no-validate CApath/;
 
@@ -208,9 +193,7 @@ validate_cert_domain($domain) or quit "UNKNOWN", "unrecognized domain certficate
 my ($month, $day, $time, $year, $tz) = split(/\s+/, $end_date);
 my ($hour, $min, $sec)               = split(/\:/, $time);
 
-my $expiry    = timegm($sec, $min, $hour, $day, $months{$month}, $year-1900) || quit "UNKNOWN", "Failed to convert timestamp $year-$months{$month}-$day $hour:$min:$sec";
-my $now       = time || code_error "Failed to get epoch timestamp. $nagios_plugins_support_msg";
-my $days_left = int( ($expiry - $now) / (86400) );
+my $days_left = floor( timecomponents2days($year, $month, $day, $hour, $min, $sec) );
 isInt($days_left, 1) or code_error "non-integer returned for days left calculation. $nagios_plugins_support_msg";
 
 vlog2 "* checking expected domain name on cert\n";
