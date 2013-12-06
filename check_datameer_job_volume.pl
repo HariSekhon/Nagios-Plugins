@@ -67,7 +67,7 @@ my $job_imported_volume = $json->{"importedVolume"};
 
 $msg .= "job $job_id imported volume " . human_units($job_imported_volume) . " [$job_imported_volume ";
 check_thresholds($job_imported_volume);
-$msg .= "] | importedVolume=${job_imported_volume}b";
+$msg .= "] | importedVolume=${job_imported_volume}B";
 msg_perf_thresholds;
 
 quit $status, $msg;
