@@ -74,12 +74,20 @@ foreach(qw/TotalVolumeConsumedInBytes LicenseVolumelimitInBytes LicenseVolumePer
     vlog2 sprintf("%s = %s", $_, $json->{$_});
 }
 
-my $volume_used_pc = sprintf("%.2f", $json->{"TotalVolumeConsumedInBytes"} / $json->{"LicenseVolumelimitInBytes"});
-vlog2 sprintf("Volume Used % = %s", $volume_used_pc);
+my $volume_used_pc;
+
+# unlimited, eg. Evaluation license
+if($json->{"LicenseVolumelimitInBytes"} < 0){
+    $json->{"LicenseVolumelimitInBytes"} = 0;
+    $volume_used_pc = 0;
+} else {
+    my $volume_used_pc = sprintf("%.2f", $json->{"TotalVolumeConsumedInBytes"} / $json->{"LicenseVolumelimitInBytes"});
+}
+vlog2 sprintf("Volume Used %% = %s", $volume_used_pc);
 
 $msg = sprintf("%s%% license volume used", trim_float($volume_used_pc));
-check_thresholds($volume_used_pc):
-$msg .= sprintf(", %s / %s, %s month licensing period | license_volume_used=%f%s license_volume_used=%dB;;0;%d",
+check_thresholds($volume_used_pc);
+$msg .= sprintf(", %s / %s, %s month licensing period | license_volume_used=%f%%%s license_volume_used=%dB;;0;%d",
                     human_units($json->{"TotalVolumeConsumedInBytes"})  ,
                     human_units($json->{"LicenseVolumelimitInBytes"})   ,
                                 $json->{"LicenseVolumePeriodInMonths"}  ,
