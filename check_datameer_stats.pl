@@ -59,8 +59,6 @@ my $url;
 foreach(qw/workbook connections import-job export-job dashboard infographics/){
     $url = "http://$host:$port/rest/$_";
 
-    vlog2;
-
     $json = datameer_curl $url, $user, $password;
 
     $num{$_} = scalar @{$json};
