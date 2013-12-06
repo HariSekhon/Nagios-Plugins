@@ -58,24 +58,7 @@ vlog2;
 set_timeout();
 set_http_timeout($timeout - 1);
 
-#my $json = datameer_curl $url, $user, $password;
-
-$json = {
-    "counters" => {
-        "IMPORT_RECORDS" => 494400,
-        "IMPORT_BYTES" => 23911522,
-        "IMPORT_DROPPED_RECORDS" => 0,
-        "IMPORT_PREVIEW_RECORDS" => 5000,
-        "IMPORT_OUTPUT_BYTES" => 24444883,
-        "IMPORT_DROPPED_SPLITS" => 0,
-        "IMPORT_OUTPUT_PARTITIONS" => 0
-    },
-    "failureCount" => 0,
-    "jobStatus" => "COMPLETED",
-    "startTime" => "2012-07-06 18:19:09.0",
-    "stopTime" => "2012-07-06 18:21:07.0",
-    "successCount" => 494400
-};
+my $json = datameer_curl $url, $user, $password;
 
 foreach(qw/jobStatus failureCount successCount counters startTime stopTime/){
     defined($json->{$_}) or quit "UNKNOWN", "job $job_id '$_' field not returned by Datameer server";
@@ -84,8 +67,8 @@ foreach(qw/failureCount successCount/){
     isInt($json->{$_})   or quit "UNKNOWN", "job $job_id '$_' returned non-integer '$json->{$_}', investigation required";
 }
 foreach(qw/IMPORT_RECORDS IMPORT_BYTES IMPORT_DROPPED_RECORDS IMPORT_PREVIEW_RECORDS IMPORT_OUTPUT_BYTES IMPORT_DROPPED_SPLITS IMPORT_OUTPUT_PARTITIONS/){
-    defined($json->{$_}) or quit "UNKNOWN", "job $job_id counter '$_' not returned by Datameer server";
-    isInt($json->{$_})   or quit "UNKNOWN", "job $job_id counter '$_' returned non-integer '$json->{$_}', investigation required";
+    defined($json->{"counters"}->{$_}) or quit "UNKNOWN", "job $job_id counter '$_' not returned by Datameer server";
+    isInt(  $json->{"counters"}->{$_}) or quit "UNKNOWN", "job $job_id counter '$_' returned non-integer '$json->{counters}->{$_}', investigation required";
 }
 
 my $job_status = $json->{"jobStatus"};
@@ -100,7 +83,7 @@ foreach my $state (qw/CRITICAL WARNING OK/){
 
 $msg = sprintf("job %d state '%s', failureCount %s, successCount %s, start time '%s', stop time '%s' |", $job_id, lc $job_status, $json->{"failureCount"}, $json->{"successCount"}, $json->{"startTime"}, $json->{"stopTime"});
 foreach(qw/IMPORT_RECORDS IMPORT_BYTES IMPORT_DROPPED_RECORDS IMPORT_PREVIEW_RECORDS IMPORT_OUTPUT_BYTES IMPORT_DROPPED_SPLITS IMPORT_OUTPUT_PARTITIONS/){
-    $msg .= sprintf(" %s=%d", lc $_, $json->{$_});
+    $msg .= sprintf(" %s=%d", lc $_, $json->{"counters"}->{$_});
 }
 
 quit $status, $msg;
