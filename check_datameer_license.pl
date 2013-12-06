@@ -172,7 +172,7 @@ if($7 eq "PM"){
 my $days_left = timecomponents2days($year, $month, $day, $hour, $min, $sec);
 isInt($days_left, 1) or code_error "non-integer returned for days left calculation. $nagios_plugins_support_msg";
 
-vlog2 "calculated $days_left days left on license";
+vlog2 "calculated $days_left days left on license\n";
 
 plural abs($days_left);
 if($days_left < 0){
