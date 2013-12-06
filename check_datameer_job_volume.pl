@@ -60,7 +60,7 @@ set_http_timeout($timeout - 1);
 my $json = datameer_curl $url, $user, $password;
 
 defined($json->{"id"})              or quit "UNKNOWN", "job $job_id not found on Datameer server";
-defined($json->{"importedVolume"})  or quit "UNKNOWN", "job $job_id field 'importedVolume' returned by Datameer server. API format may have changed. $nagios_plugins_support_msg";
+defined($json->{"importedVolume"})  or quit "UNKNOWN", "job $job_id field 'importedVolume' not returned by Datameer server. API format may have changed. $nagios_plugins_support_msg";
 
 $json->{"id"} == $job_id or quit "CRITICAL", "datameer server returned wrong job id!!";
 
