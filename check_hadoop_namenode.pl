@@ -30,7 +30,7 @@ Caveats:
 
 Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for CDH 4.3 (2.0.0-cdh4.3.0). If JSP output changes across versions, this plugin will need to be updated to parse the changes";
 
-$VERSION = "0.6";
+$VERSION = "0.7";
 
 use strict;
 use warnings;
@@ -453,27 +453,32 @@ if($balance){
 } elsif($heap){
     #if($content =~ /\bHeap\s+Size\s+is\s+(\d+(?:\.\d+)?)\s+(\wB)\s*\/\s*(\d+(?:\.\d+)?)\s+(\wB)\s+\((\d+(?:\.\d+)?)%\)/io){
     if($content =~ /Heap\s+Memory\s+used\s+(\d+(?:\.\d+)?)\s+(\w+)\s+is\s+(\d+(?:\.\d+)?)%\s+of\s+Commited\s+Heap\s+Memory\s+(\d+(?:\.\d+)?)\s+(\w+)\.\s+Max\s+Heap\s+Memory\s+is\s+(\d+(?:\.\d+)?)\s+(\w+)/){
-        $stats{"heap_used"}             = $1;
-        $stats{"heap_used_units"}       = $2;
-        $stats{"heap_used_pc"}          = $3;
-        $stats{"heap_committed"}        = $4;
-        $stats{"heap_committed_units"}  = $5;
-        $stats{"heap_max"}              = $6;
-        $stats{"heap_max_units"}        = $7;
-        $stats{"heap_used_bytes"}       = expand_units($stats{"heap_used"}, $stats{"heap_used_units"}, "Heap Used");
-        $stats{"heap_committed_bytes"}  = expand_units($stats{"heap_committed"}, $stats{"heap_committed_units"}, "Heap committed");
-        $stats{"heap_max_bytes"}        = expand_units($stats{"heap_max"},  $stats{"heap_max_units"},  "Heap Max" );
+        $stats{"heap_used"}                 = $1;
+        $stats{"heap_used_units"}           = $2;
+        $stats{"heap_used_of_committed_pc"} = $3; # % used of comitted
+        $stats{"heap_committed"}            = $4;
+        $stats{"heap_committed_units"}      = $5;
+        $stats{"heap_max"}                  = $6;
+        $stats{"heap_max_units"}            = $7;
+        $stats{"heap_used_bytes"}           = expand_units($stats{"heap_used"}, $stats{"heap_used_units"}, "Heap Used");
+        $stats{"heap_committed_bytes"}      = expand_units($stats{"heap_committed"}, $stats{"heap_committed_units"}, "Heap committed");
+        $stats{"heap_max_bytes"}            = expand_units($stats{"heap_max"},  $stats{"heap_max_units"},  "Heap Max" );
+        vlog3 sprintf("heap used        %s %s => %s", $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_used_bytes"});
+        vlog3 sprintf("heap committed   %s %s => %s", $stats{"heap_committed"}, $stats{"heap_committed_units"}, $stats{"heap_committed_bytes"});
+        vlog3 sprintf("heap max         %s %s => %s", $stats{"heap_max"}, $stats{"heap_max_units"}, $stats{"heap_max_bytes"});
         $stats{"heap_used_pc_calculated"} =  $stats{"heap_used_bytes"} / $stats{"heap_max_bytes"} * 100;
-        if(abs(int($stats{"heap_used_pc_calculated"}) - $stats{"heap_used_pc"}) > 2){
-            code_error "mismatch on calculated ($stats{heap_used_pc_calculated}) vs parsed % heap used ($stats{heap_used_pc})";
-        }
+        vlog3 sprintf("heap used calculated = %.2f%% (%s / %s)\n", $stats{heap_used_pc_calculated}, $stats{heap_used_bytes}, $stats{heap_max_bytes});
+        # we get given the % of comitted not the % of total heap, so this is not comparable for 
+        #if(abs(int($stats{"heap_used_pc_calculated"}) - $stats{"heap_used_of_comitted_pc"}) > 2){
+        #    code_error "mismatch on calculated ($stats{heap_used_pc_calculated}) vs parsed % heap used ($stats{heap_used_of_comitted_pc})";
+        #}
     } else {
-        code_error "failed to find Heap Size in output from Namenode, code error or output from Namenode JSP has changed";
+        code_error "failed to find Heap/Non-Heap Size in output from Namenode, code error or output from Namenode JSP has changed";
     }
     $status = "OK";
-    $msg    = sprintf("Namenode Heap %.2f%% Used of Committed (%s %s used, %s %s committed, %s %s total)", $stats{"heap_used_pc"}, $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_committed"}, $stats{"heap_committed_units"}, $stats{"heap_max"}, $stats{"heap_max_units"});
-    check_thresholds($stats{"heap_used_pc"});
-    $msg .= " | 'Namenode Heap % Used'=$stats{heap_used_pc}%;" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "" ) . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "" ) . ";0;100 'Namenode Heap Used'=$stats{heap_used_bytes}B 'NameNode Heap Committed'=$stats{heap_committed_bytes}B";
+    $msg    = sprintf("Namenode Heap %.2f%% Used (%s %s used, %s %s committed, %s %s total)", $stats{"heap_used_pc_calculated"}, $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_committed"}, $stats{"heap_committed_units"}, $stats{"heap_max"}, $stats{"heap_max_units"});
+    check_thresholds($stats{"heap_used_pc_calculated"});
+    $msg .= " | 'Namenode Heap % Used'=$stats{heap_used_pc_calculated}%;" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "" ) . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "" ) . ";0;100 'Namenode Heap Used'=$stats{heap_used_bytes}B 'NameNode Heap Committed'=$stats{heap_committed_bytes}B";
 ###############
 } elsif($datanode_blocks){
     $content = curl $url_live_nodes, $url_name;
