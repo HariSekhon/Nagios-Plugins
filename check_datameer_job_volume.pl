@@ -38,7 +38,7 @@ my $job_id;
     %datameer_options,
     "j|job-id=s"    => [ \$job_id,      "Job Configuration Id (get this from the web UI)" ],
     "w|warning=s"   => [ \$warning,     "Warning threshold (inclusive)" ],
-    "w|critical=s"  => [ \$critical,    "Critical threshold (inclusive)" ],
+    "c|critical=s"  => [ \$critical,    "Critical threshold (inclusive)" ],
 );
 
 @usage_order = qw/host port user password job-id/;
@@ -51,21 +51,22 @@ validate_thresholds(1, 1, { "simple" => "upper", "integer" => 1, "positive" => 1
 
 my $url = "http://$host:$port/rest/job-configuration/volume-report/$job_id";
 
+$status = "OK";
+
 vlog2;
 set_timeout();
 set_http_timeout($timeout - 1);
 
 my $json = datameer_curl $url, $user, $password;
 
-foreach(qw/id importedVolume/){
-    defined($json->{$_}) or quit "UNKNOWN", "job $job_id not found on Datameer server";
-}
+defined($json->{"id"})              or quit "UNKNOWN", "job $job_id not found on Datameer server";
+defined($json->{"importedVolume"})  or quit "UNKNOWN", "job $job_id field 'importedVolume' returned by Datameer server. API format may have changed. $nagios_plugins_support_msg";
 
 $json->{"id"} == $job_id or quit "CRITICAL", "datameer server returned wrong job id!!";
 
 my $job_imported_volume = $json->{"importedVolume"};
 
-$msg .= "job $job_id imported volume " . human_units($job_imported_volume) . " [$job_imported_volume ";
+$msg .= "job $job_id imported volume " . human_units($job_imported_volume) . " [$job_imported_volume bytes";
 check_thresholds($job_imported_volume);
 $msg .= "] | importedVolume=${job_imported_volume}B";
 msg_perf_thresholds;
