@@ -81,5 +81,4 @@ foreach(qw/running waiting_for_other_job/){
     $msg .= " $_=$job_statuses{$_}";
 }
 
-vlog2 if is_ok;
 quit $status, $msg;
