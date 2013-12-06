@@ -39,13 +39,13 @@ my $default_critical = 15;
 $warning  = $default_warning;
 $critical = $default_critical;
 
-my $trial = 0;
+my $evaluation = 0;
 
 %options = (
     %datameer_options,
     "w|warning=s"      => [ \$warning,      "Warning  threshold in days (default: $default_warning)" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold in days (default: $default_critical)" ],
-    "l|trial-license"  => [ \$trial,        "Allows trial license, otherwise raises critical. Don't use this after you take Datameer in to production" ],
+    "evaluation"       => [ \$evaluation,   "Allows Evaluation license, otherwise raises critical for anything other than Enterprise. Don't use this after you take Datameer in to production" ],
 );
 
 @usage_order = qw/host port user password warning critical/;
@@ -74,13 +74,17 @@ my $start_date   = $json->{"LicenseStartDate"};
 my $expiry_date  = $json->{"LicenseExpirationDate"};
 my $license_type = $json->{"LicenseType"};
 
+vlog2 "License Type: $license_type";
+vlog2 "Start  Date:  $start_date";
+vlog2 "Expiry Date:  $expiry_date\n";
+
 # ============================================================================ #
 # Check License mode
 
 if($license_type eq "Enterprise"){
     # OK
-} elsif($trial and $license_type eq "Trial"){
-    # OK if --trial-license
+} elsif($evaluation and $license_type eq "Evaluation"){
+    # OK if --evaluation
 } else {
     critical;
     $msg .= "License type = '$license_type', expected 'Enterprise'. ";
@@ -168,6 +172,8 @@ if($7 eq "PM"){
 my $days_left = timecomponents2days($year, $month, $day, $hour, $min, $sec);
 isInt($days_left, 1) or code_error "non-integer returned for days left calculation. $nagios_plugins_support_msg";
 
+vlog2 "calculated $days_left days left on license";
+
 plural abs($days_left);
 if($days_left < 0){
     critical;
@@ -178,5 +184,4 @@ if($days_left < 0){
     check_thresholds($days_left);
 }
 
-vlog2;
 quit $status, $msg;
