@@ -67,5 +67,4 @@ if(defined($expected) and $datameer_version !~ /^$expected$/){
     $msg .= " (expected: $expected)";
 }
 
-vlog2 if is_ok;
 quit $status, $msg;
