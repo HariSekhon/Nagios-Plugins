@@ -29,6 +29,7 @@ use HariSekhonUtils;
 use HariSekhon::Datameer;
 use JSON::XS;
 use LWP::Simple '$ua';
+use POSIX qw/floor ceil/;
 use Time::Local;
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
@@ -90,46 +91,6 @@ if($license_type eq "Enterprise"){
     $msg .= "License type = '$license_type', expected 'Enterprise'. ";
 }
 
-# TODO: move to lib and reintegrate with check_ssl_cert.pl
-sub month2int($){
-    my $month = shift;
-    defined($month) or code_error "no arg passed to month2int";
-    my %months = (
-        "Jan" => 0,
-        "Feb" => 1,
-        "Mar" => 2,
-        "Apr" => 3,
-        "May" => 4,
-        "Jun" => 5,
-        "Jul" => 6,
-        "Aug" => 7,
-        "Sep" => 8,
-        "Oct" => 9,
-        "Nov" => 10,
-        "Dec" => 11
-    );
-    grep { $month eq $_ } keys %months or code_error "non-month passed to month2int()";
-    return $months{$month};
-}
-
-sub timecomponents2days($$$$$$){
-    my $year  = shift;
-    my $month = shift;
-    my $day   = shift;
-    my $hour  = shift;
-    my $min   = shift;
-    my $sec   = shift;
-    my $month_int;
-    if(isInt($month)){
-        $month_int = $month;
-    } else {
-        $month_int = month2int($month);
-    }
-    my $epoch = timegm($sec, $min, $hour, $day, $month_int, $year-1900) || code_error "failed to convert timestamp $year-$month-$day $hour:$min:$sec";
-    my $now   = time || code_error "failed to get epoch timestamp";
-    return int( ($epoch - $now) / (86400) );
-}
-
 # ============================================================================ #
 # Check Start Date
 
@@ -146,9 +107,8 @@ if($7 eq "PM"){
     $hour += 12 if $hour < 12;
 }
 
-my $epoch = timegm($sec, $min, $hour, $day, month2int($month), $year-1900) || code_error "failed to convert timestamp $year-$month-$day $hour:$min:$sec";
-my $now   = time || code_error "failed to get epoch timestamp";
-if($epoch > $now){
+my $starting_in_days = timecomponents2days($year, $month, $day, $hour, $min, $sec);
+if($starting_in_days >= 0){
     critical;
     $msg .= "license start date is in the future! ";
 }
@@ -169,7 +129,7 @@ if($7 eq "PM"){
     $hour += 12 if $hour < 12;
 }
 
-my $days_left = timecomponents2days($year, $month, $day, $hour, $min, $sec);
+my $days_left = floor(timecomponents2days($year, $month, $day, $hour, $min, $sec));
 isInt($days_left, 1) or code_error "non-integer returned for days left calculation. $nagios_plugins_support_msg";
 
 vlog2 "calculated $days_left days left on license\n";
