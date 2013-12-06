@@ -40,6 +40,8 @@ my $default_critical = 15;
 $warning  = $default_warning;
 $critical = $default_critical;
 
+my $license_enterprise = "Enterprise";
+my $license_evaluation = "Evaluation";
 my $evaluation = 0;
 
 %options = (
@@ -82,13 +84,13 @@ vlog2 "Expiry Date:  $expiry_date\n";
 # ============================================================================ #
 # Check License mode
 
-if($license_type eq "Enterprise"){
+if($license_type eq $license_enterprise){
     # OK
-} elsif($evaluation and $license_type eq "Evaluation"){
+} elsif($evaluation and $license_type eq $license_evaluation){
     # OK if --evaluation
 } else {
     critical;
-    $msg .= "License type = '$license_type', expected 'Enterprise'. ";
+    $msg .= "License type = '$license_type', expected '$license_enterprise'. ";
 }
 
 # ============================================================================ #
@@ -141,7 +143,9 @@ if($days_left < 0){
     $days_left = abs($days_left);
     $msg .= "Datameer LICENSE EXPIRED $days_left day$plural ago'. Expiry Date: '$expiry_date'";
 } else { 
-    $msg .= "$days_left day$plural remaining on Datameer license. License Expires: '$expiry_date'";
+    $msg .= "$days_left day$plural remaining on Datameer license";
+    $msg .= " ($license_type)" if($evaluation and $license_type eq $license_evaluation);
+    $msg .= ". License Expires: '$expiry_date'";
     check_thresholds($days_left);
 }
 
