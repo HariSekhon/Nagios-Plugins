@@ -108,6 +108,7 @@ if($7 eq "PM"){
 }
 
 my $starting_in_days = timecomponents2days($year, $month, $day, $hour, $min, $sec);
+vlog2 sprintf("calculated license start date as %.1f days (should be negative)\n", $starting_in_days);
 if($starting_in_days >= 0){
     critical;
     $msg .= "license start date is in the future! ";
