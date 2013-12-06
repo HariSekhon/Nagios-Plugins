@@ -52,9 +52,8 @@ set_http_timeout($timeout - 1);
 
 my $json = datameer_curl $url, $user, $password;
 
-foreach(qw/id jobStatus/){
-    defined($json->{$_}) or quit "UNKNOWN", "job $job_id '$_' field not returned by Datameer server";
-}
+defined($json->{"id"}) or quit "UNKNOWN", "job $job_id not found on Datameer server";
+defined($json->{"jobStatus"}) or quit "UNKNOWN", "job $job_id field 'jobStatus' not returned by Datameer server. API format may have changed. $nagios_plugins_support_msg";
 
 $json->{"id"} == $job_id or quit "CRITICAL", "datameer server returned wrong job id!!";
 
