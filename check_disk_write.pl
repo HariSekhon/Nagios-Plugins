@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check a disk is writable and functioning properly by writing a tiny canary file with unique generated contents and then reading it back to make sure it was written properly.
 
-Useful to detect I/O errors and disks that have been re-mounted read-only as often happens when I/O errors are detected by the kernel on the disk subsystem.";
+Useful to detect I/O errors and disks that have been re-mounted read-only as often happens when I/O errors in the disk subsystem are detected by the kernel.";
 
 $VERSION = "0.1";
 
@@ -68,7 +68,7 @@ vlog2 "$bytes bytes read back from test file\n";
 vlog3 "contents = '$contents'\n";
 
 if($contents eq $random_string){
-    vlog2 "random string written and read back contents match OK\n";
+    vlog2 "random string written and contents read back match OK\n";
 } else {
     quit "CRITICAL", "canary file I/O error (written => read contents differ: '$random_string' vs '$contents')";
 }
