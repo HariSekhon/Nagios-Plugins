@@ -15,6 +15,16 @@ $DESCRIPTION = "Nagios Plugin to check the culumative volume of data imported by
 
 Use this to keep track of the amount of data imported by each job cumulatively for all runs of that job since Datameer is licensed by cumulative volume of imported data. This allows you to compare different jobs and see what they are costing you for comparison with the global volume license (see check_datameer_license_volume.pl for the global license volume used)
 
+Important Notes:
+
+It's possible to supply a Workbook ID, Data Link ID or Export Job ID and the API happily returns the runs with no imported volume information since there was no data imported. This results in 0 bytes imported being reported, which is technically accurate, it doesn't count against the Datameer licensed volume.
+
+Caveat:
+
+1. It's possible to delete an Import Job in which case you won't be able to get this information any more since the Job no longer exists
+
+2. It's possible to delete one or more runs from the history of an Import Job under Administration -> Job History. This would reduce the job's cumulative runs imported volume result, which is based on this history. Needless to say you should not do this. Datameer will retain the correct 'License total size' on the Browser page next to the job regardless, which would show the true number so you could see such a discrepancy.
+
 Tested against Datameer 3.0.11";
 
 $VERSION = "0.3";
@@ -59,7 +69,7 @@ set_http_timeout($timeout - 1);
 
 my $json = datameer_curl $url, $user, $password;
 
-quit "UNKNOWN", "no job runs have occurred yet for job $job_id or no job history available for that job or it is not an Import Job id (Data Link and Workbook IDs return no job runs)" unless @{$json};
+quit "UNKNOWN", "no job runs have occurred yet for job $job_id or no job history available for that job" unless @{$json};
 
 my $i = 0;
 my $job_run;
