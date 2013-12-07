@@ -89,7 +89,7 @@ vlog2 sprintf("Volume Used %% = %s", $volume_used_pc);
 
 $msg = sprintf("%s%% license volume used", trim_float($volume_used_pc));
 check_thresholds($volume_used_pc);
-$msg .= sprintf(", %s / %s, %s month licensing period | license_volume_used=%f%%%s license_volume_used=%dB;;0;%d",
+$msg .= sprintf(", %s / %s, %s month licensing period | license_volume_used=%.2f%%%s license_volume_used=%dB;;0;%d",
                     human_units($json->{"TotalVolumeConsumedInBytes"})  ,
                     human_units($json->{"LicenseVolumelimitInBytes"})   ,
                                 $json->{"LicenseVolumePeriodInMonths"}  ,
