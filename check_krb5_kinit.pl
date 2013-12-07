@@ -7,7 +7,7 @@
 #  http://github.com/harisekhon
 #
 #  License: see accompanying LICENSE file
-#  
+#
 
 $DESCRIPTION = "Nagios Plugin to check Kerberos is working by getting a TGT from the KDC using a keytab
 
