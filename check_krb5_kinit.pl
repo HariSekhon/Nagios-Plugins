@@ -30,7 +30,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils qw/:DEFAULT :regex/;
-use File::Temp 'tempfile';
+use File::Temp;
 
 my $default_principal = "nagios";
 my $principal = $default_principal;
@@ -55,7 +55,7 @@ $status = "OK";
 
 vlog2 "creating temporary ticket cache";
 # the destructor of this object should clean up this temp file for us
-my $fh = File::Temp->new(TEMPLATE => "/tmp/${progname}_krb5cc_$>_XXXXXX");
+my $fh = File::Temp->new(TEMPLATE => "/tmp/${progname}_krb5cc_$>_XXXXXXXXXX");
 my $ticket_cache = $fh->filename;
 vlog2 "temporary ticket cache is '$ticket_cache'\n";
 
