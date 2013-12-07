@@ -13,7 +13,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check Datameer license expiry using the Datameer Rest API
 
-Also checks that the license mode is set to 'Enterprise'
+Also checks that the license mode is set to 'Enterprise' rather than 'Evaluation' or other, and also that the license start date isn't in the future
 
 Tested against Datameer 2.1.4.6 and 3.0.11";
 
