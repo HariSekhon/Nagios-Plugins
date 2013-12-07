@@ -11,9 +11,9 @@
 
 # http://documentation.datameer.com/documentation/display/DAS30/Accessing+Datameer+Using+the+REST+API
 
-$DESCRIPTION = "Nagios Plugin to check the volume of imported data for specific Datameer job using the Rest API
+$DESCRIPTION = "Nagios Plugin to check the culumative volume of data imported by a specific Datameer job using the Rest API
 
-Use this to keep track of the amount of data imported by each job since Datameer is licensed by volume of imported data
+Use this to keep track of the amount of data imported by each job cumulatively for all runs of that job since Datameer is licensed by cumulative volume of imported data. This allows you to compare different jobs and see what they are costing you for comparison with the global volume license (see check_datameer_license_volume.pl for the global license volume used)
 
 Tested against Datameer 3.0.11";
 
@@ -47,7 +47,7 @@ get_options();
 
 ($host, $port, $user, $password) = validate_host_port_user_password($host, $port, $user, $password);
 $job_id = validate_int($job_id, "job-id", 1, 100000);
-validate_thresholds(1, 1, { "simple" => "upper", "integer" => 1, "positive" => 1 } );
+validate_thresholds(0, 0, { "simple" => "upper", "integer" => 1, "positive" => 1 } );
 
 my $url = "http://$host:$port/rest/job-configuration/volume-report/$job_id";
 
@@ -59,16 +59,29 @@ set_http_timeout($timeout - 1);
 
 my $json = datameer_curl $url, $user, $password;
 
-defined($json->{"id"})              or quit "UNKNOWN", "job $job_id not found on Datameer server";
-defined($json->{"importedVolume"})  or quit "UNKNOWN", "job $job_id field 'importedVolume' not returned by Datameer server. API format may have changed. $nagios_plugins_support_msg";
+quit "UNKNOWN", "no jobs runs have occurred yet" unless @{$json};
 
-$json->{"id"} == $job_id or quit "CRITICAL", "datameer server returned wrong job id!!";
+my $i = 0;
+my $job_run;
+my $job_imported_volume = 0;
+foreach $job_run (@{$json}){
+    $i++;
+    foreach(qw/id importedVolume/){
+        defined($job_run->{"$_"})  or quit "UNKNOWN", "job $job_id returned run result number $i field '$_' not returned by Datameer server. API format may have changed. $nagios_plugins_support_msg";
+    }
+    vlog2 "job $job_id run id $job_run->{id} importedVolume $job_run->{importedVolume}";
+    $job_imported_volume += $job_run->{"importedVolume"};
+}
 
-my $job_imported_volume = $json->{"importedVolume"};
-
-$msg .= "job $job_id imported volume " . human_units($job_imported_volume) . " [$job_imported_volume bytes";
-check_thresholds($job_imported_volume);
-$msg .= "] | importedVolume=${job_imported_volume}B";
+my $human_output = human_units($job_imported_volume);
+if($human_output !~ "bytes"){
+    $human_output .= " [$job_imported_volume bytes" . check_thresholds($job_imported_volume, 1) . "]";
+} else {
+    $human_output .= check_thresholds($job_imported_volume, 1);
+}
+$msg .= "job $job_id cumulative imported volume $human_output";
+$msg .= " | importedVolume=${job_imported_volume}B";
 msg_perf_thresholds;
 
+vlog2;
 quit $status, $msg;
