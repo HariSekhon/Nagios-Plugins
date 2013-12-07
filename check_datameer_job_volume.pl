@@ -59,7 +59,7 @@ set_http_timeout($timeout - 1);
 
 my $json = datameer_curl $url, $user, $password;
 
-quit "UNKNOWN", "no jobs runs have occurred yet" unless @{$json};
+quit "UNKNOWN", "no job runs have occurred yet for job $job_id or no job history available for that job or it is not an Import Job id (Data Link and Workbook IDs return no job runs)" unless @{$json};
 
 my $i = 0;
 my $job_run;
@@ -83,7 +83,8 @@ my $human_output = human_units($job_imported_volume);
 if($human_output !~ "bytes"){
     $human_output .= " [$job_imported_volume bytes]";
 }
-$msg .= "job $job_id cumulative imported volume $human_output";
+my $num_runs = scalar @{$json};
+$msg .= "job $job_id cumulative imported volume across $num_runs runs is $human_output";
 check_thresholds($job_imported_volume);
 $msg .= " | importedVolume=${job_imported_volume}B";
 msg_perf_thresholds;
