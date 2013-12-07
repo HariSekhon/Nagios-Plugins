@@ -28,7 +28,7 @@ To find the JOB ID that you should supply to the --job-id option you should look
 
 Tested against Datameer 3.0.11";
 
-$VERSION = "0.4";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -76,15 +76,6 @@ $url = "http://$host:$port/rest/job-execution/job-details/$job_run->{id}";
 
 $job_run = datameer_curl $url, $user, $password;
 
-foreach(qw/jobStatus failureCount successCount counters startTime stopTime/){
-    defined($job_run->{$_}) or quit "UNKNOWN", "job $job_id '$_' field not returned by Datameer server";
-}
-foreach(qw/failureCount successCount/){
-    isInt($job_run->{$_})   or quit "UNKNOWN", "job $job_id '$_' returned non-integer '$job_run->{$_}', investigation required";
-}
-my $import_job = 0;
-my $export_job = 0;
-
 # ============================================================================ #
 sub isExportJob($){
     my $job_run = shift;
@@ -102,17 +93,33 @@ sub isImportJob($){
 }
 # ============================================================================ #
 
+my $import_job = 0;
+my $export_job = 0;
+
 if(isExportJob($job_run)){
     vlog2 "detected export job\n";
     $export_job = 1;
-    foreach(@export_job_counters){
-        defined($job_run->{"counters"}->{$_}) or $job_run->{"counters"}->{$_} = 0;
-        isInt(  $job_run->{"counters"}->{$_}) or quit "UNKNOWN", "job $job_id counter '$_' returned non-integer '$job_run->{counters}->{$_}', investigation required";
-    }
 } elsif(isImportJob($job_run)){
     vlog2 "detected import job\n";
     $import_job = 1;
+} else {
+    quit "UNKNOWN", "only import and export jobs are supported (job id specified returned last run details with none of the expected counters for either type of job)";
+}
+
+foreach(qw/jobStatus failureCount successCount counters startTime stopTime/){
+    defined($job_run->{$_}) or quit "UNKNOWN", "job $job_id '$_' field not returned by Datameer server";
+}
+foreach(qw/failureCount successCount/){
+    isInt($job_run->{$_})   or quit "UNKNOWN", "job $job_id '$_' returned non-integer '$job_run->{$_}', investigation required";
+}
+
+if($import_job){
     foreach(@import_job_counters){
+        defined($job_run->{"counters"}->{$_}) or $job_run->{"counters"}->{$_} = 0;
+        isInt(  $job_run->{"counters"}->{$_}) or quit "UNKNOWN", "job $job_id counter '$_' returned non-integer '$job_run->{counters}->{$_}', investigation required";
+    }
+} elsif($export_job){
+    foreach(@export_job_counters){
         defined($job_run->{"counters"}->{$_}) or $job_run->{"counters"}->{$_} = 0;
         isInt(  $job_run->{"counters"}->{$_}) or quit "UNKNOWN", "job $job_id counter '$_' returned non-integer '$job_run->{counters}->{$_}', investigation required";
     }
