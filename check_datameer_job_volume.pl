@@ -63,18 +63,20 @@ quit "UNKNOWN", "no jobs runs have occurred yet" unless @{$json};
 
 my $i = 0;
 my $job_run;
-my $importedVolume;
+my $run_importedVolume;
 my $job_imported_volume = 0;
 foreach $job_run (@{$json}){
     $i++;
-    defined($job_run->{"id"})  or quit "UNKNOWN", "job $job_id returned run result number $i field 'id' not returned by Datameer server. API format may have changed. $nagios_plugins_support_msg";
-    if(defined($job_run->{"importedVolume"})){
-        $importedVolume = $job_run->{"importedVolume"};
-    } else {
-        $importedVolume = 0;
+    foreach(qw/id jobStatus/){
+        defined($job_run->{$_})  or quit "UNKNOWN", "job $job_id returned run result number $i field '$_' not returned by Datameer server. API format may have changed. $nagios_plugins_support_msg";
     }
-    vlog2 "job $job_id run id $job_run->{id} importedVolume $importedVolume";
-    $job_imported_volume += $importedVolume;
+    if(defined($job_run->{"importedVolume"})){
+        $run_importedVolume = $job_run->{"importedVolume"};
+    } else {
+        $run_importedVolume = 0;
+    }
+    vlog2 "job: $job_id  run id: $job_run->{id}  status: $job_run->{jobStatus}  importedVolume: $run_importedVolume";
+    $job_imported_volume += $run_importedVolume;
 }
 
 my $human_output = human_units($job_imported_volume);
