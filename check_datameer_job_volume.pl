@@ -17,6 +17,8 @@ Use this to keep track of the amount of data imported by each job cumulatively f
 
 Important Notes:
 
+To find the JOB ID that you should supply to the --job-id option you should look at the Browser tab inside Datameer's web UI and right-click on the import job and then click Information. This will show you the JOB ID in the field \"ID: <number>\" (NOT \"File ID\")
+
 It's possible to supply a Workbook ID, Data Link ID or Export Job ID and the API happily returns the runs with no imported volume information since there was no data imported. This results in 0 bytes imported being reported, which is technically accurate, it doesn't count against the Datameer licensed volume.
 
 Caveat:
