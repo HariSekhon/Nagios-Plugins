@@ -7,7 +7,7 @@
 #  http://github.com/harisekhon
 #
 #  License: see accompanying LICENSE file
-#  
+#
 
 $DESCRIPTION = "Nagios Plugin to check the balance of ownership of tokens across nodes
 
