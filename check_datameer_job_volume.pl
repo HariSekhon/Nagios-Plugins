@@ -21,7 +21,7 @@ It's possible to supply a Workbook ID, Data Link ID or Export Job ID and the API
 
 Caveat:
 
-1. It's possible to delete an Import Job in which case you won't be able to get this information any more since the Job no longer exists
+1. It's possible to delete an Import Job in which case you won't be able to get this information any more since the Job no longer exists, you'll get a 404 not found error.
 
 2. It's possible to delete one or more runs from the history of an Import Job under Administration -> Job History. This would reduce the job's cumulative runs imported volume result, which is based on this history. Needless to say you should not do this. Datameer will retain the correct 'License total size' on the Browser page next to the job regardless, which would show the true number so you could see such a discrepancy.
 
