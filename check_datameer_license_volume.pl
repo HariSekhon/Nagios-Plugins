@@ -10,7 +10,9 @@
 
 # http://documentation.datameer.com/documentation/display/DAS30/Accessing+Datameer+Using+the+REST+API
 
-$DESCRIPTION = "Nagios Plugin to check Datameer license data remaining using Datameer Rest API
+$DESCRIPTION = "Nagios Plugin to check Datameer license volume used % using Datameer Rest API
+
+Datameer is licensed by Cumulative Data Ingested Volume so this is an important thing to monitor and graph through the year and set thresholds on
 
 Tested against Datameer 3.0.11
 
