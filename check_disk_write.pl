@@ -22,8 +22,8 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use File::Temp;
 use File::Spec;
+use File::Temp;
 
 my $dir;
 
