@@ -33,6 +33,7 @@ my $dir;
 get_options();
 
 $dir = validate_directory($dir);
+$dir =~ s/\/*$//;
 my $random_string = sprintf("%s %s %s", $progname, time, random_alnum(20));
 vlog_options "random string", "'$random_string'\n";
 
