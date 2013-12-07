@@ -11,7 +11,7 @@
 
 # http://documentation.datameer.com/documentation/display/DAS30/Accessing+Datameer+Using+the+REST+API
 
-$DESCRIPTION = "Nagios Plugin to check the status of a specific Datameer job using the Rest API and output details of job success and failure counts as well as the following counters in perfdata for graphing:
+$DESCRIPTION = "Nagios Plugin to check the status of a specific Datameer job using the Rest API and output details of job success and failure counts as well as the following counters for the last run as perfdata for graphing:
 
 import_records
 import_bytes
