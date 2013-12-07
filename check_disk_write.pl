@@ -82,6 +82,6 @@ if($contents eq $random_string){
     quit "CRITICAL", "canary file I/O error (written => read contents differ: '$random_string' vs '$contents')";
 }
 
-$msg = "canary file I/O written => read back $bytes bytes successfully, unique contents verified";
+$msg = "canary file I/O written => read back $bytes bytes successfully from $dir, unique contents verified";
 
 quit $status, $msg;
