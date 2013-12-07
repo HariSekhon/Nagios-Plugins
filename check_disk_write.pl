@@ -41,32 +41,40 @@ set_timeout();
 $status = "OK";
 
 my $fh;
+vlog2 "creating canary file";
 try {
     $fh = File::Temp->new(TEMPLATE => "$dir/${progname}_XXXXXXXXXX");
 };
 catch_quit "failed to create canary file";
 my $filename = $fh->filename;
-vlog_options "canary file", "'$filename'\n";
+vlog2 "canary file created: '$filename'\n";
 
+vlog2 "writing random string to canary file";
 try {
     print $fh $random_string;
 };
 catch_quit "failed to write random string to canary file '$filename'";
+vlog2 "wrote canary file\n";
 
+vlog3 "seeking to beginning of canary file";
 try {
     seek($fh, 0, 0) or quit "CRITICAL", "failed to seek to beginning of canary file '$filename': $!";
 };
 catch_quit "failed to seek to beginning of canary file '$filename'";
+vlog3 "seeked back to start of canary file\n";
 
 my $contents = "";
 my $bytes;
+
+vlog2 "reading contents of canary file back";
 try {
     $bytes = read($fh, $contents, 100);
 };
 catch_quit "failed to read back from canary file '$filename'";
-vlog2 "$bytes bytes read back from test file\n";
+vlog2 "$bytes bytes read back from canary file\n";
 vlog3 "contents = '$contents'\n";
 
+vlog3 "comparing random string written to contents of canary file";
 if($contents eq $random_string){
     vlog2 "random string written and contents read back match OK\n";
 } else {
