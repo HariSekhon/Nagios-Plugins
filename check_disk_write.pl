@@ -23,6 +23,7 @@ BEGIN {
 }
 use HariSekhonUtils;
 use File::Temp;
+use File::Spec;
 
 my $dir;
 
@@ -32,8 +33,8 @@ my $dir;
 
 get_options();
 
+$dir = File::Spec->rel2abs($dir); # also canonicalizes
 $dir = validate_directory($dir);
-$dir =~ s/\/*$//;
 my $random_string = sprintf("%s %s %s", $progname, time, random_alnum(20));
 vlog_options "random string", "'$random_string'\n";
 
@@ -46,7 +47,7 @@ vlog2 "creating canary file";
 try {
     $fh = File::Temp->new(TEMPLATE => "$dir/${progname}_XXXXXXXXXX");
 };
-catch_quit "failed to create canary file";
+catch_quit "failed to create canary file in $dir";
 my $filename = $fh->filename;
 vlog2 "canary file created: '$filename'\n";
 
@@ -79,9 +80,9 @@ vlog3 "comparing random string written to contents of canary file";
 if($contents eq $random_string){
     vlog2 "random string written and contents read back match OK\n";
 } else {
-    quit "CRITICAL", "canary file I/O error (written => read contents differ: '$random_string' vs '$contents')";
+    quit "CRITICAL", "canary file I/O error in $dir (written => read contents differ: '$random_string' vs '$contents')";
 }
 
-$msg = "canary file I/O written => read back $bytes bytes successfully from $dir, unique contents verified";
+$msg = "canary file I/O written => read back $bytes bytes successfully in $dir, unique contents verified";
 
 quit $status, $msg;
