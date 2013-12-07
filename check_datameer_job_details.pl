@@ -11,21 +11,24 @@
 
 # http://documentation.datameer.com/documentation/display/DAS30/Accessing+Datameer+Using+the+REST+API
 
-$DESCRIPTION = "Nagios Plugin to check the status of a specific Datameer job using the Rest API and output details of job success and failure counts as well as the following counters for the last run as perfdata for graphing:
+my @import_job_counters = qw/IMPORT_RECORDS IMPORT_DROPPED_RECORDS IMPORT_PREVIEW_RECORDS IMPORT_BYTES IMPORT_OUTPUT_BYTES IMPORT_DROPPED_SPLITS IMPORT_OUTPUT_PARTITIONS/;
+my @export_job_counters = qw/EXPORT_RECORDS EXPORT_DROPPED_RECORDS EXPORT_BYTES/;
 
-import_records
-import_bytes
-import_dropped_records
-import_preview_records
-import_output_bytes
-import_dropped_splits
-import_output_partitions
+$DESCRIPTION = "Nagios Plugin to check the status of a specific Datameer job using the Rest API and output details of job success and failure counts as well as counters for the last job run as perfdata for graphing.
+
+Detects whether job is an import or export job and outputs the following relevant counters as perfdata:
+
+" . lc(join("\n", @import_job_counters))  . "
+
+OR
+
+" . lc(join("\n", @export_job_counters)) . "
 
 To find the JOB ID that you should supply to the --job-id option you should look at the Browser tab inside Datameer's web UI and right-click on the import job and then click Information. This will show you the JOB ID in the field \"ID: <number>\" (NOT \"File ID\")
 
 Tested against Datameer 3.0.11";
 
-$VERSION = "0.2";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -79,9 +82,42 @@ foreach(qw/jobStatus failureCount successCount counters startTime stopTime/){
 foreach(qw/failureCount successCount/){
     isInt($job_run->{$_})   or quit "UNKNOWN", "job $job_id '$_' returned non-integer '$job_run->{$_}', investigation required";
 }
-foreach(qw/IMPORT_RECORDS IMPORT_BYTES IMPORT_DROPPED_RECORDS IMPORT_PREVIEW_RECORDS IMPORT_OUTPUT_BYTES IMPORT_DROPPED_SPLITS IMPORT_OUTPUT_PARTITIONS/){
-    defined($job_run->{"counters"}->{$_}) or $job_run->{"counters"}->{$_} = 0;
-    isInt(  $job_run->{"counters"}->{$_}) or quit "UNKNOWN", "job $job_id counter '$_' returned non-integer '$job_run->{counters}->{$_}', investigation required";
+my $import_job = 0;
+my $export_job = 0;
+
+# ============================================================================ #
+sub isExportJob($){
+    my $job_run = shift;
+    foreach(@export_job_counters){
+        defined($job_run->{"counters"}->{$_}) and return 1;
+    }
+    return 0;
+}
+sub isImportJob($){
+    my $job_run = shift;
+    foreach(@import_job_counters){
+        defined($job_run->{"counters"}->{$_}) and return 1;
+    }
+    return 0;
+}
+# ============================================================================ #
+
+if(isExportJob($job_run)){
+    vlog2 "detected export job\n";
+    $export_job = 1;
+    foreach(@export_job_counters){
+        defined($job_run->{"counters"}->{$_}) or $job_run->{"counters"}->{$_} = 0;
+        isInt(  $job_run->{"counters"}->{$_}) or quit "UNKNOWN", "job $job_id counter '$_' returned non-integer '$job_run->{counters}->{$_}', investigation required";
+    }
+} elsif(isImportJob($job_run)){
+    vlog2 "detected import job\n";
+    $import_job = 1;
+    foreach(@import_job_counters){
+        defined($job_run->{"counters"}->{$_}) or $job_run->{"counters"}->{$_} = 0;
+        isInt(  $job_run->{"counters"}->{$_}) or quit "UNKNOWN", "job $job_id counter '$_' returned non-integer '$job_run->{counters}->{$_}', investigation required";
+    }
+} else {
+    code_error "could not determine if this is an import or an export job. $nagios_plugins_support_msg";
 }
 
 my $job_status = $job_run->{"jobStatus"};
@@ -95,8 +131,16 @@ foreach my $state (qw/CRITICAL WARNING OK/){
 }
 
 $msg = sprintf("job %d state '%s', failureCount %s, successCount %s, last start time '%s', stop time '%s' |", $job_id, lc $job_status, $job_run->{"failureCount"}, $job_run->{"successCount"}, $job_run->{"startTime"}, $job_run->{"stopTime"});
-foreach(qw/IMPORT_RECORDS IMPORT_BYTES IMPORT_DROPPED_RECORDS IMPORT_PREVIEW_RECORDS IMPORT_OUTPUT_BYTES IMPORT_DROPPED_SPLITS IMPORT_OUTPUT_PARTITIONS/){
-    $msg .= sprintf(" %s=%d", lc $_, $job_run->{"counters"}->{$_});
+if($import_job){
+    foreach(@import_job_counters){
+        $msg .= sprintf(" %s=%d", lc $_, $job_run->{"counters"}->{$_});
+    }
+} elsif($export_job){
+    foreach(@export_job_counters){
+        $msg .= sprintf(" %s=%d", lc $_, $job_run->{"counters"}->{$_});
+    }
+} else {
+    code_error "could not determine if this is an import or an export job late in processing! $nagios_plugins_support_msg";
 }
 
 quit $status, $msg;
