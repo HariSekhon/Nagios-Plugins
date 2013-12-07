@@ -7,7 +7,7 @@
 #  http://github.com/harisekhon
 #
 #  License: see accompanying LICENSE file
-#  
+#
 
 $DESCRIPTION = "Nagios Plugin to check a disk is writable and functioning properly by writing a tiny canary file with unique generated contents and then reading it back to make sure it was written properly.
 
