@@ -63,23 +63,26 @@ quit "UNKNOWN", "no jobs runs have occurred yet" unless @{$json};
 
 my $i = 0;
 my $job_run;
+my $importedVolume;
 my $job_imported_volume = 0;
 foreach $job_run (@{$json}){
     $i++;
-    foreach(qw/id importedVolume/){
-        defined($job_run->{"$_"})  or quit "UNKNOWN", "job $job_id returned run result number $i field '$_' not returned by Datameer server. API format may have changed. $nagios_plugins_support_msg";
+    defined($job_run->{"id"})  or quit "UNKNOWN", "job $job_id returned run result number $i field 'id' not returned by Datameer server. API format may have changed. $nagios_plugins_support_msg";
+    if(defined($job_run->{"importedVolume"})){
+        $importedVolume = $job_run->{"importedVolume"};
+    } else {
+        $importedVolume = 0;
     }
-    vlog2 "job $job_id run id $job_run->{id} importedVolume $job_run->{importedVolume}";
-    $job_imported_volume += $job_run->{"importedVolume"};
+    vlog2 "job $job_id run id $job_run->{id} importedVolume $importedVolume";
+    $job_imported_volume += $importedVolume;
 }
 
 my $human_output = human_units($job_imported_volume);
 if($human_output !~ "bytes"){
-    $human_output .= " [$job_imported_volume bytes" . check_thresholds($job_imported_volume, 1) . "]";
-} else {
-    $human_output .= check_thresholds($job_imported_volume, 1);
+    $human_output .= " [$job_imported_volume bytes]";
 }
 $msg .= "job $job_id cumulative imported volume $human_output";
+check_thresholds($job_imported_volume);
 $msg .= " | importedVolume=${job_imported_volume}B";
 msg_perf_thresholds;
 
