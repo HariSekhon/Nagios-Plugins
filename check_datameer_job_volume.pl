@@ -11,7 +11,7 @@
 
 # http://documentation.datameer.com/documentation/display/DAS30/Accessing+Datameer+Using+the+REST+API
 
-$DESCRIPTION = "Nagios Plugin to check the culumative volume of data imported by a specific Datameer job using the Rest API
+$DESCRIPTION = "Nagios Plugin to check the cumulative volume of data imported by a specific Datameer job using the Rest API
 
 Use this to keep track of the amount of data imported by each job cumulatively for all runs of that job since Datameer is licensed by cumulative volume of imported data. This allows you to compare different jobs and see what they are costing you for comparison with the global volume license (see check_datameer_license_volume.pl for the global license volume used)
 
