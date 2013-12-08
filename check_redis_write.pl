@@ -74,7 +74,7 @@ $host       = validate_host($host);
 $port       = validate_port($port);
 $password   = validate_password($password) if defined($password);
 if(defined($slave)){
-    $slave         = validate_host($slave, "slave");
+    $slave         = validate_host($slave,      "slave");
     $slave_port    = validate_port($slave_port, "slave");
     if(defined($slave_password)){
         if($slave_password){
