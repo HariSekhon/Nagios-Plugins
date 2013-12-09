@@ -69,7 +69,7 @@ $critical = $default_critical;
     "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive) for min number of available nodes or max missing/inactive nodes if node list is given (defaults to $default_warning)"  ],
     "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive) for min number of available nodes or max missing/inactive nodes if node list is given (defaults to $default_critical)" ],
 );
-@usage_order = qw/host port nodes heap-usage warning critical/;
+@usage_order = qw/host port nodes heap-usage non-heap-usage warning critical/;
 
 get_options();
 
