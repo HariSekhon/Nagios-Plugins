@@ -9,8 +9,6 @@
 #  License: see accompanying LICENSE file
 #
 
-# TODO: this heap can be misleading, should use /jmx instead or make a note of this
-
 $DESCRIPTION = "Nagios Plugin to run various checks against the Hadoop HDFS Cluster via the Namenode JSP pages
 
 This is an alternate rewrite of the functionality from my original check_hadoop_dfs.pl plugin using the Namenode JSP interface instead of the 'hadoop dfsadmin -report' output. Reason for writing is not only to allow checking your NameNode remotely via JSP without having to adjust the NameNode setup to install the check_hadoop_dfs.pl plugin, but it also gives the following additional checks not available via that method:
@@ -18,6 +16,7 @@ This is an alternate rewrite of the functionality from my original check_hadoop_
 Extra checks not available via check_hadoop_dfs.pl
 
 1. Namenode Heap Usage
+2. Namenode Non-Heap Usage
 3. Datanode block counts
 4. Datanode block count imbalance %
 
@@ -30,7 +29,7 @@ Caveats:
 
 Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for CDH 4.3 (2.0.0-cdh4.3.0). If JSP output changes across versions, this plugin will need to be updated to parse the changes";
 
-$VERSION = "0.7";
+$VERSION = "0.8";
 
 use strict;
 use warnings;
@@ -47,6 +46,7 @@ my $balance         = 0;
 #my $dead_nodes      = 0;
 my $hdfs_space      = 0;
 my $heap            = 0;
+my $non_heap        = 0;
 my $node_list       = "";
 my $node_count      = 0;
 my $replication     = 0;
@@ -79,13 +79,14 @@ $port                        = $default_port;
     "n|node-list=s"     => [ \$node_list,       "List of datanodes to expect are available on namenode (non-switch args are appended to this list for convenience). Warning/Critical thresholds default to zero if not specified" ],
     # TODO:
     #"d|dead-nodes"      => [ \$dead_nodes,      "List all dead datanodes" ],
-    "heap-usage"        => [ \$heap,            "Check Namenode Heap % Used. Optional % thresholds may be supplied for warning and/or critical" ],
+    "heap-usage"        => [ \$heap,            "Check Namenode Heap % Used. Optional % thresholds may be supplied for warning/critical" ],
+    "non-heap-usage"    => [ \$non_heap,        "Check Namenode Non-Heap % Used. Optional % thresholds may be supplied for warning/critical" ],
     "datanode-blocks"   => [ \$datanode_blocks, "Check DataNode Blocks counts against warning/critical thresholds, alerts if any datanode breaches any threshold, reports number of offending datanodes (default warning: $default_blockcount_warning, critical: $default_blockcount_critical)" ],
     "datanode-block-balance" => [ \$datanode_block_balance, "Checks max imbalance of HDFS blocks across datanodes is within % thresholds" ],
     "w|warning=s"       => [ \$warning,         "Warning  threshold or ran:ge (inclusive)" ],
     "c|critical=s"      => [ \$critical,        "Critical threshold or ran:ge (inclusive)" ],
 );
-@usage_order = qw/host port hdfs-space replication balance datanode-blocks datanode-block-balance node-count node-list heap-usage warning critical/;
+@usage_order = qw/host port hdfs-space replication balance datanode-blocks datanode-block-balance node-count node-list heap-usage non-heap-usage warning critical/;
 
 if($progname eq "check_hadoop_hdfs_space.pl"){
     vlog2 "checking HDFS % space used";
@@ -134,8 +135,9 @@ unless($hdfs_space  or
        $node_list   or
        $datanode_blocks or
        $datanode_block_balance or
-       $heap){
-    usage "must specify one of --hdfs-space / --replication / --balance / --node-count / --node-list / --heap-usage to check";
+       $heap or
+       $non_heap){
+    usage "must specify one of --hdfs-space / --replication / --balance / --node-count / --node-list / --heap-usage / --non-heap-usage to check";
 }
 if($hdfs_space +
    $replication +
@@ -144,10 +146,11 @@ if($hdfs_space +
    ($node_list?1:0) +
    $datanode_blocks +
    $datanode_block_balance +
-   $heap > 1){
-    usage "can only check one of --hdfs-space / --replication / --balance / --node-count / --node-list / --heap-usage at one time in order to make sense of thresholds";
+   $heap +
+   $non_heap > 1){
+    usage "can only check one of --hdfs-space / --replication / --balance / --node-count / --node-list / --heap-usage / --non-heap-usage at one time in order to make sense of thresholds";
 }
-if($hdfs_space or $balance or $heap or $datanode_block_balance){
+if($hdfs_space or $balance or $heap or $non_heap or $datanode_block_balance){
     validate_thresholds(1, 1, {
                             "simple"   => "upper",
                             "integer"  => 0,
@@ -450,9 +453,20 @@ if($balance){
 #    }
 #    check_thresholds(scalar @missing_nodes);
 ###############
-} elsif($heap){
+} elsif($heap or $non_heap){
     #if($content =~ /\bHeap\s+Size\s+is\s+(\d+(?:\.\d+)?)\s+(\wB)\s*\/\s*(\d+(?:\.\d+)?)\s+(\wB)\s+\((\d+(?:\.\d+)?)%\)/io){
-    if($content =~ /Heap\s+Memory\s+used\s+(\d+(?:\.\d+)?)\s+(\w+)\s+is\s+(\d+(?:\.\d+)?)%\s+of\s+Commited\s+Heap\s+Memory\s+(\d+(?:\.\d+)?)\s+(\w+)\.\s+Max\s+Heap\s+Memory\s+is\s+(\d+(?:\.\d+)?)\s+(\w+)/){
+    my $regex;
+    my $heap_str;
+    if($heap){
+        $regex = qr/Heap\s+Memory\s+used\s+(\d+(?:\.\d+)?)\s+(\w+)\s+is\s+(\d+(?:\.\d+)?)%\s+of\s+Commited\s+Heap\s+Memory\s+(\d+(?:\.\d+)?)\s+(\w+)\.\s+Max\s+Heap\s+Memory\s+is\s+(\d+(?:\.\d+)?)\s+(\w+)/;
+        $heap_str = "Heap";
+    } elsif($non_heap){
+        $regex = qr/Non Heap\s+Memory\s+used\s+(\d+(?:\.\d+)?)\s+(\w+)\s+is\s+(\d+(?:\.\d+)?)%\s+of\s+Commited\s+Non Heap\s+Memory\s+(\d+(?:\.\d+)?)\s+(\w+)\.\s+Max\s+Non Heap\s+Memory\s+is\s+(\d+(?:\.\d+)?)\s+(\w+)/;
+        $heap_str = "Non Heap";
+    } else {
+        code_error "failed to set regex based on heap or non-heap";
+    }
+    if($content =~ $regex){
         $stats{"heap_used"}                 = $1;
         $stats{"heap_used_units"}           = $2;
         $stats{"heap_used_of_committed_pc"} = $3; # % used of committed, not % of total which is what we're checking
@@ -463,11 +477,11 @@ if($balance){
         $stats{"heap_used_bytes"}           = int(expand_units($stats{"heap_used"}, $stats{"heap_used_units"}, "Heap Used"));
         $stats{"heap_committed_bytes"}      = int(expand_units($stats{"heap_committed"}, $stats{"heap_committed_units"}, "Heap committed"));
         $stats{"heap_max_bytes"}            = int(expand_units($stats{"heap_max"},  $stats{"heap_max_units"},  "Heap Max" ));
-        vlog3 sprintf("heap used        %s %s => %s", $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_used_bytes"});
-        vlog3 sprintf("heap committed   %s %s => %s", $stats{"heap_committed"}, $stats{"heap_committed_units"}, $stats{"heap_committed_bytes"});
-        vlog3 sprintf("heap max         %s %s => %s", $stats{"heap_max"}, $stats{"heap_max_units"}, $stats{"heap_max_bytes"});
+        vlog3 sprintf("$heap_str used        %s %s => %s", $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_used_bytes"});
+        vlog3 sprintf("$heap_str committed   %s %s => %s", $stats{"heap_committed"}, $stats{"heap_committed_units"}, $stats{"heap_committed_bytes"});
+        vlog3 sprintf("$heap_str max         %s %s => %s", $stats{"heap_max"}, $stats{"heap_max_units"}, $stats{"heap_max_bytes"});
         $stats{"heap_used_pc_calculated"} =  sprintf("%.2f", $stats{"heap_used_bytes"} / $stats{"heap_max_bytes"} * 100);
-        vlog3 sprintf("heap used calculated = %.2f%% (%s / %s)\n", $stats{heap_used_pc_calculated}, $stats{heap_used_bytes}, $stats{heap_max_bytes});
+        vlog3 sprintf("$heap_str used calculated = %.2f%% (%s / %s)\n", $stats{heap_used_pc_calculated}, $stats{heap_used_bytes}, $stats{heap_max_bytes});
         # we get given the % of comitted not the % of total heap, so this is not comparable for 
         #if(abs(int($stats{"heap_used_pc_calculated"}) - $stats{"heap_used_of_comitted_pc"}) > 2){
         #    code_error "mismatch on calculated ($stats{heap_used_pc_calculated}) vs parsed % heap used ($stats{heap_used_of_comitted_pc})";
@@ -476,9 +490,9 @@ if($balance){
         code_error "failed to find Heap/Non-Heap Size in output from Namenode, code error or output from Namenode JSP has changed";
     }
     $status = "OK";
-    $msg    = sprintf("Namenode Heap %.2f%% Used (%s %s used, %s %s committed, %s %s total)", $stats{"heap_used_pc_calculated"}, $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_committed"}, $stats{"heap_committed_units"}, $stats{"heap_max"}, $stats{"heap_max_units"});
+    $msg    = sprintf("Namenode $heap_str %.2f%% Used (%s %s used, %s %s committed, %s %s total)", $stats{"heap_used_pc_calculated"}, $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_committed"}, $stats{"heap_committed_units"}, $stats{"heap_max"}, $stats{"heap_max_units"});
     check_thresholds($stats{"heap_used_pc_calculated"});
-    $msg .= " | 'Namenode Heap % Used'=$stats{heap_used_pc_calculated}%" . msg_perf_thresholds(1) . "0;100 'Namenode Heap Used'=$stats{heap_used_bytes}B 'NameNode Heap Committed'=$stats{heap_committed_bytes}B";
+    $msg .= " | 'Namenode $heap_str % Used'=$stats{heap_used_pc_calculated}%" . msg_perf_thresholds(1) . "0;100 'Namenode $heap_str Used'=$stats{heap_used_bytes}B 'NameNode $heap_str Committed'=$stats{heap_committed_bytes}B";
 ###############
 } elsif($datanode_blocks){
     $content = curl $url_live_nodes, $url_name;
