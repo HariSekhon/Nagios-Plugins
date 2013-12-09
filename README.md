@@ -147,13 +147,13 @@ The ```check_puppet.rb``` plugin uses Puppet's native Ruby libraries to parse th
 The ```check_logserver.py``` "Syslog to MySQL" plugin will need the Python MySQL module to be installed which you should be able to find via your package manager. If using RHEL/CentOS do:
 
 ```
-yum install MySQL-python
+sudo yum install MySQL-python
 ```
 
 or try install via pip, but this requires MySQL to be installed locally in order to build the Python egg...
 ```
-easy_install pip
-pip install MySQL-python
+sudo easy_install pip
+sudo pip install MySQL-python
 ```
 
 ### Updating ###
