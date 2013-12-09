@@ -31,7 +31,7 @@ http://www.linkedin.com/in/harisekhon
 - ```check_riak_*``` - check Riak API writes/reads/deletes with timings, check a specific key's value against regex or value range, check all riak diagnostics, check nodes agree on ring status, gather statistics, alert on any single stat
 - ```check_redis_*``` - check Redis API writes/reads/deletes with timings, check specific key's value against regex or value range, replication slaves I/O, replicated writes (write on master -> read from slave), publish/subscribe, connected clients, validate /etc/redis.conf against running server, gather statistics, alert on any single stat
 - ```check_memcached_*``` - check Memcached API writes/reads/deletes with timings, check specific key's value against regex or value range, number of current connections, gather statistics
-- ```check_zookeeper.pl``` - ZooKeeper server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gathers statistics
+- ```check_zookeeper.pl``` - ZooKeeper server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gather statistics
 - ```check_zookeeper_znode.pl``` - ZooKeeper content checks, useful for HBase, SolrCloud, Hadoop NameNode HA & JobTracker HA (ZKFC) and any other ZooKeeper based service
 
 ... and there are many more. This code base is also under active development and there are many more cool plugins pending import.
