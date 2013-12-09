@@ -25,7 +25,7 @@ http://www.linkedin.com/in/harisekhon
 - ```check_mysql_query.pl``` - generic enough it obsoleted a dozen custom plugins and prevented writing many more
 - ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to validate configuration compliance against a known good baseline file
 - ```check_hadoop_*``` - various Hadoop monitoring utilities covering health and metrics for HDFS & MapReduce
-- ```check_hbase_*``` - various HBase monitoring utilities, covering Masters, RegionServers, table availability and metrics
+- ```check_hbase_*``` - various HBase monitoring utilities, checking Masters/Backup Masters, RegionServers, table availability, unassigned regions, gather metrics
 - ```check_cloudera_manager_metrics.pl``` - fetch a wealth of Hadoop monitoring metrics from Cloudera Manager. Modern Hadoop users with Cloudera Manager will want to use this (Disclaimer: I worked for Cloudera, but seriously CM collects an impressive amount of metrics)
 - ```check_puppet.rb``` - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
 - ```check_riak_*``` - check Riak API writes/reads/deletes with timings, check a specific key's value against regex or value range, check all riak diagnostics, check nodes agree on ring status, gather statistics, alert on any single stat
