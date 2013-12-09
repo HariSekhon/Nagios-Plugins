@@ -64,7 +64,7 @@ $critical = $default_critical;
     "H|host=s"         => [ \$host,         "JobTracker to connect to" ],
     "P|port=s"         => [ \$port,         "JobTracker port to connect to (defaults to $default_port)" ],
     "n|nodes=s"        => [ \$nodes,        "Optional list of nodes to check are alive in the JobTracker (non-switch args are appended to this list for convenience)" ],
-    "heap-usage"       => [ \$heap,         "Check JobTracker Heap % Used. Optional % thresholds may be supplied for warning/critical. There is a bug in the JobTracker UI where it's showing committed instead of used so after some run time it always appears full" ],
+    "heap-usage"       => [ \$heap,         "Check JobTracker Heap % Used. There is a bug in the JobTracker UI where it's showing committed instead of used so after some run time it always appears full" ],
     #"non-heap-usage"   => [ \$non_heap,     "Check JobTracker Non Heap % Used. Optional % thresholds may be supplied for warning/critical" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive) for min number of available nodes or max missing/inactive nodes if node list is given (defaults to $default_warning)"  ],
     "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive) for min number of available nodes or max missing/inactive nodes if node list is given (defaults to $default_critical)" ],
@@ -100,15 +100,25 @@ if(defined($nodes)){
         $node = isHost($node) || usage "Node name '$node' invalid, must be hostname/FQDN or IP address";
     }
     vlog2 "nodes:    '" . join(",", @nodes) . "'";
-    validate_thresholds(undef, undef, { "positive" => 1, "integer" => 1 } );
+    validate_thresholds(undef, undef, {
+                                        "positive" => 1,
+                                        "integer"  => 1
+                                        } );
 } elsif($heap or $non_heap){
     $url = "http://$host:$port/$jobtracker_urn";
-    undef $warning  unless $warning;
-    undef $critical unless $critical;
-    validate_thresholds(undef, undef, { "positive" => 1, "max" => 100 });
+    validate_thresholds(1, 1, { 
+                                "simple"   => "upper",
+                                "positive" => 1,
+                                "integer"  => 0,
+                                "max"      => 100
+                                });
 } else {
     $url = "http://$host:$port/$jobtracker_urn";
-    validate_thresholds(undef, undef, { "simple" => "lower", "positive" => 1, "integer" => 1 });
+    validate_thresholds(undef, undef, {
+                                        "simple"   => "lower",
+                                        "positive" => 1,
+                                        "integer"  => 1
+                                        });
 }
 
 vlog2;
