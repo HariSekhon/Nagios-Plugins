@@ -23,7 +23,7 @@ http://www.linkedin.com/in/harisekhon
 
 - ```check_ssl_cert.pl``` - SSL expiry, chain of trust (including intermediate certs important for certain mobile devices), domain, wildcard and multi-domain support validation
 - ```check_mysql_query.pl``` - generic enough it obsoleted a dozen custom plugins and prevented writing many more
-- ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes without saving to my.cnf or backporting to puppet, validate configuration compliance against a baseline
+- ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to validate configuration compliance against a known good baseline file
 - ```check_hadoop_*``` - various Hadoop monitoring utilities covering health and metrics for HDFS & MapReduce
 - ```check_hbase_*``` - various HBase monitoring utilities, covering Masters, RegionServers, table availability and metrics
 - ```check_cloudera_manager_metrics.pl``` - fetch a wealth of Hadoop monitoring metrics from Cloudera Manager. Modern Hadoop users with Cloudera Manager will want to use this (Disclaimer: I worked for Cloudera, but seriously CM collects an impressive amount of metrics)
