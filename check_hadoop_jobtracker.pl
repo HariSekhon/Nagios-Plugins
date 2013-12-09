@@ -9,6 +9,8 @@
 #  License: see accompanying LICENSE file
 #
 
+# TODO: switch this to use /jmx as /metrics doesn't expose non-heap max
+
 $DESCRIPTION = "Nagios Plugin to run various checks against a Hadoop MapReduce cluster by querying the JobTracker
 
 This is a consolidation/rewrite of two of my previous plugins for MapReduce cluster checks
@@ -45,6 +47,7 @@ my $MAX_NODES_TO_DISPLAY_AS_MISSING = 30;
 
 my $nodes;
 my $heap;
+my $non_heap;
 # originally scraped the HTML in Apache 0.20.x, instead using metrics page now as it's clearner
 #my $jobtracker_urn                  = "jobtracker.jsp";
 my $jobtracker_urn                  = "metrics";
@@ -61,7 +64,8 @@ $critical = $default_critical;
     "H|host=s"         => [ \$host,         "JobTracker to connect to" ],
     "P|port=s"         => [ \$port,         "JobTracker port to connect to (defaults to $default_port)" ],
     "n|nodes=s"        => [ \$nodes,        "Optional list of nodes to check are alive in the JobTracker (non-switch args are appended to this list for convenience)" ],
-    "heap-usage"       => [ \$heap,         "Check JobTracker Heap % Used. Optional % thresholds may be supplied for warning and/or critical. Recommend you use JMX instead, there is a known issue where this is committed rather than used heap so it appears nearly at max after some run time" ],
+    "heap-usage"       => [ \$heap,         "Check JobTracker Heap % Used. Optional % thresholds may be supplied for warning/critical. There is a bug in the JobTracker UI where it's showing committed instead of used so after some run time it always appears full" ],
+    #"non-heap-usage"   => [ \$non_heap,     "Check JobTracker Non Heap % Used. Optional % thresholds may be supplied for warning/critical" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive) for min number of available nodes or max missing/inactive nodes if node list is given (defaults to $default_warning)"  ],
     "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive) for min number of available nodes or max missing/inactive nodes if node list is given (defaults to $default_critical)" ],
 );
@@ -73,8 +77,8 @@ defined($host)  or usage "JobTracker host not specified";
 if($progname eq "check_hadoop_mapreduce_nodes_active.pl"){
     defined($nodes) or usage "Node list not specified";
 }
-if($nodes and $heap){
-    usage "Cannot specify both --nodes and --heap-usage";
+if($nodes and ($heap or $non_heap)){
+    usage "Cannot specify both --nodes and --[non-]heap-usage";
 }
 $host = isHost($host) || usage "JobTracker host invalid, must be hostname/FQDN or IP address";
 vlog_options "host", "'$host'";
@@ -97,7 +101,7 @@ if(defined($nodes)){
     }
     vlog2 "nodes:    '" . join(",", @nodes) . "'";
     validate_thresholds(undef, undef, { "positive" => 1, "integer" => 1 } );
-} elsif($heap){
+} elsif($heap or $non_heap){
     $url = "http://$host:$port/$jobtracker_urn";
     undef $warning  unless $warning;
     undef $critical unless $critical;
@@ -176,7 +180,7 @@ if(defined($nodes)){
     }
     check_thresholds($missing_nodes);
 
-} elsif($heap){
+} elsif($heap or $non_heap){
 #    foreach(split("\n", $content)){
 #        if(/Cluster Summary \(Heap Size is (\d+(?:\.\d+)?) (.B)\/(\d+(?:\.\d+)?) (.B)\)/i){
 #            $stats{"heap_used"}       = $1;
@@ -190,15 +194,25 @@ if(defined($nodes)){
 #        }
 #    }
 #    foreach(qw/heap_used heap_used_units heap_max heap_max_units heap_used_bytes heap_max_bytes heap_used_pc/){
-    @stats = qw/memHeapUsedM maxMemoryM/;
+    my $heap_str;
+    if($heap){
+        $heap_str = "Heap";
+        @stats = qw/memHeapUsedM maxMemoryM/;
+    } elsif($non_heap){
+        $heap_str = "Non Heap";
+        @stats = qw/memNonHeapUsedM maxNonMemoryM/; #max non heap memory isn't exposed in /metrics, switch to /jmx
+    } else {
+        code_error "failed to determine heap vs non-heap late in code";
+    }
     parse_stats();
-    $stats{"heap_used_pc"} = $stats{"memHeapUsedM"} / $stats{"maxMemoryM"} * 100;
+    #$stats{"heap_used_pc"} = $stats{"memHeapUsedM"} / $stats{"maxMemoryM"} * 100;
+    $stats{"${heap_str}_used_pc"} = $stats{$stats[0]} / $stats{$stats[1]} * 100;
     $status = "OK";
     #$msg    = sprintf("JobTracker Heap %.2f%% Used (%s %s used, %s %s total)", $stats{"heap_used_pc"}, $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_max"}, $stats{"heap_max_units"});
-    $msg    = sprintf("JobTracker Heap %.2f%% Used (%s MB used, %s MB total)", $stats{"heap_used_pc"}, $stats{"memHeapUsedM"}, $stats{"maxMemoryM"});
-    check_thresholds($stats{"heap_used_pc"});
+    $msg    = sprintf("JobTracker $heap_str %.2f%% Used (%s MB used, %s MB total)", $stats{"${heap_str}_used_pc"}, $stats{$stats[0]}, $stats{$stats[1]});
+    check_thresholds($stats{"${heap_str}_used_pc"});
     #$msg .= " | 'JobTracker Heap % Used'=$stats{heap_used_pc}%;" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "" ) . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "" ) . ";0;100 'JobTracker Heap Used'=$stats{heap_used_bytes}B";
-    $msg .= " | 'JobTracker Heap % Used'=$stats{heap_used_pc}%;" . ($thresholds{warning}{upper} ? $thresholds{warning}{upper} : "" ) . ";" . ($thresholds{critical}{upper} ? $thresholds{critical}{upper} : "" ) . ";0;100 'JobTracker Heap Used'=$stats{memHeapUsedM}MB";
+    $msg .= " | 'JobTracker $heap_str % Used'=" . $stats{"${heap_str}_used_pc"} . "%" . msg_perf_thresholds(1) . "0;100 'JobTracker $heap_str Used'=$stats{$stats[0]}MB";
 } else {
     # Old Apache 0.20.x
     #if($content =~ /<tr><th>Maps<\/th><th>Reduces<\/th><th>Total Submissions<\/th><th>Nodes<\/th><th>Map Task Capacity<\/th><th>Reduce Task Capacity<\/th><th>Avg\. Tasks\/Node<\/th><th>Blacklisted Nodes<\/th><\/tr>\n<tr><td>(\d+)<\/td><td>(\d+)<\/td><td>(\d+)<\/td><td><a href="machines\.jsp\?type=active">(\d+)<\/a><\/td><td>(\d+)<\/td><td>(\d+)<\/td><td>(\d+(?:\.\d+)?)<\/td><td><a href="machines\.jsp\?type=blacklisted">(\d+)<\/a><\/td><\/tr>/mi or
