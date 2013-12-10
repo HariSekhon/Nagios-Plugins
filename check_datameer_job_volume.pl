@@ -29,7 +29,7 @@ Caveat:
 
 3. The job run history by default only goes back 28 days, so you'd need to increase this setting in conf/default.properties:
 
-housekeeping.execution.max-age=28d
+housekeeping.execution.max-age=365d
 
 Although you'd have to increase this to your licensing period and it still wouldn't be exact since I'd have to add start date calculation to only iterate on job runs from a given date to count against the current licensing period. Currently talking to the Datameer guys to figure out if there is a better way to do this by exposing the internal calculation that Datameer keeps which looks like isn't exposed via API right now
 
