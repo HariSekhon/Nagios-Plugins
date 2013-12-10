@@ -86,7 +86,7 @@ my $job_imported_volume = 0;
 foreach $job_run (@{$json}){
     $i++;
     foreach(qw/id jobStatus/){
-        defined($job_run->{$_})  or quit "UNKNOWN", "job $job_id returned run result number $i field '$_' not returned by Datameer server. API format may have changed. $nagios_plugins_support_msg";
+        defined($job_run->{$_}) or quit "UNKNOWN", "job $job_id returned run result number $i field '$_' not returned by Datameer server. API format may have changed. $nagios_plugins_support_msg";
     }
     if(defined($job_run->{"importedVolume"})){
         $run_importedVolume = $job_run->{"importedVolume"};
