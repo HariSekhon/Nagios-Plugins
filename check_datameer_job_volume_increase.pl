@@ -84,8 +84,6 @@ quit "UNKNOWN", "no job runs have occurred yet for job $job_id or no job history
 
 my $job_run;
 my $run_importedVolume;
-my $last_run_importedVolume;
-
 sub get_importedVolume($){
     my $i = shift;
     $job_run = ${$json}[$i];
@@ -114,6 +112,7 @@ if($num_job_runs < 2){
     quit $status, "$num_job_runs job run$plural completed, don't have last 2 runs history to compare rate of import volume change";
 }
 
+my $last_run_importedVolume = 0;
 for(my $i=1; $i < $num_job_runs; $i++){
     $last_run_importedVolume = get_importedVolume($i);
     $last_run_importedVolume >= 0 and last;
@@ -124,7 +123,8 @@ if($last_run_importedVolume < 1){
     if($strict){
         $status = "UNKNOWN";
     }
-    quit $status, "no data imported in any of the last $num_job_runs runs for job id $job_id, cannot calculate % change";
+    plural ($num_job_runs - 1 );
+    quit $status, "no data imported in the previous " . ($num_job_runs - 1) . " run$plural for job id $job_id, cannot calculate % change";
 } else {
     $pc_increase = sprintf("%.2f", ($run_importedVolume - $last_run_importedVolume) / $last_run_importedVolume * 100);
 }
