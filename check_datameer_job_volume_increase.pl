@@ -111,7 +111,7 @@ if($num_job_runs < 2){
     if($strict){
         $status = "UNKNOWN";
     }
-    quit $status, "$num_job_runs job run$plural completed, don't have last 2 runs history to compare rate of import volume change" if $num_job_runs < 2;
+    quit $status, "$num_job_runs job run$plural completed, don't have last 2 runs history to compare rate of import volume change";
 }
 
 for(my $i=1; $i < $num_job_runs; $i++){
@@ -124,7 +124,7 @@ if($last_run_importedVolume < 1){
     if($strict){
         $status = "UNKNOWN";
     }
-    quit $status, "previous run for job id $job_id imported no data, cannot calculate % change";
+    quit $status, "no data imported in any of the last $num_job_runs runs for job id $job_id, cannot calculate % change";
 } else {
     $pc_increase = sprintf("%.2f", ($run_importedVolume - $last_run_importedVolume) / $last_run_importedVolume * 100);
 }
