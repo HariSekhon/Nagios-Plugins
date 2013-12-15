@@ -17,7 +17,7 @@ Updated for HP iLO controllers for the same reason, people tend to forget and le
 
 Also tested on Linux servers and Mac OS X. May need tweaks for other platforms, or with custom shell prompts
 
-Since Dracs and iLOs are very slow, you will need to increase the --timeout for those to something like 50-60 seconds to allow 10-12 secs each password prompt / response as it auto-calculates it to be 1/5th of global --timeout";
+Since Dracs and iLOs are very slow, you will need to increase the --timeout for those to something like 50-60 seconds to allow 10-12 secs for each password prompt / response as it auto-calculates it to be 1/5th of global --timeout";
 
 $VERSION = "0.9.6";
 
