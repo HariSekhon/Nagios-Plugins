@@ -20,7 +20,7 @@ You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) 
 
 This is still using v1 of the API for compatability purposes";
 
-$VERSION = "0.4.1";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -39,6 +39,7 @@ my $protocol     = "http";
 my $api          = "/api/v1";
 my $default_port = 7180;
 $port            = $default_port;
+my $ssl_port     = 7183;
 
 my $activity;
 my $all_metrics;
@@ -59,31 +60,28 @@ my @metrics;
 my %metrics_found;
 my @metrics_not_found;
 
+env_creds("CM", "Cloudera Manager");
+
 %options = (
     "H|host=s"         => [ \$host,         "Cloudera Manager host" ],
     "P|port=s"         => [ \$port,         "Cloudera Manager port (defaults to $default_port)" ],
-    "u|user=s"         => [ \$user,         "Cloudera Manager user (\$CM_USER environment variable)" ],
-    "p|password=s"     => [ \$password,     "Cloudera Manager password (use \$CM_PASSWORD environment variable to prevent this appearing in the process list)" ],
-    "T|tls"            => [ \$tls,          "Use TLS connection to Cloudera Manager (automatically updates port to 7183 if still set to 7180 to save one 302 redirect round trip)" ],
+    %useroptions,
+    "T|tls"            => [ \$tls,          "Use TLS connection to Cloudera Manager (automatically updates port to $ssl_port if still set to $default_port to save one 302 redirect round trip)" ],
     "ssl-CA-path=s"    => [ \$ssl_ca_path,  "Path to CA certificate directory for validating SSL certificate (automatically enables --tls)" ],
     "tls-noverify"     => [ \$tls_noverify, "Do not verify SSL certificate from Cloudera Manager (automatically enables --tls)" ],
     "m|metrics=s"      => [ \$metrics,      "Metric(s) to fetch, comma separated (eg. dfs_capacity,dfs_capacity_used,dfs_capacity_used_non_hdfs). Thresholds may optionally be applied if a single metric is given" ],
     "a|all-metrics"    => [ \$all_metrics,  "Fetch all metrics for the given service/host/role specified by the options below. Caution, this could be a *lot* of metrics, best used to find available metrics for a given section" ],
-    "C|cluster=s"      => [ \$cluster,      "Cluster Name shown in Cloudera Manager (eg. \"Cluster - CDH4\")" ],
-    "S|service=s"      => [ \$service,      "Service Name shown in Cloudera Manager (eg. hdfs1, mapreduce4). Requires --cluster" ],
+    "C|cluster=s"      => [ \$cluster,      "Cluster Name as shown in Cloudera Manager (eg. \"Cluster - CDH4\")" ],
+    "S|service=s"      => [ \$service,      "Service Name as shown in Cloudera Manager (eg. hdfs1, mapreduce4). Requires --cluster" ],
     "I|hostId=s"       => [ \$hostid,       "HostId to collect metric for (eg. datanode1.domain.com)" ],
     "A|activityId=s"   => [ \$activity,     "ActivityId to collect metric for. Requires --cluster and --service" ],
     "N|nameservice=s"  => [ \$nameservice,  "Nameservice to collect metric for (as specified in your HA configuration under dfs.nameservices). Requires --cluster and --service" ],
     "R|roleId=s"       => [ \$role,         "RoleId to collect metric for (eg. hdfs4-NAMENODE-73d774cdeca832ac6a648fa305019cef - use --list-roleIds to find CM's role ids for a given service). Requires --cluster and --service" ],
     "list-roleIds"     => [ \$list_roles,   "List roleIds for a given cluster service. Convenience switch to find the roleId to query, prints role ids and exits immediately. Requires --cluster and --service" ],
-    "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive)" ],
-    "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
+    %thresholdoptions,
 );
 
 @usage_order = qw/host port user password tls ssl-CA-path tls-noverify metrics all-metrics cluster service hostId activityId nameservice roleId list-roleIds warning critical/;
-
-env_creds("CM");
-
 get_options();
 
 $host       = validate_host($host);
@@ -194,7 +192,7 @@ if($tls){
     $protocol = "https";
     if($port == 7180){
         vlog2 "overriding default http port 7180 to default tls port 7183";
-        $port = 7183;
+        $port = $ssl_port;
     }
 }
 $host = validate_resolvable($host);
