@@ -63,8 +63,7 @@ my @metrics_not_found;
 env_creds("CM", "Cloudera Manager");
 
 %options = (
-    "H|host=s"         => [ \$host,         "Cloudera Manager host" ],
-    "P|port=s"         => [ \$port,         "Cloudera Manager port     (default: $default_port)" ],
+    %hostoptions,
     %useroptions,
     "T|tls"            => [ \$tls,          "Use TLS connection to Cloudera Manager (automatically updates port to $ssl_port if still set to $default_port to save one 302 redirect round trip)" ],
     "ssl-CA-path=s"    => [ \$ssl_ca_path,  "Path to CA certificate directory for validating SSL certificate (automatically enables --tls)" ],
