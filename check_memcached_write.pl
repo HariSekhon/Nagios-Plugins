@@ -94,7 +94,8 @@ vlog3 "set autoflush on";
 my $memcached_write_cmd  = "add $key $flags $timeout $bytes\r\n$value\r\n";
 my $memcached_read_cmd   = "get $key\r\n"; 
 my $memcached_delete_cmd = "delete $key\r\n";
-vlog3 "\nsending write request: $memcached_write_cmd";
+vlog3;
+vlog3 "sending write request: $memcached_write_cmd";
 my $write_start_time = time;
 print $conn $memcached_write_cmd or quit "CRITICAL", "failed to write memcached key/value on '$host:$port': $!";
 
@@ -129,7 +130,8 @@ while (<$conn>){
 my $write_time_taken = sprintf("%0.${precision}f", time - $write_start_time);
 vlog2 "write request completed in $write_time_taken secs\n";
 
-vlog3 "\nsending read request: $memcached_read_cmd";
+vlog3;
+vlog3 "sending read request: $memcached_read_cmd";
 my $read_start_time = time;
 print $conn $memcached_read_cmd or quit "CRITICAL", "failed to read back key/value from memcached on '$host:$port': $!";
 
