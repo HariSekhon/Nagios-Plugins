@@ -29,16 +29,15 @@ use HariSekhonUtils;
 my $aql_user;
 my $aql_password;
 
+env_creds("AQL", "AQL account");
+
 %options = (
-    "u|user=s"          => [ \$aql_user,     "AQL account user (\$AQL_USER environment variable)" ],
-    "p|password=s"      => [ \$aql_password, "AQL account password (use \$AQL_PASSWORD environment variable instead to prevent this showing in the process list)" ],
-    "w|warning=s"       => [ \$warning,      "Warning threshold or ran:ge (inclusive)"  ],
-    "c|critical=s"      => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
+    %useroptions,
+    %thresholdoptions,
 );
 
-env_creds("AQL");
+get_options();
 
-get_options;
 $aql_user     = validate_user($aql_user);
 $aql_password = validate_password($aql_password);
 validate_thresholds(1, 1, { "simple" => "lower", "integer" => 1 } );
