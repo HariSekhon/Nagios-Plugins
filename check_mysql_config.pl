@@ -91,20 +91,19 @@ my %mysql_modes = (
     "TRADITIONAL"   => "STRICT_TRANS_TABLES, STRICT_ALL_TABLES, NO_ZERO_IN_DATE, NO_ZERO_DATE, ERROR_FOR_DIVISION_BY_ZERO, NO_AUTO_CREATE_USER"
 );
 
+env_creds("MYSQL", "MySQL");
+
 %options = (
     "H|host=s"                  => [ \$host,            "MySQL host to check (default: $default_host). Set to blank to connect via socket" ],
-    "P|port=i"                  => [ \$port,            "MySQL port to connect to (default: $default_port)" ],
+    "P|port=s"                  => [ \$port,            "MySQL port to connect to (default: $default_port)" ],
     "c|config|config-file=s"    => [ \$config_file,     "Path to MySQL my.cnf config file (default: $default_config_file)" ],
-    "u|user=s"                  => [ \$user,            "MySQL user (\$MYSQL_USER environment variable)" ],
-    "p|password=s"              => [ \$password,        "MySQL password (use \$MYSQL_PASSWORD environment variable to prevent this appearing in the process list)" ],
+    %useroptions,
     "d|mysql-instance=s"        => [ \$mysql_instance,  "MySQL [instance] in my.cnf to test (default: $default_mysql_instance)" ],
     "s|mysql-socket=s"          => [ \$mysql_socket,    "MySQL socket file through which to connect (default: $default_mysql_socket)" ],
     "skip-name-resolve"         => [ \$ensure_skip_name_resolve, "Ensure that skip-name-resolve is specified in the config file" ],
     "warn-on-missing"           => [ \$warn_on_missing_variables, "Return warning when there my.cnf variables missing from running MySQL config. Default is just to list them but return OK unless there is an actual mismatch. Useful if you want to make sure they're all accounted for as sometimes they only appear in config file or the live name is different to the config file name" ],
 );
-@usage_order = qw/config-file host port mysql-user mysql-password mysql-instance skip-name-resolve warn-on-missing/;
-
-env_creds("MYSQL");
+@usage_order = qw/config-file host port user password mysql-instance skip-name-resolve warn-on-missing/;
 
 get_options();
 
