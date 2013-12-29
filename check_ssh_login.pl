@@ -41,15 +41,13 @@ $port        = 22;
 $timeout_max = 130;
 $timeout_min = 10;
 
+env_creds("SSH");
+
 %options = (
-    "H|host=s"      => [ \$host, "Host to connect to" ],
-    "P|port=s"      => [ \$port, "Port to connect to" ],
-    "u|user=s"      => [ \$user, "User to connect with (\$SSH_USER environment variable)" ],
-    "p|password=s"  => [ \$password, "Password to connect with (\$SSH_PASSWORD environment variable)" ]
+    %hostoptions,
+    %useroptions,
 );
 @usage_order = qw/host port user password/;
-
-env_creds("SSH");
 
 get_options();
 
