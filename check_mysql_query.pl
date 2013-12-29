@@ -52,12 +52,13 @@ my $regex;
 my $short;
 my $units = "";
 
+env_creds("MYSQL", "MySQL");
+
 %options = (
-    "H|host=s"      => [ \$host,     "MySQL Host" ],
-    "P|port=s"      => [ \$port,     "MySQL Port" ],
+    %hostoptions,
+    %useroptions,
+    %thresholdoptions,
     "d|database=s"  => [ \$database, "MySQL database" ],
-    "u|user=s"      => [ \$user,     "MySQL user (\$MYSQL_USER environment variable)" ],
-    "p|password=s"  => [ \$password, "MySQL password (use \$MYSQL_PASSWORD environment variable to prevent this appearing in the process list)" ],
     "q|query=s"     => [ \$query,    "MySQL query to execute" ],
     "f|field=s"     => [ \$field,    "Field number/name to check the results of (defaults to '1')" ],
     "e|epoch"       => [ \$epoch,    "Subtract result from current time in epoch format from result (useful for timestamp based comparisons)" ],
@@ -65,8 +66,6 @@ my $units = "";
     "n|message-prepend" => [ \$message_pre, "Display message before rather than after result (prepend)" ],
     "o|output=s"    => [ \$output,   "Exact output to expect" ],
     "r|regex=s"     => [ \$regex,    "Regex to match the result against" ],
-    "w|warning=s"   => [ \$warning,  "Warning threshold or ran:ge (inclusive)" ],
-    "c|critical=s"  => [ \$critical, "Critical threshold or ran:ge (inclusive)" ],
     "g|graph"       => [ \$graph,    "Perfdata output for graphing" ],
     "l|label=s"     => [ \$label,    "Perfdata label. If not specified uses field name or Undefined if field name doesn't match a known regex of chars" ],
     "U|units=s"     => [ \$units,    "Units of measurement for graphing output (%/s/ms/us/B/KB/MB/TB/c)" ],
@@ -75,9 +74,6 @@ my $units = "";
 );
 @usage_order = qw/host port database user password query field epoch message message-prepend output regex warning critical graph label units short no-querytime/;
 
-env_creds("MYSQL");
-
-#add_options(\%hostoptions);
 get_options();
 
 $host       = validate_host($host);
