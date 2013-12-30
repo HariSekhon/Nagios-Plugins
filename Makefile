@@ -77,6 +77,7 @@ zookeeper:
 clean:
 	rm -fr zookeeper-$(ZOOKEEPER_VERSION).tar.gz zookeeper-$(ZOOKEEPER_VERSION)
 
+.PHONY: update
 update:
 	git pull
 	git submodule update
