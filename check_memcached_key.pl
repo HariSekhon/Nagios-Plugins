@@ -9,18 +9,18 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check a specific Memcached key via API
+our $DESCRIPTION = "Nagios Plugin to check a specific Memcached key via API
 
 Checks:
 
-1. reads a specified Memcached key
+1. reads the specified Memcached key
 2. checks key's returned value against expected regex (optional)
 3. checks key's returned value against warning/critical range thresholds (optional)
    raises warning/critical if the value is outside thresholds or not a floating point number
 4. records the read timing to a given precision for reporting and graphing
 5. outputs the read timing and optionally the key's value for graphing purposes";
 
-$VERSION = "0.9";
+$VERSION = "0.10";
 
 use strict;
 use warnings;
@@ -33,26 +33,34 @@ use HariSekhonUtils;
 use IO::Socket;
 use Time::HiRes 'time';
 
-my $default_port = 11211;
-$port = $default_port;
-
-$timeout_min = 1;
-$timeout_max = 60;
+set_port_default(11211);
+set_timeout_range(1, 60);
 
 my $default_precision = 5;
 my $precision = $default_precision;
 
+my $server_name = "memcached";
+my $couchbase   = 0;
 my $ip;
 my $key;
 my $expected;
 my $graph = 0;
 my $units;
 
+if($progname =~ /couchbase/i){
+    $couchbase = 1;
+    $server_name = "couchbase";
+    $DESCRIPTION =~ s/Memcached key via/Couchbase key via Memcached/;
+    $DESCRIPTION =~ s/reads the specified Memcached key/reads the specified Couchbase key/;
+    env_creds("COUCHBASE");
+} else {
+    env_creds("MEMCACHED");
+}
+
 %options = (
-    "H|host=s"      => [ \$host,        "Host to connect to" ],
-    "P|port=s"      => [ \$port,        "Port to connect to (default: $default_port)" ],
-    "k|key=s"       => [ \$key,         "Key to read from Memcached" ],
-    "e|expected=s"  => [ \$expected,    "Expected regex for the given Memcached key's value. Optional" ],
+    %hostoptions,
+    "k|key=s"       => [ \$key,         "Key to read from " . ucfirst $server_name ],
+    "e|expected=s"  => [ \$expected,    "Expected regex for the given " . ucfirst $server_name . " key's value. Optional" ],
     "w|warning=s"   => [ \$warning,     "Warning  threshold ra:nge (inclusive) for the key's value. Optional" ],
     "c|critical=s"  => [ \$critical,    "Critical threshold ra:nge (inclusive) for the key's value. Optional" ],
     "g|graph"       => [ \$graph,       "Graph key's value. Optional, use only if a floating point number is normally returned for it's values, otherwise will print NaN (Not a Number). The reason this is not determined automatically is because keys that change between floats and non-floats will result in variable numbers of perfdata tokens which will break PNP4Nagios" ],
@@ -65,7 +73,7 @@ get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
-$key  = validate_nosql_key($key, "memcached");
+$key  = validate_nosql_key($key, "$server_name");
 if(defined($expected)){
     $expected = validate_regex($expected);
 }
@@ -103,7 +111,7 @@ my $memcached_read_cmd   = "get $key\r\n";
 
 vlog3 "\nsending read request: $memcached_read_cmd";
 my $read_start_time = time;
-print $conn $memcached_read_cmd or quit "CRITICAL", "failed to read back key/value from memcached on '$host:$port': $!";
+print $conn $memcached_read_cmd or quit "CRITICAL", "failed to read back key/value from $server_name on '$host:$port': $!";
 
 my $value;
 my $flags = '\d+';
@@ -113,7 +121,7 @@ my $value_seen = 0;
 vlog3 "value regex:       $value_regex\n";
 while(<$conn>){
     s/\r\n$//;
-    vlog3 "memcached response: $_";
+    vlog3 "$server_name response: $_";
     last if /END/;
     if($_ =~ /$value_regex/){
         $value_seen = 1;
