@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check a Memcached server via API read/write
+our $DESCRIPTION = "Nagios Plugin to check a Memcached server via API read/write
 
 Checks:
 
@@ -19,7 +19,7 @@ Checks:
 4. records the read/write/delete timings and total time (including tcp connection and close) to a given precision
 5. compares timing of each read/write/delete operation against warning/critical thresholds if given";
 
-$VERSION = "0.9.1";
+$VERSION = "0.9.2";
 
 use strict;
 use warnings;
@@ -32,24 +32,24 @@ use HariSekhonUtils;
 use IO::Socket;
 use Time::HiRes 'time';
 
-my $default_port = 11211;
-$port = $default_port;
-
-$timeout_min = 1;
-$timeout_max = 60;
+set_port_default(11211);
+set_timeout_range(1, 60);
 
 my $default_precision = 5;
 my $precision = $default_precision;
 
 %options = (
-    "H|host=s"      => [ \$host,        "Host to connect to" ],
-    "P|port=s"      => [ \$port,        "Port to connect to (default: $default_port)" ],
+    %hostoptions,
     "w|warning=s"   => [ \$warning,     "Warning  threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
     "c|critical=s"  => [ \$critical,    "Critical threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
     "precision=i"   => [ \$precision,   "Number of decimal places for timings (default: $default_precision)" ],
 );
-
 @usage_order = qw/host port warning critical precision/;
+
+if($progname =~ /couchbase/i){
+    $DESCRIPTION =~ s/Memcached server via/Couchbase server via Memcached/;
+}
+
 get_options();
 
 $host = validate_host($host);
