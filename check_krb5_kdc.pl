@@ -1,0 +1,1 @@
+check_krb5_kinit.pl
