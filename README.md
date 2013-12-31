@@ -57,6 +57,8 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 
 Several plugins have been merged together and replaced with symlinks to the unified plugins bookmarking their areas of functionality, similar to some plugins from the standard nagios plugins collection.
 
+Some plugins such as those relating to Redis and Couchbase also have different modes and expose different options when called as different program names, so those symlinks are not just cosmetic. An example of this is write replication, which exposes extra options to read from a slave after writing to the master to check that replication is 100% working.
+
 ePN support may be added in future but given that I've run 13,000 checks per Nagios server without ePN optimization it's not that high on the priority list right now.
 
 ##### Library #####
