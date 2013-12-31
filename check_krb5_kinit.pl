@@ -56,7 +56,7 @@ env_creds("KDC");
 
 if($progname eq "check_krb5_kdc.pl"){
     $kdc = 1;
-    $DESCRIPTION =~ s/check Kerberos is working.*from a KDC/check a specific KDC is working by getting a TGT/;
+    $DESCRIPTION =~ s/check Kerberos is working.*from a KDC/check a specific Kerberos KDC is working by getting a TGT/;
     $DESCRIPTION =~ s/- \/etc\/krb5.conf/- Kerberos Realm/;
     delete $options{"C|conf=s"};
     %options = (
