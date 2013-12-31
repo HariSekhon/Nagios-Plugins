@@ -9,7 +9,7 @@ I've been developing this Nagios Plugin Collection since around 2006. The basic 
 
 This should be the next stop after installing Nagios with it's basic plugins, especially for those running web or NoSQL technologies (Hadoop, Cassandra, HBase, Redis, Riak etc).
 
-These programs can also be run standalone on the command line or used in scripts as well as called in Nagios / Icinga.
+These programs can also be run standalone on the command line or used in scripts as well as called in Nagios.
 
 Enjoy
 
