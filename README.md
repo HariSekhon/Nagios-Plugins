@@ -9,7 +9,7 @@ I've been developing this Nagios Plugin Collection since around 2006. The basic 
 
 This should be the next stop after installing Nagios with it's basic plugins, especially for those running web or NoSQL technologies (Hadoop, Cassandra, HBase, Redis, Riak etc).
 
-These programs can also be run standalone on the command line or used in scripts as well as called in Nagios.
+These programs can also be run standalone on the command line or used in scripts as well as called in Nagios / Icinga.
 
 Enjoy
 
@@ -60,6 +60,8 @@ Several plugins have been merged together and replaced with symlinks to the unif
 Some plugins such as those relating to Redis and Couchbase also have different modes and expose different options when called as different program names, so those symlinks are not just cosmetic. An example of this is write replication, which exposes extra options to read from a slave after writing to the master to check that replication is 100% working.
 
 ePN support may be added in future but given that I've run 13,000 checks per Nagios server without ePN optimization it's not that high on the priority list right now.
+
+Patches are welcome in the form of GitHub pull requests.
 
 ##### Library #####
 
