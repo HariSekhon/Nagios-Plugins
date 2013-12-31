@@ -47,10 +47,10 @@ set_port_default(88);
 env_creds("KDC");
 
 %options = (
-    "k|keytab=s"       => [ \$keytab,       "Path to Keytab exported containing principal credentials. Required" ],
+    "k|keytab=s"       => [ \$keytab,       "Path to Keytab exported containing principal credentials" ],
     "p|principal=s"    => [ \$principal,    "Kerberos principal to use (default: $default_principal)" ],
-    "C|conf=s"         => [ \$conf,         "Path to krb5.conf (optional, will usually default to using /etc/krb5.conf if unspecified)" ],
-    "r|renewable"      => [ \$renewable,    "Checks we are able to retrieve a renewable TGT" ],
+    "C|conf=s"         => [ \$conf,         "Path to krb5.conf (optional, usually defaults to /etc/krb5.conf)" ],
+    "r|renewable"      => [ \$renewable,    "Checks we are able to retrieve a renewable TGT (optional)" ],
 );
 @usage_order = qw/host port realm keytab principal conf renewable/;
 
