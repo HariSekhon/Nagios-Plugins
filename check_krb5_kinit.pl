@@ -97,7 +97,6 @@ if($host){
     $fh2 = File::Temp->new(TEMPLATE => "/tmp/${progname}.krb5.conf.XXXXXXXXXX");
     my $conf_tmp = $fh2->filename;
     vlog2 "writing conf '$conf_tmp' for realm '$realm' with kdc '$host:$port'";
-    $| = 1;
     print $fh2 "
 [libdefaults]
     default_realm = $realm
