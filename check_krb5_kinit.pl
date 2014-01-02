@@ -79,7 +79,6 @@ if($conf){
     $conf      = validate_file($conf  , undef, "conf");
     $conf =~ /(?:.*\/)?krb5.conf$/ or usage "must specify a file called krb5.conf if using --conf";
 }
-validate_thresholds();
 
 vlog2;
 set_timeout();
