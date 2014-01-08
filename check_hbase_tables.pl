@@ -40,7 +40,7 @@ CRITICAL: failed to get Column descriptors for table '.META.': Thrift::TExceptio
 CRITICAL: failed to get tables from HBase: TApplicationException: Internal error processing getTableNames
 ";
 
-$VERSION = "0.7";
+$VERSION = "0.7.1";
 
 use strict;
 use warnings;
@@ -94,13 +94,8 @@ vlog_options "tables", "[ " . join(" , ", @tables) . " ]";
 vlog2;
 set_timeout();
 
-my $send_timeout = ($timeout*1000) - 1000;
-if($send_timeout < 1000){
-    $send_timeout = 9000;
-# First attempt but this seems to be the timeout for the total connection so it should be just under the total execution time
-#} else {
-#    $send_timeout /= 2;
-}
+# this seems to actually be the timeout for the total connection so it should be just under the total execution time
+my $send_timeout = minimum_value(($timeout*1000) - 1000, 1000);
 my $recv_timeout = $send_timeout;
 vlog2 sprintf("calculated Thrift send timeout as %s secs", $send_timeout / 1000);
 vlog2 sprintf("calculated Thrift recv timeout as %s secs", $recv_timeout / 1000);
