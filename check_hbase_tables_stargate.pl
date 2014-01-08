@@ -15,7 +15,7 @@ More simplistic than check_hbase_tables.pl program which uses the better program
 
 This plugin only checks to see if the given tables have regions listed on the cluster status page of the Stargate. Recommend to use check_hbase_tables.pl instead if possible
 
-Written on CDH 4.3 (HBase 0.94.6-cdh4.3.0), also tested on CDH 4.2.1 and CDH 4.4.0
+Written on CDH 4.3 (HBase 0.94.6-cdh4.3.0), also tested on CDH 4.2.1, 4.4.0, 4.5.0
 
 Known Limitations:
 
@@ -25,7 +25,7 @@ Known Issues/Limitations:
 2. The HBase REST API doesn't distinguish between disabled and otherwise unavailable/nonexistent tables, instead use the thrift monitoring plugin check_hbase_tables.pl (aka check_hbase_tables_thrift.pl), or as a fallback the check_hbase_tables_jsp.pl for that distinction
 3. The HBase REST Server will timeout the request for information if the HBase Master is down, you will see this as \"CRITICAL: '500 read timeout'\"";
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -38,14 +38,14 @@ use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
-my $default_port = 20550;
-$port = $default_port;
+set_port_default(20550);
+
+env_creds(["HBASE_STARGATE", "HBASE"], "HBase Stargate Rest API server");
 
 my $tables;
 
 %options = (
-    "H|host=s"         => [ \$host,         "HBase Stargate Rest API server address to connect to" ],
-    "P|port=s"         => [ \$port,         "HBase Stargate Rest API server port to connect to (defaults to $default_port)" ],
+    %hostoptions,
     "T|tables=s"       => [ \$tables,       "Table(s) to check. This should be a list of user tables, not -ROOT- or .META. catalog tables which are checked additionally. If no tables are given then only -ROOT- and .META. are checked" ],
 );
 
