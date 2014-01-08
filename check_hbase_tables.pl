@@ -64,9 +64,9 @@ use Hbase::Hbase;
 
 set_port_default(9090);
 
-my $tables;
-
 env_creds(["HBASE_THRIFT", "HBASE"], "HBase Thrift Server");
+
+my $tables;
 
 %options = (
     %hostoptions,
