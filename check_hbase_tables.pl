@@ -7,7 +7,7 @@
 #  http://github.com/harisekhon
 #
 #  License: see accompanying LICENSE file
-#  
+#
 
 $DESCRIPTION = "Nagios Plugin to check given HBase table(s) via the HBase Thrift Server API
 
@@ -17,6 +17,7 @@ Checks:
 2. Table is enabled
 3. Table has Columns
 4. Table's regions are all assigned to regionservers
+5. Outputs perfdata for the number of regions for the given table
 
 Performance using the Thrift Server is much faster than trying to leverage the HBase API using JVM languages or the Rest API which lacks good structure for parsing and is slower as well.
 
@@ -24,7 +25,7 @@ Requires the CPAN Thrift perl module
 
 HBase Thrift bindings were generated using Thrift 0.9.0 on CDH 4.3 (HBase 0.94.6-cdh4.3.0) CentOS 6.4 and placed under lib/Hbase
 
-Also tested on CDH 4.4.0
+Also tested on CDH 4.4.0, 4.5.0
 
 Known Issues/Limitations:
 
@@ -39,7 +40,7 @@ CRITICAL: failed to get Column descriptors for table '.META.': Thrift::TExceptio
 CRITICAL: failed to get tables from HBase: TApplicationException: Internal error processing getTableNames
 ";
 
-$VERSION = "0.5";
+$VERSION = "0.7";
 
 use strict;
 use warnings;
@@ -61,14 +62,14 @@ use Hbase::Hbase;
 # update: calculated send + recv timeouts instead now
 #set_timeout_default 20;
 
-my $default_port = 9090;
-$port = $default_port;
+set_port_default(9090);
 
 my $tables;
 
+env_creds(["HBASE_THRIFT", "HBASE"], "HBase Thrift Server");
+
 %options = (
-    "H|host=s"         => [ \$host,     "HBase Thrift server address to connect to" ],
-    "P|port=s"         => [ \$port,     "HBase Thrift server port to connect to (defaults to $default_port)" ],
+    %hostoptions,
     "T|tables=s"       => [ \$tables,   "Table(s) to check. This should be a list of user tables, not -ROOT- or .META. catalog tables which are checked additionally. If no tables are given then only -ROOT- and .META. are checked" ],
 );
 
