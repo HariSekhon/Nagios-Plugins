@@ -1,0 +1,165 @@
+#!/usr/bin/perl -T
+# nagios: -epn
+#
+#  Author: Hari Sekhon
+#  Date: 2013-10-13 02:30:13 +0100 (Sun, 13 Oct 2013)
+#
+#  http://github.com/harisekhon
+#
+#  License: see accompanying LICENSE file
+#
+
+$DESCRIPTION = "Nagios Plugin to check a specific HBase table cell via the HBase Stargate REST API Server
+
+1. reads a specified HBase cell given a table, row key and column family:qualifier
+2. checks cell's returned value against expected regex (optional)
+3. checks cell's returned value against warning/critical range thresholds (optional)
+   raises warning/critical if the value is outside thresholds or not a floating point number
+4. outputs the query time to a given precision for reporting and graphing
+5. optionally ouputs the cell's value for graphing purposes
+
+Tested on CDH 4.5.0
+
+Limitations:
+
+Any non-existent table/row/column will result in:
+
+UNKNOWN: 404 Not Found
+
+since this is all the Stargate server gives us for a response
+";
+
+$VERSION = "0.1";
+
+use strict;
+use warnings;
+BEGIN {
+    use File::Basename;
+    use lib dirname(__FILE__) . "/lib";
+}
+use HariSekhonUtils;
+use HariSekhon::HBase;
+use Data::Dumper;
+use MIME::Base64;
+use LWP::Simple '$ua';
+use Time::HiRes 'time';
+use URI::Escape;
+use XML::Simple;
+
+$ua->agent("Hari Sekhon $progname $main::VERSION");
+
+set_port_default(20550);
+
+my $table;
+my $row;
+my $column;
+my $expected;
+my $graph;
+my $units;
+
+my $default_precision = 4;
+my $precision = $default_precision;
+
+env_creds(["HBASE_STARGATE", "HBASE"], "HBase Stargate Rest API server");
+
+
+%options = (
+    %hostoptions,
+    "T|table=s"     => [ \$table,       "Table to query" ],
+    "R|row=s"       => [ \$row,         "Row   to query" ],
+    "C|column=s"    => [ \$column,      "Column family:qualifier to query" ],
+    "e|expected=s"  => [ \$expected,    "Expected regex for the cell's value. Optional" ],
+    %thresholdoptions,
+    "g|graph"       => [ \$graph,       "Graph the cell's value. Optional, use only if a floating point number is normally returned for it's values, otherwise will print NaN (Not a Number). The reason this is not determined automatically is because keys that change between floats and non-floats will result in variable numbers of perfdata tokens which will break PNP4Nagios" ],
+    "u|units=s"     => [ \$units,       "Units to use if graphing cell's value. Optional" ],
+);
+@usage_order = qw/host port table row column expected warning critical graph units/;
+
+get_options();
+
+$host       = validate_host($host);
+$host       = validate_resolvable($host);
+$port       = validate_port($port);
+$table      = validate_database_tablename($table, "allow_qualified");
+$row        = validate_hbase_rowkey($row);
+$column     = validate_hbase_column_qualifier($column);
+if(defined($expected)){
+    $expected = validate_regex($expected);
+}
+vlog_options "graph", "true" if $graph;
+$units     = validate_units($units) if defined($units);
+$precision = validate_int($precision, "precision", 1, 20);
+validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 0, "integer" => 0 } );
+
+my $cell_info = "table '$table' row '$row' column '$column'";
+
+my $url = "http://$host:$port/" . uri_escape($table) . "/" . uri_escape($row) . "/" . uri_escape($column);
+vlog_options "url", $url;
+
+vlog2;
+set_timeout();
+set_http_timeout($timeout - 1);
+
+$ua->show_progress(1) if $debug;
+
+$status = "OK";
+
+my $start_time = time;
+my $content    = curl $url, "HBase Stargate";
+my $time       = sprintf("%0.${precision}f", time - $start_time);
+
+if($content =~ /\A\s*\Z/){
+    quit "CRITICAL", "empty body returned from '$url'";
+}
+
+my $xml = XMLin($content, forcearray => 1, keyattr => []);
+
+print Dumper($xml) if($debug or $verbose >= 3);
+
+unless(defined($xml->{"Row"}[0]->{"Cell"}[0]->{"content"})){
+    quit "CRITICAL", "Cell content not found in XML response from HBase Stargate server";
+}
+
+my $value = $xml->{"Row"}[0]->{"Cell"}[0]->{"content"};
+$value = decode_base64($value);
+vlog2 "cell value = $value\n";
+
+if(defined($expected)){
+    vlog2 "checking cell value '$value' against expected regex '$expected'\n";
+    unless($value =~ $expected){
+        quit "CRITICAL", "cell value did not match expected regex (value: '$value', expected regex: '$expected') for $cell_info";
+    }
+}
+
+$msg = "cell value = '$value' for $cell_info";
+
+my $isFloat = isFloat($value);
+my $non_float_err = "cell value '$value' is not a floating point number for $cell_info";
+if($critical){
+    unless($isFloat){
+        critical;
+        $msg = $non_float_err;
+    }
+} elsif($warning){
+    unless($isFloat){
+        warning;
+        $msg = $non_float_err;
+    }
+}
+
+if($isFloat){
+    check_thresholds($value);
+}
+$msg .= " |";
+if($graph){
+    if($isFloat){
+        $msg .= " value=$value";
+        $msg .= $units if $units;
+        msg_perf_thresholds();
+    } else {
+        $msg .= " value=NaN";
+    }
+}
+$msg .= " query_time=${time}s";
+
+quit $status, $msg;
