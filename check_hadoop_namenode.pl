@@ -29,7 +29,7 @@ Caveats:
 
 Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for CDH 4.3 (2.0.0-cdh4.3.0). If JSP output changes across versions, this plugin will need to be updated to parse the changes";
 
-$VERSION = "0.8";
+$VERSION = "0.8.1";
 
 use strict;
 use warnings;
@@ -66,12 +66,13 @@ my %dfs;
 my $namenode_urn             = "dfshealth.jsp";
 my $namenode_urn_live_nodes  = "dfsnodelist.jsp?whatNodes=LIVE";
 my $namenode_urn_dead_nodes  = "dfsnodelist.jsp?whatNodes=DEAD";
-my $default_port             = "50070";
-$port                        = $default_port;
+
+set_port_default(50070);
+
+env_creds(["HADOOP_NAMENODE", "HADOOP_HOST"], "Hadoop NameNode");
 
 %options = (
-    "H|host=s"          => [ \$host,            "Namenode to connect to" ],
-    "P|port=s"          => [ \$port,            "Namenode port to connect to (defaults to $default_port)" ],
+    %hostoptions,
     "s|hdfs-space"      => [ \$hdfs_space,      "Checks % HDFS Space used against given warning/critical thresholds" ],
     "r|replication"     => [ \$replication,     "Checks replication state: under replicated blocks, blocks with corrupt replicas, missing blocks. Warning/critical thresholds apply to under replicated blocks. Corrupt replicas and missing blocks if any raise critical since this can result in data loss" ],
     "b|balance"         => [ \$balance,         "Checks Balance of HDFS Space used % across datanodes is within thresholds. Lists the nodes out of balance in verbose mode" ],
@@ -83,8 +84,7 @@ $port                        = $default_port;
     "non-heap-usage"    => [ \$non_heap,        "Check Namenode Non-Heap % Used. Optional % thresholds may be supplied for warning/critical" ],
     "datanode-blocks"   => [ \$datanode_blocks, "Check DataNode Blocks counts against warning/critical thresholds, alerts if any datanode breaches any threshold, reports number of offending datanodes (default warning: $default_blockcount_warning, critical: $default_blockcount_critical)" ],
     "datanode-block-balance" => [ \$datanode_block_balance, "Checks max imbalance of HDFS blocks across datanodes is within % thresholds" ],
-    "w|warning=s"       => [ \$warning,         "Warning  threshold or ran:ge (inclusive)" ],
-    "c|critical=s"      => [ \$critical,        "Critical threshold or ran:ge (inclusive)" ],
+    %thresholdoptions,
 );
 @usage_order = qw/host port hdfs-space replication balance datanode-blocks datanode-block-balance node-count node-list heap-usage non-heap-usage warning critical/;
 
