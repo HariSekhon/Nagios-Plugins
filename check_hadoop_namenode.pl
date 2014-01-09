@@ -69,7 +69,7 @@ my $namenode_urn_dead_nodes  = "dfsnodelist.jsp?whatNodes=DEAD";
 
 set_port_default(50070);
 
-env_creds(["HADOOP_NAMENODE", "HADOOP_HOST"], "Hadoop NameNode");
+env_creds(["HADOOP_NAMENODE", "HADOOP"], "Hadoop NameNode");
 
 %options = (
     %hostoptions,
