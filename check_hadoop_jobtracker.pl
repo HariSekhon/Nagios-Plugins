@@ -28,7 +28,7 @@ Originally written on old vanilla Apache Hadoop 0.20.x, backwards untested rewri
 
 Seriously recommend you consider using check_hadoop_cloudera_manager_metrics.pl instead if possible (disclaimer I work for Cloudera but seriously it's better it uses the CM API instead of scraping output which can break betweens versions and requires more maintenance)";
 
-$VERSION = "0.9.1";
+$VERSION = "0.9.2";
 
 use strict;
 use warnings;
@@ -52,17 +52,18 @@ my $non_heap;
 #my $jobtracker_urn                  = "jobtracker.jsp";
 my $jobtracker_urn                  = "metrics";
 my $jobtracker_urn_machines_active  = "machines.jsp?type=active";
-my $default_port                    = "50030";
-$port = $default_port;
+
+set_port_default(50030);
 
 my $default_warning  = 0;
 my $default_critical = 0;
 $warning  = $default_warning;
-$critical = $default_critical;
+$critical =  $default_critical;
+
+env_creds(["HADOOP_JOBTRACKER", "HADOOP"], "Hadoop JobTracker");
 
 %options = (
-    "H|host=s"         => [ \$host,         "JobTracker to connect to" ],
-    "P|port=s"         => [ \$port,         "JobTracker port to connect to (defaults to $default_port)" ],
+    %hostoptions,
     "n|nodes=s"        => [ \$nodes,        "Optional list of nodes to check are alive in the JobTracker (non-switch args are appended to this list for convenience)" ],
     "heap-usage"       => [ \$heap,         "Check JobTracker Heap % Used. There is a bug in the JobTracker UI where it's showing committed instead of used so after some run time it always appears full" ],
     #"non-heap-usage"   => [ \$non_heap,     "Check JobTracker Non Heap % Used. Optional % thresholds may be supplied for warning/critical" ],
