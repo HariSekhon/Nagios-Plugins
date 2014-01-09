@@ -28,7 +28,7 @@ Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclai
 # 1. Min Configured Capacity per node (from node section output).
 # 2. Last Contact: convert the date to secs and check against thresholds.
 
-$VERSION = "0.7";
+$VERSION = "0.7.1";
 
 use strict;
 use warnings;
@@ -58,8 +58,7 @@ my $nodes       = 0;
     "r|replication"     => [ \$replication,  "Checks replication state: under replicated blocks, corrupt blocks, missing blocks. Warning/critical thresholds apply to under replicated blocks. Corrupt and missing blocks if any raise critical since this means there is potentially data loss" ],
     "b|balance"         => [ \$balance,      "Checks Balance of HDFS Space used % across datanodes is within thresholds. Lists the nodes out of balance in verbose mode" ],
     "n|nodes-available" => [ \$nodes,        "Checks the number of available datanodes against the given warning/critical thresholds as the lower limits (inclusive). Any dead datanodes raises warning" ],
-    "w|warning=s"       => [ \$warning,      "Warning threshold or ran:ge (inclusive)"  ],
-    "c|critical=s"      => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
+    %thresholdoptions,
     "hadoop-bin=s"      => [ \$hadoop_bin,   "Path to 'hdfs' or 'hadoop' command if not in \$PATH" ],
     "hadoop-user=s"     => [ \$hadoop_user,  "Checks that this plugin is being run by the hadoop user (defaults to '$default_hadoop_user', falls back to trying '$legacy_hadoop_user' unless specified)" ],
 );
