@@ -29,7 +29,7 @@ UNKNOWN: 404 Not Found
 since this is all the Stargate server gives us for a response
 ";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -93,7 +93,7 @@ validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 0, "integ
 
 my $cell_info = "table '$table' row '$row' column '$column'";
 
-my $url = "http://$host:$port/" . uri_escape($table) . "/" . uri_escape($row) . "/" . uri_escape($column);
+my $url = "http://$host:$port/" . uri_escape($table) . "/" . uri_escape($row) . "/" . uri_escape($column) . "?v=1";
 vlog_options "url", $url;
 
 vlog2;
@@ -116,6 +116,24 @@ my $xml = XMLin($content, forcearray => 1, keyattr => []);
 
 print Dumper($xml) if($debug or $verbose >= 3);
 
+# Tested that the latest value (newest timestamp) is indeed returned first in the Row list
+# but now optimized this to only return one version (the latest version)
+unless(defined($xml->{"Row"}[0]->{"key"})){
+    quit "CRITICAL", "row key not defined in returned results";
+}
+
+my $rowkey = $xml->{"Row"}[0]->{"key"};
+$rowkey    = decode_base64($rowkey);
+vlog2 "row key    = $rowkey";
+
+unless(defined($xml->{"Row"}[0]->{"Cell"}[0]->{"column"})){
+    quit "CRITICAL", "column not defined in first returned result";
+}
+
+my $column_returned = $xml->{"Row"}[0]->{"Cell"}[0]->{"column"};
+$column_returned    = decode_base64($column_returned);
+vlog2 "column     = $column_returned";
+
 unless(defined($xml->{"Row"}[0]->{"Cell"}[0]->{"content"})){
     quit "CRITICAL", "Cell content not found in XML response from HBase Stargate server";
 }
@@ -123,6 +141,14 @@ unless(defined($xml->{"Row"}[0]->{"Cell"}[0]->{"content"})){
 my $value = $xml->{"Row"}[0]->{"Cell"}[0]->{"content"};
 $value = decode_base64($value);
 vlog2 "cell value = $value\n";
+
+vlog2 "checking we're got the right row key, column family:qualifier";
+unless($rowkey eq $row){
+    quit "CRITICAL", "wrong row returned, expected row '$row', got row '$rowkey'";
+}
+unless($column_returned eq $column){
+    quit "CRITICAL", "wrong column family:qualifier returned, expected column '$column', got column '$column_returned'";
+}
 
 if(defined($expected)){
     vlog2 "checking cell value '$value' against expected regex '$expected'\n";
