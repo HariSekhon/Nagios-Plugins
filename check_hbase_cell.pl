@@ -123,6 +123,8 @@ catch {
 };
 my $time   = sprintf("%0.${precision}f", time - $start_time);
 
+print Dumper($cell) if ($debug or $verbose >= 3);
+
 # Check first struct returned
 $cell = @{$cell}[0];
 
