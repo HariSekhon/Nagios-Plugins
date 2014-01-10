@@ -358,8 +358,8 @@ if($balance){
     }
     $status = "OK";
     #$msg = sprintf("under replicated blocks: %d, corrupt blocks: %d, missing blocks: %d", $dfs{"under_replicated_blocks"}, $dfs{"corrupt_blocks"}, $dfs{"missing_blocks"});
-    check_thresholds($dfs{"under_replicated_blocks"});
     $msg = sprintf("under replicated blocks: %d, corrupt blocks: %d, missing blocks: %d", $dfs{"under_replicated_blocks"}, $dfs{"corrupt_blocks"}, $dfs{"missing_blocks"});
+    check_thresholds($dfs{"under_replicated_blocks"});
     if($dfs{"corrupt_blocks"} or $dfs{"missing_blocks"}){
         critical;
         $msg = "corrupt/missing blocks detected. $msg";
