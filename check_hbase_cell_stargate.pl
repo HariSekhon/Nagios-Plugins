@@ -16,9 +16,9 @@ $DESCRIPTION = "Nagios Plugin to check a specific HBase table cell via the HBase
 3. checks cell's returned value against warning/critical range thresholds (optional)
    raises warning/critical if the value is outside thresholds or not a floating point number
 4. outputs the query time to a given precision for reporting and graphing
-5. optionally ouputs the cell's value for graphing purposes
+5. optionally outputs the cell's value for graphing purposes
 
-Tested on CDH 4.5.0
+Tested on CDH 4.3.0, 4.5.0
 
 Limitations:
 
@@ -26,7 +26,9 @@ Any non-existent table/row/column will result in:
 
 UNKNOWN: 404 Not Found
 
-since this is all the Stargate server gives us for a response
+since this is all the Stargate server gives us for a response.
+
+Another option is to use check_hbase_cell.pl / check_hbase_cell_thrift.pl which uses the Thrift API and has better error reporting
 ";
 
 $VERSION = "0.2";
