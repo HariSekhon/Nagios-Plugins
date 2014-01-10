@@ -113,7 +113,7 @@ if($progname eq "check_hadoop_hdfs_space.pl"){
 get_options();
 
 $host = validate_host($host, "Namenode");
-$port = validate_port($port);
+$port = validate_port($port, "Namenode");
 
 if($datanode_blocks){
     $warning  = $default_blockcount_warning  unless defined($warning);
