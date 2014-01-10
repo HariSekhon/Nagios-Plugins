@@ -24,7 +24,7 @@ Requires the CPAN Thrift perl module
 
 HBase Thrift bindings were generated using Thrift 0.9.0 on CDH 4.3 (HBase 0.94.6-cdh4.3.0) CentOS 6.4 and placed under lib/Hbase
 
-Tested on CDH 4.5.0
+Tested on CDH 4.3.0, 4.5.0
 ";
 
 $VERSION = "0.1";
