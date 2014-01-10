@@ -24,7 +24,7 @@ Limitations:
 
 1. If RegionServers are down you may get a timeout when querying the HBase Master JSP for the table details (CRITICAL: '500 read timeout'). The Stargate handles this better (check_hbase_tables_stargate.pl)";
 
-$VERSION = "0.3.1";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -40,14 +40,14 @@ use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
-my $default_port = 60010;
-$port = $default_port;
+set_port_default(60010);
 
 my $tables;
 
+env_creds(["HBASE_MASTER", "HBASE"], "HBase Master JSP");
+
 %options = (
-    "H|host=s"         => [ \$host,     "HBase Master to connect to" ],
-    "P|port=s"         => [ \$port,     "HBase Master JSP Port to connect to (defaults to $default_port)" ],
+    %hostoptions,
     "T|tables=s"       => [ \$tables,   "Table(s) to check. This should be a list of user tables, not -ROOT- or .META. catalog tables which are checked additionally. If no tables are given then only -ROOT- and .META. are checked" ],
 );
 
@@ -65,7 +65,7 @@ my $table;
 foreach $table (@tables){
     if($table =~ /^(-ROOT-|\.META\.)$/){
     } else {
-        $table = isDatabaseTableName($table) || usage "invalid table name $table given";
+        $table = isDatabaseTableName($table, "allow_qualified") || usage "invalid table name $table given";
     }
 }
 
