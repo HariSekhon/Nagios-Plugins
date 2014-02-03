@@ -21,10 +21,12 @@ Once it connects to the Primary, it will perform the following checks:
 4. records the write/read/delete timings to a given precision
 5. compares each operation's time taken against the warning/critical thresholds if given
 
+Tested on MongoDB 2.4.8, mongod with Replica Sets and mongos with Sharded Replica Sets with both sharded and non-sharded database collections
+
 Limitations:
 
-- The MongoDB Perl library has some limitations around the way it handles exceptions and error reporting. As a result, connection problems and failure to find a master result in an incorrect error message 'Operation now in progress' if attempting to handle and prefix with CRITICAL, so they have been left bare but the correct Nagios error codes are enforced via the library HariSekhonUtils and respected
-- The MongoDB Perl library does not respect the write concern and so at this time only 'majority' may be used, all other values result in 'exception: unrecognized getLastError mode: all'
+- The MongoDB Perl library has some limitations around the way it handles exceptions and error reporting. As a result, connection problems and failure to find a master result in an incorrect error message 'Operation now in progress' if attempting to handle and prefix with CRITICAL, so they have been left bare to report the correct errors. The correct Nagios error codes are still enforced via the library HariSekhonUtils either way
+- The MongoDB Perl library does not respect the write concern and so at this time only 'majority' may be used, all other values result in 'exception: unrecognized getLastError mode: <mode>' despite the library documentation stating the other write-concern levels are respected
 ";
 
 # Write concern and Read concern take the following options with --write-concern and --read-concern respectively:
@@ -118,11 +120,11 @@ for(my $i=0; $i < scalar @hosts; $i++){
 my $hosts  = "mongodb://" . join(",", @hosts);
 #my $hosts  = join(",", @hosts);
 vlog_options "Mongo host list", $hosts;
+$database    = validate_database($database, "Mongo");
+$collection  = validate_collection($collection, "Mongo");
 #unless(($user + $password) / 2 == 0) {
 #    usage "--user and --password must both be specified if one of them are";
 #}
-$database    = validate_database($database, "Mongo");
-$collection  = validate_collection($collection, "Mongo");
 $user        = validate_user($user)         if defined($user) and defined($password);
 $password    = validate_password($password) if defined($password);
 grep { $sasl_mechanism eq $_ } qw/GSSAPI PLAIN/ or usage "invalid sasl-mechanism specified, must be either GSSAPI or PLAIN";
@@ -201,6 +203,7 @@ vlog2 "primary is $master\n";
 my $db;
 my $coll;
 
+# Incorrect error messages are reporting when catching errors, the only way to see accurate messages in testing was to allow the module's die call and wrap the exit code in the library HariSekhonUtils
 #try {
     $db = $client->get_database($database)   || quit "CRITICAL", "failed to select database '$database': $!";
 #};
