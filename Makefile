@@ -28,6 +28,19 @@ install:
 	# apt-get install libexpat1-dev
 	#
 	
+	# XXX: there is a bug in the Readonly module that MongoDB::MongoClient uses. It tries to call Readonly::XS but there is some kind of MAGIC_COOKIE mismatch and Readonly::XS errors out with:
+	#
+	# Readonly::XS is not a standalone module. You should not use it directly. at /usr/local/lib64/perl5/Readonly/XS.pm line 34.
+	#
+	# Workaround is to edit Readonly.pm and comment out line 33 which does the eval 'use Readonly::XS';
+	# On Linux this is located at:
+	#
+	# /usr/local/share/perl5/Readonly.pm
+	#
+	# On my Mac OS X Mavericks:
+	#
+	# /Library/Perl/5.16/Readonly.pm
+
 	sudo cpan \
 		Class:Accessor \
 		Data::Dumper \
@@ -43,6 +56,8 @@ install:
 		Net::DNS \
 		Net::SSH::Expect \
 		Redis \
+		Readonly \
+		Readonly::XS \
 		Test::SharedFork \
 		Thrift \
 		Time::HiRes \
