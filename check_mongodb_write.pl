@@ -25,7 +25,7 @@ Tested on MongoDB 2.4.8, mongod with Replica Sets and mongos with Sharded Replic
 
 Limitations:
 
-- The MongoDB Perl library has some limitations around the way it handles exceptions and error reporting. As a result, connection problems and failure to find a master result in an incorrect error message 'Operation now in progress' if attempting to handle and prefix with CRITICAL, so they have been left bare to report the correct errors. The correct Nagios error codes are still enforced via the library HariSekhonUtils either way
+- The MongoDB Perl library has some limitations around the way it handles exceptions and error reporting. As a result, connection problems and failure to find a master result in an incorrect error message 'Operation now in progress' if attempting to handle and prefix with CRITICAL, so they have been left bare to report the correct errors. The correct Nagios error code of CRITICAL (2) is still enforced via the library HariSekhonUtils regardless
 - The MongoDB Perl library does not respect the write concern and so at this time only 'majority' may be used, all other values result in 'exception: unrecognized getLastError mode: <mode>' despite the library documentation stating the other write-concern levels are respected
 ";
 
