@@ -21,22 +21,29 @@ Once it connects to the Primary, it will perform the following checks:
 4. records the write/read/delete timings to a given precision
 5. compares each operation's time taken against the warning/critical thresholds if given
 
-Tested on MongoDB 2.4.8, mongod with Replica Sets and mongos with Sharded Replica Sets with both sharded and non-sharded database collections
+Tested on MongoDB 2.4.8, standalone mongod, mongod Replica Sets, mongos with Sharded Replica Sets, with and without authentication
 
-Limitations:
+Write concern and Read concern take the following options with --write-concern and --read-concern:
 
-- The MongoDB Perl library has some limitations around the way it handles exceptions and error reporting. As a result, connection problems and failure to find a master result in an incorrect error message 'Operation now in progress' if attempting to handle and prefix with CRITICAL, so they have been left bare to report the correct errors. The correct Nagios error code of CRITICAL (2) is still enforced via the library HariSekhonUtils regardless
-- The MongoDB Perl library does not respect the write concern and so at this time only 'majority' may be used, all other values result in 'exception: unrecognized getLastError mode: <mode>' despite the library documentation stating the other write-concern levels are respected
+'1'         = primary only
+'2'         = primary + 1 secondary replica
+'N'         = N number of Mongod instances must acknowledge including Primary
+'majority'
+
+The query timeout for each write => read => delete operation is one quarter of the global --timeout
+
+MongoDB Library Limitations:
+
+- Error Handling: the MongoDB Perl library has some limitations around the way it handles exceptions and error reporting. As a result, connection problems and failure to find a master result in an incorrect error message 'Operation now in progress' if attempting to handle and prefix with CRITICAL, so they have been left bare to report the correct errors. The correct Nagios error code of CRITICAL (2) is still enforced via the library HariSekhonUtils regardless
+  - Specifying a list of nodes in a Replica Set where none of the nodes are Primary results in 'not master at check_mongodb_write.pl ...'
+- Write Concern:
+    - Using write concern 'all' is not supported, it should work in theory according to the library documentation but in reality it does not work
+    - Using anything other than 1 with a stand alone Mongod causes results in 'repl at check_mongodb_write.pl line 221'. This is unintuitive but basically means there is no replication / Replica Set for the value to be valid
+    - Because of these behaviours, the write concern is set to 'majority' if more than one node is specified and '1' otherwise. If using a Replica Set but only specifying one node (to auto-determine the rest), then manually set --write-concern majority
+    - Using a write-concern higher than the number of members of a Replica Set will result in a timeout error from the library (wtimeout which defaults to 1 second)
 ";
 
-# Write concern and Read concern take the following options with --write-concern and --read-concern respectively:
-# 
-# '1' = primary only
-# '2' = primary + 1 secondary replica
-# 'majority'
-# 'all'
-
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 # TODO: Read Preference straight pass thru qw/primary secondary primaryPreferred secondaryPreferred nearest/
 # TODO: check_mongodb_write_replication.pl link and enforce secondary Read Preference
@@ -76,10 +83,11 @@ my $database          = "nagios";
 ( my $default_collection = $progname ) =~ s/\.pl$//;
 my $collection = $default_collection;
 
-my @valid_concerns    = qw/1 2 majority all/;
-my $default_concern   = "majority";
-my $write_concern     = $default_concern;
-my $read_concern      = $default_concern;
+# 'all' gets rejected by the MongoDB Perl Library
+#my @valid_concerns    = qw/1 2 majority all/;
+my @valid_concerns    = qw/1 2 majority/;
+my $write_concern;
+my $read_concern;
 
 my $default_wtimeout  = 1000;
 my $wtimeout          = $default_wtimeout;
@@ -98,8 +106,8 @@ my $precision         = $default_precision;
     "d|database=s"     => [ \$database,      "Database to use (default: nagios)" ],
     "C|collection=s"   => [ \$collection,    "Collection to write test document to (default: $default_collection)" ],
     %useroptions,
-    #"write-concern=s"  => [ \$write_concern, "MongoDB write concern (defaults to '$default_concern'. See --help for details in header description)" ],
-    #"read-concern=s"   => [ \$read_concern,  "MongoDB read  concern (defaults to '$default_concern'. See --help for details in header description)" ],
+    "write-concern=s"  => [ \$write_concern, "MongoDB write concern (defaults to '1' for a single node or 'majority'. See --help for details in header description)" ],
+    "read-concern=s"   => [ \$read_concern,  "MongoDB read  concern (defaults to '1' for a single node or 'majority'. See --help for details in header description)" ],
     #"wtimeout=s"       => [ \$wtimeout,      "Number of milliseconds an operations should wait for w slaves to replicate it (defaults to $default_wtimeout ms)" ],
     "ssl"              => [ \$ssl,           "Enable SSL, MongDB libraries must have been compiled with SSL and server must support it. Experimental" ],
     "sasl"             => [ \$sasl,          "Enable SASL authentication, must be compiled in to the MongoDB perl driver to work. Experimental" ],
@@ -127,12 +135,29 @@ $collection  = validate_collection($collection, "Mongo");
 #}
 $user        = validate_user($user)         if defined($user) and defined($password);
 $password    = validate_password($password) if defined($password);
-grep { $sasl_mechanism eq $_ } qw/GSSAPI PLAIN/ or usage "invalid sasl-mechanism specified, must be either GSSAPI or PLAIN";
-grep { $write_concern  eq $_ } @valid_concerns  or usage "invalid write concern given";
-grep { $read_concern   eq $_ } @valid_concerns  or usage "invalid read concern given";
+if(scalar @hosts == 1){
+    $write_concern = 1 unless defined($write_concern);
+    $read_concern  = 1 unless defined($read_concern);
+} else {
+    $write_concern = "majority" unless defined($write_concern);
+    $read_concern  = "majority" unless defined($read_concern);
+}
+if(isInt($write_concern)){
+    $write_concern = int($write_concern) if isInt($write_concern);
+    usage "--write-concern may not be zero!" unless $write_concern;
+} else {
+    grep { $write_concern eq $_ } @valid_concerns  or usage "invalid write concern given";
+}
+if(isInt($read_concern)){
+    $read_concern  = int($read_concern)  if isInt($read_concern);
+    usage "--read-concern may not be zero!" unless $read_concern;
+} else {
+    grep { $read_concern  eq $_ } @valid_concerns  or usage "invalid read concern given";
+}
 vlog_options "write concern", $write_concern;
 vlog_options "read concern",  $read_concern;
-#validate_int($wtimeout, "wtimeout", 1, 1000000);
+validate_int($wtimeout, "wtimeout", 1, 1000000);
+grep { $sasl_mechanism eq $_ } qw/GSSAPI PLAIN/ or usage "invalid sasl-mechanism specified, must be either GSSAPI or PLAIN";
 vlog_options "ssl",  "enabled" if $ssl;
 vlog_options "sasl", "enabled" if $sasl;
 vlog_options "sasl-mechanism", $sasl_mechanism if $sasl;
@@ -163,12 +188,13 @@ my $client;
     $client = MongoDB::MongoClient->new(
                                         "host"           => $hosts,
                                         #"db_name"        => $database,
-                                        "find_master"    => 1,
+                                        # hangs when giving only nodes of a replica set that aren't the Primary
+                                        #"find_master"    => 1,
                                         "w"              => $write_concern,
                                         "r"              => $read_concern,
                                         "j"              => 1,
                                         "timeout"        => int($timeout * 1000 / 4), # connection timeout
-                                        "wtimeout"       => $wtimeout,
+                                        #"wtimeout"       => $wtimeout,
                                         "query_timeout"  => int($timeout * 1000 / 4),
                                         "ssl"            => $ssl,
                                         "sasl"           => $sasl,
