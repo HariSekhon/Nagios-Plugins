@@ -18,7 +18,7 @@ Once it connects to the Primary, it will perform the following checks:
 1. write a new unique document to the nagios collection with dynamically generated value
 2. read the same document back, checking the value is identical to the value generated and written
 3. delete the just created document
-4. records the write/read/delete timings to a given precision
+4. records the write/read/delete timings to a given precision and outputs perfdata for graphing
 5. compares each operation's time taken against the warning/critical thresholds if given
 
 Tested on MongoDB 2.4.8, standalone mongod, mongod Replica Sets, mongos with Sharded Replica Sets, with and without authentication
