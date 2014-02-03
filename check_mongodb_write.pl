@@ -37,9 +37,9 @@ MongoDB Library Limitations:
 - Error Handling: the MongoDB Perl library has some limitations around the way it handles exceptions and error reporting. As a result, connection problems and failure to find a master result in an incorrect error message 'Operation now in progress' if attempting to handle and prefix with CRITICAL, so they have been left bare to report the correct errors. The correct Nagios error code of CRITICAL (2) is still enforced via the library HariSekhonUtils regardless
   - Specifying a list of nodes in a Replica Set where none of the nodes are Primary results in 'not master at check_mongodb_write.pl ...'
 - Write Concern:
-    - Using write concern 'all' is not supported, it should work in theory according to the library documentation but in reality it does not work
+    - Using write concern 'all' is not supported, it should work in theory according to the library documentation but in reality it does not work so has been disallowed as an option
     - Using anything other than 1 with a stand alone Mongod causes results in 'repl at check_mongodb_write.pl line 221'. This is unintuitive but basically means there is no replication / Replica Set for the value to be valid
-    - Because of these behaviours, the write concern is set to 'majority' if more than one node is specified and '1' otherwise. If using a Replica Set but only specifying one node (to auto-determine the rest), then manually set --write-concern majority
+    - Because of these behaviours, the write concern is set to 'majority' if more than one node is specified and '1' otherwise. This can be overridden using --write-concern
     - Using a write-concern higher than the number of members of a Replica Set will result in a timeout error from the library (wtimeout which defaults to 1 second)
 ";
 
