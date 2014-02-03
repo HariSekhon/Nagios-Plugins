@@ -122,25 +122,6 @@ Then install the Perl CPAN and Python modules as listed in the next sections.
 
 If installing the Perl CPAN modules via your package manager or by hand instead of running the 'make' command as listed in Quick Setup, then read the 'Makefile' file for the list of Perl CPAN modules that you need to install.
 
-###### MongoDB / Readonly library bug ######
-
-There is a bug in the Readonly CPAN module that the MongoDB CPAN module uses when it tries to call Readonly::XS. A MAGIC_COOKIE mismatch results in the following error
-```
-Readonly::XS is not a standalone module. You should not use it directly. at /usr/local/lib64/perl5/Readonly/XS.pm line 34.
-```
-
-The workaround is to edit the Readonly module and comment out the "eval 'use Readonly::XS'" on line 33 of the Readonly module.
-
-This is located here on Linux:
-```
-/usr/local/share/perl5/Readonly.pm
-```
-
-and here on Max OS X:
-```
-/Library/Perl/5.16/Readonly.pm
-```
-
 ###### Net::ZooKeeper for check_zookeeper_znode.pl (various znode checks for HBase/SolrCloud) ######
 
 The ```check_zookeeper_znode.pl``` plugin requires the Net::ZooKeeper Perl CPAN module but this is not a simple ```cpan Net::ZooKeeper```, that will fail. Follow these instructions precisely or debug at your own peril:
@@ -164,6 +145,25 @@ sudo make install
 After this check it's properly installed by doing
 ```perl -e "use Net::ZooKeeper"```
 which should return without errors or output if successful.
+
+###### MongoDB / Readonly library bug ######
+
+There is a bug in the Readonly CPAN module that the MongoDB CPAN module uses when it tries to call Readonly::XS. A MAGIC_COOKIE mismatch results in the following error
+```
+Readonly::XS is not a standalone module. You should not use it directly. at /usr/local/lib64/perl5/Readonly/XS.pm line 34.
+```
+
+The workaround is to edit the Readonly module and comment out the "eval 'use Readonly::XS'" on line 33 of the Readonly module.
+
+This is located here on Linux:
+```
+/usr/local/share/perl5/Readonly.pm
+```
+
+and here on Max OS X:
+```
+/Library/Perl/5.16/Readonly.pm
+```
 
 ### Other Dependencies ###
 
