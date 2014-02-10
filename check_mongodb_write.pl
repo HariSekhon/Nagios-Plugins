@@ -43,7 +43,7 @@ MongoDB Library Limitations:
     - Using a write-concern higher than the number of members of a Replica Set will result in a timeout error from the library (wtimeout which defaults to 1 second)
 ";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 # TODO: Read Preference straight pass thru qw/primary secondary primaryPreferred secondaryPreferred nearest/
 # TODO: check_mongodb_write_replication.pl link and enforce secondary Read Preference
@@ -183,8 +183,7 @@ set_timeout();
 
 my $start_time = time;
 my $client;
-# TODO: MongoDB module calls die directly, and catching it seems to lead to incorrect error reporting :-/
-#try {
+try {
     $client = MongoDB::MongoClient->new(
                                         "host"           => $hosts,
                                         #"db_name"        => $database,
@@ -200,18 +199,18 @@ my $client;
                                         "sasl"           => $sasl,
                                         "sasl-mechanism" => $sasl_mechanism,
                                        ) || quit "CRITICAL", "$!";
-#};
-#catch_quit "failed to connect / find primary MongoDB host";
+};
+catch_quit "failed to connect / find primary MongoDB host";
 #quit "CRITICAL", "failed to connect / find primary MongoDB host" if $@;
 
 vlog2 "connection initiated\n";
 
 if($user and $password){
     vlog2 "authenticating against database '$database'";
-    #try {
+    try {
         $client->authenticate($database, $user, $password) || quit "CRITICAL", "failed to authenticate: $!";
-    #};
-    #catch_quit "failed to authenticate";
+    };
+    catch_quit "failed to authenticate";
 }
 
 my $master;
@@ -229,28 +228,27 @@ vlog2 "primary is $master\n";
 my $db;
 my $coll;
 
-# Incorrect error messages are reporting when catching errors, the only way to see accurate messages in testing was to allow the module's die call and wrap the exit code in the library HariSekhonUtils
-#try {
+try {
     $db = $client->get_database($database)   || quit "CRITICAL", "failed to select database '$database': $!";
-#};
-#catch_quit "failed to select database '$database'";
+};
+catch_quit "failed to select database '$database'";
 
-#try {
+try {
     $coll = $db->get_collection($collection) || quit "CRITICAL", "failed to get collection '$collection': $!";
-#};
-#catch_quit "failed to get collection '$collection'";
+};
+catch_quit "failed to get collection '$collection'";
 
 # ============================================================================ #
 my $write_start = time;
 my $returned_id;
-#try {
+try {
     $returned_id = $coll->insert(  {
                                     '_id'   => $id,
                                     'value' => $value
                                    } 
                                 ) || quit "CRITICAL", "failed to insert document in to database '$database' collection '$collection': $!";
-#};
-#catch_quit "failed to insert document in to database '$database' collection '$collection'";
+};
+catch_quit "failed to insert document in to database '$database' collection '$collection'";
 my $write_time = sprintf("%0.${precision}f", time - $write_start);
 $msg .= "document written in $write_time secs";
 
@@ -264,7 +262,7 @@ vlog2 "wrote   document: $document";
 my $count = 0;
 
 my $read_start = time;
-#try {
+try {
     my $cursor = $coll->find( { '_id' => $id } );
 
     my $obj;
@@ -281,8 +279,8 @@ my $read_start = time;
         }
         $count++;
     }
-#};
-#catch_quit "failed to read document back from collection '$collection' in database '$database'";
+};
+catch_quit "failed to read document back from collection '$collection' in database '$database'";
 my $read_time = sprintf("%0.${precision}f", time - $read_start);
 $msg .= ", read in $read_time secs";
 
