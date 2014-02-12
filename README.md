@@ -148,11 +148,12 @@ which should return without errors or output if successful.
 
 ###### MongoDB / Readonly library bug ######
 
-There is a bug in the Readonly CPAN module that the MongoDB CPAN module uses when it tries to call Readonly::XS. A MAGIC_COOKIE mismatch results in the following error
+The MongoDB Perl driver from CPAN doesn't seem to compile properly on RHEL5 based systems. PyMongo rewrite was considered but the extensive library of functions results in better code quality for the Perl plugins, it's easier to just upgrade your OS to RHEL6.
+
+The MongoDB Perl driver does compile on RHEL6 but is a small bug in the Readonly CPAN module that the MongoDB CPAN module uses. When it tries to call Readonly::XS, a MAGIC_COOKIE mismatch results in the following error:
 ```
 Readonly::XS is not a standalone module. You should not use it directly. at /usr/local/lib64/perl5/Readonly/XS.pm line 34.
 ```
-
 The workaround is to edit the Readonly module and comment out the "eval 'use Readonly::XS'" on line 33 of the Readonly module.
 
 This is located here on Linux:
