@@ -32,7 +32,7 @@ housekeeping.execution.max-age=90d
 This would need to be a long enough period to retain the history for the last 2 job runs
 
 
-Tested against Datameer 3.0.11";
+Tested against Datameer 3.0.11 and 3.1.1";
 
 $VERSION = "0.3";
 

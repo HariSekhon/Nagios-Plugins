@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check Datameer license volume used % using Data
 
 Datameer is licensed by Cumulative Data Ingested Volume so this is an important thing to monitor and graph through the year and set thresholds on
 
-Tested against Datameer 3.0.11
+Tested against Datameer 3.0.11 and 3.1.1
 
 Note: Datameer 3.0 first release or two had a bug in it's license calculation such that the reported license data used was too high due to counting all data transformations instead of just data ingested";
 

@@ -33,7 +33,7 @@ housekeeping.execution.max-age=365d
 
 Although you'd have to increase this to your licensing period and it still wouldn't be exact since I'd have to add start date calculation to only iterate on job runs from a given date to count against the current licensing period. Currently talking to the Datameer guys to figure out if there is a better way to do this by exposing the internal calculation that Datameer keeps which looks like isn't exposed via API right now
 
-Tested against Datameer 3.0.11";
+Tested against Datameer 3.0.11 and 3.1.1";
 
 $VERSION = "0.3";
 

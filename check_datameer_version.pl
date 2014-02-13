@@ -13,7 +13,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the Datameer version using the Datameer Rest API
 
-Tested against Datameer 2.1.4.6 and 3.0.11";
+Tested against Datameer 2.1.4.6, 3.0.11 and 3.1.1";
 
 $VERSION = "0.3";
 

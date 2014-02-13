@@ -15,7 +15,7 @@ $DESCRIPTION = "Nagios Plugin to show Datameer stats on number of Workbooks, Con
 
 Outputs perfdata for Nagios graphing of these usage trends over time
 
-Tested against Datameer 2.1.4.6 and 3.0.11";
+Tested against Datameer 2.1.4.6, 3.0.11 and 3.1.1";
 
 $VERSION = "0.3";
 
