@@ -26,9 +26,9 @@ OR
 
 To find the JOB ID that you should supply to the --job-id option you should look at the Browser tab inside Datameer's web UI and right-click on the import job and then click Information. This will show you the JOB ID in the field \"ID: <number>\" (NOT \"File ID\")
 
-Tested against Datameer 3.0.11";
+Tested against Datameer 3.0.11 and 3.1.1";
 
-$VERSION = "0.5";
+$VERSION = "0.5.1";
 
 use strict;
 use warnings;
@@ -102,6 +102,15 @@ if(isExportJob($job_run)){
 } elsif(isImportJob($job_run)){
     vlog2 "detected import job\n";
     $import_job = 1;
+} elsif (defined($job_run->{"counters"}) and defined($job_run->{"jobStatus"}) and $job_run->{"jobStatus"} eq "ERROR"){
+    my $err_msg = "job last run status: '" . $job_run->{"jobStatus"} . "'";
+    if(defined($job_run->{"startTime"})){
+        $err_msg .= sprintf(", last start time '%s'", $job_run->{"startTime"});
+    }
+    if(defined($job_run->{"stopTime"})){
+        $err_msg .= sprintf(", stop time '%s'", $job_run->{"stopTime"});
+    }
+    quit "CRITICAL", $err_msg;
 } else {
     quit "UNKNOWN", "only import and export jobs are supported (job id specified returned last run details with none of the expected counters for either type of job)";
 }
