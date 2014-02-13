@@ -103,7 +103,7 @@ if(isExportJob($job_run)){
     vlog2 "detected import job\n";
     $import_job = 1;
 } elsif (defined($job_run->{"counters"}) and defined($job_run->{"jobStatus"}) and $job_run->{"jobStatus"} eq "ERROR"){
-    my $err_msg = "job last run status: '" . $job_run->{"jobStatus"} . "'";
+    my $err_msg = sprintf("job %d state: '%s'", $job_id, $job_run->{"jobStatus"});
     if(defined($job_run->{"startTime"})){
         $err_msg .= sprintf(", last start time '%s'", $job_run->{"startTime"});
     }
