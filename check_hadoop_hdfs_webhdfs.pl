@@ -81,9 +81,9 @@ if($progname =~ /write/i){
     "w|write"           => [ \$write,                         "Write unique canary file to hdfs:///tmp to check HDFS is writable and not in Safe mode" ],
     "p|path=s"          => [ \$path,                          "File or directory to check exists in Hadoop HDFS"  ],
     "T|type=s"          => [ \$file_checks{"type"},           "'FILE' or 'DIRECTORY' (default: 'FILE')" ],
-    "o|owner=s"         => [ \$file_checks{"owner"},          "Owner" ],
-    "g|group=s"         => [ \$file_checks{"group"},          "Group" ],
-    "e|permission=s"    => [ \$file_checks{"permission"},     "Permission" ],
+    "o|owner=s"         => [ \$file_checks{"owner"},          "Owner name" ],
+    "g|group=s"         => [ \$file_checks{"group"},          "Group name" ],
+    "e|permission=s"    => [ \$file_checks{"permission"},     "Permission octal mode" ],
     "Z|zero"            => [ \$file_checks{"zero"},           "Additional check that file is empty"     ],
     "S|size=s"          => [ \$file_checks{"size"},           "Minimum size of file" ],
     "B|blockSize=s"     => [ \$file_checks{"blockSize"},      "Blocksize to expect"  ],
@@ -106,9 +106,13 @@ if($write){
     $canary_contents = random_alnum(20);
     $canary_file = "/tmp/$progname.canary." . hostname . "." . Time::HiRes::time . "." . substr($canary_contents, 0, 10);
     $canary_file = validate_filename($canary_file, 0, "canary file");
-    #if($path or values %file_checks){
-    #    usage "cannot specify file checks with --write";
-    #}
+    if($path){
+        usage "cannot specify --path with --write";
+    }
+    foreach(keys %file_checks){
+        next if $_ eq "type";
+        $file_checks{$_} and usage "cannot specify file checks with --write";
+    }
 } else {
     $path = validate_filename($path, 0, "path");
 
@@ -184,7 +188,7 @@ sub check_response($){
 
 if($write){
     vlog2 "writing canary file '$canary_file'";
-    my $response = $ua->put("$url$op", Content => $canary_contents);
+    my $response = $ua->put("$url$op", Content => $canary_contents, "Content-Type" => "application/octet-stream");
     check_response($response);
     $status = "OK";
     $msg    = "HDFS canary file written";
