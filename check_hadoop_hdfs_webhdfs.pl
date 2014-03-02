@@ -222,7 +222,7 @@ if($write){
     $status = "OK";
     $msg = "'/$path' exists";
     foreach(qw/type owner group permission blockSize replication/){
-        defined($json->{"FileStatus"}->{$_}) or quit "CRITICAL", "field $_ not found for '$path'";
+        defined($json->{"FileStatus"}->{$_}) or quit "UNKNOWN", "field $_ not found for '$path'. $nagios_plugins_support_msg";
         $msg .= " $_=" . $json->{"FileStatus"}->{$_};
         if(defined($file_checks{$_})){
             unless($json->{"FileStatus"}->{$_} eq $file_checks{$_}){
@@ -232,7 +232,7 @@ if($write){
         }
     }
     my $size;
-    defined($json->{"FileStatus"}->{"length"}) or quit "CRITICAL", "length field not found for '$path'";
+    defined($json->{"FileStatus"}->{"length"}) or quit "UNKNOWN", "length field not found for '$path'. $nagios_plugins_support_msg";
     $size = $json->{"FileStatus"}->{"length"};
     $msg .= " size=$size";
     if($file_checks{"zero"}){
@@ -246,7 +246,7 @@ if($write){
             $msg .= " (expected: >= $file_checks{size})";
         }
     }
-    defined($json->{"FileStatus"}->{"accessTime"}) or quit "CRITICAL", "accessTime field not found for '$path'";
+    defined($json->{"FileStatus"}->{"accessTime"}) or quit "UNKNOWN", "accessTime field not found for '$path'. $nagios_plugins_support_msg";
     my $last_accessed      = int($json->{"FileStatus"}->{"accessTime"} / 1000);
     my $last_accessed_diff = time - $last_accessed;
     $msg .= " accessTime=$last_accessed";
@@ -258,7 +258,7 @@ if($write){
         }
     }
 
-    defined($json->{"FileStatus"}->{"modificationTime"}) or quit "CRITICAL", "modificationTime field not found for '$path'";
+    defined($json->{"FileStatus"}->{"modificationTime"}) or quit "UNKNOWN", "modificationTime field not found for '$path'. $nagios_plugins_support_msg";
     my $last_modified      = int($json->{"FileStatus"}->{"modificationTime"} / 1000);
     my $last_modified_diff = time - $last_modified;
     $msg .= " modifiedTime=$last_modified";
