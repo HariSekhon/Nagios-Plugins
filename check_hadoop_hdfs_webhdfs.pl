@@ -24,6 +24,9 @@ Checks:
     - replication factor
     - last accessed time
     - last modified time
+
+OR
+
 - HDFS writable - writes a small canary file to hdfs:///tmp to check that HDFS is fully available and not in Safe mode (this means than enough DataNodes have checked in after startup)
 
 Tested on CDH 4.5
