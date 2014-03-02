@@ -72,10 +72,6 @@ my %file_checks = (
                     "last modified" => undef,
 );
 
-if($progname =~ /write/i){
-    $write = 1;
-}
-
 %options = (
     %hostoptions,
     "w|write"           => [ \$write,                         "Write unique canary file to hdfs:///tmp to check HDFS is writable and not in Safe mode" ],
@@ -91,6 +87,13 @@ if($progname =~ /write/i){
     "a|last-accessed=s" => [ \$file_checks{"last accessed"},  "Last-accessed time maximum in seconds" ],
     "m|last-modified=s" => [ \$file_checks{"last modified"},  "Last-modified time maximum in seconds" ],
 );
+
+if($progname =~ /write/i){
+    $write = 1;
+    %options = ( %hostoptions );
+} elsif($progname =~ /file/i){
+    delete $options{"w|write"};
+}
 
 @usage_order = qw/host port write path type owner group permission zero size blocksize replication last-accessed last-modified/;
 get_options();
