@@ -140,13 +140,13 @@ my $ip  = validate_resolvable($host);
 vlog2 "\nresolved $host to $ip";
 
 my $user = (getpwuid($>))[0];
-my $op = "GETFILESTATUS&user.name=$user";
+my $op = "GETFILESTATUS";
 if($write){
-    $op   = "CREATE&overwrite=false&user.name=$user";
+    $op   = "CREATE&overwrite=false";
     $path = $canary_file;
 }
 $path =~ s/^\///;
-my $url  = "http://$ip:$port/$webhdfs_uri/$path?op="; # uppercase OP= only works on WebHDFS, not on HttpFS
+my $url  = "http://$ip:$port/$webhdfs_uri/$path?user.name=$user&op="; # uppercase OP= only works on WebHDFS, not on HttpFS
 
 vlog2;
 set_timeout();
@@ -188,7 +188,7 @@ if($write){
     check_response($response);
     $status = "OK";
     $msg    = "HDFS canary file written";
-    $op     = "OPEN&offset=0&length=1024&user.name=$user";
+    $op     = "OPEN&offset=0&length=1024";
     vlog2 "reading canary file back";
     $response = $ua->get("$url$op");
     check_response($response);
@@ -196,7 +196,7 @@ if($write){
         quit "CRITICAL", "mismatch on reading back canary file's contents (expected: '$canary_contents', got: '" . $response->content . "')";
     }
     $msg .= ", contents read back and verified successfully";
-    $op   = "DELETE&recursive=false&user.name=$user";
+    $op   = "DELETE&recursive=false";
     vlog2 "deleting canary file";
     $response = $ua->delete("$url$op");
     check_response($response);
