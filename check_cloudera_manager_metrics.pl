@@ -211,7 +211,7 @@ if(!$response->is_success){
     if($content =~ /"message"\s*:\s*"(.+)"/){
         $err .= ". Message returned by CM: $1";
     }
-    if($response->message =~ /Can't verify SSL peers without knowning which Certificate Authorities to trust/){
+    if($response->message =~ /Can't verify SSL peers without knowing which Certificate Authorities to trust/){
         $err .= ". Do you need to use --ssl-CA-path or --tls-noverify?";
     }
     quit "CRITICAL", $err;
