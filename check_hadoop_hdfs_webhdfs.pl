@@ -17,17 +17,19 @@ Checks:
 
 - File/directory existence and one or more of the following:
     - type: file or directory
-    - empty/non-empty
     - owner/group
-    - last modified time
     - permissions
+    - size / empty
+    - block size
     - replication factor
+    - last accessed time
+    - last modified time
 - HDFS writable - writes a small canary file to hdfs:///tmp to check that HDFS is fully available and not in Safe mode (this means than enough DataNodes have checked in after startup)
 
 Tested on CDH 4.5
 ";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -45,13 +47,13 @@ my $ua = LWP::UserAgent->new( 'requests_redirectable' => ['GET', 'PUT'] );
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
-#if($progname =~ /httpfs/i){
-#    set_port_default(14000);
-#    env_creds(["HADOOP_HTTPFS", "HADOOP"], "Hadoop HttpFS Server");
-#} else {
+if($progname =~ /httpfs/i){
+    set_port_default(14000);
+    env_creds(["HADOOP_HTTPFS", "HADOOP"], "Hadoop HttpFS Server");
+} else {
     set_port_default(50070);
     env_creds(["HADOOP_NAMENODE", "HADOOP"], "Hadoop NameNode");
-#}
+}
 
 my $write;
 my $path;
@@ -137,13 +139,14 @@ my $webhdfs_uri = 'webhdfs/v1';
 my $ip  = validate_resolvable($host);
 vlog2 "\nresolved $host to $ip";
 
-my $op = "GETFILESTATUS";
+my $user = (getpwuid($>))[0];
+my $op = "GETFILESTATUS&user.name=$user";
 if($write){
-    $op   = "CREATE&overwrite=false";
+    $op   = "CREATE&overwrite=false&user.name=$user";
     $path = $canary_file;
 }
 $path =~ s/^\///;
-my $url = "http://$ip:$port/$webhdfs_uri/$path?OP=";
+my $url  = "http://$ip:$port/$webhdfs_uri/$path?op="; # uppercase OP= only works on WebHDFS, not on HttpFS
 
 vlog2;
 set_timeout();
@@ -185,7 +188,7 @@ if($write){
     check_response($response);
     $status = "OK";
     $msg    = "HDFS canary file written";
-    $op     = "OPEN&offset=0&length=1024";
+    $op     = "OPEN&offset=0&length=1024&user.name=$user";
     vlog2 "reading canary file back";
     $response = $ua->get("$url$op");
     check_response($response);
@@ -193,7 +196,7 @@ if($write){
         quit "CRITICAL", "mismatch on reading back canary file's contents (expected: '$canary_contents', got: '" . $response->content . "')";
     }
     $msg .= ", contents read back and verified successfully";
-    $op   = "DELETE&recursive=false";
+    $op   = "DELETE&recursive=false&user.name=$user";
     vlog2 "deleting canary file";
     $response = $ua->delete("$url$op");
     check_response($response);
@@ -230,7 +233,7 @@ if($write){
             $msg .= " (expected: zero)";
         }
     } elsif($file_checks{"size"}){
-        unless($size > $file_checks{"size"}){
+        unless($size >= $file_checks{"size"}){
             critical;
             $msg .= " (expected: >= $file_checks{size})";
         }
