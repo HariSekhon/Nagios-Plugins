@@ -149,7 +149,8 @@ my $webhdfs_uri = 'webhdfs/v1';
 my $ip  = validate_resolvable($host);
 vlog2 "\nresolved $host to $ip";
 
-my $user = (getpwuid($>))[0];
+# inherit HADOOP*_USERNAME, HADOOP*_USER vars as more flexible
+#my $user = (getpwuid($>))[0];
 my $op = "GETFILESTATUS";
 if($write){
     $op   = "CREATE&overwrite=false";
