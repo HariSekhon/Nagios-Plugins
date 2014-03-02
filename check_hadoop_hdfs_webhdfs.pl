@@ -32,7 +32,7 @@ OR
 Tested on CDH 4.5
 ";
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -126,16 +126,16 @@ if($write){
         usage "--zero and --size are mutually exclusive";
     }
 
-    if($file_checks{"type"}){
+    if(defined($file_checks{"type"}) and $file_checks{"type"}){
         $file_checks{"type"} = uc $file_checks{"type"};
         grep { $file_checks{"type"} eq $_ } @valid_types or usage "invalid type: must be one of " . join(",", @valid_types);
     }
 
-    if($file_checks{"type"} eq "DIRECTORY" and $file_checks{"size"}){
+    if(defined($file_checks{"type"}) and $file_checks{"type"} eq "DIRECTORY" and $file_checks{"size"}){
         usage "cannot specify non-zero for a directory, directory length is always zero";
     }
 
-    if($file_checks{"type"} eq "DIRECTORY" and $file_checks{"replication"}){
+    if(defined($file_checks{"type"}) and $file_checks{"type"} eq "DIRECTORY" and $file_checks{"replication"}){
         usage "directories cannot have replication factor other than zero";
     }
 
@@ -220,14 +220,11 @@ if($write){
     };
     catch_quit "failed to decode json response from $host";
     $status = "OK";
-    $msg = "'$path' exists";
+    $msg = "'/$path' exists";
     foreach(qw/type owner group permission blockSize replication/){
         defined($json->{"FileStatus"}->{$_}) or quit "CRITICAL", "field $_ not found for '$path'";
-        unless(defined($json->{"FileStatus"}->{$_})){
-            quit "CRITICAL", "field $_ not found for path '$path'";
-        }
         $msg .= " $_=" . $json->{"FileStatus"}->{$_};
-        if($file_checks{$_}){
+        if(defined($file_checks{$_})){
             unless($json->{"FileStatus"}->{$_} eq $file_checks{$_}){
                 critical;
                 $msg .= " (expected: '$file_checks{$_}')";
