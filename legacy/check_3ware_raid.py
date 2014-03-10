@@ -2,7 +2,7 @@
 #
 #  Author: Hari Sekhon
 #  Date: 2007-02-20 17:49:00 +0000 (Tue, 20 Feb 2007)
-# 
+#
 #  http://github.com/harisekhon
 #
 #  License: see accompanying LICENSE file
@@ -41,7 +41,7 @@ SRCDIR = os.path.dirname(sys.argv[0])
 def end(status, message, disks=False):
     """Exits the plugin with first arg as the return code and the second
     arg as the message to output"""
-    
+
     check = "RAID"
     if disks == True:
         check = "DISKS"
@@ -64,24 +64,32 @@ if os.geteuid() != 0:
 
 ARCH = os.uname()[4]
 
-if re.match("i[3456]86", ARCH):
-    BIN = SRCDIR + "/tw_cli"
-elif ARCH == "x86_64":
-    BIN = SRCDIR + "/tw_cli_64"
-else:
-    end(UNKNOWN, "architecture is not x86 or x86_64, cannot run 3ware utility")
+BIN = None
 
-if not os.path.exists(BIN):
-    end(UNKNOWN, "3ware utility for this architecture '%s' cannot be found" \
-                                                                          % BIN)
+def _set_twcli_binary(path=None):
+    """ set the path to the twcli binary"""
+    global BIN
 
-if not os.access(BIN, os.X_OK):
-    end(UNKNOWN, "3ware utility '%s' is not executable" % BIN)
+    if path:
+        BIN = path
+    elif re.match("i[3456]86", ARCH):
+        BIN = SRCDIR + "/tw_cli"
+    elif ARCH == "x86_64":
+        BIN = SRCDIR + "/tw_cli_64"
+    else:
+        end(UNKNOWN, "architecture is not x86 or x86_64, cannot run 3ware " \
+                     "utility")
+
+    if not os.path.exists(BIN):
+        end(UNKNOWN, "3ware utility for this architecture '%s' cannot be " \
+                     "found" % BIN)
+
+    if not os.access(BIN, os.X_OK):
+        end(UNKNOWN, "3ware utility '%s' is not executable" % BIN)
 
 
 def run(cmd):
     """runs a system command and returns stripped output"""
-
     if cmd == "" or cmd == None:
         end(UNKNOWN, "internal python error - " \
                    + "no cmd supplied for 3ware utility")
@@ -105,9 +113,9 @@ def run(cmd):
 
     if stdout == None or stdout == "":
         end(UNKNOWN, "No output from 3ware utility")
-    
+
     output = str(stdout).split("\n")
-   
+
     if output[1] == "No controller found.":
         end(UNKNOWN, "No 3ware controllers were found on this machine")
 
@@ -135,7 +143,7 @@ def test_all(verbosity, warn_true=False, no_summary=False, show_drives=False):
         result = drive_result
     else:
         result = array_result
-    
+
     if drive_result != OK:
         if array_result == OK:
             message = "Arrays OK but... " + drive_message
@@ -155,10 +163,11 @@ def test_arrays(verbosity, warn_true=False, no_summary=False):
     the local machine"""
 
     lines = run("show")
+    print lines
     #controllers = [ line.split()[0] for line in lines ]
     controllers = [ line.split()[0] for line in lines if line and line[0] == "c" ]
 
-    status = OK 
+    status = OK
     message = ""
     number_arrays = 0
     arrays_not_ok = 0
@@ -169,7 +178,7 @@ def test_arrays(verbosity, warn_true=False, no_summary=False):
             for unit_line in unit_lines:
                 print unit_line
             print
-    
+
         for unit_line in unit_lines:
             number_arrays += 1
             unit_line = unit_line.split()
@@ -272,7 +281,7 @@ def test_drives(verbosity, no_summary=False):
                               number_drives, \
                               number_controllers, \
                               "drives")
-   
+
     return status, message
 
 
@@ -317,7 +326,7 @@ def add_checked_summary(message, number_devices, number_controllers, device):
         controller = "controller"
     else:
         controller = "controllers"
-            
+
     message += " [%s %s checked on %s %s]" % (number_devices, device, \
                                                 number_controllers, controller)
 
@@ -325,7 +334,7 @@ def add_checked_summary(message, number_devices, number_controllers, device):
 
 
 def main():
-    """Parses command line options and calls the function to 
+    """Parses command line options and calls the function to
     test the arrays/drives"""
 
     parser = OptionParser()
@@ -337,6 +346,11 @@ def main():
                        dest="arrays_only",
                        help="Only test the arrays. By default both arrays " \
                           + "and drives are checked")
+
+    parser.add_option( "-b",
+                       "--binary",
+                       dest="binary",
+                       help="Full path of the tw_cli binary to use.")
 
     parser.add_option( "-d",
                        "--drives-only",
@@ -381,9 +395,9 @@ def main():
                           + "during these states as they are not usually " \
                           + "problems")
 
-    parser.add_option( "-v", 
-                       "--verbose", 
-                       action="count", 
+    parser.add_option( "-v",
+                       "--verbose",
+                       action="count",
                        dest="verbosity",
                        help="Verbose mode. Good for testing plugin. By default\
  only one result line is printed as per Nagios standards")
@@ -401,6 +415,7 @@ def main():
         sys.exit(UNKNOWN)
 
     arrays_only  = options.arrays_only
+    binary       = options.binary
     drives_only  = options.drives_only
     no_summary   = options.no_summary
     show_drives  = options.show_drives
@@ -411,7 +426,7 @@ def main():
     if version:
         print __version__
         sys.exit(OK)
-    
+
     if arrays_only and drives_only:
         print "You cannot use the -a and -d switches together, they are",
         print "mutually exclusive\n"
@@ -427,6 +442,8 @@ def main():
         print "Array warning states are invalid when testing only drives\n"
         parser.print_help()
         sys.exit(UNKNOWN)
+
+    _set_twcli_binary(binary)
 
     if arrays_only:
         result, output = test_arrays(verbosity, warn_true, no_summary)
