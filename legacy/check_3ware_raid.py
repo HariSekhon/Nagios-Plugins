@@ -229,7 +229,11 @@ def test_drives(verbosity, no_summary=False):
     on the local machine"""
 
     lines = run("show")
-    controllers = [ line.split()[0] for line in lines ]
+    controllers = []
+    for line in lines:
+        parts = line.split()
+        if len(parts):
+            controllers.append(parts[0])
 
     status = OK
     message = ""
