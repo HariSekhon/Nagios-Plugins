@@ -42,6 +42,7 @@ my $blacklist_users = 0;
 my $check_version   = 0;
 my $dashboard       = 0;
 my $disk            = 0;
+my $failed_disks    = 0;
 my $license         = 0;
 my $license_apps    = 0;
 my $list_cldbs      = 0;
@@ -73,7 +74,8 @@ my $tls_noverify;
     "d|dashboard"      => [ \$dashboard,        "Dashboard info. Raises critical if any services are failed" ],
     "A|node-alarms"    => [ \$node_alarms,      "Nodes with alarms" ],
     "O|node-count"     => [ \$node_count,       "Node count" ],
-    "T|node-health"    => [ \$node_health,      "Node health" ],
+    "T|node-health"    => [ \$node_health,      "Node health, requires --node" ],
+    "F|failed-disks"   => [ \$failed_disks,     "Failed disks, optional --node" ],
     # TODO: not currently available via REST API as of 3.1
     #"node-metrics"     => [ \$node_metrics,     "Node metrics" ],
     "M|mapreduce-stats" => [ \$mapreduce_stats,  "MapReduce stats for graphing, raises critical if blacklisted > 0" ],
@@ -97,7 +99,7 @@ my $tls_noverify;
     #"list-blacklisted-users" => [ \$blacklist_users, "List blacklisted users" ],
 );
 
-@usage_order = qw/host port user password cluster dashboard services node space-usage node-alarms node-count node-health mapreduce-stats rlimit list-cldbs list-vips icense check-version --ssl-CA-path --ssl-noverify warning critical/;
+@usage_order = qw/host port user password cluster dashboard services node space-usage node-alarms node-count node-health failed-disks mapreduce-stats rlimit list-cldbs list-vips icense check-version --ssl-CA-path --ssl-noverify warning critical/;
 
 # TODO:
 #
@@ -132,15 +134,32 @@ my $url = "$url_prefix/rest";
 
 # TODO: http://doc.mapr.com/display/MapR/node+metrics
 
+# http://doc.mapr.com/display/MapR/node
+#
+# Node Health: 
+#
+# 0 = Healthy
+# 1 = Needs attention
+# 2 = Degraded
+# 3 = Maintenance
+# 4 = Critical
+my %node_states = (
+    0 => "Healthy",
+    1 => "Needs attention",
+    2 => "Degraded",
+    3 => "Maintenance",
+    4 => "Critical",
+);
+
 #    0 - NOT_CONFIGURED: the package for the service is not installed and/or the service is not configured (configure.sh has not run)
 #    2 - RUNNING: the service is installed, has been started by the warden, and is currently executing
 #    3 - STOPPED: the service is installed and configure.sh has run, but the service is currently not executing
 #    5 - STAND_BY: the service is installed and is in standby mode, waiting to take over in case of failure of another instance (mainly used for JobTracker warm standby)
 my %service_states = (
-                 0 => "not_configured",
-                 2 => "running",
-                 3 => "stopped",
-                 5 => "standby",
+    0 => "not_configured",
+    2 => "running",
+    3 => "stopped",
+    5 => "standby",
 );
 
 if($services){
@@ -175,6 +194,9 @@ if($services){
 } elsif($node_health){
     $node or usage "must specify node";
     $url .= "/node/list?columns=service,health";
+    $url .= "&cluster=$cluster" if $cluster;
+} elsif($failed_disks){
+    $url .= "/node/list?columns=faileddisks";
     $url .= "&cluster=$cluster" if $cluster;
 } elsif($list_cldbs){
     $url .= "/node/listcldbs";
@@ -392,23 +414,50 @@ if($services){
     quit "UNKNOWN", "no node data returned, did you specify the correct --cluster?" unless @{$json->{"data"}};
     foreach my $node_item (@{$json->{"data"}}){
         if($node_item->{"hostname"} eq $node){
-            if(grep { $node_item->{"health"} eq $_ } keys %service_states){
-                $node_health_status = $service_states{$node_item->{"health"}};
+            if(grep { $node_item->{"health"} eq $_ } keys %node_states){
+                $node_health_status = $node_states{$node_item->{"health"}};
             } else {
-                $node_health_status = "unknown (" . $node_item->{"health"} . ")";
+                $node_health_status = "UNKNOWN (" . $node_item->{"health"} . ")";
             }
             last;
         }
     }
     defined($node_health_status) or quit "UNKNOWN", "failed to find health of node '$node' in MCS output, did you specify the correct node hostname/FQDN?";
     $msg = "node '$node' health '$node_health_status'";
-    if($node_health_status eq "running"){
+    # Dependent on %node_states
+    if($node_health_status eq "Healthy"){
         $status = "OK";
-    } elsif($node_health_status eq "standby"){
+    } elsif(grep { $node_health_status eq $_ } split(",", "Degraded,Needs attention,Maintenance")){
         $status = "WARNING";
     } else {
         $status = "CRITICAL";
     }
+} elsif($failed_disks){
+    my $faileddisks;
+    quit "UNKNOWN", "no node data returned, did you specify the correct --cluster?" unless @{$json->{"data"}};
+    foreach my $node_item (@{$json->{"data"}}){
+        if($node){
+            if($node_item->{"hostname"} eq $node){
+                if(defined($node_item->{"faileddisks"})){
+                    $faileddisks = $node_item->{"faileddisks"} unless $faileddisks;
+                }
+            }
+        } else {
+            if(defined($node_item->{"faileddisks"})){
+                $faileddisks = $node_item->{"faileddisks"} unless $faileddisks;
+            }
+        }
+    }
+    unless(defined($faileddisks)){
+        quit "UNKNOWN", "didn't find failed disk information in MCS output. " . ( $node ? "Did you specify the correct node hostname/FQDN? " : "" ) . "Output format may have changed. $nagios_plugins_support_msg";
+    }
+    if($faileddisks){
+        critical;
+    } else {
+        $msg = "no ";
+    }
+    $msg .= "failed disks detected";
+    $msg .= " on node '$node'" if $node;
 } elsif($list_cldbs){
     # This count seems wrong, it states 1 when listing 2 different nodes
     #plural $json->{"total"};
