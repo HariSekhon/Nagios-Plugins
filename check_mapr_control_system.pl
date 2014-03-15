@@ -11,7 +11,7 @@
 
 # http://doc.mapr.com/display/MapR/API+Reference
 
-$DESCRIPTION = "Nagios Plugin to check MapR Control System information such as space used %, node and service health via the MCS REST API
+$DESCRIPTION = "Nagios Plugin to check MapR Control System information such as Space Used %, Node and Service health checks, MapReduce statistics etc via the MCS REST API
 
 Tested on MapR M3 version 3.1.0.23703.GA";
 
