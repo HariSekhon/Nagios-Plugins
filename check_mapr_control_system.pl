@@ -77,7 +77,7 @@ my $tls_noverify;
     "O|node-count"     => [ \$node_count,       "Node count" ],
     "T|node-health"    => [ \$node_health,      "Node health, requires --node" ],
     "F|failed-disks"   => [ \$failed_disks,     "Failed disks, optional --node / --cluster for node specific or cluster wide" ],
-    "B|heartbeat"      => [ \$heartbeat_lag,    "Heartbeat lag in secs. Use --warning/--critical thresholds" ],
+    "B|heartbeat"      => [ \$heartbeat_lag,    "Heartbeat lag in secs for a given --node. Use --warning/--critical thresholds" ],
     # TODO: not currently available via REST API as of 3.1
     #"node-metrics"     => [ \$node_metrics,     "Node metrics" ],
     "M|mapreduce-stats" => [ \$mapreduce_stats,  "MapReduce stats for graphing, raises critical if blacklisted > 0" ],
@@ -101,7 +101,7 @@ my $tls_noverify;
     #"list-blacklisted-users" => [ \$blacklist_users, "List blacklisted users" ],
 );
 
-@usage_order = qw/host port user password cluster dashboard services node space-usage node-alarms node-count node-health heartbeat failed-disks mapreduce-stats rlimit list-cldbs list-vips icense check-version --ssl-CA-path --ssl-noverify warning critical/;
+@usage_order = qw/host port user password cluster dashboard services node space-usage node-alarms node-count node-health heartbeat failed-disks mapreduce-stats rlimit list-cldbs list-vips license check-version --ssl-CA-path --ssl-noverify warning critical/;
 
 # TODO:
 #
