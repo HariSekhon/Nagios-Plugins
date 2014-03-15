@@ -43,6 +43,7 @@ my $check_version   = 0;
 my $dashboard       = 0;
 my $disk            = 0;
 my $failed_disks    = 0;
+my $heartbeat_lag   = 0;
 my $license         = 0;
 my $license_apps    = 0;
 my $list_cldbs      = 0;
@@ -75,7 +76,8 @@ my $tls_noverify;
     "A|node-alarms"    => [ \$node_alarms,      "Nodes with alarms" ],
     "O|node-count"     => [ \$node_count,       "Node count" ],
     "T|node-health"    => [ \$node_health,      "Node health, requires --node" ],
-    "F|failed-disks"   => [ \$failed_disks,     "Failed disks, optional --node" ],
+    "F|failed-disks"   => [ \$failed_disks,     "Failed disks, optional --node / --cluster for node specific or cluster wide" ],
+    "heartbeat"        => [ \$heartbeat_lag,    "Heartbeat lag in secs, suggest use of --warning/--critical thresholds in conjunction with this" ],
     # TODO: not currently available via REST API as of 3.1
     #"node-metrics"     => [ \$node_metrics,     "Node metrics" ],
     "M|mapreduce-stats" => [ \$mapreduce_stats,  "MapReduce stats for graphing, raises critical if blacklisted > 0" ],
@@ -99,7 +101,7 @@ my $tls_noverify;
     #"list-blacklisted-users" => [ \$blacklist_users, "List blacklisted users" ],
 );
 
-@usage_order = qw/host port user password cluster dashboard services node space-usage node-alarms node-count node-health failed-disks mapreduce-stats rlimit list-cldbs list-vips icense check-version --ssl-CA-path --ssl-noverify warning critical/;
+@usage_order = qw/host port user password cluster dashboard services node space-usage node-alarms node-count node-health heartbeat-lag failed-disks mapreduce-stats rlimit list-cldbs list-vips icense check-version --ssl-CA-path --ssl-noverify warning critical/;
 
 # TODO:
 #
@@ -123,7 +125,7 @@ if($cluster){
     $cluster = $1;
 }
 
-if($services + $dashboard + $node_alarms + $node_count + $node_health + $mapreduce_stats + $list_cldbs + $license + $check_version + $rlimit > 1){
+if($services + $dashboard + $node_alarms + $node_count + $node_health + $heartbeat_lag + $failed_disks + $mapreduce_stats + $list_cldbs + $license + $check_version + $rlimit > 1){
     usage "can only specify one check at a time";
 }
 
@@ -198,6 +200,9 @@ if($services){
 } elsif($failed_disks){
     $url .= "/node/list?columns=faileddisks";
     $url .= "&cluster=$cluster" if $cluster;
+} elsif($heartbeat_lag){
+    $node or usage "must specify node";
+    $url .= "/node/list?columns=fs-heartbeat";
 } elsif($list_cldbs){
     $url .= "/node/listcldbs";
     $url .= "?cluster=$cluster" if $cluster;
@@ -449,7 +454,7 @@ if($services){
         }
     }
     unless(defined($faileddisks)){
-        quit "UNKNOWN", "didn't find failed disk information in MCS output. " . ( $node ? "Did you specify the correct node hostname/FQDN? " : "" ) . "Output format may have changed. $nagios_plugins_support_msg";
+        quit "UNKNOWN", "didn't find failed disk information in MCS output. " . ( $node ? "Did you specify the correct node hostname/FQDN? " : "" ) . "MCS API may have changed. $nagios_plugins_support_msg";
     }
     if($faileddisks){
         critical;
@@ -458,6 +463,24 @@ if($services){
     }
     $msg .= "failed disks detected";
     $msg .= " on node '$node'" if $node;
+} elsif($heartbeat_lag){
+    my $fs_heartbeat;
+    quit "UNKNOWN", "no node data returned, did you specify the correct --cluster?" unless @{$json->{"data"}};
+    foreach my $node_item (@{$json->{"data"}}){
+        if($node_item->{"hostname"} eq $node){
+            if(defined($node_item->{"fs-heartbeat"})){
+                $fs_heartbeat = $node_item->{"fs-heartbeat"} unless $fs_heartbeat;
+            }
+        }
+    }
+    unless(defined($fs_heartbeat)){
+        quit "UNKNOWN", "didn't find node's heartbeat information in MCS output. Did you specify the correct node hostname/FQDN? Alternatively MCS API may have changed. $nagios_plugins_support_msg";
+    }
+    isFloat($fs_heartbeat) or quit "CRITICAL", "heartbeat returned was not a float: '$fs_heartbeat'";
+    $msg .= "node '$node' heartbeat last detected $fs_heartbeat secs ago";
+    check_thresholds($fs_heartbeat);
+    $msg .= " | heartbeat_age=${fs_heartbeat}s";
+    msg_perf_thresholds();
 } elsif($list_cldbs){
     # This count seems wrong, it states 1 when listing 2 different nodes
     #plural $json->{"total"};
