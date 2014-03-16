@@ -405,7 +405,7 @@ if($services){
 } elsif($node_alarms){
     my @nodes_with_alarms;
     quit "UNKNOWN", "no node data returned, did you specify the correct --cluster?" unless @{$json->{"data"}};
-    foreach(@{$json->{"data"}}){
+    foreach(sort @{$json->{"data"}}){
         push(@nodes_with_alarms, $_->{"hostname"});
     }
     if(@nodes_with_alarms){
