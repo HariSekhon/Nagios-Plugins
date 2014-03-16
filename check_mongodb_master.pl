@@ -102,11 +102,13 @@ vlog3(Dumper($ismaster));
 
 defined($ismaster->{"primary"}) or quit "UNKNOWN", "failed to find 'primary' - not part of a Replica Set?";
 defined($ismaster->{"me"})      or quit "UNKNOWN", "failed to find 'me' field in ismaster output. API may have changed. $nagios_plugins_support_msg";
+defined($ismaster->{"setName"}) or quit "UNKNOWN", "failed to find 'setName' field in ismaster output. API may have changed. $nagios_plugins_support_msg";
 
 vlog2 "got master\n";
 
-my $master = $ismaster->{"primary"};
-my $me     = $ismaster->{"me"};
+my $master  = $ismaster->{"primary"};
+my $me      = $ismaster->{"me"};
+my $setName = $ismaster->{"setName"};
 
 $msg = "master is '$master'";
 
@@ -123,5 +125,7 @@ if($expected_master){
         $msg .= " (this host is '$me')";
     }
 }
+
+$msg .= " for replica set '$setName'";
 
 quit $status, $msg;
