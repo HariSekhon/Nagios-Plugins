@@ -11,7 +11,7 @@
 
 # TODO: add Kerberos support equivalent to curl --negotiate -u : -iL http://....
 
-$DESCRIPTION = "Nagios Plugin to check an HDFS via WebHDFS API or HttpFS server
+$DESCRIPTION = "Nagios Plugin to check HDFS files/directories or writable via WebHDFS API or HttpFS server
 
 Checks:
 
