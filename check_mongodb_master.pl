@@ -111,7 +111,9 @@ my $me     = $ismaster->{"me"};
 $msg = "master is '$master'";
 
 if($expected_master){
-    unless($master =~ /^$expected_master$/){
+    if($master =~ /$expected_master/){
+        $msg .= " (expected regex: '$expected_master')" if $verbose;
+    } else {
         critical;
         $msg .= " (expected regex: '$expected_master')";
     }
