@@ -328,6 +328,8 @@ if($services){
         # this relies on state 0 (unconfigured not existing in %service_states in order to exclude it from the list
         if(grep { $service->{"state"} eq $_ } keys %service_states){
             $node_services{$service->{"name"}} = $service_states{$service->{"state"}};
+        } else {
+            $node_services{$service->{"name"}} = "unknown";
         }
     }
     if(scalar keys %node_services >= 1){
