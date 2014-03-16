@@ -32,7 +32,7 @@ my $sasl              = 0;
 my $sasl_mechanism    = "GSSAPI";
 
 %options = (
-    "H|host=s"              => [ \$host,          "MongoDB host(s) to connect to (should be from same replica set), comma separated, with optional :<port> suffixes. Tries hosts in given order from left to right to find Primary for write. Specifying any one host is sufficient as the rest will be auto-determined to find the primary (\$MONGODB_HOST, \$HOST)" ],
+    "H|host=s"              => [ \$host,          "MongoDB host(s) to connect to (should be from same replica set), comma separated, with optional :<port> suffixes. Tries hosts in given order from left to right (\$MONGODB_HOST, \$HOST)" ],
     %useroptions,
     "e|expected-master=s"   => [ \$expected_master, "Checks the master against a specific regex rather than the specified --host. Required if specifying more than one --host" ],
     "ssl"                   => [ \$ssl,             "Enable SSL, MongDB libraries must have been compiled with SSL and server must support it. Experimental" ],
