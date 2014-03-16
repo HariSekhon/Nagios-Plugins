@@ -81,6 +81,7 @@ my $tls_noverify;
     # TODO: not currently available via REST API as of 3.1
     #"node-metrics"     => [ \$node_metrics,     "Node metrics" ],
     "M|mapreduce-stats" => [ \$mapreduce_stats,  "MapReduce stats for graphing, raises critical if blacklisted > 0" ],
+    # renamed to --space-usage
     #"rlimit"           => [ \$rlimit,           "Rlimit (only disk is supported as of MCS 3.1 so this reports current usage and cluster size)" ],
     "U|space-usage"    => [ \$space_usage,      "Space usage, reports current usage and cluster size. Use --warning and --critical to set % used thresholds" ],
     "list-cldbs"       => [ \$list_cldbs,       "List CLDB nodes" ],
@@ -89,16 +90,16 @@ my $tls_noverify;
     "ssl-CA-path=s"    => [ \$ssl_ca_path,      "Path to CA certificate directory for validating SSL certificate" ],
     "ssl-noverify"     => [ \$tls_noverify,     "Do not verify SSL certificate from MapR Control System" ],
     # Not that interesting to expose
-    #"list-cldb-zks"    => [ \$listcldbzks,  "List CLDB & ZooKeeper nodes" ],
-    #"list-schedule"    => [ \$schedule,     "List schedule" ],
-    #"list-recent-tables" => [ \$table_listrecent, "List recent tables" ],
-    #"list-vips"        => [ \$list_vips,        "List VIPs" ],
-    #"list-volumes"     => [ \$volumes,      "List volumes" ],
-    #"disk"             => [ \$disk,         "Disk list" ],
+    #"list-cldb-zks"            => [ \$listcldbzks,         "List CLDB & ZooKeeper nodes" ],
+    #"list-schedule"            => [ \$schedule,            "List schedule" ],
+    #"list-recent-tables"       => [ \$table_listrecent,    "List recent tables" ],
+    #"list-vips"                => [ \$list_vips,           "List VIPs" ],
+    #"list-volumes"             => [ \$volumes,             "List volumes" ],
+    #"disk"                     => [ \$disk,                "Disk list" ],
     # TODO: MCS Bug: crashes Admin UI with cldb=$node and cluster
-    #"list-zookeepers"  => [ \$listzookeepers, "List ZooKeeper nodes (requires CLDB --node)" ],
+    #"list-zookeepers"          => [ \$listzookeepers,      "List ZooKeeper nodes (requires CLDB --node)" ],
     # TODO: MCS Bug: Not implemented at of MCS 3.1
-    #"list-blacklisted-users" => [ \$blacklist_users, "List blacklisted users" ],
+    #"list-blacklisted-users"   => [ \$blacklist_users,     "List blacklisted users" ],
 );
 
 @usage_order = qw/host port user password cluster dashboard services node space-usage node-alarms node-count node-health heartbeat failed-disks mapreduce-stats list-cldbs list-vips license check-version --ssl-CA-path --ssl-noverify warning critical/;
