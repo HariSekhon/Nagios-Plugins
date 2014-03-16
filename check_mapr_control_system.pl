@@ -505,8 +505,9 @@ if($services){
     }
     my $pc_space_used = sprintf("%.2f", expand_units($json->{"data"}[0]->{"currentUsage"}) / expand_units($json->{"data"}[0]->{"clusterSize"}) * 100);
     $msg = "$pc_space_used% space used $msg";
+    $msg =~ s/ $//;
     check_thresholds($pc_space_used);
-    $msg .= "| '% space used'=$pc_space_used%";
+    $msg .= " | '% space used'=$pc_space_used%";
     msg_perf_thresholds();
     $msg .= "0;100; currentUsage=" . expand_units($json->{"data"}[0]->{"currentUsage"}) . "b;" . expand_units($json->{"data"}[0]->{"limit"}) . ";" . expand_units($json->{"data"}[0]->{"clusterSize"});
     #$msg .= "| currentUsage=" . $json->{"data"}[0]->{"currentUsage"} . ";" . $json->{"data"}[0]->{"limit"} . ";" . $json->{"data"}[0]->{"clusterSize"};
