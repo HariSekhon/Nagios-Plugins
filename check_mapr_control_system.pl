@@ -194,14 +194,14 @@ if($services){
     $url .= "&cluster=$cluster" if $cluster;
     $critical = 0 unless (defined($warning) or defined($critical));
 } elsif($node_health){
-    $node or usage "must specify node";
+    $node or usage "must specify --node";
     $url .= "/node/list?columns=service,health";
     $url .= "&cluster=$cluster" if $cluster;
 } elsif($failed_disks){
     $url .= "/node/list?columns=faileddisks";
     $url .= "&cluster=$cluster" if $cluster;
 } elsif($heartbeat_lag){
-    $node or usage "must specify node";
+    $node or usage "must specify --node";
     $url .= "/node/list?columns=fs-heartbeat";
 } elsif($list_cldbs){
     $url .= "/node/listcldbs";
@@ -430,7 +430,7 @@ if($services){
             last;
         }
     }
-    defined($node_health_status) or quit "UNKNOWN", "failed to find health of node '$node' in MCS output, did you specify the correct node hostname/FQDN?";
+    defined($node_health_status) or quit "UNKNOWN", "failed to find health of node '$node' in MCS output, did you specify the correct node FQDN?";
     $msg = "node '$node' health '$node_health_status'";
     # Dependent on %node_states
     if($node_health_status eq "Healthy"){
@@ -457,7 +457,7 @@ if($services){
         }
     }
     unless(defined($faileddisks)){
-        quit "UNKNOWN", "didn't find failed disk information in MCS output. " . ( $node ? "Did you specify the correct node hostname/FQDN? " : "" ) . "MCS API may have changed. $nagios_plugins_support_msg";
+        quit "UNKNOWN", "didn't find failed disk information in MCS output. " . ( $node ? "Did you specify the correct node FQDN? " : "" ) . "MCS API may have changed. $nagios_plugins_support_msg";
     }
     if($faileddisks){
         critical;
@@ -477,7 +477,7 @@ if($services){
         }
     }
     unless(defined($fs_heartbeat)){
-        quit "UNKNOWN", "didn't find node's heartbeat information in MCS output. Did you specify the correct node hostname/FQDN? Alternatively MCS API may have changed. $nagios_plugins_support_msg";
+        quit "UNKNOWN", "didn't find node's heartbeat information in MCS output. Did you specify the correct node FQDN? Alternatively MCS API may have changed. $nagios_plugins_support_msg";
     }
     isFloat($fs_heartbeat) or quit "CRITICAL", "heartbeat returned was not a float: '$fs_heartbeat'";
     $msg .= "node '$node' heartbeat last detected $fs_heartbeat secs ago";
