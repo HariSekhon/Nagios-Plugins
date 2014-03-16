@@ -154,6 +154,8 @@ my %node_states = (
     4 => "Critical",
 );
 
+# http://doc.mapr.com/display/MapR/service+list
+#
 #    0 - NOT_CONFIGURED: the package for the service is not installed and/or the service is not configured (configure.sh has not run)
 #    2 - RUNNING: the service is installed, has been started by the warden, and is currently executing
 #    3 - STOPPED: the service is installed and configure.sh has run, but the service is currently not executing
