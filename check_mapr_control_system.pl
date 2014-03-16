@@ -405,13 +405,13 @@ if($services){
 } elsif($node_alarms){
     my @nodes_with_alarms;
     quit "UNKNOWN", "no node data returned, did you specify the correct --cluster?" unless @{$json->{"data"}};
-    foreach(sort @{$json->{"data"}}){
+    foreach(@{$json->{"data"}}){
         push(@nodes_with_alarms, $_->{"hostname"});
     }
     if(@nodes_with_alarms){
         check_thresholds(scalar @nodes_with_alarms);
         plural @nodes_with_alarms;
-        $msg = scalar @nodes_with_alarms . " node$plural with alarm$plural: " . join(", ", @nodes_with_alarms);
+        $msg = scalar @nodes_with_alarms . " node$plural with alarm$plural: " . join(", ", sort @nodes_with_alarms);
         $msg .= " | node_alarms=" . scalar @nodes_with_alarms;
         msg_perf_thresholds;
     } else {
