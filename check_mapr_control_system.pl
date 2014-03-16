@@ -55,7 +55,7 @@ my $node_alarms     = 0;
 my $node_health     = 0;
 my $node_count      = 0;
 my $node_metrics    = 0;
-my $rlimit          = 0;
+my $space_usage     = 0;
 my $schedule        = 0;
 my $services        = 0;
 my $ssl_port;
@@ -82,11 +82,11 @@ my $tls_noverify;
     #"node-metrics"     => [ \$node_metrics,     "Node metrics" ],
     "M|mapreduce-stats" => [ \$mapreduce_stats,  "MapReduce stats for graphing, raises critical if blacklisted > 0" ],
     #"rlimit"           => [ \$rlimit,           "Rlimit (only disk is supported as of MCS 3.1 so this reports current usage and cluster size)" ],
-    "U|space-usage"    => [ \$rlimit,           "Space usage, reports current usage and cluster size. Use --warning and --critical to set % used thresholds" ],
+    "U|space-usage"    => [ \$space_usage,      "Space usage, reports current usage and cluster size. Use --warning and --critical to set % used thresholds" ],
     "list-cldbs"       => [ \$list_cldbs,       "List CLDB nodes" ],
     "L|license"        => [ \$license,          "Show license, requires --cluster" ],
     "check-version"    => [ \$check_version,    "Check version of MapR software" ],
-    "ssl-CA-path=s"    => [ \$ssl_ca_path,      "Path to CA certificate directory for validating SSL certificate (automatically enables --tls)" ],
+    "ssl-CA-path=s"    => [ \$ssl_ca_path,      "Path to CA certificate directory for validating SSL certificate" ],
     "ssl-noverify"     => [ \$tls_noverify,     "Do not verify SSL certificate from MapR Control System" ],
     # Not that interesting to expose
     #"list-cldb-zks"    => [ \$listcldbzks,  "List CLDB & ZooKeeper nodes" ],
@@ -101,7 +101,7 @@ my $tls_noverify;
     #"list-blacklisted-users" => [ \$blacklist_users, "List blacklisted users" ],
 );
 
-@usage_order = qw/host port user password cluster dashboard services node space-usage node-alarms node-count node-health heartbeat failed-disks mapreduce-stats rlimit list-cldbs list-vips license check-version --ssl-CA-path --ssl-noverify warning critical/;
+@usage_order = qw/host port user password cluster dashboard services node space-usage node-alarms node-count node-health heartbeat failed-disks mapreduce-stats list-cldbs list-vips license check-version --ssl-CA-path --ssl-noverify warning critical/;
 
 # TODO:
 #
@@ -125,7 +125,7 @@ if($cluster){
     $cluster = $1;
 }
 
-if($services + $dashboard + $node_alarms + $node_count + $node_health + $heartbeat_lag + $failed_disks + $mapreduce_stats + $list_cldbs + $license + $check_version + $rlimit > 1){
+if($services + $dashboard + $node_alarms + $node_count + $node_health + $heartbeat_lag + $failed_disks + $mapreduce_stats + $list_cldbs + $license + $check_version + $space_usage > 1){
     usage "can only specify one check at a time";
 }
 
@@ -230,8 +230,8 @@ if($services){
 # TODO: MCS Bug - not be implemented as an endpoint and results in a 404 Not Found response
 #} elsif($blacklist_users){
 #    $url .= "/blacklist/listusers";
-} elsif($rlimit){
-    $cluster or usage "--rlimit requires --cluster";
+} elsif($space_usage){
+    $cluster or usage "--space-usage requires --cluster";
     $url .= "/rlimit/get?resource=disk&cluster=$cluster";
 } else {
     usage "no check specified";
@@ -245,7 +245,7 @@ if(defined($ssl_ca_path)){
     $ua->ssl_opts( SSL_ca_path => $ssl_ca_path );
 }
 vlog_options "SSL CA Path",  $ssl_ca_path  if defined($ssl_ca_path);
-vlog_options "TLS noverify", $tls_noverify ? "true" : "false";
+vlog_options "SSL noverify", $tls_noverify ? "true" : "false";
 validate_thresholds();
 
 vlog2;
@@ -268,11 +268,14 @@ if(!$response->is_success){
     if($content =~ /"message"\s*:\s*"(.+)"/){
         $err .= ". Message returned by MapR Control System: $1";
     }
+    if($response->code eq 401 and $response->message eq "Unauthorized"){
+        $err .= ". Invalid --user/--password?";
+    }
     if($response->code eq 404 and $blacklist_users){
         $err .= ". Blacklist users API endpoint is not implemented as of MCS 3.1. This has been confirmed with MapR, trying updating to a newer version of MCS";
     }
     if($response->message =~ /Can't verify SSL peers without knowing which Certificate Authorities to trust/){
-        $err .= ". Do you need to use --ssl-CA-path or --tls-noverify?";
+        $err .= ". Do you need to use --ssl-CA-path or --ssl-noverify?";
     }
     quit "CRITICAL", $err;
 }
@@ -492,7 +495,7 @@ if($services){
         push(@cldb_nodes, $_->{"CLDBs"});
     }
     $msg .= ": " . join(", ", sort @cldb_nodes);
-} elsif($rlimit){
+} elsif($space_usage){
     # XXX: This shouldn't list more than 1 cluster otherwise output will look weird / doubled
     foreach my $cluster (@{$json->{"data"}}){
         foreach(qw/currentUsage limit clusterSize/){
