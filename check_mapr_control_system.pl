@@ -15,7 +15,7 @@ $DESCRIPTION = "Nagios Plugin to check MapR Control System information such as S
 
 Tested on MapR M3 version 3.1.0.23703.GA";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -78,7 +78,8 @@ my $tls_noverify;
     "T|node-health"    => [ \$node_health,      "Node health, requires --node" ],
     "F|failed-disks"   => [ \$failed_disks,     "Failed disks, optional --node / --cluster for node specific or cluster wide" ],
     "B|heartbeat"      => [ \$heartbeat_lag,    "Heartbeat lag in secs for a given --node. Use --warning/--critical thresholds" ],
-    # TODO: not currently available via REST API as of 3.1
+    # XXX: not currently available via REST API as of 3.1
+    # Update: MapR have said they probably won't implement this since they "don't use the metrics database to show these metrics anywhere"
     #"node-metrics"     => [ \$node_metrics,     "Node metrics" ],
     "M|mapreduce-stats" => [ \$mapreduce_stats,  "MapReduce stats for graphing, raises critical if blacklisted > 0" ],
     # renamed to --space-usage
@@ -164,6 +165,8 @@ my %service_states = (
     0 => "not_configured",
     2 => "running",
     3 => "stopped",
+    # state 4 is Failed, currently undocumented as of MapR 3.1, MapR guys said they will document this
+    4 => "failed",
     5 => "standby",
 );
 
@@ -450,7 +453,7 @@ if($services){
     quit "UNKNOWN", "no node data returned, did you specify the correct --cluster?" unless @{$json->{"data"}};
     foreach my $node_item (@{$json->{"data"}}){
         if($node){
-            if($node_item->{"hostname"} eq $node){
+            if($node_item->{"hostname"} =~ /^$node(?:\..+)?$/i){
                 if(defined($node_item->{"faileddisks"})){
                     $faileddisks = $node_item->{"faileddisks"} unless $faileddisks;
                 }
@@ -466,10 +469,12 @@ if($services){
     }
     if($faileddisks){
         critical;
+        $msg = $faileddisks;
     } else {
-        $msg = "no ";
+        $msg = "no";
     }
-    $msg .= "failed disks detected";
+    plural $faileddisks;
+    $msg .= " failed disk$plural detected";
     $msg .= " on node '$node'" if $node;
 } elsif($heartbeat_lag){
     my $fs_heartbeat;
