@@ -23,7 +23,7 @@ Checks:
 5. stats - full stats breakdown
 6. also reports ZooKeeper version";
 
-$VERSION = "0.6.2";
+$VERSION = "0.6.3";
 
 use strict;
 use warnings;
@@ -60,6 +60,7 @@ $msg = "ZooKeeper ";
 # Check 1 - does ZooKeeper report itself as OK?
 zoo_cmd "ruok", $timeout / 5;
 my $response = <$zk_conn>;
+defined($response) or $response = "";
 vlog2 "ruok response  = '$response'\n";
 if($response ne "imok"){
     critical;
@@ -70,6 +71,7 @@ if($response ne "imok"){
 zoo_cmd "isro", $timeout / 5;
 # rw response or quit CRITICAL "ZooKeeper is not read-write (possible network partition?";
 $response = <$zk_conn>;
+defined($response) or $response = "";
 vlog2 "isro response  = '$response'\n";
 if($response ne "rw"){
     critical;
