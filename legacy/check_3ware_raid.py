@@ -163,7 +163,6 @@ def test_arrays(verbosity, warn_true=False, no_summary=False):
     the local machine"""
 
     lines = run("show")
-    print lines
     #controllers = [ line.split()[0] for line in lines ]
     controllers = [ line.split()[0] for line in lines if line and line[0] == "c" ]
 
