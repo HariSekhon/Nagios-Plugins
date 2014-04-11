@@ -9,14 +9,15 @@
 #  License: see accompanying LICENSE file
 #
 
-# still calling v1 for compatability with older CM versions but referencing v3, so far everything has been available via v1
-# http://cloudera.github.io/cm_api/apidocs/v3/index.html
+# still calling v1 for compatability with older CM versions
+#
+# http://cloudera.github.io/cm_api/apidocs/v1/index.html
 
 $DESCRIPTION = "Nagios Plugin to check given Hadoop metric(s) via Cloudera Manager Rest API
 
 See the Charts section in CM or --all-metrics for a given --cluster --service [--roleId] or --hostId to see what's available
 
-You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) to allow the API to be used, but it should work on all version of Cloudera Manager Enterprise Edition
+You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) to allow the API to be used, but it should work on all versions of Cloudera Manager Enterprise Edition
 
 This is still using v1 of the API for compatability purposes";
 
