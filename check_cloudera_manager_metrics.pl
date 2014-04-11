@@ -61,8 +61,6 @@ $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
 
-cm_tls();
-
 if($all_metrics){
     vlog_options "metrics", "ALL";
 } elsif($list_roles){
