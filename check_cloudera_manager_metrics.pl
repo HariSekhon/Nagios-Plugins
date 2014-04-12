@@ -19,7 +19,9 @@ See the Charts section in CM or --all-metrics for a given --cluster --service [-
 
 You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) to allow the API to be used, but it should work on all versions of Cloudera Manager Enterprise Edition
 
-This is still using v1 of the API for compatability purposes";
+This is still using v1 of the API for compatability purposes
+
+Tested on Cloudera Manager 4.5, 4.6 and 5.0";
 
 $VERSION = "0.7";
 
