@@ -61,9 +61,7 @@ $status = "OK";
 
 $url = "$api/cm/version";
 cm_query();
-unless($json->{"version"}){
-    quit "CRITICAL", "version field not returned from Cloudera Manager. $nagios_plugins_support_msg_api";
-}
+check_cm_field("version");
 $msg = "Cloudera Manager version '" . $json->{"version"} . "'";
 if(defined($expected_regex)){
     unless($json->{"version"} =~ $expected_regex){
