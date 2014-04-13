@@ -51,7 +51,7 @@ delete $options{"--hostId"};
 delete $options{"--activityId"};
 delete $options{"--nameservice"};
 
-@usage_order = qw/host port user password tls ssl-CA-path tls-noverify cluster service roleId list-activities list-clusters list-hosts list-nameservices list-roles list-services list-users/;
+@usage_order = qw/host port user password tls ssl-CA-path tls-noverify cluster service roleId list-activities list-clusters list-hosts list-nameservices list-roles list-services/;
 
 get_options();
 
