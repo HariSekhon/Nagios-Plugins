@@ -34,12 +34,6 @@ use HariSekhon::ClouderaManager;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-my $api_ping        = 0;
-my $validate_config = 0;
-my $list_users      = 0;
-my $check_health    = 0;
-my $check_state     = 0;
-
 %options = (
     %hostoptions,
     %useroptions,
