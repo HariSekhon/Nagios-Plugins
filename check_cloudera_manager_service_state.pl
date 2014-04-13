@@ -13,7 +13,7 @@
 #
 # http://cloudera.github.io/cm_api/apidocs/v1/index.html
 
-$DESCRIPTION = "Nagios Plugin to check state of a service/role in Cloudera Manager via CM Rest API
+$DESCRIPTION = "Nagios Plugin to check Start/Stop state of a service/role in Cloudera Manager via CM Rest API
 
 You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) to allow the API to be used, but it should work on all versions of Cloudera Manager Enterprise Edition
 
