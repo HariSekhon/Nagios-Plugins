@@ -15,7 +15,9 @@
 
 $DESCRIPTION = "Nagios Plugin to check Cloudera Manager version via Rest API
 
-Using v1 of the API for compatability purposes
+You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) to allow the API to be used, but it should work on all versions of Cloudera Manager Enterprise Edition
+
+This is still using v1 of the API for compatability purposes
 
 Tested on Cloudera Manager 4.8.2 and 5.0.0";
 
