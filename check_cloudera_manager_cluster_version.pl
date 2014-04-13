@@ -66,9 +66,7 @@ list_cm_components();
 $cluster = validate_cm_cluster();
 $url = "$api/clusters/$cluster";
 cm_query();
-unless($json->{"version"}){
-    quit "CRITICAL", "version field not returned from Cloudera Manager. $nagios_plugins_support_msg_api";
-}
+check_cm_field("version");
 $msg = "cluster '$cluster' version '" . $json->{"version"} . "'";
 if(defined($expected_regex)){
     unless($json->{"version"} =~ $expected_regex){
