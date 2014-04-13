@@ -82,7 +82,7 @@ if($cluster and $service){
         $state = $json->{"serviceState"};
     }
 } else {
-    usage "for --check-state must specify --cluster and --service and optionally --role";
+    usage "must specify --cluster and --service and optionally --role";
 }
 $msg .= " state=$state";
 if($state eq "STARTED"){
