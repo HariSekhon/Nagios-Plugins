@@ -41,9 +41,9 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
     %cm_options_list,
 );
 
-delete $options{"--hostId"};
-delete $options{"--activityId"};
-delete $options{"--nameservice"};
+delete $options{"I|hostId=s"};
+delete $options{"A|activityId=s"};
+delete $options{"N|nameservice=s"};
 
 @usage_order = qw/host port user password tls ssl-CA-path tls-noverify cluster service roleId list-activities list-clusters list-hosts list-nameservices list-roles list-services/;
 
