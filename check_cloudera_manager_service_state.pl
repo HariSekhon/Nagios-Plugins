@@ -21,7 +21,7 @@ This is still using v1 of the API for compatability purposes
 
 Tested on Cloudera Manager 5.0.0";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -34,21 +34,18 @@ use HariSekhon::ClouderaManager;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-my $cm_mgmt = 0;
-
 %options = (
     %hostoptions,
     %useroptions,
     %cm_options,
     %cm_options_list,
-    "CM-mgmt"       =>  [ \$cm_mgmt,    "Cloudera Manager Management service state" ],
 );
 
 delete $options{"I|hostId=s"};
 delete $options{"A|activityId=s"};
 delete $options{"N|nameservice=s"};
 
-@usage_order = qw/host port user password tls ssl-CA-path tls-noverify CM-mgmt cluster service roleId list-activities list-clusters list-hosts list-nameservices list-roles list-services/;
+@usage_order = qw/host port user password tls ssl-CA-path tls-noverify cluster service roleId CM-mgmt list-activities list-clusters list-hosts list-nameservices list-roles list-services/;
 
 get_options();
 
@@ -64,10 +61,14 @@ $status = "OK";
 
 list_cm_components();
 
-if($cm_mgmt){
+if(defined($cm_mgmt)){
     $url .= "$api/cm/service";
-    if($cluster or $service or $role or $hostid){
-        usage "cannot mix --cluster/--service/--role/--host and --CM-mgmt";
+    if(defined($role)){
+        $role = validate_cm_role();
+        $url .= "/roles/$role";
+    }
+    if($cluster or $service or $hostid){
+        usage "cannot mix --cluster/--service/--host and --CM-mgmt";
     }
 } else {
     validate_cm_cluster_options();
@@ -76,8 +77,8 @@ if($cm_mgmt){
 cm_query();
 
 my $state;
-if(($cluster and $service) or $cm_mgmt){
-    if($cm_mgmt){
+if(($cluster and $service) or defined($cm_mgmt)){
+    if(defined($cm_mgmt)){
         $msg = "Cloudera Manager Mgmt service";
     } else {
         $msg = "cluster '$cluster' service '$service'";
