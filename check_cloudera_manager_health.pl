@@ -64,7 +64,7 @@ list_cm_components();
 if($cm_mgmt){
     $url .= "$api/cm/service";
     if($cluster or $service or $hostid){
-        usage "cannot mix --cluster/--service/--role/--host and --CM-mgmt";
+        usage "cannot mix --cluster/--service/--host and --CM-mgmt";
     }
 } else {
     validate_cm_cluster_options();
