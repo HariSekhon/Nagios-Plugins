@@ -22,7 +22,7 @@ This is still using v1 of the API for compatability purposes
 
 Tested on Cloudera Manager 5.0.0";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -35,20 +35,17 @@ use HariSekhon::ClouderaManager;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-my $cm_mgmt = 0;
-
 %options = (
     %hostoptions,
     %useroptions,
     %cm_options,
     %cm_options_list,
-    "CM-mgmt"       => [ \$cm_mgmt,     "Cloudera Manager Management service health" ],
 );
 
 delete $options{"activityId=s"};
 delete $options{"N|nameservice=s"};
 
-@usage_order = qw/host port user password tls ssl-CA-path tls-noverify CM-mgmt cluster service hostId activityId nameservice roleId list-activities list-clusters list-hosts list-nameservices list-roles list-services/;
+@usage_order = qw/host port user password tls ssl-CA-path tls-noverify cluster service hostId activityId nameservice roleId CM-mgmt list-activities list-clusters list-hosts list-nameservices list-roles list-services/;
 
 get_options();
 
@@ -66,7 +63,7 @@ list_cm_components();
 
 if($cm_mgmt){
     $url .= "$api/cm/service";
-    if($cluster or $service or $role or $hostid){
+    if($cluster or $service or $hostid){
         usage "cannot mix --cluster/--service/--role/--host and --CM-mgmt";
     }
 } else {
