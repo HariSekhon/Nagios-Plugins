@@ -66,6 +66,9 @@ if($cm_mgmt){
     if($cluster or $service or $hostid){
         usage "cannot mix --cluster/--service/--host and --CM-mgmt";
     }
+    if(defined($role)){
+        $url .= "/roles/$role";
+    }
 } else {
     validate_cm_cluster_options();
 }
