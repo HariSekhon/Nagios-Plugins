@@ -21,7 +21,9 @@ Checks:
 3. mode - checks to see if ZooKeeper is in the proper mode (leader/follower) vs standalone
 4. avg latency - the average latency reported by ZooKeeper is within the thresholds given. Optional
 5. stats - full stats breakdown
-6. also reports ZooKeeper version";
+6. also reports ZooKeeper version
+
+Tested on ZooKeeper 3.4.5. Requires ZooKeeper 3.4 onwards due to isro and mntr 4lw checks";
 
 $VERSION = "0.6.3";
 
