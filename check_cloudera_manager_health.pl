@@ -92,7 +92,7 @@ if(($cluster and $service) or $cm_mgmt){
 } elsif($hostid){
     $msg = "host '$hostid'";
 } else {
-    usage "must specify --hostId, or --cluster/--service and optionally --role";
+    usage "must specify --hostId, or --cluster/--service or --CM-mgmt and optionally --role";
 }
 $msg .= " health=$health";
 if($health eq "GOOD"){
