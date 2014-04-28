@@ -2,7 +2,7 @@
 #
 #  Author: Hari Sekhon
 #  Date: 2007-02-20 17:49:00 +0000 (Tue, 20 Feb 2007)
-# 
+#
 #  http://github.com/harisekhon
 #
 #  License: see accompanying LICENSE file
@@ -41,7 +41,7 @@ SRCDIR = os.path.dirname(sys.argv[0])
 def end(status, message, disks=False):
     """Exits the plugin with first arg as the return code and the second
     arg as the message to output"""
-    
+
     check = "RAID"
     if disks == True:
         check = "DISKS"
@@ -105,9 +105,9 @@ def run(cmd):
 
     if stdout == None or stdout == "":
         end(UNKNOWN, "No output from 3ware utility")
-    
+
     output = str(stdout).split("\n")
-   
+
     if output[1] == "No controller found.":
         end(UNKNOWN, "No 3ware controllers were found on this machine")
 
@@ -129,13 +129,13 @@ def test_all(verbosity, warn_true=False, no_summary=False, show_drives=False):
     if array_result != OK and not show_drives:
         return array_result, array_message
 
-    drive_result, drive_message = test_drives(verbosity, no_summary)
+    drive_result, drive_message = test_drives(verbosity, warn_true, no_summary)
 
     if drive_result > array_result:
         result = drive_result
     else:
         result = array_result
-    
+
     if drive_result != OK:
         if array_result == OK:
             message = "Arrays OK but... " + drive_message
@@ -158,7 +158,7 @@ def test_arrays(verbosity, warn_true=False, no_summary=False):
     #controllers = [ line.split()[0] for line in lines ]
     controllers = [ line.split()[0] for line in lines if line and line[0] == "c" ]
 
-    status = OK 
+    status = OK
     message = ""
     number_arrays = 0
     arrays_not_ok = 0
@@ -169,7 +169,7 @@ def test_arrays(verbosity, warn_true=False, no_summary=False):
             for unit_line in unit_lines:
                 print unit_line
             print
-    
+
         for unit_line in unit_lines:
             number_arrays += 1
             unit_line = unit_line.split()
@@ -224,7 +224,7 @@ def test_arrays(verbosity, warn_true=False, no_summary=False):
     return status, message
 
 
-def test_drives(verbosity, no_summary=False):
+def test_drives(verbosity, warn_true=False, no_summary=False):
     """Tests all the drives on the all the 3ware raid controllers
     on the local machine"""
 
@@ -250,6 +250,9 @@ def test_drives(verbosity, no_summary=False):
             state = drive_line[1]
             if state == "OK" or state == "NOT-PRESENT":
                 continue
+            if not warn_true and \
+                state in ('VERIFYING', 'REBUILDING', 'INITIALIZING'):
+                continue
             else:
                 drives_not_ok += 1
                 drive = drive_line[0]
@@ -272,7 +275,7 @@ def test_drives(verbosity, no_summary=False):
                               number_drives, \
                               number_controllers, \
                               "drives")
-   
+
     return status, message
 
 
@@ -317,7 +320,7 @@ def add_checked_summary(message, number_devices, number_controllers, device):
         controller = "controller"
     else:
         controller = "controllers"
-            
+
     message += " [%s %s checked on %s %s]" % (number_devices, device, \
                                                 number_controllers, controller)
 
@@ -325,7 +328,7 @@ def add_checked_summary(message, number_devices, number_controllers, device):
 
 
 def main():
-    """Parses command line options and calls the function to 
+    """Parses command line options and calls the function to
     test the arrays/drives"""
 
     parser = OptionParser()
@@ -373,17 +376,17 @@ def main():
                        "--warn-rebuilding",
                        action="store_true",
                        dest="warn_true",
-                       help="Warn when an array is Rebuilding, Initializing " \
-                          + "or Verifying. You might want to do this to keep " \
-                          + "a closer eye on things. Also, these conditions " \
-                          + "can affect performance so you might want to " \
-                          + "know this is going on. Default is to not warn " \
-                          + "during these states as they are not usually " \
+                       help="Warn when an array or disk is Rebuilding, " \
+                          + "Initializing or Verifying. You might want to do " \
+                          + "this to keep a closer eye on things. Also, these " \
+                          + "conditions can affect performance so you might " \
+                          + "want to know this is going on. Default is to not " \
+                          + "warn during these states as they are not usually " \
                           + "problems")
 
-    parser.add_option( "-v", 
-                       "--verbose", 
-                       action="count", 
+    parser.add_option( "-v",
+                       "--verbose",
+                       action="count",
                        dest="verbosity",
                        help="Verbose mode. Good for testing plugin. By default\
  only one result line is printed as per Nagios standards")
@@ -411,7 +414,7 @@ def main():
     if version:
         print __version__
         sys.exit(OK)
-    
+
     if arrays_only and drives_only:
         print "You cannot use the -a and -d switches together, they are",
         print "mutually exclusive\n"
@@ -431,7 +434,7 @@ def main():
     if arrays_only:
         result, output = test_arrays(verbosity, warn_true, no_summary)
     elif drives_only:
-        result, output = test_drives(verbosity, no_summary)
+        result, output = test_drives(verbosity, warn_true, no_summary)
         end(result, output, True)
     else:
         result, output = test_all(verbosity, warn_true, no_summary, show_drives)
