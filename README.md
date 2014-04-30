@@ -7,7 +7,7 @@ Largest collection of Hadoop & NoSQL monitoring code for Nagios, written by a fo
 
 I've been developing this Nagios Plugin Collection since around 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
-This should be the next stop after installing Nagios with it's basic plugins, especially for those running web or NoSQL technologies (Hadoop, Cassandra, HBase, Redis, Riak etc).
+This should be the next stop after installing Nagios with it's basic plugins, especially for those running web or NoSQL technologies (Hadoop, Cassandra, HBase, Redis, Riak, MongoDB etc).
 
 These programs can also be run standalone on the command line or used in scripts as well as called in Nagios.
 
@@ -197,4 +197,16 @@ Just make sure to install the Perl CPAN modules listed above first as some plugi
 
 ### Further Utilities ###
 
-Check out the https://github.com/harisekhon/toolbox repository adjacent to this nagios-plugins repo for some other useful tools such as Hadoop HDFS per block read performance + location debugging tool (hadoop_hdfs_time_block_reads.jy), watch_url.pl for load balanced environments and other useful programs.
+Check out the adjacent ToolBox repo https://github.com/harisekhon/toolbox for other useful tools such as Hadoop HDFS per block read performance + location debugging (hadoop_hdfs_time_block_reads.jy), watch_url.pl for load balanced environments and other useful programs.
+
+##### Weblinks #####
+
+* Official Nagios Homepage: http://www.nagios.org/
+* Nagios Command Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command
+* Nagios Service Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service
+
+Datameer plugins referenced from Datameer docs in the Weblinks section along with the official Nagios links. See here for more information on Datameer monitoring with Nagios:
+
+* http://www.datameer.com/documentation/display/DAS30/Monitoring+Hadoop+and+Datameer+using+Nagios
+
+After trying the 1 example plugin there, return to try the 9 plugins in this collection to extend your Datameer monitoring further.
