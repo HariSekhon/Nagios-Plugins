@@ -201,12 +201,12 @@ Check out the https://github.com/harisekhon/toolbox repository adjacent to this 
 
 ##### Weblinks #####
 
-Official Nagios Homepage: http://www.nagios.org/
-Nagios Command Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command
-Nagios Service Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service
+* Official Nagios Homepage: http://www.nagios.org/
+* Nagios Command Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command
+* Nagios Service Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service
 
 Datameer plugins referenced from Datameer docs in the Weblinks section along with the official Nagios links. See here for more information on Datameer monitoring with Nagios:
 
-http://www.datameer.com/documentation/display/DAS30/Monitoring+Hadoop+and+Datameer+using+Nagios
+* http://www.datameer.com/documentation/display/DAS30/Monitoring+Hadoop+and+Datameer+using+Nagios
 
 After trying the 1 example plugin there, return to try the 9 plugins in this collection to extend your Datameer monitoring further.
