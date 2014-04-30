@@ -197,7 +197,7 @@ Just make sure to install the Perl CPAN modules listed above first as some plugi
 
 ### Further Utilities ###
 
-Check out the https://github.com/harisekhon/toolbox repository adjacent to this nagios-plugins repo for some other useful tools such as Hadoop HDFS per block read performance + location debugging tool (hadoop_hdfs_time_block_reads.jy), watch_url.pl for load balanced environments and other useful programs.
+Check out the adjacent repo https://github.com/harisekhon/toolbox for some other useful tools such as Hadoop HDFS per block read performance + location debugging tool (hadoop_hdfs_time_block_reads.jy), watch_url.pl for load balanced environments and other useful programs.
 
 ##### Weblinks #####
 
