@@ -198,3 +198,15 @@ Just make sure to install the Perl CPAN modules listed above first as some plugi
 ### Further Utilities ###
 
 Check out the https://github.com/harisekhon/toolbox repository adjacent to this nagios-plugins repo for some other useful tools such as Hadoop HDFS per block read performance + location debugging tool (hadoop_hdfs_time_block_reads.jy), watch_url.pl for load balanced environments and other useful programs.
+
+##### Weblinks #####
+
+Official Nagios Homepage: http://www.nagios.org/
+Nagios Command Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command
+Nagios Service Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service
+
+Datameer plugins referenced from Datameer docs in the Weblinks section along with the official Nagios links. See here for more information on Datameer monitoring with Nagios:
+
+http://www.datameer.com/documentation/display/DAS30/Monitoring+Hadoop+and+Datameer+using+Nagios
+
+After trying the 1 example plugin there, return to try the 9 plugins in this collection to extend your Datameer monitoring further.
