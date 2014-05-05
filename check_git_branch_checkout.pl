@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check a Git working copy is in the right branch
 Primarily written for puppetmasters to make sure prod and staging
 environment dirs had the right branches checked out in them";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -42,8 +42,7 @@ $directory = validate_directory($directory);
 $branch or usage "branch name not specified";
 $branch    =~ /^([\w-]+)$/ or usage "Invalid branch name given, must be alpha-numeric";
 $branch    = $1;
-$git       = validate_filename($git) or usage "Invalid git path given, failed filename regex";
-$git       =~ /\bgit$/ or usage "Invalid git path given, is not a path to the git command";
+$git       = validate_program_path($git, "git");
 
 vlog2 "directory: $directory
 branch:    $branch
