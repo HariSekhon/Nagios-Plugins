@@ -32,7 +32,7 @@ my $git = $git_default;
 %options = (
     "d|directory=s" => [ \$directory, "Directory path to git working copy" ],
     "b|branch=s"    => [ \$branch,    "Branch to expect working copy checkout to be" ],
-    "git-binary=s"  => [ \$git,       "Path to git binary. Defaults to '$git_default'" ],
+    "git-binary=s"  => [ \$git,       "Path to git binary. Defaults to '$git_default'. Without relative or fully qualified path to binary will use \$PATH" ],
 );
 @usage_order = qw/directory branch/;
 
