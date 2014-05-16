@@ -11,6 +11,8 @@
 
 $DESCRIPTION = "Nagios Plugin to check the last run status of an IBM BigInsights BigSheets Workbook via BigInsights Console REST API
 
+Thanks to Abhijit V Lele @ IBM for providing discussion feedback and additional BigInsights API resources that lead to the idea for this check
+
 Tested on IBM BigInsights Console 2.1.2.0";
 
 $VERSION = "0.1";
@@ -118,7 +120,14 @@ defined($json->{"status"}) or quit "UNKNOWN", "worksheet status not returned. $n
 defined($json->{"jobstatusString"}) or quit "UNKNOWN", "worksheet status string not returned. $nagios_plugins_support_msg_api";
 my $jobStatus = $json->{"status"};
 my $jobstatusString = $json->{"jobstatusString"};
-critical unless $jobStatus eq "OK";
+if($jobStatus eq "OK"){
+} elsif($jobStatus eq "WARNING"){
+    warning;
+} elsif($jobStatus eq "UNKNOWN"){
+    unknown;
+} else {         # eq "ERROR"
+    critical;
+}
 
 $msg = "workbook '$workbook' status: $status - $jobstatusString";
 
