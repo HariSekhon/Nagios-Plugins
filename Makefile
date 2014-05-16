@@ -44,6 +44,12 @@ install:
 	#
 	# /Library/Perl/5.16/Readonly.pm
 
+	# Required to successfully build the MongoDB module for For RHEL 5
+	#sudo cpan Attribute::Handlers
+	#sudo cpan Params::Validate
+	#sudo cpan DateTime::Locale DateTime::TimeZone
+	#sudo cpan DateTime
+
 	sudo cpan \
 		Class:Accessor \
 		Data::Dumper \
@@ -54,6 +60,7 @@ install:
 		JSON:XS \
 		LWP::Simple \
 		LWP::UserAgent \
+		LWP::Authen::Negotiate \ # TODO: check this with webhdfs against Kerberized cluster
 		Net::Async::CassandraCQL \
 		MongoDB::MongoClient \
 		Net::DNS \
@@ -65,6 +72,7 @@ install:
 		Thrift \
 		Time::HiRes \
 		SMS::AQL \
+		URI::Escape \
 		XML::Simple \
 		; echo
 	# Intentionally ignoring CPAN module build failures since some modules may fail for a multitude of reasons but this isn't really important unless you need the pieces of code that use them in which case you can solve those dependencies later
