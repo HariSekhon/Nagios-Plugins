@@ -48,6 +48,7 @@ set_port_default(54321);
 env_creds("H2O");
 
 my $cloud_name;
+my $list_nodes;
 my $instances = 0;
 my $locked    = 0;
 my $uptime    = 0;
@@ -60,9 +61,10 @@ my $h2o_version;
     "l|locked"          => [ \$locked,      "Ensure H2O Cloud is locked, otherwise raise warning" ],
     "uptime=s"          => [ \$uptime,      "Check uptime minimum number of secs" ],
     "h2o-version=s"     => [ \$h2o_version, "Check H2O version matches expected regex" ],
+    "list-nodes"        => [ \$list_nodes,  "List nodes in H2O cluster and exit" ],
     %thresholdoptions,
 );
-@usage_order = qw/host port cloud-name instances locked uptime h2o-version warning critical/;
+@usage_order = qw/host port cloud-name instances locked uptime h2o-version list-nodes warning critical/;
 
 get_options();
 
@@ -98,6 +100,7 @@ my %details;
 foreach(qw/cloud_size
            cloud_name
            node_name
+           nodes
            version
            cloud_uptime_millis
            consensus
@@ -105,6 +108,16 @@ foreach(qw/cloud_size
            locked/){
     defined($json->{$_}) or quit "UNKNOWN", "field '$_' not defined in output returned from H2O. $nagios_plugins_support_msg_api";
     $details{$_} = $json->{$_};
+}
+
+if($list_nodes){
+    isArray($json->{"nodes"}) or quit "UNKNOWN", "'nodes' field is not an array. $nagios_plugins_support_msg_api";
+    print "H2O cluster nodes:\n\n";
+    foreach my $node (@{$json->{"nodes"}}){
+        defined($node->{"name"}) or quit "UNKNOWN", "'name' field not defined for node. $nagios_plugins_support_msg_api";
+        print $node->{"name"} . "\n";
+    }
+    exit $ERRORS{"OK"};
 }
 
 foreach(qw/cloud_size cloud_uptime_millis/){
