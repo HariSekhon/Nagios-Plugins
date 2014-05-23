@@ -11,9 +11,14 @@
 
 $DESCRIPTION = "Nagios Plugin to check IBM BigInsights Agents via the BigInsights Console REST API
 
+Checks:
+
+- stopped agents (includes dead) vs warning thresholds (default: w=0, c=1)
+- operational agents vs running agents (warning if differ)
+
 Tested on IBM BigInsights Console 2.1.2.0";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -38,16 +43,16 @@ my $api = "data/controller";
 
 our $protocol = "http";
 
-my $agents;
+my $skip_operational_check;
 
 %options = (
     %hostoptions,
     %useroptions,
-    "agents"    =>  [ \$agents,     "Check agent states. Thresholds apply to stoppedAgent counts" ],
+    "skip-operational-check"    =>  [ \$skip_operational_check, "Do not check operational agents vs running agents (only checks stopped agents vs thresholds)" ],
     %tlsoptions,
     %thresholdoptions,
 );
-@usage_order = qw/host port user password tls ssl-CA-path tls-noverify warning critical/;
+@usage_order = qw/host port user password skip-operational-check tls ssl-CA-path tls-noverify warning critical/;
 
 get_options();
 
@@ -88,13 +93,34 @@ foreach my $item (@{$json->{"items"}}){
     }
 }
 defined($monitoring) or quit "UNKNOWN", "couldn't find monitoring item in json. $nagios_plugins_support_msg_api";
+foreach(qw/runningAgents stoppedAgents operationalAgents live dead/){
+    defined($monitoring->{$_}) or quit "UNKNOWN", "'$_' field not found in monitoring output. $nagios_plugins_support_msg_api";
+    isInt($monitoring->{$_})   or quit "UNKNOWN", "'$_' field was not an integer as expected (returned: " . $monitoring->{$_} . ")! $nagios_plugins_support_msg_api";
+}
+if($skip_operational_check){
+    vlog2 "\nskipping operational vs running agents check" if $skip_operational_check;
+} else {
+    vlog2 "checking operational agents == running agents";
+    my $non_operational_agents = $monitoring->{"runningAgents"} - $monitoring->{"operationalAgents"};
+    if($non_operational_agents < 0){
+        unknown;
+        my $msg2 = "non-operational agents '$non_operational_agents' < 0 !!";
+        vlog2 "\n** $msg2\n";
+        $msg = "$msg2 $nagios_plugins_support_msg_api. $msg";
+    } elsif($non_operational_agents != 0){
+        warning;
+        $msg = sprintf("%s non-operational agents detected. $msg", $non_operational_agents);
+    }
+}
 foreach(qw/runningAgents stoppedAgents/){
     $msg .= sprintf("%s = %s, ", $_, $monitoring->{$_});
 }
 $msg =~ s/, $//;
+vlog2 "checking stoppedAgents against thresholds";
 check_thresholds($monitoring->{"stoppedAgents"});
-$msg .= sprintf(", operationalAgents = %s | runningAgents=%d stoppedAgents=%d", $monitoring->{"operationalAgents"}, $monitoring->{"runningAgents"}, $monitoring->{"stoppedAgents"});
+$msg .= sprintf(", operationalAgents = %s, live = %s, dead = %s | runningAgents=%d stoppedAgents=%d", $monitoring->{"operationalAgents"}, $monitoring->{"live"}, $monitoring->{"dead"}, $monitoring->{"runningAgents"}, $monitoring->{"stoppedAgents"});
 msg_perf_thresholds();
-$msg .= sprintf(" operationalAgents=%d", $monitoring->{"operationalAgents"});
+$msg .= sprintf(" operationalAgents=%d live=%d dead=%d", $monitoring->{"operationalAgents"}, $monitoring->{"live"}, $monitoring->{"dead"});
 
+vlog2;
 quit $status, $msg;

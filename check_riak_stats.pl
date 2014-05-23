@@ -61,7 +61,7 @@ if($all_metrics){
 } else {
     defined($metrics) or usage "no metrics specified";
     foreach my $metric (split(/\s*[,\s]\s*/, $metrics)){
-        $metric =~ /^[A-Z]+[\w:]*[A-Z]+$/i or usage "invalid metrics '$metric' given, must be alphanumeric, may contain underscores and colons in middle";
+        $metric =~ /^[A-Z]+[\w:]*[A-Z0-9]+$/i or usage "invalid metrics '$metric' given, must be alphanumeric, may contain underscores and colons in middle";
         grep(/^$metric$/, @stats) or push(@stats, $metric);
     }
     @stats or usage "no valid metrics specified";

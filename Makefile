@@ -50,6 +50,7 @@ install:
 	#sudo cpan DateTime::Locale DateTime::TimeZone
 	#sudo cpan DateTime
 
+	# TODO: check LWP::Authen::Negotiate with webhdfs against Kerberized cluster
 	sudo cpan \
 		Class:Accessor \
 		Data::Dumper \
@@ -60,7 +61,7 @@ install:
 		JSON:XS \
 		LWP::Simple \
 		LWP::UserAgent \
-		LWP::Authen::Negotiate \ # TODO: check this with webhdfs against Kerberized cluster
+		LWP::Authen::Negotiate \
 		Net::Async::CassandraCQL \
 		MongoDB::MongoClient \
 		Net::DNS \
