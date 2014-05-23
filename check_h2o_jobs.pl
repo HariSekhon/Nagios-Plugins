@@ -42,7 +42,7 @@ my $h2o_version;
 %options = (
     %hostoptions,
 );
-@usage_order = qw/host port user password cloud-name instances locked uptime h2o-version warning critical/;
+@usage_order = qw/host port/;
 
 get_options();
 
