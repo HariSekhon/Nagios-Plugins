@@ -23,7 +23,6 @@ use HariSekhonUtils;
 use Data::Dumper;
 use JSON;
 use LWP::UserAgent;
-use POSIX 'ceil';
 
 our $ua = LWP::UserAgent->new;
 
@@ -32,12 +31,6 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 set_port_default(54321);
 
 env_creds("H2O");
-
-my $cloud_name;
-my $instances = 0;
-my $locked    = 0;
-my $uptime    = 0;
-my $h2o_version;
 
 %options = (
     %hostoptions,
