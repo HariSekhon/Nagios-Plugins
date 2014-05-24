@@ -17,8 +17,8 @@ Checks:
 2. checks key's returned value against expected regex (optional)
 3. checks key's returned value against warning/critical range thresholds (optional)
    raises warning/critical if the value is outside thresholds or not a floating point number
-4. records the read timing to a given precision for reporting and graphing
-5. outputs the read timing and optionally the key's value for graphing purposes";
+4. outputs the read timing to a given precision for reporting and graphing
+5. optionally outputs the key's value for graphing purposes";
 
 $VERSION = "0.7";
 
@@ -37,8 +37,7 @@ my $ua = LWP::UserAgent->new;
 my $header = "Hari Sekhon $progname version $main::VERSION";
 $ua->agent($header);
 
-my $default_port = 8098;
-$port = $default_port;
+set_port_default(8098);
 
 my $default_precision = 4;
 my $precision = $default_precision;
@@ -49,9 +48,10 @@ my $expected;
 my $graph = 0;
 my $units;
 
+env_creds("Riak");
+
 %options = (
-    "H|host=s"         => [ \$host,         "Riak node to connect to" ],
-    "P|port=s"         => [ \$port,         "Port to connect to (defaults to $default_port)" ],
+    %hostoptions,
     "k|key=s"          => [ \$key,          "Key to read from Riak" ],
     "b|bucket=s"       => [ \$bucket,       "Bucket to read the key from (must be alphanumeric, contact me for an update if you need non alphanumeric bucket names)" ],
     "e|expected=s"     => [ \$expected,     "Expected regex for the given Riak key's value. Optional" ],
