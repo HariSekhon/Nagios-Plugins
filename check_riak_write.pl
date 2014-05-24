@@ -153,9 +153,9 @@ my $delete_time = riak_key("delete");
 
 my $msg_perf = " | ";
 my $msg_thresholds = "s" . msg_perf_thresholds(1);
-$msg_perf .= " write_time=${write_time}${msg_thresholds}";
-$msg_perf .= " read_time=${read_time}${msg_thresholds}";
-$msg_perf .= " delete_time=${delete_time}${msg_thresholds}";
+$msg_perf .= " write_time=${write_time}s${msg_thresholds}";
+$msg_perf .= " read_time=${read_time}s${msg_thresholds}";
+$msg_perf .= " delete_time=${delete_time}s${msg_thresholds}";
 
 $msg =~ s/^,\s*//;
 $msg .= " from $node";
