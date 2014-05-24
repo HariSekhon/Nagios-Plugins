@@ -30,17 +30,21 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 set_port_default(54321);
 
+set_threshold_defaults(0, 0);
+
 env_creds("H2O");
 
 %options = (
     %hostoptions,
+    %thresholdoptions,
 );
-@usage_order = qw/host port/;
+@usage_order = qw/host port warning critical/;
 
 get_options();
 
 $host        = validate_host($host);
 $port        = validate_port($port);
+validate_thresholds();
 
 vlog2;
 set_timeout();
@@ -92,6 +96,7 @@ if(%failed_jobs){
 }
 
 $msg .= " | jobs=$job_count failed_jobs=$job_failed_count";
+msg_perf_thresholds();
 
 vlog2;
 quit $status, $msg;
