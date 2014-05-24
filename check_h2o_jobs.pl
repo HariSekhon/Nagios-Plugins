@@ -9,7 +9,9 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check jobs and failed jobs on a 0xdata H20 machine learning cluster via REST API";
+$DESCRIPTION = "Nagios Plugin to check jobs and failed jobs on a 0xdata H20 machine learning cluster via REST API
+
+Warning and Critical thresholds are applied to the number of failed jobs, by default any failed jobs trigger CRITICAL";
 
 $VERSION = "0.1";
 
@@ -83,6 +85,7 @@ if($job_failed_count > $job_count){
     $msg .= "job failed count > job count!! ";
 }
 $msg .= "$job_count jobs, $job_failed_count failed jobs";
+check_thresholds($job_failed_count);
 
 if(%failed_jobs){
     critical;
