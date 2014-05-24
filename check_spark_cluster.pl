@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check a Spark cluster via the Spark Master HTTP
 
 Optional thresholds can be applied to the number of Spark Workers
 
-Tested on Apache Spark 0.8.1 and 0.9.1 standalone and 0.9.0 on CDH 5.0";
+Tested on Apache Spark 0.8.1 and 0.9.1 standalone and 0.9.0 on Cloudera CDH 5.0";
 
 $VERSION = "0.1";
 
@@ -33,13 +33,13 @@ set_port_default(8080);
 # port 8080 is usually taken, CDH sets it to 18080
 #set_port_default(18080);
 
-env_creds("Spark");
+env_creds(["SPARK_MASTER", "SPARK"], "Spark Master");
 
 %options = (
     %hostoptions,
     %thresholdoptions,
 );
-$options{"P|port=s"}[1] =~ s/\)$/ for Apache, use 18080 for CDH - or the next port up if that port was already taken when Spark started)/;
+$options{"P|port=s"}[1] =~ s/\)$/ for Apache, use 18080 for Cloudera CDH managed Spark - or the next port up if that port was already taken when Spark started)/;
 
 @usage_order = qw/host port warning critical/;
 get_options();
