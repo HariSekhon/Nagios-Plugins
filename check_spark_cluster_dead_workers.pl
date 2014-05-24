@@ -60,7 +60,7 @@ my $html = curl $url, "Spark Master";
 $html =~ /Spark Master at spark:\/\//i or quit "UNKNOWN", "returned html implies this is not the Spark Master, did you connect to the wrong service/host/port? Apache Spark defaults to port 8080 but in Cloudera CDH it defaults to port 18080. Also try incrementing the port number as Spark will bind to a port number 1 higher if the initial port is already occupied by another process";
 
 $html =~ /Workers:.*?(\d+)/i or quit "UNKNOWN", "failed to determine spark cluster workers. $nagios_plugins_support_msg";
-my $total_ever_workers = $1;
+my $total_workers = $1;
 my $alive_workers = 0;
 my $dead_workers  = 0;
 foreach(split("\n", $html)){
@@ -75,8 +75,8 @@ check_thresholds($dead_workers);
 $msg .= ", $alive_workers alive workers | dead_workers=$dead_workers";
 msg_perf_thresholds();
 $msg .= " alive_workers=$alive_workers";
-if( ( $alive_workers + $dead_workers ) != $total_ever_workers ){
-    quit "UNKNOWN", "ERROR alive ($alive_workers) + dead workers ($dead_workers) != total ever workers ($total_ever_workers)!!! $nagios_plugins_support_msg"
+if( ( $alive_workers + $dead_workers ) != $total_workers ){
+    quit "UNKNOWN", "ERROR alive ($alive_workers) + dead workers ($dead_workers) != total workers ($total_workers)!!! $nagios_plugins_support_msg"
 }
 
 quit $status, $msg;
