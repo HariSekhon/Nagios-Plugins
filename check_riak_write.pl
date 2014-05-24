@@ -40,15 +40,15 @@ use Time::HiRes 'time';
 my $header = "Hari Sekhon $progname version $main::VERSION";
 $ua->agent($header);
 
-my $default_port = 8098;
-$port = $default_port;
+set_port_default(8098);
+ 
+env_creds("Riak");
 
 my $default_precision = 4;
 my $precision = $default_precision;
 
 %options = (
-    "H|host=s"         => [ \$host,         "Riak node to connect to" ],
-    "P|port=s"         => [ \$port,         "Port to connect to (defaults to $default_port)" ],
+    %hostoptions,
     "w|warning=s"      => [ \$warning,      "Warning  threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
     "precision=i"      => [ \$precision,    "Number of decimal places for timings (default: $default_precision)" ],
