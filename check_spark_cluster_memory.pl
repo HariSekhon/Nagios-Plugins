@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check Spark cluster memory used % via the Spark Master HTTP interface
 
-Tested on Apache Spark 0.8.1 and 0.9.1 standalone and 0.9.0 on CDH 5.0";
+Tested on Apache Spark 0.8.1 and 0.9.1 standalone and 0.9.0 on Cloudera CDH 5.0";
 
 $VERSION = "0.1";
 
@@ -37,7 +37,7 @@ env_creds("Spark");
     %hostoptions,
     %thresholdoptions,
 );
-$options{"P|port=s"}[1] =~ s/\)$/ for Apache, use 18080 for CDH - or the next port up if that port was already taken when Spark started)/;
+$options{"P|port=s"}[1] =~ s/\)$/ for Apache, use 18080 for Cloudera CDH managed Spark - or the next port up if that port was already taken when Spark started)/;
 
 @usage_order = qw/host port warning critical/;
 get_options();
@@ -75,7 +75,7 @@ if($memory_used_bytes == 0 or $memory_bytes == 0){
 
 $msg .= "cluster memory used: $memory_pc%";
 check_thresholds($memory_pc);
-$msg .= " $memory_used$memory_used_units/$memory$memory_units | 'cluster memory used %'=$memory_pc";
+$msg .= " $memory_used$memory_used_units/$memory$memory_units | 'cluster memory used %'=$memory_pc%";
 msg_perf_thresholds();
 $msg .= " 'cluster memory total'=" . expand_units($memory, $memory_units) . "b 'cluster memory used'=" . expand_units($memory_used, $memory_used_units) . "b";
 
