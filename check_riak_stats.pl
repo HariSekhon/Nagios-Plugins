@@ -18,7 +18,7 @@ Checks:
 3. checks stat's value against warning/critical range thresholds (optional)
    raises warning/critical if the value is outside thresholds or not a floating point number";
 
-$VERSION = "0.7";
+$VERSION = "0.7.1";
 
 use strict;
 use warnings;

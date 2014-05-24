@@ -20,7 +20,7 @@ Checks:
 4. outputs the read timing to a given precision for reporting and graphing
 5. optionally outputs the key's value for graphing purposes";
 
-$VERSION = "0.7";
+$VERSION = "0.7.1";
 
 use strict;
 use warnings;
