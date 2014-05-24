@@ -9,7 +9,9 @@
 #  License: see accompanying LICENSE file
 #
 
-our $DESCRIPTION = "Nagios Plugin to check Kerberos is working by getting a TGT from a KDC using a keytab
+our $DESCRIPTION = "Nagios Plugin to check Kerberos is working for the local system by getting a TGT from any available configured KDC using a keytab
+
+To test a specific KDC instead use the check_krb5_kdc.pl symlink to this plugin which changes the mode
 
 Create a nagios kerberos principal and export a keytab for it to use in this check
 
@@ -56,7 +58,8 @@ env_creds("KDC");
 
 if($progname eq "check_krb5_kdc.pl"){
     $kdc = 1;
-    $DESCRIPTION =~ s/check Kerberos is working.*from a KDC/check a specific Kerberos KDC is working by getting a TGT/;
+    $DESCRIPTION =~ s/check Kerberos is working.*KDC/check a specific Kerberos KDC is working by getting a TGT/;
+    $DESCRIPTION =~ s/To test a specific KDC.*\n\n//;
     $DESCRIPTION =~ s/- \/etc\/krb5.conf/- Kerberos Realm/;
     delete $options{"C|conf=s"};
     %options = (
