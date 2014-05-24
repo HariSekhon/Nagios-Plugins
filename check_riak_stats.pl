@@ -30,16 +30,16 @@ use HariSekhonUtils;
 use LWP::Simple '$ua';
 use JSON::XS;
 
-my $default_port = 8098;
-$port = $default_port;
+set_port_default(8098);
+ 
+env_creds("Riak");
 
 my $metrics;
 my $all_metrics;
 my $expected;
 
 %options = (
-    "H|host=s"            => [ \$host,              "Riak node to connect to" ],
-    "P|port=s"            => [ \$port,              "Port to connect to (defaults to $default_port)" ],
+    %hostoptions,
     "m|metrics=s"         => [ \$metrics,           "Metric(s) to collect, comma separated. Output in the order specified for convenience. Optional thresholds will only be applied when a single metrics is given" ],
     "a|all-metrics"       => [ \$all_metrics,       "Grab all metrics. Useful if you don't know what to monitor yet or just want to graph everything" ],
     "e|expected=s"        => [ \$expected,          "Expected regex for metric if one metric is given. Checked before range thresholds. Optional" ],
