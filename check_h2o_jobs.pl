@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check for failed jobs on a 0xdata H20 machine learning cluster via REST API";
+$DESCRIPTION = "Nagios Plugin to check jobs and failed jobs on a 0xdata H20 machine learning cluster via REST API";
 
 $VERSION = "0.1";
 
@@ -72,17 +72,26 @@ foreach my $job (@{$json->{"jobs"}}){
     $job->{"result"}->{"val"} eq "OK"  or $failed_jobs{$job->{"description"}} = 1;
 }
 
+my $job_count        = scalar(@{$json->{"jobs"}});
+my $job_failed_count = scalar(keys %failed_jobs);
+if($job_failed_count > $job_count){
+    critical;
+    $msg .= "job failed count > job count!! ";
+}
+$msg .= "$job_count jobs, $job_failed_count failed jobs";
+
 if(%failed_jobs){
     critical;
-    $msg .= "failed jobs: ";
-    foreach(sort keys %failed_jobs){
-        $msg .= "$_, ";
+    if($verbose){
+        $msg .= " (failed jobs: ";
+        foreach(sort keys %failed_jobs){
+            $msg .= "$_, ";
+        }
+        $msg =~ s/, $/)/;
     }
-    $msg =~ s/, $//;
-} else {
-    $msg .= "no failed jobs detected in H2O cluster";
-    $msg .= " at '$url_prefix'" if $verbose;
 }
+
+$msg .= " | jobs=$job_count failed_jobs=$job_failed_count";
 
 vlog2;
 quit $status, $msg;
