@@ -11,7 +11,9 @@
 
 $DESCRIPTION = "Nagios Plugin to check domain expiry via whois lookup
 
-This is an important piece of code given that ppl overlook domain renewals till the last minute (and auto-renewals fail when their cached credit cards have expired)";
+This is an important piece of code given that ppl overlook domain renewals till the last minute (and auto-renewals fail when their cached credit cards have expired)
+
+Uses jwhois command - path to jwhois command can be specified manually otherwise searches for 'jwhois' (as on Ubuntu) or if not found then tries 'whois' (as on CentOS/RHEL) in /bin & /usr/bin";
 
 # Whois perl libraries aren't great so calling whois binary and checking manually
 # so we have more control over this, can get sticky but it looks like this is the reason
@@ -64,7 +66,7 @@ This is an important piece of code given that ppl overlook domain renewals till 
 # Update: I have used this in production for nearly 800 domains across a great variety of over 100 TLDs/second-level domains last I checked, including:
 # ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at, co.il, co.in, co.kr, co.nz, co.nz, co.uk, co.uk, com, com, com.au, com.au, com.bo, com.br, com.cn, com.ee, com.hk, com.hk, com.mx, com.mx, com.my, com.pe, com.pl, com.pt, com.sg, com.sg, com.tr, com.tw, com.tw, com.ve, de, dk, dk, eu, fi, fm, fm, fr, gs, hk, hk, hu, idv.tw, ie, in, info, info, io, it, it, jp, jp, kr, lu, me, me.uk, mobi, mobi, ms, mx, mx, my, name, net, net, net.au, net.br, net.cn, net.nz, nf, nl, no, nu, org, org, org.cn, org.nz, org.tw, org.uk, org.uk, pl, ru, se, sg, sg, sh, tc, tel, tel, tl, tm, tv, tv, tv.br, tw, us, us, vg, xxx
 
-$VERSION = "0.9.114";
+$VERSION = "0.9.115";
 
 use strict;
 use warnings;
@@ -77,6 +79,7 @@ BEGIN {
 use HariSekhonUtils qw/:DEFAULT :regex/;
 
 my $domain;
+my $whois;
 my $whois_server;
 my %expected_results;
 my $no_expiry = 0;
@@ -100,7 +103,8 @@ my @tlds_with_no_nameservers = qw/ac sh/;
 
 %options = (
     "d|domain=s"       => [ \$domain,           "Domain to check" ],
-    "H|whois-server=s" => [ \$whois_server,     "Query this specific whois server" ],
+    "C|jwhois-path=s"  => [ \$whois,            "jwhois command's full path (optional, searches for 'jwhois' or 'whois' in /bin & /usr/bin)" ],
+    "H|whois-server=s" => [ \$whois_server,     "Query this specific whois server host" ],
     "w|warning=s"      => [ \$warning,          "Warning threshold in days for domain expiry (defaults to $default_warning days)"  ],
     "c|critical=s"     => [ \$critical,         "Critical threshold in days for domain expiry (defaults to $default_critical days)" ],
     "no-expiry"        => [ \$no_expiry,        "Do not check expiry. Do not use this except for those rubbish broken european TLDs whois like .fr" ],
@@ -112,7 +116,7 @@ my @tlds_with_no_nameservers = qw/ac sh/;
     "tech-email=s"     => [ \$expected_results{"tech_email"},  "Tech email to expect"  ]
 );
 
-@usage_order = qw/domain whois-server warning critical no-expiry no-nameservers name-servers registrant registrar admin-email tech-email/;
+@usage_order = qw/domain jwhois-path whois-server warning critical no-expiry no-nameservers name-servers registrant registrar admin-email tech-email/;
 get_options();
 
 $domain = lc validate_domain($domain);
@@ -146,13 +150,18 @@ vlog2;
 # This will actually interfere with other calls if it ever goes wrong but better than
 # allowing zombies
 set_timeout($timeout, sub { pkill("whois") } );
-my @output = cmd("whois");
+if($whois){
+    $whois = validate_program_path($whois, "jwhois", "j?whois");
+} else {
+    $whois = which("jwhois") || which("whois", 1);
+}
+my @output = cmd("$whois");
 unless($output[0] =~ /^jwhois\s+/){
-    quit "UNKNOWN", "wrong whois version detected, must have GNU jwhois";
+    quit "UNKNOWN", "wrong whois version detected, please install/specify path to GNU jwhois";
 }
 
-my $cmd = "whois $domain";
-$cmd    = "whois -h $whois_server $domain" if $whois_server;
+my $cmd = "$whois $domain";
+$cmd    = "$whois -h $whois_server $domain" if $whois_server;
 set_timeout($timeout, sub { pkill("$cmd") } );
 
 $status = "OK";
@@ -161,7 +170,7 @@ my $start  = time;
 my $stop   = time;
 my $total_time = sprintf("%.4f", $stop - $start);
 vlog2("whois query returned in $total_time secs\n");
-my $perfdata = "| whois_query_time=${total_time}s";
+my $perfdata = " | whois_query_time=${total_time}s";
 
 my %results;
 
@@ -567,7 +576,9 @@ unless($results{"expiry"}){
         $msg = "${msg}${expiry_not_checked_msg}";
         $no_expiry = 1;
     } elsif($results{"registrar"} =~ /GoDaddy/io){
-        $msg = "${msg}GODADDY ${expiry_not_checked_msg} (anti-automation output)";
+        $msg = "${msg}GODADDY ${expiry_not_checked_msg}";
+        $msg =~ s/, $//;
+        $msg .= " (anti-automation output)";
         $anti_automation = 1;
         $no_expiry = 1;
     } elsif($whois_server_responded eq "whois.ausregistry.net.au"){
