@@ -78,6 +78,8 @@ install:
 
 .PHONY: apt-packages
 apt-packages:
+	# needed to fetch the library submodule at end of build
+	apt-get -y install git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	apt-get -y install libdbd-mysql-perl libmysqlclient-dev || :
 	# for XML::Simple building
@@ -85,6 +87,8 @@ apt-packages:
 
 .PHONY: yum-packages
 yum-packages:
+	# needed to fetch the library submodule at end of build
+	yum install -y git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	yum install -y perl-DBD-MySQL mysql-devel || :
 	# for XML::Simple building
