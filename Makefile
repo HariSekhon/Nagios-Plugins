@@ -12,21 +12,10 @@ install:
 	#
 	# Dependencies:
 	#
-	# DBD::mysql
+	# DBD::mysql - if building CPAN module then you need the mysql-devel / libmysqlclient-dev package for RHEL / Ubuntu
 	#
-	# yum install perl-DBD-MySQL.x86_64
-	#
-	# if building CPAN module then
-	#
-	# yum install mysql mysql-devel  (need to start MySQL for make test to pass)
-	#
-	#
-	# XML::Simple
-	#
-	# yum install expat-devel
-	# 	or
-	# apt-get install libexpat1-dev
-	#
+	[ -x /usr/bin/apt-get ] && make apt-packages || :
+	[ -x /usr/bin/yum ]     && make yum-packages || :
 	
 	# There are problems with the tests for this module dependency of Net::Async::CassandraCQL, forcing install works and allows us to use check_cassandra_write.pl
 	#sudo cpan -f IO::Async::Stream
@@ -85,6 +74,22 @@ install:
 
 	git submodule init
 	git submodule update
+
+
+.PHONY: apt-packages
+apt-packages:
+	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
+	apt-get -y install libdbd-mysql-perl libmysqlclient-dev || :
+	# for XML::Simple building
+	apt-get -y install libexpat1-dev || :
+
+.PHONY: yum-packages
+yum-packages:
+	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
+	yum install -y perl-DBD-MySQL mysql-devel || :
+	# for XML::Simple building
+	yum install -y expat-devel || :
+
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
 ZOOKEEPER_VERSION = 3.4.5
