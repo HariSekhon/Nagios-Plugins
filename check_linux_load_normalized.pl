@@ -26,7 +26,7 @@ BEGIN {
 }
 use HariSekhonUtils;
 
-set_threshold_defaults(0.8, 1);
+set_threshold_defaults(0.7, 1);
 
 my $load;
 
