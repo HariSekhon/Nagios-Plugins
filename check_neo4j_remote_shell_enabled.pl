@@ -11,6 +11,8 @@
 
 $DESCRIPTION = "Nagios Plugin to check whether a Neo4j instance allows a remote shell using the Neo4j REST API
 
+Raises critical if remote shell is enabled
+
 Tested on Neo4j 2.0.3";
 
 $VERSION = "0.1";
