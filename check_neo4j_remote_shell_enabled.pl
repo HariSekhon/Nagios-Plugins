@@ -24,7 +24,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use Data::Dumper;
+#use Data::Dumper;
 use JSON;
 use LWP::Simple '$ua';
 
@@ -61,7 +61,7 @@ catch {
     quit "CRITICAL", "invalid json returned by Neo4j at '$url_prefix'. Try with -vvv to see full output";
 };
 
-vlog3(Dumper($json));
+#vlog3(Dumper($json));
 isArray($json) or quit "UNKNOWN", "output returned by Neo4j is not structured in output array. $nagios_plugins_support_msg_api";
 defined($json->[0]->{"attributes"}) or quit "UNKNOWN", "'attributes' field not returned by Neo4j! $nagios_plugins_support_msg_api";
 isArray($json->[0]->{"attributes"}) or quit "UNKNOWN", "attributes field returned by Neo4j is not an array as expected! $nagios_plugins_support_msg_api";
