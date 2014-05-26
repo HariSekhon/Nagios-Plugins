@@ -22,7 +22,6 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use Data::Dumper;
 use JSON;
 use LWP::Simple '$ua';
 
