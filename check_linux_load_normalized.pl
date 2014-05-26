@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check Linux system load normalized / averaged a
 
 Makes it easy to check load across all servers with the same check since it calculates and takes in to account CPU core count differences across servers
 
-Generally you should be concerned if the average normalized load across all cores averages is approaching 1 for a server which means that all it's CPU cores are busy";
+Generally you should be concerned if the average normalized load across all cores is approaching 1 for a server which means that all it's CPU cores are busy";
 
 $VERSION = "0.1";
 
