@@ -79,7 +79,7 @@ try{
     $json = decode_json $content;
 };
 catch{
-    quit "invalid json returned by IBM BigInsights Console at '$url_prefix', did you try to connect to the SSL port without --tls?";
+    quit "invalid json returned by IBM BigInsights Console at '$url_prefix'. Try with -vvv to see full output";
 };
 vlog3(Dumper($json));
 
