@@ -40,7 +40,7 @@ install:
 	#sudo cpan DateTime
 
 	# TODO: check LWP::Authen::Negotiate with webhdfs against Kerberized cluster
-	sudo cpan \
+	yes | sudo cpan \
 		Class:Accessor \
 		Data::Dumper \
 		DBD::mysql \
