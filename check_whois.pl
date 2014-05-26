@@ -13,7 +13,27 @@ $DESCRIPTION = "Nagios Plugin to check domain expiry via whois lookup
 
 This is an important piece of code given that ppl overlook domain renewals till the last minute (and auto-renewals fail when their cached credit cards have expired)
 
-Uses jwhois command - path to jwhois command can be specified manually otherwise searches for 'jwhois' (as on Ubuntu) or if not found then tries 'whois' (as on CentOS/RHEL) in /bin & /usr/bin";
+Uses jwhois command - path to jwhois command can be specified manually otherwise searches for 'jwhois' (as on Ubuntu) or if not found then tries 'whois' (as on CentOS/RHEL) in /bin & /usr/bin
+
+
+Checks:
+
+* checks days left if given thresholds
+* checks domain status
+* checks DNS servers
+* checks for other optional details where available
+* lots of sanity checking on output
+* optionally validates the following details if expected results specified:
+  - admin email
+  - tech email
+  - nameservers list
+  - registrant
+  - registrar
+
+I have used this in production for nearly 800 domains across a great variety of over 100 TLDs/second-level domains last I checked, including:
+
+ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at, co.il, co.in, co.kr, co.nz, co.nz, co.uk, co.uk, com, com, com.au, com.au, com.bo, com.br, com.cn, com.ee, com.hk, com.hk, com.mx, com.mx, com.my, com.pe, com.pl, com.pt, com.sg, com.sg, com.tr, com.tw, com.tw, com.ve, de, dk, dk, eu, fi, fm, fm, fr, gs, hk, hk, hu, idv.tw, ie, in, info, info, io, it, it, jp, jp, kr, lu, me, me.uk, mobi, mobi, ms, mx, mx, my, name, net, net, net.au, net.br, net.cn, net.nz, nf, nl, no, nu, org, org, org.cn, org.nz, org.tw, org.uk, org.uk, pl, ru, se, sg, sg, sh, tc, tel, tel, tl, tm, tv, tv, tv.br, tw, us, us, vg, xxx
+";
 
 # Whois perl libraries aren't great so calling whois binary and checking manually
 # so we have more control over this, can get sticky but it looks like this is the reason
@@ -31,19 +51,6 @@ Uses jwhois command - path to jwhois command can be specified manually otherwise
 # GIVING A FALSE SENSE OF SECURITY, SAME GOES FOR THE TESTS ACCOMPANYING IT, CHECK WITH HARI SEKHON FIRST
 # THERE IS A LOT OF REGEX. EVEN IF YOU ARE A REGEX MASTER YOU CANNOT PREDICT ALL SIDE EFFECTS
 # YOU MUST RELY ON THE ACCOMPANYING TESTS I HAVE WRITTEN IF YOU CHANGE ANYTHING AT ALL
-
-# Actions:
-# * checks days left if given thresholds
-# * checks domain status
-# * checks DNS servers
-# * checks other optional details where available
-# * lots of sanity checking on output
-# * validates details against expected results if specified for:
-#   - admin email
-#   - tech email
-#   - nameservers list
-#   - registrant
-#   - registrar
 
 # So far I've used this with the following TLD registrars
 # - .asia
