@@ -37,7 +37,7 @@ my @ids;
 
 %options = (
     %hostoptions,
-    "s|stats=s"        =>  [ \$id,  "stats to return size information for, comma separated. Specify a single stat to check it's size against warning/critical thresholds. Run without this option to see all available stats" ],
+    "s|stats=s"        =>  [ \$id,  "stats to return, comma separated. Specify a single stat to check it against warning/critical thresholds. Run without this option to see all available stats" ],
     %thresholdoptions,
 );
 @usage_order = qw/host port stats warning critical/;
