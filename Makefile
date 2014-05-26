@@ -78,15 +78,17 @@ install:
 
 .PHONY: apt-packages
 apt-packages:
+	apt-get install -y gcc || :
 	# needed to fetch the library submodule at end of build
-	apt-get -y install git || :
+	apt-get install -y git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	apt-get -y install libdbd-mysql-perl libmysqlclient-dev || :
+	apt-get install -y libdbd-mysql-perl libmysqlclient-dev || :
 	# for XML::Simple building
-	apt-get -y install libexpat1-dev || :
+	apt-get install -y libexpat1-dev || :
 
 .PHONY: yum-packages
 yum-packages:
+	yum install -y gcc || :
 	# needed to fetch the library submodule at end of build
 	yum install -y git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
