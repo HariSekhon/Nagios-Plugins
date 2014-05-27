@@ -117,7 +117,7 @@ if($list_nodes){
         defined($node->{"name"}) or quit "UNKNOWN", "'name' field not defined for node. $nagios_plugins_support_msg_api";
         print $node->{"name"} . "\n";
     }
-    exit $ERRORS{"OK"};
+    exit $ERRORS{"UNKNOWN"};
 }
 
 foreach(qw/cloud_size cloud_uptime_millis/){
@@ -139,7 +139,7 @@ if($locked){
 critical unless $details{"cloud_healthy"};
 critical unless $details{"consensus"};
 
-$msg .= sprintf("cloud: '%s', instances: %d", $details{"cloud_name"}, $details{"cloud_size"});
+$msg .= sprintf("H2O cloud: '%s', instances: %d", $details{"cloud_name"}, $details{"cloud_size"});
 check_thresholds($details{"cloud_size"});
     
 $msg .= sprintf(", locked: %s, healthy: %s, consensus: %s, uptime: %d secs",

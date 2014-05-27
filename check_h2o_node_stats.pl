@@ -52,13 +52,15 @@ set_port_default(54321);
 env_creds("H2O");
 
 my $stats;
+my $list_nodes;
 
 %options = (
     %hostoptions,
-    "s|stats=s"         => [ \$stats,   "Stats to display, comma separated, see --help header for available stats. Thresholds are checked when specifying just one stat" ],
+    "s|stats=s"         => [ \$stats,       "Stats to display, comma separated, see --help header for available stats. Thresholds are checked when specifying just one stat" ],
+    "list-nodes"        => [ \$list_nodes,  "List nodes in H2O cluster and exit" ],
     %thresholdoptions,
 );
-@usage_order = qw/host port stats warning critical/;
+@usage_order = qw/host port stats list-nodes warning critical/;
 
 get_options();
 
@@ -100,6 +102,15 @@ foreach(qw/node_name nodes/){
 }
 
 isArray($json->{"nodes"}) or quit "UNKNOWN" , "'nodes' field is not an array as expected. $nagios_plugins_support_msg_api";
+
+if($list_nodes){
+    print "H2O cluster nodes:\n\n";
+    foreach my $node (@{$json->{"nodes"}}){
+        defined($node->{"name"}) or quit "UNKNOWN", "'name' field not defined for node. $nagios_plugins_support_msg_api";
+        print $node->{"name"} . "\n";
+    }
+    exit $ERRORS{"UNKNOWN"};
+}
 
 my %stats;
 my $found_node = 0;
