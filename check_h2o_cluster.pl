@@ -139,7 +139,7 @@ if($locked){
 critical unless $details{"cloud_healthy"};
 critical unless $details{"consensus"};
 
-$msg .= sprintf("cloud: '%s', instances: %d", $details{"cloud_name"}, $details{"cloud_size"});
+$msg .= sprintf("H2O cloud: '%s', instances: %d", $details{"cloud_name"}, $details{"cloud_size"});
 check_thresholds($details{"cloud_size"});
     
 $msg .= sprintf(", locked: %s, healthy: %s, consensus: %s, uptime: %d secs",
