@@ -117,7 +117,7 @@ if($list_nodes){
         defined($node->{"name"}) or quit "UNKNOWN", "'name' field not defined for node. $nagios_plugins_support_msg_api";
         print $node->{"name"} . "\n";
     }
-    exit $ERRORS{"OK"};
+    exit $ERRORS{"UNKNOWN"};
 }
 
 foreach(qw/cloud_size cloud_uptime_millis/){
