@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check a 0xdata H20 machine learning cluster via REST API
+$DESCRIPTION = "Nagios Plugin to check an 0xdata H20 machine learning cluster via REST API
 
 Checks:
 
