@@ -23,7 +23,7 @@ my @stats = qw(
     value_size_bytes
 );
 
-$DESCRIPTION = "Nagios Plugin to check stats for given node in an H20 machine learning cluster via REST API
+$DESCRIPTION = "Nagios Plugin to check stats for given node in an 0xdata H20 machine learning cluster via REST API
 
 Stats collected:
 
