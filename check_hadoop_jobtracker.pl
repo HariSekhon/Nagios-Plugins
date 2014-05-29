@@ -28,7 +28,7 @@ Originally written on old vanilla Apache Hadoop 0.20.x, backwards untested rewri
 
 Seriously recommend you consider using check_hadoop_cloudera_manager_metrics.pl instead if possible (disclaimer I work for Cloudera but seriously it's better it uses the CM API instead of scraping output which can break betweens versions and requires more maintenance)";
 
-$VERSION = "0.9.2";
+$VERSION = "0.9.3";
 
 use strict;
 use warnings;
@@ -158,7 +158,7 @@ sub parse_stats(){
 if(defined($nodes)){
     my @missing_nodes;
     foreach my $node (@nodes){
-        unless($content =~ /<td>$node(?:\.$domain_regex|\.local)?<\/td>/){
+        unless($content =~ /<td>$node(?:\.$domain_regex)?<\/td>/){
             push(@missing_nodes, $node);
         }
     }
