@@ -11,12 +11,12 @@
 
 $DESCRIPTION = "Nagios Plugin to check a given node's health in an 0xdata H2O machine learning cluster via REST API
 
-The node is the same one given to the --host switch (auto-determines H2O's node name for the node you connected to)
+The node is the same one given to the --host switch (auto-determines H2O's node name for the node you connected to). Optionally you can specify a different node to check using the --node switch. Use --list-nodes to see the valid H2O node names
 
 Technically the cluster should dissolve if a node fails but this is an additional check on node health possibly pre-empting failure
 ";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -38,12 +38,14 @@ set_port_default(54321);
 env_creds("H2O");
 
 my $list_nodes;
+my $node_name;
 
 %options = (
     %hostoptions,
+    "n|node=s"          => [ \$node_name,   "Node to check the stats for. Optional, will check the stats of the node you connect to if no explicit node is specified" ],
     "list-nodes"        => [ \$list_nodes,  "List nodes in H2O cluster and exit" ],
 );
-@usage_order = qw/host port list-nodes warning critical/;
+@usage_order = qw/host port node list-nodes warning critical/;
 
 get_options();
 
@@ -86,18 +88,25 @@ if($list_nodes){
 
 my $found_node = 0;
 my $health;
+my $node_name2 = $json->{"node_name"};
+$node_name2 = $node_name if defined($node_name);
 foreach my $node (@{$json->{"nodes"}}){
     defined($node->{"name"}) or quit "UNKNOWN", "'name' field not defined for node. $nagios_plugins_support_msg_api";
-    if($node->{"name"} eq $json->{"node_name"}){
+    if($node->{"name"} eq $node_name2){
         $found_node = 1;
         $health = ( $node->{"node_healthy"} ? "true" : "false" );
         last;
     }
 }
-$found_node or quit "UNKNOWN", "failed to find node. $nagios_plugins_support_msg_api";
+unless($found_node){
+    my $node_err = "failed to find node health";
+    $node_err .= sprintf(" for node '%s'. Did you specify the correct node? Use --list-nodes to check the H2O node names", $node_name) if defined($node_name);
+    $node_err .= ". $nagios_plugins_support_msg_api";
+    quit "UNKNOWN", $node_err;
+}
 
 $msg .= "node ";
-$msg .= sprintf("'%s' ", $json->{"node_name"}) if $verbose;
+$msg .= sprintf("'%s' ", $node_name2) if $verbose;
 $msg .= sprintf("healthy: %s", $health);
 critical unless $health eq "true";
 
