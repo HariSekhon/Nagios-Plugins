@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check jobs and failed jobs on an 0xdata H20 machine learning cluster via REST API
+$DESCRIPTION = "Nagios Plugin to check jobs and failed jobs on an 0xdata H2O machine learning cluster via REST API
 
 Warning and Critical thresholds are applied to the number of failed jobs, by default any failed jobs trigger CRITICAL";
 
