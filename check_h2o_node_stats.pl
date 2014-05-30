@@ -25,7 +25,7 @@ my @stats = qw(
 
 $DESCRIPTION = "Nagios Plugin to check stats for given node in an 0xdata H2O machine learning cluster via REST API
 
-The node is the same one given to the --host switch (auto-determines H2O's node name for the node you connected to)
+The node is the same one given to the --host switch (auto-determines H2O's node name for the node you connected to). Optionally you can specify a different node to check using the --node switch. Use --list-nodes to see the valid H2O node names
 
 Stats collected:
 
