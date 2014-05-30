@@ -23,7 +23,9 @@ my @stats = qw(
     value_size_bytes
 );
 
-$DESCRIPTION = "Nagios Plugin to check stats for given node in an 0xdata H20 machine learning cluster via REST API
+$DESCRIPTION = "Nagios Plugin to check stats for given node in an 0xdata H2O machine learning cluster via REST API
+
+The node is the same one given to the --host switch (auto-determines H2O's node name for the node you connected to)
 
 Stats collected:
 
