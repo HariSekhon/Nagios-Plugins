@@ -42,7 +42,7 @@ my $node_name;
 
 %options = (
     %hostoptions,
-    "n|node=s"          => [ \$node_name,   "Node to check the stats for. Optional, will check the stats of the node you connect to if no explicit node is specified" ],
+    "n|node=s"          => [ \$node_name,   "Node to check the health for. Optional, will check the health of the node you connect to if no explicit node is specified" ],
     "list-nodes"        => [ \$list_nodes,  "List nodes in H2O cluster and exit" ],
 );
 @usage_order = qw/host port node list-nodes warning critical/;
