@@ -32,7 +32,7 @@ Stats collected:
 " . join("\n", @stats) . "
 ";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -55,14 +55,16 @@ env_creds("H2O");
 
 my $stats;
 my $list_nodes;
+my $node_name;
 
 %options = (
     %hostoptions,
     "s|stats=s"         => [ \$stats,       "Stats to display, comma separated, see --help header for available stats. Thresholds are checked when specifying just one stat" ],
+    "n|node=s"          => [ \$node_name,   "Node to check the stats for. Optional, will check the stats of the node you connect to if no explicit node is specified" ],
     "list-nodes"        => [ \$list_nodes,  "List nodes in H2O cluster and exit" ],
     %thresholdoptions,
 );
-@usage_order = qw/host port stats list-nodes warning critical/;
+@usage_order = qw/host port stats node list-nodes warning critical/;
 
 get_options();
 
@@ -116,9 +118,11 @@ if($list_nodes){
 
 my %stats;
 my $found_node = 0;
+my $node_name2 = $json->{"node_name"};
+$node_name2 = $node_name if defined($node_name);
 foreach my $node (@{$json->{"nodes"}}){
     defined($node->{"name"}) or quit "UNKNOWN", "'name' field not defined for node. $nagios_plugins_support_msg_api";
-    if($node->{"name"} eq $json->{"node_name"}){
+    if($node->{"name"} eq $node_name2){
         $found_node = 1;
         foreach(@stats2){
             $stats{$_} = $node->{$_};
@@ -128,7 +132,14 @@ foreach my $node (@{$json->{"nodes"}}){
         last;
     }
 }
-$found_node or quit "UNKNOWN", "failed to find node stats. $nagios_plugins_support_msg_api";
+unless($found_node){
+    my $node_err = "failed to find node stats";
+    $node_err .= sprintf(" for node '%s'. Did you specify the correct node? Use --list-nodes to check the H2O node names", $node_name) if defined($node_name);
+    $node_err .= ". $nagios_plugins_support_msg_api";
+    quit "UNKNOWN", $node_err;
+}
+
+$msg .= sprintf("node '%s' ", $node_name2) if $verbose;
 
 if(scalar keys %stats == 1){
     my $stat = join("", keys %stats);
