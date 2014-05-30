@@ -94,7 +94,7 @@ foreach my $node (@{$json->{"nodes"}}){
     defined($node->{"name"}) or quit "UNKNOWN", "'name' field not defined for node. $nagios_plugins_support_msg_api";
     if($node->{"name"} eq $node_name2){
         $found_node = 1;
-        defined($node->{"node_healthy"}) or quit "UNKNOWN", "'node_healthy' field not defined for node '$node_name2'. $nagios_plugins_support_msg_api";
+        defined($node->{"node_healthy"}) or quit "UNKNOWN", sprintf("'node_healthy' field not defined for node '%s'. %s", $node_name2, $nagios_plugins_support_msg_api);
         $health = ( $node->{"node_healthy"} ? "true" : "false" );
         last;
     }
