@@ -25,7 +25,7 @@ zookeeper_servers - checks ZooKeeper service for dead ZooKeeper servers
 
 Tested on IBM BigInsights Console 2.1.2";
 
-$VERSION = "0.1";
+our $VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -34,22 +34,12 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use Data::Dumper;
-use JSON;
-use LWP::UserAgent;
+use HariSekhon::IBM::BigInsights;
 use POSIX 'floor';
 
-set_port_default(8080);
-set_threshold_defaults(0, 0);
-
-env_creds("BIGINSIGHTS", "IBM BigInsights Console");
-
-our $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-my $api = "data/controller";
-
-our $protocol = "http";
+set_threshold_defaults(0, 0);
 
 # TODO: jaql, flume_summary and flume_servers
 my @valid_services = qw/
@@ -85,7 +75,6 @@ $host       = validate_host($host);
 $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
-#$service    = validate_alnum($service, "service");
 defined($service) or usage "service not defined";
 grep { $service eq $_ } @valid_services or usage "invalid service given, must be one of: " . join(", ", @valid_services);
 validate_thresholds(0, 0, { "simple" => "upper", "positive" => 1, "integer" => 1 });
@@ -95,39 +84,16 @@ tls_options();
 vlog2;
 set_timeout();
 
-my $url_prefix = "$protocol://$host:$port";
-
 $status = "OK";
-
-my $url = "$url_prefix/$api/ClusterStatus/$service.json";
 
 my $now = time;
 
-my $content = curl $url, "IBM BigInsights Console", $user, $password;
-my $json;
-try{
-    $json = decode_json $content;
-};
-catch{
-    quit "invalid json returned by IBM BigInsights Console at '$url_prefix', did you try to connect to the SSL port without --tls?";
-};
-vlog3(Dumper($json));
+curl_biginsights "/ClusterStatus/$service.json", $user, $password;
 
 # These shown in docs don't appear for HBase:
 #
 # usedHeap / maxHeap
 # number_of_regions
-
-sub get_field($){
-    get_field2($json, $_[0]);
-}
-
-sub get_field2($$){
-    my $json  = shift;
-    my $field = shift;
-    defined($json->{$field}) or quit "UNKNOWN", "'$field' field not found in output from BigInsights Console. $nagios_plugins_support_msg_api";
-    return $json->{$field};
-}
 
 my $running;
 
