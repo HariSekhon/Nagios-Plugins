@@ -53,7 +53,6 @@ $status = "OK";
 
 curl_biginsights "/ClusterStatus/fs_summary.json", $user, $password;
 
-defined($json->{"label"}) or quit "UNKNOWN", "'label' field not found in output from BigInsights Console. $nagios_plugins_support_msg_api";
 my $label = get_field("label");
 $label eq "HDFS" or quit "UNKNOWN", "label returned was '$label' instead of 'HDFS'";
 my $used            = get_field("used");
