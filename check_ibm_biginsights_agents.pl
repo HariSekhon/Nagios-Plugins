@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check IBM BigInsights Agents via the BigInsight
 
 Checks:
 
-- stopped agents (includes dead) vs warning thresholds (default: w=0, c=1)
+- stopped agents (includes dead) vs thresholds (default: w=0, c=1)
 - operational agents vs running agents (warning if differ)
 
 Tested on IBM BigInsights Console 2.1.2.0";
