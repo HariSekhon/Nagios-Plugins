@@ -32,12 +32,10 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 my $workbook;
 
 %options = (
-    %hostoptions,
-    %useroptions,
+    %biginsights_options,
     "W|workbook=s"  =>  [ \$workbook,   "BigSheets Workbook name as displayed in BigInsights Console under BigSheets tab" ],
-    %tlsoptions,
 );
-@usage_order = qw/host port user password workbook tls ssl-CA-path tls-noverify/;
+splice @usage_order, 3, 0, "workbook";
 
 get_options();
 
