@@ -27,7 +27,7 @@ Checks:
 
 OR
 
-- HDFS writable - writes a small canary file to hdfs:///tmp to check that HDFS is fully available and not in Safe mode (this means than enough DataNodes have checked in after startup)
+- HDFS writable - writes a small unique canary file to hdfs:///tmp to check that HDFS is fully available and not in Safe mode (implies enough DataNodes have checked in after startup to achieve 99.9% block availability by default). Deletes the canary file as part of the test to avoid build up of small files.
 
 Tested on CDH 4.5
 ";
