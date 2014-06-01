@@ -18,7 +18,7 @@ Checks:
 
 Tested on IBM BigInsights Console 2.1.2.0";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -27,31 +27,16 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use Data::Dumper;
-use JSON;
-use LWP::UserAgent;
+use HariSekhon::IBM::BigInsights;
 
-set_port_default(8080);
 set_threshold_defaults(0, 1);
 
-env_creds("BIGINSIGHTS", "IBM BigInsights Console");
-
-our $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-my $api = "data/controller";
-
-our $protocol = "http";
-
-my $skip_operational_check;
-
 %options = (
-    %hostoptions,
-    %useroptions,
-    %tlsoptions,
+    %biginsights_options,
     %thresholdoptions,
 );
-@usage_order = qw/host port user password tls ssl-CA-path tls-noverify warning critical/;
 
 get_options();
 
@@ -66,35 +51,20 @@ tls_options();
 vlog2;
 set_timeout();
 
-my $url_prefix = "$protocol://$host:$port";
-
 $status = "OK";
 
-my $url = "$url_prefix/$api/ClusterStatus/cluster_summary.json";
+curl_biginsights "/ClusterStatus/cluster_summary.json", $user, $password;
 
-my $content = curl $url, "IBM BigInsights Console", $user, $password;
-my $json;
-try{
-    $json = decode_json $content;
-};
-catch{
-    quit "invalid json returned by IBM BigInsights Console at '$url_prefix'. Try with -vvv to see full output";
-};
-vlog3(Dumper($json));
-
-$json->{"items"} or quit "UNKNOWN", "'items' field not found in json output. $nagios_plugins_support_msg_api";
 my $nodes;
-isArray($json->{"items"}) or quit "UNKNOWN", "'items' field is not an array as expected. $nagios_plugins_support_msg_api";
+isArray(get_field("items")) or quit "UNKNOWN", "'items' field is not an array as expected. $nagios_plugins_support_msg_api";
 foreach my $item (@{$json->{"items"}}){
-    defined($item->{"id"}) or quit "UNKNOWN", "'id' field not found in json output. $nagios_plugins_support_msg_api";
-    if($item->{"id"} eq "nodes"){
+    if(get_field2($item, "id") eq "nodes"){
         $nodes = $item;
     }
 }
-defined($nodes) or quit "UNKNOWN", "couldn't find 'nodes' item in json returned by BigInsights Console. $nagios_plugins_support_msg_api";
+$nodes or quit "UNKNOWN", "couldn't find 'nodes' item in json returned by BigInsights Console. $nagios_plugins_support_msg_api";
 foreach(qw/live dead/){
-    defined($nodes->{$_}) or quit "UNKNOWN", "'$_' field not found in nodes output. $nagios_plugins_support_msg_api";
-    isInt($nodes->{$_})   or quit "UNKNOWN", "'$_' field was not an integer as expected (returned: " . $nodes->{$_} . ")! $nagios_plugins_support_msg_api";
+    isInt(get_field2($nodes, $_))  or quit "UNKNOWN", "'$_' field was not an integer as expected (returned: " . $nodes->{$_} . ")! $nagios_plugins_support_msg_api";
 }
 $msg .= "BigInsights ";
 foreach(qw/live dead/){
