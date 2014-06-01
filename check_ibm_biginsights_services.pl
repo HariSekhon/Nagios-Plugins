@@ -19,7 +19,7 @@ Checks either a given service or all services managed by BigInsights Console.
 
 Tested on IBM BigInsights Console 2.1.2";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -28,35 +28,23 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use Data::Dumper;
-use JSON;
-use LWP::UserAgent;
+use HariSekhon::IBM::BigInsights;
 use POSIX 'floor';
 
-set_port_default(8080);
 set_threshold_defaults(30, 60);
 
-env_creds("BIGINSIGHTS", "IBM BigInsights Console");
-
-our $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
-
-my $api = "data/controller";
-
-our $protocol = "http";
 
 my $service;
 my $list_services = 0;
 
 %options = (
-    %hostoptions,
-    %useroptions,
+    %biginsights_options,
     "S|service=s"       =>  [ \$service,        "Check state of a given service (checks all services by default). Use --list-services to see valid service names" ],
     "list-services"     =>  [ \$list_services,  "List services" ],
-    %tlsoptions,
     %thresholdoptions,
 );
-@usage_order = qw/host port user password service list-services tls ssl-CA-path tls-noverify warning critical/;
+splice @usage_order, 4, 0, qw/service list-services/;
 
 get_options();
 
@@ -76,50 +64,29 @@ tls_options();
 vlog2;
 set_timeout();
 
-my $url_prefix = "$protocol://$host:$port";
-
 $status = "OK";
-
-my $url = "$url_prefix/$api/ClusterStatus/cluster_summary.json";
 
 my $now = time;
 
-my $content = curl $url, "IBM BigInsights Console", $user, $password;
-my $json;
-try{
-    $json = decode_json $content;
-};
-catch{
-    quit "invalid json returned by IBM BigInsights Console at '$url_prefix', did you try to connect to the SSL port without --tls?";
-};
-vlog3(Dumper($json));
+my $content = curl_biginsights "/ClusterStatus/cluster_summary.json", $user, $password;
 
 my $service_name;
-
 my %services;
 
-# XXX: check for dead optionally
 sub parse_service($){
     my $service = shift;
-    # contrary to doc there is no ss field any more
-    foreach(qw/id label running ts/){
-        defined($service->{$_})   or quit "UNKNOWN", "'$_' field not found. $nagios_plugins_support_msg_api";
-    }
-    isInt($service->{"ts"}) or quit "UNKNOWN", "'ts' field is not an integer as required. $nagios_plugins_support_msg_api";
-    $service_name    = $service->{"id"};
-    #$services{$service_name}{"service_state"}  = $service->{"ss"};
-    $services{$service_name}{"label"}           = $service->{"label"};
-    $services{$service_name}{"running"}         = $service->{"running"};
-    $services{$service_name}{"check_lag"}       = floor($now - ($service->{"ts"}/1000.0));
+    isInt(get_field2($service, "ts")) or quit "UNKNOWN", "'ts' field is not an integer as required. $nagios_plugins_support_msg_api";
+    $service_name                               = get_field2($service, "id");
+    $services{$service_name}{"label"}           = get_field2($service, "label");
+    $services{$service_name}{"running"}         = get_field2($service, "running");
+    $services{$service_name}{"check_lag"}       = floor($now - ( get_field2($service, "ts") / 1000.0) );
 }
 
-defined($json->{"items"}) or quit "UNKNOWN", "'item' field not returned by BigInsights Console. $nagios_plugins_support_msg_api";
-isArray($json->{"items"}) or quit "UNKNOWN", "'item' field returned by BigInsights Console is not an array as expected. $nagios_plugins_support_msg_api";
+isArray(get_field("items")) or quit "UNKNOWN", "'item' field returned by BigInsights Console is not an array as expected. $nagios_plugins_support_msg_api";
 foreach(@{$json->{"items"}}){
     # This prevents collecting service ids for --list-services
-    #defined($_->{"id"})   or quit "UNKNOWN", "'id' field not found. $nagios_plugins_support_msg_api";
     #if($service){
-    #    next unless $service eq $_->{"id"};
+    #    next unless $service eq get_field2($_, "id");
     #}
     parse_service($_);
 }
