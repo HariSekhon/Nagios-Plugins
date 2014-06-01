@@ -62,9 +62,10 @@ $label eq "HDFS" or quit "UNKNOWN", "label returned was '$label' instead of 'HDF
 my $repl_corrupt = get_field("blocksWithCorruptReplica");
 my $repl_missing = get_field("blocksWithoutGoodReplica");
 my $repl_under   = get_field("blocksUnderReplicated");
-isInt($repl_corrupt) or quit "UNKNOWN", "blocksWithCorruptReplica field was a non-integer! $nagios_plugins_support_msg";
-isInt($repl_missing) or quit "UNKNOWN", "blocksWithoutGoodReplica field was a non-integer! $nagios_plugins_support_msg";
-isInt($repl_under)   or quit "UNKNOWN", "blocksUnderReplicated field was a non-integer! $nagios_plugins_support_msg";
+my $non_int_err = "field returned by BigInsights Console is a non-integer! $nagios_plugins_support_msg";
+isInt($repl_corrupt) or quit "UNKNOWN", "blocksWithCorruptReplica $non_int_err";
+isInt($repl_missing) or quit "UNKNOWN", "blocksWithoutGoodReplica $non_int_err";
+isInt($repl_under)   or quit "UNKNOWN", "blocksUnderReplicated $non_int_err";
 critical if($repl_corrupt or $repl_missing);
 $msg .= sprintf("HDFS blocks corrupt=%d missing=%d under-replicated=%d", $repl_corrupt, $repl_missing, $repl_under);
 check_thresholds($repl_under);
