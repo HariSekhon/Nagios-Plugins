@@ -15,7 +15,7 @@ Thanks to Abhijit V Lele @ IBM for providing discussion feedback and additional 
 
 Tested on IBM BigInsights Console 2.1.2.0";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -24,20 +24,10 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use Data::Dumper;
-use JSON;
-use LWP::Simple '$ua';
+use HariSekhon::IBM::BigInsights;
 use URI::Escape;
 
-set_port_default(8080);
-
-env_creds("BIGINSIGHTS", "IBM BigInsights Console");
-
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
-
-my $api = "data/controller";
-
-our $protocol = "http";
 
 my $workbook;
 
@@ -67,59 +57,12 @@ tls_options();
 vlog2;
 set_timeout();
 
-my $url_prefix = "$protocol://$host:$port";
-
 $status = "OK";
 
-my $url = "$url_prefix/bigsheets/api/workbooks/" . uri_escape($workbook) . "?type=status";
+$json = curl_bigsheets "/workbooks/" . uri_escape($workbook) . "?type=status", $user, $password;
 
-validate_resolvable($host);
-vlog2 "querying IBM BigInsights Console";
-vlog3 "HTTP GET $url (basic authentication)";
-$ua->show_progress(1) if $debug;
-my $req = HTTP::Request->new('GET', $url);
-$req->authorization_basic($user, $password) if (defined($user) and defined($password));
-my $response = $ua->request($req);
-my $content  = $response->content;
-vlog3 "returned HTML:\n\n" . ( $content ? $content : "<blank>" ) . "\n";
-vlog2 "http status code:     " . $response->code;
-vlog2 "http status message:  " . $response->message . "\n";
-my $json;
-my $additional_information = "";
-if($json = isJson($content)){
-    if(defined($json->{"status"})){
-        $additional_information .= ". Status: " . $json->{"status"};
-    }
-    if(defined($json->{"errorMsg"})){
-        $additional_information .= ". Reason: " . $json->{"errorMsg"};
-    }
-}
-unless($response->code eq "200" or $response->code eq "201"){
-    quit "CRITICAL", $response->code . " " . $response->message . $additional_information;
-}
-if(defined($json->{"errorMsg"})){
-    if($json->{"errorMsg"} eq "Could not get Job status: null"){
-        quit "UNKNOWN", "worksheet job run status: null (workbook not been run yet?)";
-    }
-    $additional_information =~ s/^\.\s+//;
-    quit "CRITICAL", $additional_information;
-}
-unless($content){
-    quit "CRITICAL", "blank content returned from '$url'";
-}
-
-try{
-    $json = decode_json $content;
-};
-catch{
-    quit "invalid json returned by IBM BigInsights Console at '$url_prefix', did you try to connect to the SSL port without --tls?";
-};
-vlog3(Dumper($json));
-
-defined($json->{"status"}) or quit "UNKNOWN", "worksheet status not returned. $nagios_plugins_support_msg_api";
-defined($json->{"jobstatusString"}) or quit "UNKNOWN", "worksheet status string not returned. $nagios_plugins_support_msg_api";
-my $jobStatus = $json->{"status"};
-my $jobstatusString = $json->{"jobstatusString"};
+my $jobStatus       = get_field("status");
+my $jobstatusString = get_field("jobstatusString");
 if($jobStatus eq "OK"){
 } elsif($jobStatus eq "WARNING"){
     warning;
