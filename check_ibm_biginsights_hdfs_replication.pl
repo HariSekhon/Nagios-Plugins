@@ -33,12 +33,9 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 set_threshold_defaults(10000, 100000);
 
 %options = (
-    %hostoptions,
-    %useroptions,
-    %tlsoptions,
+    %biginsights_options,
     %thresholdoptions,
 );
-@usage_order = qw/host port user password tls ssl-CA-path tls-noverify warning critical/;
 
 get_options();
 
