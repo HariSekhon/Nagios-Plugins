@@ -23,7 +23,7 @@ hbase_summary     - checks HBase service for running state and dead HBase Master
 hbase_servers     - checks HBase service for dead HBase Region Servers
 zookeeper_servers - checks ZooKeeper service for dead ZooKeeper servers
 
-Tested on IBM BigInsights Console 2.1.2";
+Tested on IBM BigInsights Console 2.1.2.0";
 
 our $VERSION = "0.2";
 
