@@ -61,13 +61,11 @@ my $service;
 my $list_services = 0;
 
 %options = (
-    %hostoptions,
-    %useroptions,
+    %biginsights_options,
     "S|service=s"       =>  [ \$service,        "Check state of a given service. See --help header description for list of supported service names" ],
-    %tlsoptions,
     %thresholdoptions,
 );
-@usage_order = qw/host port user password service tls ssl-CA-path tls-noverify warning critical/;
+splice @usage_order, 4, 0, "service";
 
 get_options();
 
@@ -96,13 +94,6 @@ curl_biginsights "/ClusterStatus/$service.json", $user, $password;
 # number_of_regions
 
 my $running;
-
-sub check_running(){
-    $running = get_field("running");
-    critical unless $running;
-    $running = ( $running ? "yes" : "NO" );
-}
-
 my %not_started;
 my %not_running;
 my $node;
@@ -110,6 +101,20 @@ my $ss;
 my $node_count;
 my $not_running_count;
 my $not_started_count;
+
+sub check_running(){
+    $running = get_field("running");
+    critical unless $running;
+    $running = ( $running ? "yes" : "NO" );
+}
+
+sub check_ss_running(){
+    if($ss ne "Running"){
+        $not_running{$node} = $ss;
+    } elsif(not $running){
+        $not_running{$node} = "";
+    }
+}
 
 sub count_nodes(){
     $node_count        = scalar(@{$json->{"items"}});
@@ -127,6 +132,20 @@ sub msg_nodes(){
             $msg .= ". Not in started state: ";
             foreach(sort keys %not_started){
                 $msg .= sprintf("%s[%s], ", $_, $not_started{$_});
+            }
+            $msg =~ s/, $//;
+        }
+    }
+}
+
+sub msg_not_running_nodes(){
+    if($verbose){
+        if(%not_running){
+            $msg .= ". Not running: ";
+            foreach(sort keys %not_running){
+                $msg .= sprintf("%s", $_);
+                $msg .= sprintf("[%s]", $not_running{$_}) if $not_running{$_};
+                $msg .= ", ";
             }
             $msg =~ s/, $//;
         }
@@ -189,26 +208,12 @@ if($service eq "mr_summary"){
         $node    = get_field2($datanode, "hostname");
         $ss      = get_field2($datanode, "ss");
         $running = get_field2($datanode, "running");
-        if($ss ne "Running"){
-            $not_running{$node} = $ss;
-        } elsif(not $running){
-            $not_running{$node} = "";
-        }
+        check_ss_running();
     }
     count_nodes();
     $msg .= sprintf("HDFS service %d DataNode%s, %d not running", $node_count, plural($node_count), $not_running_count);
     check_thresholds(scalar(keys %not_running));
-    if($verbose){
-        if(%not_running){
-            $msg .= ". Not running: ";
-            foreach(sort keys %not_running){
-                $msg .= sprintf("%s", $_);
-                $msg .= sprintf("[%s]", $not_running{$_}) if $not_running{$_};
-                $msg .= ", ";
-            }
-            $msg =~ s/, $//;
-        }
-    }
+    msg_not_running_nodes();
     $msg .= sprintf(" | datanodes=%d 'datanodes not running'=%d", $node_count, $not_running_count);
     msg_perf_thresholds();
 } elsif($service eq "hive"){
@@ -250,14 +255,13 @@ if($service eq "mr_summary"){
         $node      = get_field2($hbase_server, "url");
         $ss      = get_field2($hbase_server, "ss");
         $running = get_field2($hbase_server, "running");
-        $ss eq "Started" or $not_started{$node} = $ss;
-        $running or $not_running{$node} = $running;
+        check_ss_running();
     }
     count_nodes();
     $msg .= sprintf("HBase service %d region server%s, %d not running", $node_count, plural($node_count), $not_running_count);
     check_thresholds(scalar(keys %not_running));
-    $msg .= sprintf(", %d not in started state", $not_started_count);
-    msg_nodes();
+    #$msg .= sprintf(", %d not in started state", $not_started_count);
+    msg_not_running_nodes();
     $msg .= sprintf(" | 'hbase servers'=%d 'hbase servers not running'=%d 'hbase servers not started'=%d", $node_count, $not_running_count, $not_started_count);
 } elsif($service eq "zookeeper_servers"){
     isArray(get_field("items")) or quit "UNKNOWN", "'items' field is not an array. $nagios_plugins_support_msg_api";
