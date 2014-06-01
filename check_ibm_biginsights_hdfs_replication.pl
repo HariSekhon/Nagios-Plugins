@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check IBM BigInsights HDFS Space Used % via BigInsights Console REST API
 
-Raises critical on any blocks with Corrupt replicas or Missing replicas.
+Raises Critical on any blocks with Corrupt replicas or Missing replicas.
 
 Warning/Critical thresholds are applied to Under-replicated blocks.
 
