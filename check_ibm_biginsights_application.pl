@@ -124,7 +124,7 @@ if($list_apps){
     exit $ERRORS{"UNKNOWN"};
 }
 
-grep { $app eq $_ } %apps or quit "CRITICAL", "no app with name '$app' in BigInsights Console! Did you specify the correct --application name? Use --list-applications to see all applications and their deployment status";
+grep { $app eq $_ } %apps or quit "CRITICAL", "no application with name '$app' in BigInsights Console! Did you specify the correct --application name? Use --list-applications to see all applications and their deployment status";
 
 # not getting any more valuable information from that point, would have to go to Oozie to see last execution runs outcomes
 #curl_biginsights "/catalog/applications/" . uri_escape($apps{$app}{"id"}) . "/runs?format=json", $user, $password;
