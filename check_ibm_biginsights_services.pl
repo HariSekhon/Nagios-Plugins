@@ -17,6 +17,8 @@ Checks either a given service or all services managed by BigInsights Console.
 - Checks service last check lag time in seconds. It is normal for checks to occur 20 secs apart by default in BigInsights Console so the warning and critical thresholds default to 30 and 60 seconds respectively. Tunable via --warning/--critical switches
 - outputs graphing perfdata of the check lags
 
+Thanks to Simon Woodcock @ IBM who first told me about the REST API for BigInsights Console which gave me the idea to start writing monitoring plugins for the usual things like service status
+
 Tested on IBM BigInsights Console 2.1.2.0";
 
 $VERSION = "0.2";
