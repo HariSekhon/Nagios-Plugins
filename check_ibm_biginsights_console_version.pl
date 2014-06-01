@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check IBM BigInsights Console version
 
 Tested on IBM BigInsights Console 2.1.2.0";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -22,27 +22,14 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use LWP::UserAgent;
+use HariSekhon::IBM::BigInsights;
 
-set_port_default(8080);
-
-env_creds("BIGINSIGHTS", "IBM BigInsights Console");
-
-our $ua = LWP::UserAgent->new;
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-my $api = "data/controller";
-
-our $protocol = "http";
-my  $url;
-
 %options = (
-    %hostoptions,
-    %useroptions,
+    %biginsights_options,
     %expected_version_option,
-    %tlsoptions,
 );
-@usage_order = qw/host port user password expected tls ssl-CA-path tls-noverify/;
 
 get_options();
 
@@ -61,9 +48,9 @@ my $url_prefix = "$protocol://$host:$port";
 
 $status = "OK";
 
-$url = "$url_prefix/$api/configuration/getVersion";
+my $url = "$url_prefix/$api/configuration/getVersion";
 
-# my query_BI_console() sub enforces json and version is returned as html
+# curl_biginsights expects json and version is returned as plain html
 my $html = curl $url, "IBM BigInsights Console", $user, $password;
 
 my $biginsights_version = trim($html);
