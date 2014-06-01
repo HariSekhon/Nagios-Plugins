@@ -35,7 +35,7 @@ my $workbook;
     %biginsights_options,
     "W|workbook=s"  =>  [ \$workbook,   "BigSheets Workbook name as displayed in BigInsights Console under BigSheets tab" ],
 );
-splice @usage_order, 3, 0, "workbook";
+splice @usage_order, 4, 0, "workbook";
 
 get_options();
 
