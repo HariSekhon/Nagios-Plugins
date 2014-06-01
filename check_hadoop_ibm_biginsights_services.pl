@@ -1,1 +1,0 @@
-check_ibm_biginsights_services.pl
