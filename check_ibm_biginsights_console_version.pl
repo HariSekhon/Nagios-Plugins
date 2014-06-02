@@ -9,6 +9,8 @@
 #  License: see accompanying LICENSE file
 #
 
+# http://www-01.ibm.com/support/knowledgecenter/SSPT3X_2.1.2/com.ibm.swg.im.infosphere.biginsights.admin.doc/doc/rest_access_version.html
+
 $DESCRIPTION = "Nagios Plugin to check IBM BigInsights Console version
 
 Tested on IBM BigInsights Console 2.1.2.0";

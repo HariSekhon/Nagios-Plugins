@@ -9,6 +9,8 @@
 #  License: see accompanying LICENSE file
 #
 
+# http://www-01.ibm.com/support/knowledgecenter/SSPT3X_2.1.2/com.ibm.swg.im.infosphere.biginsights.admin.doc/doc/rest_access_cluster_mgt.html?lang=en
+
 $DESCRIPTION = "Nagios Plugin to check IBM BigInsights Service Details via BigInsights Console REST API
 
 Supported Services:

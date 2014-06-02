@@ -9,6 +9,8 @@
 #  License: see accompanying LICENSE file
 #
 
+# http://www-01.ibm.com/support/knowledgecenter/SSPT3X_2.1.2/com.ibm.swg.im.infosphere.biginsights.admin.doc/doc/rest_access_cluster_mgt.html?lang=en
+
 $DESCRIPTION = "Nagios Plugin to check IBM BigInsights Services (Map/Reduce, HDFS/GPFS, BigSQL, HBase etc) via BigInsights Console REST API
 
 Checks either a given service or all services managed by BigInsights Console.

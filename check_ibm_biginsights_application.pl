@@ -9,6 +9,8 @@
 #  License: see accompanying LICENSE file
 #
 
+# http://www-01.ibm.com/support/knowledgecenter/SSPT3X_2.1.2/com.ibm.swg.im.infosphere.biginsights.dev.doc/doc/rest_access_app_admin.html
+
 $DESCRIPTION = "Nagios Plugin to check the deployed status of an IBM BigInsights Application via BigInsights Console REST API
 
 Tested on IBM BigInsights Console 2.1.2.0";
