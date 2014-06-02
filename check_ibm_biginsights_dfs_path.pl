@@ -9,6 +9,8 @@
 #  License: see accompanying LICENSE file
 #
 
+# http://www-01.ibm.com/support/knowledgecenter/SSPT3X_2.1.1/com.ibm.swg.im.infosphere.biginsights.admin.doc/doc/rest_access_file_admin.html?lang=en
+
 $DESCRIPTION = "Nagios Plugin to check IBM BigInsights File/Directory on HDFS or GPFS via BigInsights Console REST API
 
 Checks:
@@ -142,10 +144,11 @@ sub curl_biginsights_err_handler_minimal($){
 }
 
 $path =~ s/^\///;
+# need to pass more minimal error handler, not demanding JSON since file contents are returned instead of metadata
 #curl_biginsights "/dfs/$path?format=json&download=false", $user, $password;
+#
 # XXX: BUG in BigInsights Console - download=false doesn't seem to have any effect
 # XXX: BUG in BigInsights Console - offset is acting as length with higher preference to length, seek param replaces offset in 2.1.x and seek does work but then offset should do nothing not act as length
-# http://www-01.ibm.com/support/knowledgecenter/SSPT3X_2.1.1/com.ibm.swg.im.infosphere.biginsights.admin.doc/doc/rest_access_file_admin.html?lang=en
 my $content = curl "$protocol://$host:$port/$api/dfs/$path?format=json&download=false&length=512", "IBM BigInsights Console", $user, $password, \&curl_biginsights_err_handler_minimal;
 
 # assume directory if json metadata returned as API only gives metadata for directories, but also checking for directory field and also that directory field is set to true
