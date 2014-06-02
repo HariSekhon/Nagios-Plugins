@@ -16,12 +16,14 @@ $DESCRIPTION = "Nagios Plugin to check IBM BigInsights Services (Map/Reduce, HDF
 Checks either a given service or all services managed by BigInsights Console.
 
 - Checks service Running
-- Checks service last check lag time in seconds. It is normal for checks to occur 20 secs apart by default in BigInsights Console so the warning and critical thresholds default to 30 and 60 seconds respectively. Tunable via --warning/--critical switches
+- Checks service last check lag time in seconds. It is normal for checks to occur 20 or 60 secs apart by default in BigInsights Console so the warning and critical thresholds default to 60 and 120 seconds respectively. Tunable via --warning/--critical switches
 - outputs graphing perfdata of the check lags
 
 Thanks to Simon Woodcock @ IBM who first told me about the REST API for BigInsights Console which gave me the idea to start writing monitoring plugins for the usual things like service status
 
 Tested on IBM BigInsights Console 2.1.2.0";
+
+# On BigInsights QuickStart VM it's 20 secs but on my 20 node cluster it's 60 secs between checks
 
 $VERSION = "0.2";
 
@@ -35,7 +37,7 @@ use HariSekhonUtils;
 use HariSekhon::IBM::BigInsights;
 use POSIX 'floor';
 
-set_threshold_defaults(30, 60);
+set_threshold_defaults(60, 120);
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
