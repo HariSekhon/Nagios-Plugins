@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# http://www-01.ibm.com/support/knowledgecenter/SSPT3X_2.1.1/com.ibm.swg.im.infosphere.biginsights.admin.doc/doc/rest_access_file_admin.html?lang=en
+# http://www-01.ibm.com/support/knowledgecenter/SSPT3X_2.1.2/com.ibm.swg.im.infosphere.biginsights.admin.doc/doc/rest_access_file_admin.html?lang=en
 
 $DESCRIPTION = "Nagios Plugin to check IBM BigInsights File/Directory on HDFS or GPFS via BigInsights Console REST API
 
