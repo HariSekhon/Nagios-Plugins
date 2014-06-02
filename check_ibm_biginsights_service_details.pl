@@ -20,14 +20,14 @@ mr_tasktrackers   - checks MapReduce service for dead TaskTrackers
 fs_summary        - checks HDFS service for running state and dead NameNodes
 fs_datanodes      - checks HDFS service for dead DataNodes
 hive              - checks Hive service for running state, HiveServers2 and HWI running
-catalog           - checks HCatalog service for running state
+catalog           - checks BigInsights Application Catalog service for running state
 hbase_summary     - checks HBase service for running state and dead HBase Masters
 hbase_servers     - checks HBase service for dead HBase Region Servers
 zookeeper_servers - checks ZooKeeper service for dead ZooKeeper servers
 
 Tested on IBM BigInsights Console 2.1.2.0";
 
-our $VERSION = "0.2";
+our $VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -234,7 +234,7 @@ if($service eq "mr_summary"){
 } elsif($service eq "catalog"){
     $running = get_field("running");
     critical unless $running;
-    $msg .= "HCatalog service running = " . ( $running ? "yes" : "NO" );
+    $msg .= "Application Catalog service running = " . ( $running ? "yes" : "NO" );
 } elsif($service eq "hbase_summary"){
     $msg .= "'" . get_field("label") . "' service";
     check_running();
