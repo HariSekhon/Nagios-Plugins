@@ -28,8 +28,7 @@ The following additional checks may be applied to directories. Not available for
 
 Tested on IBM BigInsights Console 2.1.2.0";
 
-
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -109,6 +108,7 @@ foreach(sort keys %file_checks){
         }
     }
 }
+
 # ============================================================================ #
 
 tls_options();
@@ -135,18 +135,20 @@ sub curl_biginsights_err_handler_minimal($){
     unless($response->code eq "200"){
         quit "CRITICAL", $response->code . " " . $response->message . $additional_information;
     }
-    unless($content){
-        quit "CRITICAL", "blank content returned from by BigInsights Console";
-    }
+    # since contents are returned for files and files may well be blank we cannot use this check and must rely on HTTP code
+    #unless($content){
+    #    quit "CRITICAL", "blank content returned from by BigInsights Console";
+    #}
 }
 
-# TODO: needs testing on larger files to make sure the download=false isn't trying to return the whole file if large
 $path =~ s/^\///;
 #curl_biginsights "/dfs/$path?format=json&download=false", $user, $password;
-my $content = curl "$protocol://$host:$port/$api/dfs/$path?format=json&download=false", "IBM BigInsights Console", $user, $password, \&curl_biginsights_err_handler_minimal;
+# XXX: BUG in BigInsights Console - download=false doesn't seem to have any effect
+# XXX: BUG in BigInsights Console - offset is acting as length with higher preference to length
+my $content = curl "$protocol://$host:$port/$api/dfs/$path?format=json&download=false&length=512", "IBM BigInsights Console", $user, $password, \&curl_biginsights_err_handler_minimal;
 
-# must be directory if metadata returned as API only gives metadata for directories
-if($json = isJson($content)){
+# assume directory if json metadata returned as API only gives metadata for directories, but also checking for directory field and also that directory field is set to true
+if($json = isJson($content) and defined($json->{"directory"}) and $json->{"directory"}){
     $msg = "directory '/$path' exists";
     if(defined($file_checks{"type"}) and $file_checks{"type"} eq "FILE"){
         critical;
