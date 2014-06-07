@@ -88,30 +88,30 @@ check_string($timed_out, "false");
 
 my $nodes = get_field_int("number_of_nodes");
 $msg .= ", nodes: $nodes";
-check_thresholds($nodes, undef, "nodes");
+check_thresholds($nodes, 0, "nodes");
 
 my $data_nodes = get_field_int("number_of_data_nodes");
 $msg .= ", data nodes: $data_nodes";
-check_thresholds($data_nodes, undef, "data nodes");
+check_thresholds($data_nodes, 0, "data nodes");
 
 my $active_primary_shards = get_field_int("active_primary_shards");
 $msg .= ", active primary shards: $active_primary_shards";
-check_thresholds($active_primary_shards, undef, "active primary shards");
+check_thresholds($active_primary_shards, 0, "active primary shards");
 
 my $active_shards = get_field_int("active_shards");
 $msg .= ", active shards: $active_shards";
-check_thresholds($active_shards, undef, "active shards");
+check_thresholds($active_shards, 0, "active shards");
 
 my $relocating_shards = get_field_int("relocating_shards");
 $msg .= ", relocating shards: $relocating_shards";
-check_thresholds($relocating_shards, undef, "relocating shards");
+check_thresholds($relocating_shards, 0, "relocating shards");
 
 my $initializing_shards = get_field_int("initializing_shards");
 $msg .= ", inititializing shards: $initializing_shards";
-check_thresholds($initializing_shards, undef, "initializing shards");
+check_thresholds($initializing_shards, 0, "initializing shards");
 
 my $unassigned_shards = get_field_int("unassigned_shards");
 $msg .= ", unassigned shards: $unassigned_shards";
-check_thresholds($unassigned_shards, undef, "unassigned shards");
+check_thresholds($unassigned_shards, 0, "unassigned shards");
 
 quit $status, $msg;
