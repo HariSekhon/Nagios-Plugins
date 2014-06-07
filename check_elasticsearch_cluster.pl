@@ -9,7 +9,9 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check ElasticSearch cluster status, nodes and shards";
+$DESCRIPTION = "Nagios Plugin to check ElasticSearch cluster status, nodes and shards
+
+Tested on ElasticSearch 0.90.1 and 1.2.1";
 
 $VERSION = "0.1";
 

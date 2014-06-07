@@ -9,7 +9,9 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check basic ElasticSearch status and optionally ElasticSearch / Lucene versions";
+$DESCRIPTION = "Nagios Plugin to check basic ElasticSearch status and optionally ElasticSearch / Lucene versions
+
+Tested on ElasticSearch 0.90.1 and 1.2.1";
 
 $VERSION = "0.1";
 
