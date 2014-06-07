@@ -25,8 +25,8 @@ use HariSekhonUtils;
 use HariSekhon::ElasticSearch;
 
 my $cluster_name_regex;
-my $node_thresholds      = "";
-my $data_node_thresholds = "";
+my $node_thresholds;
+my $data_node_thresholds;
 my $active_primary_shard_thresholds;
 my $active_shard_thresholds;
 my $relocating_shard_thresholds;
