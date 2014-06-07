@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check ElasticSearch cluster status, nodes and shards
+$DESCRIPTION = "Nagios Plugin to check ElasticSearch cluster status, node and shard counts
 
 Tested on ElasticSearch 0.90.1 and 1.2.1";
 
@@ -36,14 +36,15 @@ my $unassigned_shard_thresholds = "0,1";
 %options = (
     %hostoptions,
     "C|cluster-name=s"          =>  [ \$cluster_name_regex,                 "Cluster name to expect (optional). Cluster name is used for auto-discovery and should be unique to each cluster in a single network" ],
-    "n|nodes=s"                 =>  [ \$node_thresholds,                    "Node thresholds (inclusive)" ],
-    "d|data-nodes=s"            =>  [ \$data_node_thresholds,               "Data Node thresholds (inclusive)" ],
-    "active-primary-shards=s"   =>  [ \$active_primary_shard_thresholds,    "Active Primary Shards thresholds (inclusive)" ],
-    "active-shards=s"           =>  [ \$active_shard_thresholds,            "Active Shards thresholds (inclusive)" ],
-    "relocating-shards=s"       =>  [ \$relocating_shard_thresholds,        "Relocating Shards thresholds (inclusive)" ],
-    "initializing-shards=s"     =>  [ \$initializing_shard_thresholds,      "Initializing Shards thresholds (inclusive)" ],
-    "unassigned-shards=s"       =>  [ \$unassigned_shard_thresholds,        "Unassigned Shards thresholds (inclusive) (default w,c: 0,1)" ],
+    "n|nodes=s"                 =>  [ \$node_thresholds,                    "Node thresholds (inclusive, optional)" ],
+    "d|data-nodes=s"            =>  [ \$data_node_thresholds,               "Data Node thresholds (inclusive, optional)" ],
+    "active-primary-shards=s"   =>  [ \$active_primary_shard_thresholds,    "Active Primary Shards thresholds (inclusive, optional)" ],
+    "active-shards=s"           =>  [ \$active_shard_thresholds,            "Active Shards thresholds (inclusive, optional)" ],
+    "relocating-shards=s"       =>  [ \$relocating_shard_thresholds,        "Relocating Shards thresholds (inclusive, optional)" ],
+    "initializing-shards=s"     =>  [ \$initializing_shard_thresholds,      "Initializing Shards thresholds (inclusive, optional)" ],
+    "unassigned-shards=s"       =>  [ \$unassigned_shard_thresholds,        "Unassigned Shards thresholds (inclusive, default w,c: 0,1)" ],
 );
+splice @usage_order, 4, 0, qw/cluster-name nodes data-nodes active-primary-shards active-shards relocating-shards initializing-shards unassigned-shards/;
 
 get_options();
 
