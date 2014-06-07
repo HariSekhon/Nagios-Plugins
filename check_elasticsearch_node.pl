@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check a given ElasticSearch node's basic status and optionally it's ElasticSearch / Lucene versions
+$DESCRIPTION = "Nagios Plugin to check a given ElasticSearch node is online, returning json with ok status and optionally it's ElasticSearch / Lucene versions
 
 Tested on ElasticSearch 0.90.1 and 1.2.1";
 
@@ -33,6 +33,7 @@ my $lc_version_regex;
     "elasticsearch-version=s"   => [ \$es_version_regex,  "ElasticSearch version regex to expect (optional)" ],
     "lucene-version=s"          => [ \$lc_version_regex,  "Lucene version regex to expect (optional)" ],
 );
+splice @usage_order, 4, 0, qw/elasticsearch-version lucene-version/;
 
 get_options();
 
