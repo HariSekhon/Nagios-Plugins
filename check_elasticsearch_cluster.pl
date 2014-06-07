@@ -73,7 +73,12 @@ check_regex($cluster_name, $cluster_name_regex);
 
 my $elasticsearch_status = get_field("status");
 $msg .= ", status: '$elasticsearch_status'";
-check_string($elasticsearch_status, "green");
+if($elasticsearch_status eq "yellow"){
+    warning;
+    $msg .= " (expected: 'green')";
+} else {
+    check_string($elasticsearch_status, "green");
+}
 
 my $timed_out = get_field("timed_out");
 $timed_out = ( $timed_out ? "true" : "false" );
