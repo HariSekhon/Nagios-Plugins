@@ -43,7 +43,7 @@ my $skip_operational_check;
     "skip-operational-check"    =>  [ \$skip_operational_check, "Do not check operational agents vs running agents (only checks stopped agents vs thresholds)" ],
     %thresholdoptions,
 );
-splice @usage_order, 4, 0, "skip-operational-check";
+splice @usage_order, 6, 0, "skip-operational-check";
 
 get_options();
 
@@ -52,8 +52,7 @@ $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
 validate_thresholds();
-
-tls_options();
+validate_ssl();
 
 vlog2;
 set_timeout();
