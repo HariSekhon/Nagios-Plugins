@@ -67,7 +67,7 @@ my %file_checks = (
     "o|owner=s"         => [ \$file_checks{"owner"},          "Owner name" ],
     "g|group=s"         => [ \$file_checks{"group"},          "Group name" ],
     "e|permission=s"    => [ \$file_checks{"permission"},     "Permission string to expect" ],
-    "S|size=s"          => [ \$file_checks{"size"},           "Minimum size of file" ],
+    "s|size=s"          => [ \$file_checks{"size"},           "Minimum size of file" ],
     "E|empty"           => [ \$file_checks{"empty"},          "Checks directory is empty" ],
 #    "B|blockSize=s"     => [ \$file_checks{"blockSize"},      "Blocksize to expect"  ],
 #    "R|replication=s"   => [ \$file_checks{"replication"},    "Replication factor" ],
@@ -82,6 +82,7 @@ $host       = validate_host($host);
 $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
+validate_ssl();
 
 # ============================================================================ #
 # taken from check_hadoop_hdfs_file_webhdfs.pl
@@ -112,8 +113,6 @@ foreach(sort keys %file_checks){
 }
 
 # ============================================================================ #
-
-tls_options();
 
 vlog2;
 set_timeout();
