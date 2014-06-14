@@ -9,9 +9,11 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check a given Mongod is the Master of a Replica Set";
+$DESCRIPTION = "Nagios Plugin to check a given Mongod is the Master/Primary of a MongoDB Replica Set
 
-$VERSION = "0.1";
+Tested on MongoDB 2.4.8 and 2.6.1";
+
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -20,70 +22,37 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use Data::Dumper;
+use HariSekhon::MongoDB;
 use MongoDB::MongoClient;
-
-env_creds("MongoDB");
+use Data::Dumper;
 
 my $expected_master;
-
-my $ssl               = 0;
-my $sasl              = 0;
-my $sasl_mechanism    = "GSSAPI";
 
 %options = (
     "H|host=s"              => [ \$host,          "MongoDB host(s) to connect to (should be from same replica set), comma separated, with optional :<port> suffixes. Tries hosts in given order from left to right (\$MONGODB_HOST, \$HOST)" ],
     %useroptions,
     "e|expected-master=s"   => [ \$expected_master, "Checks the master against a specific regex rather than the specified --host. Required if specifying more than one --host" ],
-    "ssl"                   => [ \$ssl,             "Enable SSL, MongDB libraries must have been compiled with SSL and server must support it. Experimental" ],
-    "sasl"                  => [ \$sasl,            "Enable SASL authentication, must be compiled in to the MongoDB perl driver to work. Experimental" ],
-    "sasl-mechanism=s"      => [ \$sasl_mechanism,  "SASL mechanism (default: GSSAPI eg Kerberos on MongoDB Enterprise 2.4+ in which case this should be run from a valid kinit session, alternative PLAIN for LDAP using user/password against MongoDB Enterprise 2.6+ which is sent in plaintext so should be used over SSL). Experimental" ],
+    %mongo_sasl_options,
 );
+splice @usage_order, 6, 0, "expected-master";
 
-@usage_order = qw/host port user password expected-master ssl sasl sasl-mechanism/;
 get_options();
 
-defined($host) or usage "MongoDB host(s) not specified";
-my @hosts = split(",", $host);
-for(my $i=0; $i < scalar @hosts; $i++){
-    $hosts[$i] = validate_hostport(strip($hosts[$i]), "Mongo");
-}
-my $hosts  = "mongodb://" . join(",", @hosts);
-#my $hosts  = join(",", @hosts);
-vlog_options "Mongo host list", $hosts;
+validate_mongo_hosts();
+$user     = validate_user($user);
+$password = validate_password($password) if $password;
 if(scalar @hosts > 1){
     $expected_master or usage "must specify --expected-master if specifying more than one host to connect to in the replica set";
 }
-$user       = validate_user($user);
-$password   = validate_password($password) if $password;
 $expected_master = validate_regex($expected_master) if $expected_master;
-grep { $sasl_mechanism eq $_ } qw/GSSAPI PLAIN/ or usage "invalid sasl-mechanism specified, must be either GSSAPI or PLAIN";
-vlog_options "ssl",  "enabled" if $ssl;
-vlog_options "sasl", "enabled" if $sasl;
-vlog_options "sasl-mechanism", $sasl_mechanism if $sasl;
+validate_mongo_sasl();
 
 vlog2;
 set_timeout();
 
 $status = "OK";
 
-my $client;
-try {
-    $client = MongoDB::MongoClient->new(
-                                        "host"           => $hosts,
-                                        # hangs when giving only nodes of a replica set that aren't the Primary
-                                        #"find_master"    => 1,
-                                        "timeout"        => int($timeout * 1000 / 4), # connection timeout
-                                        #"wtimeout"       => $wtimeout,
-                                        "query_timeout"  => int($timeout * 1000 / 4),
-                                        "ssl"            => $ssl,
-                                        "sasl"           => $sasl,
-                                        "sasl-mechanism" => $sasl_mechanism,
-                                       ) || quit "CRITICAL", "$!";
-};
-catch_quit "failed to connect to MongoDB host '$hosts'";
-
-vlog2 "connection initiated to $host\n";
+my $client = connect_mongo();
 
 my @dbs = $client->database_names;
 @dbs or quit "UNKNOWN", "no databases found on Mongod server, cannot call ismaster";
@@ -100,29 +69,25 @@ my $ismaster = $db->run_command({"ismaster" => 1});
 
 vlog3(Dumper($ismaster));
 
-defined($ismaster->{"primary"}) or quit "UNKNOWN", "failed to find 'primary' - not part of a Replica Set?";
-defined($ismaster->{"me"})      or quit "UNKNOWN", "failed to find 'me' field in ismaster output. API may have changed. $nagios_plugins_support_msg";
-defined($ismaster->{"setName"}) or quit "UNKNOWN", "failed to find 'setName' field in ismaster output. API may have changed. $nagios_plugins_support_msg";
-
-vlog2 "got master\n";
+defined($ismaster->{"setName"}) or quit "CRITICAL", "not part of a MongoDB Replica Set. Make sure you're connected to MongoD replSet instance(s), not MongoS or standalone MongoD";
+defined($ismaster->{"primary"}) or quit "CRITICAL", "no 'primary' found (election in progress or lack of quorum?)";
+defined($ismaster->{"me"})      or quit "UNKNOWN",  "failed to find 'me' field in 'ismaster' output. $nagios_plugins_support_msg_api";
 
 my $master  = $ismaster->{"primary"};
 my $me      = $ismaster->{"me"};
 my $setName = $ismaster->{"setName"};
 
+$master or quit "CRITICAL", "primary field empty!";
+vlog2 "found replica set primary: '$master'\n";
+
 $msg = "master is '$master'";
 
 if($expected_master){
-    if($master =~ /$expected_master/){
-        $msg .= " (expected regex: '$expected_master')" if $verbose;
-    } else {
-        critical;
-        $msg .= " (expected regex: '$expected_master')";
-    }
+    check_regex($master, $expected_master);
 } else {
     if($master ne $me){
         critical;
-        $msg .= " (this host is '$me')";
+        $msg .= " (expected connected host '$me')";
     }
 }
 
