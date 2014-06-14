@@ -5,7 +5,7 @@ Largest and most advanced collection of unified Nagios monitoring code in the wi
 
 Largest collection of Hadoop & NoSQL monitoring code for Nagios, written by a former Clouderan (Cloudera is the original Hadoop Big Data company).
 
-I've been developing this Nagios Plugin Collection since around 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
+I've been developing this Nagios Plugin Collection since 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
 This should be the next stop after installing Nagios with it's basic plugins, especially for those running web or NoSQL technologies (Hadoop, Cassandra, HBase, Redis, Riak, MongoDB etc).
 
@@ -40,7 +40,9 @@ http://www.linkedin.com/in/harisekhon
 - ```check_zookeeper.pl``` - ZooKeeper server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gather statistics
 - ```check_zookeeper_znode.pl``` - ZooKeeper content checks, useful for HBase, SolrCloud, Hadoop NameNode HA & JobTracker HA (ZKFC) and any other ZooKeeper based service
 
-... and there are many more. This code base is also under active development and there are many more cool plugins pending import.
+... and there are many more.
+
+This code base is under active development and there are many more cool plugins pending import.
 
 ### Quality ###
 
