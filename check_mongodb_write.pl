@@ -21,7 +21,7 @@ Once it connects to the Primary, it will perform the following checks:
 4. records the write/read/delete timings to a given precision and outputs perfdata for graphing
 5. compares each operation's time taken against the warning/critical thresholds if given
 
-Tested on MongoDB 2.4.8, standalone mongod, mongod Replica Sets, mongos with Sharded Replica Sets, with and without authentication
+Tested on MongoDB 2.4.8 and 2.6.1, standalone mongod, mongod Replica Sets, mongos with Sharded Replica Sets, with and without authentication
 
 Write concern and Read concern take the following options with --write-concern and --read-concern:
 
@@ -43,7 +43,7 @@ MongoDB Library Limitations:
     - Using a write-concern higher than the number of members of a Replica Set will result in a timeout error from the library (wtimeout which defaults to 1 second)
 ";
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 # TODO: Read Preference straight pass thru qw/primary secondary primaryPreferred secondaryPreferred nearest/
 # TODO: check_mongodb_write_replication.pl link and enforce secondary Read Preference
@@ -55,6 +55,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use HariSekhon::MongoDB;
 # XXX: there is a bug in the Readonly module that MongoDB::MongoClient uses. It tries to call Readonly::XS but there is some kind of MAGIC_COOKIE mismatch and Readonly::XS errors out with:
 #
 # Readonly::XS is not a standalone module. You should not use it directly. at /usr/local/lib64/perl5/Readonly/XS.pm line 34.
@@ -69,38 +70,25 @@ use HariSekhonUtils;
 # /Library/Perl/5.16/Readonly.pm
 #
 use Data::Dumper;
-use MongoDB;
 use MongoDB::MongoClient;
 use Sys::Hostname;
 use Time::HiRes 'time';
-
-# not used
-#set_port_default(27017);
-
-env_creds("MongoDB");
 
 my $database          = "nagios";
 ( my $default_collection = $progname ) =~ s/\.pl$//;
 my $collection = $default_collection;
 
-# 'all' gets rejected by the MongoDB Perl Library
-#my @valid_concerns    = qw/1 2 majority all/;
-my @valid_concerns    = qw/1 2 majority/;
 my $write_concern;
 my $read_concern;
 
 my $default_wtimeout  = 1000;
 my $wtimeout          = $default_wtimeout;
 
-my $ssl               = 0;
-my $sasl              = 0;
-my $sasl_mechanism    = "GSSAPI";
-
 my $default_precision = 4;
 my $precision         = $default_precision;
 
 %options = (
-    "H|host=s"         => [ \$host,          "MongoDB host(s) to connect to (should be from same replica set), comma separated, with optional :<port> suffixes. Tries hosts in given order from left to right to find Primary for write. Specifying any one host is sufficient as the rest will be auto-determined to find the primary (\$MONGODB_HOST, \$HOST)" ],
+    %mongo_host_option,
     #"P|port=s",        => $hostoptions{"P|port=s"},
     #"P|port=s"         => [ \$port,          "Port to connect to (\$MONGODB_PORT, \$PORT, default: $default_port)" ],
     "d|database=s"     => [ \$database,      "Database to use (default: nagios)" ],
@@ -109,9 +97,7 @@ my $precision         = $default_precision;
     "write-concern=s"  => [ \$write_concern, "MongoDB write concern (defaults to '1' for a single node or 'majority'. See --help for details in header description)" ],
     "read-concern=s"   => [ \$read_concern,  "MongoDB read  concern (defaults to '1' for a single node or 'majority'. See --help for details in header description)" ],
     #"wtimeout=s"       => [ \$wtimeout,      "Number of milliseconds an operations should wait for w slaves to replicate it (defaults to $default_wtimeout ms)" ],
-    "ssl"              => [ \$ssl,           "Enable SSL, MongDB libraries must have been compiled with SSL and server must support it. Experimental" ],
-    "sasl"             => [ \$sasl,          "Enable SASL authentication, must be compiled in to the MongoDB perl driver to work. Experimental" ],
-    "sasl-mechanism=s" => [ \$sasl_mechanism, "SASL mechanism (default: GSSAPI eg Kerberos on MongoDB Enterprise 2.4+ in which case this should be run from a valid kinit session, alternative PLAIN for LDAP using user/password against MongoDB Enterprise 2.6+ which is sent in plaintext so should be used over SSL). Experimental" ],
+    %mongo_sasl_options,
     "w|warning=s"      => [ \$warning,       "Warning  threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
     "c|critical=s"     => [ \$critical,      "Critical threshold in seconds for each read/write/delete operation (use float for milliseconds)" ],
     "precision=i"      => [ \$precision,     "Number of decimal places for timings (default: $default_precision)" ],
@@ -120,14 +106,7 @@ my $precision         = $default_precision;
 @usage_order = qw/host port database collection user password write-concern read-concern wtimeout ssl sasl sasl-mechanism warning critical precision/;
 get_options();
 
-defined($host) or usage "MongoDB host(s) not specified";
-my @hosts = split(",", $host);
-for(my $i=0; $i < scalar @hosts; $i++){
-    $hosts[$i] = validate_hostport(strip($hosts[$i]), "Mongo");
-}
-my $hosts  = "mongodb://" . join(",", @hosts);
-#my $hosts  = join(",", @hosts);
-vlog_options "Mongo host list", $hosts;
+validate_mongo_hosts();
 $database    = validate_database($database, "Mongo");
 $collection  = validate_collection($collection, "Mongo");
 #unless(($user + $password) / 2 == 0) {
@@ -157,10 +136,7 @@ if(isInt($read_concern)){
 vlog_options "write concern", $write_concern;
 vlog_options "read concern",  $read_concern;
 validate_int($wtimeout, "wtimeout", 1, 1000000);
-grep { $sasl_mechanism eq $_ } qw/GSSAPI PLAIN/ or usage "invalid sasl-mechanism specified, must be either GSSAPI or PLAIN";
-vlog_options "ssl",  "enabled" if $ssl;
-vlog_options "sasl", "enabled" if $sasl;
-vlog_options "sasl-mechanism", $sasl_mechanism if $sasl;
+validate_mongo_sasl();
 validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integer" => 0 } );
 validate_int($precision, "precision", 1, 20);
 unless($precision =~ /^(\d+)$/){
@@ -182,28 +158,13 @@ vlog2;
 set_timeout();
 
 my $start_time = time;
-my $client;
-try {
-    $client = MongoDB::MongoClient->new(
-                                        "host"           => $hosts,
-                                        #"db_name"        => $database,
-                                        # hangs when giving only nodes of a replica set that aren't the Primary
-                                        #"find_master"    => 1,
-                                        "w"              => $write_concern,
-                                        "r"              => $read_concern,
-                                        "j"              => 1,
-                                        "timeout"        => int($timeout * 1000 / 4), # connection timeout
-                                        #"wtimeout"       => $wtimeout,
-                                        "query_timeout"  => int($timeout * 1000 / 4),
-                                        "ssl"            => $ssl,
-                                        "sasl"           => $sasl,
-                                        "sasl-mechanism" => $sasl_mechanism,
-                                       ) || quit "CRITICAL", "$!";
-};
-catch_quit "failed to connect / find primary MongoDB host";
-#quit "CRITICAL", "failed to connect / find primary MongoDB host" if $@;
-
-vlog2 "connection initiated\n";
+my $client = connect_mongo(
+                            {
+                                "w"              => $write_concern,
+                                "r"              => $read_concern,
+                                "j"              => 1,
+                            }
+);
 
 if($user and $password){
     vlog2 "authenticating against database '$database'";
@@ -222,6 +183,7 @@ if(defined($client->{'_master'}{'host'})){
     quit "CRITICAL", "could not determine master\n";
 }
 $master =~ s,mongodb://,,;
+# make default port implicit, only explicitly state non-default port
 $master =~ s,:27017,,;
 vlog2 "primary is $master\n";
 
@@ -232,23 +194,34 @@ try {
     $db = $client->get_database($database)   || quit "CRITICAL", "failed to select database '$database': $!";
 };
 catch_quit "failed to select database '$database'";
+vlog2 "selected database '$database'";
 
 try {
     $coll = $db->get_collection($collection) || quit "CRITICAL", "failed to get collection '$collection': $!";
 };
 catch_quit "failed to get collection '$collection'";
+vlog2 "got handle to collection '$collection'\n";
 
 # ============================================================================ #
 my $write_start = time;
 my $returned_id;
 try {
-    $returned_id = $coll->insert(  {
+    $returned_id = $coll->insert( {
                                     '_id'   => $id,
                                     'value' => $value
-                                   } 
-                                ) || quit "CRITICAL", "failed to insert document in to database '$database' collection '$collection': $!";
+                                  } ) or quit "CRITICAL", "failed to insert document in to database '$database' collection '$collection': $!";
 };
-catch_quit "failed to insert document in to database '$database' collection '$collection'";
+catch{
+    my $errmsg =  "failed to insert document in to database '$database' collection '$collection': $@";
+    if($errmsg =~ /not master/){
+        chomp $errmsg;
+        $errmsg .= " You probably haven't specified the primary for the replica set in the list of MongoD instances? If you specified all MongoD instances in the replica set or connected via MongoS this may indicate a real problem. If you've got a sharded cluster and have specified the replica set directly you may have specified a replica set which isn't authoritative for the given shard key";
+    } elsif($errmsg =~ /timeout/){
+        chomp $errmsg;
+        $errmsg .= " This can be caused by --write-concern being higher than the available replica set members";
+    }
+    quit "CRITICAL", $errmsg;
+};
 my $write_time = sprintf("%0.${precision}f", time - $write_start);
 $msg .= "document written in $write_time secs";
 
