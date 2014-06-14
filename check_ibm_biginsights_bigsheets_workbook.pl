@@ -55,8 +55,7 @@ unless($list_workbooks){
 #$workbook = uri_escape($workbook);
     vlog_options "workbook", $workbook;
 }
-
-tls_options();
+validate_ssl();
 
 vlog2;
 set_timeout();
