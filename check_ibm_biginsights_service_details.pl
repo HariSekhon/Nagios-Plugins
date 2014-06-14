@@ -64,7 +64,7 @@ my $list_services = 0;
 
 %options = (
     %biginsights_options,
-    "S|service=s"       =>  [ \$service,        "Check state of a given service. See --help header description for list of supported service names" ],
+    "s|service=s"       =>  [ \$service,        "Check state of a given service. See --help header description for list of supported service names" ],
     %thresholdoptions,
 );
 splice @usage_order, 4, 0, "service";
@@ -78,8 +78,7 @@ $password   = validate_password($password);
 defined($service) or usage "service not defined";
 grep { $service eq $_ } @valid_services or usage "invalid service given, must be one of: " . join(", ", @valid_services);
 validate_thresholds(0, 0, { "simple" => "upper", "positive" => 1, "integer" => 1 });
-
-tls_options();
+validate_ssl();
 
 vlog2;
 set_timeout();
