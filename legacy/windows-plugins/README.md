@@ -1,7 +1,7 @@
 Windows Plugins
 ===============
 
-It's been many years since I used these windows plugins so I refer back to the LICENSE, they are provided "AS-IS" with abosolutely no warranty! If they work for you, great, if not feel free to modify them to work just make sure to send me the updates for re-inclusion!
+It's been many years since I used these windows plugins so I refer back to the LICENSE, they are provided "AS-IS" with absolutely no warranty! If they work for you, great, if not feel free to modify them to work just make sure to send me the updates for re-inclusion!
 
 A couple of these I used quite a lot, IIRC the check_automatic_services.wsf and check_mcafee_services.wsf back in the days I used to administer McAfee ePO and ProtectionPilot for McAfee Anti-Virus Enterprise.
 
