@@ -13,9 +13,9 @@
 
 import sys
 import time
-import nagios
-from nagios import NagiosTester, which, end
-from nagios import OK, WARNING, CRITICAL, UNKNOWN, DEFAULT_TIMEOUT
+import lib_nagios as nagios
+from lib_nagios import NagiosTester, which, end
+from lib_nagios import OK, WARNING, CRITICAL, UNKNOWN, DEFAULT_TIMEOUT
 from optparse import OptionParser
 
 __author__      = "Hari Sekhon"
