@@ -46,7 +46,7 @@ my $list_services = 0;
 
 %options = (
     %biginsights_options,
-    "S|service=s"       =>  [ \$service,        "Check state of a given service (checks all services by default). Use --list-services to see valid service names" ],
+    "s|service=s"       =>  [ \$service,        "Check state of a given service (checks all services by default). Use --list-services to see valid service names" ],
     "list-services"     =>  [ \$list_services,  "List services" ],
     %thresholdoptions,
 );
@@ -64,8 +64,7 @@ if(defined($service)){
     $service = $1;
 }
 validate_thresholds(0, 0, { "simple" => "upper", "positive" => 1, "integer" => 1 });
-
-tls_options();
+validate_ssl();
 
 vlog2;
 set_timeout();
