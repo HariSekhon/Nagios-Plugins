@@ -40,8 +40,7 @@ $port               = validate_port($port);
 $user               = validate_user($user);
 $password           = validate_password($password);
 $expected_version   = validate_regex($expected_version, "expected version") if defined($expected_version);
-
-tls_options();
+validate_ssl();
 
 vlog2;
 set_timeout();
