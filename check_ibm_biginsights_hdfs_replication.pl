@@ -45,9 +45,8 @@ $host       = validate_host($host);
 $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
+validate_ssl();
 validate_thresholds(1, 1, { "simple" => "upper", "positive" => 1, "integer"  => 1 });
-
-tls_options();
 
 vlog2;
 set_timeout();
