@@ -133,13 +133,13 @@ if ($days_left < 0 ) {
     quit "CRITICAL", "license expired " . abs($days_left) . " days ago";
 }
 elsif ($days_left < $critical) {
-    quit "CRITICAL", "$msg";
+    quit "CRITICAL", $msg;
 }
 elsif ($days_left < $warning) {
-    quit "WARNING", "$msg";
+    quit "WARNING", $msg;
 }
 else {
-    quit "OK", "$msg";
+    quit "OK", $msg;
 }
 
 quit "UNKNOWN", "hit end of code"
