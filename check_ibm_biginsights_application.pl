@@ -50,8 +50,7 @@ unless($list_apps){
     defined($app) or usage "application not defined";
     vlog_options "application", $app;
 }
-
-tls_options();
+validate_ssl();
 
 vlog2;
 set_timeout();
