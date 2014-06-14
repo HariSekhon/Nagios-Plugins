@@ -74,8 +74,8 @@ def end(status, message):
 for bin in GLSACHECK, EMERGE:
     if not os.path.exists(bin):
         if not os.path.exists('/etc/gentoo-release'):
-            end(UNKNOWN, "Utility '%s' cannot be found and system does not " \
-                       + "appear to be Gentoo")
+            end(UNKNOWN, "Utility '%s' cannot be found and system does " % bin \
+                       + "not appear to be Gentoo")
         elif bin == GLSACHECK:
             end(UNKNOWN, "Utility '%s' cannot be found. " % bin \
                        + "You may need to 'emerge gentoolkit' first")
