@@ -14,6 +14,8 @@ $DESCRIPTION = "Nagios Plugin to check last contact time lag for nodes in an 0xd
 Checks the highest last contact lag for all nodes from the given --host node's perspective
 
 Since current time is taken from the local machine this program is running on, you must make sure NTP is running across all cluster nodes and this one. Any timestamps in the future will result in a Warning state
+
+Tested on 0xdata H2O 2.4.3.4
 ";
 
 $VERSION = "0.1";

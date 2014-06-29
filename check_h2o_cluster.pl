@@ -23,6 +23,8 @@ Optional Checks:
 - cloud locked (stabilized - accepts no new members)
 - uptime - ensure cloud has stayed up a minimum amount of seconds
 - H2O version
+
+Tested on 0xdata H2O 2.4.3.4
 ";
 
 $VERSION = "0.1";

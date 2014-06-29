@@ -30,6 +30,8 @@ The node is the same one given to the --host switch (auto-determines H2O's node 
 Stats collected:
 
 " . join("\n", @stats) . "
+
+Tested on 0xdata H2O 2.4.3.4
 ";
 
 $VERSION = "0.2";

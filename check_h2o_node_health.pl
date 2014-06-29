@@ -14,6 +14,8 @@ $DESCRIPTION = "Nagios Plugin to check a given node's health in an 0xdata H2O ma
 The node is the same one given to the --host switch (auto-determines H2O's node name for the node you connected to). Optionally you can specify a different node to check using the --node switch. Use --list-nodes to see the valid H2O node names
 
 Technically the cluster should dissolve if a node fails but this is an additional check on node health possibly pre-empting failure
+
+Tested on 0xdata H2O 2.4.3.4
 ";
 
 $VERSION = "0.2";

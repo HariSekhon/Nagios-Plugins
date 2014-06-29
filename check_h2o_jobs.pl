@@ -11,7 +11,10 @@
 
 $DESCRIPTION = "Nagios Plugin to check jobs and failed jobs on an 0xdata H2O machine learning cluster via REST API
 
-Warning and Critical thresholds are applied to the number of failed jobs, by default any failed jobs trigger CRITICAL";
+Warning and Critical thresholds are applied to the number of failed jobs, by default any failed jobs trigger CRITICAL
+
+Tested on 0xdata H2O 2.4.3.4
+";
 
 $VERSION = "0.1";
 
