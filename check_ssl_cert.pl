@@ -20,7 +20,7 @@ Checks:
 3. Domain name on certificate (optional)
 4. Subject Alternative Names supported by certificate (optional)";
 
-$VERSION = "0.9.8";
+$VERSION = "0.9.9";
 
 use warnings;
 use strict;
@@ -169,7 +169,7 @@ foreach (@output){
     }
     #elsif (/subject=/) {
     # The * must be in there for wildcard certs
-    elsif (/Subject:.+,\s*CN=([\*\w\.-]+)/) {
+    elsif (/Subject:(?:.+,)?\s*CN=([\*\w\.-]+)/) {
         $domain = $1;
         #defined($domain) || quit "CRITICAL", "failed to determine certificate domain name";
         last;
