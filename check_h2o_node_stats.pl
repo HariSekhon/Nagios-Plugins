@@ -31,7 +31,7 @@ Stats collected:
 
 " . join("\n", @stats) . "
 
-Tested on 0xdata H2O 2.4.3.4
+Tested on 0xdata H2O 2.2.1.3, 2.4.3.4
 ";
 
 $VERSION = "0.2";
