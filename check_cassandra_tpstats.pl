@@ -20,7 +20,7 @@ Can specify a remote host and port otherwise it checks the local node's stats (f
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
-$VERSION = "0.6.1";
+$VERSION = "0.6.2";
 
 use strict;
 use warnings;
@@ -60,7 +60,10 @@ my $cmd     = "${nodetool} ${options}tpstats";
 vlog2 "fetching threadpool stats";
 my @output = cmd($cmd);
 
-check_nodetool_errors(join(" ", @output));
+foreach(@output){
+    skip_nodetool_output($_) and next;
+    check_nodetool_errors($_);
+}
 my $i = 0;
 while(skip_nodetool_output($output[$i])){
     $i++;
