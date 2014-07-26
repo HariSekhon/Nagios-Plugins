@@ -19,7 +19,7 @@ Can specify a remote host and port otherwise assumes to check via localhost
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -82,6 +82,8 @@ foreach(@output){
         if($percentage < $min_node[1]){
             @min_node = ($node, $percentage, $rack);
         }
+    } elsif(skip_nodetool_output($_)){
+        # ignore
     } else {
         die_nodetool_unrecognized_output($_);
     }

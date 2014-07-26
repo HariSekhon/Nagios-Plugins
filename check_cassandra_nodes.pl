@@ -19,7 +19,7 @@ Can specify a remote host and port otherwise assumes to check via localhost
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
-$VERSION = "0.4";
+$VERSION = "0.4.1";
 
 use strict;
 use warnings;
@@ -95,6 +95,8 @@ foreach(@output){
     } elsif(/^D/){
         $down_nodes++;
         parse_state($_);
+    } elsif(skip_nodetool_output($_)){
+        # ignore
     } else {
         die_nodetool_unrecognized_output($_);
     }
