@@ -11,6 +11,13 @@
 
 $DESCRIPTION = "Nagios Plugin to check Hadoop Yarn Resource Manager
 
+Checks:
+
+- Node Manager metrics and perf data, thresholds on unhealthy node managers
+- Yarn App stats
+- Heap Used % vs thresholds
+- Non-Heap Used % vs thresholds
+
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
 
 $VERSION = "0.1";
