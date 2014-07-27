@@ -13,14 +13,14 @@ $DESCRIPTION = "Nagios Plugin to check Hadoop node and service states via Ambari
 
 Checks:
 
-- a given service's state, warns on maintenance state unless --maintenance-ok
+- a given service's state, optionally suppresses alerts in maintenance mode if --maintenance-ok
 - a given node's state
-- all service states
-- any unhealthy nodes
+- all service states, --maintenance-ok option
+- all node states
 
 Tested on Hortonworks HDP 2.0 and 2.1";
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -39,7 +39,7 @@ my $node_state          = 0;
 my $service_metrics     = 0;
 my $service_state       = 0;
 my $all_service_states  = 0;
-my $unhealthy_nodes     = 0;
+my $all_node_states     = 0;
 
 my $maintenance_ok      = 0;
 
@@ -53,13 +53,13 @@ my @metrics_not_found;
     %useroptions,
     %ambari_options,
     "list-users"                => [ \$list_users,          "List Ambari users" ],
-    "service-state"             => [ \$service_state,       "Check service state of specified node+service is healthy. Requires --cluster, --node, --service" ],
-    "maintenance-ok"            => [ \$maintenance_ok,      "Suppress service alerts if in maintenance mode" ],
     "node-state"                => [ \$node_state,          "Check node state of specified node is healthy. Requires --cluster, --node" ],
+    "all-node-states"           => [ \$all_node_states,     "Check the state of all nodes in a given cluster" ],
+    "service-state"             => [ \$service_state,       "Check service state of specified node+service is healthy. Requires --cluster, --node, --service" ],
     "all-service-states"        => [ \$all_service_states,  "Check all service states for given --cluster" ],
-    "unhealthy-nodes"           => [ \$unhealthy_nodes,     "Check for any unhealthy nodes" ],
+    "maintenance-ok"            => [ \$maintenance_ok,      "Suppress service alerts in maintenance mode" ],
 );
-splice @usage_order, 10, 0, qw/service-state maintenance-ok node-state all-service-states unhealthy-nodes/;
+splice @usage_order, 10, 0, qw/service-state maintenance-ok node-state all-service-states all-node-states/;
 
 get_options();
 
@@ -84,7 +84,7 @@ $url_prefix = "http://$host:$port$api";
 
 list_ambari_components();
 
-unless($node_state + $service_state + $all_service_states + $service_metrics + $unhealthy_nodes  eq 1){
+unless($node_state + $all_node_states + $service_state + $all_service_states eq 1){
     usage "must specify exactly one check";
 }
 
@@ -93,7 +93,10 @@ sub get_service_state($$){
     $service      = shift;
     $json = curl_ambari "$url_prefix/clusters/$cluster/services/$service";
     my $state = get_field("ServiceInfo.state");
-    if($state eq "STARTED" or $state eq "INSTALLED"){
+    # TODO: maintenance_state values need to be documented in the Ambari v1 API docs
+    if($maintenance_ok and get_field("ServiceInfo.maintenance_state") ne "OFF"){
+        #
+    } elsif($state eq "STARTED" or $state eq "INSTALLED"){
         # ok
         $state = lc $state;
     } elsif($state eq "UNKNOWN"){
@@ -108,7 +111,24 @@ sub get_service_state($$){
     return $state;
 }
 
-if($node_state){
+if($all_node_states){
+    cluster_required();
+    $json = curl_ambari "$url_prefix/clusters/$cluster/hosts?Hosts/host_state!=HEALTHY|Hosts/host_status!=HEALTHY";
+    my @items = get_field_array("items");
+    if(@items){
+        critical;
+        my @nodes;
+        foreach (@items){
+            push(@nodes, get_field2($_, "Hosts.host_name") . " (state=" . get_field2($_, "Hosts.host_state") . "/status=" . get_field2($_, "Hosts.host_status") . ")");
+        }
+        plural scalar @nodes;
+        $msg = scalar @nodes . " node$plural in non-healthy state: ";
+        $msg .= join(", ", sort @nodes);
+        $msg =~ s/, $//;
+    } else {
+        $msg = "no unhealthy nodes";
+    }
+} elsif($node_state){
     cluster_required();
     node_required();
     $json = curl_ambari "$url_prefix/clusters/$cluster/hosts/$node";
@@ -125,28 +145,22 @@ if($node_state){
     } else {
         critical;
     }
-} elsif($unhealthy_nodes){
-    cluster_required();
-    $json = curl_ambari "$url_prefix/clusters/$cluster/hosts?Hosts/host_status!=HEALTHY";
-    my @items = get_field_array("items");
-    if(@items){
-        critical;
-        my @nodes;
-        foreach (@items){
-            push(@nodes, get_field2($_, "Hosts.host_name") . " (" . get_field2($_, "Hosts.host_status") . ")");
-        }
-        plural scalar @nodes;
-        $msg = scalar @nodes . " node$plural in non-healthy state: ";
-        $msg .= join(", ", sort @nodes);
-        $msg =~ s/, $//;
-    } else {
-        $msg = "no unhealthy nodes";
-    }
 } elsif($node_metrics){
     cluster_required();
     node_required();
     $json = curl_ambari "$url_prefix/clusters/$cluster/hosts/$node";
     # TODO:
+} elsif($all_service_states){
+    cluster_required();
+    my @services = list_services();
+    my $service_state;
+    $msg = "services - ";
+    foreach my $service (@services){
+        $service_state = get_service_state($cluster, $service);
+        $service = $service_map{$service} if grep { $service eq $_ } keys %service_map;
+        $msg .= "$service\[$service_state\], ";
+    }
+    $msg =~ s/, $//;
 } elsif($service_state){
     cluster_required();
     service_required();
@@ -160,17 +174,6 @@ if($node_state){
     } elsif($verbose){
         $msg .= ", maintenance state '" . lc $maintenance . "'";
     }
-} elsif($all_service_states){
-    cluster_required();
-    my @services = list_services();
-    my $service_state;
-    $msg = "services - "; 
-    foreach my $service (@services){
-        $service_state = get_service_state($cluster, $service);
-        $service = $service_map{$service} if grep { $service eq $_ } keys %service_map;
-        $msg .= "$service\[$service_state\], ";
-    }
-    $msg =~ s/, $//;
 } elsif($service_metrics){
     cluster_required();
     service_required();
