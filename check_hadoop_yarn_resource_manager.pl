@@ -13,10 +13,10 @@ $DESCRIPTION = "Nagios Plugin to check Hadoop Yarn Resource Manager
 
 Checks:
 
-- Node Manager metrics and perf data, thresholds on unhealthy node managers
+- Node Manager metrics (active, decommissioned, lost, unhealthy, rebooted), thresholds vs unhealthy node managers
 - Yarn App stats (running, pending, active, submitted, completed, killed, failed)
-- Heap Used % vs thresholds
-- Non-Heap Used % vs thresholds
+- Yarn Resource Manager Heap     Memory Used % vs thresholds
+- Yarn Resource Manager Non-Heap Memory Used % vs thresholds
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
 
@@ -48,8 +48,8 @@ my $app_stats     = 0;
     %hostoptions,
     "node-managers"     => [ \$node_managers,   "Node Manager metrics, check unhealthy node managers against thresholds (default w=0/c=0)" ],
     "app-stats"         => [ \$app_stats,       "Yarn App stats (running, pending, active, submitted, completed, killed, failed)" ],
-    "heap-used"         => [ \$heap,            "Check heap     memory used % against thresholds (default w=80%/c=90%)" ],
-    "non-heap-used"     => [ \$non_heap,        "Check non-heap memory used % against thresholds (default w=80%/c=90%)" ],
+    "heap-used"         => [ \$heap,            "Yarn Resource Manager Heap     memory used % against thresholds (default w=80%/c=90%)" ],
+    "non-heap-used"     => [ \$non_heap,        "Yarn Resource Manager Non-Heap memory used % against thresholds (default w=80%/c=90%)" ],
     %thresholdoptions,
 );
 splice @usage_order, 6, 0, qw/node-managers app-stats heap-used non-heap-used/;
