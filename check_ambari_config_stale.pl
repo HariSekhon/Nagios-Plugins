@@ -30,7 +30,9 @@ $ua->agent("Hari Sekhon $progname $main::VERSION");
 %options = (
     %hostoptions,
     %useroptions,
-    %ambari_options,
+    "C|cluster=s"               => [ \$cluster,             "Cluster Name as shown in Ambari (eg. \"MyCluster\")" ],
+    "list-clusters"             => [ \$list_clusters,       "Lists all the clusters managed by the Ambari server" ],
+    %tlsoptions,
 );
 
 get_options();
@@ -58,13 +60,13 @@ cluster_required();
 $json = curl_ambari "$url_prefix/clusters/$cluster/host_components?fields=HostRoles/component_name&HostRoles/stale_configs=true";
 my @items = get_field_array("items");
 if(@items){
-    $msg = "stale host component configs found for: ";
+    $msg = "stale configs found for: ";
     foreach(@items){
         $msg .= get_field2($_, "HostRoles.component_name") . ", ";
     }
     $msg =~ s/, $//;
 } else {
-    $msg = "no stale host component configs found";
+    $msg = "no stale configs";
 }
 
 vlog2;
