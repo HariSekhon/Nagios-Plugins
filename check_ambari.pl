@@ -9,10 +9,18 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop node and service states via Ambari REST API";
-# TODO: metrics
+$DESCRIPTION = "Nagios Plugin to check Hadoop node and service states via Ambari REST API
 
-$VERSION = "0.1";
+Checks:
+
+- a given service's state
+- a given node's state
+- all service states
+- any unhealthy nodes
+
+Tested on Hortonworks HDP 2.0 and 2.1";
+
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -27,19 +35,15 @@ use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
-my $protocol     = "http";
-my $default_port = 8080;
-$port            = $default_port;
-my $ssl_port     = 8443;
+my $protocol   = "http";
+set_port_default(8080);
+my $ssl_port   = 8443;
 
 my $cluster;
 my $service;
 my $component;
 my $node;
 my $metrics;
-my $ssl_ca_path;
-my $tls = 0;
-my $tls_noverify;
 my $url;
 
 my $node_metrics        = 0;
@@ -94,11 +98,9 @@ env_creds("Ambari");
     # TODO:
     #"node-metrics"              => [ \$node_metrics,        "Check node metrics for specified cluster node. Requires --cluster/--node" ],
     #"service-metrics"           => [ \$service_metrics,     "Check service metrics for specified cluster service. Requires --cluster/--service" ],
-    "T|tls"                     => [ \$tls,                 "Use TLS connection to Ambari (automatically updates port to $ssl_port if still set to $default_port to save one 302 redirect round trip)" ],
-    "ssl-CA-path=s"             => [ \$ssl_ca_path,         "Path to CA certificate directory for validating SSL certificate (automatically enables --tls)" ],
-    "tls-noverify"              => [ \$tls_noverify,        "Do not verify SSL certificate from Ambari (automatically enables --tls)" ],
+    %tlsoptions
 );
-@usage_order = qw/host port user password cluster service node component list-clusters list-services list-nodes list-service-components list-service-nodes node-state service-state all-service-states service-metrics unhealthy-nodes tls ssl-CA-path tls-noverify warning critical/;
+splice @usage_order, 6, 0, qw/cluster service node component list-clusters list-services list-nodes list-service-components list-service-nodes node-state service-state all-service-states service-metrics unhealthy-nodes/;
 
 get_options();
 
@@ -112,23 +114,8 @@ unless($list_clusters + $list_nodes + $list_svcs + $list_svc_components + $node_
     usage "must specify exactly one check";
 }
 
-# TODO: mv to lib
-$tls = 1 if(defined($ssl_ca_path) or defined($tls_noverify));
-if(defined($tls_noverify)){
-    $ua->ssl_opts( verify_hostname => 0 );
-    $tls = 1;
-}
-if(defined($ssl_ca_path)){
-    $ssl_ca_path = validate_directory($ssl_ca_path, undef, "SSL CA directory", "no vlog");
-    $ua->ssl_opts( SSL_ca_path => $ssl_ca_path );
-    $tls = 1;
-}
-if($tls){
-    vlog_options "TLS enabled",  "true";
-    vlog_options "SSL CA Path",  $ssl_ca_path  if defined($ssl_ca_path);
-    vlog_options "TLS noverify", $tls_noverify ? "true" : "false";
-}
 validate_thresholds();
+validate_tls();
 
 vlog2;
 set_timeout();
