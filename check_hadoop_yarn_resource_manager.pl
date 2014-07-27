@@ -156,7 +156,7 @@ if($heap or $non_heap){
         my $available_mb   = get_field2_float($_, "AvailableMB");
         my $active_users   = get_field2_int($_, "ActiveUsers");
         my $active_apps    = get_field2_int($_, "ActiveApplications");
-        $msg  = "apps: ";
+        $msg  = "yarn apps: ";
         $msg .= "$apps_running running, ";
         $msg .= "$apps_pending pending, ";
         $msg .= "$active_apps active, ";
