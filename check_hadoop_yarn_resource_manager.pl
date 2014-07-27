@@ -118,7 +118,7 @@ if($heap or $non_heap){
             check_thresholds($heap_used_pc);
             $msg .= sprintf(" | 'heap used %%'=%s%%", $heap_used_pc);
             msg_perf_thresholds();
-            $msg .= sprintf(" 'heap used'=%sb 'heap max'=%sb", $heap_used, $heap_max);
+            $msg .= sprintf(" 'heap used'=%sb 'heap max'=%sb 'heap committed'=%sb", $heap_used, $heap_max, get_field2_int($beans[0][0], "HeapMemoryUsage.committed"));
         } elsif($non_heap){
             my $non_heap_max     = get_field2_int($beans[0][0], "NonHeapMemoryUsage.max");
             my $non_heap_used    = get_field2_int($beans[0][0], "NonHeapMemoryUsage.used");
@@ -128,7 +128,7 @@ if($heap or $non_heap){
             check_thresholds($non_heap_used_pc);
             $msg .= sprintf(" | 'non-heap used %%'=%s%%", $non_heap_used_pc);
             msg_perf_thresholds();
-            $msg .= sprintf(" 'non-heap used'=%sb 'non-heap max'=%sb", $non_heap_used, $non_heap_max);
+            $msg .= sprintf(" 'non-heap used'=%sb 'non-heap max'=%sb 'non-heap committed'=%sb", $non_heap_used, $non_heap_max, get_field2_int($beans[0][0], "NonHeapMemoryUsage.committed"));
         } else {
             code_error "error determining heap / non_heap";
         }
