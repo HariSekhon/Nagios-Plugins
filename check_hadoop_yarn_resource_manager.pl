@@ -36,7 +36,6 @@ use LWP::Simple '$ua';
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 set_port_default(8088);
-#set_threshold_defaults(80, 90);
 
 env_creds("Yarn Resource Manager");
 
@@ -47,10 +46,10 @@ my $app_stats     = 0;
 
 %options = (
     %hostoptions,
-    "node-managers"     => [ \$node_managers,   "Node Manager metrics, check unhealthy node managers against thresholds" ],
+    "node-managers"     => [ \$node_managers,   "Node Manager metrics, check unhealthy node managers against thresholds (default w=0/c=0)" ],
     "app-stats"         => [ \$app_stats,       "Yarn App stats (running, pending, active, submitted, completed, killed, failed)" ],
-    "heap-used"         => [ \$heap,            "Check heap memory used % against thresholds" ],
-    "non-heap-used"     => [ \$non_heap,        "Check non-heap memory used % against thresholds" ],
+    "heap-used"         => [ \$heap,            "Check heap     memory used % against thresholds (default w=80%/c=90%)" ],
+    "non-heap-used"     => [ \$non_heap,        "Check non-heap memory used % against thresholds (default w=80%/c=90%)" ],
     %thresholdoptions,
 );
 splice @usage_order, 6, 0, qw/node-managers app-stats heap-used non-heap-used/;
@@ -62,10 +61,17 @@ $port       = validate_port($port);
 if($heap + $non_heap + $node_managers + $app_stats != 1){
     usage "must specify exactly one of --node-managers / --app-stats / --heap-used / --non-heap-used";
 }
+if($node_managers){
+    $warning  = 0 unless defined($warning);
+    $critical = 0 unless defined($critical);
+} elsif($heap or $non_heap){
+    $warning  = 80 unless defined($warning);
+    $critical = 90 unless defined($critical);
+}
 if($heap or $non_heap or $node_managers){
     validate_thresholds(1, 1, { "positive" => 1, "simple" => "upper" });
-} else {
-    validate_thresholds(undef, undef, { "positive" => 1});
+#} else {
+#    validate_thresholds(undef, undef, { "positive" => 1});
 }
 
 vlog2;
