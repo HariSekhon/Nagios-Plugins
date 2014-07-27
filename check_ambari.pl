@@ -70,6 +70,7 @@ $password   = validate_password($password);
 $cluster    = validate_ambari_cluster($cluster) if $cluster;
 $service    = validate_ambari_service($service) if $service;
 $component  = validate_ambari_component($component) if $component;
+$node       = validate_ambari_node($node) if $node;
 
 validate_thresholds();
 validate_tls();
