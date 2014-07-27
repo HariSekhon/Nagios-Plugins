@@ -157,7 +157,7 @@ if($all_node_states){
     $msg = "services - ";
     foreach my $service (@services){
         $service_state = get_service_state($cluster, $service);
-        $service = $service_map{$service} if grep { $service eq $_ } keys %service_map;
+        $service = hadoop_service_name $service;
         $msg .= "$service\[$service_state\], ";
     }
     $msg =~ s/, $//;
@@ -165,7 +165,7 @@ if($all_node_states){
     cluster_required();
     service_required();
     my $state = get_service_state($cluster, $service);
-    $service = $service_map{$service} if grep { $service eq $_ } keys %service_map;
+    $service = hadoop_service_name $service;
     $msg = "service '$service' state '$state'";
     my $maintenance = get_field("ServiceInfo.maintenance_state");
     if($maintenance ne "OFF"){
