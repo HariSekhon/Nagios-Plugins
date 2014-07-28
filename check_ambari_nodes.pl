@@ -18,7 +18,7 @@ Checks:
 
 Tested on Hortonworks HDP 2.0 and 2.1";
 
-$VERSION = "0.5";
+$VERSION = "0.6";
 
 use strict;
 use warnings;
@@ -75,11 +75,17 @@ if($node){
     my $node_state  = get_field("Hosts.host_state");
     my $node_status = get_field("Hosts.host_status");
     $msg = "node '$node' status: " . lc_healthy($node_status) . ", state: " . lc_healthy($node_state);
-    if($node_status eq "HEALTHY"){
+    if($node_status eq "HEALTHY" and $node_state eq "HEALTHY"){
         # ok
-    } elsif($node_status eq "UNHEALTHY"){
+    } elsif($node_status eq "UNHEALTHY" or $node_state eq "UNHEALTHY"){
         critical;
-    } elsif($node_status eq "UNKNOWN"){
+    } elsif($node_status eq "UNKNOWN" and $node_state eq "HEARTBEAT_LOST"){
+        critical;
+    } elsif($node_status eq "ALERT" and $node_state eq "HEALTHY"){
+        warning;
+    } elsif($node_state eq "WAITING_FOR_HOST_STATUS_UPDATES" or $node_state eq "INIT"){
+        unknown;
+    } elsif($node_status eq "UNKNOWN" or $node_state eq "UNKNOWN"){
         unknown;
     } else {
         critical;
@@ -98,7 +104,7 @@ if($node){
         check_thresholds($num_nodes);
         $msg .= ": " . join(", ", sort @nodes);
     } else {
-        $msg = "no unhealthy nodes";
+        $msg = "all nodes ok - status: healthy, state: healthy";
     }
 }
 
