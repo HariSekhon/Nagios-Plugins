@@ -27,9 +27,9 @@ Caveats:
 1. In Replication check cannot currently detect corrupt or under-replicated blocks since JSP doesn't offer this information
 2. There are no byte counters, so we can only use the human summary and multiply out, and being a multiplier of a summary figure it's marginally less accurate
 
-Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for CDH 4.3 (2.0.0-cdh4.3.0). If JSP output changes across versions, this plugin will need to be updated to parse the changes";
+Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for Cloudera CDH 4.3 (2.0.0-cdh4.3.0) and Hortonworks HDP 2.1 (2.4.0). If JSP output changes across versions, this plugin will need to be updated to parse the changes";
 
-$VERSION = "0.8.1";
+$VERSION = "0.9";
 
 use strict;
 use warnings;
@@ -274,13 +274,14 @@ if($balance){
     vlog2 "parsing Namenode datanode % usage\n";
     if($content =~ />\s*Live Datanodes\s*:*\s*(\d+)\s*</){
         $dfs{"datanodes_available"} = $1;
+        vlog3 "datanodes available: $1";
     } else {
         quit "UNKNOWN", "couldn't find Live Datanodes in output from $url";
     }
     my %datanodes_used_pc;
-    my $regex_datanode_used_pc = qr/<td\s+class="name"><a[^>]+>\s*($hostname_regex|$ip_regex)\s*<\/a>.+<td\s+align="right"\s+class="pcused">\s*(\d+(?:\.\d+)?)\s*</o;
+    my $regex_datanode_used_pc = qr/<td\s+class="name">.+>\s*($hostname_regex|$ip_regex)\s*<.+\s+class="pcused">\s*(\d+(?:\.\d+)?)\s*</o;
     foreach(split(/\n/, $content)){
-        if(/$regex_datanode_used_pc/){
+        if($_ =~ $regex_datanode_used_pc){
             $datanodes_used_pc{$1} = $2;
         }
     }
@@ -289,7 +290,7 @@ if($balance){
     }
     vlog2;
     if(scalar keys %datanodes_used_pc ne $dfs{"datanodes_available"}){
-        quit "UNKNOWN", sprintf("Mismatch on collected number of datanode used %% (%d) and number of available datanodes (%d)", scalar keys %datanodes_used_pc, $dfs{"datanodes_available"});
+        quit "UNKNOWN", sprintf("mismatch on collected number of datanode used %% (%d) and number of available datanodes (%d). Probably a parsing error due to changes in newer versions of Hadoop NameNode WebUI. $nagios_plugins_support_msg", scalar keys %datanodes_used_pc, $dfs{"datanodes_available"});
     }
     my %datanodes_imbalance;
     my $largest_datanode_used_pc_diff = -1;
