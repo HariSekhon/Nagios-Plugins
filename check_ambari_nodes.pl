@@ -61,6 +61,11 @@ $url_prefix = "http://$host:$port$api";
 
 list_ambari_components();
 
+sub lc_healthy($){
+    my $str = shift;
+    ( $str eq "HEALTHY" ? "healthy" : $str );
+}
+
 cluster_required();
 if($node){
     cluster_required();
@@ -69,7 +74,7 @@ if($node){
     # state appears to be just a string, whereas status is the documented state type HEALTHY/UNHEALTHY/UNKNOWN to check according to API docs. However I've just discovered that state can stay HEALTHY and status UNHEALTHY
     my $node_state  = get_field("Hosts.host_state");
     my $node_status = get_field("Hosts.host_status");
-    $msg = "node '$node' status: " . ($node_status eq "HEALTHY" ? "healthy" : $node_status) . ", state: " . ($node_state eq "HEALTHY" ? "healthy" : $node_state);
+    $msg = "node '$node' status: " . lc_healthy($node_status) . ", state: " . lc_healthy($node_state);
     if($node_status eq "HEALTHY"){
         # ok
     } elsif($node_status eq "UNHEALTHY"){
@@ -85,7 +90,7 @@ if($node){
     if(@items){
         my @nodes;
         foreach (@items){
-            push(@nodes, get_field2($_, "Hosts.host_name") . " (status=" . get_field2($_, "Hosts.host_status") . "/state=" . get_field2($_, "Hosts.host_state") . ")");
+            push(@nodes, get_field2($_, "Hosts.host_name") . " (status=" . lc_healthy(get_field2($_, "Hosts.host_status")) . "/state=" . lc_healthy(get_field2($_, "Hosts.host_state")) . ")");
         }
         my $num_nodes = scalar @nodes;
         plural $num_nodes;
