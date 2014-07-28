@@ -248,7 +248,7 @@ my %datanode_blocks;
 sub parse_datanode_blockcounts {
     vlog2 "parsing DataNode block counts from NameNode JSP output";
 
-    my $regex_blockcount = qr{<a title="$ip_regex:\d+"[^>]*>($host_regex)</a>.+class="blocks">(\d+)}m;
+    my $regex_blockcount = qr{class="name".*>\s*($host_regex)\s*<.+class="blocks">(\d+)}m;
     foreach(split("\n", $content)){
         if(/$regex_blockcount/){
             $datanode_blocks{$1} = $2;
@@ -500,7 +500,7 @@ if($balance){
     $content = curl $url_live_nodes, $url_name;
     parse_datanode_blockcounts();
     unless(%datanode_blocks){
-        quit "UNKNOWN", "no datanode block counts were recorded, either there are no datanodes or there was a parsing error. $nagios_plugins_support_msg";
+        quit "UNKNOWN", "no datanode block counts were recorded, either there are no datanodes or there was a parsing error to changes in a neweer version of the NameNode WebUI. $nagios_plugins_support_msg";
     }
     my $datanodes_warning_blocks  = 0;
     my $datanodes_critical_blocks = 0;
