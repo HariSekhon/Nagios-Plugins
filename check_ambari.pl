@@ -113,7 +113,7 @@ sub get_service_state($$){
 
 if($all_node_states){
     cluster_required();
-    $json = curl_ambari "$url_prefix/clusters/$cluster/hosts?Hosts/host_state!=HEALTHY|Hosts/host_status!=HEALTHY";
+    $json = curl_ambari "$url_prefix/clusters/$cluster/hosts?Hosts/host_state!=HEALTHY|Hosts/host_status!=HEALTHY&fields=Hosts/host_state,Hosts/host_status";
     my @items = get_field_array("items");
     if(@items){
         critical;
@@ -131,7 +131,7 @@ if($all_node_states){
 } elsif($node_state){
     cluster_required();
     node_required();
-    $json = curl_ambari "$url_prefix/clusters/$cluster/hosts/$node";
+    $json = curl_ambari "$url_prefix/clusters/$cluster/hosts/$node?fields=Hosts/host_state,Hosts/host_status";
     # state appears to be just a string, whereas status is the documented state type HEALTHY/UNHEALTHY/UNKNOWN to check according to API docs. However I've just discovered that state can stay HEALTHY and status UNHEALTHY
     my $node_state  = get_field("Hosts.host_state");
     my $node_status = get_field("Hosts.host_status");
