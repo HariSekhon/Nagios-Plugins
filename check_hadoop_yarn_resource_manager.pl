@@ -93,7 +93,6 @@ vlog3(Dumper($json));
 
 my @beans = get_field_array("beans");
 
-isArray($beans[0]) or quit "UNKNOWN", "mbean array index 0 is not an array as expected. $nagios_plugins_support_msg_api";
 my $found_mbean = 0;
 
 # Other MBeans of interest:
@@ -106,7 +105,7 @@ my $found_mbean = 0;
 #       Hadoop:service=ResourceManager,name=RpcActivityForPort8030
 #       Hadoop:service=ResourceManager,name=JvmMetrics
 if($heap or $non_heap){
-    foreach(@{$beans[0]}){
+    foreach(@beans){
         next unless get_field2($_, "name") eq "java.lang:type=Memory";
         $found_mbean++;
         if($heap){
@@ -118,23 +117,23 @@ if($heap or $non_heap){
             check_thresholds($heap_used_pc);
             $msg .= sprintf(" | 'heap used %%'=%s%%", $heap_used_pc);
             msg_perf_thresholds();
-            $msg .= sprintf(" 'heap used'=%sb 'heap max'=%sb 'heap committed'=%sb", $heap_used, $heap_max, get_field2_int($beans[0][0], "HeapMemoryUsage.committed"));
+            $msg .= sprintf(" 'heap used'=%sb 'heap max'=%sb 'heap committed'=%sb", $heap_used, $heap_max, get_field2_int($_, "HeapMemoryUsage.committed"));
         } elsif($non_heap){
-            my $non_heap_max     = get_field2_int($beans[0][0], "NonHeapMemoryUsage.max");
-            my $non_heap_used    = get_field2_int($beans[0][0], "NonHeapMemoryUsage.used");
+            my $non_heap_max     = get_field2_int($_, "NonHeapMemoryUsage.max");
+            my $non_heap_used    = get_field2_int($_, "NonHeapMemoryUsage.used");
             my $non_heap_used_pc = sprintf("%.2f", $non_heap_used / $non_heap_max * 100);
 
             $msg = sprintf("%s%% non-heap used (%s/%s)", $non_heap_used_pc, human_units($non_heap_used), human_units($non_heap_max));
             check_thresholds($non_heap_used_pc);
             $msg .= sprintf(" | 'non-heap used %%'=%s%%", $non_heap_used_pc);
             msg_perf_thresholds();
-            $msg .= sprintf(" 'non-heap used'=%sb 'non-heap max'=%sb 'non-heap committed'=%sb", $non_heap_used, $non_heap_max, get_field2_int($beans[0][0], "NonHeapMemoryUsage.committed"));
+            $msg .= sprintf(" 'non-heap used'=%sb 'non-heap max'=%sb 'non-heap committed'=%sb", $non_heap_used, $non_heap_max, get_field2_int($_, "NonHeapMemoryUsage.committed"));
         } else {
             code_error "error determining heap / non_heap";
         }
     }
 } elsif($node_managers){
-    foreach(@{$beans[0]}){
+    foreach(@beans){
         next unless get_field2($_, "name") eq "Hadoop:service=ResourceManager,name=ClusterMetrics";
         $found_mbean++;
         my $active_NMs    = get_field2_int($_, "NumActiveNMs");
@@ -150,7 +149,7 @@ if($heap or $non_heap){
         $msg .= sprintf(" 'rebooted node managers'=%d", $unhealthy_NMs);
     }
 } elsif($app_stats){
-    foreach(@{$beans[0]}){
+    foreach(@beans){
         next unless get_field2($_, "name") eq "Hadoop:service=ResourceManager,name=QueueMetrics,q0=root";
         $found_mbean++;
         my $apps_submitted = get_field2_int($_, "AppsSubmitted");
