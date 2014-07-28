@@ -20,7 +20,7 @@ Checks:
 
 Tested on Hortonworks HDP 2.0 and 2.1";
 
-$VERSION = "0.4";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -88,27 +88,33 @@ unless($node_state + $all_node_states + $service_state + $all_service_states eq 
     usage "must specify exactly one check";
 }
 
-sub get_service_state($$){
-    $cluster      = shift;
-    $service      = shift;
-    $json = curl_ambari "$url_prefix/clusters/$cluster/services/$service";
-    my $state = get_field("ServiceInfo.state");
-    # TODO: maintenance_state values need to be documented in the Ambari v1 API docs
-    if($maintenance_ok and get_field("ServiceInfo.maintenance_state") ne "OFF"){
-        #
-    } elsif($state eq "STARTED" or $state eq "INSTALLED"){
+sub get_service_state($){
+    my $json = shift() || code_error "no hash passed to get_service_state()";
+    my $msg;
+    my $service_name      = get_field2($json, "ServiceInfo.service_name");
+    my $service_state     = get_field2($json, "ServiceInfo.state");
+    my $maintenance_state = get_field2($json, "ServiceInfo.maintenance_state");
+    $service_name = hadoop_service_name $service_name;
+    if($maintenance_ok and $maintenance_state ne "OFF"){
+        # suppress alerts if in maintenance mode and --maintenance-ok
+        $maintenance_state = lc $maintenance_state;
+    } elsif($service_state eq "STARTED" or $service_state eq "INSTALLED"){
         # ok
-        $state = lc $state;
-    } elsif($state eq "UNKNOWN"){
+        $service_state = lc $service_state;
+    } elsif($service_state eq "UNKNOWN"){
         unknown;
-    } elsif(grep { $state eq $_ } qw/STARTING INIT UPGRADING MAINTENANCE INSTALLING/){
+    } elsif(grep { $service_state eq $_ } qw/STARTING INIT UPGRADING MAINTENANCE INSTALLING/){
         warning;
-    } elsif(grep { $state eq $_ } qw/INSTALL_FAILED STOPPING UNINSTALLING UNINSTALLED WIPING_OUT/){
+    } elsif(grep { $service_state eq $_ } qw/INSTALL_FAILED STOPPING UNINSTALLING UNINSTALLED WIPING_OUT/){
         critical;
     } else {
         unknown;
     }
-    return $state;
+    $msg .= "$service_name state=$service_state";
+    if($verbose){
+        $msg .= " (maintenance=$maintenance_state)";
+    }
+    return $msg;
 }
 
 if($all_node_states){
@@ -152,28 +158,17 @@ if($all_node_states){
     # TODO:
 } elsif($all_service_states){
     cluster_required();
-    my @services = list_services();
-    my $service_state;
-    $msg = "services - ";
-    foreach my $service (@services){
-        $service_state = get_service_state($cluster, $service);
-        $service = hadoop_service_name $service;
-        $msg .= "$service\[$service_state\], ";
+    $json = curl_ambari "$url_prefix/clusters/$cluster/services?fields=ServiceInfo/state,ServiceInfo/maintenance_state";
+    my @items = get_field_array("items");
+    foreach(@items){
+        $msg .= get_service_state($_) . ", ";
     }
     $msg =~ s/, $//;
 } elsif($service_state){
     cluster_required();
     service_required();
-    my $state = get_service_state($cluster, $service);
-    $service = hadoop_service_name $service;
-    $msg = "service '$service' state '$state'";
-    my $maintenance = get_field("ServiceInfo.maintenance_state");
-    if($maintenance ne "OFF"){
-        warning unless $maintenance_ok;
-        $msg .= ", maintenance state '" . lc $maintenance . "'";
-    } elsif($verbose){
-        $msg .= ", maintenance state '" . lc $maintenance . "'";
-    }
+    $json = curl_ambari "$url_prefix/clusters/$cluster/services/$service?fields=ServiceInfo/state,ServiceInfo/maintenance_state";
+    $msg .= "service " . get_service_state($json);
 } elsif($service_metrics){
     cluster_required();
     service_required();
