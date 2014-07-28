@@ -11,9 +11,11 @@
 
 $DESCRIPTION = "Nagios Plugin to check Hadoop config staleness via Ambari REST API
 
+Raises warning for any stale configs found. Lists services and in verbose mode lists unique affected service subcomponents in brackets after each service.
+
 Tested on Hortonworks HDP 2.1";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -57,12 +59,25 @@ list_ambari_components();
 
 cluster_required();
 # TODO: this needs to be documented better in the github v1 API doc
-$json = curl_ambari "$url_prefix/clusters/$cluster/host_components?fields=HostRoles/component_name&HostRoles/stale_configs=true";
+$json = curl_ambari "$url_prefix/clusters/$cluster/host_components?HostRoles/stale_configs=true&fields=HostRoles/service_name";
 my @items = get_field_array("items");
 if(@items){
-    $msg = "stale configs found for: ";
+    warning;
+    $msg = "stale configs found for service";
+    my %services;
+    my $service;
     foreach(@items){
-        $msg .= get_field2($_, "HostRoles.component_name") . ", ";
+        $service = hadoop_service_name(get_field2($_, "HostRoles.service_name"));
+        $services{$service}{get_field2($_, "HostRoles.component_name")} = 1;
+    }
+    plural keys %services;
+    $msg .= "$plural: ";
+    foreach $service (sort keys %services){
+        $msg .= "$service";
+        if($verbose){
+            $msg .= " (" . lc join(", ", sort keys %{$services{$service}}) . ")";
+        }
+        $msg .= ", ";
     }
     $msg =~ s/, $//;
 } else {
