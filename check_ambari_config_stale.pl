@@ -32,9 +32,7 @@ $ua->agent("Hari Sekhon $progname $main::VERSION");
 %options = (
     %hostoptions,
     %useroptions,
-    "C|cluster=s"               => [ \$cluster,             "Cluster Name as shown in Ambari (eg. \"MyCluster\")" ],
-    "list-clusters"             => [ \$list_clusters,       "Lists all the clusters managed by the Ambari server" ],
-    %tlsoptions,
+    %ambari_options,
 );
 
 get_options();
