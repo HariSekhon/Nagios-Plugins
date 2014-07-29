@@ -13,6 +13,8 @@ $DESCRIPTION = "Nagios Plugin to check Hadoop DataNodes via NameNode jmx
 
 Configurable warning/critical thresholds for number of dead datanodes and configurable warning threshold for stale datanodes
 
+See also check_hadoop_dfs.pl for another implementation of datanode checks from a few years back that parses dfsadmin instead.
+
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
 
 $VERSION = "0.1";
