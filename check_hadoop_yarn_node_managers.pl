@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check Hadoop Yarn Node Managers via Resource Manager jmx metrics
 
-Thresholds apply to unhealthy Node Managers
+Thresholds apply lost + unhealthy Node Managers
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
 
@@ -75,10 +75,12 @@ foreach(@beans){
     my $lost_NMs      = get_field2_int($_, "NumLostNMs");
     my $unhealthy_NMs = get_field2_int($_, "NumUnhealthyNMs");
     my $rebooted_NMs  = get_field2_int($_, "NumUnhealthyNMs");
-    $msg = "node managers: $active_NMs active, $decomm_NMs decommissioned, $lost_NMs lost, $unhealthy_NMs unhealthy";
-    check_thresholds($unhealthy_NMs);
+    $msg = "node managers: $active_NMs active, $decomm_NMs decommissioned, $lost_NMs lost / $unhealthy_NMs unhealthy";
+    check_thresholds($lost_NMs + $unhealthy_NMs);
     $msg .= ", $rebooted_NMs rebooted";
-    $msg .= sprintf(" | 'active node managers'=%d 'decommissioned node managers'=%d 'lost node managers'=%d 'unhealthy node managers'=%d", $active_NMs, $decomm_NMs, $lost_NMs, $unhealthy_NMs);
+    $msg .= sprintf(" | 'active node managers'=%d 'decommissioned node managers'=%d 'lost node managers'=%d", $active_NMs, $decomm_NMs, $lost_NMs);
+    msg_perf_thresholds();
+    $msg .= sprintf("'unhealthy node managers'=%d", $unhealthy_NMs);
     msg_perf_thresholds();
     $msg .= sprintf(" 'rebooted node managers'=%d", $unhealthy_NMs);
     last;
