@@ -11,6 +11,8 @@
 
 $DESCRIPTION = "Nagios Plugin to check Hadoop Yarn Resource Manager Apps and App Memory available via jmx
 
+Optional thresholds on available App Memory to aid in capacity planning
+
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
 
 $VERSION = "0.2";
@@ -41,6 +43,7 @@ get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
+validate_thresholds(0, 0, { "simple" => "lower", "positive" => 1, "integer" => 0 });
 
 vlog2;
 set_timeout();
@@ -94,6 +97,7 @@ foreach(@beans){
     $msg .= "$apps_failed failed. ";
     $msg .= "$active_users active users, ";
     $msg .= "$available_mb available mb";
+    check_thresholds($available_mb);
     $msg .= " | ";
     $msg .= "'apps running'=$apps_running ";
     $msg .= "'apps pending'=$apps_pending ";
@@ -104,6 +108,7 @@ foreach(@beans){
     $msg .= "'apps failed'=$apps_failed ";
     $msg .= "'active users'=$active_users ";
     $msg .= "'available mb'=${available_mb}MB";
+    msg_perf_thresholds();
     last;
 }
 
