@@ -40,6 +40,8 @@ install:
 	#sudo cpan DateTime
 
 	# TODO: check LWP::Authen::Negotiate with webhdfs against Kerberized cluster
+	
+	# add -E to sudo to preserve http proxy env vars or run this manually if needed
 	yes | sudo cpan \
 		Class:Accessor \
 		Data::Dumper \
