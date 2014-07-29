@@ -9,7 +9,9 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn Node Managers alive via Resource Manager jmx metrics
+$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn Node Managers via Resource Manager jmx metrics
+
+Thresholds apply to unhealthy Node Managers
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
 
@@ -42,7 +44,7 @@ get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
-validate_thresholds(1, 1, { "positive" => 1, "simple" => "upper" });
+validate_thresholds(1, 1, { "positive" => 1, "simple" => "upper", "integer" => 1 });
 
 vlog2;
 set_timeout();
@@ -81,6 +83,6 @@ foreach(@beans){
     $msg .= sprintf(" 'rebooted node managers'=%d", $unhealthy_NMs);
     last;
 }
-quit "UNKNOWN", "failed to find mbean. $nagios_plugins_support_msg_api" unless $found_mbean;
+quit "UNKNOWN", "failed to find cluster metrics mbean. $nagios_plugins_support_msg_api" unless $found_mbean;
 
 quit $status, $msg;
