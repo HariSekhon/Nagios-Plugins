@@ -1,0 +1,86 @@
+#!/usr/bin/perl -T
+# nagios: -epn
+#
+#  Author: Hari Sekhon
+#  Date: 2014-03-05 21:45:08 +0000 (Wed, 05 Mar 2014)
+#
+#  http://github.com/harisekhon
+#
+#  License: see accompanying LICENSE file
+#
+
+$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn Node Managers alive via Resource Manager jmx metrics
+
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
+
+$VERSION = "0.2";
+
+use strict;
+use warnings;
+BEGIN {
+    use File::Basename;
+    use lib dirname(__FILE__) . "/lib";
+}
+use HariSekhonUtils;
+use Data::Dumper;
+use JSON::XS;
+use LWP::Simple '$ua';
+
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
+
+set_port_default(8088);
+set_threshold_defaults(0, 0);
+
+env_creds(["HADOOP_YARN_RESOURCE_MANAGER", "HADOOP"], "Hadoop Resource Manager");
+
+%options = (
+    %hostoptions,
+    %thresholdoptions,
+);
+
+get_options();
+
+$host       = validate_host($host);
+$port       = validate_port($port);
+validate_thresholds(1, 1, { "positive" => 1, "simple" => "upper" });
+
+vlog2;
+set_timeout();
+
+$status = "OK";
+
+my $url = "http://$host:$port/jmx";
+
+my $content = curl $url;
+
+try{
+    $json = decode_json $content;
+};
+catch{
+    quit "invalid json returned by Yarn Resource Manager at '$url'";
+};
+vlog3(Dumper($json));
+
+my @beans = get_field_array("beans");
+
+my $found_mbean = 0;
+
+foreach(@beans){
+    next unless get_field2($_, "name") eq "Hadoop:service=ResourceManager,name=ClusterMetrics";
+    $found_mbean = 1;
+    my $active_NMs    = get_field2_int($_, "NumActiveNMs");
+    my $decomm_NMs    = get_field2_int($_, "NumDecommissionedNMs");
+    my $lost_NMs      = get_field2_int($_, "NumLostNMs");
+    my $unhealthy_NMs = get_field2_int($_, "NumUnhealthyNMs");
+    my $rebooted_NMs  = get_field2_int($_, "NumUnhealthyNMs");
+    $msg = "node managers: $active_NMs active, $decomm_NMs decommissioned, $lost_NMs lost, $unhealthy_NMs unhealthy";
+    check_thresholds($unhealthy_NMs);
+    $msg .= ", $rebooted_NMs rebooted";
+    $msg .= sprintf(" | 'active node managers'=%d 'decommissioned node managers'=%d 'lost node managers'=%d 'unhealthy node managers'=%d", $active_NMs, $decomm_NMs, $lost_NMs, $unhealthy_NMs);
+    msg_perf_thresholds();
+    $msg .= sprintf(" 'rebooted node managers'=%d", $unhealthy_NMs);
+    last;
+}
+quit "UNKNOWN", "failed to find mbean. $nagios_plugins_support_msg_api" unless $found_mbean;
+
+quit $status, $msg;
