@@ -20,7 +20,7 @@ Checks:
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -37,7 +37,7 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 set_port_default(8088);
 
-env_creds("Yarn Resource Manager");
+env_creds(["HADOOP_YARN_RESOURCE_MANAGER", "HADOOP"], "Hadoop Resource Manager");
 
 my $heap          = 0;
 my $non_heap      = 0;
