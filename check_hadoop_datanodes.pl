@@ -65,7 +65,7 @@ try{
     $json = decode_json $content;
 };
 catch{
-    quit "invalid json returned by Yarn Resource Manager at '$url'";
+    quit "invalid json returned by NameNode at '$url'";
 };
 vlog3(Dumper($json));
 
