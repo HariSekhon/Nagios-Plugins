@@ -9,9 +9,9 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn Resource Manager Apps and App Memory available via jmx
+$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn Apps via Resource Manager jmx
 
-Optional thresholds on available App Memory to aid in capacity planning
+Optional thresholds on running yarn apps to aid in capacity planning
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
 
@@ -43,7 +43,7 @@ get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
-validate_thresholds(0, 0, { "simple" => "lower", "positive" => 1, "integer" => 0 });
+validate_thresholds(0, 0, { "simple" => "upper", "positive" => 1, "integer" => 0 });
 
 vlog2;
 set_timeout();
@@ -84,31 +84,30 @@ foreach(@beans){
     my $apps_completed = get_field2_int($_, "AppsCompleted");
     my $apps_killed    = get_field2_int($_, "AppsKilled");
     my $apps_failed    = get_field2_int($_, "AppsFailed");
-    my $available_mb   = get_field2_float($_, "AvailableMB");
     my $active_users   = get_field2_int($_, "ActiveUsers");
     my $active_apps    = get_field2_int($_, "ActiveApplications");
     $msg  = "yarn apps: ";
-    $msg .= "$apps_running running, ";
+    $msg .= "$apps_running running";
+    check_thresholds($apps_running);
+    $msg .= ", ";
     $msg .= "$apps_pending pending, ";
     $msg .= "$active_apps active, ";
     $msg .= "$apps_submitted submitted, ";
     $msg .= "$apps_completed completed, ";
     $msg .= "$apps_killed killed, ";
     $msg .= "$apps_failed failed. ";
-    $msg .= "$active_users active users, ";
-    $msg .= "$available_mb available mb";
-    check_thresholds($available_mb);
+    $msg .= "$active_users active users";
     $msg .= " | ";
-    $msg .= "'apps running'=$apps_running ";
+    $msg .= "'apps running'=$apps_running";
+    msg_perf_thresholds();
+    $msg .= " ";
     $msg .= "'apps pending'=$apps_pending ";
     $msg .= "'apps active'=$active_apps ";
-    $msg .= "'apps submitted'=$apps_submitted ";
-    $msg .= "'apps completed'=$apps_completed ";
-    $msg .= "'apps killed'=$apps_killed ";
-    $msg .= "'apps failed'=$apps_failed ";
-    $msg .= "'active users'=$active_users ";
-    $msg .= "'available mb'=${available_mb}MB";
-    msg_perf_thresholds();
+    $msg .= "'apps submitted'=${apps_submitted}c ";
+    $msg .= "'apps completed'=${apps_completed}c ";
+    $msg .= "'apps killed'=${apps_killed}c ";
+    $msg .= "'apps failed'=${apps_failed}c ";
+    $msg .= "'active users'=$active_users";
     last;
 }
 
