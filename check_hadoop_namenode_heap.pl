@@ -30,7 +30,7 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 set_port_default(50070);
 
-env_creds("Hadoop NameNode");
+env_creds(["HADOOP_NAMENODE", "HADOOP"], "Hadoop NameNode");
 
 my $heap          = 0;
 my $non_heap      = 0;
