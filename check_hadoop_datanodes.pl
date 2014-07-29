@@ -1,1 +1,97 @@
-check_hadoop_dfs.pl
+#!/usr/bin/perl -T
+# nagios: -epn
+#
+#  Author: Hari Sekhon
+#  Date: 2014-03-05 21:45:08 +0000 (Wed, 05 Mar 2014)
+#
+#  http://github.com/harisekhon
+#
+#  License: see accompanying LICENSE file
+#
+
+$DESCRIPTION = "Nagios Plugin to check Hadoop DataNodes via NameNode jmx
+
+Configurable warning/critical thresholds for number of dead datanodes and configurable warning threshold for stale datanodes
+
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
+
+$VERSION = "0.1";
+
+use strict;
+use warnings;
+BEGIN {
+    use File::Basename;
+    use lib dirname(__FILE__) . "/lib";
+}
+use HariSekhonUtils;
+use Data::Dumper;
+use JSON::XS;
+use LWP::Simple '$ua';
+
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
+
+set_threshold_defaults(0, 1);
+set_port_default(50070);
+
+env_creds(["HADOOP_NAMENODE", "HADOOP"], "Hadoop NameNode");
+
+my $stale_threshold = 0;
+
+%options = (
+    %hostoptions,
+    %thresholdoptions,
+    "stale-threshold=s" =>  [ $stale_threshold, "Stale datanodes warning threshold (inclusive, default 0)" ],
+);
+
+get_options();
+
+$host       = validate_host($host);
+$port       = validate_port($port);
+validate_thresholds(1, 1, { "simple" => "upper", "positive" => 1, "integer" => 1 });
+validate_int($stale_threshold, "stale threshold", 0, 10000);
+
+vlog2;
+set_timeout();
+
+$status = "OK";
+
+my $url = "http://$host:$port/jmx";
+
+my $content = curl $url;
+
+try{
+    $json = decode_json $content;
+};
+catch{
+    quit "invalid json returned by Yarn Resource Manager at '$url'";
+};
+vlog3(Dumper($json));
+
+my @beans = get_field_array("beans");
+
+my $found_mbean = 0;
+
+foreach(@beans){
+    next unless get_field2($_, "name") eq "Hadoop:service=NameNode,name=FSNamesystemState";
+    $found_mbean = 1;
+    my $live        = get_field2_int($_, "NumLiveDataNodes");
+    my $dead        = get_field2_int($_, "NumDeadDataNodes");
+    my $stale       = get_field2_int($_, "NumStaleDataNodes");
+    my $decom       = get_field2_int($_, "NumDecommissioningDataNodes");
+    my $decom_live  = get_field2_int($_, "NumDecomLiveDataNodes");
+    my $decom_dead  = get_field2_int($_, "NumDecomDeadDataNodes");
+    
+    $msg =  "datanodes: $live live, $dead dead";
+    check_thresholds($dead);
+    $msg .= ", $stale stale";
+    $msg .= " (w=$stale_threshold)" if $verbose;
+    warning if($stale > $stale_threshold);
+    $msg .= ", $decom decommissioning, $decom_live live decommissioning, $decom_dead dead decommissioning | ";
+    $msg .= sprintf("'live datanodes'=%d 'dead datanodes'=%d", $live, $dead);
+    msg_perf_thresholds();
+    $msg .= sprintf("'stale datanodes'=%d;%d 'decommissioning datanodes'=%d 'decommissioning live datanodes'=%d 'decommissioning dead datanodes'=%d", $stale, $stale_threshold, $decom, $decom_live, $decom_dead);
+    last;
+}
+quit "UNKNOWN", "failed to find FSNamesystemState mbean" unless $found_mbean;
+
+quit $status, $msg;
