@@ -90,7 +90,7 @@ apt-packages:
 yum-packages:
 	yum install -y gcc || :
 	# needed to fetch the library submodule at end of build
-	yum install -y git || :
+	yum install -y perl-CPAN git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	yum install -y perl-DBD-MySQL mysql-devel || :
 	# for XML::Simple building
