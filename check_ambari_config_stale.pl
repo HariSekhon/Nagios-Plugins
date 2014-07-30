@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check Hadoop config staleness via Ambari REST A
 
 Raises warning for any stale configs found. Lists services and in verbose mode lists unique affected service subcomponents in brackets after each service.
 
-Tested on Hortonworks HDP 2.1";
+Tested on Ambari 1.6.1 with Hortonworks HDP 2.1";
 
 $VERSION = "0.2";
 

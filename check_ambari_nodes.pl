@@ -16,7 +16,7 @@ Checks:
 - a given node's state
 - all node states, with thresholds for number of unhealthy nodes (default w=0/c=0)
 
-Tested on Hortonworks HDP 2.0 and 2.1";
+Tested on Ambari 1.4.4 / 1.6.1 on Hortonworks HDP 2.0 and 2.1";
 
 $VERSION = "0.6";
 

@@ -17,7 +17,7 @@ Checks:
 - a given service's state
 - optionally suppresses alerts in maintenance mode if --maintenance-ok
 
-Tested on Hortonworks HDP 2.0 and 2.1";
+Tested on Ambari 1.4.4 / 1.6.1 on Hortonworks HDP 2.0 and 2.1";
 
 $VERSION = "0.5";
 
