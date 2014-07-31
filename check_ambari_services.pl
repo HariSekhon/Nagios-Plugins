@@ -50,9 +50,9 @@ $host       = validate_host($host);
 $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
-$cluster    = validate_ambari_cluster($cluster);
+$cluster    = validate_ambari_cluster($cluster) if $cluster;
 $service    = validate_ambari_service($service) if $service;
-$component  = validate_ambari_component($component) if $component;
+#$component  = validate_ambari_component($component) if $component;
 
 validate_tls();
 
@@ -64,6 +64,7 @@ $status = "OK";
 $url_prefix = "http://$host:$port$api";
 
 list_ambari_components();
+cluster_required();
 
 sub get_service_state($){
     my $json = shift() || code_error "no hash passed to get_service_state()";
