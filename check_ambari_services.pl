@@ -13,9 +13,11 @@ $DESCRIPTION = "Nagios Plugin to check Hadoop service states via Ambari REST API
 
 Checks:
 
-- all service states
+- all service states by default
+or
 - a given service's state
-- optionally suppresses alerts in maintenance mode if --maintenance-ok
+
+- optionally suppresses alerts in maintenance mode if using the switch --maintenance-ok
 
 Tested on Ambari 1.4.4 / 1.6.1 on Hortonworks HDP 2.0 and 2.1";
 
