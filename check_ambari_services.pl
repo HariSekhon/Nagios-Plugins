@@ -19,7 +19,7 @@ Checks:
 
 Tested on Ambari 1.4.4 / 1.6.1 on Hortonworks HDP 2.0 and 2.1";
 
-$VERSION = "0.5";
+$VERSION = "0.6";
 
 use strict;
 use warnings;
@@ -76,9 +76,18 @@ sub get_service_state($){
     if($maintenance_ok and $maintenance_state ne "OFF"){
         # suppress alerts if in maintenance mode and --maintenance-ok
         $maintenance_state = lc $maintenance_state;
-    } elsif($service_state eq "STARTED" or $service_state eq "INSTALLED"){
+    } elsif($service_state eq "STARTED"){
         # ok
         $service_state = lc $service_state;
+    } elsif($service_state eq "INSTALLED"){
+        # This depends on the capitalization from hadoop_service_name
+        if(grep { $service_name eq $_ } qw/Pig Sqoop Tez/){
+            #ok
+            $service_state = lc $service_state;
+        } else {
+            $service_state = "STOPPED";
+            critical;
+        }
     } elsif($service_state eq "UNKNOWN"){
         unknown;
     } elsif(grep { $service_state eq $_ } qw/STARTING INIT UPGRADING MAINTENANCE INSTALLING/){
