@@ -54,7 +54,6 @@ $cluster    = validate_ambari_cluster($cluster);
 $service    = validate_ambari_service($service) if $service;
 $component  = validate_ambari_component($component) if $component;
 
-validate_thresholds();
 validate_tls();
 
 vlog2;

@@ -43,7 +43,6 @@ $user       = validate_user($user);
 $password   = validate_password($password);
 $cluster    = validate_ambari_cluster($cluster) if $cluster;
 
-validate_thresholds();
 validate_tls();
 
 vlog2;
