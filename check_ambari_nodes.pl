@@ -15,10 +15,11 @@ Checks:
 
 - a given node's state
 - all node states, with thresholds for number of unhealthy nodes (default w=0/c=0)
+- node health includes state of the host (always) and status of components (optionally disable with --host-state-only)
 
 Tested on Ambari 1.4.4 / 1.6.1 on Hortonworks HDP 2.0 and 2.1";
 
-$VERSION = "0.6";
+$VERSION = "0.7";
 
 use strict;
 use warnings;
@@ -33,10 +34,13 @@ $ua->agent("Hari Sekhon $progname $main::VERSION");
 
 set_threshold_defaults(0, 0);
 
+my $host_only;
+
 %options = (
     %hostoptions,
     %useroptions,
     %ambari_options_node,
+    "host-state-only"    =>  [ \$host_only,   "Check only the host health (state) and ignore status where refers to components on the host. This keeps it strictly a node health check" ],
     %thresholdoptions,
 );
 
@@ -60,43 +64,65 @@ $status = "OK";
 $url_prefix = "http://$host:$port$api";
 
 list_ambari_components();
+cluster_required();
 
 sub lc_healthy($){
     my $str = shift;
     ( $str eq "HEALTHY" ? "healthy" : $str );
 }
 
-cluster_required();
+my $node_state;
+my $node_status;
+sub check_node_state_status(){
+    if($node_state eq "HEALTHY"){
+        # ok
+    } elsif($node_state eq "UNHEALTHY" or
+            $node_state eq "HEARTBEAT_LOST"){
+        critical;
+    } elsif($node_state eq "WAITING_FOR_HOST_STATUS_UPDATES" or
+            $node_state eq "INIT" or
+            $node_state eq "UNKNOWN"){
+        unknown;
+    } else {
+        critical;
+    }
+    unless($host_only){
+        if($node_status eq "HEALTHY"){
+            # ok
+        } elsif($node_status eq "UNHEALTHY"){
+            critical;
+        } elsif($node_status eq "ALERT"){
+            if($node_state eq "HEALTHY"){
+                warning;
+            } else {
+                critical;
+            }
+        } elsif($node_status eq "UNKNOWN"){
+            unknown;
+        } else {
+            critical;
+        }
+    }
+}
+
 if($node){
     cluster_required();
     node_required();
     $json = curl_ambari "$url_prefix/clusters/$cluster/hosts/$node?fields=Hosts/host_state,Hosts/host_status";
     # state appears to be just a string, whereas status is the documented state type HEALTHY/UNHEALTHY/UNKNOWN to check according to API docs. However I've just discovered that state can stay HEALTHY and status UNHEALTHY
-    my $node_state  = get_field("Hosts.host_state");
-    my $node_status = get_field("Hosts.host_status");
-    $msg = "node '$node' status: " . lc_healthy($node_status) . ", state: " . lc_healthy($node_state);
-    if($node_status eq "HEALTHY" and $node_state eq "HEALTHY"){
-        # ok
-    } elsif($node_status eq "UNHEALTHY" or $node_state eq "UNHEALTHY"){
-        critical;
-    } elsif($node_status eq "UNKNOWN" and $node_state eq "HEARTBEAT_LOST"){
-        critical;
-    } elsif($node_status eq "ALERT" and $node_state eq "HEALTHY"){
-        warning;
-    } elsif($node_state eq "WAITING_FOR_HOST_STATUS_UPDATES" or $node_state eq "INIT"){
-        unknown;
-    } elsif($node_status eq "UNKNOWN" or $node_state eq "UNKNOWN"){
-        unknown;
-    } else {
-        critical;
-    }
+    $node_state  = get_field("Hosts.host_state");
+    $node_status = get_field("Hosts.host_status");
+    $msg = "node '$node' state: " . lc_healthy($node_state) . ", component status: " . lc_healthy($node_status);
+    check_node_state_status();
 } else {
-    $json = curl_ambari "$url_prefix/clusters/$cluster/hosts?Hosts/host_state!=HEALTHY|Hosts/host_status!=HEALTHY&fields=Hosts/host_state,Hosts/host_status";
+    $json = curl_ambari "$url_prefix/clusters/$cluster/hosts?Hosts/host_state!=HEALTHY" . ( $host_only ? "" : "|Hosts/host_status!=HEALTHY" ) . "&fields=Hosts/host_state,Hosts/host_status";
     my @items = get_field_array("items");
     if(@items){
         my @nodes;
         foreach (@items){
-            push(@nodes, get_field2($_, "Hosts.host_name") . " (status=" . lc_healthy(get_field2($_, "Hosts.host_status")) . "/state=" . lc_healthy(get_field2($_, "Hosts.host_state")) . ")");
+            $node_state  = get_field2($_, "Hosts.host_state");
+            $node_status = get_field2($_, "Hosts.host_status");
+            push(@nodes, get_field2($_, "Hosts.host_name") . " (state=" . lc_healthy($node_state) . "/status=" . lc_healthy($node_status) . ")");
         }
         my $num_nodes = scalar @nodes;
         plural $num_nodes;
@@ -104,7 +130,7 @@ if($node){
         check_thresholds($num_nodes);
         $msg .= ": " . join(", ", sort @nodes);
     } else {
-        $msg = "all nodes ok - status: healthy, state: healthy";
+        $msg = "all nodes ok - state: healthy" . ( $host_only ? "" : ", components status: healthy");
     }
 }
 
