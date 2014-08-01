@@ -21,7 +21,7 @@ or
 
 Tested on Ambari 1.4.4 / 1.6.1 on Hortonworks HDP 2.0 and 2.1";
 
-$VERSION = "0.6";
+$VERSION = "0.6.1";
 
 use strict;
 use warnings;
@@ -83,7 +83,7 @@ sub get_service_state($){
         $service_state = lc $service_state;
     } elsif($service_state eq "INSTALLED"){
         # This depends on the capitalization from hadoop_service_name
-        if(grep { $service_name eq $_ } qw/Pig Sqoop Tez/){
+        if(grep { $service_name eq $_ } qw/HCatalog Pig Sqoop Tez/){
             #ok
             $service_state = lc $service_state;
         } else {
