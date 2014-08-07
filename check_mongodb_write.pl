@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to check MongoDB is working by writing a unique document and then reading it back
+$DESCRIPTION = "Nagios Plugin to check MongoDB via API by writing a unique document and then reading it back
 
 It will find and connect to the Primary from the given list of Mongod / Mongos nodes. Failing to find a viable Primary will result in the whole check aborting as the replica set / cluster is non-writable in that scenario.
 
