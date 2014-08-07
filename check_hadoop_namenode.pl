@@ -137,7 +137,7 @@ unless($hdfs_space  or
        $datanode_block_balance or
        $heap or
        $non_heap){
-    usage "must specify one of --hdfs-space / --replication / --balance / --node-count / --node-list / --heap-usage / --non-heap-usage to check";
+    usage "must specify a type of check, see options below";
 }
 if($hdfs_space +
    $replication +
@@ -148,7 +148,7 @@ if($hdfs_space +
    $datanode_block_balance +
    $heap +
    $non_heap > 1){
-    usage "can only check one of --hdfs-space / --replication / --balance / --node-count / --node-list / --heap-usage / --non-heap-usage at one time in order to make sense of thresholds";
+    usage "can only specify one type of check at a time in order to make sense of thresholds";
 }
 if($hdfs_space or $balance or $heap or $non_heap or $datanode_block_balance){
     validate_thresholds(1, 1, {
