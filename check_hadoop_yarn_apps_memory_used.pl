@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn available memory for Yarn Apps via Resource Manager jmx
+$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn app memory via Resource Manager jmx
 
 Optional thresholds on % used memory to aid in capacity planning
 
