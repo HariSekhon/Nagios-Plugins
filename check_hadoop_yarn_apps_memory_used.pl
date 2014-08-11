@@ -76,9 +76,9 @@ foreach(@beans){
     $msg .= "$pc_used% yarn app memory used";
     check_thresholds($pc_used);
     if($verbose){
-        $msg .= " [${available_mb}MB/${total_mb}MB]";
+        $msg .= " [${allocated_mb}MB/${total_mb}MB]";
     } else {
-        $msg .= " [" . human_units($allocated_mb*1024*1024) . "/" . human_units($total_mb*1024*1024) . "]";
+        $msg .= " [" . ( $allocated_mb ? human_units($allocated_mb*1024*1024) : 0 ) . "/" . human_units($total_mb*1024*1024) . "]";
     }
     $msg .= " | ";
     $msg .= "'% Yarn App Memory Used'=${pc_used}%";
