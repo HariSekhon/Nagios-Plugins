@@ -11,11 +11,11 @@
 
 $DESCRIPTION = "Nagios Plugin to check Hadoop Yarn available memory for Yarn Apps via Resource Manager jmx
 
-Optional thresholds on available memory in MB to aid in capacity planning
+Optional thresholds on % used memory to aid in capacity planning
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -43,7 +43,7 @@ get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
-validate_thresholds(0, 0, { "simple" => "lower", "positive" => 1, "integer" => 0 });
+validate_thresholds(0, 0, { "simple" => "upper", "positive" => 1, "integer" => 0 });
 
 vlog2;
 set_timeout();
@@ -70,12 +70,20 @@ foreach(@beans){
     next unless get_field2($_, "name") eq "Hadoop:service=ResourceManager,name=QueueMetrics,q0=root";
     $found_mbean++;
     my $available_mb   = get_field2_float($_, "AvailableMB");
-    $msg .= human_units($available_mb*1024*1024) . " available memory for Yarn apps";
-    $msg .= " [${available_mb}MB]" if $verbose;
-    check_thresholds($available_mb);
+    my $allocated_mb   = get_field2_float($_, "AllocatedMB");
+    my $total_mb       = $available_mb + $allocated_mb;
+    my $pc_used        = sprintf("%.1f", $allocated_mb / $total_mb * 100);
+    $msg .= "$pc_used% yarn app memory used";
+    check_thresholds($pc_used);
+    if($verbose){
+        $msg .= " [${available_mb}MB/${total_mb}MB]";
+    } else {
+        $msg .= " [" . human_units($allocated_mb*1024*1024) . "/" . human_units($total_mb*1024*1024) . "]";
+    }
     $msg .= " | ";
-    $msg .= "'Available Memory for Yarn apps'=${available_mb}MB";
+    $msg .= "'% Yarn App Memory Used'=${pc_used}%";
     msg_perf_thresholds();
+    $msg .= "0;100; 'Allocated Yarn App Memory'=${allocated_mb}MB;;;0;${total_mb}MB";
     last;
 }
 
