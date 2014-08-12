@@ -15,6 +15,8 @@ Checks a given queue, 'default' if not specified. Can also list queues for conve
 
 Optional thresholds on running yarn apps to aid in capacity planning
 
+Also displays active users in a queue, be aware however active users are only counted in leaf queues.
+
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) with Capacity Scheduler queues";
 
 $VERSION = "0.4";
