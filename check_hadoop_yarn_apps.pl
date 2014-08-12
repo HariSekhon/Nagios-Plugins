@@ -11,11 +11,13 @@
 
 $DESCRIPTION = "Nagios Plugin to check Hadoop Yarn Apps via Resource Manager jmx
 
+Checks a given queue, 'default' if not specified. Can also list queues for convenience.
+
 Optional thresholds on running yarn apps to aid in capacity planning
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) with Capacity Scheduler queues";
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -34,13 +36,16 @@ set_port_default(8088);
 
 env_creds(["HADOOP_YARN_RESOURCE_MANAGER", "HADOOP"], "Yarn Resource Manager");
 
-my $queue = "root";
+my $queue = "default";
+my $list_queues;
 
 %options = (
     %hostoptions,
-    "Q|queue=s"      =>  [ \$queue, "Queue to output stats for (default: root)" ],
+    "Q|queue=s"      =>  [ \$queue,         "Queue to output stats for, prefixed with root queue which may be optionally omitted (default: root.default)" ],
+    "list-queues"    =>  [ \$list_queues,   "List all queues" ],
     %thresholdoptions,
 );
+splice @usage_order, 6, 0, qw/queue list-queues/;
 
 get_options();
 
@@ -67,8 +72,6 @@ vlog3(Dumper($json));
 
 my @beans = get_field_array("beans");
 
-my $found_mbean = 0;
-
 # Other MBeans of interest:
 #
 #       Hadoop:service=ResourceManager,name=RpcActivityForPort8025 (RPC)
@@ -87,12 +90,28 @@ my $apps_failed    = 0;
 my $active_users   = 0;
 my $active_apps    = 0;
 
-my $mbean_name = "Hadoop:service=ResourceManager,name=QueueMetrics";
-$mbean_name .= ",q0=$queue";
+my $mbean_queuemetrics = "Hadoop:service=ResourceManager,name=QueueMetrics";
+my $mbean_name = "$mbean_queuemetrics";
+$queue =~ /^root(?:\.|$)/ or $queue = "root.$queue";
+my $i=0;
+foreach(split(/\./, $queue)){
+    $mbean_name .= ",q$i=$_";
+    $i++;
+}
+$queue =~ s/^root\.//;
+vlog2 "searching for mbean $mbean_name" unless $list_queues;
+my @queues;
+my $found_queue = 0;
 foreach(@beans){
     vlog2 Dumper($_) if get_field2($_, "name") =~ /QueueMetrics/;
-    next unless get_field2($_, "name") =~ /^$mbean_name$/;
-    $found_mbean++;
+    my $this_mbean_name = get_field2($_, "name");
+    if($this_mbean_name =~ /^$mbean_queuemetrics,q0=(.*)$/){
+        my $q_name = $1;
+        $q_name =~ s/,q\d+=/./;
+        push(@queues, $q_name);
+    }
+    next unless $this_mbean_name =~ /^$mbean_name$/;
+    $found_queue++;
     $apps_submitted = get_field2_int($_, "AppsSubmitted");
     $apps_running   = get_field2_int($_, "AppsRunning");
     $apps_pending   = get_field2_int($_, "AppsPending");
@@ -101,8 +120,17 @@ foreach(@beans){
     $apps_failed    = get_field2_int($_, "AppsFailed");
     $active_users   = get_field2_int($_, "ActiveUsers");
     $active_apps    = get_field2_int($_, "ActiveApplications");
-    last;
 }
+if($list_queues){
+    print "Queues:\n\n";
+    foreach(@queues){
+        print "$_\n";
+    }
+    exit $ERRORS{"UNKNOWN"};
+}
+quit "UNKNOWN", "failed to find mbean for queue '$queue'. Did you specify the correct queue name? See --list-queues for valid queue names. If you're sure you've specified the right queue name then $nagios_plugins_support_msg_api" unless $found_queue;
+quit "UNKNOWN", "duplicate mbeans found for queue '$queue'! $nagios_plugins_support_msg_api" if $found_queue > 1;
+
 $msg  = "yarn apps for queue '$queue': ";
 $msg .= "$apps_running running";
 check_thresholds($apps_running);
@@ -125,7 +153,5 @@ $msg .= "'apps completed'=${apps_completed}c ";
 $msg .= "'apps killed'=${apps_killed}c ";
 $msg .= "'apps failed'=${apps_failed}c ";
 $msg .= "'active users'=$active_users";
-
-quit "UNKNOWN", "failed to find mbean. $nagios_plugins_support_msg_api" unless $found_mbean;
 
 quit $status, $msg;
