@@ -35,11 +35,26 @@ env_creds(["HADOOP_NAMENODE", "HADOOP"], "Hadoop NameNode");
 my $active;
 my $standby;
 my $expected_state;
+my $release = "hortonworks";
+
+my %release_vendor = (
+'hortonworks' => {
+    'tag'       => 'State',
+    'bean'      => "Hadoop:service=NameNode,name=NameNodeStatus",
+    'split_tag' => 1,
+},
+'cloudera4' => {
+    'tag'       => 'tag.HAState',
+    'bean'      => 'Hadoop:service=NameNode,name=FSNamesystem',
+    'split_tag' => 0,
+}
+);
 
 %options = (
-    %hostoptions,
-    "active"        => [ \$active,  "Expect Active  (optional)" ],
-    "standby"       => [ \$standby, "Expect Standby (optional)" ],
+%hostoptions,
+"active"        => [ \$active,  "Expect Active  (optional)" ],
+"standby"       => [ \$standby, "Expect Standby (optional)" ],
+"release|r=s"   => [ \$release, "Hadoop Release"],
 );
 splice @usage_order, 6, 0, qw/active standby/;
 
@@ -52,6 +67,10 @@ if($active){
     $expected_state = "active";
 } elsif($standby){
     $expected_state = "standby";
+}
+
+if (not exists $release_vendor{$release}) {
+    usage "you set --release to $release; --release must be one of: " . join(" ", sort keys %release_vendor);
 }
 
 vlog2;
@@ -76,9 +95,9 @@ my @beans = get_field_array("beans");
 my $found_mbean = 0;
 my $state;
 foreach(@beans){
-    next unless get_field2($_, "name") eq "Hadoop:service=NameNode,name=NameNodeStatus";
+    next unless get_field2($_, "name") eq $release_vendor{$release}{"bean"};
     $found_mbean = 1;
-    $state = get_field2($_, "State");
+    $state = get_field2($_, $release_vendor{$release}{"tag"}, $release_vendor{$release}{split_tags});
     last;
 }
 quit "UNKNOWN", "failed to find namenode status mbean" unless $found_mbean;
