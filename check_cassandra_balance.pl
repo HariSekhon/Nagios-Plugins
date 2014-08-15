@@ -19,7 +19,7 @@ Can specify a remote host and port otherwise assumes to check via localhost
 
 Written and tested against Cassandra 2.0, DataStax Community Edition";
 
-$VERSION = "0.3.1";
+$VERSION = "0.3.2";
 
 use strict;
 use warnings;
@@ -93,7 +93,7 @@ my $max_diff_percentage = sprintf("%.2f", $max_node[1] - $min_node[1]);
 
 $msg = "$max_diff_percentage% max imbalance between cassandra nodes"; 
 check_thresholds($max_diff_percentage);
-$msg .= ", max node: $max_node[1]% $max_node[0] ($max_node[2]), min node: $min_node[1]% $min_node[0] ($min_node[2])" if $verbose;
+$msg .= ", max node: $max_node[1]% [$max_node[0] ($max_node[2])], min node: $min_node[1]% [$min_node[0] ($min_node[2])]" if $verbose;
 $msg .= " | 'max_%_imbalance'=$max_diff_percentage%";
 msg_perf_thresholds();
 
