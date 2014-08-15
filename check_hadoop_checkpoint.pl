@@ -3,6 +3,10 @@
 #
 #  Author: Hari Sekhon
 #  Date: 2014-03-05 21:45:08 +0000 (Wed, 05 Mar 2014)
+#  Date: 2013-07-29 19:07:40 +0100 (Mon, 29 Jul 2013)
+#
+#  Idea dates back a few years earlier at least circa 2010-2012 that I used to run
+#  but was never release grade and another implementation I initially started in 2013
 #
 #  http://github.com/harisekhon
 #
