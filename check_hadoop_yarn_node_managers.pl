@@ -75,14 +75,14 @@ foreach(@beans){
     my $lost_NMs      = get_field2_int($_, "NumLostNMs");
     my $unhealthy_NMs = get_field2_int($_, "NumUnhealthyNMs");
     my $rebooted_NMs  = get_field2_int($_, "NumUnhealthyNMs");
-    $msg = "node managers: $active_NMs active, $decomm_NMs decommissioned, $lost_NMs lost / $unhealthy_NMs unhealthy";
+    $msg = "node managers: $active_NMs active, $lost_NMs lost / $unhealthy_NMs unhealthy";
     check_thresholds($lost_NMs + $unhealthy_NMs);
-    $msg .= ", $rebooted_NMs rebooted";
-    $msg .= sprintf(" | 'active node managers'=%d 'decommissioned node managers'=%d 'lost node managers'=%d", $active_NMs, $decomm_NMs, $lost_NMs);
+    $msg .= ", $decomm_NMs decommissioned, $rebooted_NMs rebooted";
+    $msg .= sprintf(" | 'active node managers'=%d 'lost node managers'=%d", $active_NMs, $decomm_NMs, $lost_NMs);
     msg_perf_thresholds();
-    $msg .= sprintf("'unhealthy node managers'=%d", $unhealthy_NMs);
+    $msg .= sprintf(" 'unhealthy node managers'=%d", $unhealthy_NMs);
     msg_perf_thresholds();
-    $msg .= sprintf(" 'rebooted node managers'=%d", $unhealthy_NMs);
+    $msg .= sprintf(" 'decommissioned node managers'=%d 'rebooted node managers'=%d", $unhealthy_NMs);
     last;
 }
 quit "UNKNOWN", "failed to find cluster metrics mbean. $nagios_plugins_support_msg_api" unless $found_mbean;
