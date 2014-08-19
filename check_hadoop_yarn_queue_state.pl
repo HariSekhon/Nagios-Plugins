@@ -64,7 +64,7 @@ catch{
 };
 vlog3(Dumper($json));
 
-$msg = "queue ";
+$msg = "queue state: ";
 my @queues = get_field_array("scheduler.schedulerInfo.queues.queue");
 
 if($list_queues){
@@ -93,7 +93,7 @@ sub check_queue($){
         $queue eq $name or return;
         $found = 1;
     }
-    $msg .= sprintf("'%s':%s, ", $name, check_queue_state( get_field2($q, "state") ) );
+    $msg .= sprintf("'%s' = %s, ", $name, check_queue_state( get_field2($q, "state") ) );
 }
 
 foreach my $q (@queues){
