@@ -9,17 +9,17 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn Apps via Resource Manager jmx
+$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn queue for pending Apps via Resource Manager jmx
 
 Checks a given queue, 'default' if not specified. Can also list queues for convenience.
 
-Optional thresholds on running yarn apps to aid in capacity planning
+Optional thresholds on pending yarn apps in queue to aid in capacity planning, or alternatively running yarn apps in queue if using --running switch
 
-Also displays active users in a queue, be aware however active users are only counted in leaf queues.
+Also displays active users in a queue, be aware however active users are only counted in leaf queues as of Hadoop 2.4.
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) with Capacity Scheduler queues";
 
-$VERSION = "0.4";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -39,15 +39,17 @@ set_port_default(8088);
 env_creds(["HADOOP_YARN_RESOURCE_MANAGER", "HADOOP"], "Yarn Resource Manager");
 
 my $queue = "default";
+my $running;
 my $list_queues;
 
 %options = (
     %hostoptions,
     "Q|queue=s"      =>  [ \$queue,         "Queue to output stats for, prefixed with root queue which may be optionally omitted (default: root.default)" ],
+    "r|running"      =>  [ \$running,       "Checking running instead of pending apps against thresholds" ],
     "list-queues"    =>  [ \$list_queues,   "List all queues" ],
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, qw/queue list-queues/;
+splice @usage_order, 6, 0, qw/queue running list-queues/;
 
 get_options();
 
@@ -135,9 +137,11 @@ quit "UNKNOWN", "duplicate mbeans found for queue '$queue'! $nagios_plugins_supp
 
 $msg  = "yarn apps for queue '$queue': ";
 $msg .= "$apps_running running";
-check_thresholds($apps_running);
+check_thresholds($apps_running) if $running;
 $msg .= ", ";
-$msg .= "$apps_pending pending, ";
+$msg .= "$apps_pending pending";
+check_thresholds($apps_pending) unless $running;
+$msg .= ", ";
 $msg .= "$active_apps active, ";
 $msg .= "$apps_submitted submitted, ";
 $msg .= "$apps_completed completed, ";
@@ -147,9 +151,11 @@ plural $active_users;
 $msg .= "$active_users active user$plural";
 $msg .= " | ";
 $msg .= "'apps running'=$apps_running";
-msg_perf_thresholds();
+msg_perf_thresholds() if $running;
 $msg .= " ";
-$msg .= "'apps pending'=$apps_pending ";
+$msg .= "'apps pending'=$apps_pending";
+msg_perf_thresholds() unless $running;
+$msg .= " ";
 $msg .= "'apps active'=$active_apps ";
 $msg .= "'apps submitted'=${apps_submitted}c ";
 $msg .= "'apps completed'=${apps_completed}c ";
