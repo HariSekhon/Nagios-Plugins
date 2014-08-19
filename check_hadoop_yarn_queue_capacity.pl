@@ -1,0 +1,112 @@
+#!/usr/bin/perl -T
+# nagios: -epn
+#
+#  Author: Hari Sekhon
+#  Date: 2014-03-05 21:45:08 +0000 (Wed, 05 Mar 2014)
+#
+#  http://github.com/harisekhon
+#
+#  License: see accompanying LICENSE file
+#
+
+$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn queue capacity via the Resource Manager's REST API
+
+Optional thresholds may be applied but this is not recommended as queues may intermittently allocate all resources, this is more useful for monitoring with graphing and capacity planning since it outputs perfdata.
+
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
+
+$VERSION = "0.1";
+
+use strict;
+use warnings;
+BEGIN {
+    use File::Basename;
+    use lib dirname(__FILE__) . "/lib";
+}
+use HariSekhonUtils;
+use Data::Dumper;
+use JSON::XS;
+use LWP::Simple '$ua';
+
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
+
+set_port_default(8088);
+
+env_creds(["HADOOP_YARN_RESOURCE_MANAGER", "HADOOP"], "Yarn Resource Manager");
+
+my $queue;
+my $list_queues;
+
+%options = (
+    %hostoptions,
+    "Q|queue=s"      =>  [ \$queue,         "Queue to check (defaults to checking all queues)" ],
+    "list-queues"    =>  [ \$list_queues,   "List all queues" ],
+    %thresholdoptions,
+);
+splice @usage_order, 6, 0, qw/queue list-queues/;
+
+get_options();
+
+$host       = validate_host($host);
+$port       = validate_port($port);
+validate_thresholds(0, 0, { "simple" => "upper", "positive" => 1, "integer" => 0});
+
+vlog2;
+set_timeout();
+
+$status = "OK";
+
+my $url = "http://$host:$port/ws/v1/cluster/scheduler";
+
+my $content = curl $url;
+
+try{
+    $json = decode_json $content;
+};
+catch{
+    quit "invalid json returned by Yarn Resource Manager at '$url'";
+};
+vlog3(Dumper($json));
+
+$msg = "queue used capacity: ";
+my @queues = get_field_array("scheduler.schedulerInfo.queues.queue");
+
+if($list_queues){
+    foreach my $q (@queues){
+        print get_field2($q, "queueName") . "\n";
+    }
+    exit $ERRORS{"UNKNOWN"};
+}
+
+my $found;
+my $msg2;
+sub check_queue($){
+    my $q = shift;
+    my $name = get_field2($q, "queueName");
+    if($queue){
+        $queue eq $name or return;
+        $found = 1;
+    }
+    my $used_capacity = sprintf("%.2f", get_field2_float($q, "usedCapacity"));
+    $msg .= sprintf("'%s' = %s", $name, $used_capacity);
+    check_thresholds($used_capacity);
+    $msg .= ", ";
+    $msg2 .= sprintf("'%s'=%s",  $name, $used_capacity);
+    $msg2 .= msg_perf_thresholds(1);
+    $msg2 .= " ";
+}
+
+foreach my $q (@queues){
+    check_queue($q);
+    my $q2;
+    if(defined($q->{"queues"}) and $q2 = get_field2_array($q, "queues")){
+        check_queue($q2);
+    }
+}
+if($queue){
+    $found or quit "UNKNOWN", "queue '$queue' not found, check you specified the right queue name using --list-queues. If you're sure you've specified the right queue name then $nagios_plugins_support_msg_api";
+}
+$msg =~ s/, $//;
+$msg .= " | $msg2";
+
+quit $status, $msg;
