@@ -67,6 +67,13 @@ vlog3(Dumper($json));
 $msg = "queue ";
 my @queues = get_field_array("scheduler.schedulerInfo.queues.queue");
 
+if($list_queues){
+    foreach my $q (@queues){
+        print get_field2($q, "queueName") . "\n";
+    }
+    exit $ERRORS{"UNKNOWN"};
+}
+
 sub check_queue_state($){
     my $state = shift;
     if($state eq "RUNNING"){
@@ -79,12 +86,6 @@ sub check_queue_state($){
 }
 
 my $found;
-if($list_queues){
-    foreach my $q (@queues){
-        print get_field2($q, "queueName") . "\n";
-    }
-    exit $ERRORS{"UNKNOWN"};
-}
 sub check_queue($){
     my $q = shift;
     my $name = get_field2($q, "queueName");
@@ -94,6 +95,7 @@ sub check_queue($){
     }
     $msg .= sprintf("'%s':%s, ", $name, check_queue_state( get_field2($q, "state") ) );
 }
+
 foreach my $q (@queues){
     check_queue($q);
     my $q2;
