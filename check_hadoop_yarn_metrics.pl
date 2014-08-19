@@ -99,6 +99,7 @@ sub msg_metric($){
     my $key = shift;
     $msg  .= "$key=$metrics{$key}";
     $msg2 .= "'$key'=$metrics{$key}";
+    $msg2 .= "MB" if($key =~ /MB$/);
     if(scalar @metrics == 1){
         check_thresholds($metrics{$key});
         $msg2 .= msg_perf_thresholds(1);
