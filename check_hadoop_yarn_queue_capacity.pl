@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn queue capacity via the Resource Manager's REST API
+$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn queue capacity used % via the Resource Manager's REST API
 
 Optional thresholds may be applied but this is not recommended as queues may intermittently allocate all resources, this is more useful for monitoring with graphing and capacity planning since it outputs perfdata.
 
@@ -36,20 +36,22 @@ env_creds(["HADOOP_YARN_RESOURCE_MANAGER", "HADOOP"], "Yarn Resource Manager");
 
 my $queue;
 my $list_queues;
+my $absolute;
 
 %options = (
     %hostoptions,
     "Q|queue=s"      =>  [ \$queue,         "Queue to check (defaults to checking all queues)" ],
+    "T|total"        =>  [ \$absolute,      "Checks % used of total cluster capacity (default checks queue's % used of queue's own configured capacity)" ],
     "list-queues"    =>  [ \$list_queues,   "List all queues" ],
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, qw/queue list-queues/;
+splice @usage_order, 6, 0, qw/queue total list-queues/;
 
 get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
-validate_thresholds(0, 0, { "simple" => "upper", "positive" => 1, "integer" => 0});
+validate_thresholds(0, 0, { "simple" => "upper", "positive" => 1, "integer" => 0 });
 
 vlog2;
 set_timeout();
@@ -68,7 +70,7 @@ catch{
 };
 vlog3(Dumper($json));
 
-$msg = "queue used capacity: ";
+$msg = "queue used capacity of " . ($absolute ? "total cluster" : "allocated" ) . ": ";
 my @queues = get_field_array("scheduler.schedulerInfo.queues.queue");
 
 if($list_queues){
@@ -80,6 +82,9 @@ if($list_queues){
 
 my $found;
 my $msg2;
+my $used_pc = "usedCapacity";
+$used_pc = "absoluteUsedCapacity" if $absolute;
+
 sub check_queue($){
     my $q = shift;
     my $name = get_field2($q, "queueName");
@@ -87,11 +92,11 @@ sub check_queue($){
         $queue eq $name or return;
         $found = 1;
     }
-    my $used_capacity = sprintf("%.2f", get_field2_float($q, "usedCapacity"));
-    $msg .= sprintf("'%s' = %s", $name, $used_capacity);
+    my $used_capacity = sprintf("%.2f", get_field2_float($q, $used_pc));
+    $msg .= sprintf("'%s' = %s%%", $name, $used_capacity);
     check_thresholds($used_capacity);
     $msg .= ", ";
-    $msg2 .= sprintf("'%s'=%s",  $name, $used_capacity);
+    $msg2 .= sprintf("'%s'=%s%%", $name, $used_capacity);
     $msg2 .= msg_perf_thresholds(1);
     $msg2 .= " ";
 }
