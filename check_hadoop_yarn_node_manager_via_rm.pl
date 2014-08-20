@@ -17,14 +17,14 @@ Thresholds apply to lag time in seconds for last health report from the Node Man
 
 See also:
 
-- check_hadoop_yarn_node_manager.pl (more efficient)
+- check_hadoop_yarn_node_manager.pl
 - check_hadoop_yarn_node_managers.pl (aggregate view of the number of healthy / unhealthy Node Managers)
 
-Caveat this will internally return a complete list of information on all node managers from the Resource Manager in order to find the right one. This is not very efficient for very large clusters. The alternative would need to know the node id which itself would require an enumeration of the node managers to find. Therefore this is done on a single pass of the Node Managers output. It's more efficient and scales better to query the node manager directly using check_hadoop_yarn_node_manager.pl
+Specifying --node-id results in a more efficient query of the Resource Manager. Use this instead of --node for large clusters otherwise it ends up enumerating all the node managers.
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -36,6 +36,7 @@ use HariSekhonUtils;
 use Data::Dumper;
 use JSON::XS;
 use LWP::Simple '$ua';
+use URI::Escape;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
@@ -44,23 +45,32 @@ set_threshold_defaults(150, 300);
 
 env_creds(["HADOOP_YARN_RESOURCE_MANAGER", "HADOOP"], "Yarn Resource Manager");
 
+# From Hortonworks distribution this defaults to 45454
+my $node_port_default = 45454;
+
 my $node;
+my $node_id;
 my $list_nodes;
 
 %options = (
     %hostoptions,
-    "N|node=s"      =>  [ \$node,       "Node Manager hostname to check" ],
-    "list-nodes"    =>  [ \$list_nodes, "List node manager hostnames" ],
+    "I|node-id=s"   =>  [ \$node_id,    "Node ID to query (hostname:port, port defaults to $node_port_default if not specified)" ],
+    "N|node=s"      =>  [ \$node,       "Node Manager hostname to check (--node-id preferred for efficiency, see --help description)" ],
+    "list-nodes"    =>  [ \$list_nodes, "List node manager hostnames and ids" ],
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, qw/node list-nodes/;
+splice @usage_order, 6, 0, qw/node-id node list-nodes/;
 
 get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
 unless($list_nodes){
-    $node or usage "node hostname not specified. Use --list-nodes as convenience to find node hostname";
+    $node or $node_id or usage "node hostname not specified. Use --list-nodes as convenience to find node hostname";
+}
+$node and $node_id and usage "cannot specify both --node and --node-id";
+if($node_id){
+    $node_id =~ /:\d+$/ or $node_id .= ":$node_port_default";
 }
 validate_thresholds(0, 0, { "simple" => "upper", "positive" => 1, "integer" => 1 });
 
@@ -70,10 +80,36 @@ set_timeout();
 $status = "OK";
 
 my $url = "http://$host:$port/ws/v1/cluster/nodes";
-# Unfortunately this requires the node id (hostname:\d+) which would require the full enumeration of nodes to find anyway, may as well leave it as one pass iteration, not great but all the REST API currently allows me to do
-#$url .= "/$node" unless($list_nodes);
+unless($list_nodes){
+    $url .= "/" . uri_escape("$node_id") if $node_id;
+}
 
-my $content = curl $url;
+sub rm_error_handler($){
+    my $response = shift;
+    my $content  = $response->content;
+    my $json;
+    my $additional_information = "";
+    my $err = "";
+    if($json = isJson($content)){
+        if(defined($json->{"RemoteException"}{"javaClassName"})){
+            $err .= $json->{"RemoteException"}{"javaClassName"} . ": ";
+        } elsif(defined($json->{"RemoteException"}{"exception"})){
+            $err .= $json->{"RemoteException"}{"exception"} . ": ";
+        }
+        if(defined($json->{"RemoteException"}{"message"})){
+            $err .= $json->{"RemoteException"}{"message"};
+        }
+        $err = ". $err" if $err;
+    }
+    if($err or $response->code ne "200"){
+        quit "CRITICAL", $response->code . " " . $response->message . $err;
+    }
+    unless($content){
+        quit "CRITICAL", "blank content returned by Yarn Resource Manager";
+    }
+}
+
+my $content = curl $url, undef, undef, undef, \&rm_error_handler;
 
 try{
     $json = decode_json $content;
@@ -83,41 +119,46 @@ catch{
 };
 vlog3(Dumper($json));
 
-my @nodes = get_field_array("nodes.node");
+my @nodes;
+if($list_nodes or $node){
+    @nodes = get_field_array("nodes.node");
+}
 
 if($list_nodes){
     print "Node Manager hostnames:\n\n";
     foreach(@nodes){
-        print get_field2($_, "nodeHostName") . "\n";
+        printf("%s\t(id: %s)\n", get_field2($_, "nodeHostName"), get_field2($_, "id") );
     }
     exit $ERRORS{"UNKNOWN"};
 }
 
-my $found;
-my $availMemoryMB;
-my $healthReport;
-my $healthState;
-my $lastHealthUpdate;
-my $numContainers;
-my $rack;
-my $state;
-foreach(@nodes){
-    next unless get_field2($_, "nodeHostName") eq $node;
-    $availMemoryMB    = get_field2_float($_, "availMemoryMB");
-    $healthReport     = get_field2($_, "healthReport");
-    # appears to not be returned on 2.4 despite what this says http://hadoop.apache.org/docs/r2.4.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
-    #$healthState      = get_field2($_, "healthState");
-    $lastHealthUpdate = get_field2_float($_, "lastHealthUpdate");
-    $numContainers    = get_field2_int($_, "numContainers");
-    $rack             = get_field2($_, "rack");
-    $state            = get_field2($_, "state");
-    $found++;
-    last;
+my $node_ref;
+if($node_id){
+    $node_ref = get_field("node");
+} else {
+    my $found;
+    foreach(my $i = 0; $i < scalar @nodes; $i++){
+        next unless get_field2($nodes[$i], "nodeHostName") eq $node;
+        $node_ref = $nodes[$i];
+        $found++;
+        last;
+    }
+    $found or quit "UNKNOWN", "node manager '$node' not found. Check you've specified the right hostname by using the --list-nodes switch. If you're sure you've specified the right hostname then $nagios_plugins_support_msg_api";
 }
-$found or quit "UNKNOWN", "node manager '$node' not found. Check you've specified the right hostname by using the --list-nodes switch. If you're sure you've specified the right hostname then $nagios_plugins_support_msg_api";
+
+my $availMemoryMB    = get_field2_float($node_ref, "availMemoryMB");
+my $healthReport     = get_field2($node_ref, "healthReport");
+# appears to not be returned on 2.4 despite what this says http://hadoop.apache.org/docs/r2.4.0/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html
+#my $healthState      = get_field2($node_ref, "healthState");
+my $lastHealthUpdate = get_field2_float($node_ref, "lastHealthUpdate");
+my $numContainers    = get_field2_int($node_ref, "numContainers");
+my $rack             = get_field2($node_ref, "rack");
+my $state            = get_field2($node_ref, "state");
+if($node_id){
+    $node = get_field2($node_ref, "nodeHostName");
+}
 
 my $lag = sprintf("%d", time - $lastHealthUpdate/1000);
-#vlog2 "lag is $lag secs";
 
 # For some reason the content of this is blank when API docs say it should be 'Healthy', but my nodes work so this isn't critical
 $healthReport = "<blank>" unless $healthReport;
