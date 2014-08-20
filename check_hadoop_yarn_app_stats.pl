@@ -34,9 +34,6 @@ set_port_default(8088);
 
 env_creds(["HADOOP_YARN_RESOURCE_MANAGER", "HADOOP"], "Yarn Resource Manager");
 
-my $queue;
-my $list_queues;
-
 %options = (
     %hostoptions,
     %thresholdoptions,
