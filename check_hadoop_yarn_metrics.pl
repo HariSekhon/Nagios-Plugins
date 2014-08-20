@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check Hadoop Yarn metrics such as Apps/Containers/Nodes via the Resource Manager's REST API
 
-Can specific one or more metrics to output using --metrics, otherwise all metrics are output by default. Graphing perfdata is output for metrics. Recommended to explicitly select metrics as PNP4Nagios RDD breaks when the number of perfdata changes if more metrics are added to Hadoop at a later time.
+Can specifiy one or more metrics to output using --metrics, otherwise all metrics are output by default. Graphing perfdata is output for each selected metric. Recommended to explicitly select metrics as PNP4Nagios RRD breaks when the number of perfdata changes if more metrics are added to Hadoop at a later time.
 
 Optional thresholds can be specified for a metric if specifying only one metric.
 
