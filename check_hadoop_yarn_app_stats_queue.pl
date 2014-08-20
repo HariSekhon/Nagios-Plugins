@@ -135,7 +135,7 @@ if($list_queues){
 quit "UNKNOWN", "failed to find mbean for queue '$queue'. Did you specify the correct queue name? See --list-queues for valid queue names. If you're sure you've specified the right queue name then $nagios_plugins_support_msg_api" unless $found_queue;
 quit "UNKNOWN", "duplicate mbeans found for queue '$queue'! $nagios_plugins_support_msg_api" if $found_queue > 1;
 
-$msg  = "yarn apps for queue '$queue': ";
+$msg  = "yarn app stats for queue '$queue': ";
 $msg .= "$apps_running running";
 check_thresholds($apps_running) if $running;
 $msg .= ", ";
