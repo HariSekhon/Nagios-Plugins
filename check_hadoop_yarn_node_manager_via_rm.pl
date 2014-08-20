@@ -36,7 +36,6 @@ use HariSekhonUtils;
 use Data::Dumper;
 use JSON::XS;
 use LWP::Simple '$ua';
-use URI::Escape;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
@@ -71,6 +70,9 @@ unless($list_nodes){
 $node and $node_id and usage "cannot specify both --node and --node-id";
 if($node_id){
     $node_id =~ /:\d+$/ or $node_id .= ":$node_port_default";
+    $node_id = validate_hostport($node_id, "node id");
+} elsif($node) {
+    $node = validate_host($node, "node");
 }
 validate_thresholds(0, 0, { "simple" => "upper", "positive" => 1, "integer" => 1 });
 
@@ -81,7 +83,7 @@ $status = "OK";
 
 my $url = "http://$host:$port/ws/v1/cluster/nodes";
 unless($list_nodes){
-    $url .= "/" . uri_escape("$node_id") if $node_id;
+    $url .= "/$node_id" if $node_id;
 }
 
 sub rm_error_handler($){
