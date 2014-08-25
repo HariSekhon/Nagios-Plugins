@@ -56,6 +56,10 @@ isInt $limit           or quit "UNKNOWN", "failed to get system files limit";
 ($allocated < $allocated_free) and quit "UNKNOWN", "code or /proc error, system file allocated < allocated_free!";
 
 # second field was used file handles in 2.4 kernels so need to check kernel version
+# see also:
+# /proc/sys/kernel/ostype     => Linux
+# /proc/sys/kernel/osrelease  => 2.6.32-358.2.1.el6.x86_64
+# /proc/sys/kernel/version    => #1 SMP Wed Mar 13 00:26:49 UTC 2013
 $fh = open_file "/proc/version";
 <$fh> =~ /^Linux\s+version\s+(\d+\.\d+)\./ or quit "UNKNOWN", "failed to determine Linux kernel version to accurately calculate used file handles";
 my $kernel_version = $1;
