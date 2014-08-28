@@ -17,9 +17,9 @@ Use --verbose mode to also output max & min node % token ownership and rack info
 
 Can specify a remote host and port otherwise assumes to check via localhost
 
-Written and tested against Cassandra 2.0, DataStax Community Edition";
+Written and tested against Cassandra 2.0.x, DataStax Community Edition";
 
-$VERSION = "0.3.2";
+$VERSION = "0.3.3";
 
 use strict;
 use warnings;
@@ -30,22 +30,17 @@ BEGIN {
 use HariSekhonUtils;
 use HariSekhon::Cassandra::Nodetool;
 
-my $default_warning  = 5;
-my $default_critical = 10;
-
-$warning  = $default_warning;
-$critical = $default_critical;
+set_threshold_defaults(10, 20);
 
 my $exclude_joining_leaving = 0;
 
 %options = (
     %nodetool_options,
     "exclude-joining-leaving" => [ \$exclude_joining_leaving,   "Exclude Joining/Leaving nodes from the balance calculation (Downed nodes are already excluded)" ],
-    "w|warning=s"             => [ \$warning,                   "Warning  threshold max % difference (inclusive. Default: $default_warning)"  ],
-    "c|critical=s"            => [ \$critical,                  "Critical threshold max % difference (inclusive. Default: $default_critical)" ],
+    %thresholdoptions,
 );
-
 @usage_order = qw/nodetool host port user password exclude-joining-leaving warning critical/;
+
 get_options();
 
 ($nodetool, $host, $port, $user, $password) = validate_nodetool_options($nodetool, $host, $port, $user, $password);

@@ -18,9 +18,9 @@ Also returns Active and Dropped operations with perfdata for graphing.
 
 Can specify a remote host and port otherwise it checks the local node's stats (for calling over NRPE on each Cassandra node)
 
-Written and tested against Cassandra 2.0, DataStax Community Edition";
+Written and tested against Cassandra 2.0.x, DataStax Community Edition";
 
-$VERSION = "0.6.2";
+$VERSION = "0.6.3";
 
 use strict;
 use warnings;
@@ -31,19 +31,14 @@ BEGIN {
 use HariSekhonUtils;
 use HariSekhon::Cassandra::Nodetool;
 
-my $default_warning  = 0;
-my $default_critical = 0;
-
-$warning  = $default_warning;
-$critical = $default_critical;
+set_threshold_defaults(0, 0);
 
 %options = (
     %nodetool_options,
-    "w|warning=s"   => [ \$warning,  "Warning  threshold max (inclusive) for Pending/Blocked operations (default: $default_warning)"  ],
-    "c|critical=s"  => [ \$critical, "Critical threshold max (inclusive) for Pending/Blocked operations (default: $default_critical)" ],
+    %thresholdoptions,
 );
+splice @usage_order, 0, 0, 'nodetool';
 
-@usage_order = qw/nodetool host port user password warning critical/;
 get_options();
 
 ($nodetool, $host, $port, $user, $password) = validate_nodetool_options($nodetool, $host, $port, $user, $password);
