@@ -11,13 +11,16 @@
 
 $DESCRIPTION = "Nagios Plugin to check MySQL arbitrary queries against regex matches or numerical ranges, with perfdata support
 
-It looks like a similar plugin has now been added to the standard Nagios Plugins collection, although this one still has more features";
+It looks like a similar plugin has now been added to the standard Nagios Plugins collection, although this one still has more features.
+
+Only the first row return is considered for the result so your SQL query should take that in to account.
+
+DO NOT ADD a semi-colon to the end of your query in Nagios, although this plugin can handle this fine and it works on the command line, in Nagios the command will end up being prematurely terminated and result in a null critical error that is hard to debug and that this plugin cannot catch since it's raised by the shell before this plugin is executed
+";
 
 # TODO: add retry switch if valid below threshold
 
-# DO NOT ADD a semi-colon to the end of your query in Nagios, although the plugin can handle this fine and it works on the command line, in Nagios the command will end up being prematurely terminated and result in a null critical error that is hard to debug and that this plugin cannot catch since it's raised by the shell before plugin is executed
-
-$VERSION = "1.0.0";
+$VERSION = "1.1.0";
 
 use strict;
 use warnings;
@@ -27,17 +30,16 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-
 use DBI;
 
-my $default_port = 3306;
+set_port_default(3306);
+
+my @default_mysql_sockets = ( "/var/lib/mysql/mysql.sock", "/tmp/mysql.sock");
+my $mysql_socket;
+
 my $default_message = "query returned";
 my $database = "";
 my $epoch;
-my $host;
-my $port = $default_port;
-my $user = "";
-my $password = "";
 my $query;
 my $field = 1;
 my $graph;
@@ -57,8 +59,8 @@ env_creds("MYSQL", "MySQL");
 %options = (
     %hostoptions,
     %useroptions,
-    %thresholdoptions,
     "d|database=s"  => [ \$database, "MySQL database" ],
+    "s|mysql-socket=s" => [ \$mysql_socket,    "MySQL socket file through which to connect (defaults: " . join(", ", @default_mysql_sockets) . ")" ],
     "q|query=s"     => [ \$query,    "MySQL query to execute" ],
     "f|field=s"     => [ \$field,    "Field number/name to check the results of (defaults to '1')" ],
     "e|epoch"       => [ \$epoch,    "Subtract result from current time in epoch format from result (useful for timestamp based comparisons)" ],
@@ -69,17 +71,34 @@ env_creds("MYSQL", "MySQL");
     "g|graph"       => [ \$graph,    "Perfdata output for graphing" ],
     "l|label=s"     => [ \$label,    "Perfdata label. If not specified uses field name or Undefined if field name doesn't match a known regex of chars" ],
     "U|units=s"     => [ \$units,    "Units of measurement for graphing output (%/s/ms/us/B/KB/MB/TB/c)" ],
-    "s|short"       => [ \$short,    "Shorten output, do not output message just result" ],
-    "no-querytime"  => [ \$no_querytime, "Do not output the mysql query time" ],
+    "T|short"       => [ \$short,    "Shorten output, do not output message just result" ],
+    "Q|no-querytime" => [ \$no_querytime, "Do not output the mysql query time" ],
+    %thresholdoptions,
 );
-@usage_order = qw/host port database user password query field epoch message message-prepend output regex warning critical graph label units short no-querytime/;
+@usage_order = qw/host port user password database mysql-socket query field epoch message message-prepend output regex warning critical graph label units short no-querytime/;
 
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
+if($host){
+    $host = validate_host($host) if $host;
+    $port = validate_port($port);
+} else {
+    unless($mysql_socket){
+        foreach(@default_mysql_sockets){
+            if( -e $_ ){
+                vlog3 "found mysql socket '$_'";
+                $mysql_socket = $_;
+                last;
+            }
+        }
+    }
+    unless($mysql_socket){
+        usage "host not defined and no mysql socket found";
+    }
+    $mysql_socket = validate_filename($mysql_socket, 0, "mysql socket");
+}
 $user       = validate_user($user);
-$password   = validate_password($password);
+$password   = validate_password($password) if $password;
 $database   = validate_database($database);
 $query      = validate_database_query_select_show($query);
 $field      = validate_database_fieldname($field);
@@ -110,13 +129,18 @@ if($graph){
 vlog2;
 set_timeout();
 
-vlog2 "connecting to database";
-
-my $dbh = DBI->connect("DBI:mysql:$database:$host:$port", $user, $password,
+my $dbh;
+if($host){
+    vlog2 "connecting to MySQL database on '$host:$port' as '$user'\n";
+    $dbh = DBI->connect("DBI:mysql:$database:$host:$port", $user, $password,
                         { Taint      => 1,
                           PrintError => 0,
                           RaiseError => 0 } )
     or quit "CRITICAL", "Couldn't connect to '$host:$port' database '$database' (DBI error: " . DBI->errstr . ")";
+} else { # connect through local socket
+    vlog2 "connecting to MySQL database via socket '$mysql_socket'\n";
+    $dbh = DBI->connect("DBI:mysql:", $user, $password, { mysql_socket => $mysql_socket, Taint => 1, PrintError => 0, RaiseError => 0 }) || quit "CRITICAL", "failed to connect to MySQL database through socket: $DBI::errstr";
+};
 vlog2 "login to database successful\n";
 
 # TODO: add multi record support
