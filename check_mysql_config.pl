@@ -16,31 +16,27 @@ Primarily written to check that DBAs hadn't changed any running DB from Puppet d
 A friend and ex-colleague of mine Tom Liakos @ Specificmedia pointed out a long time after I wrote this that Percona independently developed a similar tool called pt-config-diff (part of the Percona toolkit) around the same time.
 ";
 
-$VERSION = "1.0.0";
+$VERSION = "1.1.0";
 
 use strict;
 use warnings;
-use DBI;
 BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use DBI;
+
+set_port_default(3306);
 
 my $default_config_file     = "/etc/my.cnf";
-my $default_host            = "127.0.0.1";
-my $default_port            = "3306";
-my $default_user            = "root";
 my $default_mysql_instance  = "mysqld";
-my $default_mysql_socket    = "/var/lib/mysql/mysql.sock";
+my @default_mysql_sockets = ( "/var/lib/mysql/mysql.sock", "/tmp/mysql.sock");
+my $mysql_socket;
 
 my $config_file     = $default_config_file;
-   $host            = $default_host;
-   $port            = $default_port;
 my $mysql_instance  = $default_mysql_instance;
-my $mysql_socket    = $default_mysql_socket;
 my $password        = "";
-my $user            = $default_user;
 my %mysql_config;
 my $ensure_skip_name_resolve = 0;
 my $warn_on_missing_variables = 0;
@@ -95,27 +91,41 @@ my %mysql_modes = (
 env_creds("MYSQL", "MySQL");
 
 %options = (
-    "H|host=s"                  => [ \$host,            "MySQL host to check (default: $default_host). Set to blank to connect via socket" ],
-    "P|port=s"                  => [ \$port,            "MySQL port to connect to (default: $default_port)" ],
     "c|config|config-file=s"    => [ \$config_file,     "Path to MySQL my.cnf config file (default: $default_config_file)" ],
+    %hostoptions,
     %useroptions,
     "d|mysql-instance=s"        => [ \$mysql_instance,  "MySQL [instance] in my.cnf to test (default: $default_mysql_instance)" ],
-    "s|mysql-socket=s"          => [ \$mysql_socket,    "MySQL socket file through which to connect (default: $default_mysql_socket)" ],
-    "skip-name-resolve"         => [ \$ensure_skip_name_resolve, "Ensure that skip-name-resolve is specified in the config file" ],
-    "warn-on-missing"           => [ \$warn_on_missing_variables, "Return warning when there my.cnf variables missing from running MySQL config. Default is just to list them but return OK unless there is an actual mismatch. Useful if you want to make sure they're all accounted for as sometimes they only appear in config file or the live name is different to the config file name" ],
+    "s|mysql-socket=s"          => [ \$mysql_socket,    "MySQL socket file through which to connect (defaults: " . join(", ", @default_mysql_sockets) . ")" ],
+    "N|skip-name-resolve"       => [ \$ensure_skip_name_resolve, "Ensure that skip-name-resolve is specified in the config file" ],
+    "M|warn-on-missing"         => [ \$warn_on_missing_variables, "Return warning when there my.cnf variables missing from running MySQL config. Default is just to list them but return OK unless there is an actual mismatch. Useful if you want to make sure they're all accounted for as sometimes they only appear in config file or the live name is different to the config file name" ],
 );
-@usage_order = qw/config-file host port user password mysql-instance skip-name-resolve warn-on-missing/;
+@usage_order = qw/config-file host port user password mysql-instance mysql-socket skip-name-resolve warn-on-missing/;
 
 get_options();
 
-$host        = validate_host($host) if $host;
-$port        = validate_port($port);
+if($host){
+    $host = validate_host($host) if $host;
+    $port = validate_port($port);
+} else {
+    unless($mysql_socket){
+        foreach(@default_mysql_sockets){
+            if( -e $_ ){
+                vlog3 "found mysql socket '$_'";
+                $mysql_socket = $_;
+                last;
+            }
+        }
+    }
+    unless($mysql_socket){
+        usage "host not defined and no mysql socket found";
+    }
+    $mysql_socket = validate_filename($mysql_socket, 0, "mysql socket");
+}
 $user        = validate_user($user);
 $password    = validate_password($password) if $password;
 $config_file = validate_filename($config_file);
 vlog2 "config file: '$config_file'";
 $mysql_instance = validate_database($mysql_instance);
-$mysql_socket = validate_filename($mysql_socket, 1) or usage "Invalid MySQL Socket given, did not pass file regex: $mysql_socket";
 
 vlog2;
 set_timeout();
@@ -189,11 +199,12 @@ foreach(sort keys %mysql_config){
 ###################
 # Connect to MySQL
 
-vlog2 "\nconnecting to MySQL database on '$host:$port' as '$user'\n";
 my $dbh;
 if($host){
+    vlog2 "connecting to MySQL database on '$host:$port' as '$user'\n";
     $dbh = DBI->connect("DBI:mysql:;host=$host;port=$port", $user, $password, { PrintError => 0 }) || quit "CRITICAL", "failed to connect to MySQL database on '$host:$port': $DBI::errstr";
 } else { # connect through local socket
+    vlog2 "connecting to MySQL database via socket '$mysql_socket'\n";
     $dbh = DBI->connect("DBI:mysql:", $user, $password, { mysql_socket => $mysql_socket, PrintError => 0 }) || quit "CRITICAL", "failed to connect to MySQL database through socket: $DBI::errstr";
 }
 
