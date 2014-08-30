@@ -117,7 +117,7 @@ if($host){
         }
     }
     unless($mysql_socket){
-        usage "host not defined and no mysql socket found";
+        usage "host not defined and no mysql socket found, must specify one of --host or --socket";
     }
     $mysql_socket = validate_filename($mysql_socket, 0, "mysql socket");
 }
