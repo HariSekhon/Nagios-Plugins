@@ -11,9 +11,9 @@
 
 $DESCRIPTION = "Nagios Plugin to check if a Hadoop NameNode is the Active/Standby one in an HA pair via JMX
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
+Written and tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385). Added legacy support for Cloudera CDH 4.4.0 (Hadoop 2.0.0)";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -81,7 +81,16 @@ foreach(@beans){
     $state = get_field2($_, "State");
     last;
 }
-quit "UNKNOWN", "failed to find namenode status mbean" unless $found_mbean;
+unless($found_mbean){
+    foreach(@beans){
+        # This is to be able to support CDH 4.4 which doesn't have the NameNodeStatus MBean
+        next unless get_field2($_, "name") eq "Hadoop:service=NameNode,name=FSNamesystem";
+        $found_mbean = 1;
+        $state = get_field2($_, 'tag\.HAState');
+        last;
+    }
+    quit "UNKNOWN", "failed to find namenode status mbean. $nagios_plugins_support_msg_api" unless $found_mbean;
+}
 
 $msg = "namenode state '$state'";
 if($expected_state){
