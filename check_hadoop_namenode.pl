@@ -9,6 +9,8 @@
 #  License: see accompanying LICENSE file
 #
 
+# Consider decomposing into 4/5 different plugins to simplify switches and code branching
+
 $DESCRIPTION = "Nagios Plugin to run various checks against the Hadoop HDFS Cluster via the Namenode JSP pages
 
 This is an alternate rewrite of the functionality from my original check_hadoop_dfs.pl plugin using the Namenode JSP interface instead of the 'hadoop dfsadmin -report' output. Reason for writing is not only to allow checking your NameNode remotely via JSP without having to adjust the NameNode setup to install the check_hadoop_dfs.pl plugin, but it also gives the following additional checks not available via that method:
@@ -20,7 +22,7 @@ Extra checks not available via check_hadoop_dfs.pl
 3. Datanode block counts
 4. Datanode block count imbalance %
 
-For the rest of the checks which are also served via check_hadoop_dfs.pl it's recommended to use that original check_hadoop_dfs.pl plugin since it's better tested and has better/tighter output validation than this is possible via JSP.
+For the rest of the checks which are also served via check_hadoop_dfs.pl it's recommended to use that original check_hadoop_dfs.pl plugin since it's better tested and has better/tighter output validation than is possible via JSP.
 
 Caveats:
 
@@ -112,8 +114,8 @@ if($progname eq "check_hadoop_hdfs_space.pl"){
 
 get_options();
 
-$host = validate_host($host, "Namenode");
-$port = validate_port($port, "Namenode");
+$host = validate_host($host, "NameNode");
+$port = validate_port($port, "NameNode");
 
 if($datanode_blocks){
     $warning  = $default_blockcount_warning  unless defined($warning);
@@ -193,7 +195,7 @@ unless($datanode_blocks or $datanode_block_balance){
 my $regex_td = '\s*(?:<\/a>\s*)?<td\s+id="\w+">\s*:\s*<td\s+id="\w+">\s*';
 
 sub parse_dfshealth {
-    # Note: This was created for Apache Hadoop 0.20.2, r911707. If they change this page across versions, this plugin will need to be updated to parse the changes
+    # Note: This was created for Apache Hadoop 0.20.2, r911707. If they change this page across versions, this plugin will need to be updated to parse the changes. Has been updated for Cloudera CDH 4.3 and Hortonworks HDP 2.1
     vlog2 "parsing Namenode dfs health output";
 
     my $regex_configured_capacity = qr/>\s*Configured Capacity$regex_td(\d+(?:\.\d+)?)\s(\w+)\s*</o;
