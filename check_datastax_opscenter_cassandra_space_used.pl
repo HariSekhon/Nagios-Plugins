@@ -39,7 +39,7 @@ my $list_clusters;
 %options = (
     %hostoptions,
     %useroptions,
-    "C|cluster=s"   =>  [ \$cluster, "Cluster name to check" ],
+    "C|cluster=s"   =>  [ \$cluster, "Cluster as named in DataStax OpsCenter. See --list-clusters" ],
     "list-clusters" =>  [ \$list_clusters, "List clusters managed by DataStax OpsCenter" ],
     %thresholdoptions,
 );
@@ -52,7 +52,7 @@ $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
 unless($list_clusters){
-    $cluster or usage "cluster not defined";
+    $cluster or usage "must specify cluster, use --list-clusters to show clusters managed by DataStax OpsCenter";
     $cluster =~ /^[A-Za-z0-9]+$/ or usage "invalid cluster name given, must be alphanumeric";
 }
 validate_thresholds(1, 1, { "simple" => "upper", "integer" => 0, "positive" => 1, "min" => 0, "max" => 100 });
