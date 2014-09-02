@@ -84,7 +84,9 @@ vlog2 "total_gb: $total_gb";
 
 my $pc_used = sprintf("%.2f", $used_gb / $total_gb * 100);
 
-$msg = "$pc_used% space used in cassandra cluster '$cluster' [" . human_units($used_gb * 1024 * 1024 * 1024) . "/" . human_units($total_gb * 1024 * 1024 * 1024) . "] across $reporting_nodes reporting nodes | '% space used'=$pc_used%";
+$msg = "$pc_used% space used in cassandra cluster '$cluster' [" . human_units($used_gb * 1024 * 1024 * 1024) . "/" . human_units($total_gb * 1024 * 1024 * 1024) . "]";
+check_thresholds($pc_used);
+$msg .= " across $reporting_nodes reporting nodes | '% space used'=$pc_used%";
 msg_perf_thresholds();
 $msg .= " 'space used'=${used_gb}GB 'space free'=${free_gb}GB 'space total'=${total_gb}GB 'reporting nodes'=$reporting_nodes";
 
