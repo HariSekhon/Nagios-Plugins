@@ -34,14 +34,16 @@ set_threshold_defaults(80, 90);
 env_creds("DataStax OpsCenter");
 
 my $cluster;
+my $list_clusters;
 
 %options = (
     %hostoptions,
     %useroptions,
     "C|cluster=s"   =>  [ \$cluster, "Cluster name to check" ],
+    "list-clusters" =>  [ \$list_clusters, "List clusters managed by DataStax OpsCenter" ],
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, 'cluster';
+splice @usage_order, 6, 0, 'cluster list-clusters';
 
 get_options();
 
@@ -49,9 +51,10 @@ $host       = validate_host($host);
 $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
-$cluster or usage "cluster not defined";
-$cluster =~ /^[A-Za-z0-9]+$/ or usage "invalid cluster name given, must be alphanumeric";
-
+unless($list_clusters){
+    $cluster or usage "cluster not defined";
+    $cluster =~ /^[A-Za-z0-9]+$/ or usage "invalid cluster name given, must be alphanumeric";
+}
 validate_thresholds(1, 1, { "simple" => "upper", "integer" => 0, "positive" => 1, "min" => 0, "max" => 100 });
 
 vlog2;
@@ -62,7 +65,12 @@ $ua->show_progress(1) if $debug;
 
 $status = "OK";
 
-my $url = "http://$host:$port/$cluster/storage-capacity";
+my $url;
+if($list_clusters){
+    $url = "http://$host:$port/cluster-configs";
+} else {
+    $url = "http://$host:$port/$cluster/storage-capacity";
+}
 
 my $content = curl $url, "DataStax OpsCenter", $user, $password;
 try{
@@ -71,6 +79,14 @@ try{
 catch {
     quit "CRITICAL", "invalid json returned by DataStax OpsCenter at $url";
 };
+
+if($list_clusters){
+    print "Clusters managed by DataStax OpsCenter:\n\n";
+    foreach(sort keys %{$json}){
+        print "$_\n";
+    }
+    exit $ERRORS{"UNKNOWN"};
+}
 
 my $free_gb         = get_field_int("free_gb");
 my $used_gb         = get_field_int("used_gb");
