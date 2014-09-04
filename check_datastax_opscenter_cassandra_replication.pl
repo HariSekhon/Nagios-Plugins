@@ -24,6 +24,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use Data::Dumper;
 use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
@@ -34,6 +35,7 @@ env_creds("DataStax OpsCenter");
 
 my $cluster;
 my $keyspace;
+my $expect_no_durable_writes;
 my $expected_replication_factor;
 my $expected_replication_strategy;
 my $list_clusters;
@@ -46,10 +48,11 @@ my $list_keyspaces;
     "K|keyspace=s"              =>  [ \$keyspace,                       "KeySpace to check. See --list-keyspaces" ],
     "F|replication-factor=s"    =>  [ \$expected_replication_factor,    "Replication factor to expect (integer, optional)" ],
     "S|replication-strategy=s"  =>  [ \$expected_replication_strategy,  "Replication strategy to expect (string of class name eg. 'org.apache.cassandra.locator.SimpleStrategy', optional)" ],
+    "W|no-durable-writes"       =>  [ \$expect_no_durable_writes,       "Allow non-durable writes (default is to expect durable writes and alert if not the case)" ],
     "list-clusters"             =>  [ \$list_clusters,                  "List clusters managed by DataStax OpsCenter" ],
     "list-keyspaces"            =>  [ \$list_keyspaces,                 "List keyspaces in given Cassandra cluster managed by DataStax OpsCenter. Requires --cluster" ],
 );
-splice @usage_order, 6, 0, qw/cluster keyspace replication-factor replication-strategy list-clusters list-keyspaces/;
+splice @usage_order, 6, 0, qw/cluster keyspace replication-factor replication-strategy no-durable-writes list-clusters list-keyspaces/;
 
 get_options();
 
@@ -113,6 +116,7 @@ sub curl_datastax_opscenter_err_handler($){
 }
 
 $json = curl_json $url, "DataStax OpsCenter", $user, $password, \&curl_datastax_opscenter_err_handler;
+vlog3 Dumper($json);
 
 if($list_clusters){
     print "Clusters managed by DataStax OpsCenter:\n\n";
@@ -131,6 +135,7 @@ if($list_keyspaces){
 
 my $replica_placement_strategy = get_field("replica_placement_strategy");
 my $replication_factor         = get_field_int("strategy_options.replication_factor");
+my $durable_writes             = get_field("durable_writes");
 
 $msg = "cluster '$cluster' keyspace '$keyspace' replication factor: '$replication_factor'";
 if(defined($expected_replication_factor) and $replication_factor != $expected_replication_factor){
@@ -142,6 +147,15 @@ $msg .= ", strategy: '$replica_placement_strategy'";
 if(defined($expected_replication_strategy) and $replica_placement_strategy ne $expected_replication_strategy){
     critical;
     $msg .= " (expected: $expected_replication_strategy)";
+}
+
+$msg .= ", durable writes: " . ( $durable_writes ? "true" : "false" );
+if($expect_no_durable_writes and $durable_writes){
+    critical;
+    $msg .= " (expected: false)";
+} elsif(not $durable_writes){
+    critical;
+    $msg .= " (expected: true)";
 }
 
 vlog2;
