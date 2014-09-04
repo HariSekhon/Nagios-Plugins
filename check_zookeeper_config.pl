@@ -18,6 +18,8 @@ Useful for checking
 
 Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Collection)
 
+Requires ZooKeeper 3.3.0 onwards.
+
 BUGS: there are bugs in ZooKeeper's live running config where it doesn't report all the configuration variables from the config file. I checked this with my colleague Patrick Hunt @ Cloudera who reviewed those additions. If you get a warning about missing config not found on running server then you can use the -m switch to ignore it but please also raise a ticket to create an exception for that variable at https://github.com/harisekhon/nagios-plugins/issues/new
 ";
 
