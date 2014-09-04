@@ -13,6 +13,8 @@
 
 $DESCRIPTION = "Nagios Plugin to check Cassandra's replication factor and replica placement strategy for a given cluster and keyspace via the DataStax OpsCenter Rest API
 
+Also checks durable writes are enabled by default, configurable to expect durable writes to be disabled instead.
+
 Tested on DataStax OpsCenter 5.0.0";
 
 $VERSION = "0.1";
@@ -48,7 +50,7 @@ my $list_keyspaces;
     "K|keyspace=s"              =>  [ \$keyspace,                       "KeySpace to check. See --list-keyspaces" ],
     "F|replication-factor=s"    =>  [ \$expected_replication_factor,    "Replication factor to expect (integer, optional)" ],
     "S|replication-strategy=s"  =>  [ \$expected_replication_strategy,  "Replication strategy to expect (string of class name eg. 'org.apache.cassandra.locator.SimpleStrategy', optional)" ],
-    "W|no-durable-writes"       =>  [ \$expect_no_durable_writes,       "Allow non-durable writes (default is to expect durable writes and alert if not the case)" ],
+    "W|no-durable-writes"       =>  [ \$expect_no_durable_writes,       "Expect non-durable writes (default is to expect durable writes)" ],
     "list-clusters"             =>  [ \$list_clusters,                  "List clusters managed by DataStax OpsCenter" ],
     "list-keyspaces"            =>  [ \$list_keyspaces,                 "List keyspaces in given Cassandra cluster managed by DataStax OpsCenter. Requires --cluster" ],
 );
