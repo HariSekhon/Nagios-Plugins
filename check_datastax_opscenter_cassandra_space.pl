@@ -43,7 +43,7 @@ my $list_clusters;
     "list-clusters" =>  [ \$list_clusters, "List clusters managed by DataStax OpsCenter" ],
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, 'cluster list-clusters';
+splice @usage_order, 6, 0, qw/cluster list-clusters/;
 
 get_options();
 
