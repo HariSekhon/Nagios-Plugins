@@ -41,10 +41,12 @@ my $list_clusters;
 %options = (
     %hostoptions,
     %useroptions,
-    "C|cluster=s"   =>  [ \$cluster,        "Cluster as named in DataStax OpsCenter. See --list-clusters" ],
-    "list-clusters" =>  [ \$list_clusters,  "List clusters managed by DataStax OpsCenter" ],
+    "C|cluster=s"    =>  [ \$cluster,        "Cluster as named in DataStax OpsCenter. See --list-clusters" ],
+    "K|keyspace=s"   =>  [ \$keyspace,       "KeySpace to check. See --list-keyspaces" ],
+    "list-clusters"  =>  [ \$list_clusters,  "List clusters managed by DataStax OpsCenter" ],
+    "list-keyspaces" =>  [ \$list_keyspaces, "List keyspaces in given Cassandra cluster managed by DataStax OpsCenter. Requires --cluster" ],
 );
-splice @usage_order, 6, 0, qw/cluster list-clusters/;
+splice @usage_order, 6, 0, qw/cluster keyspace list-clusters list-keyspaces/;
 
 get_options();
 
@@ -55,6 +57,10 @@ $password   = validate_password($password);
 unless($list_clusters){
     $cluster or usage "must specify cluster, use --list-clusters to show clusters managed by DataStax OpsCenter";
     $cluster = validate_alnum($cluster, "cluster name");
+    unless($list_keyspaces){
+        $keyspace or usage "must specify keyspace, use --list-keyspaces to show keyspaces managed by Cassandra cluster '$cluster'";
+        $keyspace = validate_alnum($keyspace, "keyspace name");
+    }
 }
 
 vlog2;
@@ -68,6 +74,10 @@ $status = "OK";
 my $url;
 if($list_clusters){
     $url = "http://$host:$port/cluster-configs";
+} elsif($list_keyspaces){
+    $url = "http://$host:$port/$cluster/keyspaces";
+} elsif($keyspace) {
+    $url = "http://$host:$port/$cluster/backups/$keyspace";
 } else {
     $url = "http://$host:$port/$cluster/backups";
 }
