@@ -17,7 +17,7 @@ Requires the DataStax Enterprise
 
 Tested on DataStax OpsCenter 5.0.0 with DataStax Enterprise Server 4.5.1";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -26,27 +26,17 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use HariSekhon::DataStax::OpsCenter;
 use Data::Dumper;
 use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-set_port_default(8888);
-
-env_creds("DataStax OpsCenter");
-
-my $cluster;
-my $list_clusters;
-
-env_vars(["DATASTAX_OPSCENTER_CLUSTER", "CLUSTER"], \$cluster);
-
 %options = (
     %hostoptions,
     %useroptions,
-    "C|cluster=s"    =>  [ \$cluster,       "Cluster as named in DataStax OpsCenter (\$DATASTAX_OPSCENTER_CLUSTER, \$CLUSTER). See --list-clusters" ],
-    "list-clusters" =>  [ \$list_clusters,  "List clusters managed by DataStax OpsCenter" ],
+    %clusteroption,
 );
-splice @usage_order, 6, 0, qw/cluster list-clusters/;
 
 get_options();
 
@@ -54,10 +44,7 @@ $host       = validate_host($host);
 $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
-unless($list_clusters){
-    $cluster or usage "must specify cluster, use --list-clusters to show clusters managed by DataStax OpsCenter";
-    $cluster = validate_alnum($cluster, "cluster name");
-}
+validate_cluster();
 
 vlog2;
 set_timeout();
@@ -67,23 +54,10 @@ $ua->show_progress(1) if $debug;
 
 $status = "OK";
 
-my $url;
-if($list_clusters){
-    $url = "http://$host:$port/cluster-configs";
-} else {
-    $url = "http://$host:$port/$cluster/alerts/fired";
-}
+list_clusters();
 
-$json = curl_json $url, "DataStax OpsCenter", $user, $password;
+$json = curl_opscenter "$cluster/alerts/fired";
 vlog3 Dumper($json);
-
-if($list_clusters){
-    print "Clusters managed by DataStax OpsCenter:\n\n";
-    foreach(sort keys %{$json}){
-        print "$_\n";
-    }
-    exit $ERRORS{"UNKNOWN"};
-}
 
 isArray($json) or quit "UNKNOWN", "non-array returned. $nagios_plugins_support_msg_api";
 
