@@ -43,13 +43,14 @@ my $list_keyspaces;
 my $min_backups = 1;
 my $max_age;
 
-env_vars(["DATASTAX_OPSCENTER_CLUSTER", "CLUSTER"], \$cluster);
+env_vars(["DATASTAX_OPSCENTER_CLUSTER",  "CLUSTER"],  \$cluster);
+env_vars(["DATASTAX_OPSCENTER_KEYSPACE", "KEYSPACE"], \$keyspace);
 
 %options = (
     %hostoptions,
     %useroptions,
     "C|cluster=s"    =>  [ \$cluster,        "Cluster as named in DataStax OpsCenter (\$DATASTAX_OPSCENTER_CLUSTER, \$CLUSTER). See --list-clusters" ],
-    "K|keyspace=s"   =>  [ \$keyspace,       "KeySpace to check. See --list-keyspaces" ],
+    "K|keyspace=s"   =>  [ \$keyspace,       "KeySpace to check (\$DATASTAX_OPSCENTER_KEYSPACE, \$KEYSPACE). See --list-keyspaces" ],
     "min-backups=s"  =>  [ \$min_backups,    "Minimum number of backups to expect (default: 1)" ],
     "max-age=s"      =>  [ \$max_age,        "Max time in secs since last backup (optional)" ],
     "list-clusters"  =>  [ \$list_clusters,  "List clusters managed by DataStax OpsCenter" ],
