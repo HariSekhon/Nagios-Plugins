@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# http://www.datastax.com/documentation/opscenter/5.0/api/docs/data_modeling.html#method-get-keyspaces
+# http://www.datastax.com/documentation/opscenter/5.0/api/docs/backups.html#backups
 
 $DESCRIPTION = "Nagios Plugin to check DataStax OpsCenter backups for a given cluster/keyspace via the DataStax OpsCenter Rest API
 
