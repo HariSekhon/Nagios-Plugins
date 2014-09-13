@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# http://www.datastax.com/documentation/opscenter/5.0/api/docs/data_modeling.html#method-get-keyspaces
+# http://www.datastax.com/documentation/opscenter/5.0/api/docs/events_alerts.html#events-alerts
 
 $DESCRIPTION = "Nagios Plugin to check DataStax OpsCenter alerts for a given cluster via the DataStax OpsCenter Rest API
 
