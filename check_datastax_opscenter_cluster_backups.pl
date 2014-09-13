@@ -11,13 +11,11 @@
 
 # http://www.datastax.com/documentation/opscenter/5.0/api/docs/data_modeling.html#method-get-keyspaces
 
-$DESCRIPTION = "Nagios Plugin to check Cassandra's replication factor and replica placement strategy for a given cluster and keyspace via the DataStax OpsCenter Rest API
+$DESCRIPTION = "Nagios Plugin to check DataStax OpsCenter backups for a given cluster/keyspace via the DataStax OpsCenter Rest API
 
-Also checks durable writes are enabled by default, configurable to expect durable writes to be disabled instead.
+Requires DataStax Enterprise
 
-Requires DataStax Enterprise Server
-
-Tested on DataStax OpsCenter 5.0.0";
+Tested on DataStax OpsCenter 5.0.0 with DataStax Enterprise Server 4.5.1";
 
 $VERSION = "0.1";
 
@@ -30,6 +28,7 @@ BEGIN {
 use HariSekhonUtils;
 use Data::Dumper;
 use LWP::Simple '$ua';
+use POSIX 'strftime';
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
@@ -38,17 +37,25 @@ set_port_default(8888);
 env_creds("DataStax OpsCenter");
 
 my $cluster;
+my $keyspace;
 my $list_clusters;
+my $list_keyspaces;
+my $min_backups = 1;
+my $max_age;
+
+env_vars(["DATASTAX_OPSCENTER_CLUSTER", "CLUSTER"], \$cluster);
 
 %options = (
     %hostoptions,
     %useroptions,
-    "C|cluster=s"    =>  [ \$cluster,        "Cluster as named in DataStax OpsCenter. See --list-clusters" ],
+    "C|cluster=s"    =>  [ \$cluster,        "Cluster as named in DataStax OpsCenter (\$DATASTAX_OPSCENTER_CLUSTER, \$CLUSTER). See --list-clusters" ],
     "K|keyspace=s"   =>  [ \$keyspace,       "KeySpace to check. See --list-keyspaces" ],
+    "min-backups=s"  =>  [ \$min_backups,    "Minimum number of backups to expect (default: 1)" ],
+    "max-age=s"      =>  [ \$max_age,        "Max time in secs since last backup (optional)" ],
     "list-clusters"  =>  [ \$list_clusters,  "List clusters managed by DataStax OpsCenter" ],
     "list-keyspaces" =>  [ \$list_keyspaces, "List keyspaces in given Cassandra cluster managed by DataStax OpsCenter. Requires --cluster" ],
 );
-splice @usage_order, 6, 0, qw/cluster keyspace list-clusters list-keyspaces/;
+splice @usage_order, 6, 0, qw/cluster keyspace min-backups max-age list-clusters list-keyspaces/;
 
 get_options();
 
@@ -59,11 +66,10 @@ $password   = validate_password($password);
 unless($list_clusters){
     $cluster or usage "must specify cluster, use --list-clusters to show clusters managed by DataStax OpsCenter";
     $cluster = validate_alnum($cluster, "cluster name");
-    unless($list_keyspaces){
-        $keyspace or usage "must specify keyspace, use --list-keyspaces to show keyspaces managed by Cassandra cluster '$cluster'";
-        $keyspace = validate_alnum($keyspace, "keyspace name");
-    }
 }
+$keyspace    = validate_alnum($keyspace, "keyspace name") if $keyspace;
+$min_backups = validate_int($min_backups, "min backups", 0);
+$max_age     = validate_int($max_age,  "max backup age",  0) if defined($max_age);
 
 vlog2;
 set_timeout();
@@ -93,6 +99,50 @@ if($list_clusters){
         print "$_\n";
     }
     exit $ERRORS{"UNKNOWN"};
+}
+if($list_keyspaces){
+    print "Keyspaces in cluster '$cluster':\n\n";
+    foreach(sort keys %{$json}){
+        print "$_\n";
+    }
+    exit $ERRORS{"UNKNOWN"};
+}
+
+isHash($json) or quit "UNKNOWN", "non-hash returned. $nagios_plugins_support_msg_api";
+
+my $num_backups = scalar keys %{$json};
+plural $num_backups;
+$msg = "$num_backups backup$plural found in DataStax OpsCenter for cluster '$cluster'";
+$msg .= " keyspace '$keyspace'" if $keyspace;
+if($num_backups < $min_backups){
+    critical;
+    plural $min_backups;
+    $msg .= " (expected minimum of $min_backups backup$plural)";
+}
+if($num_backups > 0){
+    # find timestamp of last backup and use that
+    my $last_timestamp = 0;
+    my $this_timestamp;
+    foreach(sort keys %{$json}){
+        $this_timestamp = get_field("$_.time");
+        if($this_timestamp > $last_timestamp){
+            $last_timestamp = $this_timestamp;
+        }
+    }
+    # OpsCenter displays this in gmtime so we will too
+    $msg .= ", last backup was '" . strftime("%F %T", gmtime($last_timestamp)) . "' GMT";
+    my $age = time - $last_timestamp;
+    $msg .= " ($age secs ago";
+    if($age < 0){
+        unknown;
+        $msg .= " - NTP mismatch between hosts?";
+    } else {
+        if($max_age and $age > $max_age){
+            critical;
+            $msg .= " > max age $max_age secs";
+        }
+    }
+    $msg .= ")";
 }
 
 vlog2;
