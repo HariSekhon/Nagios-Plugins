@@ -53,8 +53,8 @@ $host       = validate_host($host);
 $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
-validate_datastax_opscenter_cluster();
-validate_datastax_opscenter_keyspace();
+validate_cluster();
+validate_keyspace();
 $expected_replication_factor = validate_int($expected_replication_factor, "expected replication factor", 1) if defined($expected_replication_factor);
 
 vlog2;
@@ -65,12 +65,10 @@ $ua->show_progress(1) if $debug;
 
 $status = "OK";
 
-list_datastax_opscenter_clusters();
-list_datastax_opscenter_keyspaces();
+list_clusters();
+list_keyspaces();
 
-my $url = "http://$host:$port/$cluster/keyspaces/$keyspace";
-
-$json = curl_json $url, "DataStax OpsCenter", $user, $password, \&curl_datastax_opscenter_err_handler;
+$json = curl_opscenter "$cluster/keyspaces/$keyspace";
 vlog3 Dumper($json);
 
 my $replica_placement_strategy = get_field("replica_placement_strategy");
