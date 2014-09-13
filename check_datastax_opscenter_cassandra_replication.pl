@@ -17,7 +17,7 @@ Also checks durable writes are enabled by default, configurable to expect durabl
 
 Tested on DataStax OpsCenter 5.0.0";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -26,33 +26,24 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use HariSekhon::DataStax::OpsCenter;
 use Data::Dumper;
 use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-set_port_default(8888);
-
-env_creds("DataStax OpsCenter");
-
-my $cluster;
-my $keyspace;
 my $expect_no_durable_writes;
 my $expected_replication_factor;
 my $expected_replication_strategy;
-my $list_clusters;
-my $list_keyspaces;
 
 %options = (
     %hostoptions,
     %useroptions,
-    "C|cluster=s"               =>  [ \$cluster,                        "Cluster as named in DataStax OpsCenter. See --list-clusters" ],
-    "K|keyspace=s"              =>  [ \$keyspace,                       "KeySpace to check. See --list-keyspaces" ],
+    %clusteroption,
+    %keyspaceoption,
     "F|replication-factor=s"    =>  [ \$expected_replication_factor,    "Replication factor to expect (integer, optional)" ],
     "S|replication-strategy=s"  =>  [ \$expected_replication_strategy,  "Replication strategy to expect (string of class name eg. 'org.apache.cassandra.locator.SimpleStrategy', optional)" ],
     "W|no-durable-writes"       =>  [ \$expect_no_durable_writes,       "Expect non-durable writes (default is to expect durable writes)" ],
-    "list-clusters"             =>  [ \$list_clusters,                  "List clusters managed by DataStax OpsCenter" ],
-    "list-keyspaces"            =>  [ \$list_keyspaces,                 "List keyspaces in given Cassandra cluster managed by DataStax OpsCenter. Requires --cluster" ],
 );
 splice @usage_order, 6, 0, qw/cluster keyspace replication-factor replication-strategy no-durable-writes list-clusters list-keyspaces/;
 
@@ -62,14 +53,8 @@ $host       = validate_host($host);
 $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
-unless($list_clusters){
-    $cluster or usage "must specify cluster, use --list-clusters to show clusters managed by DataStax OpsCenter";
-    $cluster = validate_alnum($cluster, "cluster name");
-    unless($list_keyspaces){
-        $keyspace or usage "must specify keyspace, use --list-keyspaces to show keyspaces managed by Cassandra cluster '$cluster'";
-        $keyspace = validate_alnum($keyspace, "keyspace name");
-    }
-}
+validate_datastax_opscenter_cluster();
+validate_datastax_opscenter_keyspace();
 $expected_replication_factor = validate_int($expected_replication_factor, "expected replication factor", 1) if defined($expected_replication_factor);
 
 vlog2;
@@ -80,60 +65,13 @@ $ua->show_progress(1) if $debug;
 
 $status = "OK";
 
-my $url;
-if($list_clusters){
-    $url = "http://$host:$port/cluster-configs";
-} elsif($list_keyspaces){
-    $url = "http://$host:$port/$cluster/keyspaces";
-} else {
-    $url = "http://$host:$port/$cluster/keyspaces/$keyspace";
-}
+list_datastax_opscenter_clusters();
+list_datastax_opscenter_keyspaces();
 
-sub curl_datastax_opscenter_err_handler($){
-    my $response = shift;
-    my $content  = $response->content;
-    my $json;
-    my $additional_information = "";
-    unless($response->code eq "200"){
-        my $additional_information = "";
-        my $json;
-        if($json = isJson($content)){
-            if(defined($json->{"status"})){
-                $additional_information .= ". Status: " . $json->{"status"};
-            }
-            if(defined($json->{"reason"})){
-                $additional_information .= ". Reason: " . $json->{"reason"};
-            } elsif(defined($json->{"message"})){
-                $additional_information .= ". Message: " . $json->{"message"};
-                if($json->{"message"} eq "Resource not found."){
-                    $additional_information = ". Message: keyspace not found - wrong keyspace specified? (case sensitive)";
-                }
-            }
-        }
-        quit("CRITICAL", $response->code . " " . $response->message . $additional_information);
-    }
-    unless($content){
-        quit("CRITICAL", "blank content returned from DataStax OpsCenter");
-    }
-}
+my $url = "http://$host:$port/$cluster/keyspaces/$keyspace";
 
 $json = curl_json $url, "DataStax OpsCenter", $user, $password, \&curl_datastax_opscenter_err_handler;
 vlog3 Dumper($json);
-
-if($list_clusters){
-    print "Clusters managed by DataStax OpsCenter:\n\n";
-    foreach(sort keys %{$json}){
-        print "$_\n";
-    }
-    exit $ERRORS{"UNKNOWN"};
-}
-if($list_keyspaces){
-    print "Keyspaces in cluster '$cluster':\n\n";
-    foreach(sort keys %{$json}){
-        print "$_\n";
-    }
-    exit $ERRORS{"UNKNOWN"};
-}
 
 my $replica_placement_strategy = get_field("replica_placement_strategy");
 my $replication_factor         = get_field_int("strategy_options.replication_factor");
