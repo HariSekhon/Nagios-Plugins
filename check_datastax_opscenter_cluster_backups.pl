@@ -17,7 +17,7 @@ Requires DataStax Enterprise
 
 Tested on DataStax OpsCenter 5.0.0 with DataStax Enterprise Server 4.5.1";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -26,35 +26,23 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use HariSekhon::DataStax::OpsCenter;
 use Data::Dumper;
 use LWP::Simple '$ua';
 use POSIX 'strftime';
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-set_port_default(8888);
-
-env_creds("DataStax OpsCenter");
-
-my $cluster;
-my $keyspace;
-my $list_clusters;
-my $list_keyspaces;
 my $min_backups = 1;
 my $max_age;
-
-env_vars(["DATASTAX_OPSCENTER_CLUSTER",  "CLUSTER"],  \$cluster);
-env_vars(["DATASTAX_OPSCENTER_KEYSPACE", "KEYSPACE"], \$keyspace);
 
 %options = (
     %hostoptions,
     %useroptions,
-    "C|cluster=s"    =>  [ \$cluster,        "Cluster as named in DataStax OpsCenter (\$DATASTAX_OPSCENTER_CLUSTER, \$CLUSTER). See --list-clusters" ],
-    "K|keyspace=s"   =>  [ \$keyspace,       "KeySpace to check (\$DATASTAX_OPSCENTER_KEYSPACE, \$KEYSPACE). See --list-keyspaces" ],
+    %clusteroption,
+    %keyspaceoption,
     "min-backups=s"  =>  [ \$min_backups,    "Minimum number of backups to expect (default: 1)" ],
     "max-age=s"      =>  [ \$max_age,        "Max time in secs since last backup (optional)" ],
-    "list-clusters"  =>  [ \$list_clusters,  "List clusters managed by DataStax OpsCenter" ],
-    "list-keyspaces" =>  [ \$list_keyspaces, "List keyspaces in given Cassandra cluster managed by DataStax OpsCenter. Requires --cluster" ],
 );
 splice @usage_order, 6, 0, qw/cluster keyspace min-backups max-age list-clusters list-keyspaces/;
 
@@ -64,11 +52,8 @@ $host       = validate_host($host);
 $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
-unless($list_clusters){
-    $cluster or usage "must specify cluster, use --list-clusters to show clusters managed by DataStax OpsCenter";
-    $cluster = validate_alnum($cluster, "cluster name");
-}
-$keyspace    = validate_alnum($keyspace, "keyspace name") if $keyspace;
+validate_cluster();
+$keyspace    = validate_keyspace() if $keyspace;
 $min_backups = validate_int($min_backups, "min backups", 0);
 $max_age     = validate_int($max_age,  "max backup age",  0) if defined($max_age);
 
@@ -80,34 +65,18 @@ $ua->show_progress(1) if $debug;
 
 $status = "OK";
 
+list_clusters();
+list_keyspaces();
+
 my $url;
-if($list_clusters){
-    $url = "http://$host:$port/cluster-configs";
-} elsif($list_keyspaces){
-    $url = "http://$host:$port/$cluster/keyspaces";
-} elsif($keyspace) {
-    $url = "http://$host:$port/$cluster/backups/$keyspace";
+if($keyspace) {
+    $url = "$cluster/backups/$keyspace";
 } else {
-    $url = "http://$host:$port/$cluster/backups";
+    $url = "$cluster/backups";
 }
 
-$json = curl_json $url, "DataStax OpsCenter", $user, $password;
+$json = curl_opscenter $url;
 vlog3 Dumper($json);
-
-if($list_clusters){
-    print "Clusters managed by DataStax OpsCenter:\n\n";
-    foreach(sort keys %{$json}){
-        print "$_\n";
-    }
-    exit $ERRORS{"UNKNOWN"};
-}
-if($list_keyspaces){
-    print "Keyspaces in cluster '$cluster':\n\n";
-    foreach(sort keys %{$json}){
-        print "$_\n";
-    }
-    exit $ERRORS{"UNKNOWN"};
-}
 
 isHash($json) or quit "UNKNOWN", "non-hash returned. $nagios_plugins_support_msg_api";
 
