@@ -11,13 +11,11 @@
 
 # http://www.datastax.com/documentation/opscenter/5.0/api/docs/data_modeling.html#method-get-keyspaces
 
-$DESCRIPTION = "Nagios Plugin to check Cassandra's replication factor and replica placement strategy for a given cluster and keyspace via the DataStax OpsCenter Rest API
+$DESCRIPTION = "Nagios Plugin to check DataStax OpsCenter alerts for a given cluster via the DataStax OpsCenter Rest API
 
-Also checks durable writes are enabled by default, configurable to expect durable writes to be disabled instead.
+Requires the DataStax Enterprise
 
-Requires DataStax Enterprise Server
-
-Tested on DataStax OpsCenter 5.0.0";
+Tested on DataStax OpsCenter 5.0.0 with DataStax Enterprise Server 4.5.1";
 
 $VERSION = "0.1";
 
@@ -40,10 +38,12 @@ env_creds("DataStax OpsCenter");
 my $cluster;
 my $list_clusters;
 
+env_vars(["DATASTAX_OPSCENTER_CLUSTER", "CLUSTER"], \$cluster);
+
 %options = (
     %hostoptions,
     %useroptions,
-    "C|cluster=s"   =>  [ \$cluster,        "Cluster as named in DataStax OpsCenter. See --list-clusters" ],
+    "C|cluster=s"    =>  [ \$cluster,       "Cluster as named in DataStax OpsCenter (\$DATASTAX_OPSCENTER_CLUSTER, \$CLUSTER). See --list-clusters" ],
     "list-clusters" =>  [ \$list_clusters,  "List clusters managed by DataStax OpsCenter" ],
 );
 splice @usage_order, 6, 0, qw/cluster list-clusters/;
@@ -84,6 +84,17 @@ if($list_clusters){
     }
     exit $ERRORS{"UNKNOWN"};
 }
+
+isArray($json) or quit "UNKNOWN", "non-array returned. $nagios_plugins_support_msg_api";
+
+# TODO: Improve this when I actually have some alerts to evaluate
+if(@{$json}){
+    critical;
+    $msg .= scalar @{$json} . " ";
+} else {
+    $msg .= "no ";
+}
+$msg .= "alerts fired in DataStax OpsCenter for cluster '$cluster'";
 
 vlog2;
 quit $status, $msg;
