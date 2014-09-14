@@ -13,9 +13,9 @@
 
 $DESCRIPTION = "Nagios Plugin to check Cassandra storage capacity % used via DataStax OpsCenter Rest API
 
-Tested on DataStax OpsCenter 5.0.0";
+Tested on DataStax OpsCenter 3.2.2 and 5.0.0";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -69,7 +69,12 @@ vlog2 "used_gb: $used_gb";
 my $total_gb = $free_gb + $used_gb;
 vlog2 "total_gb: $total_gb";
 
-my $pc_used = sprintf("%.2f", $used_gb / $total_gb * 100);
+my $pc_used;
+if($total_gb == 0 or $reporting_nodes == 0){
+    quit "UNKNOWN", "total space = ${total_gb} GB across $reporting_nodes reporting nodes";
+} else {
+    $pc_used = sprintf("%.2f", $used_gb / $total_gb * 100);
+}
 
 $msg = "$pc_used% space used in cassandra cluster '$cluster' [" . human_units($used_gb * 1024 * 1024 * 1024) . "/" . human_units($total_gb * 1024 * 1024 * 1024) . "]";
 check_thresholds($pc_used);
