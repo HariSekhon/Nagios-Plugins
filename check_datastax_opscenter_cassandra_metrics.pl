@@ -23,7 +23,7 @@ Some metrics may only apply to Column-Families or Nodes, and will result in UNKN
 
 Sometimes a metric's latest results will be undefined in OpsCenter. In this case the latest valid metric will be returned instead. Increase --time-period to fetch more historical metrics from the last N minutes so there is more chance of finding a last valid metric to return or specify --latest-only to only return the latest result regardless of whether it's defined or not (in which case you'll get UNKNOWN: 'metric'='undefined').
 
-Tested on DataStax OpsCenter 5.0.0";
+Tested on DataStax OpsCenter 3.2.2 and 5.0.0";
 
 $VERSION = "0.1";
 
