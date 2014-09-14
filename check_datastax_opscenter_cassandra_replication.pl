@@ -15,7 +15,7 @@ $DESCRIPTION = "Nagios Plugin to check Cassandra's replication factor and replic
 
 Also checks durable writes are enabled by default, configurable to expect durable writes to be disabled instead.
 
-Tested on DataStax OpsCenter 5.0.0";
+Tested on DataStax OpsCenter 3.2.2 and 5.0.0";
 
 $VERSION = "0.2";
 
