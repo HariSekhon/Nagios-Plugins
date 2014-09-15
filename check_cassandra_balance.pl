@@ -19,7 +19,7 @@ Can specify a remote host and port otherwise assumes to check via localhost
 
 Written and tested against Cassandra 2.0.1 and 2.0.9, DataStax Community Edition";
 
-$VERSION = "0.3.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -59,6 +59,7 @@ my @output = cmd($cmd);
 #               name                  %    rack
 my @max_node = ("uninitialized_node", 0,   "uninitialized_rack");
 my @min_node = ("uninitialized_node", 100, "uninitialized_rack");
+my $node_count = 0;
 foreach(@output){
     check_nodetool_errors($_);
     if($_ =~ $nodetool_status_header_regex){
@@ -68,6 +69,7 @@ foreach(@output){
     next if(/^D[NJLM]\s+/);
     next if($exclude_joining_leaving and /^U[JL]\s+/);
     if(/^[^\s]+\s+([^\s]+)\s+[^\s]+(?:\s+[A-Za-z][A-Za-z])?\s+[^\s]+\s+(\d+(?:\.\d+)?)\%\s+[^\s]+\s+([^\s]+)/){
+        $node_count++;
         my $node       = $1;
         my $percentage = $2;
         my $rack       = $3;
@@ -83,10 +85,16 @@ foreach(@output){
         die_nodetool_unrecognized_output($_);
     }
 }
+if($node_count < 1){
+    quit "UNKNOWN", "no nodes found!";
+} elsif($node_count == 1){
+    @min_node = @max_node;
+}
 
 my $max_diff_percentage = sprintf("%.2f", $max_node[1] - $min_node[1]);
 
-$msg = "$max_diff_percentage% max imbalance between cassandra nodes"; 
+plural $node_count;
+$msg = "$max_diff_percentage% max imbalance between $node_count cassandra node$plural"; 
 check_thresholds($max_diff_percentage);
 $msg .= ", max node: $max_node[1]% [$max_node[0] ($max_node[2])], min node: $min_node[1]% [$min_node[0] ($min_node[2])]" if $verbose;
 $msg .= " | 'max_%_imbalance'=$max_diff_percentage%";
