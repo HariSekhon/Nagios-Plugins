@@ -104,7 +104,7 @@ my $num_excluded_nodes       = get_field_int("num_excluded_nodes");
 if($state == 1){
     $state = "running";
 } else {
-    $state = "stopped";
+    $state = "STOPPED";
 }
 
 critical if($state ne "running" or $num_blacklisted_trackers or $num_excluded_nodes);
