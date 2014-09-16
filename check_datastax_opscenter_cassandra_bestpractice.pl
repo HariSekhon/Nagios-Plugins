@@ -17,7 +17,9 @@ By default shows the last run status of all rules and raises critical if any of 
 
 Specify an individual --rule as displayed by the default mode that shows them all to have that rule run immediately instead of using the last run result. Provides additional output for that one rule of 'category', 'importance' and 'scope' as well as the recommendation to correct it if status does not equal 'Passed'.
 
-Requires DataStax OpsCenter 5.0.0";
+Requires DataStax Enterprise
+
+Tested on DataStax OpsCenter 5.0.0";
 
 $VERSION = "0.1";
 
