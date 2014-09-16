@@ -57,7 +57,7 @@ $status = "OK";
 
 list_clusters();
 
-my $content = curl_opscenter "$cluster/storage-capacity";
+$json = curl_opscenter "$cluster/storage-capacity";
 
 my $free_gb         = get_field_int("free_gb");
 my $used_gb         = get_field_int("used_gb");
