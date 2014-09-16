@@ -15,13 +15,13 @@ $DESCRIPTION = "Nagios Plugin to check DataStax OpsCenter best practice rule res
 
 By default shows the last run status of all rules and raises critical if any of them are not of status='Passed'.
 
-Specify an individual --rule as displayed by the default mode that shows them all to have that rule run immediately instead of using the last run result. Provides additional output for that one rule of 'category', 'importance' and 'scope' as well as the recommendation to correct it if status does not equal 'Passed'.
+Can specify an individual --rule (as displayed by the default mode that shows them all) and then optionally have that rule --run immediately instead of using the last run result. Specifying a rule also provides additional output for that one rule of 'category', 'importance', 'scope' and 'last_run_time' as well as the recommendation of how to correct it if status does not equal 'Passed'.
 
 Requires DataStax Enterprise 5.0.0 and DataStax Enterprise
 
 Tested on DataStax OpsCenter 5.0.0";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -37,14 +37,16 @@ use LWP::Simple '$ua';
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 my $rule;
+my $run;
 
 %options = (
     %hostoptions,
     %useroptions,
     %clusteroption,
     "R|rule=s"     => [ \$rule,   "Best practive rule to run. Optional, defaults to showing the last run results for all rules" ],
+    "run"          => [ \$run,    "Run given --rule and report result instead of using last run results. Only valid when specifying a single --rule" ],
 );
-splice @usage_order, 6, 0, qw/cluster rule list-clusters/;
+splice @usage_order, 6, 0, qw/cluster rule run list-clusters/;
 
 get_options();
 
@@ -53,11 +55,15 @@ $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
 validate_cluster();
+if($run and not $rule){
+    usage "cannot specify --run without --rule":
+}
 if($rule){
     $rule =~ /^([\w-]+)$/ or usage "invalid --check argument, must be alphanumeric with dashes or underscores";
     $rule = $1;
     vlog_options "rule", $rule;
 }
+vlog_options "run now", ( $run ? "true" : "false");
 
 vlog2;
 set_timeout();
@@ -69,7 +75,7 @@ $status = "OK";
 
 list_clusters();
 
-if($rule){
+if($rule and $run){
     $json = curl_opscenter "$cluster/bestpractice/run/$rule", 0, "POST";
 } else {
     $json = curl_opscenter "$cluster/bestpractice/results/latest";
@@ -80,7 +86,24 @@ isHash($json) or quit "UKNOWN", "non-hash returned by DataStax OpsCenter";
 
 my $result_status;
 my $Passed = "Passed";
-if($rule){
+
+sub check_result(;$){
+    my $prefix = shift;
+    $prefix .= "." if $prefix;
+    $result_status = get_field("${prefix}status");
+    $msg .= "$rule='$result_status'";
+    if($result_status ne $Passed){
+        $msg .= " display-name='"    . get_field("${prefix}display-name")   . "'"
+              . ", recommendation='" . get_field("${prefix}recommendation") . "'";
+    }
+    $msg .= ", category='"      . get_field("${prefix}category")   . "'"
+          . ", importance='"    . get_field("${prefix}importance") . "'"
+          . ", scope='"         . get_field("${prefix}scope")      . "'"
+          . ", last_run_time='" . get_field("${prefix}run_time")   . "'";
+    }
+}
+
+if($rule and $run){
     $result_status = get_field("status");
     $msg = "$rule='$result_status'";
     if($result_status ne $Passed){
@@ -88,9 +111,14 @@ if($rule){
         $msg .= " display-name='"    . get_field("display-name")   . "'"
               . ", recommendation='" . get_field("recommendation") . "'";
     }
-    $msg .= ", category='"   . get_field("category")   . "'"
-          . ", importance='" . get_field("importance") . "'"
-          . ", scope='"      . get_field("scope")      . "'";
+    $msg .= ", category='"      . get_field("category")   . "'"
+          . ", importance='"    . get_field("importance") . "'"
+          . ", scope='"         . get_field("scope")      . "'"
+          . ", last_run_time='" . get_field("run_time")   . "'";
+    check_result();
+} elsif($rule){
+    defined($json->{$rule}) or quit "UNKNOWN", "rule '$rule' not found, check you have specified a valid run name by running without --rule first to see all the rules";
+    check_result($rule);
 } else {
     my @passed;
     my %failed;
