@@ -56,7 +56,7 @@ $user       = validate_user($user);
 $password   = validate_password($password);
 validate_cluster();
 if($run and not $rule){
-    usage "cannot specify --run without --rule":
+    usage "cannot specify --run without --rule";
 }
 if($rule){
     $rule =~ /^([\w-]+)$/ or usage "invalid --check argument, must be alphanumeric with dashes or underscores";
@@ -88,11 +88,12 @@ my $result_status;
 my $Passed = "Passed";
 
 sub check_result(;$){
-    my $prefix = shift;
+    my $prefix = shift || "";
     $prefix .= "." if $prefix;
     $result_status = get_field("${prefix}status");
     $msg .= "$rule='$result_status'";
     if($result_status ne $Passed){
+        critical;
         $msg .= " display-name='"    . get_field("${prefix}display-name")   . "'"
               . ", recommendation='" . get_field("${prefix}recommendation") . "'";
     }
@@ -100,21 +101,9 @@ sub check_result(;$){
           . ", importance='"    . get_field("${prefix}importance") . "'"
           . ", scope='"         . get_field("${prefix}scope")      . "'"
           . ", last_run_time='" . get_field("${prefix}run_time")   . "'";
-    }
 }
 
 if($rule and $run){
-    $result_status = get_field("status");
-    $msg = "$rule='$result_status'";
-    if($result_status ne $Passed){
-        critical;
-        $msg .= " display-name='"    . get_field("display-name")   . "'"
-              . ", recommendation='" . get_field("recommendation") . "'";
-    }
-    $msg .= ", category='"      . get_field("category")   . "'"
-          . ", importance='"    . get_field("importance") . "'"
-          . ", scope='"         . get_field("scope")      . "'"
-          . ", last_run_time='" . get_field("run_time")   . "'";
     check_result();
 } elsif($rule){
     defined($json->{$rule}) or quit "UNKNOWN", "rule '$rule' not found, check you have specified a valid run name by running without --rule first to see all the rules";
