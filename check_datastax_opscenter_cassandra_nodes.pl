@@ -17,7 +17,7 @@ The last seen time is compared to the warning/critical thresholds in seconds.
 
 Use --node-ip to check a specific node only.
 
-Issues: I've had issues with this on 5.0.0 where DataStax OpsCenter reports 0 last seen time lag if it hasn't seen a node since DataStax OpsCenter or the DataStax OpsCenter Agent are restarted while a node is down or if the DataStax OpsCenter Agent is stopped and Cassandra later goes down. There isn't another field I can see that differentiates this from the 0 last seen time that connected nodes have :-/ This doesn't seem to be reliable with DataStax OpsCenter + Agent 3.2.2. TODO: raise this as a bug to DataStax
+Issues: I've had issues with this on 5.0.0 where DataStax OpsCenter reports 0 last seen time lag if it hasn't seen a node since DataStax OpsCenter or the DataStax OpsCenter Agent are restarted while a node is down or if the DataStax OpsCenter Agent is stopped and Cassandra later goes down. There isn't another field I can see that differentiates this from the 0 last seen time that connected nodes have :-/ This seems to work normally with DataStax OpsCenter + Agent 3.2.2. TODO: raise this as a bug to DataStax for 5.0.0
 
 See also check_cassandra_nodes.pl for a robust Cassandra view of nodes
 
