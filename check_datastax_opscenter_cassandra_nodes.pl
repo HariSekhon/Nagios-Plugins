@@ -40,17 +40,17 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 set_threshold_defaults(10, 60);
 
-my $no_fqdn;
+my $show_fqdn;
 
 %options = (
     %hostoptions,
     %useroptions,
     %clusteroption,
     %nodeipoption,
-    "no-fqdn" => [ \$no_fqdn, "Display short hostnames instead of FQDNs" ],
+    "show-fqdn" => [ \$show_fqdn, "Display FQDNs instead of just short hostnames" ],
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, qw/cluster node-ip no-fqdn list-clusters/;
+splice @usage_order, 6, 0, qw/cluster node-ip show-fqdn list-clusters/;
 
 get_options();
 
@@ -103,8 +103,8 @@ sub check_node($){
     my $node_name = "";
     if(defined($hashref->{"node_name"})){
         $node_name = $hashref->{"node_name"};
-        if($no_fqdn){
-            $node_name =~ s/\..*$//;
+        unless($show_fqdn){
+            $node_name =~ s/([^\.])\..*$/$1/;
         }
     } else {
         $node_name = $node_ip2;
