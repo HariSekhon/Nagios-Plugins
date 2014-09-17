@@ -112,11 +112,11 @@ sub check_node($){
     $highest_lag = $last_seen if $last_seen > $highest_lag;
     if($node_ip){
         $msg  = "node $node_name";
-        $msg .= "[$node_ip2]" if $verbose;
+        $msg .= "[$node_ip2]" if ($verbose and $node_name ne $node_ip2);
         $msg .= " last seen $last_seen secs ago";
     } else {
         $msg .= "$node_name";
-        $msg .= "[$node_ip2]" if $verbose;
+        $msg .= "[$node_ip2]" if($verbose and $node_name ne $node_ip2);
         $msg .= "=$last_seen";
     }
     $msg .= ", ";
