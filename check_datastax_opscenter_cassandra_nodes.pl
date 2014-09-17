@@ -17,13 +17,13 @@ The last seen time is compared to the warning/critical thresholds in seconds.
 
 Use --node-ip to check a specific node only.
 
-Issues: I've had issues with this on 5.0.0 where DataStax OpsCenter reports 0 last seen time lag if it hasn't seen a node since DataStax OpsCenter or the DataStax OpsCenter Agent are restarted while a node is down or if the DataStax OpsCenter Agent is stopped and Cassandra later goes down. There isn't another field I can see that differentiates this from the 0 last seen time that connected nodes have :-/ This seems to work normally with DataStax OpsCenter + Agent 3.2.2. TODO: raise this as a bug to DataStax for 5.0.0
+Issues: I've had issues with this on 5.0.0 where DataStax OpsCenter reports 0 last seen time lag if it hasn't seen a node since DataStax OpsCenter or the DataStax OpsCenter Agent are restarted while a node is down or if the DataStax OpsCenter Agent is stopped and Cassandra later goes down. There isn't another field I can see that differentiates this from the 0 last seen time that connected nodes have :-/ This seems to work normally with DataStax OpsCenter + Agent 3.2.2.
 
 See also check_cassandra_nodes.pl for a robust Cassandra view of nodes
 
 Tested on DataStax OpsCenter 3.2.2 and 5.0.0";
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -40,14 +40,17 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 set_threshold_defaults(10, 60);
 
+my $no_fqdn;
+
 %options = (
     %hostoptions,
     %useroptions,
     %clusteroption,
     %nodeipoption,
+    "no-fqdn" => [ \$no_fqdn, "Display short hostnames instead of FQDNs" ],
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, qw/cluster node-ip list-clusters/;
+splice @usage_order, 6, 0, qw/cluster node-ip no-fqdn list-clusters/;
 
 get_options();
 
@@ -77,9 +80,10 @@ vlog3 Dumper($json);
 
 if($node_ip){
 } else {
-    $msg = "nodes last seen <ip>=<secs> ago: ";
+    $msg = "nodes last seen secs ago: ";
 }
 my $msg2;
+my %nodes;
 my $highest_lag = 0;
 my $failing_nodes = 0;
 sub check_node($){
@@ -99,6 +103,9 @@ sub check_node($){
     my $node_name = "";
     if(defined($hashref->{"node_name"})){
         $node_name = $hashref->{"node_name"};
+        if($no_fqdn){
+            $node_name =~ s/\..*$//;
+        }
     } else {
         $node_name = $node_ip2;
     }
@@ -114,7 +121,7 @@ sub check_node($){
     }
     $msg .= ", ";
     $node_name =~ s/'//g;
-    $msg2 .= "'node $node_name last seen secs ago'=${last_seen}s" . msg_perf_thresholds(1);
+    $msg2 .= "'node $node_name last seen secs ago'=${last_seen}s" . msg_perf_thresholds(1) . " ";
 }
 
 if($node_ip){
