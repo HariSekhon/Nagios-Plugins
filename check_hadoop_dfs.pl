@@ -177,7 +177,7 @@ foreach(@output){
     } elsif(/^Name:/ or /Dead datanodes:/){
         last;
     } else {
-        quit "UNKNOWN", "Unrecognized line in output while parsing totals: $_";
+        quit "UNKNOWN", "Unrecognized line in output while parsing totals: $_. $nagios_plugins_support_msg_api";
     }
 }
 if($balance){
@@ -214,7 +214,7 @@ if($balance){
         } elsif(/Dead datanodes:/){
             last;
         } else {
-            quit "UNKNOWN", "Unrecognized line in output while parsing nodes: $_";
+            quit "UNKNOWN", "Unrecognized line in output while parsing nodes: $_. $nagios_plugins_support_msg_api";
         }
     }
     foreach(keys %datanodes){
