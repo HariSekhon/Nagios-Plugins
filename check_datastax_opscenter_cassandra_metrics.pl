@@ -237,7 +237,6 @@ foreach my $array_ref (@results){
         }
     }
 }
-$metric_result eq "undefined" and quit "UNKNOWN", "$metric = 'undefined'";
 if(defined($metric_result)){
     $msg = "$metric = '$metric_result'";
     check_thresholds($metric_result);
