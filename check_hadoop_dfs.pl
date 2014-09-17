@@ -19,7 +19,7 @@ $DESCRIPTION = "Nagios Hadoop Plugin to check various health aspects of HDFS via
 - checks HDFS % Used Balance is within thresholds
 - checks number of available datanodes and if there are any dead datanodes
 
-Originally written for old vanilla Apache Hadoop 0.20.x, updated for CDH 4.3 (2.0.0-cdh4.3.0)
+Originally written for old vanilla Apache Hadoop 0.20.x, updated for CDH 4.3 (2.0.0) and HDP 2.1 (2.4.0)
 
 Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclaimer I work for Cloudera but seriously it's good it gives you access to a wealth of information)";
 
@@ -28,7 +28,7 @@ Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclai
 # 1. Min Configured Capacity per node (from node section output).
 # 2. Last Contact: convert the date to secs and check against thresholds.
 
-$VERSION = "0.7.1";
+$VERSION = "0.7.2";
 
 use strict;
 use warnings;
@@ -207,7 +207,7 @@ if($balance){
             $datanodes{$name}{"used_pc"} = $1;
         # Ignore these lines for now
         # TODO: could add exception for Decommissioning Nodes to not be considered part of the cluster balance
-        } elsif(/^(?:Rack|Decommission Status|Configured Capacity|DFS Used|Non DFS Used|DFS Remaining|DFS Remaining%|Last contact|)\s*:|^\s*$/){
+        } elsif(/^(?:Rack|Decommission Status|Configured Capacity|DFS Used|Non DFS Used|DFS Remaining|DFS Remaining%|Configured Cache Capacity|Cache Used|Cache Remaining|Cache Used%|Cache Remaining%|Last contact|)\s*:|^\s*$/){
             next;
         } elsif(/Live datanodes:/){
             next;
