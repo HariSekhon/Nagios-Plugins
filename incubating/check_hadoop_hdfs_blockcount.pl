@@ -9,21 +9,19 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop HDFS block counts per datanode or cluster wide
+$DESCRIPTION = "Nagios Plugin to parse and alert on Hadoop FSCK output
 
-Checks:
+Checks the status of the HDFS FSCK output and optionally the HDFS block count against warning/critical thresholds
 
-1. Per DataNode block count against given --warning and --critical thresholds, reports highest datanode count
+In order to contrain the runtime of this plugin you must run the Hadoop FSCK separately and have this plugin check the output file results
 
-or
+hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && mv /tmp/hdfs-fsck.log
 
-2. --cluster - Cluster wide block count against --warning and --critical thresholds
+./check_hadoop_fsck.pl -f /tmp/hdfs-fsck.log
 
-Calls hadoop / hdfs command.
+Tested on Hortonworks HDP 2.1";
 
-Written in an hour as a toy on CDH 4.4, it's O(N) rather than O(1) execution time, on my (very long) todo list to rewrite this properly via API";
-
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -33,146 +31,122 @@ BEGIN {
 }
 use HariSekhonUtils qw/:DEFAULT :regex/;
 
-my $default_hadoop_bin  = "hdfs";
-my $legacy_hadoop_bin   = "hadoop";
-my $hadoop_bin          = $default_hadoop_bin;
-
-my $cluster = 0;
+my $file;
 
 %options = (
-    "cluster"       => [ \$cluster,     "Check the number of total blocks in the cluster instead of per datanode" ],
-    "hadoop-bin=s"  => [ \$hadoop_bin,  "Path to 'hdfs' or 'hadoop' command if not in \$PATH ($ENV{PATH})" ],
-    "w|warning=s"   => [ \$warning,     "Warning  threshold or ran:ge (inclusive)" ],
-    "c|critical=s"  => [ \$critical,    "Critical threshold or ran:ge (inclusive)" ],
+    "f|file=s"      => [ \$file,         "HDFS FSCK result file" ],
+    "w|warning=s"   => [ \$warning,      "Warning  threshold or ran:ge (inclusive)" ],
+    "c|critical=s"  => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
 );
 
-@usage_order = qw/cluster hadoop-bin warning critical/;
+@usage_order = qw/file total-blocks warning critical/;
 get_options();
-
-# TODO: abstract + unify this with check_hadoop_dfs.pl
-my $hadoop_bin_tmp;
-unless($hadoop_bin_tmp = which($hadoop_bin)){
-    if($hadoop_bin eq $default_hadoop_bin){
-        vlog2 "cannot find command '$hadoop_bin', trying '$legacy_hadoop_bin'";
-        $hadoop_bin_tmp = which($legacy_hadoop_bin) || quit "UNKNOWN", "cannot find command '$hadoop_bin' or '$legacy_hadoop_bin' in PATH ($ENV{PATH})";
-    } else {
-        quit "UNKNOWN", "cannot find command '$hadoop_bin' in PATH ($ENV{PATH})";
-    }
-}
-$hadoop_bin = $hadoop_bin_tmp;
-$hadoop_bin  =~ /\b\/?(?:hadoop|hdfs)$/ or quit "UNKNOWN", "invalid hadoop program '$hadoop_bin' given, should be called hadoop or hdfs!";
-vlog_options "hadoop path", $hadoop_bin;
-
-validate_thresholds(1, 1, { "simple" => "upper", "integer" => 1 } );
+$file or usage "hdfs fsck result file not specified";
+$file = validate_file($file);
+validate_thresholds(0, 0, { "simple" => "upper", "integer" => 1, "positive" => 1 } );
 
 vlog2;
 set_timeout();
 
 $status = "OK";
 
-my $cmd  = "$hadoop_bin fsck / -files -blocks -locations";
-vlog3 "cmd: $cmd";
-open my $fh, "$cmd 2>&1 |";
-my $returncode = $?;
-my %datanode_blocks;
-my $reported_total_blocks;
+my $fh = open_file $file;
+my %hdfs;
 while(<$fh>){
     chomp;
     vlog3 "output: $_";
-    /Permission denied/i and quit "CRITICAL", "Did you fail to run this as the hdfs superuser?. $_";
-    if(/^\s*Total blocks(?:\s+\(validated\))?:\s+(\d+)/i){
-        $reported_total_blocks = $1;
-    }
-    if(
-        /^DEPRECATED:/i or
-        /^\s*$/ or
-        /^\.+$/ or
-        /^Connecting to namenode/i or
-        /^FSCK started/i or
-        /^FSCK ended/i or
-        /^Status:/i or
-        #/^\s*Total/i or
-        #/^\s*Minimally/i or
-        /^\s+/ or
-        /^The filesystem/i
-        ){
-            next;
-        }
-    # this is either a dir or
-    # /path/to/filename 9 bytes, 1 block(s):  Under replicated BP-1762190244-$ip-1379972114581:blk_2571364567380249014_3972. Target Replicas is 3 but found 1 replica(s).
-    /^\// and next;
-    if(/^\d+\.\s+BP-\d+-$ip_regex-\d+:blk_-?[\d_]+\s+len=\d+\s+repl=\d+\s+\[($host_regex):\d+\]\s*$/i){
-        if(defined($datanode_blocks{$1})){
-            $datanode_blocks{$1} += 1;
-        } else {
-            $datanode_blocks{$1} = 1;
-        }
+    /Permission denied/i and quit "CRITICAL", "Did you fail to run this as the hdfs superuser? $_";
+    if(/^\//){
         next;
+    } elsif(/Status:\s*(\w+)/){
+        $hdfs{"status"} = $1;
+    } elsif(/^\s*Total size:\s*(\d+)/){
+        $hdfs{"size"} = $1;
+    } elsif(/^\s*Total dirs:\s*(\d+)/){
+        $hdfs{"dirs"} = $1;
+    } elsif(/^\s*Total files:\s*(\d+)/){
+        $hdfs{"files"} = $1;
+    } elsif(/^\s*Total blocks(?:\s*\(validated\))?:\s*(\d+)/i){
+        $hdfs{"blocks"} = $1;
+    } elsif(/^\s*Minimally replicated blocks:\s*(\d+)\s*\((\d+\.\d+)\s*%\)/){
+        $hdfs{"min_rep_blocks"}    = $1;
+        $hdfs{"min_rep_blocks_pc"} = $2;
+    } elsif(/^\s*Over-replicated blocks:\s*(\d+)\s*\((\d+\.\d+)\s*%\)/){
+        $hdfs{"over_rep_blocks"}    = $1;
+        $hdfs{"over_rep_blocks_pc"} = $2;
+    } elsif(/^\s*Under-replicated blocks:\s*(\d+)\s*\((\d+\.\d+)\s*%\)/){
+        $hdfs{"under_rep_blocks"}    = $1;
+        $hdfs{"under_rep_blocks_pc"} = $2;
+    } elsif(/^\s*Mis-replicated blocks:\s*(\d+)\s*\((\d+\.\d+)\s*%\)/){
+        $hdfs{"mis_rep_blocks"}    = $1;
+        $hdfs{"mis_rep_blocks_pc"} = $2;
+    } elsif(/^\s*Default replication factor:\s*(\d+)/){
+        $hdfs{"default_rep_factor"} = $1;
+    } elsif(/^\s*Average block replication:\s*(\d+\.\d+)/){
+        $hdfs{"avg_block_rep"} = $1;
+    } elsif(/^\s*Corrupt blocks:\s*(\d+)/){
+        $hdfs{"corrupt_blocks"} = $1;
+    } elsif(/^\s*Missing replicas:\s*(\d+)\s*\((\d+\.\d+)\s*%\)/){
+        $hdfs{"missing_replicas"}    = $1;
+        $hdfs{"missing_replicas_pc"} = $2;
+    } elsif(/^\s*Number of data-nodes:\s*(\d+)/){
+        $hdfs{"num_datanodes"} = $1;
+    } elsif(/^\s*Number of racks:\s*(\d+)/){
+        $hdfs{"num_racks"} = $1;
+    } elsif(/^FSCK ended at (\w+\s+\w+\s+\d+\s+\d{1,2}:\d{2}:\d{2} \w+ \d+) in (\d+) milliseconds/){
+        $hdfs{"fsck_ended"} = $1;
+        $hdfs{"duration"}   = $2;
     }
-    quit "UNKNOWN", "unknown line detected: '$_'. $nagios_plugins_support_msg";
-}
-vlog3 "returncode: $returncode";
-if($returncode ne 0){
-    quit "CRITICAL", "hadoop fsck errored out with returncode $returncode. Run with -vvv to determine the cause";
+    /error/i and quit "CRITICAL", "error detected: $_";
+#    quit "UNKNOWN", "unknown line detected: '$_'. $nagios_plugins_support_msg";
 }
 
-unless(defined($reported_total_blocks)){
-    quit "UNKNOWN", "failed to find the reported total block count, $nagios_plugins_support_msg";
+foreach(qw/status size dirs files blocks min_rep_blocks min_rep_blocks_pc over_rep_blocks over_rep_blocks_pc under_rep_blocks under_rep_blocks_pc mis_rep_blocks mis_rep_blocks_pc default_rep_factor avg_block_rep corrupt_blocks missing_replicas missing_replicas_pc num_datanodes num_racks fsck_ended duration/){
+    unless(defined($hdfs{$_})){
+        quit "UNKNOWN", "hdfs $_ not found. $nagios_plugins_support_msg";
+    }
 }
+critical unless $hdfs{"status"} eq "HEALTHY";
 
-my $highest_blockcount             = 0;
-my $num_nodes_exceeding_blockcount = 0;
-my $total_blocks                   = 0;
-foreach(sort keys %datanode_blocks){
-    my $block_count = $datanode_blocks{$_};
-    $total_blocks += $block_count;
-    if($verbose >= 2){
-        print "\n";
-        if($block_count > $thresholds{"critical"}){
-            print "$_ block count $block_count > critical threshold $thresholds{critical}\n";
-            $num_nodes_exceeding_blockcount++;
-        } elsif($block_count > $thresholds{"warning"}){
-            print "$_ block count $block_count > warning threshold $thresholds{warning}\n";
-            $num_nodes_exceeding_blockcount++;
-        }
-        print "\n";
-    }
-    if($block_count > $highest_blockcount){
-        $highest_blockcount = $block_count;
-    }
-}
-if($reported_total_blocks != $total_blocks){
-    quit "UNKNOWN", "mismatch in total blocks reported vs counted, $nagios_plugins_support_msg";
-}
-vlog2 "reported block count and total blocks counted match";
-if($total_blocks == 0){
+if($hdfs{"blocks"} == 0){
     quit "UNKNOWN", "zero total blocks detected, unless this is a brand new cluster, $nagios_plugins_support_msg";
 }
-vlog2 "total blocks: $total_blocks";
-if($highest_blockcount == 0){
-    quit "UNKNOWN", "no blocks detected per datanode, unless this is a brand new cluster, $nagios_plugins_support_msg";
+#vlog2 "blocks: $hdfs{blocks}";
+
+$msg = "hdfs status: $hdfs{status}";
+$msg .= sprintf(", last checked %s in %d secs", $hdfs{fsck_ended}, $hdfs{duration} / 1000);
+if($verbose or $warning or $critical){
+    $msg .= ", blocks=$hdfs{blocks}";
+    check_thresholds($hdfs{"blocks"});
 }
-vlog2 "highest node blocks: $highest_blockcount";
-
-vlog2;
-
-if($cluster){
-    $msg = "$total_blocks total blocks in cluster";
-} else {
-    $msg = "$num_nodes_exceeding_blockcount datanodes with high block counts, highest block count $highest_blockcount";
+if($verbose){
+    my $msg2 = sprintf(" size=%s dirs=%d files=%d min_replicated_blocks=%d 'min_replicated_blocks_%%'=%.2f%% over_rep_blocks=%d 'over_rep_blocks_%%'=%.2f%% under_rep_blocks=%d 'under_rep_blocks_%%'=%.2f%% mis_rep_blocks=%d 'mis_rep_blocks_%%'=%.2f%% default_rep_factor=%d avg_block_rep=%.2f corrupt_blocks=%d missing_replicas=%d 'missing_replicas_%%'=%.2f%% num_datanodes=%d num_racks=%d",
+    human_units($hdfs{"size"}),
+    $hdfs{"dirs"}, $hdfs{"files"},
+    $hdfs{"min_rep_blocks"},
+    $hdfs{"min_rep_blocks_pc"},
+    $hdfs{"over_rep_blocks"},
+    $hdfs{"over_rep_blocks_pc"},
+    $hdfs{"under_rep_blocks"},
+    $hdfs{"under_rep_blocks_pc"},
+    $hdfs{"mis_rep_blocks"},
+    $hdfs{"mis_rep_blocks_pc"},
+    $hdfs{"default_rep_factor"},
+    $hdfs{"avg_block_rep"},
+    $hdfs{"corrupt_blocks"},
+    $hdfs{"missing_replicas"},
+    $hdfs{"missing_replicas_pc"},
+    $hdfs{"num_datanodes"},
+    $hdfs{"num_racks"}
+    );
+    my $msg3 = $msg2;
+    $msg3 =~ s/'//g;
+    $msg3 =~ s/_/ /g;
+    $msg .= $msg3;
+    
+    $msg .= " | hdfs_blocks=$hdfs{blocks}";
+    msg_perf_thresholds();
+    $msg .= $msg2;
 }
-
-check_thresholds($highest_blockcount);
-
-if($cluster){
-    $msg .= ", highest node block count $highest_blockcount";
-} else {
-    $msg .= ", $total_blocks total blocks in cluster";
-}
-
-$msg .= " | Cluster_block_count=$total_blocks";
-msg_perf_thresholds() if $cluster;
-$msg .= " DN_highest_block_count=$highest_blockcount";
-msg_perf_thresholds() if !$cluster;
 
 quit $status, $msg;
