@@ -82,7 +82,7 @@ This gives each plugin the appearance of being very short, because only the core
 
 I've tried to keep the quality here high so a lot of plugins I've written over the years haven't made it in to this collection, there are a lot still pending import, a couple others are in TODO-require-updates until I can reintegrate and test them with my current framework to modernize them, although they should still work with the tiny utils.pm from the standard nagios plugins collection.
 
-I'm aware of Nagios::Plugin and will re-review whether to integrate it's usage into my library at some point.
+I'm aware of Nagios::Plugin but my library has a lot more useful functions in it and I've written it to be highly convenient for me to develop with.
 
 ###### Legacy ######
 
