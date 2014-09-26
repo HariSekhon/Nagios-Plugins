@@ -141,10 +141,11 @@ if($verbose){
     );
     my $msg3 = $msg2;
     $msg3 =~ s/'//g;
-    $msg3 =~ s/_/ /g;
+    $msg3 =~ s/\s+\w+_%=([^\s]+)/($1)/g;
+    #$msg3 =~ s/_/ /g;
     $msg .= $msg3;
     
-    $msg .= " | hdfs_blocks=$hdfs{blocks}";
+    $msg .= " | blocks=$hdfs{blocks}";
     msg_perf_thresholds();
     $msg .= $msg2;
 }
