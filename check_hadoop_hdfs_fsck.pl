@@ -11,9 +11,14 @@
 
 $DESCRIPTION = "Nagios Plugin to parse and alert on Hadoop FSCK output
 
-Checks the status of the HDFS FSCK output and optionally the HDFS block count against warning/critical thresholds
+Checks the status of the HDFS FSCK output and optionally one of the following:
 
-In order to contrain the runtime of this plugin you must run the Hadoop FSCK separately and have this plugin check the output file results
+- Time in secs since last fsck (recommend setting thresholds to > 86400 ie once a day)
+- Time taken for FSCK in secs
+- Max number of HDFS blocks (affects NameNode)
+- Optionally outputs some more HDFS stats with perfdata for graphing (see also check_hadoop_replication.pl)
+
+In order to contrain the runtime of this plugin you must run the Hadoop FSCK separately and have this plugin check the output file results. Recommend you do not use any extra switches as it'll enlarge the output and slow down this result parsing plugin's execution time.
 
 hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && mv /tmp/hdfs-fsck.log
 
@@ -21,7 +26,7 @@ hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && mv /tmp/hdfs-fsck.log
 
 Tested on Hortonworks HDP 2.1";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -30,20 +35,35 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils qw/:DEFAULT :regex/;
+use POSIX 'floor';
+use Time::Local;
 
 my $file;
+my $last_fsck  = 0;
+my $fsck_time  = 0;
+my $max_blocks = 0;
+my $stats;
 
 %options = (
-    "f|file=s"      => [ \$file,         "HDFS FSCK result file" ],
-    "w|warning=s"   => [ \$warning,      "Warning  threshold or ran:ge (inclusive)" ],
-    "c|critical=s"  => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
+    "f|file=s"   => [ \$file,       "HDFS FSCK result file" ],
+    "last-fsck"  => [ \$last_fsck,  "Check time in secs since last HDFS FSCK" ],
+    "fsck-time"  => [ \$fsck_time,  "Check HDFS FSCK time taken" ],
+    "max-blocks" => [ \$max_blocks, "Check max HDFS blocks against thresholds" ],
+    "stats"      => [ \$stats,      "Output HDFS stats" ],
+    %thresholdoptions,
 );
+@usage_order = qw/file last-fsck fsck-time max-blocks stats warning critical/;
 
-@usage_order = qw/file total-blocks warning critical/;
 get_options();
+
 $file or usage "hdfs fsck result file not specified";
 $file = validate_file($file);
-validate_thresholds(0, 0, { "simple" => "upper", "integer" => 1, "positive" => 1 } );
+if($last_fsck + $fsck_time + $max_blocks > 1){
+    usage "cannot specify more than one of --last-fsck / --max-fsck-time / --max-blocks";
+}
+if($last_fsck or $fsck_time or $max_blocks){
+    validate_thresholds(1, 1, { "simple" => "upper", "integer" => 1, "positive" => 1 } );
+}
 
 vlog2;
 set_timeout();
@@ -54,7 +74,7 @@ my $fh = open_file $file;
 my %hdfs;
 while(<$fh>){
     chomp;
-    vlog3 "output: $_";
+    vlog3 "file: $_";
     /Permission denied/i and quit "CRITICAL", "Did you fail to run this as the hdfs superuser? $_";
     if(/^\//){
         next;
@@ -93,34 +113,60 @@ while(<$fh>){
         $hdfs{"num_datanodes"} = $1;
     } elsif(/^\s*Number of racks:\s*(\d+)/){
         $hdfs{"num_racks"} = $1;
-    } elsif(/^FSCK ended at (\w+\s+\w+\s+\d+\s+\d{1,2}:\d{2}:\d{2} \w+ \d+) in (\d+) milliseconds/){
+    } elsif(/^FSCK ended at (\w+\s+(\w+)\s+(\d+)\s+(\d{1,2}):(\d{2}):(\d{2}) \w+ (\d+)) in (\d+) milliseconds/){
         $hdfs{"fsck_ended"} = $1;
-        $hdfs{"duration"}   = $2;
+        $hdfs{"fsck_time"}  = floor($8 / 1000);
+        my $month = $2;
+        my $day   = $3;
+        my $month_int = month2int($month);
+        my $hour  = $4;
+        my $min   = $5;
+        my $sec   = $6;
+        my $year  = $7;
+        $hdfs{"fsck_age"}   = timelocal($sec, $min, $hour, $day, $month_int, $year-1900) || code_error "failed to convert fsck ended time to secs";
+        $hdfs{"fsck_age"}   = time - floor($hdfs{"fsck_age"});
+        if($hdfs{"fsck_age"} < 0){
+            quit "UNKNOWN", "hdfs fsck time is in the future! NTP issue, are you checking this on the same server fsck was run on? $nagios_plugins_support_msg";
+        }
+    } elsif(/The filesystem under path .+ is (\w+)/){
+        $hdfs{"final_status"} = $1;
     }
     /error/i and quit "CRITICAL", "error detected: $_";
 #    quit "UNKNOWN", "unknown line detected: '$_'. $nagios_plugins_support_msg";
 }
 
-foreach(qw/status size dirs files blocks min_rep_blocks min_rep_blocks_pc over_rep_blocks over_rep_blocks_pc under_rep_blocks under_rep_blocks_pc mis_rep_blocks mis_rep_blocks_pc default_rep_factor avg_block_rep corrupt_blocks missing_replicas missing_replicas_pc num_datanodes num_racks fsck_ended duration/){
+foreach(qw/status size dirs files blocks min_rep_blocks min_rep_blocks_pc over_rep_blocks over_rep_blocks_pc under_rep_blocks under_rep_blocks_pc mis_rep_blocks mis_rep_blocks_pc default_rep_factor avg_block_rep corrupt_blocks missing_replicas missing_replicas_pc num_datanodes num_racks fsck_ended fsck_time fsck_age final_status/){
     unless(defined($hdfs{$_})){
         quit "UNKNOWN", "hdfs $_ not found. $nagios_plugins_support_msg";
     }
 }
 critical unless $hdfs{"status"} eq "HEALTHY";
+if($hdfs{"status"} ne $hdfs{"final_status"}){
+    quit "UNKNOWN", "hdfs status mismatch ('$hdfs{status}' vs '$hdfs{final_status}'). $nagios_plugins_support_msg";
+}
 
 if($hdfs{"blocks"} == 0){
     quit "UNKNOWN", "zero total blocks detected, unless this is a brand new cluster, $nagios_plugins_support_msg";
 }
-#vlog2 "blocks: $hdfs{blocks}";
 
 $msg = "hdfs status: $hdfs{status}";
-$msg .= sprintf(", last checked %s in %d secs", $hdfs{fsck_ended}, $hdfs{duration} / 1000);
-if($verbose or $warning or $critical){
-    $msg .= ", blocks=$hdfs{blocks}";
-    check_thresholds($hdfs{"blocks"});
+$msg .= sprintf(", last checked %d secs ago", $hdfs{"fsck_age"});
+if($last_fsck){
+    check_thresholds($hdfs{"fsck_age"});
 }
-if($verbose){
-    my $msg2 = sprintf(" size=%s dirs=%d files=%d min_replicated_blocks=%d 'min_replicated_blocks_%%'=%.2f%% over_rep_blocks=%d 'over_rep_blocks_%%'=%.2f%% under_rep_blocks=%d 'under_rep_blocks_%%'=%.2f%% mis_rep_blocks=%d 'mis_rep_blocks_%%'=%.2f%% default_rep_factor=%d avg_block_rep=%.2f corrupt_blocks=%d missing_replicas=%d 'missing_replicas_%%'=%.2f%% num_datanodes=%d num_racks=%d",
+$msg .= sprintf(" [%s] in %d secs", $hdfs{"fsck_ended"}, $hdfs{"fsck_time"});
+if($fsck_time){
+    check_thresholds($hdfs{fsck_time});
+}
+if($verbose or $max_blocks){
+    $msg .= ", total blocks=$hdfs{blocks}";
+    if($max_blocks){
+        check_thresholds($max_blocks);
+    }
+}
+my $msg2;
+if($stats){
+    $msg2 = sprintf(" size=%s dirs=%d files=%d min_replicated_blocks=%d 'min_replicated_blocks_%%'=%.2f%% over_rep_blocks=%d 'over_rep_blocks_%%'=%.2f%% under_rep_blocks=%d 'under_rep_blocks_%%'=%.2f%% mis_rep_blocks=%d 'mis_rep_blocks_%%'=%.2f%% default_rep_factor=%d avg_block_rep=%.2f corrupt_blocks=%d missing_replicas=%d 'missing_replicas_%%'=%.2f%% num_datanodes=%d num_racks=%d",
     human_units($hdfs{"size"}),
     $hdfs{"dirs"}, $hdfs{"files"},
     $hdfs{"min_rep_blocks"},
@@ -144,10 +190,14 @@ if($verbose){
     $msg3 =~ s/\s+\w+_%=([^\s]+)/($1)/g;
     #$msg3 =~ s/_/ /g;
     $msg .= $msg3;
-    
-    $msg .= " | blocks=$hdfs{blocks}";
-    msg_perf_thresholds();
-    $msg .= $msg2;
 }
+$msg .= " |";
+$msg .= " last_fsck=$hdfs{fsck_age}s";
+msg_perf_thresholds() if $last_fsck;
+$msg .= " fsck_time=$hdfs{fsck_time}s";
+msg_perf_thresholds() if $fsck_time;
+$msg .= " total_blocks=$hdfs{blocks}";
+msg_perf_thresholds() if $max_blocks;
+$msg .= $msg2 if defined($msg2);
 
 quit $status, $msg;
