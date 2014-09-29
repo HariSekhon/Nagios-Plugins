@@ -92,7 +92,7 @@ If you're new remember to check out the legacy/ directory for more plugins that 
 
 ### Quick Setup ###
 
-Be aware this will install yum rpms / apt debs automatically as well as a load of CPAN modules for Perl. If you don't want all that stuff automatically installed you must use the manual setup further down.
+Be aware this will install yum rpms / apt debs automatically as well as a load of CPAN modules for Perl. If you don't want all that stuff automatically installed you must use the manual setup further down. You may need to install the GNU make system package if the make command isn't found (```yum install make```)
 
 ```
 git clone https://github.com/harisekhon/nagios-plugins
