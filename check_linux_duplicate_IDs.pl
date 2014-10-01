@@ -10,18 +10,20 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-$DESCRIPTION = "Nagios Plugin to check Linux for duplicate UID/GUIDs and duplicate user/group names
+$DESCRIPTION = "Nagios Plugin to check Linux for duplicate UID/GIDs and duplicate user/group names
 
-This is surprisingly common with centralized account systems such as LDAP integrated Linux servers. Locally added user/group accounts increment the highest local UID/GUID number (happens every time you install new packages which run under their own accounts) but centralized account systems like LDAP also naiively increment their own highest UID/GUID numbers without checking if those IDs are used on any of the depending servers as just happened when adding those recent packages. I've seen this several times over the last several years and it usually goes unnoticed. I've written scripts to detect this several years ago but just realized I never released a standard check for this. This is something all Linux sysadmins should deploy, especially those working with centralized account systems such as LDAP as this subtle flaw in your deployment configuration/management can breach security controls such as ACLs.
+This is surprisingly common with centralized account systems such as LDAP integrated Linux servers. Locally added user/group accounts increment the highest local UID/GID number (happens every time you install new packages which run under their own accounts) but centralized account systems like LDAP also naiively increment their own highest UID/GID numbers without checking if those IDs are used on any of the depending servers as just happened when adding those recent packages. I've seen this several times over the last several years and it usually goes unnoticed. I've written scripts to detect this several years ago but just realized I never released a standard check for this. This is something all Linux sysadmins should deploy, especially those working with centralized account systems such as LDAP as this subtle flaw in your deployment configuration/management can breach security controls such as ACLs.
 
-See also pwck and grpck if there are duplicates in your /etc/passwd or /etc/group files. Old school obvious but having another account with UID/GUID 0 means you've probably been rooted.
+You should also adjust your /etc/login.defs to set MIN_UID, MAX_UID, MIN_GID and MAX_GID to prevent the local ranges overlapping with your LDAP range.
+
+See also pwck and grpck if there are duplicates in your /etc/passwd or /etc/group files. Old school obvious but having another account with UID/GID 0 means you've probably been rooted.
 
 Checks:
 
-- duplicate user  IDs (UIDs),  outputs UIDs  and the user  names overlapping on those UIDs
-- duplicate group IDs (GUIDs), outputs GUIDs and the group names overlapping on those GUIDs
+- duplicate user  IDs (UIDs), outputs UIDs and the user  names overlapping on those UIDs
+- duplicate group IDs (GIDs), outputs GIDs and the group names overlapping on those GIDs
 - duplicate user  names, outputs the user  names with their UIDs
-- duplicate group names, outputs the group names with their GUIDs";
+- duplicate group names, outputs the group names with their GIDs";
 
 $VERSION = "0.1";
 
@@ -87,40 +89,40 @@ foreach(sort keys %duplicate_uids){
 vlog2 "fetching group information";
 @output = cmd("$getent group");
 my $group;
-my $guid;
+my $gid;
 my %groups;
-my %guids;
+my %gids;
 my %group_counts;
-my %guid_counts;
+my %gid_counts;
 my %duplicate_groups;
-my %duplicate_guids;
+my %duplicate_gids;
 foreach(@output){
     /^([^:]*+):[^:]*:([^:]*):/ or quit "UNKNOWN", "unrecognized line output from getent group: '$_'. $nagios_plugins_support_msg";
     $group = $1;
-    $guid  = $2;
+    $gid   = $2;
     defined($group) or quit "CRITICAL", "group name not defined in output line: '$_'";
-    defined($guid)  or quit "CRITICAL", "GUID not defined in output line: '$_'";
+    defined($gid)   or quit "CRITICAL", "GID not defined in output line: '$_'";
     $group_counts{$group}++;
-    $guid_counts{$guid}++;
-    $groups{$group}{$guid} = 1;
-    $groups{$group}{$guid} = 1;
-    $guids{$guid}{$group}  = 1;
-    $guids{$guid}{$group}  = 1;
+    $gid_counts{$gid}++;
+    $groups{$group}{$gid} = 1;
+    $groups{$group}{$gid} = 1;
+    $gids{$gid}{$group}   = 1;
+    $gids{$gid}{$group}   = 1;
     if($group_counts{$group} > 1){
         $duplicate_groups{$group}++;
     }
-    if($guid_counts{$guid} > 1){
-        $duplicate_guids{$guid}++;
+    if($gid_counts{$gid} > 1){
+        $duplicate_gids{$gid}++;
     }
 }
 
-my %duplicate_group_guids;
-my %duplicate_guid_groups;
+my %duplicate_group_gids;
+my %duplicate_gid_groups;
 foreach(sort keys %duplicate_groups){
-    @{$duplicate_group_guids{$_}} = sort keys %{$groups{$_}};
+    @{$duplicate_group_gids{$_}} = sort keys %{$groups{$_}};
 }
-foreach(sort keys %duplicate_guids){
-    @{$duplicate_guid_groups{$_}} = sort keys %{$guids{$_}};
+foreach(sort keys %duplicate_gids){
+    @{$duplicate_gid_groups{$_}} = sort keys %{$gids{$_}};
 }
 
 sub check_duplicates($$$){
@@ -140,13 +142,13 @@ sub check_duplicates($$$){
 
 if(%duplicate_user_uids or %duplicate_uid_users){
     critical;
-    check_duplicates(\%duplicate_user_uids,   "user",  "UID"  );
-    check_duplicates(\%duplicate_uid_users,   "UID",   "user" );
-    check_duplicates(\%duplicate_group_guids, "group", "guid" );
-    check_duplicates(\%duplicate_guid_groups, "GUID",  "group");
+    check_duplicates(\%duplicate_user_uids,  "user",  "UID"  );
+    check_duplicates(\%duplicate_uid_users,  "UID",   "user" );
+    check_duplicates(\%duplicate_group_gids, "group", "gid" );
+    check_duplicates(\%duplicate_gid_groups, "GID",   "group");
     $msg =~ s/, $//;
 } else {
-    $msg .= "no duplicate UIDs / GUIDs or user / group names";
+    $msg .= "no duplicate UIDs / GIDs or user / group names";
 }
 
 vlog2;
