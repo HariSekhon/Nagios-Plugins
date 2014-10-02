@@ -48,7 +48,7 @@ $status = "OK";
 
 my @output;
 vlog2 "fetching user information";
-@output = cmd("$getent passwd");
+@output = cmd("$getent passwd", "errchk");
 my $user;
 my $uid;
 my %users;
@@ -87,7 +87,7 @@ foreach(sort keys %duplicate_uids){
 }
 
 vlog2 "fetching group information";
-@output = cmd("$getent group");
+@output = cmd("$getent group", "errck");
 my $group;
 my $gid;
 my %groups;
