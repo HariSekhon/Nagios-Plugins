@@ -24,7 +24,6 @@ BEGIN {
 }
 use HariSekhonUtils;
 use HariSekhon::MapR;
-use LWP::UserAgent;
 use POSIX 'floor';
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
@@ -42,7 +41,7 @@ get_options();
 
 validate_mapr_options();
 list_clusters();
-$cluster    = validate_cluster($cluster);
+$cluster = validate_cluster($cluster) if $cluster;
 validate_thresholds(1, 1, { "simple" => "lower", "integer" => 1, "positive" => 1});
 
 vlog2;
@@ -50,7 +49,9 @@ set_timeout();
 
 $status = "OK";
 
-$json = curl_mapr "/license/list?cluster=$cluster", $user, $password;
+my $url = "/license/list";
+$url .= "?cluster=$cluster" if $cluster;
+$json = curl_mapr $url, $user, $password;
 
 my @data = get_field_array("data");
 
