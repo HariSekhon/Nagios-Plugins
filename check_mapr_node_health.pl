@@ -71,7 +71,7 @@ my $url = "/node/list?columns=health,healthDesc";
 $url .= "&cluster=$cluster" if $cluster;
 $json = curl_mapr $url, $user, $password;
 
-quit "UNKNOWN", "no node data returned, did you specify the correct --cluster?" unless @{$json->{"data"}};
+quit "UNKNOWN", "no node data returned, did you specify the correct --cluster? See --list-clusters" unless @{$json->{"data"}};
 my @data = get_field_array("data");
 
 my $node_health_status;
