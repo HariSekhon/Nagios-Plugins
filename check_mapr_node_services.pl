@@ -24,7 +24,6 @@ BEGIN {
 }
 use HariSekhonUtils;
 use HariSekhon::MapR;
-use LWP::UserAgent;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
