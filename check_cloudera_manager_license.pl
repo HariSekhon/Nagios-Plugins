@@ -31,14 +31,10 @@ use POSIX 'floor';
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
+set_threshold_defaults(31, 15);
+
 my $license_free;
 my $license_trial;
-
-my $default_warning  = 31;
-my $default_critical = 15;
-
-$warning  = $default_warning;
-$critical = $default_critical;
 
 %options = (
     %hostoptions,
