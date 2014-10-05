@@ -44,13 +44,12 @@ $json = join(" ", @output);
 $json = isJson($json) or quit "UNKNOWN", "invalid json returned by command '$cmd'";
 
 my $balancer_status       = get_field("status");
-my $total                 = get_field_int("total");
 my $containerid           = get_field_int("containerid");
 my $Tail_IP_Port          = get_field("Tail IP:Port");
 my $Updates_blocked_since = get_field("Updates blocked Since");
 
 critical unless $balancer_status eq "OK";
 
-$msg = "role balancer status '$balancer_status': total = $total, $containerid = $containerid, tail IP:Port = '$Tail_IP_Port', updates blocked since: '$Updates_blocked_since' | total=$total";
+$msg = "role balancer status '$balancer_status': $containerid = $containerid, tail IP:Port = '$Tail_IP_Port', updates blocked since: '$Updates_blocked_since'";
 
 quit $status, $msg;
