@@ -44,7 +44,6 @@ $json = join(" ", @output);
 $json = isJson($json) or quit "UNKNOWN", "invalid json returned by command '$cmd'";
 
 my $balancer_status     = get_field("status");
-my $total               = get_field_int("total");
 my $numContainersMoved  = get_field_int("data.0.numContainersMoved");
 my $numMBMoved          = get_field_int("data.0.numMBMoved");
 my $timeOfLastMove      = get_field("data.0.timeOfLastMove", 1);
