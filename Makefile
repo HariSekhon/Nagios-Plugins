@@ -72,6 +72,11 @@ install:
 		; echo
 	# Intentionally ignoring CPAN module build failures since some modules may fail for a multitude of reasons but this isn't really important unless you need the pieces of code that use them in which case you can solve those dependencies later
 	
+	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
+	sudo easy_install -U setuptools || :
+	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
+	sudo pip install cassandra-driver scales blist lz4 python-snappy || :
+	
 	# install MySQLdb python module for check_logserver.py / check_syslog_mysql.py
 	# fails if MySQL isn't installed locally
 	#sudo easy_install pip
@@ -85,11 +90,13 @@ install:
 apt-packages:
 	apt-get install -y gcc || :
 	# needed to fetch the library submodule at end of build
-	apt-get install -y git || :
+	apt-get install -y git || : # TODO: find the package required for CPAN in case it's not available
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	apt-get install -y libdbd-mysql-perl libmysqlclient-dev || :
 	# for XML::Simple building
 	apt-get install -y libexpat1-dev || :
+	# for Cassandra's Python driver
+	apt-get install -y python-dev libev4 libev-dev || :
 
 .PHONY: yum-packages
 yum-packages:
@@ -100,6 +107,8 @@ yum-packages:
 	yum install -y perl-DBD-MySQL mysql-devel || :
 	# for XML::Simple building
 	yum install -y expat-devel || :
+	# for Cassandra's Python driver
+	yum install -y python-devel libev libev-devel || :
 
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
