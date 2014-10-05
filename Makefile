@@ -56,7 +56,6 @@ install:
 		LWP::Simple \
 		LWP::UserAgent \
 		LWP::Authen::Negotiate \
-		Net::Async::CassandraCQL \
 		MongoDB::MongoClient \
 		Net::DNS \
 		Net::SSH::Expect \
@@ -70,6 +69,7 @@ install:
 		URI::Escape \
 		XML::Simple \
 		; echo
+		#Net::Async::CassandraCQL \
 	# Intentionally ignoring CPAN module build failures since some modules may fail for a multitude of reasons but this isn't really important unless you need the pieces of code that use them in which case you can solve those dependencies later
 	
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
