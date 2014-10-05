@@ -10,7 +10,7 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-$DESCRIPTION = "Nagios Plugin to check the status of the MapR-FS Role Balancer via the maprcli command. Call over NRPE.";
+$DESCRIPTION = "Nagios Plugin to check the status of the MapR Role Balancer via the maprcli command. Call over NRPE.";
 
 $VERSION = "0.1";
 
