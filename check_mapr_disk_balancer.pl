@@ -51,9 +51,9 @@ my $timeOfLastMove      = get_field("data.0.timeOfLastMove", 1);
 
 critical unless $balancer_status eq "OK";
 
-$msg = "balancer status '$balancer_status': total = $total, containers moved = $numContainersMoved, volume moved = " . human_units($numMBMoved * 1024 * 1024);
+$msg = "balancer status '$balancer_status': containers moved = $numContainersMoved, volume moved = " . human_units($numMBMoved * 1024 * 1024);
 $msg .= ", time of last move = '$timeOfLastMove'" if $timeOfLastMove;
-$msg .= " | total=${total} containers_moved=${numContainersMoved}c volume_moved=${numMBMoved}MB";
+$msg .= " | containers_moved=${numContainersMoved}c volume_moved=${numMBMoved}MB";
 
 vlog2;
 quit $status, $msg;
