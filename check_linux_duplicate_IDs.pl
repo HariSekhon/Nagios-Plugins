@@ -144,8 +144,8 @@ if(%duplicate_user_uids or %duplicate_uid_users){
     critical;
     check_duplicates(\%duplicate_uid_users,  "UID",   "user" );
     check_duplicates(\%duplicate_gid_groups, "GID",   "group");
-    check_duplicates(\%duplicate_user_uids,  "user",  "UID"  );
-    check_duplicates(\%duplicate_group_gids, "group", "gid"  );
+    check_duplicates(\%duplicate_user_uids,  "user name",  "UID"  );
+    check_duplicates(\%duplicate_group_gids, "group name", "gid"  );
     $msg =~ s/, $//;
 } else {
     $msg .= "no duplicate UIDs / GIDs or user / group names";
