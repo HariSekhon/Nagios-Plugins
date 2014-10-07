@@ -12,9 +12,11 @@
 
 $DESCRIPTION = "Nagios Plugin to check all services on a given MapR Hadoop node via the MapR Control System REST API
 
+Can optionally specify just a single service to check on the given node.
+
 Tested on MapR 3.1.0 and 4.0.1";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -42,16 +44,25 @@ my %service_states = (
     5 => "standby",
 );
 
+my $service;
+my $list_services = 0;
+
 %options = (
     %mapr_options,
     %mapr_option_node,
+    "s|service=s"   => [ \$service,         "Check the specified service" ],
+    "list-services" => [ \$list_services,   "List services, requires --node" ],
 );
 
 get_options();
 
 validate_mapr_options();
 list_nodes();
-$node = validate_host($node, "node");
+$node    = validate_host($node, "node");
+if(defined($service)){
+    $service =~ /^(\w[\w\s-]+\w)$/ or usage "invalid service name, must be alphanumeric, may contain spaces/dashes";
+    $service = $1;
+}
 
 vlog2;
 set_timeout();
@@ -62,7 +73,11 @@ $json = curl_mapr "/service/list?node=$node", $user, $password;
 
 my @data = get_field_array("data");
 
-$msg = "services on node '$node' - ";
+if($service){
+    $msg = "node '$node' service '$service' = ";
+} else {
+    $msg = "services on node '$node' - ";
+}
 my %node_services;
 foreach (@data){
     my $displayname = get_field2($_, "displayname");
@@ -73,19 +88,40 @@ foreach (@data){
         $node_services{$displayname} = "unknown";
     }
 }
-my $configured_services = 0;
-foreach my $service (sort keys %node_services){
-    # depends on service state mapping above in %service_states
-    $configured_services++ if $node_services{$service} ne "not configured";
-    if(not grep { $node_services{$service} eq $_ } ("running", "standby", "not configured")){
-        critical;
-        $node_services{$service} = uc $node_services{$service};
+
+if($list_services){
+    print "Services on node '$node':\n\n";
+    foreach(sort keys %node_services){
+        print "$_\n";
     }
-    $msg .= $service . ":" . $node_services{$service} . ", ";
+    exit $ERRORS{"UNKNOWN"};
+}
+
+my $found_service;
+my $configured_services = 0;
+foreach my $service2 (sort keys %node_services){
+    $configured_services++ if $node_services{$service2} ne "not configured";
+    if(defined($service)){
+        next unless $service eq $service2;
+        $found_service++;
+    }
+    # depends on service state mapping above in %service_states
+    if(not grep { $node_services{$service2} eq $_ } ("running", "standby", "not configured")){
+        critical;
+        $node_services{$service2} = uc $node_services{$service2};
+    }
+    if($service){
+        $msg .= $node_services{$service2};
+    } else {
+        $msg .= $service2 . ":" . $node_services{$service2} . ", ";
+    }
 }
 $msg =~ s/, $//;
 unless($configured_services){
     quit "CRITICAL", "no services configured on node '$node', did you specify the correct node name? See --list-nodes";
+}
+if($service and not $found_service){
+    quit "CRITICAL", "service '$service' was not found on node '$node', did you specify the correct service? See --list-services";
 }
 
 vlog2;
