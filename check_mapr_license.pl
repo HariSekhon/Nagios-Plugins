@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check the MapR license on a MapR Hadoop cluster
 
 Tested on MapR 3.1.0 and 4.0.1";
 
-$VERSION = "0.1";
+$VERSION = "0.1.1";
 
 use strict;
 use warnings;
@@ -65,7 +65,11 @@ foreach(@data){
     my $day   = $2;
     my $year  = $3;
     my $days_left = floor(timecomponents2days($year, $month, $day, 0, 0, 0));
-    $msg .= "$desc license expires in $days_left days";
+    if($days_left < 0){
+        $msg = "$desc license EXPIRED " . abs($days_left) . " days ago";
+    } else {
+        $msg .= "$desc license expires in $days_left days";
+    }
     check_thresholds($days_left);
     $msg .= ", expiry: '$expiry', ";
     $msg .= "issued: '"     . get_field2($_, "issue", "noquit") . "', ";
