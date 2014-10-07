@@ -10,7 +10,7 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-$DESCRIPTION = "Nagios Plugin to check the status of the MapR-FS Balancer and output balance metrics via the maprcli command. Call over NRPE.";
+$DESCRIPTION = "Nagios Plugin to fetch the MapR Role Balancer metrics via the maprcli command. Call over NRPE.";
 
 $VERSION = "0.1";
 
@@ -38,21 +38,18 @@ set_timeout();
 
 $status = "OK";
 
-my $cmd = "$maprcli dump balancermetrics -json";
+my $cmd = "$maprcli dump rolebalancermetrics -json";
 my @output = cmd($cmd, 1);
 $json = join(" ", @output);
 $json = isJson($json) or quit "UNKNOWN", "invalid json returned by command '$cmd'";
 
-my $balancer_status     = get_field("status");
-my $numContainersMoved  = get_field_int("data.0.numContainersMoved");
-my $numMBMoved          = get_field_int("data.0.numMBMoved");
-my $timeOfLastMove      = get_field("data.0.timeOfLastMove", 1);
+my $numNameContainerSwitches = get_field_int("data.0.numNameContainerSwitches");
+my $numDataContainerSwitches = get_field_int("data.0.numDataContainerSwitches");
+my $timeOfLastMove           = get_field("data.0.timeOfLastMove", 1);
 
-critical unless $balancer_status eq "OK";
-
-$msg = "balancer status '$balancer_status': containers moved = $numContainersMoved, volume moved = " . human_units($numMBMoved * 1024 * 1024);
+$msg = "role balancer name container switches = $numNameContainerSwitches, data container switches = $numDataContainerSwitches";
 $msg .= ", time of last move = '$timeOfLastMove'" if $timeOfLastMove;
-$msg .= " | containers_moved=${numContainersMoved}c volume_moved=${numMBMoved}MB";
+$msg .= " | 'name container switches'=${numNameContainerSwitches}c 'data container switches'=${numDataContainerSwitches}c";
 
 vlog2;
 quit $status, $msg;
