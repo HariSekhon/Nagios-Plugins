@@ -43,14 +43,11 @@ my @output = cmd($cmd, 1);
 $json = join(" ", @output);
 $json = isJson($json) or quit "UNKNOWN", "invalid json returned by command '$cmd'";
 
-my $balancer_status     = get_field("status");
 my $numContainersMoved  = get_field_int("data.0.numContainersMoved");
 my $numMBMoved          = get_field_int("data.0.numMBMoved");
 my $timeOfLastMove      = get_field("data.0.timeOfLastMove", 1);
 
-critical unless $balancer_status eq "OK";
-
-$msg = "balancer status '$balancer_status': containers moved = $numContainersMoved, volume moved = " . human_units($numMBMoved * 1024 * 1024);
+$msg = "balancer containers moved = $numContainersMoved, volume moved = " . human_units($numMBMoved * 1024 * 1024);
 $msg .= ", time of last move = '$timeOfLastMove'" if $timeOfLastMove;
 $msg .= " | containers_moved=${numContainersMoved}c volume_moved=${numMBMoved}MB";
 
