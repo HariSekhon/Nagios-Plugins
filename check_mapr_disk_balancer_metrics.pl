@@ -10,7 +10,7 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-$DESCRIPTION = "Nagios Plugin to check the status of the MapR-FS Balancer and output balance metrics via the maprcli command. Call over NRPE.";
+$DESCRIPTION = "Nagios Plugin to fetch the MapR-FS Balancer metrics via the maprcli command. Call over NRPE.";
 
 $VERSION = "0.1";
 
@@ -47,7 +47,7 @@ my $numContainersMoved  = get_field_int("data.0.numContainersMoved");
 my $numMBMoved          = get_field_int("data.0.numMBMoved");
 my $timeOfLastMove      = get_field("data.0.timeOfLastMove", 1);
 
-$msg = "balancer containers moved = $numContainersMoved, volume moved = " . human_units($numMBMoved * 1024 * 1024);
+$msg = "MapR-FS balancer containers moved = $numContainersMoved, volume moved = " . human_units($numMBMoved * 1024 * 1024);
 $msg .= ", time of last move = '$timeOfLastMove'" if $timeOfLastMove;
 $msg .= " | containers_moved=${numContainersMoved}c volume_moved=${numMBMoved}MB";
 
