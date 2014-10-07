@@ -70,7 +70,7 @@ foreach(@data){
     push(@nodes_with_alarms, get_field2($_, "hostname"));
 }
 if($node){
-    if(grep { $_ eq $node } @nodes_with_alarms){
+    if(grep { $_ =~ /^$node(?:\.$domain_regex)?/ } @nodes_with_alarms){
         $msg = "node '$node' alarms triggered, please investigate in MapR Control System";
     } else {
         $msg = "node '$node' has no alarms";
