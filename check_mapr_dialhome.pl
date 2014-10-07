@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check MapR's dialhome settings using the MapR C
 
 Tested on MapR 3.1.0 and 4.0.1";
 
-$VERSION = "0.1";
+$VERSION = "0.1.1";
 
 use strict;
 use warnings;
@@ -55,7 +55,7 @@ my $last_dialed;
 if($enabled){
     $json = curl_mapr "/dialhome/lastdialed", $user, $password;
     $last_dialed = get_field("data.0.date");
-    if($last_dialed = 1392768000000){
+    if($last_dialed > 2000000000){
         $last_dialed = "never";
     } else {
         $last_dialed = localtime $last_dialed;
