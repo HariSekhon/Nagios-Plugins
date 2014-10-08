@@ -79,24 +79,25 @@ if($node and not $found_node){
     quit "UNKNOWN", "node '$node' was not found, did you specify the correct node name? See --list-nodes";
 }
 
-if(%faileddisks){
-    critical;
-} else {
-    $msg .= "no ";
-}
+$msg .= "no " unless %faileddisks;
 
 my $incluster = "";
 $incluster = " in cluster '$cluster'" if ($cluster and ($verbose or not $node));
 if($node){
+    critical if %faileddisks;
     $msg .= "failed MapR-FS disks detected on node '$node'$incluster";
 } else {
+    my $num_nodes_failed_disks = scalar keys %faileddisks;
     if(%faileddisks){
-        $msg .= scalar keys %faileddisks . " ";
+        $msg .= "$num_nodes_failed_disks ";
     }
     $msg .= "nodes${incluster} with failed MapR-FS disks";
+    check_thresholds($num_nodes_failed_disks);
     if(%faileddisks){
         $msg .= ": " . join(", ", sort keys %faileddisks);
     }
+    $msg .= " | 'num nodes with failed disks'=$num_nodes_failed_disks";
+    msg_perf_thresholds();
 }
 
 vlog2;
