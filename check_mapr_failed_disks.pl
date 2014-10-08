@@ -63,20 +63,21 @@ quit "UNKNOWN", "no data returned, did you specify the correct --cluster? See --
 
 my %faileddisks;
 my $hostname;
-my $found_node;
+my $found_nodes;
 foreach my $node_item (@data){
     $hostname = get_field2($node_item, "hostname");
     if($node){
         next unless ($hostname =~ /^$node(?:\.$domain_regex)?$/i);
-        $found_node = 1;
+        $found_nodes++;
     }
     if(get_field2($node_item, "faileddisks")){
         $faileddisks{$hostname} = 1;
     }
 }
 
-if($node and not $found_node){
-    quit "UNKNOWN", "node '$node' was not found, did you specify the correct node name? See --list-nodes";
+if($node){
+    quit "UNKNOWN", "node '$node' was not found, did you specify the correct node name? See --list-nodes" unless $found_nodes;
+    quit "UNKNOWN", "number of nodes with failed disks is higher than 1 when --node was specified!! This may be indicative of duplicate hostnames among nodes or some other cluster or logic problem. $nagios_plugins_support_msg" if($found_nodes > 1);
 }
 
 $msg .= "no " unless %faileddisks;
