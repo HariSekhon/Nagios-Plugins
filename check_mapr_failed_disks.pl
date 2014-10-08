@@ -74,22 +74,29 @@ foreach my $node_item (@data){
         $faileddisks{$hostname} = 1;
     }
 }
+
 if($node and not $found_node){
     quit "UNKNOWN", "node '$node' was not found, did you specify the correct node name? See --list-nodes";
 }
+
 if(%faileddisks){
     critical;
 } else {
     $msg .= "no ";
 }
-plural scalar keys %faileddisks;
-$msg .= "failed MapR-FS disks detected ";
-$msg .= "in cluster '$cluster' " if ($cluster and ($verbose or not $node));
+
+my $incluster = "";
+$incluster = " in cluster '$cluster'" if ($cluster and ($verbose or not $node));
 if($node){
-    $msg .= "on node '$node'";
-} elsif(%faileddisks){
-    plural keys %faileddisks;
-    $msg .= "on node$plural: " . join(", ", sort keys %faileddisks);
+    $msg .= "failed MapR-FS disks detected on node '$node'$incluster";
+} else {
+    if(%faileddisks){
+        $msg .= scalar keys %faileddisks . " ";
+    }
+    $msg .= "nodes${incluster} with failed MapR-FS disks";
+    if(%faileddisks){
+        $msg .= ": " . join(", ", sort keys %faileddisks);
+    }
 }
 
 vlog2;
