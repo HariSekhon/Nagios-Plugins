@@ -10,7 +10,7 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-$DESCRIPTION = "Nagios Plugin to check for failed MapR-FS disks via the MapR Control System REST API
+$DESCRIPTION = "Nagios Plugin to check for MapR nodes with failed disks via the MapR Control System REST API
 
 Can optionally specify a specific node or cluster to check all nodes in that cluster.
 
@@ -86,13 +86,13 @@ my $incluster = "";
 $incluster = " in cluster '$cluster'" if ($cluster and ($verbose or not $node));
 if($node){
     critical if %faileddisks;
-    $msg .= "failed MapR-FS disks detected on node '$node'$incluster";
+    $msg .= "failed disks detected on node '$node'$incluster";
 } else {
     my $num_nodes_failed_disks = scalar keys %faileddisks;
     if(%faileddisks){
         $msg .= "$num_nodes_failed_disks ";
     }
-    $msg .= "nodes${incluster} with failed MapR-FS disks";
+    $msg .= "nodes${incluster} with failed disks";
     check_thresholds($num_nodes_failed_disks);
     if(%faileddisks){
         $msg .= ": " . join(", ", sort keys %faileddisks);
