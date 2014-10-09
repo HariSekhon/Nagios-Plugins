@@ -37,7 +37,6 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
     %mapr_options,
     %mapr_option_cluster,
     %mapr_option_service,
-    %thresholdoptions,
 );
 
 get_options();
