@@ -12,7 +12,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check MapR's dashboard of Hadoop cluster services, memory utilization % and mounted/unmounted volumes via the MapR Control System REST API
 
-Raises CRTIICAL if any services are failed or stopped.
+Raises CRTIICAL if any services have failed.
 
 Tested on MapR 3.1.0 and 4.0.1";
 
