@@ -18,7 +18,7 @@ Currently the MCS API doesn't support service information at the cluster level, 
 
 Tested on MapR 3.1.0 and 4.0.1";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -46,28 +46,23 @@ my %service_states = (
     5 => "standby",
 );
 
-my $service;
-my $list_services = 0;
-
 %options = (
     %mapr_options,
     %mapr_option_node,
-    "s|service=s"   => [ \$service,         "Check the specified service" ],
-    "list-services" => [ \$list_services,   "List services, requires --node" ],
+    %mapr_option_service,
 );
 
 get_options();
 
 validate_mapr_options();
-list_nodes();
-$node    = validate_host($node, "node");
-if(defined($service)){
-    $service =~ /^(\w[\w\s-]+\w)$/ or usage "invalid service name, must be alphanumeric, may contain spaces/dashes";
-    $service = $1;
-}
 
 vlog2;
 set_timeout();
+
+list_nodes();
+$node = validate_host($node, "node");
+list_services();
+$service = validate_service($service) if $service;
 
 $status = "OK";
 
@@ -89,14 +84,6 @@ foreach (@data){
     } else {
         $node_services{$displayname} = "unknown";
     }
-}
-
-if($list_services){
-    print "Services on node '$node':\n\n";
-    foreach(sort keys %node_services){
-        print "$_\n";
-    }
-    exit $ERRORS{"UNKNOWN"};
 }
 
 my $found_service;
