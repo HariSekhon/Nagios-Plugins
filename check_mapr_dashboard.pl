@@ -16,8 +16,6 @@ Raises CRTIICAL if any services are failed or stopped.
 
 Tested on MapR 3.1.0 and 4.0.1";
 
-# Uses rlimit API endpoint, only disk resource is supported as of MapR 3.1, appears to be the same in 4.0
-
 $VERSION = "0.1";
 
 use strict;
@@ -58,7 +56,7 @@ my $volumes_mounted;
 my $volumes_unmounted;
 foreach my $cluster (@data){
     $name = get_field2($cluster, "cluster.name");
-    $msg = "cluster: '$name' ";
+    $msg .= "cluster: '$name' ";
     my $memory_active    = get_field2($cluster, "utilization.memory.active");
     my $memory_total     = get_field2($cluster, "utilization.memory.total");
     my $memory_active_pc = $memory_active / $memory_total * 100;
