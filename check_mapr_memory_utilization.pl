@@ -38,29 +38,39 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 get_options();
 
 validate_mapr_options();
+$cluster = validate_cluster($cluster) if $cluster;
 validate_thresholds(0, 0, { "simple" => "upper", "integer" => 0, "positive" => 1, "min" => 0, "max" => 100});
 
 vlog2;
 set_timeout();
 
+list_clusters();
+
 $status = "OK";
 
+my $url = "/dashboard/info";
+$url .= "?cluster=$cluster" if $cluster;
 $json = curl_mapr "/dashboard/info", $user, $password;
 
 my @data = get_field_array("data");
 
 my $name;
 my $msg2;
-foreach my $cluster (@data){
-    $name = get_field2($cluster, "cluster.name");
+foreach my $cluster2 (@data){
+    $name = get_field2($cluster2, "cluster.name");
     $msg .= "cluster: '$name' ";
-    my $memory_active    = get_field2($cluster, "utilization.memory.active");
-    my $memory_total     = get_field2($cluster, "utilization.memory.total");
+    my $memory_active    = get_field2($cluster2, "utilization.memory.active");
+    my $memory_total     = get_field2($cluster2, "utilization.memory.total");
     my $memory_active_pc = sprintf("%.2f", $memory_active / $memory_total * 100);
     $msg .= sprintf("memory: %.2f%% active", $memory_active_pc);
     check_thresholds($memory_active_pc);
-    $msg .= sprintf(" [%d/%dMB]', ", $memory_active, $memory_total);
-    $msg2 .= " 'cluster $name active memory %'=${memory_active_pc}%" . msg_perf_thresholds(1) . " 'cluster $name active memory'=${memory_active}MB 'cluster $name total_memory'=${memory_total}MB";
+    $msg .= sprintf(" [%s/%s]', ", human_units(expand_units($memory_active, "MB")), human_units(expand_units($memory_total, "MB")));
+    if($cluster){
+        $cluster2 = "";
+    } else {
+        $cluster2 = "cluster $name ";
+    }
+    $msg2 .= sprintf(" '%sactive memory %%'=%.2f%%%s '%sactive memory'=%dMB '%stotal_memory'=%dMB", $cluster2, $memory_active_pc, msg_perf_thresholds(1), $cluster2, $memory_active, $cluster2, $memory_total);
 }
 $msg =~ s/, $//;
 $msg .= " |$msg2";
