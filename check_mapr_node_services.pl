@@ -14,6 +14,8 @@ $DESCRIPTION = "Nagios Plugin to check all services on a given MapR Hadoop node 
 
 Can optionally specify just a single service to check on the given node.
 
+Currently the MCS API doesn't support service information at the cluster level, which is why you have to specify a node to check services on.
+
 Tested on MapR 3.1.0 and 4.0.1";
 
 $VERSION = "0.2";
