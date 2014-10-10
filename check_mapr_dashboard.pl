@@ -38,6 +38,8 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 get_options();
 
 validate_mapr_options();
+list_clusters();
+$cluster = validate_cluster($cluster) if $cluster;
 
 vlog2;
 set_timeout();
@@ -54,21 +56,24 @@ my $msg3;
 my %services;
 my $volumes_mounted;
 my $volumes_unmounted;
-foreach my $cluster (@data){
-    $name = get_field2($cluster, "cluster.name");
+my $found_cluster = 0;
+foreach my $cluster2 (@data){
+    $name = get_field2($cluster2, "cluster.name");
+    next if($cluster and $cluster ne $name);
+    $found_cluster++;
     $msg .= "cluster: '$name' ";
-    my $memory_active    = get_field2($cluster, "utilization.memory.active");
-    my $memory_total     = get_field2($cluster, "utilization.memory.total");
+    my $memory_active    = get_field2($cluster2, "utilization.memory.active");
+    my $memory_total     = get_field2($cluster2, "utilization.memory.total");
     my $memory_active_pc = $memory_active / $memory_total * 100;
     $msg .= sprintf("memory: %.2f%% active (%d/%d) ", $memory_active_pc, $memory_active, $memory_total);
     $msg3 .= " 'cluster $name active memory %'=$memory_active_pc% 'cluster $name active memory'=$memory_active 'cluster $name total_memory'=$memory_total";
     $msg .= "services: ";
-    %services = get_field2_hash($cluster, "services");
+    %services = get_field2_hash($cluster2, "services");
     foreach my $service (sort keys %services){
         $msg2 = "";
         foreach(qw/active standby stopped failed/){
-            if(defined($cluster->{"services"}->{$service}->{$_}) and $cluster->{"services"}->{$service}->{$_}){
-                $msg2 .= ($_ eq "failed" ? "FAILED" : $_ ) . "=" . get_field2($cluster, "services.$service.$_") . " ";
+            if(defined($cluster2->{"services"}->{$service}->{$_}) and $cluster2->{"services"}->{$service}->{$_}){
+                $msg2 .= ($_ eq "failed" ? "FAILED" : $_ ) . "=" . get_field2($cluster2, "services.$service.$_") . " ";
                 critical if($_ eq "failed");
             }
         }
@@ -77,11 +82,12 @@ foreach my $cluster (@data){
         $msg .= "$msg2, ";
     }
     $msg =~ s/, $//;
-    $volumes_mounted   = get_field2($cluster, "volumes.mounted.total");
-    $volumes_unmounted = get_field2($cluster, "volumes.unmounted.total");
+    $volumes_mounted   = get_field2($cluster2, "volumes.mounted.total");
+    $volumes_unmounted = get_field2($cluster2, "volumes.unmounted.total");
     $msg .= sprintf(", volumes: mounted=%d unmounted=%d, ", $volumes_mounted, $volumes_unmounted);
     $msg3 .= " 'cluster $name volumes mounted'=$volumes_mounted 'cluster $name volumes unmounted'=$volumes_unmounted";
 }
+$found_cluster or quit "UNKNOWN", "cluster '$cluster' not found, did you specify the correct cluster name? See --list-clusters";
 $msg =~ s/, $//;
 $msg .= " |$msg3";
 
