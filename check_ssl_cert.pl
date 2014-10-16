@@ -184,7 +184,7 @@ foreach (@output){
     }
 }
 
-sub validate_cert_domain ($) {
+sub is_cert_domain ($) {
     my $domain = shift;
     if($domain =~ /^\*\./){
         $domain =~ s/^\*\.//;
@@ -196,7 +196,7 @@ defined($domain)   or quit "CRITICAL", "failed to determine certificate domain n
 defined($end_date) or quit "CRITICAL", "failed to determine certificate expiry date";
 vlog2 "Domain: $domain";
 vlog2 "Certificate Expires: $end_date\n";
-validate_cert_domain($domain) or quit "UNKNOWN", "unrecognized domain certficate returned. $nagios_plugins_support_msg";
+is_cert_domain($domain) or quit "UNKNOWN", "unrecognized domain certficate returned. $nagios_plugins_support_msg";
 
 my ($month, $day, $time, $year, $tz) = split(/\s+/, $end_date);
 my ($hour, $min, $sec)               = split(/\:/, $time);
