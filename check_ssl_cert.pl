@@ -60,6 +60,7 @@ my @output;
     "P|port=s"                      => [ \$port,                "SSL port to check (defaults to port 443)" ],
     "d|domain=s"                    => [ \$expected_domain,     "Expected domain of the certificate" ],
     "s|subject-alternative-names=s" => [ \$subject_alt_names,   "Additional FQDNs to require on the certificate" ],
+    "S|hostname-sni=s"              => [ \$hostname_sni,        "Hostname for SNI" ],
     "w|warning=s"                   => [ \$warning,             "The warning threshold in days before expiry (defaults to $default_warning)" ],
     "c|critical=s"                  => [ \$critical,            "The critical threshold in days before expiry (defaults to $default_critical)" ],
     "C|CApath=s"                    => [ \$CApath,              "Path to ssl root certs dir (will attempt to determine from openssl binary if not supplied)" ],
@@ -82,6 +83,17 @@ if($expected_domain){
         $expected_domain = validate_domain($expected_domain);
     }
 }
+
+if($hostname_sni){
+    # DO NOT allow wildcard hostnames for SNI
+    if(substr($hostname_sni, 0 , 2) eq '*.'){
+       usage "Hostname for SNI should be valid domain (no wildcard allowed)";
+    } else {
+        $hostname_sni = validate_domain($hostname_sni);
+    }
+}
+
+
 if($subject_alt_names){
     @subject_alt_names = split(",", $subject_alt_names);
     foreach(@subject_alt_names){
@@ -116,7 +128,11 @@ vlog2;
 $status = "OK";
 
 vlog2 "* checking validity of cert (chain of trust)";
-$cmd = "echo | $openssl s_client -connect $host:$port -CApath $CApath 2>&1";
+if($hostname_sni){
+    $cmd = "echo | $openssl s_client -connect $host:$port -CApath $CApath -servername $hostname_sni 2>&1";
+} else {
+    $cmd = "echo | $openssl s_client -connect $host:$port -CApath $CApath 2>&1";
+}
 
 @output = cmd($cmd);
 
