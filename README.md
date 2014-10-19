@@ -3,7 +3,7 @@ Advanced Nagios Plugins Collection
 
 Largest and most advanced collection of unified Nagios monitoring code in the wild.
 
-Largest collection of Hadoop & NoSQL monitoring code for Nagios, written by a former Clouderan (Cloudera is the original Hadoop Big Data company).
+Largest collection of Hadoop & NoSQL monitoring code for Nagios, written by a former Clouderan (Cloudera was the first Hadoop Big Data commercial vendor).
 
 I've been developing this Nagios Plugin Collection since 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
@@ -25,7 +25,7 @@ http://www.linkedin.com/in/harisekhon
 
 ### A Sample of cool Nagios Plugins in this collection ###
 
-- ```check_ssl_cert.pl``` - SSL expiry, chain of trust (including intermediate certs important for certain mobile devices), domain, wildcard and multi-domain support validation
+- ```check_ssl_cert.pl``` - SSL expiry, chain of trust (including intermediate certs important for certain mobile devices), domain, SNI, wildcard and multi-domain support validation
 - ```check_mysql_query.pl``` - generic enough it obsoleted a dozen custom plugins and prevented writing many more
 - ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline
 - ```check_hadoop_*.pl``` - various Hadoop monitoring utilities for HDFS & MapReduce including cluster balance, replication, space, block count limits, node counts, dead Datanodes and dead/blacklisted TaskTrackers, Namenode, JobTracker & Yarn Resource Manager heap usage, gather metrics

@@ -15,7 +15,7 @@ Checks thresholds against the number of days left on the license
 
 Written and tested on Hortonworks HDP 2.1 and WANdisco"; # TODO: put WANdisco version here;
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -37,10 +37,14 @@ set_threshold_defaults(31, 15);
 
 env_creds(["HADOOP_NAMENODE", "HADOOP"], "Hadoop NameNode");
 
+my $eval_ok;
+
 %options = (
     %hostoptions,
+    "eval-ok"   =>  [ \$eval_ok,    "Returns OK if license type is evaluation (defaults to raising warning)" ],
     %thresholdoptions,
 );
+splice @usage_order, 6, 0, qw/eval-ok/;
 
 get_options();
 
@@ -102,7 +106,11 @@ unless($found_mbean){
     quit "UNKNOWN", "failed to find NamenodeLicenseMetrics mbean. Perhaps this isn't running the WANdisco Non-Stop Hadoop product? Alternatively $nagios_plugins_support_msg_api" unless $found_mbean;
 }
 
-$LicenseType = lc $LicenseType;
+if($LicenseType eq "EVALUATION" and not $eval_ok){
+    warning;
+} else {
+    $LicenseType = lc $LicenseType;
+}
 
 # These are all in millisecs
 $Start         /= 1000;

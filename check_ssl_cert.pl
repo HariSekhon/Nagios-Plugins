@@ -18,9 +18,10 @@ Checks:
    2a. Root CA certificate is trusted
    2b. Any intermediate certificates are present, especially important for Mobile devices
 3. Domain name on certificate (optional)
-4. Subject Alternative Names supported by certificate (optional)";
+4. Subject Alternative Names supported by certificate (optional)
+5. SNI - Server Name Identification - supply hostname identifier for servers that contain multiple certificates to tell the server which SSL certificate to use (optional)";
 
-$VERSION = "0.9.9";
+$VERSION = "0.9.10";
 
 use warnings;
 use strict;
@@ -42,6 +43,7 @@ $warning             = $default_warning;
 my $CApath;
 my $cmd;
 my $domain;
+my $sni_hostname;
 my $end_date;
 my $expected_domain;
 my $no_validate;
@@ -58,20 +60,22 @@ my @output;
 %options = (
     "H|host=s"                      => [ \$host,                "SSL host to check" ],
     "P|port=s"                      => [ \$port,                "SSL port to check (defaults to port 443)" ],
-    "d|domain=s"                    => [ \$expected_domain,     "Expected domain of the certificate" ],
-    "s|subject-alternative-names=s" => [ \$subject_alt_names,   "Additional FQDNs to require on the certificate" ],
+    "d|domain=s"                    => [ \$expected_domain,     "Expected domain/FQDN registered to the certificate" ],
+    "s|subject-alternative-names=s" => [ \$subject_alt_names,   "Additional FQDNs to require on the certificate (optional)" ],
+    "S|SNI-hostname=s"              => [ \$sni_hostname,        "SNI hostname to tell a server with multiple certificates which one to use (eg. www.domain2.com, optional)" ],
     "w|warning=s"                   => [ \$warning,             "The warning threshold in days before expiry (defaults to $default_warning)" ],
     "c|critical=s"                  => [ \$critical,            "The critical threshold in days before expiry (defaults to $default_critical)" ],
     "C|CApath=s"                    => [ \$CApath,              "Path to ssl root certs dir (will attempt to determine from openssl binary if not supplied)" ],
     "N|no-validate"                 => [ \$no_validate,         "Do not validate the SSL certificate chain" ]
 );
-@usage_order = qw/host port domain subject-alternative-names warning critical no-validate CApath/;
+@usage_order = qw/host port domain subject-alternative-names SNI-hostname warning critical CApath no-validate/;
 
 get_options();
 
 $host   = validate_host($host);
 $port   = validate_port($port);
 $CApath = validate_dir($CApath, 0, "CA path") if defined($CApath);
+$sni_hostname = validate_hostname($sni_hostname, "SNI") if $sni_hostname;
 validate_thresholds(1, 1, { "simple" => "lower", "integer" => 0, "positive" => 1 } );
 
 if($expected_domain){
@@ -82,6 +86,7 @@ if($expected_domain){
         $expected_domain = validate_domain($expected_domain);
     }
 }
+
 if($subject_alt_names){
     @subject_alt_names = split(",", $subject_alt_names);
     foreach(@subject_alt_names){
@@ -116,7 +121,9 @@ vlog2;
 $status = "OK";
 
 vlog2 "* checking validity of cert (chain of trust)";
-$cmd = "echo | $openssl s_client -connect $host:$port -CApath $CApath 2>&1";
+$cmd = "echo | $openssl s_client -connect $host:$port -CApath $CApath";
+$cmd .= " -servername $sni_hostname" if $sni_hostname;
+$cmd .= " 2>&1";
 
 @output = cmd($cmd);
 
@@ -158,6 +165,7 @@ vlog2 "* checking domain and expiry on cert";
 #$cmd = "echo '$output' | $openssl x509 -noout -text 2>&1";
 
 # Avoiding the IPC stuff as blocking is a problem, using extra openssl fetch, not ideal but a better fix than the alternatives
+# Could write this to a temporary file to avoid 1 round-trip but would need to be extremely robust and would break on things like /tmp filling up, this is a better trade off as is
 $cmd .= " | $openssl x509 -noout -text 2>&1";
 @output = cmd($cmd);
 
