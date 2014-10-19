@@ -1,0 +1,1 @@
+check_ambari_config_stale.pl
