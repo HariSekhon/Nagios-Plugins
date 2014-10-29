@@ -233,7 +233,7 @@ foreach(sort keys %mntr){
         quit "UNKNOWN", "failed to determine $_ from mntr";
     }
     next if (/zk_version/ or /zk_server_state/);
-    $mntr{$_} =~ /^\d+$/ or quit "UNKNOWN", "invalid value found for mntr $_ '$mntr{$_}'";
+    $mntr{$_} =~ /^[+-]?\d+$/ or quit "UNKNOWN", "invalid value found for mntr $_ '$mntr{$_}'";
 }
 vlog2;
 
