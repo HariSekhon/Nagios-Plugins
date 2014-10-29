@@ -47,7 +47,7 @@ end
 
 class CheckPuppet
 
-    VERSION = '0.9.5'
+    VERSION = '0.9.6'
     script_name = File.basename($0)
 
     # default options
@@ -148,7 +148,7 @@ class CheckPuppet
         #        num_procs += 1
         #    end
         #}
-        procs = `ps -ef | grep -e 'puppet[d]' -e 'puppet agen[t]'`
+        procs = `ps -ef | grep -e 'puppet[d]\>' -e 'puppet agen[t]'`
         # On upgrades it has happened before where we have 2 procs running if
         # the old one doesn't exit properly so I check to make sure we have
         # exactly 1 proc running
