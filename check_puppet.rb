@@ -82,23 +82,23 @@ class CheckPuppet
     #              "short options too."
 
     o.on("-C", "--config=value", String,
-         "Default: #{PUPPET_CONF}")                 { |OPTIONS[:conf]| }
+         "Default: #{PUPPET_CONF}")                 { |v| OPTIONS[:conf] = v }
     o.on("-e", "--environment=value", String,
-         "Default: #{OPTIONS[:environment]}")       { |OPTIONS[:environment]| }
+         "Default: #{OPTIONS[:environment]}")       { |v| OPTIONS[:environment] = v }
     o.on("-w", "--warning=value", Integer,
-         "Default: #{OPTIONS[:warning]} minutes")   { |OPTIONS[:warning]| }
+         "Default: #{OPTIONS[:warning]} minutes")   { |v| OPTIONS[:warning] = v }
     o.on("-c", "--critical=value", Integer,
-         "Default: #{OPTIONS[:critical]} minutes")  { |OPTIONS[:critical]| }
+         "Default: #{OPTIONS[:critical]} minutes")  { |v| OPTIONS[:critical] = v }
     o.on("-l", "--lockfile=lockfile", String, "The lock file",
-         "Default: uses puppet config / default") { |OPTIONS[:lockfile]| }
+         "Default: uses puppet config / default") { |v| OPTIONS[:lockfile] = v }
     #o.on("-p", "--process=processname", String, "The process to check",
     #     "Default: #{OPTIONS[:process]}")           { |OPTIONS[:process]| }
     o.on("-s", "--statefile=statefile", String, "The state file",
-         "Default: uses puppet config / default") { |OPTIONS[:statefile]| }
+         "Default: uses puppet config / default") { |v| OPTIONS[:statefile] = v }
     o.on("-v", "--verbose", String, "Verbose mode",
          "Default: off")                            { OPTIONS[:verbose] = true }
     o.on("-V", "--version=version", String, "The puppet version to expect",
-         "Default: none")                           { |OPTIONS[:version]| }
+         "Default: none")                           { |v| OPTIONS[:version] = v }
 
     o.separator ""
     o.on_tail("-h", "--help", "Show this help message.") do
