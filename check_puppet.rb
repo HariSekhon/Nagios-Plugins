@@ -65,52 +65,52 @@ class CheckPuppet
     }
 
     o = OptionParser.new do |o|
-    o.set_summary_indent('    ')
-    o.banner =    "usage: #{script_name} [OPTIONS]"
-    o.separator   ""
-    #o.define_head "The check_puppet Nagios plug-in checks that specified " +
-    #              "Puppet process is running and the state file is no " +
-    #              "older than specified interval."
-    o.separator   "The #{script_name} Nagios plugin checks the following:\n" +
-                  "1. No more than 2 'puppetd' or 'puppet agent' processes are running\n"  +
-                  "2. Puppet has run successfully recently (state file has been updated)\n" +
-                  "3. Puppet runs are enabled\n"         +
-                  "4. The puppet version installed\n"    +
-                  "5. The puppet environment the system is in\n"
-    o.separator   ""
-    #o.separator   "Mandatory arguments to long options are mandatory for " +
-    #              "short options too."
+      o.set_summary_indent('    ')
+      o.banner =    "usage: #{script_name} [OPTIONS]"
+      o.separator   ""
+      #o.define_head "The check_puppet Nagios plug-in checks that specified " +
+      #              "Puppet process is running and the state file is no " +
+      #              "older than specified interval."
+      o.separator   "The #{script_name} Nagios plugin checks the following:\n" +
+                    "1. No more than 2 'puppetd' or 'puppet agent' processes are running\n"  +
+                    "2. Puppet has run successfully recently (state file has been updated)\n" +
+                    "3. Puppet runs are enabled\n"         +
+                    "4. The puppet version installed\n"    +
+                    "5. The puppet environment the system is in\n"
+      o.separator   ""
+      #o.separator   "Mandatory arguments to long options are mandatory for " +
+      #              "short options too."
 
-    o.on("-C", "--config=value", String,
-         "Default: #{PUPPET_CONF}")                 { |v| OPTIONS[:conf] = v }
-    o.on("-e", "--environment=value", String,
-         "Default: #{OPTIONS[:environment]}")       { |v| OPTIONS[:environment] = v }
-    o.on("-w", "--warning=value", Integer,
-         "Default: #{OPTIONS[:warning]} minutes")   { |v| OPTIONS[:warning] = v }
-    o.on("-c", "--critical=value", Integer,
-         "Default: #{OPTIONS[:critical]} minutes")  { |v| OPTIONS[:critical] = v }
-    o.on("-l", "--lockfile=lockfile", String, "The lock file",
-         "Default: uses puppet config / default") { |v| OPTIONS[:lockfile] = v }
-    #o.on("-p", "--process=processname", String, "The process to check",
-    #     "Default: #{OPTIONS[:process]}")           { |OPTIONS[:process]| }
-    o.on("-s", "--statefile=statefile", String, "The state file",
-         "Default: uses puppet config / default") { |v| OPTIONS[:statefile] = v }
-    o.on("-v", "--verbose", String, "Verbose mode",
-         "Default: off")                            { OPTIONS[:verbose] = true }
-    o.on("-V", "--version=version", String, "The puppet version to expect",
-         "Default: none")                           { |v| OPTIONS[:version] = v }
+      o.on("-C", "--config=value", String,
+          "Default: #{PUPPET_CONF}")                 { |v| OPTIONS[:conf] = v }
+      o.on("-e", "--environment=value", String,
+          "Default: #{OPTIONS[:environment]}")       { |v| OPTIONS[:environment] = v }
+      o.on("-w", "--warning=value", Integer,
+          "Default: #{OPTIONS[:warning]} minutes")   { |v| OPTIONS[:warning] = v }
+      o.on("-c", "--critical=value", Integer,
+          "Default: #{OPTIONS[:critical]} minutes")  { |v| OPTIONS[:critical] = v }
+      o.on("-l", "--lockfile=lockfile", String, "The lock file",
+          "Default: uses puppet config / default") { |v| OPTIONS[:lockfile] = v }
+      #o.on("-p", "--process=processname", String, "The process to check",
+      #     "Default: #{OPTIONS[:process]}")           { |OPTIONS[:process]| }
+      o.on("-s", "--statefile=statefile", String, "The state file",
+          "Default: uses puppet config / default") { |v| OPTIONS[:statefile] = v }
+      o.on("-v", "--verbose", String, "Verbose mode",
+          "Default: off")                            { OPTIONS[:verbose] = true }
+      o.on("-V", "--version=version", String, "The puppet version to expect",
+          "Default: none")                           { |v| OPTIONS[:version] = v }
 
-    o.separator ""
-    o.on_tail("-h", "--help", "Show this help message.") do
-        puts o
-        exit EXIT["UNKNOWN"]
-    end
-    
-    begin
-        o.parse!(ARGV)
-    rescue
-        quit "UNKNOWN", "parsing error: " + $!
-    end
+      o.separator ""
+      o.on_tail("-h", "--help", "Show this help message.") do
+          puts o
+          exit EXIT["UNKNOWN"]
+      end
+      
+      begin
+          o.parse!(ARGV)
+      rescue
+          quit "UNKNOWN", "parsing error: " + $!
+      end
     end
 
     unless File.exists?(OPTIONS[:conf])
