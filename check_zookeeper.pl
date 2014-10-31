@@ -25,7 +25,7 @@ Checks:
 
 Tested on ZooKeeper 3.4.5. Requires ZooKeeper 3.4 onwards due to isro and mntr 4lw checks";
 
-$VERSION = "0.6.3";
+$VERSION = "0.6.4";
 
 use strict;
 use warnings;
@@ -41,7 +41,7 @@ my $standalone;
 
 %options = (
     "H|host=s"       => [ \$host,       "ZooKeeper Host to connect to" ],
-    "P|port=s"       => [ \$zk_port,    "ZooKeeper Client Port to connect to (defaults to $ZK_DEFAULT_PORT)" ],
+    "P|port=s"       => [ \$port,       "ZooKeeper Client Port to connect to (defaults to $ZK_DEFAULT_PORT, set to 5181 for MapR)" ],
     "w|warning=s"    => [ \$warning,    "Warning  threshold or ran:ge (inclusive) for avg latency"  ],
     "c|critical=s"   => [ \$critical,   "Critical threshold or ran:ge (inclusive) for avg latency" ],
     "s|standalone"   => [ \$standalone, "OK if mode is standalone (by default expects leader/follower mode as part of a proper ZooKeeper cluster with quorum)" ],
@@ -50,7 +50,7 @@ my $standalone;
 get_options();
 
 $host    = validate_host($host);
-$zk_port = validate_port($zk_port);
+$port = validate_port($port);
 validate_thresholds(undef, undef, { "integer" => 1 });
 
 set_timeout();
@@ -143,7 +143,7 @@ vlog2;
 #        quit "CRITICAL", $line;
 #    }
 #    if($line =~ /ERROR/i){
-#        quit "CRITICAL", "unknown error returned from zookeeper on '$host:$zk_port': '$line'";
+#        quit "CRITICAL", "unknown error returned from zookeeper on '$host:$port': '$line'";
 #    }
 #    $linecount++;
 #    if($line =~ /^Zookeeper version:\s*(.+)?\s*$/i){
@@ -243,13 +243,13 @@ vlog2;
 #vlog2 "closed connection\n";
 
 foreach(sort keys %mntr){
-    defined($mntr{$_}) or quit "CRITICAL", "$_ was not found in output from zookeeper on '$host:$zk_port'";
+    defined($mntr{$_}) or quit "CRITICAL", "$_ was not found in output from zookeeper on '$host:$port'";
 }
 
 ###############################
 # TODO: abstract out this store state block to my personal library since I use it in a few pieces of code
 my $tmpfh;
-my $statefile = "/tmp/$progname.$host.$zk_port.state";
+my $statefile = "/tmp/$progname.$host.$port.state";
 vlog2 "opening state file '$statefile'\n";
 if(-f $statefile){
     open $tmpfh, "+<$statefile" or quit "UNKNOWN", "Error: failed to open state file '$statefile': $!";

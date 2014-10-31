@@ -47,7 +47,6 @@ my @config_file_only = qw(
                        );
 
 $host = "localhost";
-$port = $ZK_DEFAULT_PORT;
 
 my $ZK_DEFAULT_CONFIG = "/etc/zookeeper/conf/zoo.cfg";
 my $conf              = $ZK_DEFAULT_CONFIG;
@@ -56,7 +55,7 @@ my $no_warn_missing   = 0;
 
 %options = (
     "H|host=s"          => [ \$host,             "Host to connect to (defaults: localhost)" ],
-    "P|port=s"          => [ \$port,             "Port to connect to (defaults: $ZK_DEFAULT_PORT)" ],
+    "P|port=s"          => [ \$port,             "Port to connect to (defaults: $ZK_DEFAULT_PORT, set to 5181 for MapR)" ],
     "C|config=s"        => [ \$conf,             "ZooKeeper config file (defaults to $ZK_DEFAULT_CONFIG)" ],
     "e|no-warn-extra"   => [ \$no_warn_extra,    "Don't warn on extra config detected on ZooKeeper server that isn't specified in config file (serverId is omitted either way)" ],
     "m|no-warn-missing" => [ \$no_warn_missing,  "Don't warn on missing config detected on ZooKeeper server that was expected from config file (see Bug note in --help description header" ],
