@@ -90,7 +90,7 @@ install:
 apt-packages:
 	apt-get install -y gcc || :
 	# needed to fetch the library submodule at end of build
-	apt-get install -y git || : # TODO: find the package required for CPAN in case it's not available
+	apt-get install -y build-essential libwww-perl git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	apt-get install -y libdbd-mysql-perl libmysqlclient-dev || :
 	# for XML::Simple building
@@ -102,7 +102,7 @@ apt-packages:
 yum-packages:
 	yum install -y gcc || :
 	# needed to fetch the library submodule at end of build
-	yum install -y perl-CPAN git || :
+	yum install -y perl-CPAN perl-libwww-perl git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	yum install -y perl-DBD-MySQL mysql-devel || :
 	# for XML::Simple building
