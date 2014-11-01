@@ -74,12 +74,12 @@ install:
 	
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	sudo easy_install -U setuptools || :
+	sudo easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	sudo pip install cassandra-driver scales blist lz4 python-snappy || :
 	
 	# install MySQLdb python module for check_logserver.py / check_syslog_mysql.py
 	# fails if MySQL isn't installed locally
-	#sudo easy_install pip
 	#sudo pip install MySQLdb
 
 	git submodule init
