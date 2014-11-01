@@ -24,7 +24,7 @@ Requirements:
 - kinit command in standard system path
 ";
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -138,13 +138,18 @@ vlog2 "validating TGT\n";
 @output = cmd("klist -c '$ticket_cache'");
 foreach(@output){
     next if(
-    /^Ticket\s+cache:\s+FILE:$ticket_cache\s*$/i or
-    /^Default\s+principal:\s+$principal(?:(?:\/$domain_regex)?\@$domain_regex)?\s*$/i or
+    # Ticket on Linux, Credentials on Mac
+    /^(?:Credentials|Ticket)?\s+cache:\s+FILE:$ticket_cache\s*$/i or
+    # Default on Linux, no prefix on Mac
+    /^(?:Default)?\s+principal:\s+$principal(?:(?:\/$hostname_regex)?\@$domain_regex)?\s*$/i or
     /^\s*$/ or
     /^Valid\s+starting\s+Expires\s+Service principal\s*$/i or
+    /^\s*Issued\s+Expires\s+Principal\s*$/i or
     /^\s*renew until/i
     );
-    /(\d{2}\/\d{2}\/\d{2}\s+\d{2}:\d{2}:\d{2})\s+(\d{2}\/\d{2}\/\d{2}\s+\d{2}:\d{2}:\d{2})\s+krbtgt\/$domain_regex\@$domain_regex/i or quit "CRITICAL", "unrecognized line: '$_'. $nagios_plugins_support_msg";
+    /(\d{2}\/\d{2}\/\d{2}\s+\d{2}:\d{2}:\d{2})\s+(\d{2}\/\d{2}\/\d{2}\s+\d{2}:\d{2}:\d{2})\s+krbtgt\/$domain_regex\@$domain_regex/i or
+    /(\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\d{4})\s+(\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\d{4})\s+krbtgt\/$domain_regex\@$domain_regex/i
+        or quit "CRITICAL", "unrecognized line: '$_'. $nagios_plugins_support_msg";
     if($1 eq $2){
         quit "CRITICAL", "TGT start and expiry are the same (misconfiguration of the kerberos principal in the KDC?)";
     }
