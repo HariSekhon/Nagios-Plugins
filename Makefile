@@ -96,7 +96,7 @@ apt-packages:
 	# for XML::Simple building
 	apt-get install -y libexpat1-dev || :
 	# for Cassandra's Python driver
-	apt-get install -y python-dev libev4 libev-dev || :
+	apt-get install -y python-setuptools python-dev libev4 libev-dev || :
 
 .PHONY: yum-packages
 yum-packages:
@@ -108,7 +108,7 @@ yum-packages:
 	# for XML::Simple building
 	yum install -y expat-devel || :
 	# for Cassandra's Python driver
-	yum install -y python-devel libev libev-devel || :
+	yum install -y python-setuptools python-devel libev libev-devel || :
 
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
