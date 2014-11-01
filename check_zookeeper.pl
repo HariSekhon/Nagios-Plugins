@@ -25,7 +25,7 @@ Checks:
 
 Tested on ZooKeeper 3.4.5. Requires ZooKeeper 3.4 onwards due to isro and mntr 4lw checks";
 
-$VERSION = "0.6.3";
+$VERSION = "0.6.4";
 
 use strict;
 use warnings;
@@ -232,8 +232,15 @@ foreach(sort keys %mntr){
     } else {
         quit "UNKNOWN", "failed to determine $_ from mntr";
     }
-    next if (/zk_version/ or /zk_server_state/);
-    $mntr{$_} =~ /^[+-]?\d+$/ or quit "UNKNOWN", "invalid value found for mntr $_ '$mntr{$_}'";
+    next if ($_ eq "zk_version" or $_ eq "zk_server_state");
+    # In the ZooKeeper code base these two stats are set to -1 if ZooKeeper is unable to determine these metrics
+    if($_ eq "zk_open_file_descriptor_count" or $_ eq "zk_max_file_descriptor_count"){
+        if($mntr{$_} == -1){
+            $mntr{$_} = "N/A";
+            next;
+        }
+    }
+    $mntr{$_} =~ /^\d+$/ or quit "UNKNOWN", "invalid value found for mntr $_ '$mntr{$_}'";
 }
 vlog2;
 
