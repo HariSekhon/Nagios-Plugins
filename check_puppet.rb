@@ -47,7 +47,7 @@ end
 
 class CheckPuppet
 
-    VERSION = '0.9.6'
+    VERSION = '0.9.7'
     script_name = File.basename($0)
 
     # default options
@@ -61,7 +61,7 @@ class CheckPuppet
     #    :statefile   => "/var/lib/puppet/state/state.yaml",
         :statefile   => "",
         :version     => nil,
-        :verbose     => nil,
+        :verbose     => 0,
     }
 
     o = OptionParser.new do |o|
@@ -96,7 +96,7 @@ class CheckPuppet
       o.on("-s", "--statefile=statefile", String, "The state file",
           "Default: uses puppet config / default") { |v| OPTIONS[:statefile] = v }
       o.on("-v", "--verbose", String, "Verbose mode",
-          "Default: off")                            { OPTIONS[:verbose] = true }
+          "Default: off")                            { OPTIONS[:verbose] += 1 }
       o.on("-V", "--version=version", String, "The puppet version to expect",
           "Default: none")                           { |v| OPTIONS[:version] = v }
 
@@ -142,6 +142,9 @@ class CheckPuppet
     end
 
     def check_proc
+        if OPTIONS[:verbose] > 1
+            puts "checking puppet agent processes"
+        end
         #num_procs = 0
         #ProcTable.ps{ |process|
         #    if process.cmdline.include? "puppetd" or process.cmdline.include? "puppet agent"
@@ -153,6 +156,9 @@ class CheckPuppet
         # the old one doesn't exit properly so I check to make sure we have
         # exactly 1 proc running
         num_procs = procs.split("\n").size
+        #if OPTIONS[:verbose] > 2
+        #    puts "#{num_procs} puppet agent processes found"
+        #end
         if procs.empty?
             @process_status = "CRITICAL"
             @process_msg    = "'puppetd/puppet agent' PROCESS NOT RUNNING"
@@ -169,6 +175,9 @@ class CheckPuppet
     end
 
     def check_lastrun
+        if OPTIONS[:verbose] > 1
+            puts "checking puppet last run lag"
+        end
         @warning  = OPTIONS[:warning]  * 60
         @critical = OPTIONS[:critical] * 60
         if @warning < 1
@@ -188,6 +197,9 @@ class CheckPuppet
 
         @diff = (now - mtime).to_i
 
+        #if OPTIONS[:verbose] > 2
+        #    puts "#{@diff} second lag since last puppet run completed"
+        #end
         if @diff > @critical
             @lastrun_status = "CRITICAL"
             @lastrun_msg    = "STATE FILE " + @diff.to_s + " SECONDS OLD"
@@ -202,6 +214,9 @@ class CheckPuppet
     end
 
     def check_enabled
+        if OPTIONS[:verbose] > 1
+            puts "checking puppet is enabled"
+        end
         if FileTest.exist?("#{OPTIONS[:lockfile]}")
             # This used to be the case pre 2.6, not supporting that any more
             #if File.zero?("#{OPTIONS[:lockfile]}")
@@ -232,6 +247,9 @@ class CheckPuppet
             quit "UNKNOWN", "version retrieved from '#{puppet_version_cmd}' did not match expected regex (returned '#{@puppet_version}')"
         end
         if OPTIONS[:version]
+            if OPTIONS[:verbose] > 1
+                puts "checking puppet version"
+            end
             if @puppet_version == OPTIONS[:version]
                 @version_status = "OK"
             else
@@ -249,6 +267,9 @@ class CheckPuppet
     end
 
     def check_environment
+        if OPTIONS[:verbose] > 1
+            puts "checking puppet environment"
+        end
         @puppet_environment = "production"
         facter_environment  = `RUBYLIB=$RUBYLIB:/var/lib/puppet/lib facter | grep ^environment`.chomp!
         agent_regex         = Regexp.compile('^\s*\[\s*(?:agent|puppetd)\s*\]\s*$')
