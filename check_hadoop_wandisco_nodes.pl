@@ -95,10 +95,10 @@ my $nodeIdentity;
 foreach my $node (get_field2_array($xml, "nodes")){
     $nodeIdentity = get_field2($node, "nodeIdentity");
     if(not get_field2($node, "isUp")){
-        push(@down_nodes, $nodeIdentity))
+        push(@down_nodes, $nodeIdentity);
     }
     if(get_field2($node, "isStopped")){
-        push(@stopped_nodes, $nodeIdentity));
+        push(@stopped_nodes, $nodeIdentity);
     }
 };
 
