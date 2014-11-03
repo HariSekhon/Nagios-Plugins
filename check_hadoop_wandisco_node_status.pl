@@ -13,7 +13,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the status of a given WANdisco Non-Stop Hadoop node via DConE REST API
 
-Written and tested on Hortonworks HDP 2.1 and WANdisco"; # TODO: put WANdisco version here;
+Written and tested on Hortonworks HDP 2.1 and WANdisco Non-Stop Hadoop 1.9.8";
 
 $VERSION = "0.1";
 
@@ -39,7 +39,7 @@ my $node;
 
 %options = (
     %hostoptions,
-    "N|node=s"  =>  [ \$node,   "Node to check" ],
+    "N|node=s"  =>  [ \$node,   "Node to check (must match the WANdisco node name precisely or will get a 404 not found error)" ],
 );
 
 get_options();

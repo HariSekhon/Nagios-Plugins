@@ -15,7 +15,7 @@ $DESCRIPTION = "Nagios Plugin to check the status of all WANdisco Non-Stop Hadoo
 
 Thresholds are checked against the sum of stopped and down nodes
 
-Written and tested on Hortonworks HDP 2.1 and WANdisco"; # TODO: put WANdisco version here;
+Written and tested on Hortonworks HDP 2.1 and WANdisco Non-Stop Hadoop 1.9.8";
 
 $VERSION = "0.1";
 
