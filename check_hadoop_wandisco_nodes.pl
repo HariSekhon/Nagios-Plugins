@@ -84,7 +84,7 @@ my $content = curl $url, "NameNode";
 
 my $xml = XMLin($content, forcearray => 0, keyattr => [] );
 
-my @nodes = get_field2_array($xml, "nodes");
+my @nodes = get_field2_array($xml, "node");
 
 my $nodes = scalar @nodes;
 
@@ -92,12 +92,12 @@ my @stopped_nodes;
 my @down_nodes;
 my $nodeIdentity;
 
-foreach my $node (get_field2_array($xml, "nodes")){
+foreach my $node (@nodes){
     $nodeIdentity = get_field2($node, "nodeIdentity");
-    if(not get_field2($node, "isUp")){
+    if(get_field2($node, "isUp") ne "true"){
         push(@down_nodes, $nodeIdentity);
     }
-    if(get_field2($node, "isStopped")){
+    if(get_field2($node, "isStopped") eq "true"){
         push(@stopped_nodes, $nodeIdentity);
     }
 };
