@@ -88,12 +88,13 @@ my $isUp                = get_field2($xml, "isUp");
 my $isStopped           = get_field2($xml, "isStopped");
 my $lastStatusChange    = get_field2_float($xml, "lastStatusChange");
 
-if ($isStopped or not $isUp){
-    critical;
-}
 $isUp      = ( $isUp and $isUp eq "true" ? "true" : "FALSE" );
 $isStopped = ( $isStopped and $isStopped ne "false" ? "TRUE" : "false" );
 $isLocal   = ( $isLocal and $isLocal ne "true" ? "true" : "false" );
+
+if ($isStopped eq "true" or $isUp ne "true"){
+    critical;
+}
 
 my $last_status_change = floor(time - ($lastStatusChange / 1000));
 # TODO: move to library and polish up
