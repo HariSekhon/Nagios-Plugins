@@ -46,7 +46,7 @@ get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
-$node = validate_host($host, "node");
+$node = validate_host($node, "node");
 
 vlog2;
 set_timeout();
