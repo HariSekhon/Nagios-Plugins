@@ -90,7 +90,7 @@ my $lastStatusChange    = get_field2_float($xml, "lastStatusChange");
 
 $isUp      = ( $isUp and $isUp eq "true" ? "true" : "FALSE" );
 $isStopped = ( $isStopped and $isStopped ne "false" ? "TRUE" : "false" );
-$isLocal   = ( $isLocal and $isLocal ne "true" ? "true" : "false" );
+$isLocal   = ( $isLocal and $isLocal eq "true" ? "true" : "false" );
 
 if ($isStopped eq "true" or $isUp ne "true"){
     critical;
