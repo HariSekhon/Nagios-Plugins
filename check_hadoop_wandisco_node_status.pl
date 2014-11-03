@@ -11,7 +11,7 @@
 
 # http://docs.wandisco.com/bigdata/nsnn/1.9h/api.html
 
-$DESCRIPTION = "Nagios Plugin to check the status of a given WANdisco Non-Stop Hadoop node via NameNode JMX
+$DESCRIPTION = "Nagios Plugin to check the status of a given WANdisco Non-Stop Hadoop node via DConE REST API
 
 Written and tested on Hortonworks HDP 2.1 and WANdisco"; # TODO: put WANdisco version here;
 
@@ -46,6 +46,7 @@ get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
+# In WANdisco nodes can be called things that wouldn't pass FQDN / IP address tests
 usage "node not defined" unless $node;
 #$node = validate_host($node, "node");
 
