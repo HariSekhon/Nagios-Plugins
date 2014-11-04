@@ -11,7 +11,7 @@
 
 # http://docs.wandisco.com/bigdata/nsnn/1.9h/api.html
 
-$DESCRIPTION = "Nagios Plugin to check the WANdisco Non-Stop Hadoop blocks pending foreign replication via NameNode JMX
+$DESCRIPTION = "Nagios Plugin to check the WANdisco Non-Stop Hadoop blocks pending foreign (cross-DC) replication via NameNode JMX
 
 Checks thresholds against the number of blocks pending foreign replication.
 
