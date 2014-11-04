@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check the WANdisco Non-Stop Hadoop License via 
 
 Checks thresholds against the number of days left on the license
 
-Written and tested on Hortonworks HDP 2.1 and WANdisco"; # TODO: put WANdisco version here;
+Written and tested on Hortonworks HDP 2.1 and WANdisco Non-Stop Hadoop 1.9.8";
 
 $VERSION = "0.2";
 
