@@ -55,7 +55,7 @@ set_timeout();
 
 $status = "OK";
 
-my $url = "http://$host:$port/jmx?qry=Hadoop:service=NameNode,name=GeoNamesystem";
+my $url = "http://$host:$port/jmx?qry=Hadoop:service=NameNode,name=FSNamesystem";
 
 $json = curl_json $url, "NameNode";
 
@@ -101,7 +101,7 @@ my @beans = get_field_array("beans");
 my $found_mbean = 0;
 my $pendingForeignReplication;
 foreach(@beans){
-    next unless get_field2($_, "name") eq "Hadoop:service=NameNode,name=GeoNamesystem";
+    next unless get_field2($_, "name") eq "Hadoop:service=NameNode,name=FSNamesystem";
     $found_mbean = 1;
     $pendingForeignReplication = get_field2($_, "pendingForeignReplication");
     last;
