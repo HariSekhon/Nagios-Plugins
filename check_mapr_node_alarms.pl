@@ -16,6 +16,8 @@ Can optionally specifying a cluster to check for all nodes in that cluster with 
 
 Can also optionally specify a node to check for alarms only on that specific node.
 
+Thresholds apply to the number of nodes with alarms.
+
 Caveat: if specifying a cluster make sure to specify the correct cluster name as otherwise no node alarms will be found. This is a limitation of the behaviour of the MCS API to return no results (indistinguishable from a valid cluster with no alarms) instead of raising an error for an invalid cluster name. See --list-clusters. The same issue exists with specifying a node, although that's a limitation of iterating over the results to search for a node match.
 
 Tested on MapR 3.1.0 and 4.0.1";
