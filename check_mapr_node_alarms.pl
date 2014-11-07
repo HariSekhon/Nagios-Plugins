@@ -10,7 +10,7 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-$DESCRIPTION = "Nagios Plugin to check for MapR node alarms on a given cluster via the MapR Control System REST API
+$DESCRIPTION = "Nagios Plugin to check for MapR nodes with alarms via the MapR Control System REST API
 
 Can optionally specifying a cluster to check for all nodes in that cluster with alarms managed by the MapR Control System by default.
 
