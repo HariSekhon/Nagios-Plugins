@@ -12,6 +12,10 @@
 
 $DESCRIPTION = "Nagios Plugin to check the MapR license on a MapR Hadoop cluster via the MapR Control System REST API
 
+Checks time left on license in days against configurable warning/critical thresholds
+
+Raises warning on trial license unless setting --trial-ok
+
 Tested on MapR 3.1.0 and 4.0.1";
 
 $VERSION = "0.1.1";
@@ -30,12 +34,16 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 set_threshold_defaults(31, 15);
 
+my $trial_ok = 0;
+
 %options = (
     %mapr_options,
     %mapr_option_cluster,
+    "trial-ok"     =>  [ \$trial_ok, "Suppress warning if Trial license" ],
     "w|warning=s"  =>  [ \$warning,  "Warning  threshold in days (default: $default_warning)"  ],
     "c|critical=s" =>  [ \$critical, "Critical threshold in days (default: $default_critical)" ],
 );
+splice @usage_order, 16, 0, 'trial-ok';
 
 get_options();
 
@@ -58,6 +66,9 @@ my @data = get_field_array("data");
 foreach(@data){
     my $desc = get_field2($_, "description");
     next if($desc eq "MapR Base Edition");
+    unless($trial_ok){
+        warning if $desc =~ /trial|evaluation/i;
+    }
     #$msg .= "version: "    . get_field2($_, "license") . ", ";
     my $expiry = get_field2($_, "expiry");
     $expiry =~ /^(\w+)\s+(\d{1,2}),\s*(\d{4})$/ or quit "UNKNOWN", "expiry is not in the expected format. $nagios_plugins_support_msg_api";
