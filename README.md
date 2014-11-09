@@ -71,7 +71,11 @@ Some plugins such as those relating to Redis and Couchbase also have different m
 
 ePN support may be added in future but given that I've run 13,000 checks per Nagios server without ePN optimization it's not that high on the priority list right now.
 
-Patches are welcome in the form of GitHub pull requests.
+##### Contributions #####
+
+Patches and improvements are welcome in the form of GitHub pull requests.
+
+Examples of your usage and outputs are also welcome for the Wiki as some of these plugins allow a great diversity of checks to be created - for example, free form MySQL queries or ZooKeeper contents checks can be used to check pretty much anything that advanced DBAs and applications/operations personnel can think of with a just a few command line options.
 
 ##### Library #####
 
