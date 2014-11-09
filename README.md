@@ -208,7 +208,7 @@ Just make sure to install the Perl CPAN modules listed above first as some plugi
 
 ### Further Utilities ###
 
-Check out the adjacent ToolBox repo https://github.com/harisekhon/toolbox for other useful tools such as Hadoop HDFS per block read performance + location debugging (hadoop_hdfs_time_block_reads.jy), watch_url.pl for load balanced environments and other useful programs.
+Check out the adjacent ToolBox repo https://github.com/harisekhon/toolbox for other useful tools such as Hadoop HDFS per block read performance + location debugging (hadoop_hdfs_time_block_reads.jy), watch_url.pl for load balanced web farm environments as well as other useful programs.
 
 ##### Weblinks #####
 
