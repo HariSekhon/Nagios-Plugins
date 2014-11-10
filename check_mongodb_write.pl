@@ -43,7 +43,7 @@ MongoDB Library Limitations:
     - Using a write-concern higher than the number of members of a Replica Set will result in a timeout error from the library (wtimeout which defaults to 1 second)
 ";
 
-$VERSION = "0.4";
+$VERSION = "0.4.1";
 
 # TODO: Read Preference straight pass thru qw/primary secondary primaryPreferred secondaryPreferred nearest/
 # TODO: check_mongodb_write_replication.pl link and enforce secondary Read Preference
