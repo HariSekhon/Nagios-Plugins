@@ -70,6 +70,7 @@ use HariSekhon::MongoDB;
 # /Library/Perl/5.16/Readonly.pm
 #
 use Data::Dumper;
+use MongoDB;
 use MongoDB::MongoClient;
 use Sys::Hostname;
 use Time::HiRes 'time';
