@@ -53,10 +53,14 @@ install:
 		Digest::SHA \
 		JSON \
 		JSON:XS \
+		LWP::Authen::Negotiate \
 		LWP::Simple \
 		LWP::UserAgent \
-		LWP::Authen::Negotiate \
+		MongoDB \
 		MongoDB::MongoClient \
+		Net::LDAP \
+		Net::LDAPI \
+		Net::LDAPS \
 		Net::DNS \
 		Net::SSH::Expect \
 		Redis \
