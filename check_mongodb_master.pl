@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check a given Mongod is the Master/Primary of a
 
 Tested on MongoDB 2.4.8 and 2.6.1";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
