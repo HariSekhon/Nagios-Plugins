@@ -23,6 +23,7 @@ BEGIN {
 }
 use HariSekhonUtils;
 use HariSekhon::MongoDB;
+use MongoDB;
 use MongoDB::MongoClient;
 use Data::Dumper;
 
