@@ -12,7 +12,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check MapR-FS replication for a given volume via the MapR Control System REST API
 
-Checks % thresholds against the expected replication factor. Perfdata is also output for graphing.
+Checks thresholds as % at specified replication factor or higher (can be disabled to check this exact replication level). Perfdata is also output for graphing.
 
 Tested on MapR 4.0.1";
 
@@ -35,15 +35,17 @@ my $replication_factor_min      = 0;
 my $replication_factor_max      = 10;
 my $replication_factor_default  = 3;
 my $replication_factor          = $replication_factor_default;
+my $no_higher_rep;
 
 %options = (
     %mapr_options,
     %mapr_option_cluster,
     %mapr_option_volume,
     "R|replication-factor=s" => [ \$replication_factor, "Replication factor to expect and check threshold % against (default: $replication_factor_default)" ],
+    "no-higher-repl"         => [ \$no_higher_rep,      "Don't count higher replication factors, match thresholds exactly against specified replication factor" ],
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, qw/volume cluster replication-factor list-volumes list-clusters/;
+splice @usage_order, 6, 0, qw/volume cluster replication-factor no-higher-repl list-volumes list-clusters/;
 
 get_options();
 
@@ -61,10 +63,12 @@ set_timeout();
 
 $status = "OK";
 
-my $url = "/volume/list?";
+my $url = "/volume/list";
+$url .= "?" if ($cluster or $volume or not ($debug or $verbose > 3));
 $url .= "cluster=$cluster&" if $cluster;
 $url .= "filter=[volumename==$volume]&" if $volume;
-$url .= "columns=volumename,mountdir,actualreplication";
+$url .= "columns=volumename,mountdir,actualreplication" unless ($debug or $verbose > 3);
+$url =~ s/&$//;
 
 $json = curl_mapr $url, $user, $password;
 
@@ -90,13 +94,29 @@ if(not $found){
 plural keys %vols;
 $msg .= "MapR-FS volume$plural replication ";
 foreach my $vol (sort keys %vols){
+    $vols{$vol}{"total_min_rep"} = 0;
+    my @rep = @{$vols{$vol}{"rep"}};
+    for(my $rep = 0; $rep < scalar @rep; $rep++){
+        if($rep >= $replication_factor){
+            $vols{$vol}{"total_min_rep"} += $rep[$rep];
+        }
+        vlog2 "volume '$vol' ${rep}x or higher % = $vols{$vol}{total_min_rep}";
+    }
+}
+foreach my $vol (sort keys %vols){
     $msg .= "'$vol'";
     $msg .= " ($vols{$vol}{mount})" if($verbose and $vols{$vol}{"mount"});
     my @rep = @{$vols{$vol}{"rep"}};
     for(my $rep = 0; $rep < scalar @rep; $rep++){
         if($rep[$rep] or $rep == $replication_factor){
             $msg .= " ${rep}x=$rep[$rep]%";
-            check_thresholds($rep[$rep]) if $rep == $replication_factor;
+            if($rep == $replication_factor){
+                if($no_higher_rep){
+                    check_thresholds($rep[$rep]);
+                } else {
+                    check_thresholds($vols{$vol}{"total_min_rep"});
+                }
+            }
         }
     }
     #$msg .= " logical used = '$vols{$vol}{logicalUsed}'";
