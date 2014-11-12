@@ -73,7 +73,7 @@ ePN support may be added in future but given that I've run 13,000 checks per Nag
 
 ##### Contributions #####
 
-Patches and improvements are welcome in the form of GitHub pull requests.
+Patches, improvements and even general feedback are welcome in the form of GitHub pull requests and issue tickets.
 
 Examples of your usage and outputs are also welcome for the Wiki as some of these plugins allow a great diversity of checks to be created - for example, free form MySQL queries or ZooKeeper contents checks can be used to check pretty much anything that advanced DBAs and applications/operations personnel can think of with a just a few command line options.
 
