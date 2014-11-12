@@ -12,7 +12,9 @@
 
 $DESCRIPTION = "Nagios Plugin to check MapR-FS volumes are mounted, not read-only and not in need of Gfsck via the MapR Control System REST API
 
-Can specify a single volume to check, by default checks all volumes.
+Can specify a single volume to check, by default checks all volumes. Checking a single volume at a time and using the --ignore-* switches gives more control to avoid alerts.
+
+There is a in-built exception to permit mapr.cldb.internal volume to not be mounted as this is normal.
 
 Tested on MapR 4.0.1";
 
@@ -63,7 +65,8 @@ $status = "OK";
 my $url = "/volume/list?";
 $url .= "cluster=$cluster&" if $cluster;
 $url .= "filter=[volumename==$volume]&" if $volume;
-$url .= "columns=volumename,mountdir,readonly,needsGfsck,mounted";
+$url .= "columns=volumename,mountdir,readonly,needsGfsck,mounted" unless ($debug or $verbose > 3);
+$url =~ s/&$//;
 
 $json = curl_mapr $url, $user, $password;
 
