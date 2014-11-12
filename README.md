@@ -5,11 +5,13 @@ Largest and most advanced collection of unified Nagios monitoring code in the wi
 
 Largest collection of Hadoop & NoSQL monitoring code for Nagios, written by a former Clouderan (Cloudera was the first Hadoop Big Data vendor).
 
+Hadoop and extensive API integration with all major Hadoop vendors (Hortonworks, Cloudera, MapR, IBM).
+
 I've been developing this Nagios Plugin Collection since 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
-This should be the next stop after installing Nagios with it's basic plugins, especially for those running web or NoSQL technologies (Hadoop, Cassandra, HBase, Redis, Riak, MongoDB etc).
+This should be the next stop after installing Nagios with it's basic plugins, especially for people running Web, Hadoop or NoSQL technologies (Cassandra, HBase, MongoDB, Redis, Riak etc).
 
-These programs can also be run standalone on the command line or used in scripts as well as called in Nagios.
+These programs can also be run standalone on the command line as tools and used in scripts as well as run via Nagios.
 
 Professional Services for support, additional programs and upgrades to existing programs in this collection are available via contract.
 
