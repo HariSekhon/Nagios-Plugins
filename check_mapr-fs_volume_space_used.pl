@@ -57,7 +57,9 @@ $status = "OK";
 my $url = "/volume/list";
 $url .= "?" if($cluster or $volume);
 $url .= "cluster=$cluster&" if $cluster;
-$url .= "filter=[volumename==$volume]" if $volume;
+$url .= "filter=[volumename==$volume]&" if $volume;
+$url .= "columns=volumename,mountdir,logicalUsed,totalused" unless ($debug or $verbose > 3);
+$url =~ s/&$//;
 
 $json = curl_mapr $url, $user, $password;
 
