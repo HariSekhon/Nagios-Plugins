@@ -119,10 +119,6 @@ foreach my $vol (sort keys %vols){
             }
         }
     }
-    #$msg .= " logical used = '$vols{$vol}{logicalUsed}'";
-    #check_thresholds($vols{$vol}{"logicalUsed"}) if $logical_used;
-    #$msg .= " total used = '$vols{$vol}{totalused}'";
-    #check_thresholds($vols{$vol}{"totalused"}) unless $logical_used;
     $msg .= ", ";
 }
 $msg =~ s/, $//;
