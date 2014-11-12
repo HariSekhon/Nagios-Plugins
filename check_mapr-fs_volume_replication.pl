@@ -56,7 +56,7 @@ list_volumes();
 $volume  = validate_volume($volume);
 isInt($replication_factor) or usage "replication factor is not an integer";
 validate_int($replication_factor, "replication factor", $replication_factor_min, $replication_factor_max);
-validate_thresholds(0, 0, { "simple" => "lower", "integer" => 0, "positive" => 1, "min" => 0, "max" => 100});
+validate_thresholds(1, 1, { "simple" => "lower", "integer" => 0, "positive" => 1, "min" => 0, "max" => 100});
 
 vlog2;
 set_timeout();
