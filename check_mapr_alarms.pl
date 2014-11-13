@@ -91,7 +91,7 @@ foreach my $item (@data){
     next if($exclude_core    and $alarm_name eq "NODE_ALARM_CORE_PRESENT"); 
     next if($exclude_license and $alarm_name eq "CLUSTER_ALARM_LICENSE_NEAR_EXPIRATION"); 
     $alarm_time  = get_field2($item, "alarm statechange time");
-    $description  = get_field2($item, "alarm statechange time");
+    $description  = get_field2($item, "description");
     next if($exclude_unknown_service_state and $description =~ /Can not determine if service: .+ is running/i); 
     if($entity_alarms{$entity}{$alarm_name}){
         if($alarm_time > $entity_alarms{$entity}{$alarm_name}{"alarm_time"}){
