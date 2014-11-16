@@ -116,7 +116,7 @@ yum-packages:
 	# for XML::Simple building
 	yum install -y expat-devel || :
 	# for Cassandra's Python driver
-	yum install -y python-setuptools python-devel libev libev-devel snappy-devel || :
+	yum install -y python-setuptools python-devel libev libev-devel libsnappy-devel || :
 
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
