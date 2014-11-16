@@ -69,6 +69,7 @@ install:
 		Test::SharedFork \
 		Thrift \
 		Time::HiRes \
+		Type::Tiny::XS \
 		SMS::AQL \
 		URI::Escape \
 		XML::Simple \
@@ -99,6 +100,8 @@ apt-packages:
 	apt-get install -y libdbd-mysql-perl libmysqlclient-dev || :
 	# for XML::Simple building
 	apt-get install -y libexpat1-dev || :
+	# TODO: for LWP::Authenticate - prompts for realm + KDC, doesn't seem automatable and not properly tested yet
+	#apt-get install -y krb5-config || :
 	# for Cassandra's Python driver
 	apt-get install -y python-setuptools python-dev libev4 libev-dev || :
 
