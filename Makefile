@@ -78,7 +78,8 @@ install:
 	# Intentionally ignoring CPAN module build failures since some modules may fail for a multitude of reasons but this isn't really important unless you need the pieces of code that use them in which case you can solve those dependencies later
 	
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
-	sudo easy_install -U setuptools || :
+	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
+	easy_install -U setuptools || :
 	sudo easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	sudo pip install cassandra-driver scales blist lz4 python-snappy || :
@@ -103,7 +104,7 @@ apt-packages:
 	# TODO: for LWP::Authenticate - prompts for realm + KDC, doesn't seem automatable and not properly tested yet
 	#apt-get install -y krb5-config || :
 	# for Cassandra's Python driver
-	apt-get install -y python-setuptools python-dev libev4 libev-dev || :
+	apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev || :
 
 .PHONY: yum-packages
 yum-packages:
