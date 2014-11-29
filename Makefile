@@ -5,18 +5,16 @@
 #  http://github.com/harisekhon
 #
 
-.PHONY: install
-install:
-	@#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
-	@# putting modules one per line just for ease of maintenance
-	#
-	# Dependencies:
-	#
-	# DBD::mysql - if building CPAN module then you need the mysql-devel / libmysqlclient-dev package for RHEL / Ubuntu
-	#
+.PHONY: make
+make:
 	[ -x /usr/bin/apt-get ] && make apt-packages || :
 	[ -x /usr/bin/yum ]     && make yum-packages || :
 	
+	git submodule init
+	git submodule update
+
+	cd lib && make
+
 	# There are problems with the tests for this module dependency of Net::Async::CassandraCQL, forcing install works and allows us to use check_cassandra_write.pl
 	#sudo cpan -f IO::Async::Stream
 
@@ -44,7 +42,10 @@ install:
 	# You may need to set this to get the DBD::mysql module to install if you have mysql installed locally to /usr/local/mysql
 	#export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/usr/local/mysql/lib/"
 
-	# add -E to sudo to preserve http proxy env vars or run this manually if needed
+	@#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
+	@# putting modules one per line just for ease of maintenance
+	#
+	# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
 	yes | sudo cpan \
 		Class:Accessor \
 		Data::Dumper \
@@ -88,9 +89,6 @@ install:
 	# fails if MySQL isn't installed locally
 	#sudo pip install MySQLdb
 
-	git submodule init
-	git submodule update
-
 
 .PHONY: apt-packages
 apt-packages:
@@ -133,12 +131,23 @@ zookeeper:
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	sudo make install
 	perl -e "use Net::ZooKeeper"
 
-.PHONY: clean
-clean:
-	rm -fr zookeeper-$(ZOOKEEPER_VERSION).tar.gz zookeeper-$(ZOOKEEPER_VERSION)
+
+.PHONY: test
+test:
+	cd lib && make test
+	# TODO: add my functional tests back in here	
+
+.PHONY: install
+install:
+	@echo "No installation needed, just add '$(PWD)' to your \$$PATH and Nagios commands.cfg"
 
 .PHONY: update
 update:
 	git pull
 	git submodule update
-	make install
+	make
+	make test
+
+.PHONY: clean
+clean:
+	rm -fr zookeeper-$(ZOOKEEPER_VERSION).tar.gz zookeeper-$(ZOOKEEPER_VERSION)
