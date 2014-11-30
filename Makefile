@@ -52,6 +52,7 @@ make:
 		DBD::mysql \
 		DBI \
 		Digest::SHA \
+		IO::Socket::SSL \
 		JSON \
 		JSON:XS \
 		LWP::Authen::Negotiate \
@@ -97,6 +98,8 @@ apt-packages:
 	apt-get install -y build-essential libwww-perl git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	apt-get install -y libdbd-mysql-perl libmysqlclient-dev || :
+	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
+	apt-get install -y libssl-dev || :
 	# for XML::Simple building
 	apt-get install -y libexpat1-dev || :
 	# TODO: for LWP::Authenticate - prompts for realm + KDC, doesn't seem automatable and not properly tested yet
@@ -111,6 +114,8 @@ yum-packages:
 	yum install -y perl-CPAN perl-libwww-perl git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	yum install -y perl-DBD-MySQL mysql-devel || :
+	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
+	yum install -y openssl-devel || :
 	# for XML::Simple building
 	yum install -y expat-devel || :
 	# for Cassandra's Python driver
