@@ -102,6 +102,8 @@ apt-packages:
 	apt-get install -y libssl-dev || :
 	# for XML::Simple building
 	apt-get install -y libexpat1-dev || :
+	# for check_whois.pl
+	apt-get install -y jwhois || :
 	# TODO: for LWP::Authenticate - prompts for realm + KDC, doesn't seem automatable and not properly tested yet
 	#apt-get install -y krb5-config || :
 	# for Cassandra's Python driver
@@ -118,6 +120,8 @@ yum-packages:
 	yum install -y openssl-devel || :
 	# for XML::Simple building
 	yum install -y expat-devel || :
+	# for check_whois.pl
+	yum install -y jwhois || :
 	# for Cassandra's Python driver
 	yum install -y python-setuptools python-devel libev libev-devel libsnappy-devel || :
 
@@ -148,10 +152,14 @@ install:
 
 .PHONY: update
 update:
-	git pull
-	git submodule update
+	make update2
 	make
 	make test
+
+.PHONY: update2
+update2:
+	git pull
+	git submodule update
 
 .PHONY: clean
 clean:
