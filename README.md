@@ -160,7 +160,7 @@ sudo make install
 ```
 After this check it's properly installed by doing
 ```perl -e "use Net::ZooKeeper"```
-which should return without errors or output if successful.
+which should return no errors if successful.
 
 ###### MongoDB / Readonly library bug ######
 
