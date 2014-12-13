@@ -33,6 +33,11 @@ Checks:
 I have used this in production for nearly 800 domains across a great variety of over 100 TLDs/second-level domains last I checked, including:
 
 ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at, co.il, co.in, co.kr, co.nz, co.nz, co.uk, co.uk, com, com, com.au, com.au, com.bo, com.br, com.cn, com.ee, com.hk, com.hk, com.mx, com.mx, com.my, com.pe, com.pl, com.pt, com.sg, com.sg, com.tr, com.tw, com.tw, com.ve, de, dk, dk, eu, fi, fm, fm, fr, gs, hk, hk, hu, idv.tw, ie, in, info, info, io, it, it, jp, jp, kr, lu, me, me.uk, mobi, mobi, ms, mx, mx, my, name, net, net, net.au, net.br, net.cn, net.nz, nf, nl, no, nu, org, org, org.cn, org.nz, org.tw, org.uk, org.uk, pl, ru, se, sg, sg, sh, tc, tel, tel, tl, tm, tv, tv, tv.br, tw, us, us, vg, xxx
+
+DISCLAIMER:
+
+1. TLDs can change/revoke whois info at any time, so this code will need updating should such occasions arise
+2. some TLDs for some small countries don't even have whois servers, this is handled in code where I know of it to state such
 ";
 
 # Whois perl libraries aren't great so calling whois binary and checking manually
@@ -43,9 +48,6 @@ ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at,
 
 # Not the most beautiful piece of code I ever wrote but still more extensive than anything out
 # there esp thanks to the leveraging of my Nagios lib
-
-# DISCLAIMER: TLDs can change/revoke whois info at any time, so this code will need updating should such occasions arise
-#             some TLDs for some small countries don't even have whois servers, this is handled in code where I know of it to state such
 
 # WARNING: DO NOT EDIT THIS PLUGIN, A SIMPLE CHANGE CAN RADICALLY ALTER THE LOGIC AND DATE PARSING/MANIPULATIONS
 # GIVING A FALSE SENSE OF SECURITY, SAME GOES FOR THE TESTS ACCOMPANYING IT, CHECK WITH HARI SEKHON FIRST
@@ -73,7 +75,7 @@ ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at,
 # Update: I have used this in production for nearly 800 domains across a great variety of over 100 TLDs/second-level domains last I checked, including:
 # ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at, co.il, co.in, co.kr, co.nz, co.nz, co.uk, co.uk, com, com, com.au, com.au, com.bo, com.br, com.cn, com.ee, com.hk, com.hk, com.mx, com.mx, com.my, com.pe, com.pl, com.pt, com.sg, com.sg, com.tr, com.tw, com.tw, com.ve, de, dk, dk, eu, fi, fm, fm, fr, gs, hk, hk, hu, idv.tw, ie, in, info, info, io, it, it, jp, jp, kr, lu, me, me.uk, mobi, mobi, ms, mx, mx, my, name, net, net, net.au, net.br, net.cn, net.nz, nf, nl, no, nu, org, org, org.cn, org.nz, org.tw, org.uk, org.uk, pl, ru, se, sg, sg, sh, tc, tel, tel, tl, tm, tv, tv, tv.br, tw, us, us, vg, xxx
 
-$VERSION = "0.10.0";
+$VERSION = "0.10.1";
 
 use strict;
 use warnings;
@@ -201,7 +203,29 @@ my $expiry_not_checked_msg = "EXPIRY NOT CHECKED for domain $domain, ";
 
 my @dns_servers;
 @{$results{"status"}} = ();
-my @valid_statuses = qw/Active ACTIVO Granted registered ok published Complete Delegated VERIFIED connect HOLD RENEWPERIOD clientDeleteProhibited clientRenewProhibited clientTransferProhibited clientUpdateProhibited CLIENT-RENEW-PROHIBITED CLIENT-XFER-PROHIBITED CLIENT-UPDATE-PROHIBITED CLIENT-DELETE-PROHIBITED/;
+my @valid_statuses = qw/
+                        ACTIVO
+                        Active
+                        CLIENT-DELETE-PROHIBITED
+                        CLIENT-RENEW-PROHIBITED
+                        CLIENT-UPDATE-PROHIBITED
+                        CLIENT-XFER-PROHIBITED
+                        Complete
+                        Delegated
+                        Granted
+                        HOLD
+                        RENEWPERIOD
+                        VERIFIED
+                        clientDeleteProhibited
+                        clientRenewProhibited
+                        clientTransferProhibited
+                        clientUpdateProhibited
+                        connect
+                        ok
+                        published
+                        registered
+                        /;
+# add valid statuses with spaces in them
 push(@valid_statuses,
     (
         "200 Active",
@@ -377,11 +401,13 @@ foreach(@output){
     } elsif(/^Modified:?\s*(\d{1,2}) (\w{3}) (\d{4}) \d{1,2}:\d{1,2} \w{3}\s*$/io or
             /^Modified:\s*(\d{1,2})\s+([a-z]{3})\s+(\d{4})\s*$/io){
         $results{"updated"} = "$1-$2-$3";
-    } elsif (/(?:status|domaintype):\s*([\w \t-]+)/io or
+    } elsif (/(?:status|domaintype):\s*([\w\s-]+)/io or
              /\[Status\]\s+(.+?)\s*$/o or
              /^\s*Estatus del dominio:\s*(.+?)\s*$/){
-        push(@{$results{"status"}}, strip($1));
-    } elsif (/^state:\s*([\w \t,-]+)\s*$/io){
+        my $domain_status = strip($1);
+        $domain_status =~ s/\s+https?$//i;
+        push(@{$results{"status"}}, $domain_status);
+    } elsif (/^state:\s*([\w\s,-]+)\s*$/io){
         my @states = split(",", $1);
         foreach(@states){
             push(@{$results{"status"}}, strip($_));
