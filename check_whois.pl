@@ -354,7 +354,8 @@ foreach(@output){
         $results{"expiry"} = "$day-$month-$year";
         vlog2("Expiry: $results{expiry}");
     } elsif(/^\s*Expiration Date:\s*(\d{4})-(\d{2})-(\d{2})(?:T\d{2}:\d{2}:\d{2}[A-Z]?)?\s*$/o or
-            /^\s*Registry Expiry Date:\s*(\d{4})-(\d{2})-(\d{2})(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?[A-Z]?)?\s*$/o){
+            /^\s*Registry Expiry Date:\s*(\d{4})-(\d{2})-(\d{2})(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?[A-Z]?)?\s*$/o or
+            /^\s*Registrar Registration Expiration Date:\s*(\d{4})-(\d{2})-(\d{2})(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?[A-Z]?)?\s*$/o){
         ($day, $month, $year) = ($3, $2, $1);
         $results{"expiry"} = "$day-$month-$year";
     } elsif (/^\s*(?:Query:|Domain(?:[ _]?Name)?\s*(?:\(ASCII\))?[.:]+)\s*(.+?)\s*$/io or
