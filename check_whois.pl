@@ -353,9 +353,8 @@ foreach(@output){
         ($day, $month, $year) = ($3, $2, $1);
         $results{"expiry"} = "$day-$month-$year";
         vlog2("Expiry: $results{expiry}");
-    } elsif(/^\s*Expiration Date:\s*(\d{4})-(\d{2})-(\d{2})(?:T\d{2}:\d{2}:\d{2}[A-Z]?)?\s*$/o or
-            /^\s*Registry Expiry Date:\s*(\d{4})-(\d{2})-(\d{2})(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?[A-Z]?)?\s*$/o or
-            /^\s*Registrar Registration Expiration Date:\s*(\d{4})-(\d{2})-(\d{2})(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?[A-Z]?)?\s*$/o){
+    # GoDaddy registration dates eg. 'Registrar Registration Expiration Date: 2015-09-02T16:50:03Z'
+    } elsif(/^\s*(?:Expiration|Registry Expiry|Registrar Registration Expiration) Date:\s*(\d{4})-(\d{2})-(\d{2})(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?[A-Z]?)?\s*$/o){
         ($day, $month, $year) = ($3, $2, $1);
         $results{"expiry"} = "$day-$month-$year";
     } elsif (/^\s*(?:Query:|Domain(?:[ _]?Name)?\s*(?:\(ASCII\))?[.:]+)\s*(.+?)\s*$/io or
