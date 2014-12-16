@@ -21,7 +21,7 @@ or
 
 Tested on Ambari 1.4.4 / 1.6.1 on Hortonworks HDP 2.0 and 2.1";
 
-$VERSION = "0.6.1";
+$VERSION = "0.6.2";
 
 use strict;
 use warnings;
@@ -99,17 +99,19 @@ sub get_service_state($){
     } else {
         unknown;
     }
-    $msg .= "$service_name state=$service_state";
+    $msg .= "$service_name=$service_state";
     if($verbose){
         $msg .= " (maintenance=$maintenance_state)";
     }
     return $msg;
 }
 
+$msg .= "Ambari service";
 if($service){
     $json = curl_ambari "$url_prefix/clusters/$cluster/services/$service?fields=ServiceInfo/state,ServiceInfo/maintenance_state";
-    $msg .= "service " . get_service_state($json);
+    $msg .= ": " . get_service_state($json);
 } else {
+    $msg .= "s: ";
     $json = curl_ambari "$url_prefix/clusters/$cluster/services?fields=ServiceInfo/state,ServiceInfo/maintenance_state";
     my @items = get_field_array("items");
     foreach(@items){
