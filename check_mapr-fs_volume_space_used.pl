@@ -86,7 +86,7 @@ if(not $found){
 }
 
 plural keys %vols;
-$msg .= "MapR-FS volume$plural space used ";
+$msg .= "MapR-FS volume$plural space used: ";
 foreach my $vol (sort keys %vols){
     $msg .= "'$vol'";
     $msg .= " ($vols{$vol}{mount})" if($verbose and $vols{$vol}{"mount"});
