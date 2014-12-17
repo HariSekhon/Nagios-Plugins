@@ -35,7 +35,7 @@ my $logical_used;
     %mapr_options,
     %mapr_option_cluster,
     %mapr_option_volume,
-    "logical-used"    =>  [ \$logical_used,   "Check logical space used instead of total space used (ie excluded snapshots from the total)" ],
+    "logical-used"    =>  [ \$logical_used,   "Check logical space used instead of total space used (ie uncompressed data size instead of actual disk used)" ],
     %thresholdoptions,
 );
 splice @usage_order, 6, 0, qw/volume cluster logical-used list-volumes list-clusters/;
