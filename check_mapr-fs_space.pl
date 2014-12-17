@@ -16,7 +16,7 @@ Tested on MapR 3.1.0 and 4.0.1";
 
 # Uses rlimit API endpoint, only disk resource is supported as of MapR 3.1, appears to be the same in 4.0
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -64,10 +64,10 @@ my $clusterSize   = get_field2($item, "clusterSize");
 my $pc_space_used = sprintf("%.2f", expand_units($currentUsage) / expand_units($limit) * 100);
 $msg .= "$pc_space_used% space used";
 check_thresholds($pc_space_used);
-$msg .= " [$currentUsage/$limit], total cluster size = $clusterSize, usable limit = $limit, currently used  = $currentUsage";
+$msg .= " [" . human_units(expand_units($currentUsage)) . "/" . human_units(expand_units($limit)) . "], total cluster size = " . human_units(expand_units($clusterSize)) . ", usable limit = " . human_units(expand_units($limit)) . ", currently used  = " . human_units(expand_units($currentUsage)) . " , remaining space = " . human_units(expand_units($limit) - expand_units($currentUsage));
 $msg .= " | '% space used'=$pc_space_used%";
 msg_perf_thresholds();
-$msg .= " 'current space usage'=$currentUsage 'usable space limit'=$limit 'total cluster size'=$clusterSize";
+$msg .= " 'current space usage'=$currentUsage 'usable space limit'=$limit 'total cluster size'=$clusterSize 'remaining space'=" . human_units(expand_units($limit) - expand_units($currentUsage));
 
 vlog2;
 quit $status, $msg;
