@@ -91,8 +91,7 @@ if(not $found){
     }
 }
 
-plural keys %vols;
-$msg .= "MapR-FS volume$plural replication ";
+$msg .= "MapR-FS volume replication ";
 foreach my $vol (sort keys %vols){
     $vols{$vol}{"total_min_rep"} = 0;
     my @rep = @{$vols{$vol}{"rep"}};
