@@ -10,7 +10,9 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-$DESCRIPTION = "Nagios Plugin to fetch the MapR-FS Balancer metrics via the maprcli command. Call over NRPE.";
+$DESCRIPTION = "Nagios Plugin to fetch the MapR-FS Balancer metrics via the maprcli command. Call over NRPE.
+
+Tested on MapR 4.0.1";
 
 $VERSION = "0.1";
 
