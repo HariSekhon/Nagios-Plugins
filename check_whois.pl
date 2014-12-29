@@ -220,11 +220,11 @@ my @valid_statuses = qw/
                         clientRenewProhibited
                         clientTransferProhibited
                         clientUpdateProhibited
-                        serverTransferProhibited
                         connect
                         ok
                         published
                         registered
+                        serverTransferProhibited
                         /;
 # add valid statuses with spaces in them
 push(@valid_statuses,
@@ -367,7 +367,7 @@ foreach(@output){
              ){
         $results{"domain"} = $1;
         vlog2("Domain Name: $results{domain}");
-        lc($results{"domain"}) eq lc($results{"domain"}) or quit "CRITICAL", "whois mismatch - returned domain '$results{domain}' instead of '$domain'";
+        lc($results{"domain"}) eq lc($domain) or quit "CRITICAL", "whois mismatch - returned domain '$results{domain}' instead of '$domain'";
     } elsif (/(?:Name ?Server|nserver|ns_name_\d{1,2})s?.*?(?:$hostname_regex\s+NS\s+)?($fqdn_regex|$ip_regex)\.?(\s+.+)?\s*$/io or
              /(?:prim|sec)ns\d?fqdn\s*:\s*($fqdn_regex)\s*$/io){
         my $nameserver = $1;
