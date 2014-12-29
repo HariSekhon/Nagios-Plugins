@@ -93,8 +93,7 @@ make:
 
 .PHONY: apt-packages
 apt-packages:
-	apt-get install -y gcc || :
-	# needed to fetch the library submodule at end of build
+	# needed to fetch and build CPAN modules and fetch the library submodule at end of build
 	apt-get install -y build-essential libwww-perl git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	apt-get install -y libdbd-mysql-perl libmysqlclient-dev || :
@@ -111,9 +110,8 @@ apt-packages:
 
 .PHONY: yum-packages
 yum-packages:
-	yum install -y gcc || :
-	# needed to fetch the library submodule at end of build
-	yum install -y perl-CPAN perl-libwww-perl git || :
+	# needed to fetch and build CPAN modules and fetch the library submodule at end of build
+	yum install -y gcc perl-CPAN perl-libwww-perl git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	yum install -y perl-DBD-MySQL mysql-devel || :
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
