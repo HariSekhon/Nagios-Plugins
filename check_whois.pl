@@ -367,7 +367,8 @@ foreach(@output){
              ){
         $results{"domain"} = $1;
         vlog2("Domain Name: $results{domain}");
-        lc($results{"domain"}) eq lc($domain) or quit "CRITICAL", "whois mismatch - returned domain '$results{domain}' instead of '$domain'";
+        # checking domain further down which accounts for EU peculiarity
+        #lc($results{"domain"}) eq lc($domain) or quit "CRITICAL", "whois mismatch - returned domain '$results{domain}' instead of '$domain'";
     } elsif (/(?:Name ?Server|nserver|ns_name_\d{1,2})s?.*?(?:$hostname_regex\s+NS\s+)?($fqdn_regex|$ip_regex)\.?(\s+.+)?\s*$/io or
              /(?:prim|sec)ns\d?fqdn\s*:\s*($fqdn_regex)\s*$/io){
         my $nameserver = $1;
