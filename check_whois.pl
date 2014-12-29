@@ -220,6 +220,7 @@ my @valid_statuses = qw/
                         clientRenewProhibited
                         clientTransferProhibited
                         clientUpdateProhibited
+                        serverTransferProhibited
                         connect
                         ok
                         published
