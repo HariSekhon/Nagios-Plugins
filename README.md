@@ -15,9 +15,7 @@ This should be the next stop after installing Nagios with it's basic plugins.
 
 These programs can also be run standalone on the command line as tools and used in scripts as well as run via Nagios.
 
-Professional Services for support, additional programs and upgrades to existing programs in this collection are available via contract.
-
-On-site contracts are usually reserved for Big Data projects.
+I also take suggestions for interesting new plugins or those involving interesting open source technologies.
 
 
 Hari Sekhon
