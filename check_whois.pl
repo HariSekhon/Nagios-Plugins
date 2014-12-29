@@ -75,7 +75,7 @@ DISCLAIMER:
 # Update: I have used this in production for nearly 800 domains across a great variety of over 100 TLDs/second-level domains last I checked, including:
 # ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at, co.il, co.in, co.kr, co.nz, co.nz, co.uk, co.uk, com, com, com.au, com.au, com.bo, com.br, com.cn, com.ee, com.hk, com.hk, com.mx, com.mx, com.my, com.pe, com.pl, com.pt, com.sg, com.sg, com.tr, com.tw, com.tw, com.ve, de, dk, dk, eu, fi, fm, fm, fr, gs, hk, hk, hu, idv.tw, ie, in, info, info, io, it, it, jp, jp, kr, lu, me, me.uk, mobi, mobi, ms, mx, mx, my, name, net, net, net.au, net.br, net.cn, net.nz, nf, nl, no, nu, org, org, org.cn, org.nz, org.tw, org.uk, org.uk, pl, ru, se, sg, sg, sh, tc, tel, tel, tl, tm, tv, tv, tv.br, tw, us, us, vg, xxx
 
-$VERSION = "0.10.1";
+$VERSION = "0.10.2";
 
 use strict;
 use warnings;
@@ -360,10 +360,10 @@ foreach(@output){
         $results{"expiry"} = "$day-$month-$year";
     } elsif (/^\s*(?:Query:|Domain(?:[ _]?Name)?\s*(?:\(ASCII\))?[.:]+)\s*(.+?)\s*$/io or
              /^(?:[a-z]?\s)?\[Domain Name\]\s+(.+?)\s*$/o or
-             /^Nome de [^\s]+\s*\/\s*Domain Name:\s*($domain_regex)\s*$/io or
-             /^\s*Nombre de Dominio:\s*($domain_regex)\s*$/io or
-             /^Dominio:\s*($domain_regex)/io or
-             /^Domain\s+\"?($domain_regex)\"?/io
+             /^Nome de [^\s]+\s*\/\s*Domain Name:\s*($domain_regex2)\s*$/io or
+             /^\s*Nombre de Dominio:\s*($domain_regex2)\s*$/io or
+             /^Dominio:\s*($domain_regex2)/io or
+             /^Domain\s+\"?($domain_regex2)\"?/io
              ){
         $results{"domain"} = $1;
         vlog2("Domain Name: $results{domain}");
@@ -438,7 +438,7 @@ foreach(my $i=0;$i<scalar @output;$i++){
     if($line =~ /^\s*Domain name:?\s*$/io){
         $output[$i+1] or last;
         $line = $output[$i+1] or code_error "hit end of output";
-        if($line =~ /($domain_regex)/o){
+        if($line =~ /($domain_regex2)/o){
             $results{"domain"} = $1;
         }
     } elsif($line =~ /^\s*Registrar:?\s*$/io){
@@ -571,7 +571,7 @@ if($results{"registrar"}){
     $results{"registrar"} =~ s/,?\s*(?:LLC|Inc|Ltd|S\.?A\.?S?|(?:Ltd )?R\d+-ASIA)?\.?(?:\s+\((?:[\w-]+|http:\/\/$hostname_regex)\))?\.?\s*$//io;
 } else {
     foreach(@output){
-        if (/^\[Querying\s+(?:http:\/\/)?($domain_regex)(?:$url_path_suffix_regex)?\]$/){
+        if (/^\[Querying\s+(?:http:\/\/)?($domain_regex2)(?:$url_path_suffix_regex)?\]$/){
             $results{"registrar"} = $1;
             $results{"registrar"} =~ s/(?:www|whois)\.//o;
         }
