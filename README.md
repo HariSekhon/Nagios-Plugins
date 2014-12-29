@@ -204,6 +204,8 @@ sudo pip install MySQL-python
 
 Run ```make update```. This will git pull and then git submodule update which is necessary to pick up corresponding library updates, then try to build again using 'make install' to fetch any new CPAN dependencies.
 
+To quickly git pull + submodule update but skip rebuilding all those dependencies run ```make update2``` (will miss new library dependencies - do full ```make update``` if you encounter issues).
+
 ### Usage --help ###
 
 All plugins come with --help which lists all options as well as giving a program description, often including a detailed account of what is checked in the code.
