@@ -75,7 +75,7 @@ DISCLAIMER:
 # Update: I have used this in production for nearly 800 domains across a great variety of over 100 TLDs/second-level domains last I checked, including:
 # ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at, co.il, co.in, co.kr, co.nz, co.nz, co.uk, co.uk, com, com, com.au, com.au, com.bo, com.br, com.cn, com.ee, com.hk, com.hk, com.mx, com.mx, com.my, com.pe, com.pl, com.pt, com.sg, com.sg, com.tr, com.tw, com.tw, com.ve, de, dk, dk, eu, fi, fm, fm, fr, gs, hk, hk, hu, idv.tw, ie, in, info, info, io, it, it, jp, jp, kr, lu, me, me.uk, mobi, mobi, ms, mx, mx, my, name, net, net, net.au, net.br, net.cn, net.nz, nf, nl, no, nu, org, org, org.cn, org.nz, org.tw, org.uk, org.uk, pl, ru, se, sg, sg, sh, tc, tel, tel, tl, tm, tv, tv, tv.br, tw, us, us, vg, xxx
 
-$VERSION = "0.10.2";
+$VERSION = "0.10.3";
 
 use strict;
 use warnings;
@@ -291,6 +291,7 @@ if($tld eq "ar"){
     }
 }
 
+my %domain_mismatches;
 foreach(@output){
     if(/\[.*Unable to connect to remote host.*\]/io or
        /\[.*Name or service not known.*\]/io or
@@ -365,6 +366,12 @@ foreach(@output){
              /^Dominio:\s*($domain_regex2)/io or
              /^Domain\s+\"?($domain_regex2)\"?/io
              ){
+        if($results{"domain"}){
+            unless($results{"domain"} eq $1){
+                $domain_mismatches{$results{"domain"}} = 1;
+                $domain_mismatches{$1} = 1;
+            }
+        }
         $results{"domain"} = $1;
         vlog2("Domain Name: $results{domain}");
         # checking domain further down which accounts for EU peculiarity
@@ -758,6 +765,10 @@ if($results{"domain"}){
     unless(lc($results{"domain"}) eq lc($domain)){
         warning;
         $msg = "domain mismatch!!! (expected '$domain', got '$results{domain}') $msg";
+    }
+    if(%domain_mismatches){
+        warning;
+        $msg = sprintf("mismatching domain found multiple (%d) times in registrar output: %s - raise a ticket on github for a fix https://github.com/harisekhon/nagios-plugins/issues. %s", scalar keys %domain_mismatches,  join(" vs ", sort keys %domain_mismatches), $msg);
     }
 }
 my @not_found_expected;
