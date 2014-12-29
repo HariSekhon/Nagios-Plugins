@@ -111,17 +111,17 @@ apt-packages:
 .PHONY: yum-packages
 yum-packages:
 	# needed to fetch and build CPAN modules and fetch the library submodule at end of build
-	yum install -y gcc perl-CPAN perl-libwww-perl git || :
+	rpm -q gcc perl-CPAN perl-libwww-perl git || yum install -y gcc perl-CPAN perl-libwww-perl git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	yum install -y perl-DBD-MySQL mysql-devel || :
+	rpm -q perl-DBD-MySQL mysql-devel || yum install -y perl-DBD-MySQL mysql-devel || :
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	yum install -y openssl-devel || :
+	rpm -q openssl-devel || yum install -y openssl-devel || :
 	# for XML::Simple building
-	yum install -y expat-devel || :
+	rpm -q expat-devel || yum install -y expat-devel || :
 	# for check_whois.pl
-	yum install -y jwhois || :
+	rpm -q jwhois || yum install -y jwhois || :
 	# for Cassandra's Python driver
-	yum install -y python-setuptools python-devel libev libev-devel libsnappy-devel || :
+	rpm -q python-setuptools python-devel libev libev-devel libsnappy-devel || yum install -y python-setuptools python-devel libev libev-devel libsnappy-devel || :
 
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
