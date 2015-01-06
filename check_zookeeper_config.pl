@@ -60,7 +60,7 @@ my $no_warn_missing   = 0;
     "P|port=s"          => [ \$port,             "Port to connect to (defaults: $ZK_DEFAULT_PORT, set to 5181 for MapR, \$ZOOKEEPER_PORT, \$PORT)" ],
     "C|config=s"        => [ \$conf,             "ZooKeeper config file (defaults to $ZK_DEFAULT_CONFIG)" ],
     "e|no-warn-extra"   => [ \$no_warn_extra,    "Don't warn on extra config detected on ZooKeeper server that isn't specified in config file (serverId is omitted either way)" ],
-    "m|no-warn-missing" => [ \$no_warn_missing,  "Don't warn on missing config detected on ZooKeeper server that was expected from config file (see Bug note in --help description header" ],
+    "m|no-warn-missing" => [ \$no_warn_missing,  "Don't warn on missing config detected on ZooKeeper server that was expected from config file (see Bug note in --help description header)" ],
 );
 
 @usage_order = qw/host port config no-warn-extra/;
