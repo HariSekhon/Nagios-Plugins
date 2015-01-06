@@ -23,7 +23,7 @@ Checks:
 5. stats - full stats breakdown
 6. also reports ZooKeeper version
 
-Tested on ZooKeeper 3.4.5. Requires ZooKeeper 3.4 onwards due to isro and mntr 4lw checks";
+Tested on ZooKeeper 3.4.5 and 3.4.6 on Cloudera, Hortonworks and MapR. Requires ZooKeeper 3.4 onwards due to isro and mntr 4lw checks";
 
 $VERSION = "0.6.4";
 
@@ -40,8 +40,8 @@ use HariSekhon::ZooKeeper;
 my $standalone;
 
 %options = (
-    "H|host=s"       => [ \$host,       "ZooKeeper Host to connect to" ],
-    "P|port=s"       => [ \$port,       "ZooKeeper Client Port to connect to (defaults to $ZK_DEFAULT_PORT, set to 5181 for MapR)" ],
+    "H|host=s"       => [ \$host,       "ZooKeeper Host to connect to (\$ZOOKEEPER_HOST, \$HOST)" ],
+    "P|port=s"       => [ \$port,       "ZooKeeper Client Port to connect to (defaults to $ZK_DEFAULT_PORT, set to 5181 for MapR, \$ZOOKEEPER_PORT, \$PORT)" ],
     "w|warning=s"    => [ \$warning,    "Warning  threshold or ran:ge (inclusive) for avg latency"  ],
     "c|critical=s"   => [ \$critical,   "Critical threshold or ran:ge (inclusive) for avg latency" ],
     "s|standalone"   => [ \$standalone, "OK if mode is standalone (by default expects leader/follower mode as part of a proper ZooKeeper cluster with quorum)" ],
@@ -49,7 +49,7 @@ my $standalone;
 
 get_options();
 
-$host    = validate_host($host);
+$host = validate_host($host);
 $port = validate_port($port);
 validate_thresholds(undef, undef, { "integer" => 1 });
 
