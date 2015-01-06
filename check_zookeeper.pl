@@ -23,7 +23,7 @@ Checks:
 5. stats - full stats breakdown
 6. also reports ZooKeeper version
 
-Tested on ZooKeeper 3.4.5 and 3.4.6 on Cloudera, Hortonworks and MapR. Requires ZooKeeper 3.4 onwards due to isro and mntr 4lw checks";
+Tested on ZooKeeper 3.4.5 and 3.4.6 Apache, Cloudera, Hortonworks and MapR. Requires ZooKeeper 3.4 onwards due to isro and mntr 4lw checks";
 
 $VERSION = "0.6.4";
 
