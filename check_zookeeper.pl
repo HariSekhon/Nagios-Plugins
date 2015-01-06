@@ -25,7 +25,7 @@ Checks:
 
 Tested on ZooKeeper 3.4.5 and 3.4.6 Apache, Cloudera, Hortonworks and MapR. Requires ZooKeeper 3.4 onwards due to isro and mntr 4lw checks";
 
-$VERSION = "0.6.4";
+$VERSION = "0.7";
 
 use strict;
 use warnings;
@@ -36,6 +36,7 @@ BEGIN {
 }
 use HariSekhonUtils;
 use HariSekhon::ZooKeeper;
+use Time::HiRes 'time';
 
 my $standalone;
 
@@ -258,9 +259,11 @@ foreach(sort keys %mntr){
 my $tmpfh;
 my $statefile = "/tmp/$progname.$host.$port.state";
 vlog2 "opening state file '$statefile'\n";
+my $new_statefile = 0;
 if(-f $statefile){
     open $tmpfh, "+<$statefile" or quit "UNKNOWN", "Error: failed to open state file '$statefile': $!";
 } else {
+    $new_statefile = 1;
     open $tmpfh, "+>$statefile" or quit "UNKNOWN", "Error: failed to create state file '$statefile': $!";
 }
 flock($tmpfh, LOCK_EX | LOCK_NB) or quit "UNKNOWN", "Failed to aquire a lock on state file '$statefile', another instance of this plugin was running?";
@@ -270,7 +273,7 @@ my $last_timestamp;
 my %last_stats;
 if($last_line){
     vlog2 "last line of state file: <$last_line>\n";
-    if($last_line =~ /^(\d+)\s+
+    if($last_line =~ /^(\d+(?:\.\d+)?)\s+
                        (\d+)\s+
                        (\d+)\s+
                        (\d+)\s*$/x){
@@ -279,22 +282,29 @@ if($last_line){
         $last_stats{"zk_packets_received"}      = $3,
         $last_stats{"zk_packets_sent"}          = $4,
     } else {
-        print "state file contents didn't match expected format\n\n";
+        vlog2 "state file contents didn't match expected format\n";
     }
 } else {
-    vlog2 "no state file contents found\n\n";
+    vlog2 "no state file contents found\n";
 }
 my $missing_stats = 0;
-foreach(keys %last_stats){
-    unless($last_stats{$_} =~ /^\d+$/){
-        print "'$_' stat was not found in state file\n";
+unless(defined($last_timestamp)){
+    vlog2 "last timestamp was not found in state file (" . ($last_line ? "invalid format" : "empty contents") . ")";
+    $missing_stats = 1;
+}
+foreach(qw/zk_outstanding_requests zk_packets_received zk_packets_sent/){
+    unless(defined($last_stats{$_}) and $last_stats{$_} =~ /^\d+$/){
+        vlog2 "'$_' stat was not found in state file (" . ($last_line ? "invalid format" : "empty contents") . ")";
         $missing_stats = 1;
-        last;
     }
 }
-if(not $last_timestamp or $missing_stats){
-        print "missing or incorrect stats in state file, resetting to current values\n\n";
-        $last_timestamp = $now;
+if($missing_stats){
+    if($new_statefile){
+        vlog2 "no state file existed, this run will populate initial state - results will be available from next run\n";
+    } else {
+        vlog2 "missing or incorrect stats in state file, resetting to current values\n";
+    }
+    $last_timestamp = $now;
 }
 seek($tmpfh, 0, 0)  or quit "UNKNOWN", "Error: seek failed: $!\n";
 truncate($tmpfh, 0) or quit "UNKNOWN", "Error: failed to truncate '$statefile': $!";
@@ -312,30 +322,30 @@ close $tmpfh;
 
 my $secs = $now - $last_timestamp;
 
+my %stats_diff;
 if($secs < 0){
     quit "UNKNOWN", "Last timestamp was in the future! Resetting...";
-} elsif ($secs == 0){
-    quit "UNKNOWN", "0 seconds since last run, aborting...";
-}
-
-my %stats_diff;
-foreach(@stats){
-    #next if ($_ eq "Node count");
-    $stats_diff{$_} = int((($mntr{$_} - $last_stats{$_} ) / $secs) + 0.5);
-    if ($stats_diff{$_} < 0) {
-        quit "UNKNOWN", "recorded stat $_ is higher than current stat, resetting stats";
+#} elsif ($secs == 0){
+#    quit "UNKNOWN", "0 seconds since last run, aborting...";
+} elsif ($secs >= 1){
+    foreach(@stats){
+        #next if ($_ eq "Node count");
+        $stats_diff{$_} = int((($mntr{$_} - $last_stats{$_} ) / $secs) + 0.5);
+        if ($stats_diff{$_} < 0) {
+            quit "UNKNOWN", "recorded stat $_ is higher than current stat, resetting stats";
+        }
     }
-}
 
-if($verbose >= 2){
-    print "epoch now:                           $now\n";
-    print "last run epoch:                      $last_timestamp\n";
-    print "secs since last check:               $secs\n\n";
-    printf "%-30s %-20s %-20s %-20s\n", "Stat", "Current", "Last", "Diff/sec";
-    foreach(sort keys %stats_diff){
-        printf "%-30s %-20s %-20s %-20s\n", $_, $mntr{$_}, $last_stats{$_}, $stats_diff{$_};
+    if($verbose >= 2){
+        print "epoch now:                           $now\n";
+        print "last run epoch:                      $last_timestamp\n";
+        print "secs since last check:               $secs\n\n";
+        printf "%-30s %-20s %-20s %-20s\n", "Stat", "Current", "Last", "Diff/sec";
+        foreach(sort keys %stats_diff){
+            printf "%-30s %-20s %-20s %-20s\n", $_, $mntr{$_}, $last_stats{$_}, $stats_diff{$_};
+        }
+        print "\n\n";
     }
-    print "\n\n";
 }
 
 #sub compare_zooresults {
@@ -365,15 +375,27 @@ $msg .= "avg latency $mntr{zk_avg_latency}";
 check_thresholds($mntr{"zk_avg_latency"});
 #$msg .= "Latency min/avg/max $mntr{zk_min_latency}/$mntr{zk_avg_latency}/$mntr{zk_max_latency}, ";
 $msg .= ", version $mntr{zk_version}";
-$msg .= " | ";
-foreach(sort keys %stats_diff){
-    $msg .= "'$_/sec'=$stats_diff{$_} ";
-}
-foreach(sort keys %mntr){
-    next if ($_ eq "zk_version" or $_ eq "zk_server_state");
-    $msg .= "$_=$mntr{$_} ";
-}
-foreach(sort keys %wchs){
-    $msg .= "wchs_$_=$wchs{$_} ";
+if($secs >= 1){
+    $msg .= " | ";
+    foreach(sort keys %stats_diff){
+        $msg .= "'$_/sec'=$stats_diff{$_} ";
+    }
+    foreach(sort keys %mntr){
+        next if ($_ eq "zk_version" or $_ eq "zk_server_state");
+        $msg .= "$_=$mntr{$_} ";
+    }
+    foreach(sort keys %wchs){
+        $msg .= "wchs_$_=$wchs{$_} ";
+    }
+} else {
+    if($new_statefile){
+        $msg .= " (state file wasn't found, stats will be available from next run)";
+    } elsif($missing_stats){
+        $msg .= " (missing or incorrect state file stats, should have been reset now and available from next run)";
+    } elsif(not $secs >= 1 and not $missing_stats){
+        $msg .= " (less than 1 sec since last run, won't output stats on this run since they wouldn't be an accurate delta)";
+    } else {
+        $msg .= " (stats not available, will attempt to re-set state this run to return correct stats on next run, if that doesn't fix it: $nagios_plugins_support_msg)";
+    }
 }
 quit $status, $msg;
