@@ -26,6 +26,8 @@ Checks:
 
 Checks 3-5 and 8 are skipped when specifying --null znodes
 
+Tested on ZooKeeper 3.4.5 and 3.4.6 Apache, Cloudera, Hortonworks and MapR.
+
 ================================================================================
                             Some useful examples:
 ================================================================================
@@ -127,8 +129,8 @@ my $check_no_child_znodes = 0;
 $port = $ZK_DEFAULT_PORT;
 
 %options = (
-    "H|host=s"          => [ \$host,                  "ZooKeeper node(s) to connect to, should be a comma separated list of ZooKeepers the same as are configured on the ZooKeeper servers themselves (node1:$ZK_DEFAULT_PORT,node2:$ZK_DEFAULT_PORT,node3:$ZK_DEFAULT_PORT). It takes longer to connect to 3 ZooKeepers than just one of them (around 5 secs per ZooKeeper specified + (session-timeout x any offline ZooKeepers) so you will need to increase --timeout). Connection order is deterministic and will be tried in the order specified unless --random-conn-order" ],
-    "P|port=s"          => [ \$port,                  "Port to connect to on ZooKeepers for any nodes not suffixed with :<port> (defaults to $ZK_DEFAULT_PORT, set to 5181 for MapR)" ],
+    "H|host=s"          => [ \$host,                  "ZooKeeper node(s) to connect to (\$ZOOKEEPER_HOST, \$HOST), should be a comma separated list of ZooKeepers the same as are configured on the ZooKeeper servers themselves with optional individual ports per server (node1:$ZK_DEFAULT_PORT,node2:$ZK_DEFAULT_PORT,node3:$ZK_DEFAULT_PORT). It takes longer to connect to 3 ZooKeepers than just one of them (around 5 secs per ZooKeeper specified + (session-timeout x any offline ZooKeepers) so you will need to increase --timeout). Connection order is deterministic and will be tried in the order specified unless --random-conn-order" ],
+    "P|port=s"          => [ \$port,                  "Port to connect to on ZooKeepers for any nodes not suffixed with :<port> (defaults to $ZK_DEFAULT_PORT, set to 5181 for MapR, \$ZOOKEEPER_PORT, \$PORT)" ],
     "z|znode=s"         => [ \$znode,                 "Znode to check exists. Useful for a variety of checks of ZooKeeper based services like HBase, SolrCloud, NameNode & JobTracker HA ZKFC" ],
     "n|null"            => [ \$null,                  "Do not check znode contents, use on null znodes such as SolrCloud /solr/live_nodes/<hostname>:8983_solr as the API segfaults when trying to retrieve data for these null znodes" ],
     "d|data=s"          => [ \$expected_data,         "Check given znode contains specific data (optional). This is a partial substring match, for more control use --regex with anchors. Careful when specifying non-printing characters which may appear as ?, may need to use regex to work around them with \".+\" to match any character" ],
