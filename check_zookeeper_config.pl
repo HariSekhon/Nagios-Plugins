@@ -20,6 +20,8 @@ Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Coll
 
 Requires ZooKeeper 3.3.0 onwards.
 
+Tested on ZooKeeper 3.x, 3.4.5 and 3.4.6 on Apache, Cloudera, Hortonworks and MapR.
+
 BUGS: there are bugs in ZooKeeper's live running config where it doesn't report all the configuration variables from the config file. I checked this with my colleague Patrick Hunt @ Cloudera who reviewed those additions. If you get a warning about missing config not found on running server then you can use the -m switch to ignore it but please also raise a ticket to create an exception for that variable at https://github.com/harisekhon/nagios-plugins/issues/new
 ";
 
@@ -54,8 +56,8 @@ my $no_warn_extra     = 0;
 my $no_warn_missing   = 0;
 
 %options = (
-    "H|host=s"          => [ \$host,             "Host to connect to (defaults: localhost)" ],
-    "P|port=s"          => [ \$port,             "Port to connect to (defaults: $ZK_DEFAULT_PORT, set to 5181 for MapR)" ],
+    "H|host=s"          => [ \$host,             "Host to connect to (defaults: localhost, \$ZOOKEEPER_HOST, \$HOST)" ],
+    "P|port=s"          => [ \$port,             "Port to connect to (defaults: $ZK_DEFAULT_PORT, set to 5181 for MapR, \$ZOOKEEPER_PORT, \$PORT)" ],
     "C|config=s"        => [ \$conf,             "ZooKeeper config file (defaults to $ZK_DEFAULT_CONFIG)" ],
     "e|no-warn-extra"   => [ \$no_warn_extra,    "Don't warn on extra config detected on ZooKeeper server that isn't specified in config file (serverId is omitted either way)" ],
     "m|no-warn-missing" => [ \$no_warn_missing,  "Don't warn on missing config detected on ZooKeeper server that was expected from config file (see Bug note in --help description header" ],
