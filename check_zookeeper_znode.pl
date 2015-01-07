@@ -99,7 +99,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 2. API segfaults if you try to check the contents of a null znode such as those kept by SolrCloud servers eg. /solr/live_nodes/<hostname>:8983_solr, must use --null to skip checks other than existence
 ";
 
-$VERSION = "0.5";
+$VERSION = "0.5.1";
 
 use strict;
 use warnings;
@@ -115,6 +115,9 @@ use Net::ZooKeeper qw/:DEFAULT :errors :log_levels/;
 
 my $default_zk_timeout = 2;
 my $zk_timeout = $default_zk_timeout;
+
+# Max num of chars to read from znode contents
+my $DATA_READ_LEN = 500;
 
 my $random_conn_order = 0;
 
@@ -312,7 +315,7 @@ $status = "OK";
 if($null){
     $msg = "znode '$znode' exists";
 } else {
-    my $data = $zkh->get($znode, 'data_read_len' => 100);
+    my $data = $zkh->get($znode, 'data_read_len' => $DATA_READ_LEN);
                          #'stat' => $stat, 'watch' => $watch)
                          #|| quit "CRITICAL", "failed to read data from znode $znode: $!";
     defined($data) or quit "CRITICAL", "no data returned for znode '$znode' from zookeepers '$zookeepers': " . $zkh->get_error();
