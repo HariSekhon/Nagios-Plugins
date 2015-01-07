@@ -12,7 +12,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the status of the MapR Role Balancer via the maprcli command. Call over NRPE.";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -39,7 +39,10 @@ set_timeout();
 $status = "OK";
 
 my $cmd = "$maprcli dump rolebalancerinfo -json";
-my @output = cmd($cmd, 1);
+my @output = cmd($cmd);
+foreach(@output){
+    /No active role switches/ and quit "OK", $_;
+}
 $json = join(" ", @output);
 $json = isJson($json) or quit "UNKNOWN", "invalid json returned by command '$cmd'";
 
