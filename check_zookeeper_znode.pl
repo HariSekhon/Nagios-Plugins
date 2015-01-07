@@ -99,7 +99,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 2. API segfaults if you try to check the contents of a null znode such as those kept by SolrCloud servers eg. /solr/live_nodes/<hostname>:8983_solr, must use --null to skip checks other than existence
 ";
 
-$VERSION = "0.5.1";
+$VERSION = "0.5.2";
 
 use strict;
 use warnings;
@@ -125,6 +125,7 @@ my $znode;
 my $null;
 my $expected_data;
 my $expected_regex;
+my $json_field;
 my $check_ephemeral       = 0;
 my $check_child_znodes    = 0;
 my $check_no_child_znodes = 0;
@@ -138,6 +139,7 @@ $port = $ZK_DEFAULT_PORT;
     "n|null"            => [ \$null,                  "Do not check znode contents, use on null znodes such as SolrCloud /solr/live_nodes/<hostname>:8983_solr as the API segfaults when trying to retrieve data for these null znodes" ],
     "d|data=s"          => [ \$expected_data,         "Check given znode contains specific data (optional). This is a partial substring match, for more control use --regex with anchors. Careful when specifying non-printing characters which may appear as ?, may need to use regex to work around them with \".+\" to match any character" ],
     "r|regex=s"         => [ \$expected_regex,        "Check given znode contains data matching this case insensitive regex (optional). Checked after --data" ],
+    "j|json-field=s"    => [ \$json_field,            "Require json znode contents and extract specific json field to check against --data and/or --regex (use field1.subfield2 for embedded fields, dot can can be escaped with backslash for fields containing a literal dot)" ],
     "e|ephemeral"       => [ \$check_ephemeral,       "Check given znode is ephemeral (optional)" ],
     "child-znodes"      => [ \$check_child_znodes,    "Check given znode has child znodes (optional)" ],
     "no-child-znodes"   => [ \$check_no_child_znodes, "Check given znode does not have child znodes (optional)" ],
@@ -172,7 +174,7 @@ if($progname eq "check_hbase_backup_masters_znode.pl"){
     $check_ephemeral = 1;
 }
 
-@usage_order = qw/host port znode data regex null ephemeral child-znodes no-child-znodes user password warning critical random-conn-order session-timeout/;
+@usage_order = qw/host port znode data regex json-field null ephemeral child-znodes no-child-znodes user password warning critical random-conn-order session-timeout/;
 get_options();
 
 $port = isPort($port) or usage "invalid ZooKeeper port given for all nodes";
@@ -202,6 +204,11 @@ $user     = validate_user($user)         if defined($user);
 $password = validate_password($password) if defined($password);
 
 $expected_regex = validate_regex($expected_regex) if defined($expected_regex);
+if($json_field){
+    $json_field =~ /^([\w\\.-]+)$/ or usage "invalid --json-field, must be alphanumeric, dots and backslash";
+    $json_field = $1;
+    vlog_options "json field", $json_field;
+}
 
 $zk_timeout = validate_float($zk_timeout, "zookeeper session timeout", 0.001, 100);
 
@@ -323,6 +330,10 @@ if($null){
     $data =~ s/\r//g;
     $data = trim($data);
     vlog3 "znode '$znode' data:\n\n$data\n";
+    if($json_field){
+        $data = isJson($data) or quit "CRITICAL", "znode '$znode' data is not json as expected, got '$data'";
+        $data = get_field2($data, $json_field);
+    }
 
     if(defined($expected_data)){
         unless(index($data, $expected_data) != -1){
