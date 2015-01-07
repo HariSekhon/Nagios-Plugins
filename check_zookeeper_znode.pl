@@ -83,6 +83,21 @@ check_hadoop_jobtracker_ha_zkfc_znode.pl -H <zookeepers>
 check_zookeeper_znode.pl -H <zookeepers> -z /hadoop-ha/logicaljt/ActiveStandbyElectorLock --ephemeral
 
 (ActiveBreadCrumb doesn't change to reflect real state without ZKFC when tested on CDH 4.3, so may as well test only the ZKFC elector lock which is released if the JobTracker for that ZKFC is down anyway)
+________________________________________________________________________________
+
+* Check Kafka broker is alive, extract its hostname and verify:
+
+check_zookeeper_znode.pl -H <zookeepers> -z /brokers/ids/0 --ephemeral --data server1.domain.com --json-field host -v
+________________________________________________________________________________
+
+* Check Kafka consumer is online:
+
+check_zookeeper_znode.pl -z /consumers/<group>/ids/<id> --ephemeral
+________________________________________________________________________________
+
+* Check Kafka consumer group offset:
+
+./check_zookeeper_znode.pl -z /consumers/<group>/offsets/<topic>/<partition> -v
 
 ================================================================================
 
