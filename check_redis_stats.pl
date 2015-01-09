@@ -144,7 +144,7 @@ sub process_stat($){
     return if $stat =~ /port/;
     if(isFloat($$info_hash{$stat})){
         $msgperf .= "$stat=$$info_hash{$stat} ";
-    } elsif($$info_hash{$stat} =~ /^(\d+(?:\.\d+)?)(B|(?:K|M|G|T|P)(?:B)?)$/i){
+    } elsif(@stats and $$info_hash{$stat} =~ /^(\d+(?:\.\d+)?)(B|(?:K|M|G|T|P)(?:B)?)$/i){
         $$info_hash{$stat} = expand_units($1, $2);
         $msgperf .= "$stat=$$info_hash{$stat} ";
     }
