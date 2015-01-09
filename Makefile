@@ -46,33 +46,40 @@ make:
 	@# putting modules one per line just for ease of maintenance
 	#
 	# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
+	# Redis module required but didn't auto-pull: ExtUtils::Config ExtUtils::Helpers ExtUtils::InstallPaths TAP::Harness::Env Module::Build::Tiny Sub::Name
 	yes | sudo cpan \
 		Class:Accessor \
 		Data::Dumper \
 		DBD::mysql \
 		DBI \
 		Digest::SHA \
+		ExtUtils::Config \
+		ExtUtils::Helpers \
+		ExtUtils::InstallPaths \
 		IO::Socket::SSL \
 		JSON \
 		JSON:XS \
 		LWP::Authen::Negotiate \
 		LWP::Simple \
 		LWP::UserAgent \
+		Module::Build::Tiny \
 		MongoDB \
 		MongoDB::MongoClient \
+		Net::DNS \
 		Net::LDAP \
 		Net::LDAPI \
 		Net::LDAPS \
-		Net::DNS \
 		Net::SSH::Expect \
-		Redis \
 		Readonly \
 		Readonly::XS \
+		Redis \
+		SMS::AQL \
+		Sub::Name \
+		TAP::Harness::Env \
 		Test::SharedFork \
 		Thrift \
 		Time::HiRes \
 		Type::Tiny::XS \
-		SMS::AQL \
 		URI::Escape \
 		XML::Simple \
 		; echo
