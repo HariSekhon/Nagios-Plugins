@@ -652,7 +652,7 @@ unless($no_expiry){
         $results{"expiry_epoch"} = timegm(0,0,0,$day,$month,$year);
         vlog2("expiry_epoch epoch: $results{expiry_epoch}");
     } else {
-        quit "UNKNOWN", "couldn't find expiry in output from whois $domain (use -vvv to check output, some european registrars don't supply it in which case you may need to use --no-expiry switch)";
+        quit "UNKNOWN", "couldn't find expiry in output from whois $domain (use -vvv to check output, some registrars don't supply it in which case you may need to use --no-expiry switch)";
     }
     $results{"expiry_epoch"} or quit "UNKNOWN", "couldn't calculate expiry epoch from expiry '$results{expiry}' in output from whois $domain";
 }
