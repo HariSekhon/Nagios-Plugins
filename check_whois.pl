@@ -75,7 +75,7 @@ DISCLAIMER:
 # Update: I have used this in production for nearly 800 domains across a great variety of over 100 TLDs/second-level domains last I checked, including:
 # ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at, co.il, co.in, co.kr, co.nz, co.nz, co.uk, co.uk, com, com, com.au, com.au, com.bo, com.br, com.cn, com.ee, com.hk, com.hk, com.mx, com.mx, com.my, com.pe, com.pl, com.pt, com.sg, com.sg, com.tr, com.tw, com.tw, com.ve, de, dk, dk, eu, fi, fm, fm, fr, gs, hk, hk, hu, idv.tw, ie, in, info, info, io, it, it, jp, jp, kr, lu, me, me.uk, mobi, mobi, ms, mx, mx, my, name, net, net, net.au, net.br, net.cn, net.nz, nf, nl, no, nu, org, org, org.cn, org.nz, org.tw, org.uk, org.uk, pl, ru, se, sg, sg, sh, tc, tel, tel, tl, tm, tv, tv, tv.br, tw, us, us, vg, xxx
 
-$VERSION = "0.10.4";
+$VERSION = "0.10.5";
 
 use strict;
 use warnings;
@@ -199,7 +199,7 @@ my %mon = (
 );
 
 my $not_registered_msg = "domain '$domain' not registered!!!";
-my $expiry_not_checked_msg = "EXPIRY NOT CHECKED for domain $domain, ";
+my $expiry_not_checked_msg = "EXPIRY NOT CHECKED for domain $domain,";
 
 my @dns_servers;
 @{$results{"status"}} = ();
@@ -410,7 +410,7 @@ foreach(@output){
     } elsif(/^Modified:?\s*(\d{1,2}) (\w{3}) (\d{4}) \d{1,2}:\d{1,2} \w{3}\s*$/io or
             /^Modified:\s*(\d{1,2})\s+([a-z]{3})\s+(\d{4})\s*$/io){
         $results{"updated"} = "$1-$2-$3";
-    } elsif (/(?:status|domaintype):\s*([\w\s-]+)/io or
+    } elsif (/(?:status|domaintype):\s*(\w[\w\s-]+\w)/io or
              /\[Status\]\s+(.+?)\s*$/o or
              /^\s*Estatus del dominio:\s*(.+?)\s*$/){
         my $domain_status = strip($1);
@@ -615,7 +615,7 @@ if($results{"registrar"} eq "markmonitor.com" and not defined($results{"expiry"}
 }
 
 my $anti_automation = 0;
-unless($results{"expiry"}){
+if (not $results{"expiry"}){
     if($no_expiry){
         $msg = "${msg}${expiry_not_checked_msg}";
     } elsif(grep($_ eq $tld, @tlds_with_no_expiry)){
@@ -632,6 +632,8 @@ unless($results{"expiry"}){
         $msg = "${msg}whois.ausregistry.net.au ${expiry_not_checked_msg}";
         $no_expiry = 1;
     }
+} elsif($no_expiry){
+    $msg = "${msg}${expiry_not_checked_msg}";
 }
 unless($no_expiry){
     if($results{"expiry"}){
@@ -833,6 +835,8 @@ if($verbose){
     $msg .= " (expected: $expected_results{admin_email})" if (grep($_ eq "admin_email", @results_mismatch));
     $msg .= " tech_email:'"  . $results{"tech_email"}  . "'" if $results{"tech_email"};
     $msg .= " (expected: $expected_results{tech_email})" if (grep($_ eq "tech_email", @results_mismatch));
+} else {
+    $msg =~ s/,$//;
 }
 $msg .= $perfdata;
 
