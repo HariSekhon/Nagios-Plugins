@@ -75,7 +75,7 @@ DISCLAIMER:
 # Update: I have used this in production for nearly 800 domains across a great variety of over 100 TLDs/second-level domains last I checked, including:
 # ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at, co.il, co.in, co.kr, co.nz, co.nz, co.uk, co.uk, com, com, com.au, com.au, com.bo, com.br, com.cn, com.ee, com.hk, com.hk, com.mx, com.mx, com.my, com.pe, com.pl, com.pt, com.sg, com.sg, com.tr, com.tw, com.tw, com.ve, de, dk, dk, eu, fi, fm, fm, fr, gs, hk, hk, hu, idv.tw, ie, in, info, info, io, it, it, jp, jp, kr, lu, me, me.uk, mobi, mobi, ms, mx, mx, my, name, net, net, net.au, net.br, net.cn, net.nz, nf, nl, no, nu, org, org, org.cn, org.nz, org.tw, org.uk, org.uk, pl, ru, se, sg, sg, sh, tc, tel, tel, tl, tm, tv, tv, tv.br, tw, us, us, vg, xxx
 
-$VERSION = "0.10.3";
+$VERSION = "0.10.4";
 
 use strict;
 use warnings;
@@ -538,6 +538,11 @@ foreach(my $i=0;$i<scalar @output;$i++){
                 $no_nameservers_listed = 1;
                 last;
             } else {
+                # exclusion for EU domains since there isn't 
+                # another idea that works for EU domains but this might match match genuine multiple nameservers eg:
+                # nameserver1 nameserver2 nameserver3 nameserver4 on a line from one of the many registrars so not risking it
+                #next if (scalar split(/\s+/, $line2) > 5);
+                next if ($line2 =~ /\b(?:Please|visit|for|more|info)\b/i);
                 foreach my $nameserver (split(/\s+/, $line2)){
                     next if(lc $nameserver eq "ns");
                     if(isHostname($nameserver) or isIP($nameserver)){
