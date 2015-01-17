@@ -24,6 +24,7 @@ Limitations (these all currently have tickets open to fix in the underlying API)
 - an invalid partition number will result in a non-intuitive error \": topic = '<topic>'\", as due to the underlying API
 - required acks doesn't seem to have any negative effect when given an integer higher than the available brokers or replication factor
 - first run if given a topic that doesn't already exist will cause the error \"Error: There are no known brokers: topic = '<topic>'\"
+- broker logic in the underlying API means that if the broker specified by --host (or alternatively the first broker in --broker-list) is down, it will result in exception \"Error: Can't get metadata: topic = '<topic>', partition = <partition_number>\"
 ";
 
 $VERSION = "0.1";
@@ -54,6 +55,7 @@ set_port_default(9092);
 
 env_creds("Kafka");
 
+my $broker_list = "";
 my $topic = "nagios";
 my $list_topics;
 my $partition = 0;
@@ -66,6 +68,7 @@ my $ignore_invalid_msgs;
 
 %options = (
     %hostoptions,
+    "B|broker-list=s"           => [ \$broker_list,         "Comma separated list of brokers in form 'host:port' to try if broker specified by --host and --port is not the leader. Either host or broker list must be supplied at the minimum. If --host isn't specified then first broker in the list will be use for metadata retrieval" ],
     "T|topic=s"                 => [ \$topic,               "Kafka topic (default: nagios)" ],
     "p|partition=s"             => [ \$partition,           "Kafka partition number to check by pushing message through (default: 0)" ],
     "R|required-acks=s"         => [ \$RequiredAcks,        "Required Acks from Kafka replicas. Default is 'LOG' which requires ack from Kafka partition leader, alternatively 'ISR' requires commit on all In-Sync Replicas, or specifying any integer which will block until this number of In-Sync Replicas ack the message (causing timeout if you set it higher than the number of replicas you have). This doesn't seem to work at this time due to the underlying library" ],
@@ -75,12 +78,29 @@ my $ignore_invalid_msgs;
     "retry-backoff=s"           => [ \$retry_backoff,       "Retry backoff in milliseconds between retries  (default: 200, min: 1, max: 10000)" ],
     #"list-topics"               => [ \$list_topics,         "List Kafka topics from broker" ],
 );
-splice @usage_order, 6, 0, qw/topic partition required-acks ignore-invalid-messages send-max-retries receive-max-retries retry-backoff list-topics/;
+splice @usage_order, 6, 0, qw/broker-list topic partition required-acks ignore-invalid-messages send-max-retries receive-max-retries retry-backoff list-topics/;
 
 get_options();
 
-$host = validate_host($host);
-$port = validate_port($port);
+my @broker_list;
+if($broker_list){
+    $host = isHost($host);
+    $port = isPort($port);
+    my ($host2, $port2);
+    foreach(split(/\s*,\s*/, $broker_list)){
+        ($host2, $port2) = split(/:/, $_);
+        $host2 = validate_host($host2, "broker");
+        $port2 = validate_port($port2, "broker");
+        push(@broker_list, "$host2:$port2");
+        unless($host){
+            $host = $host2;
+            $port = $port2;
+        }
+    }
+} else {
+    $host = validate_host($host);
+    $port = validate_port($port);
+}
 # XXX: currently not way to list topics in Perl's Kafka API
 #unless($list_topics){
     $topic or usage "topic not defined";
