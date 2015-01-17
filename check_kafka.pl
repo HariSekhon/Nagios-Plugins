@@ -24,7 +24,6 @@ Limitations (these all currently have tickets open to fix in the underlying API)
 - an invalid partition number will result in a non-intuitive error \": topic = '<topic>'\", as due to the underlying API
 - required acks doesn't seem to have any negative effect when given an integer higher than the available brokers or replication factor
 - first run if given a topic that doesn't already exist will cause the error \"Error: There are no known brokers: topic = '<topic>'\"
-- broker logic in the underlying API means that if the broker specified by --host (or alternatively the first broker in --broker-list) is down, it will result in exception \"Error: Can't get metadata: topic = '<topic>', partition = <partition_number>\"
 ";
 
 $VERSION = "0.1";
@@ -91,17 +90,19 @@ if($broker_list){
         ($host2, $port2) = split(/:/, $_);
         $host2 = validate_host($host2, "broker");
         $port2 = validate_port($port2, "broker");
-        push(@broker_list, "$host2:$port2");
+        push(@broker_list, "$host2:$port2") unless grep { "$host2:$port2" eq $_ } @broker_list;
         unless($host){
             $host = $host2;
             $port = $port2;
         }
     }
+    # add host and port if not already in there since this is used as the authoritative list of brokers to report on throughout the code
+    unshift @broker_list, "$host:$port" unless grep { "$host:$port" eq $_ } @broker_list;
 } else {
     $host = validate_host($host);
     $port = validate_port($port);
 }
-# XXX: currently not way to list topics in Perl's Kafka API
+# XXX: currently no way to list topics in Perl's Kafka API
 #unless($list_topics){
     $topic or usage "topic not defined";
     $topic =~ /^([A-Za-z0-9]+)$/ or usage "topic must be alphanumeric";
@@ -128,6 +129,13 @@ $ENV{'PERL_KAFKA_DEBUG'} = 1 if $debug;
 
 $status = "UNKNOWN";
 
+my $broker_name;
+if(@broker_list){
+    $broker_name = "s " . join(",", @broker_list);
+} else {
+    $broker_name = " at $host:$port";
+}
+
 my $epoch   = time;
 my $tstamp  = strftime("%F %T", localtime($epoch));
 my $random_string = random_alnum(20);
@@ -141,12 +149,13 @@ sub check_server_alive(){
     }
 }
 try {
-    vlog2 "connecting to Kafka broker at '$host:$port'";
+    vlog2 "connecting to Kafka broker$broker_name";
     # default timeouts are 1.5 secs
     $connection = Kafka::Connection->new( 
                                           #'broker'  => $broker_list, # XXX: TODO
-                                          'host'    => $host,
-                                          'port'    => $port,
+                                          'host'        => $host,
+                                          'port'        => $port,
+                                          'broker_list' => \@broker_list,
                                           # default timeout $REQUEST_TIMEOUT = 1.5 secs
                                           #'timeout' => $timeout / 2,
                                           # XXX: API bug these two arguments don't allow zero retries
@@ -154,17 +163,19 @@ try {
                                           'RECEIVE_MAX_RETRIES' => $receive_max_retries,
                                           'RETRY_BACKOFF'       => $retry_backoff,
                                           'AutoCreateTopicsEnable' => 0,
-                                        ) or quit "CRITICAL", "failed to connect to Kafka at '$host:$port'! $!";
+                                        ) or quit "CRITICAL", "failed to connect to Kafka broker$broker_name! $!";
     vlog3 Dumper($connection) if $debug;
 
-    vlog3 "known servers: " . join(", ", $connection->get_known_servers()) if $debug;
-    if($connection->is_server_known("$host:$port")){
-        vlog2 "server $host:$port is known to Kafka cluster";
-    } else {
-        quit "CRITICAL", "server '$host:$port' is not known to Kafka cluster";
+    vlog2 "known servers: " . join(", ", $connection->get_known_servers());
+    unless(@broker_list){
+        if($connection->is_server_known("$host:$port")){
+            vlog2 "server $host:$port is known to Kafka cluster";
+        } else {
+            quit "CRITICAL", "server '$host:$port' is not known to Kafka cluster";
+        }
     }
     # XXX: $connection->is_server_alive() returns undef until partition fetch, don't call yet
-    #check_server_alive();
+    #check_server_alive() unless @broker_list;
     my $cluster_errors = $connection->cluster_errors();
     if(%$cluster_errors){
         quit "CRITICAL", "cluster errors detected: " . Dumper(%$cluster_errors);
@@ -179,14 +190,12 @@ try {
                                       'RequiredAcks'  => $RequiredAcks,
                                       # default timeout $REQUEST_TIMEOUT = 1.5 secs
                                       #'Timeout'       => $timeout / 2,
-                                    ) or quit "CRITICAL", "failed to connect producer to Kafka at '$host:$port'! $!";
+                                    ) or quit "CRITICAL", "failed to connect producer to Kafka broker$broker_name! $!";
     vlog3 Dumper($producer) if $debug;
-    #check_server_alive();
 
     vlog2 "connecting consumer\n";
-    $consumer = Kafka::Consumer->new( Connection  => $connection ) or quit "CRITICAL", "failed to connect consumer to Kafka at '$host:$port'! $!";
+    $consumer = Kafka::Consumer->new( Connection  => $connection ) or quit "CRITICAL", "failed to connect consumer to Kafka broker$broker_name! $!";
     vlog3 Dumper($consumer) if $debug;
-    #check_server_alive();
 
     # When this partition number doesn't exist we get only this error thrown by the API
     # : topic = '$topic'
@@ -203,7 +212,7 @@ try {
         quit "CRITICAL", "no offsets retrieved!";
     }
     vlog2;
-    check_server_alive();
+    check_server_alive() unless @broker_list;
 
     vlog2 "sending message to broker\n";
     my $response = $producer->send(
@@ -212,14 +221,14 @@ try {
                                     $content,
                                     # rand(1), # key
                                     $COMPRESSION_NONE,
-                                  ) or quit "CRITICAL", "failed to send message to Kafka broker: $!";
+                                  ) or quit "CRITICAL", "failed to send message to Kafka broker$broker_name: $!";
     vlog3 Dumper($response) if $debug;
-    check_server_alive();
+    check_server_alive() unless @broker_list;
 
     vlog2 "fetching messages";
     my $messages = $consumer->fetch($topic, $partition, $$offsets[0], $DEFAULT_MAX_BYTES) or quit "CRITICAL", "no messages fetched! $!";
-    @$messages or quit "CRITICAL", "no messages returned by Kafka broker! $!";
-    check_server_alive();
+    @$messages or quit "CRITICAL", "no messages returned by Kafka broker$broker_name! $!";
+    check_server_alive() unless @broker_list;
 
     vlog2 "iterating on messages";
     my $found = 0;
@@ -242,10 +251,21 @@ try {
         }
     }
     vlog2;
-    check_server_alive();
+    check_server_alive() unless @broker_list;
 
     if($found == 1){
-        quit "OK", "message returned successfully for Kafka broker" . ( $verbose ? " at '$host:$port'" : "");
+        $msg = "message returned successfully by Kafka broker";
+        if(@broker_list){
+            if(@broker_list > 1){
+                $msg .= "s";
+            } else {
+                $msg .= " at" if $verbose;
+            }
+            $msg .= " " . join(",", @broker_list) if $verbose;
+        } else {
+            $msg .= " at '$host:$port'" if $verbose;
+        }
+        quit "OK", $msg;
     } elsif($found > 1){
         quit "WARNING", "message returned $found times for Kafka broker";
     } else {
