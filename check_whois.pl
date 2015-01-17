@@ -744,8 +744,12 @@ foreach my $result (("expiry", "domain")){
 }
 if(@not_found){
     warning;
-    $msg = join("/", sort @not_found) . " not found in whois output. $msg";
-    critical if grep { $_ eq "domain" } @not_found;
+    my $msg2 = join("/", sort @not_found) . " not found in whois output";
+    if(grep { $_ eq "domain" } @not_found){
+        critical;
+        $msg2 .= " (domain not registered?)";
+    }
+    $msg = "$msg2. $msg";
 }
 
 if($results{"registrant"} and $results{"registrant"} eq ""){
