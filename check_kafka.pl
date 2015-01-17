@@ -10,7 +10,7 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-$DESCRIPTION = "Nagios Plugin to check a Kafka broker is fully working end-to-end by acting as both a producer and a consumer and checking that a unique generated message passes through the broker successfully
+$DESCRIPTION = "Nagios Plugin to check Kafka brokers are fully working end-to-end by acting as both a producer and a consumer and checking that a unique generated message passes through the broker cluster successfully
 
 Requires >= Kafka-0.8009 Perl library which added taint security mode support at my request for this program.
 
@@ -20,7 +20,7 @@ Tested on Kafka 0.8.1
 
 Limitations (these all currently have tickets open to fix in the underlying API):
 
-- checks only a single broker/topic/partition due to limitation of the underlying API
+- checks only a single topic and partition due to limitation of the underlying API
 - an invalid partition number will result in a non-intuitive error \": topic = '<topic>'\", as due to the underlying API
 - required acks doesn't seem to have any negative effect when given an integer higher than the available brokers or replication factor
 - first run if given a topic that doesn't already exist will cause the error \"Error: There are no known brokers: topic = '<topic>'\"
