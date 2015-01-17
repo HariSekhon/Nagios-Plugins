@@ -129,11 +129,17 @@ $ENV{'PERL_KAFKA_DEBUG'} = 1 if $debug;
 
 $status = "UNKNOWN";
 
-my $broker_name;
+my $broker_name = "";
 if(@broker_list){
-    $broker_name = "s " . join(",", @broker_list);
+    if(scalar @broker_list > 1){
+        $broker_name .= "s ";
+    }
+    if($verbose){
+        $broker_name .= " at " if scalar @broker_list == 1;
+        $broker_name .= join(",", @broker_list);
+    }
 } else {
-    $broker_name = " at $host:$port";
+    $broker_name = " at $host:$port" if $verbose;
 }
 
 my $epoch   = time;
@@ -254,22 +260,11 @@ try {
     check_server_alive() unless @broker_list;
 
     if($found == 1){
-        $msg = "message returned successfully by Kafka broker";
-        if(@broker_list){
-            if(@broker_list > 1){
-                $msg .= "s";
-            } else {
-                $msg .= " at" if $verbose;
-            }
-            $msg .= " " . join(",", @broker_list) if $verbose;
-        } else {
-            $msg .= " at '$host:$port'" if $verbose;
-        }
-        quit "OK", $msg;
+        quit "OK", "message returned successfully by Kafka broker$broker_name";
     } elsif($found > 1){
-        quit "WARNING", "message returned $found times for Kafka broker";
+        quit "WARNING", "message returned $found times for Kafka broker$broker_name!";
     } else {
-        quit "CRITICAL", "message not returned by Kafka broker!";
+        quit "CRITICAL", "message not returned by Kafka broker$broker_name!";
     }
 };
 catch {
