@@ -38,6 +38,7 @@ DISCLAIMER:
 
 1. TLDs can change/revoke whois info at any time, so this code will need updating should such occasions arise
 2. some TLDs for some small countries don't even have whois servers, this is handled in code where I know of it to state such
+3. I recommend you run the latest version of jwhois that you can get, I've found a scenario where older jwhois on Debian Wheezy didn't return expiry information for google.name compared to the version on CentOS
 ";
 
 # Whois perl libraries aren't great so calling whois binary and checking manually
@@ -75,7 +76,7 @@ DISCLAIMER:
 # Update: I have used this in production for nearly 800 domains across a great variety of over 100 TLDs/second-level domains last I checked, including:
 # ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at, co.il, co.in, co.kr, co.nz, co.nz, co.uk, co.uk, com, com, com.au, com.au, com.bo, com.br, com.cn, com.ee, com.hk, com.hk, com.mx, com.mx, com.my, com.pe, com.pl, com.pt, com.sg, com.sg, com.tr, com.tw, com.tw, com.ve, de, dk, dk, eu, fi, fm, fm, fr, gs, hk, hk, hu, idv.tw, ie, in, info, info, io, it, it, jp, jp, kr, lu, me, me.uk, mobi, mobi, ms, mx, mx, my, name, net, net, net.au, net.br, net.cn, net.nz, nf, nl, no, nu, org, org, org.cn, org.nz, org.tw, org.uk, org.uk, pl, ru, se, sg, sg, sh, tc, tel, tel, tl, tm, tv, tv, tv.br, tw, us, us, vg, xxx
 
-$VERSION = "0.10.7";
+$VERSION = "0.10.8";
 
 use strict;
 use warnings;
@@ -311,18 +312,18 @@ foreach(@output){
             /(?:$domain).+(?<!Not )\b(?:free|available)\b/io or
             /Domain Available.+$domain/io             or
             /The domain has not been registered/io    or
-            /query_status: 220 Available/o
+            /query_status: 220 Available/io
         ){
         quit "CRITICAL", $not_registered_msg;
     # UK Nominet Errors, either cos of violating naming or "Nominet not the registry for" etc
     } elsif(/Error for /io){
         quit "CRITICAL", "Error for domain $domain returned, see full whois output for details";
-    } elsif(/^\s*Domain Expiration Date:\s+\w{3}\s+(\w{3})\s+(\d{1,2})\s+\d{1,2}:\d{1,2}:\d{1,2}\s+\w{3}\s+(\d{4})\s*$/o) {
+    } elsif(/^\s*Domain Expiration Date:\s+\w{3}\s+(\w{3})\s+(\d{1,2})\s+\d{1,2}:\d{1,2}:\d{1,2}\s+\w{3}\s+(\d{4})\s*$/io) {
         ($day, $month, $year) = ($2, $1, $3);
         $results{"expiry"} = "$day-$month-$year";
         vlog2("Expiry: $results{expiry}");
-    } elsif(/^\s*Expires on\.+:\s+(\d{4})-(\w{3})-(\d{1,2})\.\s*$/o or
-            /^(?:Expiration Date|paid-till)\s*:\s+(\d{4})\. ?(\d{2})\. ?(\d{2})\.?\s*$/o) {
+    } elsif(/^\s*Expires on\b\.*:\s*(\d{4})-([A-Za-z]{3})-(\d{1,2}).?\s*$/io or
+            /^(?:Expiration Date|paid-till)\s*:\s*(\d{4})\. ?(\d{2})\. ?(\d{2})\.?\s*$/io) {
         ($day, $month, $year) = ($3, $2, $1);
         $results{"expiry"} = "$day-$month-$year";
         vlog2("Expiry: $results{expiry}");
@@ -344,12 +345,12 @@ foreach(@output){
         ($day, $month, $year) = ($3, $2, $1);
         $results{"expiry"} = "$day-$month-$year";
         vlog2("Expiry: $results{expiry}");
-    } elsif(/^expires:?\s*(\d{4})(\d{2})(\d{2})\s*$/o){
+    } elsif(/^expires:?\s*(\d{4})(\d{2})(\d{2})\s*$/io){
         ($day, $month, $year) = ($3, $2, $1);
         $results{"expiry"} = "$day-$month-$year";
         vlog2("Expiry: $results{expiry}");
-    } elsif(/^\s*Expires\s*:\s*(\w+)\s+(\d{1,2})\s+(\d{4})\s*\.\s*$/o or
-            /^\s*Expires on\.+:\s*\w{3},\s+(\w{3})\s+(\d{1,2}),\s+(\d{4})\s*$/o){
+    } elsif(/^\s*Expires\s*:\s*(\w+)\s+(\d{1,2})\s+(\d{4})\s*\.\s*$/io or
+            /^\s*Expires on\.+:\s*\w{3},\s+(\w{3})\s+(\d{1,2}),\s+(\d{4})\s*$/io){
         ($day, $month, $year) = ($2, $1, $3);
         $results{"expiry"} = "$day-$month-$year";
         vlog2("Expiry: $results{expiry}");
@@ -358,7 +359,7 @@ foreach(@output){
         $results{"expiry"} = "$day-$month-$year";
         vlog2("Expiry: $results{expiry}");
     # GoDaddy registration dates eg. 'Registrar Registration Expiration Date: 2015-09-02T16:50:03Z'
-    } elsif(/^\s*(?:Expiration|Registry Expiry|Registrar Registration Expiration) Date:\s*(\d{4})-(\d{2})-(\d{2})(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?[A-Z]?)?\s*$/o){
+    } elsif(/^\s*(?:Expiration|Registry Expiry|Registrar Registration Expiration|Expires On)(?: Date)?:\s*(\d{4})-(\d{2})-(\d{2})(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?[A-Z]?)?\s*$/io){
         ($day, $month, $year) = ($3, $2, $1);
         $results{"expiry"} = "$day-$month-$year";
     } elsif (/^\s*(?:Query:|Domain(?:[ _]?Name)?\s*(?:\(ASCII\))?[.:]+)\s*(.+?)\s*$/io or
