@@ -22,7 +22,9 @@ Limitations (these all currently have tickets open to fix in the underlying API)
 
 - checks only a single broker/topic/partition due to limitation of the underlying API
 - an invalid partition number will result in a non-intuitive error \": topic = '<topic>'\", as due to the underlying API
-- required acks doesn't seem to have any negative effect when given an integer higher than the available brokers or replication factor";
+- required acks doesn't seem to have any negative effect when given an integer higher than the available brokers or replication factor
+- first run if given a topic that doesn't already exist will cause the error \"Error: There are no known brokers: topic = '<topic>'\"
+";
 
 $VERSION = "0.1";
 
