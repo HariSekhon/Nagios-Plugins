@@ -75,7 +75,7 @@ DISCLAIMER:
 # Update: I have used this in production for nearly 800 domains across a great variety of over 100 TLDs/second-level domains last I checked, including:
 # ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at, co.il, co.in, co.kr, co.nz, co.nz, co.uk, co.uk, com, com, com.au, com.au, com.bo, com.br, com.cn, com.ee, com.hk, com.hk, com.mx, com.mx, com.my, com.pe, com.pl, com.pt, com.sg, com.sg, com.tr, com.tw, com.tw, com.ve, de, dk, dk, eu, fi, fm, fm, fr, gs, hk, hk, hu, idv.tw, ie, in, info, info, io, it, it, jp, jp, kr, lu, me, me.uk, mobi, mobi, ms, mx, mx, my, name, net, net, net.au, net.br, net.cn, net.nz, nf, nl, no, nu, org, org, org.cn, org.nz, org.tw, org.uk, org.uk, pl, ru, se, sg, sg, sh, tc, tel, tel, tl, tm, tv, tv, tv.br, tw, us, us, vg, xxx
 
-$VERSION = "0.10.6";
+$VERSION = "0.10.7";
 
 use strict;
 use warnings;
@@ -224,7 +224,9 @@ my @valid_statuses = qw/
                         ok
                         published
                         registered
+                        serverDeleteProhibited
                         serverTransferProhibited
+                        serverUpdateProhibited
                         /;
 # add valid statuses with spaces in them
 push(@valid_statuses,
@@ -621,6 +623,8 @@ if (not $results{"expiry"}){
     } elsif(grep($_ eq $tld, @tlds_with_no_expiry)){
         vlog2("Excepting domain $domain from expiry check as we can't find the expiry and it's a .$tld domain");
         $msg = "${msg}${expiry_not_checked_msg}";
+        $msg =~ s/,$//;
+        $msg .= " due to .$tld registrar not supporting it,";
         $no_expiry = 1;
     } elsif($results{"registrar"} =~ /GoDaddy/io){
         $msg = "${msg}GODADDY ${expiry_not_checked_msg}";
@@ -740,7 +744,8 @@ foreach my $result (("expiry", "domain")){
 }
 if(@not_found){
     warning;
-    $msg = "Couldn't find " . join("/", sort @not_found) . " in whois output. $msg";
+    $msg = join("/", sort @not_found) . " not found in whois output. $msg";
+    critical if grep { $_ eq "domain" } @not_found;
 }
 
 if($results{"registrant"} and $results{"registrant"} eq ""){
