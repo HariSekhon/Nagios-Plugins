@@ -47,21 +47,28 @@ make:
 	#
 	# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
 	# Redis module required but didn't auto-pull: ExtUtils::Config ExtUtils::Helpers ExtUtils::InstallPaths TAP::Harness::Env Module::Build::Tiny Sub::Name
+	# Kafka module required but didn't auto-pull: ExtUtils::Config, ExtUtils::Helpers, ExtUtils::InstallPaths, TAP::Harness::Env, Module::Build::Tiny, Sub::Exporter::Progressive, Const::Fast, Exporter::Tiny, List::MoreUtils, Devel::CheckLib, Compress::Snappy, Sub::Name
 	yes | sudo cpan \
 		Class:Accessor \
-		Data::Dumper \
+		Compress::Snappy \
+		Const::Fast \
 		DBD::mysql \
 		DBI \
+		Data::Dumper \
+		Devel::CheckLib \
 		Digest::SHA \
+		Exporter::Tiny \
 		ExtUtils::Config \
 		ExtUtils::Helpers \
 		ExtUtils::InstallPaths \
 		IO::Socket::SSL \
 		JSON \
 		JSON:XS \
+		Kafka \
 		LWP::Authen::Negotiate \
 		LWP::Simple \
 		LWP::UserAgent \
+		List::MoreUtils \
 		Module::Build::Tiny \
 		MongoDB \
 		MongoDB::MongoClient \
@@ -74,6 +81,7 @@ make:
 		Readonly::XS \
 		Redis \
 		SMS::AQL \
+		Sub::Exporter::Progressive \
 		Sub::Name \
 		TAP::Harness::Env \
 		Test::SharedFork \
@@ -117,7 +125,6 @@ apt-packages:
 
 .PHONY: yum-packages
 yum-packages:
-	# needed to fetch and build CPAN modules and fetch the library submodule at end of build
 	rpm -q gcc perl-CPAN perl-libwww-perl git || yum install -y gcc perl-CPAN perl-libwww-perl git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	rpm -q perl-DBD-MySQL mysql-devel || yum install -y perl-DBD-MySQL mysql-devel || :
