@@ -83,8 +83,6 @@ get_options();
 
 my @broker_list;
 if($broker_list){
-    $host = isHost($host);
-    $port = isPort($port);
     my ($host2, $port2);
     foreach(split(/\s*,\s*/, $broker_list)){
         ($host2, $port2) = split(/:/, $_);
@@ -98,10 +96,9 @@ if($broker_list){
     }
     # add host and port if not already in there since this is used as the authoritative list of brokers to report on throughout the code
     unshift @broker_list, "$host:$port" unless grep { "$host:$port" eq $_ } @broker_list;
-} else {
-    $host = validate_host($host);
-    $port = validate_port($port);
 }
+$host = validate_host($host);
+$port = validate_port($port);
 # XXX: currently no way to list topics in Perl's Kafka API
 #unless($list_topics){
     $topic or usage "topic not defined";
