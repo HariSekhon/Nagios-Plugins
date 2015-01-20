@@ -19,7 +19,7 @@ $DESCRIPTION = "Nagios Hadoop Plugin to check various health aspects of HDFS via
 - checks HDFS % Used Balance is within thresholds
 - checks number of available datanodes and if there are any dead datanodes
 
-Originally written for old vanilla Apache Hadoop 0.20.x, updated for CDH 4.3 (2.0.0) and HDP 2.1 (2.4.0)
+Originally written for old vanilla Apache Hadoop 0.20.x, updated for CDH 4.3 (Apache 2.0.0), HDP 2.1 (Apache 2.4.0), HDP 2.2 (Apache 2.6.0)
 
 Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclaimer I work for Cloudera but seriously it's good it gives you access to a wealth of information)";
 
@@ -28,7 +28,7 @@ Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclai
 # 1. Min Configured Capacity per node (from node section output).
 # 2. Last Contact: convert the date to secs and check against thresholds.
 
-$VERSION = "0.7.2";
+$VERSION = "0.7.3";
 
 use strict;
 use warnings;
@@ -174,7 +174,11 @@ foreach(@output){
         $dfs{"datanodes_available"} = $1;
         $dfs{"datanodes_total"}     = $2 if defined($2);
         $dfs{"datanodes_dead"}      = $3 if defined($3);
-    } elsif(/^Name:/ or /Dead datanodes:/){
+    } elsif(/Live datanodes \((\d+)\):/){
+        $dfs{"datanodes_available"} = $1;
+    } elsif(/Dead datanodes \((\d+)\):/){
+        $dfs{"datanodes_dead"} = $1;
+    } elsif(/^Name:/){
         last;
     } else {
         quit "UNKNOWN", "Unrecognized line in output while parsing totals: '$_'. $nagios_plugins_support_msg_api";
@@ -209,9 +213,9 @@ if($balance){
         # TODO: could add exception for Decommissioning Nodes to not be considered part of the cluster balance
         } elsif(/^(?:Rack|Decommission Status|Configured Capacity|DFS Used|Non DFS Used|DFS Remaining|DFS Remaining%|Configured Cache Capacity|Cache Used|Cache Remaining|Cache Used%|Cache Remaining%|Last contact|)\s*:|^\s*$/){
             next;
-        } elsif(/Live datanodes:/){
+        } elsif(/Live datanodes(?: \(\d+\))?:/){
             next;
-        } elsif(/Dead datanodes:/){
+        } elsif(/Dead datanodes(?: \(\d+\))?:/){
             last;
         } else {
             quit "UNKNOWN", "Unrecognized line in output while parsing nodes: '$_'. $nagios_plugins_support_msg_api";
@@ -225,7 +229,7 @@ if($balance){
 sub check_parsed {
     foreach(@_){
         unless(defined($dfs{$_})){
-            quit "UNKNOWN", "Failed to determine $_, either output is incomplete or format has changed, use -vvv to debug";
+            quit "UNKNOWN", "Failed to determine $_. $nagios_plugins_support_msg";
         }
         vlog2 "$_: $dfs{$_}";
     }
@@ -246,9 +250,21 @@ check_parsed(qw/
         corrupt_blocks
         missing_blocks
         datanodes_available
-        datanodes_total
-        datanodes_dead
         /);
+        #datanodes_total
+        #datanodes_dead
+#############
+# Apache 2.6.0 no longer outputs datanodes total or datanodes dead - must assume 0 dead datanodes if we can't find dead in output
+unless(defined($dfs{"datanodes_dead"})){
+    # safety check
+    grep(/\bdead\b/i, @output) and quit "CRITICAL", "dead detected in output but dead datanode count not parsed. $nagios_plugins_support_msg"; 
+    # must be Apache 2.6+ with no dead datanodes
+    $dfs{"datanodes_dead"} = 0;
+}
+unless(defined($dfs{"datanodes_total"})){
+    $dfs{"datanodes_total"} = $dfs{"datanodes_available"} + $dfs{"datanodes_dead"};;
+}
+#############
 vlog2;
 
 $status = "UNKNOWN";
