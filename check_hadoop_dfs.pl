@@ -28,7 +28,7 @@ Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclai
 # 1. Min Configured Capacity per node (from node section output).
 # 2. Last Contact: convert the date to secs and check against thresholds.
 
-$VERSION = "0.7.3";
+$VERSION = "0.7.4";
 
 use strict;
 use warnings;
@@ -188,7 +188,7 @@ if($balance){
     my $i = 0;
     foreach(@output){
         $i++;
-        if(/^(?:Datanodes available):/){
+        if(/^(?:Datanodes available|Live datanodes)\b.*:/i){
             last;
         }
         next;
@@ -206,12 +206,12 @@ if($balance){
         } elsif(/^Configured Capacity: 0 \(0 KB\)$/){
             $name or code_error $no_name_err;
             $datanodes{$name}{"dead"} = 1;
-        } elsif(/^DFS Used%:\s+(\d+(?:\.\d+)?)%$/){
+        } elsif(/^DFS Used%:\s*(\d+(?:\.\d+)?)%$/){
             $name or code_error $no_name_err;
             $datanodes{$name}{"used_pc"} = $1;
         # Ignore these lines for now
         # TODO: could add exception for Decommissioning Nodes to not be considered part of the cluster balance
-        } elsif(/^(?:Rack|Decommission Status|Configured Capacity|DFS Used|Non DFS Used|DFS Remaining|DFS Remaining%|Configured Cache Capacity|Cache Used|Cache Remaining|Cache Used%|Cache Remaining%|Last contact|)\s*:|^\s*$/){
+        } elsif(/^(?:Rack|Decommission Status|Configured Capacity|DFS Used|Non DFS Used|DFS Remaining|DFS Remaining%|Configured Cache Capacity|Cache Used|Cache Remaining|Cache Used%|Cache Remaining%|Last contact|Xceivers|)\s*:|^\s*$/){
             next;
         } elsif(/Live datanodes(?: \(\d+\))?:/){
             next;
