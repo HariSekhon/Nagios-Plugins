@@ -18,7 +18,7 @@ Checks the status of the HDFS FSCK output and optionally one of the following:
 - Max number of HDFS blocks (affects NameNode)
 - Optionally outputs some more HDFS stats with perfdata for graphing (see also check_hadoop_replication.pl)
 
-In order to contrain the runtime of this plugin you must run the Hadoop FSCK separately and have this plugin check the output file results. Recommend you do not use any extra switches as it'll enlarge the output and slow down this result parsing plugin's execution time.
+In order to constrain the runtime of this plugin you must run the Hadoop FSCK separately and have this plugin check the output file results. Recommend you do not use any extra switches as it'll enlarge the output and slow down this result parsing plugin's execution time.
 
 hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && mv /tmp/hdfs-fsck.log
 
