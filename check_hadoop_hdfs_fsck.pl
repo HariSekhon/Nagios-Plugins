@@ -18,13 +18,13 @@ Checks the status of the HDFS FSCK output and optionally one of the following:
 - Max number of HDFS blocks (affects NameNode)
 - Optionally outputs some more HDFS stats with perfdata for graphing (see also check_hadoop_replication.pl)
 
-In order to contrain the runtime of this plugin you must run the Hadoop FSCK separately and have this plugin check the output file results. Recommend you do not use any extra switches as it'll enlarge the output and slow down this result parsing plugin's execution time.
+In order to constrain the runtime of this plugin you must run the Hadoop FSCK separately and have this plugin check the output file results. Recommend you do not use any extra switches as it'll enlarge the output and slow down this result parsing plugin's execution time.
 
 hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && mv /tmp/hdfs-fsck.log
 
 ./check_hadoop_fsck.pl -f /tmp/hdfs-fsck.log
 
-Tested on Hortonworks HDP 2.1";
+Tested on Hortonworks HDP 2.1 & HDP 2.2";
 
 $VERSION = "0.3";
 
@@ -166,7 +166,7 @@ if($verbose or $max_blocks){
 }
 my $msg2;
 if($stats){
-    $msg2 = sprintf(" size=%s dirs=%d files=%d min_replicated_blocks=%d 'min_replicated_blocks_%%'=%.2f%% over_rep_blocks=%d 'over_rep_blocks_%%'=%.2f%% under_rep_blocks=%d 'under_rep_blocks_%%'=%.2f%% mis_rep_blocks=%d 'mis_rep_blocks_%%'=%.2f%% default_rep_factor=%d avg_block_rep=%.2f corrupt_blocks=%d missing_replicas=%d 'missing_replicas_%%'=%.2f%% num_datanodes=%d num_racks=%d",
+    $msg2 = sprintf(", size=%s dirs=%d files=%d min_replicated_blocks=%d 'min_replicated_blocks_%%'=%.2f%% over_rep_blocks=%d 'over_rep_blocks_%%'=%.2f%% under_rep_blocks=%d 'under_rep_blocks_%%'=%.2f%% mis_rep_blocks=%d 'mis_rep_blocks_%%'=%.2f%% default_rep_factor=%d avg_block_rep=%.2f corrupt_blocks=%d missing_replicas=%d 'missing_replicas_%%'=%.2f%% num_datanodes=%d num_racks=%d",
     human_units($hdfs{"size"}),
     $hdfs{"dirs"}, $hdfs{"files"},
     $hdfs{"min_rep_blocks"},
