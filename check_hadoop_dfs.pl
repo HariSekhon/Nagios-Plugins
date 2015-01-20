@@ -311,7 +311,7 @@ if($hdfs_space){
     plural scalar keys %datanodes;
     $msg = sprintf("%.2f%% HDFS imbalance on space used %% across %d datanode$plural", $largest_datanode_used_pc_diff, scalar keys %datanodes);
     check_thresholds($largest_datanode_used_pc_diff);
-    if(is_warning or is_critical){
+    if($verbose and (is_warning or is_critical)){
         my $msg2 = " [imbalanced nodes: ";
         foreach(sort keys %datanodes_imbalance){
             if($datanodes_imbalance{$_} >= $thresholds{"warning"}{"upper"}){
