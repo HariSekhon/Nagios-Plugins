@@ -28,7 +28,7 @@ Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclai
 # 1. Min Configured Capacity per node (from node section output).
 # 2. Last Contact: convert the date to secs and check against thresholds.
 
-$VERSION = "0.7.4";
+$VERSION = "0.7.5";
 
 use strict;
 use warnings;
@@ -149,6 +149,8 @@ if(join("", @output) =~ /^\s*$/){
 foreach(@output){
     # skip blank lines and lines with just --------------------
     if (/^(?:-+|\s*)$/ or /DEPRECATED|Instead use the hdfs command for it|Live datanodes:/){
+        next;
+    } elsif(/Safe mode is ON/){
         next;
     } elsif (/^Configured Capacity:\s*(\d+)\s+\((.+)\)\s*$/i){
         $dfs{"configured_capacity"}       = $1;
