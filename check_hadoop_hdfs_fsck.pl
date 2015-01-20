@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to parse and alert on Hadoop FSCK output
 
-Checks the status of the HDFS FSCK output and optionally one of the following:
+Checks the status of the HDFS FSCK output and optionally one of the following against warning/critical thresholds:
 
 - Time in secs since last fsck (recommend setting thresholds to > 86400 ie once a day)
 - Time taken for FSCK in secs
@@ -26,7 +26,7 @@ hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && mv /tmp/hdfs-fsck.log
 
 Tested on Hortonworks HDP 2.1 & HDP 2.2";
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -46,8 +46,8 @@ my $stats;
 
 %options = (
     "f|file=s"   => [ \$file,       "HDFS FSCK result file" ],
-    "last-fsck"  => [ \$last_fsck,  "Check time in secs since last HDFS FSCK" ],
-    "fsck-time"  => [ \$fsck_time,  "Check HDFS FSCK time taken" ],
+    "last-fsck"  => [ \$last_fsck,  "Check time in secs since last HDFS FSCK against thresholds" ],
+    "fsck-time"  => [ \$fsck_time,  "Check HDFS FSCK time taken against thresholds" ],
     "max-blocks" => [ \$max_blocks, "Check max HDFS blocks against thresholds" ],
     "stats"      => [ \$stats,      "Output HDFS stats" ],
     %thresholdoptions,
