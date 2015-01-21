@@ -29,9 +29,9 @@ Caveats:
 1. In Replication check cannot currently detect corrupt or under-replicated blocks since JSP doesn't offer this information
 2. There are no byte counters, so we can only use the human summary and multiply out, and being a multiplier of a summary figure it's marginally less accurate
 
-Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for Cloudera CDH 4.3 (2.0.0-cdh4.3.0) and Hortonworks HDP 2.1 (2.4.0). If JSP output changes across versions, this plugin will need to be updated to parse the changes";
+Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for Cloudera CDH 4.3 (2.0.0-cdh4.3.0) and Hortonworks HDP 2.1 (2.4.0), also tested on HDP 2.2 (Apache 2.6.0). If JSP output changes across versions, this plugin will need to be updated to parse the changes";
 
-$VERSION = "0.9";
+$VERSION = "0.9.1";
 
 use strict;
 use warnings;
@@ -305,7 +305,7 @@ if($balance){
     $status = "OK";
     $msg = sprintf("%.2f%% HDFS imbalance on space used %% across %d datanodes", $largest_datanode_used_pc_diff, scalar keys %datanodes_used_pc);
     check_thresholds($largest_datanode_used_pc_diff);
-    if(is_warning or is_critical){
+    if($verbose and (is_warning or is_critical)){
         my $msg2 = " [imbalanced nodes: ";
         foreach(sort keys %datanodes_imbalance){
             if($datanodes_imbalance{$_} >= $thresholds{"warning"}{"upper"}){
