@@ -553,11 +553,12 @@ if($balance){
     }
     vlog2 "max blocks on a single datanode = $max_blocks";
     vlog2 "min blocks on a single datanode = $min_blocks";
+    my $divisor = $min_blocks;
     if($min_blocks < 1){
-        vlog2 "min blocks < 1, resetting to 1 (% will be very high)";
-        $min_blocks = 1;
+        vlog2 "min blocks < 1, resetting divisor to 1 (% will be very high)";
+        $divisor = 1;
     }
-    my $block_imbalance = sprintf("%.2f", ( ($max_blocks - $min_blocks) / $min_blocks) * 100);
+    my $block_imbalance = sprintf("%.2f", ( ($max_blocks - $min_blocks) / $divisor) * 100);
     my $num_datanodes =  scalar keys %datanode_blocks;
     $msg .= "$block_imbalance% block imbalance across $num_datanodes datanodes";
     $status = "OK";
