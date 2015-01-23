@@ -31,7 +31,7 @@ Caveats:
 
 Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for Cloudera CDH 4.3 (2.0.0-cdh4.3.0) and Hortonworks HDP 2.1 (2.4.0), also tested on HDP 2.2 (Apache 2.6.0). If JSP output changes across versions, this plugin will need to be updated to parse the changes";
 
-$VERSION = "0.9.1";
+$VERSION = "0.9.2";
 
 use strict;
 use warnings;
@@ -553,6 +553,10 @@ if($balance){
     }
     vlog2 "max blocks on a single datanode = $max_blocks";
     vlog2 "min blocks on a single datanode = $min_blocks";
+    if($min_blocks < 1){
+        vlog2 "min blocks < 1, resetting to 1 (% will be very high)";
+        $min_blocks = 1;
+    }
     my $block_imbalance = sprintf("%.2f", ( ($max_blocks - $min_blocks) / $min_blocks) * 100);
     my $num_datanodes =  scalar keys %datanode_blocks;
     $msg .= "$block_imbalance% block imbalance across $num_datanodes datanodes";
