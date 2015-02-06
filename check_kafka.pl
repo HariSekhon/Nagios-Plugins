@@ -26,7 +26,7 @@ Limitations (these all currently have tickets open to fix in the underlying API)
 - first run if given a topic that doesn't already exist will cause the error \"Error: There are no known brokers: topic = '<topic>'\"
 ";
 
-$VERSION = "0.1";
+$VERSION = "0.1.1";
 
 # Kafka lib requires Perl 5.10
 use 5.010;
@@ -46,7 +46,7 @@ use POSIX 'strftime';
 use Scalar::Util 'blessed';
 use Sys::Hostname;
 #use Try::Tiny;
-use Time::HiRes 'time';
+use Time::HiRes qw/time sleep/;
 
 # Technically the default port is 6667 (and on Hortonworks sandbox) but it seems 9092 is more common so leaving it as 9092 for convenience
 #set_port_default(6667);
@@ -64,6 +64,7 @@ my $send_max_retries    = 1;
 my $receive_max_retries = 1;
 my $retry_backoff = $RETRY_BACKOFF; # set to 200ms by Kafka library
 my $ignore_invalid_msgs;
+my $sleep = 0.5;
 
 %options = (
     %hostoptions,
@@ -75,9 +76,10 @@ my $ignore_invalid_msgs;
     "send-max-retries=s"        => [ \$send_max_retries,    "Max number of send    retries for Kafka broker (default: 1, min: 1, max: 100)" ],
     "receive-max-retries=s"     => [ \$receive_max_retries, "Max number of receive retries for Kafka broker (default: 1, min: 1, max: 100)" ],
     "retry-backoff=s"           => [ \$retry_backoff,       "Retry backoff in milliseconds between retries  (default: 200, min: 1, max: 10000)" ],
+    "sleep=s"                   => [ \$sleep,               "Sleep in seconds between producing and consuming from given topic (default: 0.5)" ],
     #"list-topics"               => [ \$list_topics,         "List Kafka topics from broker" ],
 );
-splice @usage_order, 6, 0, qw/broker-list topic partition required-acks ignore-invalid-messages send-max-retries receive-max-retries retry-backoff list-topics/;
+splice @usage_order, 6, 0, qw/broker-list topic partition required-acks ignore-invalid-messages send-max-retries receive-max-retries retry-backoff sleep list-topics/;
 
 get_options();
 
@@ -118,6 +120,7 @@ vlog_options "required acks", $RequiredAcks;
 $send_max_retries    = validate_int($send_max_retries,    "send-max-retries",    1, 100);
 $receive_max_retries = validate_int($receive_max_retries, "receive-max-retries", 1, 100);
 $retry_backoff       = validate_int($retry_backoff,       "retry-backoff",       1, 10000);
+$sleep               = validate_float($sleep,             "sleep",               0.1, 10);
 
 vlog2;
 set_timeout();
@@ -169,7 +172,8 @@ try {
                                         ) or quit "CRITICAL", "failed to connect to Kafka broker$broker_name! $!";
     vlog3 Dumper($connection) if $debug;
 
-    vlog2 "known servers: " . join(", ", $connection->get_known_servers());
+    # API BUG: this returns the list of supplied brokers, not ones actually detected and doesn't really add value
+    #vlog2 "known servers: " . join(", ", $connection->get_known_servers());
     unless(@broker_list){
         if($connection->is_server_known("$host:$port")){
             vlog2 "server $host:$port is known to Kafka cluster";
@@ -217,7 +221,7 @@ try {
     vlog2;
     check_server_alive() unless @broker_list;
 
-    vlog2 "sending message to broker\n";
+    vlog2 "sending message to broker" . ( $verbose > 2 ? ":\n\n$content" : "" ) . "\n";
     my $response = $producer->send(
                                     $topic,
                                     $partition,
@@ -228,6 +232,7 @@ try {
     vlog3 Dumper($response) if $debug;
     check_server_alive() unless @broker_list;
 
+    sleep $sleep;
     vlog2 "fetching messages";
     my $messages = $consumer->fetch($topic, $partition, $$offsets[0], $DEFAULT_MAX_BYTES) or quit "CRITICAL", "no messages fetched! $!";
     @$messages or quit "CRITICAL", "no messages returned by Kafka broker$broker_name! $!";
