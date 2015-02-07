@@ -14,5 +14,5 @@ perl:
   - "5.10"
   - "5.8"
 
-install:
-  - sudo make
+#install:
+#  - sudo make
