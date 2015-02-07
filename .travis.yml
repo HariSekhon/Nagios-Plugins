@@ -9,5 +9,5 @@ perl:
   - "5.20"
   - "5.8"
 
-#install:
-#  - sudo make
+install:
+  - cpanm --installdeps --notest .
