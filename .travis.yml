@@ -10,4 +10,5 @@ perl:
   - "5.8"
 
 install:
-  - cpanm -v -v --installdeps --notest .
+  #- cpanm -v -v --installdeps --notest .
+  - sudo make
