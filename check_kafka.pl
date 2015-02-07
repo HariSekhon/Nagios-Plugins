@@ -248,7 +248,7 @@ try {
     vlog3 Dumper($consumer) if $debug;
 
     unless($connection->exists_topic_partition($topic, $partition)){
-        quit "CRITICAL", "topic '$topic' has no partition '$partition', try --list-partition to see list of configured Kafka partitions to check";
+        quit "CRITICAL", "topic '$topic' has no partition '$partition', try --list-partitions to see list of configured Kafka partitions to check";
     }
     # When this partition number doesn't exist we get only this error thrown by the API
     # : topic = '$topic'
