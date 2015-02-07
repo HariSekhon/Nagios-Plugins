@@ -48,7 +48,7 @@ make:
 	# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
 	# Redis module required but didn't auto-pull: ExtUtils::Config ExtUtils::Helpers ExtUtils::InstallPaths TAP::Harness::Env Module::Build::Tiny Sub::Name
 	# Kafka module required but didn't auto-pull: ExtUtils::Config, ExtUtils::Helpers, ExtUtils::InstallPaths, TAP::Harness::Env, Module::Build::Tiny, Sub::Exporter::Progressive, Const::Fast, Exporter::Tiny, List::MoreUtils, Devel::CheckLib, Compress::Snappy, Sub::Name
-	yes | sudo cpan \
+	yes "" | sudo cpan \
 		Class:Accessor \
 		Compress::Snappy \
 		Const::Fast \
