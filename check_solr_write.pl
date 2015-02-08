@@ -83,7 +83,7 @@ $ua->default_header("Content-Type" => "application/xml");
 
 vlog2 "adding unique document to Solr collection '$collection'";
 vlog3 "document id '$unique_id'";
-$json = curl_solr "solr/$collection/update?commit=true", "POST", $xml_doc;
+$json = curl_solr "solr/$collection/update?commit=true&overwrite=false", "POST", $xml_doc;
 $query_status eq 0 or quit "CRITICAL", "failed to write doc to Solr, got status '$query_status' (expected: 0)";
 
 $msg .= "wrote unique document to Solr collection '$collection' in ${query_time}ms";
