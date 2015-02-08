@@ -33,6 +33,8 @@ use XML::Simple;
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
+set_threshold_defaults(100, 2000);
+
 %options = (
     %solroptions,
     %solroptions_collection,
