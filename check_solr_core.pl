@@ -44,7 +44,7 @@ my $query_time_threshold;
     %solroptions,
     %solroptions_collection,
     "core-heap=s"       => [ \$core_heap_threshold,     "Core heap size thresholds in MB" ],
-    "core-size=s"       => [ \$core_size_threshold,     "Core size thresholds in MB" ],
+    "core-size=s"       => [ \$core_size_threshold,     "Core index size thresholds in MB" ],
     "core-num-docs=s"   => [ \$core_num_docs_threshold, "Core num docs thresholds" ],
     "query-time=s"      => [ \$query_time_threshold,    "Query time thresholds in milliseconds (optional for both API ping and collection check)" ],
 );
