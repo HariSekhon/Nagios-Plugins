@@ -35,32 +35,25 @@ use HariSekhon::Solr;
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
-my $collection;
-my $list_collections;
 my $core_heap_threshold;
 my $core_size_threshold;
 my $core_num_docs_threshold;
 my $query_time_threshold;
 
 %options = (
-    %hostoptions,
-    #%useroptions,
-    %ssloptions,
-    "collection=s"      => [ \$collection,              "Check core for a given Solr collection (required)" ],
+    %solroptions,
+    %solroptions_collection,
     "core-heap=s"       => [ \$core_heap_threshold,     "Core heap size thresholds in MB" ],
     "core-size=s"       => [ \$core_size_threshold,     "Core size thresholds in MB" ],
     "core-num-docs=s"   => [ \$core_num_docs_threshold, "Core num docs thresholds" ],
     "query-time=s"      => [ \$query_time_threshold,    "Query time thresholds in milliseconds (optional for both API ping and collection check)" ],
-    "list-collections"  => [ \$list_collections,        "List Collections for which there are loaded cores on the given Solr instance and exit" ],
 );
-splice @usage_order, 4, 0, qw/api-ping collection core-heap core-size core-num-docs query-time list-collections/;
+splice @usage_order, 4, 0, qw/collection core-heap core-size core-num-docs query-time list-collections/;
 
 get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
-#$user      = validate_user($user);
-#$password  = validate_password($password) if $password;
 $collection = validate_solr_collection($collection);
 validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 0 }, "core heap",  $core_heap_threshold);
 validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 0 }, "core size",  $core_size_threshold);
@@ -73,35 +66,13 @@ set_timeout();
 
 $status = "OK";
 
-$url = "$solr_admin/";
-
-#if($list_collections){
-    # not using this as it lists all collections, whereas it's more useful to only list collections for which there are cores on the given Solr server
-    #$url .= "collections?action=LIST&distrib=false";
-#} else {
-    $url .= "cores?distrib=false";
-#}
+list_solr_collections();
 
 # This is disabled in newer versions of Solr
 #} elsif($stats){
-#    $url .= "stats.jsp";
+#    $url .= "/stats.jsp";
 
-$json = curl_solr $url;
-
-if($list_collections){
-    print "Solr Collections loaded on this Solr instance:\n\n";
-    #my @collections = get_field_array("collections");
-    #foreach(sort @collections){
-    #    print "$_\n";
-    #}
-    # more concise
-    #print join("\n", get_field_array("collections")) . "\n";
-    my %cores = get_field_hash("status");
-    foreach(sort keys %cores){
-        print get_field2($cores{$_}, "name") . "\n";
-    }
-    exit $ERRORS{"UNKNOWN"};
-}
+$json = curl_solr "$solr_admin/cores?distrib=false";
 
 my $sizeInMB;
 my $maxDoc;
