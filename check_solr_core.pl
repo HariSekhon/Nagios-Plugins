@@ -9,15 +9,6 @@
 #  License: see accompanying LICENSE file
 #
 
-# Todo checks:
-#
-# Number of queries / queries per second
-# Average response time
-# Number of updates
-# Cache hit ratios
-# Replication status
-# Synthetic queries
-
 $DESCRIPTION = "Nagios Plugin to check a Solr core for a given collection - heap, size, number of documents and query time
 
 Tested on Solr / SolrCloud 4.x";
