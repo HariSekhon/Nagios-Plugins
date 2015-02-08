@@ -97,7 +97,7 @@ foreach(sort keys %cores){
     $deletedDocs  = get_field_int("status.$name.index.deletedDocs");
     $segmentCount = get_field_int("status.$name.index.segmentCount");
     $indexHeapUsageMB = sprintf("%.2f", get_field_int("status.$name.index.indexHeapUsageBytes") / (1024*1024));
-    $msg .= "size: ${sizeInMB}MB"; # get_field("status.$name.index.size"); # this could be in KB
+    $msg .= "indexSize: ${sizeInMB}MB"; # get_field("status.$name.index.size"); # this could be in KB
     check_thresholds($sizeInMB, 0, "core size");
     $msg .= ", indexHeapUsage: ${indexHeapUsageMB}MB";
     check_thresholds($indexHeapUsageMB, 0, "core heap");
@@ -115,7 +115,7 @@ foreach(sort keys %cores){
 }
 $found or quit "CRITICAL", "core for '$collection' not found, core not loaded or incorrect --collection name given. Use --list-collections to see available cores";
 $msg .= " |";
-$msg .= " size=${sizeInMB}MB";
+$msg .= " indexSize=${sizeInMB}MB";
 msg_perf_thresholds(0, 0, 'core size');
 $msg .= " indexHeapUsage=${indexHeapUsageMB}MB";
 msg_perf_thresholds(0, 0, 'core heap');
