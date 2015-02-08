@@ -48,6 +48,7 @@ $host       = validate_host($host);
 $port       = validate_port($port);
 $collection = validate_solr_collection($collection) unless $list_collections;
 validate_thresholds();
+validate_ssl();
 
 vlog2;
 set_timeout();
