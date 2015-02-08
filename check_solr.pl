@@ -51,7 +51,7 @@ my $num_docs_threshold;
     "core-name=s"       => [ \$core_name,            "Check a given Solr core/collection status and stats, thresholds below are optional" ],
     "core-heap=s"       => [ \$core_heap_threshold,  "Core heap size thresholds in MB" ],
     "core-size=s"       => [ \$core_size_threshold,  "Core size thresholds in MB" ],
-    "core-num-docs=s"   => [ \$num_docs_threshold,   "Num docs thresholds" ],
+    "core-num-docs=s"   => [ \$num_docs_threshold,   "Core num docs thresholds" ],
     "query-time=s"      => [ \$query_time_threshold, "Query time thresholds in milliseconds (optional for both API ping and core-name check)" ],
     "list-cores"        => [ \$list_cores,           "List Solr Cores and exit" ],
 );
