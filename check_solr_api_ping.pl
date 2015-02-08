@@ -31,9 +31,7 @@ $ua->agent("Hari Sekhon $progname $main::VERSION");
 my $api_ping;
 
 %options = (
-    %hostoptions,
-    #%useroptions,
-    %ssloptions,
+    %solroptions,
     %thresholdoptions,
 );
 splice @usage_order, 4, 0, qw/api-ping/;
@@ -42,8 +40,6 @@ get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
-#$user       = validate_user($user);
-#$password   = validate_password($password) if $password;
 validate_ssl();
 validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1 });
 
