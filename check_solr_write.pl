@@ -9,13 +9,13 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin check Solr via API write and read back of a unique document
+$DESCRIPTION = "Nagios Plugin check Solr via API write and read back of a uniquely generated document
 
 Optional warning/critical thresholds may be applied to the query times which will apply to write, read and delete of the unique test document.
 
 Test on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
 
-# Originally designed for Solr 4.0 onwards due to using JSON and the standard update handler which only supports JSON from 4.0.
+# Originally designed for Solr 4.0 onwards due to using JSON and the standard update handler which only supports JSON from 4.0, later rewritten to support Solr 3 via XML document addition instead
 
 $VERSION = "0.1";
 
