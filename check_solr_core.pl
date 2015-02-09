@@ -9,7 +9,9 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check a Solr core for a given collection - heap, size, number of documents and query time
+$DESCRIPTION = "Nagios Plugin to check the stats of a Solr 4 core on the server instance for a given collection
+
+Optional thresholds on the core's index size, heap size, number of documents and query time
 
 Tested on Solr / SolrCloud 4.x";
 
@@ -34,12 +36,12 @@ my $query_time_threshold;
 %options = (
     %solroptions,
     %solroptions_collection,
-    "core-heap=s"       => [ \$core_heap_threshold,     "Core heap size thresholds in MB" ],
-    "core-size=s"       => [ \$core_size_threshold,     "Core index size thresholds in MB" ],
-    "core-num-docs=s"   => [ \$core_num_docs_threshold, "Core num docs thresholds" ],
-    "query-time=s"      => [ \$query_time_threshold,    "Query time thresholds in milliseconds (optional for both API ping and collection check)" ],
+    "s|index-size=s" => [ \$core_size_threshold,     "Core index size thresholds in MB" ],
+    "e|heap-size=s"  => [ \$core_heap_threshold,     "Core heap size thresholds in MB" ],
+    "n|num-docs=s"   => [ \$core_num_docs_threshold, "Core number of documents thresholds" ],
+    "T|query-time=s" => [ \$query_time_threshold,    "Query time thresholds in milliseconds" ],
 );
-splice @usage_order, 4, 0, qw/collection core-heap core-size core-num-docs query-time list-collections/;
+splice @usage_order, 4, 0, qw/collection index-size heap-size num-docs query-time list-collections/;
 
 get_options();
 
