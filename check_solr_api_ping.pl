@@ -65,7 +65,7 @@ my $qstatus = get_field("status");
 unless($qstatus eq "OK"){
     critical;
 }
-$msg .= "Solr API ping of collection '$collection' " . ( $verbose ? "(" . get_field("responseHeader.params.q") . ") " : "") . "returned $qstatus, query time ${query_time}ms";
+$msg .= "Solr API ping returned '$qstatus' for collection '$collection'" . ( $verbose ? " (" . get_field("responseHeader.params.q") . ")" : "") . ", query time ${query_time}ms";
 check_thresholds($query_time);
 $msg .= " | ";
 
