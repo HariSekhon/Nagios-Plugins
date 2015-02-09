@@ -11,9 +11,9 @@
 
 $DESCRIPTION = "Nagios Plugin check Solr via API write and read back of a uniquely generated document
 
-Optional warning/critical thresholds may be applied to the query times which will apply to write, read and delete of the unique test document.
+Optional warning/critical thresholds may be applied to the query times which will apply to write, read and delete of the unique test document. This is primarily to check write latency. If wanting to test query latency then the adjacent check_solr_query.pl plugin is a more targeted choice for that.
 
-Performs a hard commit by default but if running Solr 4.x may optionally specify to use a soft commit instead.
+Performs a hard commit by default but if running Solr 4.x you may optionally specify to use a soft commit instead (will be ignored on Solr 3.x).
 
 Test on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
 
@@ -31,7 +31,6 @@ use HariSekhonUtils;
 use HariSekhon::Solr;
 use Sys::Hostname 'hostname';
 use Time::HiRes qw/sleep time/;
-use XML::Simple;
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
