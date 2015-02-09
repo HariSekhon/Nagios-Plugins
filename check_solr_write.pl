@@ -13,6 +13,8 @@ $DESCRIPTION = "Nagios Plugin check Solr via API write and read back of a unique
 
 Optional warning/critical thresholds may be applied to the query times which will apply to write, read and delete of the unique test document.
 
+Performs a hard commit by default but if running Solr 4.x may optionally specify to use a soft commit instead.
+
 Test on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
 
 # Originally designed for Solr 4.0 onwards due to using JSON and the standard update handler which only supports JSON from 4.0, later rewritten to support Solr 3 via XML document addition instead
@@ -35,18 +37,24 @@ $ua->agent("Hari Sekhon $progname $main::VERSION");
 
 set_threshold_defaults(100, 2000);
 
+my $soft_commit;
+#my $sleep = 10;
+
 %options = (
     %solroptions,
     %solroptions_collection,
     %thresholdoptions,
+    "soft-commit"   =>  [ \$soft_commit,    "Soft commit instead of hard commit" ],
+    #"sleep=s"       =>  [ \$sleep,          "Sleep in milliseconds between writing unique document and querying to verify it (default: 10)" ],
 );
-splice @usage_order, 6, 0, qw/collection/;
+splice @usage_order, 6, 0, qw/collection soft-commit sleep/;
 
 get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
 $collection = validate_solr_collection($collection) unless $list_collections;
+#validate_int($sleep, "sleep", 1, 2000);
 validate_thresholds();
 validate_ssl();
 
@@ -83,14 +91,15 @@ $ua->default_header("Content-Type" => "application/xml");
 
 vlog2 "adding unique document to Solr collection '$collection'";
 vlog3 "document id '$unique_id'";
-$json = curl_solr "solr/$collection/update?commit=true&overwrite=false", "POST", $xml_doc;
+$json = curl_solr "solr/$collection/update?commit=true" . ( $soft_commit ? "&softCommit=true" : "") . "&overwrite=false", "POST", $xml_doc;
 $query_status eq 0 or quit "CRITICAL", "failed to write doc to Solr, got status '$query_status' (expected: 0)";
 
 $msg .= "wrote unique document to Solr collection '$collection' in ${query_time}ms";
 check_thresholds($query_time);
 my $msg2 = "write_time=${query_time}ms" . msg_perf_thresholds(1);
 
-sleep 0.1;
+#vlog2 "sleeping for $sleep ms to allow commit to complete before we query for document";
+#sleep $sleep / 1000;
 
 vlog2 "\nquerying for unique document";
 $json = query_solr($collection, "id:$unique_id");
