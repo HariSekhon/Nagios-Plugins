@@ -15,7 +15,7 @@ Optional warning/critical thresholds apply to query response time (QTime field)
 
 Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
 
-our $VERSION = "0.1";
+$VERSION = "0.1";
 
 use strict;
 use warnings;
