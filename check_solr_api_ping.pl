@@ -28,6 +28,8 @@ use HariSekhon::Solr;
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
+set_threshold_defaults(50, 1000);
+
 my $api_ping;
 
 %options = (
