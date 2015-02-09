@@ -28,6 +28,8 @@ BEGIN {
 use HariSekhonUtils;
 use HariSekhon::Solr;
 
+$ua->agent("Hari Sekhon $progname $main::VERSION");
+
 set_threshold_defaults(100, 2000);
 
 my $query;
