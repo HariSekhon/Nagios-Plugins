@@ -37,7 +37,7 @@ my $api_ping;
     %solroptions_collection,
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, qw/api-ping collection/;
+splice @usage_order, 6, 0, qw/collection/;
 
 get_options();
 
