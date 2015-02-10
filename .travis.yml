@@ -10,4 +10,4 @@ perl:
   - "5.8"
 
 install:
-  - cpanm --notest .
+  - make
