@@ -9,6 +9,5 @@ perl:
   - "5.20"
   - "5.8"
 
-# cpanm -v --notest .
-#install:
-#  - make
+install:
+  - cpanm --notest .
