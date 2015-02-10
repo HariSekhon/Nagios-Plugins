@@ -9,6 +9,8 @@ perl:
   - "5.20"
   - "5.8"
 
+# this is what is called by default, which just triggers make
+#
+# cpanm -v --notest .
 install:
-  #- cpanm -v -v --installdeps --notest .
-  - sudo make
+  - make
