@@ -15,7 +15,7 @@ Optional thresholds on the core's index size, heap size, number of documents and
 
 Tested on Solr / SolrCloud 4.x";
 
-our $VERSION = "0.1";
+our $VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -31,7 +31,6 @@ $ua->agent("Hari Sekhon $progname $main::VERSION");
 my $core_heap_threshold;
 my $core_size_threshold;
 my $core_num_docs_threshold;
-my $query_time_threshold;
 
 %options = (
     %solroptions,
@@ -39,7 +38,7 @@ my $query_time_threshold;
     "s|index-size=s" => [ \$core_size_threshold,     "Core index size thresholds in MB" ],
     "e|heap-size=s"  => [ \$core_heap_threshold,     "Core heap size thresholds in MB" ],
     "n|num-docs=s"   => [ \$core_num_docs_threshold, "Core number of documents thresholds" ],
-    "T|query-time=s" => [ \$query_time_threshold,    "Query time thresholds in milliseconds (QTime field returned by Solr)" ],
+    %thresholdoptions,
 );
 splice @usage_order, 4, 0, qw/collection index-size heap-size num-docs query-time list-collections/;
 
@@ -51,7 +50,7 @@ $collection = validate_solr_collection($collection) unless $list_collections;
 validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 0 }, "core heap",  $core_heap_threshold);
 validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 0 }, "core size",  $core_size_threshold);
 validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1 }, "num docs",   $core_num_docs_threshold);
-validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1 }, "query time", $query_time_threshold);
+validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1 });
 validate_ssl();
 
 vlog2;
@@ -103,8 +102,9 @@ foreach(sort keys %cores){
     $msg .= ", uptime: "         . sec2human(get_field_int("status.$name.uptime") / 1000);
     $msg .= ", started: "        . get_field("status.$name.startTime");
     $msg .= ", last modified: "  . get_field("status.$name.index.lastModified");
-    $msg .= ", query QTime: ${query_time}ms";
-    check_thresholds($query_time, 0, "query time");
+    $msg .= ", query time ${query_time}ms";
+    check_thresholds($query_time);
+    $msg .= ", QTime: ${query_qtime}ms";
 }
 $found or quit "CRITICAL", "core for '$collection' not found, core not loaded or incorrect --collection name given. Use --list-collections to see available cores";
 $msg .= " |";
