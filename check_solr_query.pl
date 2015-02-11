@@ -29,7 +29,6 @@ BEGIN {
 }
 use HariSekhonUtils;
 use HariSekhon::Solr;
-use Time::HiRes 'time';
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
