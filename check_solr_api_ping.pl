@@ -17,7 +17,7 @@ Configurable warning/critical thresholds apply to this API call's millisecond ti
 
 Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -27,10 +27,12 @@ BEGIN {
 }
 use HariSekhonUtils qw/:DEFAULT :time/;
 use HariSekhon::Solr;
+use Math::Round;
+use Time::HiRes 'time';
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
-set_threshold_defaults(50, 1000);
+set_threshold_defaults(200, 1000);
 
 my $api_ping;
 
@@ -61,7 +63,9 @@ list_solr_collections();
 
 $url = "solr/$collection/admin/ping?distrib=false";
 
+my $start = time;
 $json = curl_solr $url;
+my $query_time = round((time - $start) * 1000); # secs => ms
 
 my $qstatus = get_field("status");
 unless($qstatus eq "OK"){
@@ -69,9 +73,10 @@ unless($qstatus eq "OK"){
 }
 $msg .= "Solr API ping returned '$qstatus' for collection '$collection'" . ( $verbose ? " (" . get_field("responseHeader.params.q") . ")" : "") . ", query time ${query_time}ms";
 check_thresholds($query_time);
-$msg .= " | ";
+$msg .= " QTime ${query_qtime}ms | ";
 
 $msg .= sprintf('query_time=%dms', $query_time);
 msg_perf_thresholds();
+$msg .= sprintf(' query_QTime=%dms', $query_qtime);
 
 quit $status, $msg;
