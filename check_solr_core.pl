@@ -39,7 +39,7 @@ my $query_time_threshold;
     "s|index-size=s" => [ \$core_size_threshold,     "Core index size thresholds in MB" ],
     "e|heap-size=s"  => [ \$core_heap_threshold,     "Core heap size thresholds in MB" ],
     "n|num-docs=s"   => [ \$core_num_docs_threshold, "Core number of documents thresholds" ],
-    "T|query-time=s" => [ \$query_time_threshold,    "Query time thresholds in milliseconds" ],
+    "T|query-time=s" => [ \$query_time_threshold,    "Query time thresholds in milliseconds (QTime field returned by Solr)" ],
 );
 splice @usage_order, 4, 0, qw/collection index-size heap-size num-docs query-time list-collections/;
 
