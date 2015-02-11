@@ -27,8 +27,6 @@ BEGIN {
 }
 use HariSekhonUtils qw/:DEFAULT :time/;
 use HariSekhon::Solr;
-use Math::Round;
-use Time::HiRes 'time';
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
@@ -71,7 +69,7 @@ unless($qstatus eq "OK"){
 }
 $msg .= "Solr API ping returned '$qstatus' for collection '$collection'" . ( $verbose ? " (" . get_field("responseHeader.params.q") . ")" : "") . ", query time ${query_time}ms";
 check_thresholds($query_time);
-$msg .= " QTime ${query_qtime}ms | ";
+$msg .= ", QTime ${query_qtime}ms | ";
 
 $msg .= sprintf('query_time=%dms', $query_time);
 msg_perf_thresholds();
