@@ -69,13 +69,13 @@ my $num_found = get_field_int("response.numFound");
 #my @docs = get_field("responseHeader.response.docs");
 # docs id, name fields etc
 
-$msg = "$num_found matching documents found";
+$msg = "$num_found matching documents found in ${query_time}ms";
 check_thresholds($num_found, 0, "num docs");
 
 $msg .= " | num_matching_docs=$num_found";
 msg_perf_thresholds(0, undef, "num docs");
 
-$msg .= " query_time=${query_time}ms";
+$msg .= " query_QTime=${query_time}ms";
 msg_perf_thresholds();
 
 quit $status, $msg;
