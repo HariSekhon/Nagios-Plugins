@@ -103,7 +103,7 @@ foreach(sort keys %cores){
     $msg .= ", uptime: "         . sec2human(get_field_int("status.$name.uptime") / 1000);
     $msg .= ", started: "        . get_field("status.$name.startTime");
     $msg .= ", last modified: "  . get_field("status.$name.index.lastModified");
-    $msg .= ", query time: ${query_time}ms";
+    $msg .= ", query QTime: ${query_time}ms";
     check_thresholds($query_time, 0, "query time");
 }
 $found or quit "CRITICAL", "core for '$collection' not found, core not loaded or incorrect --collection name given. Use --list-collections to see available cores";
@@ -118,7 +118,7 @@ $msg .= " maxDoc=$maxDoc";
 $msg .= " segmentCount=$segmentCount";
 $msg .= " ";
 
-$msg .= sprintf('query_time=%dms', $query_time);
+$msg .= sprintf('query_QTime=%dms', $query_time);
 msg_perf_thresholds(0, 0, 'query time');
 
 quit $status, $msg;
