@@ -65,7 +65,8 @@ list_solr_collections();
 
 $json = query_solr($collection, $query);
 
-defined($num_found) or quit "UNKNOWN", "failed to determine number of docs found. $nagios_plugins_support_msg_api";
+# reuse specific error from get_field
+defined($num_found) or get_field_int("response.numFound");
 #my @docs = get_field("responseHeader.response.docs");
 # docs id, name fields etc
 
