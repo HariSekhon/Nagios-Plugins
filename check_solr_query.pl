@@ -15,6 +15,8 @@ This uses the Solr /select SearchHandler so should be using Lucene query syntax.
 
 The query may be case sensitive depending on your Solr analyzer configuration.
 
+Configurable warning/critical thresholds apply to the query (read) millisecond time, as reported by Solr (QTime). To check write QTime, see the adjacent program check_solr_write.pl
+
 Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
 
 $VERSION = "0.1";
