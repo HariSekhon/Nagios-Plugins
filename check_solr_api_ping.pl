@@ -63,9 +63,7 @@ list_solr_collections();
 
 $url = "solr/$collection/admin/ping?distrib=false";
 
-my $start = time;
 $json = curl_solr $url;
-my $query_time = round((time - $start) * 1000); # secs => ms
 
 my $qstatus = get_field("status");
 unless($qstatus eq "OK"){
