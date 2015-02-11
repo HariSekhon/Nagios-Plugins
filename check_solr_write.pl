@@ -97,7 +97,7 @@ $query_status eq 0 or quit "CRITICAL", "failed to write doc to Solr, got status 
 
 $msg .= "wrote unique document to Solr collection '$collection' in ${query_time}ms";
 check_thresholds($query_time);
-my $msg2 = "write_time=${query_time}ms" . msg_perf_thresholds(1);
+my $msg2 = "write_QTime=${query_time}ms" . msg_perf_thresholds(1);
 
 #vlog2 "sleeping for $sleep ms to allow commit to complete before we query for document";
 #sleep $sleep / 1000;
@@ -116,7 +116,7 @@ foreach(@docs){
 #$msg .= ", queried and confirmed match on exactly $num_found matching document in ${query_time}ms";
 $msg .= ", retrieved in ${query_time}ms";
 check_thresholds($query_time);
-$msg2 .= " read_time=${query_time}ms" . msg_perf_thresholds(1);
+$msg2 .= " read_QTime=${query_time}ms" . msg_perf_thresholds(1);
 
 my $xml_delete = "
 <delete>
@@ -129,7 +129,7 @@ $json = curl_solr "solr/$collection/update", "POST", $xml_delete;
 ( $query_status eq 0 ) or quit "CRITICAL", "failed to delete unique document with id '$unique_id'";
 $msg .= ", deleted in ${query_time}ms";
 check_thresholds($query_time);
-$msg2 .= " delete_time=${query_time}ms" . msg_perf_thresholds(1);
+$msg2 .= " delete_QTime=${query_time}ms" . msg_perf_thresholds(1);
 
 $msg .= " | $msg2";
 
