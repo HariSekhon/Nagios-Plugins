@@ -11,9 +11,9 @@
 
 $DESCRIPTION = "Nagios Plugin to check Solr availability via the in-built Solr API Ping
 
-Must specify collection name if differing from the default 'collection1' since this API Ping is per collection
+Must specify collection name if differing from the default 'collection1' since this API Ping is per collection and will result in a \"404 Not Found\" error if the collection doesn't exist on the Solr server
 
-Optional warning/critical thresholds apply to query response time (QTime field)
+Configurable warning/critical thresholds apply to this API call's millisecond time, as reported by Solr (QTime). To check write QTime, see the adjacent program check_solr_write.pl
 
 Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
 
