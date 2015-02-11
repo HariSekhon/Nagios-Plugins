@@ -19,7 +19,7 @@ Configurable warning/critical thresholds apply to the query (read) millisecond t
 
 Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -29,6 +29,7 @@ BEGIN {
 }
 use HariSekhonUtils;
 use HariSekhon::Solr;
+use Time::HiRes 'time';
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
@@ -65,17 +66,20 @@ list_solr_collections();
 
 $json = query_solr($collection, $query);
 
-my $num_found = get_field_int("response.numFound");
+defined($num_found) or quit "UNKNOWN", "failed to determine number of docs found. $nagios_plugins_support_msg_api";
 #my @docs = get_field("responseHeader.response.docs");
 # docs id, name fields etc
 
-$msg = "$num_found matching documents found in ${query_time}ms";
+$msg = "$num_found matching documents found";
 check_thresholds($num_found, 0, "num docs");
+$msg .= ", query time ${query_time}ms";
+check_thresholds($query_time);
 
-$msg .= " | num_matching_docs=$num_found";
-msg_perf_thresholds(0, undef, "num docs");
+$msg .= ", QTime ${query_qtime}ms | num_matching_docs=$num_found";
+msg_perf_thresholds(0, "lower", "num docs");
 
-$msg .= " query_QTime=${query_time}ms";
+$msg .= " query_time=${query_time}ms";
 msg_perf_thresholds();
+$msg .= " query_QTime=${query_qtime}ms";
 
 quit $status, $msg;
