@@ -11,9 +11,11 @@
 
 $DESCRIPTION = "Nagios Plugin check Solr via API write and read back of a uniquely generated document
 
-Optional warning/critical thresholds may be applied to the query times which will apply to write, read and delete of the unique test document. This is primarily to check write latency. If wanting to test query latency then the adjacent check_solr_query.pl plugin is a more targeted choice for that.
+Configurable warning/critical thresholds apply to write/read/delete millisecond times for the unique test document, as reported by Solr (QTime). This is primarily to check write latency. If wanting to test query latency separately then the adjacent check_solr_query.pl plugin is a more targeted choice for that.
 
 Performs a hard commit by default but if running Solr 4.x you may optionally specify to use a soft commit instead (will be ignored on Solr 3.x).
+
+The default thresholds will need to be increased when testing SolrCloud on Hadoop HDFS as the write latency is massively higher, more than 10x in testing (700-1800ms on Hadoop vs 20-40ms on regular Solr / SolrCloud). Another possibility is to switch to using --soft-commits which bring write times down to around 15-120ms (warning threshold will still need to be increased somewhat above the default of 100 which is designed for non-HDFS Solr / SolrCloud which is usually in the sub 40ms region).
 
 Test on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
 
