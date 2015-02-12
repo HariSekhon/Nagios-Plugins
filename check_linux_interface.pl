@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to test a Linux Interface for errors, promisc mode etc, designed to be run locally on machine over NRPE or similar";
 
-$VERSION = "0.8.8";
+$VERSION = "0.8.9";
 
 use strict;
 use warnings;
@@ -394,13 +394,13 @@ if(not $statefile_found) {
 } elsif ($stats_missing){
     $msg .= " (stats missing from state file, resetting values, should be available from next run)";
 } else {
-    $msg .= "|";
+    $msg .= " |";
     foreach(sort keys %stats){
         next if ($_ eq "interrupts" and $stats{$_} eq "N/A");
         if(defined($stats_diff{$_})){
-            $msg .= "'$_/sec'=$stats_diff{$_} ";
+            $msg .= " '$_/sec'=$stats_diff{$_}";
         } else {
-            $msg .= "$_=$stats{$_} ";
+            $msg .= " $_=$stats{$_}";
         }
     }
 }
