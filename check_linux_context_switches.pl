@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the number of context switches on the local Linux server. Designed to be called over NRPE";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -22,9 +22,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-
-$critical = 0;
-$warning  = 0;
+use Math::Round;
 
 my $last_count;
 my $last_line;
@@ -35,47 +33,35 @@ my $statefile = "/tmp/$progname.tmp";
 my $total_context_switches;
 
 %options = (
-    "w|warning=i"   => [ \$warning,  "Warning  count threshold for context switches (optional, 0 = no threshold)" ],
-    "c|critical=i"  => [ \$critical, "Critical count threshold for context switches (optional, 0 = no threshold)" ],
+    %thresholdoptions,
 );
 
 get_options();
 
-if(defined($warning)){
-    $warning  =~ /^\d+$/ || usage "invalid warning threshold given, must be a positive numeric integer";
-}
-if(defined($critical)){
-    $critical =~ /^\d+$/ || usage "invalid critical threshold given, must be a positive numeric integer";
-}
+validate_threshold(0, 0, { 'simple' => 1, 'positive' => 1, 'integer' => 1});
 
-if($critical < $warning){
-    $critical = $warning;
-    vlog2 "setting critical to same as warning";
-}
-
-vlog_options "warning",     $warning;
-vlog_options "critical",    $critical;
 vlog_options "stat file",   $stat;
 vlog_options "state file",  $statefile;
 vlog2;
 
 linux_only();
+
 set_timeout();
 
-my $fh;
-open $fh, "$stat" or quit "UNKNOWN", "Error: failed to open '$stat': $!";
+my $fh = open_file $stat;
+#open $fh, "$stat" or quit "UNKNOWN", "Error: failed to open '$stat': $!";
 
 vlog3 "'$stat' contents:\n";
 while(<$fh>){
     chomp;
     vlog3 $_;
-    if(/^ctxt (\d+)$/){
+    if(/^ctxt\s+(\d+)$/){
         $total_context_switches = $1;
     }
 }
 vlog3;
 
-($fh) || quit "CRITICAL", "Failed to find ctxt line in $stat";
+defined($total_context_switches) || quit "CRITICAL", "failed to find context switches in $stat. $nagios_plugins_support_msg";
 
 my $tmpfh;
 vlog2 "opening state file '$statefile'\n";
@@ -119,22 +105,31 @@ last run epoch:                      $last_timestamp
 secs since last check:               $secs\n";
 
 if($secs < 0){
-    quit "UNKNOWN", "Last timestamp was in the future! Resetting...";
+    quit "UNKNOWN", "last timestamp was in the future! Resetting...";
 } elsif ($secs == 0){
     quit "UNKNOWN", "0 seconds since last run, aborting...";
+}
+
+if($context_switches < 0){
+    quit "UNKNOWN", "context switches = $context_switches < 0 in last $secs secs";
 }
 
 my $context_switches_per_sec = ( $context_switches / $secs );
 
 vlog2 "context switches per sec:            $context_switches_per_sec\n";
 
-$context_switches_per_sec = int($context_switches_per_sec + 0.5);
+$context_switches_per_sec = round($context_switches_per_sec);
 
-my $status = "OK";
+$status = "OK";
 if($critical > 0 && $context_switches_per_sec >= $critical){
     $status = "CRITICAL";
 } elsif ( $warning > 0 && $context_switches_per_sec >= $warning){
     $status = "WARNING";
 }
 
-quit $status, "$context_switches_per_sec context switches per second | 'context switches per second'=$context_switches_per_sec;$warning;$critical";
+$msg = "$context_switches_per_sec context switches per second";
+check_thresholds($context_switches_per_sec);
+$msg .= " | 'context switches per second'=$context_switches_per_sec";
+msg_perf_thresholds();
+
+quit $msg, $status;
