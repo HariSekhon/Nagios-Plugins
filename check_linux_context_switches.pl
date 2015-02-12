@@ -38,7 +38,7 @@ my $total_context_switches;
 
 get_options();
 
-validate_threshold(0, 0, { 'simple' => 1, 'positive' => 1, 'integer' => 1});
+validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1});
 
 vlog_options "stat file",   $stat;
 vlog_options "state file",  $statefile;
@@ -121,15 +121,10 @@ vlog2 "context switches per sec:            $context_switches_per_sec\n";
 $context_switches_per_sec = round($context_switches_per_sec);
 
 $status = "OK";
-if($critical > 0 && $context_switches_per_sec >= $critical){
-    $status = "CRITICAL";
-} elsif ( $warning > 0 && $context_switches_per_sec >= $warning){
-    $status = "WARNING";
-}
 
-$msg = "$context_switches_per_sec context switches per second";
+$msg = "$context_switches_per_sec context switches per sec";
 check_thresholds($context_switches_per_sec);
-$msg .= " | 'context switches per second'=$context_switches_per_sec";
+$msg .= " | 'context switches per sec'=$context_switches_per_sec";
 msg_perf_thresholds();
 
-quit $msg, $status;
+quit $status, $msg;
