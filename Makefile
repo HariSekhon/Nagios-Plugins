@@ -69,6 +69,7 @@ make:
 		LWP::Simple \
 		LWP::UserAgent \
 		List::MoreUtils \
+		Math::Round \
 		Module::Build::Tiny \
 		MongoDB \
 		MongoDB::MongoClient \
