@@ -118,7 +118,8 @@ $msg .= " maxDoc=$maxDoc";
 $msg .= " segmentCount=$segmentCount";
 $msg .= " ";
 
-$msg .= sprintf('query_QTime=%dms', $query_time);
-msg_perf_thresholds(0, 0, 'query time');
+$msg .= sprintf('query_time=%dms', $query_time);
+msg_perf_thresholds();
+$msg .= sprintf(' query_QTime=%dms', $query_qtime);
 
 quit $status, $msg;
