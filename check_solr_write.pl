@@ -11,17 +11,17 @@
 
 $DESCRIPTION = "Nagios Plugin check Solr via API write and read back of a uniquely generated document
 
-Configurable warning/critical thresholds apply to write/read/delete millisecond times for the unique test document, as reported by Solr (QTime). This is primarily to check write latency. If wanting to test query latency separately then the adjacent check_solr_query.pl plugin is a more targeted choice for that.
+Configurable warning/critical thresholds apply to write/read/delete millisecond times for the unique test document. This is primarily to check write latency. If wanting to test query latency separately then the adjacent check_solr_query.pl plugin is a more targeted choice for that.
 
 Performs a hard commit by default but if running Solr 4.x you may optionally specify to use a soft commit instead (will be ignored on Solr 3.x).
 
-The default thresholds will need to be increased when testing SolrCloud on Hadoop HDFS as the write latency is massively higher, more than 10x in testing (700-1800ms on Hadoop vs 20-40ms on regular Solr / SolrCloud). Another possibility is to switch to using --soft-commits which bring write times down to around 15-120ms (warning threshold will still need to be increased somewhat above the default of 100 which is designed for non-HDFS Solr / SolrCloud which is usually in the sub 40ms region).
+The default thresholds will need to be increased when testing SolrCloud on Hadoop HDFS as the write latency is massively higher, more than 10x in testing (700-1800ms on Hadoop vs 55-75ms on regular Solr / SolrCloud). Another possibility is to switch to using --soft-commits which brings write times down (warning threshold may still need to be increased)
 
 Test on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
 
 # Originally designed for Solr 4.0 onwards due to using JSON and the standard update handler which only supports JSON from 4.0, later rewritten to support Solr 3 via XML document addition instead
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -36,7 +36,7 @@ use Time::HiRes qw/sleep time/;
 
 $ua->agent("Hari Sekhon $progname $main::VERSION");
 
-set_threshold_defaults(100, 2000);
+set_threshold_defaults(200, 2000);
 
 my $soft_commit;
 #my $sleep = 10;
@@ -93,11 +93,10 @@ $ua->default_header("Content-Type" => "application/xml");
 vlog2 "adding unique document to Solr collection '$collection'";
 vlog3 "document id '$unique_id'";
 $json = curl_solr "solr/$collection/update?commit=true" . ( $soft_commit ? "&softCommit=true" : "") . "&overwrite=false", "POST", $xml_doc;
-$query_status eq 0 or quit "CRITICAL", "failed to write doc to Solr, got status '$query_status' (expected: 0)";
 
 $msg .= "wrote unique document to Solr collection '$collection' in ${query_time}ms";
 check_thresholds($query_time);
-my $msg2 = "write_QTime=${query_time}ms" . msg_perf_thresholds(1);
+my $msg2 = "write_time=${query_time}ms" . msg_perf_thresholds(1) . " write_QTime=${query_qtime}ms";
 
 #vlog2 "sleeping for $sleep ms to allow commit to complete before we query for document";
 #sleep $sleep / 1000;
@@ -105,7 +104,8 @@ my $msg2 = "write_QTime=${query_time}ms" . msg_perf_thresholds(1);
 vlog2 "\nquerying for unique document";
 $json = query_solr($collection, "id:$unique_id");
 
-my $num_found = get_field_int("response.numFound");
+# reuse specific error from get_field
+defined($num_found) or get_field_int("response.numFound");
 unless($num_found == 1){
     quit "CRITICAL", "$num_found docs found matching unique generated id for document just written";
 }
@@ -116,7 +116,7 @@ foreach(@docs){
 #$msg .= ", queried and confirmed match on exactly $num_found matching document in ${query_time}ms";
 $msg .= ", retrieved in ${query_time}ms";
 check_thresholds($query_time);
-$msg2 .= " read_QTime=${query_time}ms" . msg_perf_thresholds(1);
+$msg2 .= " read_time=${query_time}ms" . msg_perf_thresholds(1) . " read_QTime=${query_qtime}ms";
 
 my $xml_delete = "
 <delete>
@@ -129,7 +129,7 @@ $json = curl_solr "solr/$collection/update", "POST", $xml_delete;
 ( $query_status eq 0 ) or quit "CRITICAL", "failed to delete unique document with id '$unique_id'";
 $msg .= ", deleted in ${query_time}ms";
 check_thresholds($query_time);
-$msg2 .= " delete_QTime=${query_time}ms" . msg_perf_thresholds(1);
+$msg2 .= " delete_time=${query_time}ms" . msg_perf_thresholds(1) . " delete_QTime=${query_qtime}ms";
 
 $msg .= " | $msg2";
 
