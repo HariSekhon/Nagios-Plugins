@@ -46,11 +46,12 @@ my $outstanding_requests = "0,10";
 %options = (
     "H|host=s"                 => [ \$host,                 "ZooKeeper Host to connect to (\$ZOOKEEPER_HOST, \$HOST)" ],
     "P|port=s"                 => [ \$port,                 "ZooKeeper Client Port to connect to (defaults to $ZK_DEFAULT_PORT, set to 5181 for MapR, \$ZOOKEEPER_PORT, \$PORT)" ],
-    "o|outstanding-requests=s" => [ \$outstanding_requests, "Number of outstanding requests thresholds (\"[warn,]crit\"), defaults to warning if greater than zero and critical if greater than 10 - should be zero under normal circumstances, otherwise requests are backing up and could cause coordination problems" ],
+    "o|outstanding-requests=s" => [ \$outstanding_requests, "Number of outstanding requests thresholds (\"[warn,]crit\"), defaults to 0,10 => warning if greater than zero, critical if greater than 10 - should be zero under normal circumstances, otherwise requests are backing up and could cause coordination problems" ],
     "w|warning=s"              => [ \$warning,              "Warning  threshold or ran:ge (inclusive) for avg latency"  ],
     "c|critical=s"             => [ \$critical,             "Critical threshold or ran:ge (inclusive) for avg latency" ],
     "s|standalone"             => [ \$standalone,           "OK if mode is standalone (by default expects leader/follower mode as part of a proper ZooKeeper cluster with quorum)" ],
 );
+splice @usage_order, 6, 0, qw/outstanding-requests warning critical standalone/;
 
 get_options();
 
