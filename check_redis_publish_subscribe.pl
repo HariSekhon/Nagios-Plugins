@@ -33,6 +33,7 @@ BEGIN {
 use HariSekhonUtils;
 use HariSekhon::Redis;
 use Redis;
+use Sys::Hostname;
 use Time::HiRes qw/time sleep/;
 
 my $default_subscriber_wait = 0.001;
@@ -60,7 +61,7 @@ vlog2;
 my $epoch  = time;
 my $random_string = random_alnum(20);
 my $channel  = "HariSekhon:$progname:$host:$epoch:" . substr($random_string, 0, 10);
-my $message  = "This is a publish-subscribe test message from HariSekhon:$progname:$host at epoch $epoch with random token: $random_string";
+my $message  = "This is a publish-subscribe test message from " . hostname . ":HariSekhon:$progname to $host at epoch $epoch with random token: $random_string";
 vlog_options "channel", $channel;
 vlog_options "message", $message;
 vlog2;
