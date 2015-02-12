@@ -19,13 +19,14 @@ Checks:
 1. ruok - checks to see if ZooKeeper reports itself as ok
 2. isro - checks to see if ZooKeeper is still writable
 3. mode - checks to see if ZooKeeper is in the proper mode (leader/follower) vs standalone
-4. avg latency - the average latency reported by ZooKeeper is within the thresholds given. Optional
-5. stats - full stats breakdown
-6. also reports ZooKeeper version
+4. number of outstanding requests
+5. avg latency - the average latency reported by ZooKeeper is within the thresholds given. Optional
+6. stats - full stats breakdown
+7. also reports ZooKeeper version
 
 Tested on ZooKeeper 3.4.5 and 3.4.6 Apache, Cloudera, Hortonworks and MapR. Requires ZooKeeper 3.4 onwards due to isro and mntr 4lw checks";
 
-$VERSION = "0.7.1";
+$VERSION = "0.8";
 
 use strict;
 use warnings;
@@ -40,20 +41,23 @@ use Math::Round;
 use Time::HiRes 'time';
 
 my $standalone;
+my $outstanding_requests = "0,10";
 
 %options = (
-    "H|host=s"       => [ \$host,       "ZooKeeper Host to connect to (\$ZOOKEEPER_HOST, \$HOST)" ],
-    "P|port=s"       => [ \$port,       "ZooKeeper Client Port to connect to (defaults to $ZK_DEFAULT_PORT, set to 5181 for MapR, \$ZOOKEEPER_PORT, \$PORT)" ],
-    "w|warning=s"    => [ \$warning,    "Warning  threshold or ran:ge (inclusive) for avg latency"  ],
-    "c|critical=s"   => [ \$critical,   "Critical threshold or ran:ge (inclusive) for avg latency" ],
-    "s|standalone"   => [ \$standalone, "OK if mode is standalone (by default expects leader/follower mode as part of a proper ZooKeeper cluster with quorum)" ],
+    "H|host=s"                 => [ \$host,                 "ZooKeeper Host to connect to (\$ZOOKEEPER_HOST, \$HOST)" ],
+    "P|port=s"                 => [ \$port,                 "ZooKeeper Client Port to connect to (defaults to $ZK_DEFAULT_PORT, set to 5181 for MapR, \$ZOOKEEPER_PORT, \$PORT)" ],
+    "o|outstanding-requests=s" => [ \$outstanding_requests, "Number of outstanding requests thresholds (\"[warn,]crit\"), defaults to warning if greater than zero and critical if greater than 10 - should be zero under normal circumstances, otherwise requests are backing up and could cause coordination problems" ],
+    "w|warning=s"              => [ \$warning,              "Warning  threshold or ran:ge (inclusive) for avg latency"  ],
+    "c|critical=s"             => [ \$critical,             "Critical threshold or ran:ge (inclusive) for avg latency" ],
+    "s|standalone"             => [ \$standalone,           "OK if mode is standalone (by default expects leader/follower mode as part of a proper ZooKeeper cluster with quorum)" ],
 );
 
 get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
-validate_thresholds(undef, undef, { "integer" => 1 });
+validate_thresholds(undef, undef, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1 }, "outstanding requests", $outstanding_requests);
+validate_thresholds(undef, undef, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1 });
 
 set_timeout();
 
@@ -279,7 +283,6 @@ if($last_line){
                        (\d+)\s+
                        (\d+)\s*$/x){
         $last_timestamp                         = $1;
-        # TODO: this should be 0 - otherwise requests are backing up
         $last_stats{"zk_outstanding_requests"}  = $2,
         $last_stats{"zk_packets_received"}      = $3,
         $last_stats{"zk_packets_sent"}          = $4,
@@ -375,19 +378,22 @@ if($mntr{"zk_server_state"} eq "standalone"){
 $msg .= "Mode $mntr{zk_server_state}, ";
 $msg .= "avg latency $mntr{zk_avg_latency}";
 check_thresholds($mntr{"zk_avg_latency"});
+$msg .= ", outstanding requests $mntr{zk_outstanding_requests}";
+check_thresholds($mntr{"zk_outstanding_requests"}, undef, "outstanding requests");
 #$msg .= "Latency min/avg/max $mntr{zk_min_latency}/$mntr{zk_avg_latency}/$mntr{zk_max_latency}, ";
 $msg .= ", version $mntr{zk_version}";
 if($secs >= 1){
-    $msg .= " | ";
+    $msg .= " |";
     foreach(sort keys %stats_diff){
-        $msg .= "'$_/sec'=$stats_diff{$_} ";
+        $msg .= " '$_/sec'=$stats_diff{$_}";
     }
     foreach(sort keys %mntr){
         next if ($_ eq "zk_version" or $_ eq "zk_server_state");
-        $msg .= "$_=$mntr{$_} ";
+        $msg .= " $_=$mntr{$_}";
+        msg_perf_thresholds(undef, undef, "outstanding requests") if $_ eq "zk_outstanding_requests";
     }
     foreach(sort keys %wchs){
-        $msg .= "wchs_$_=$wchs{$_} ";
+        $msg .= " wchs_$_=$wchs{$_}";
     }
 } else {
     if($new_statefile){
