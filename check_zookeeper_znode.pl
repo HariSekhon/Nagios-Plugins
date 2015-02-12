@@ -186,8 +186,8 @@ if($progname eq "check_hbase_backup_masters_znode.pl"){
     $znode = "/hadoop-ha/logicaljt/ActiveStandbyElectorLock";
     $check_ephemeral = 1;
 }
-
 @usage_order = qw/host port znode data regex json-field null ephemeral child-znodes no-child-znodes user password warning critical random-conn-order session-timeout/;
+
 get_options();
 
 $port = isPort($port) or usage "invalid ZooKeeper port given for all nodes";
