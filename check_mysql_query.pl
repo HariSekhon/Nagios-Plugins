@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check MySQL arbitrary queries against regex matches or numerical ranges, with perfdata support
+$DESCRIPTION = "Nagios Plugin to check arbitrary MySQL queries against regex matches or numerical ranges, with perfdata support
 
 It looks like a similar plugin has now been added to the standard Nagios Plugins collection, although this one still has more features.
 
@@ -20,7 +20,7 @@ DO NOT ADD a semi-colon to the end of your query in Nagios, although this plugin
 
 # TODO: add retry switch if valid below threshold
 
-$VERSION = "1.1.0";
+$VERSION = "1.1.1";
 
 use strict;
 use warnings;
@@ -33,6 +33,7 @@ use HariSekhonUtils;
 use DBI;
 
 set_port_default(3306);
+set_timeout_max(3600);
 
 my @default_mysql_sockets = ( "/var/lib/mysql/mysql.sock", "/tmp/mysql.sock");
 my $mysql_socket;
