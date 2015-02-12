@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to parse and alert on Hadoop FSCK output
 
-Checks the status of the HDFS FSCK output and optionally one of the following:
+Checks the status of the HDFS FSCK output and optionally one of the following against warning/critical thresholds:
 
 - Time in secs since last fsck (recommend setting thresholds to > 86400 ie once a day)
 - Time taken for FSCK in secs
@@ -24,9 +24,9 @@ hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && mv /tmp/hdfs-fsck.log
 
 ./check_hadoop_fsck.pl -f /tmp/hdfs-fsck.log
 
-Tested on Hortonworks HDP 2.1";
+Tested on Hortonworks HDP 2.1 & HDP 2.2";
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -46,8 +46,8 @@ my $stats;
 
 %options = (
     "f|file=s"   => [ \$file,       "HDFS FSCK result file" ],
-    "last-fsck"  => [ \$last_fsck,  "Check time in secs since last HDFS FSCK" ],
-    "fsck-time"  => [ \$fsck_time,  "Check HDFS FSCK time taken" ],
+    "last-fsck"  => [ \$last_fsck,  "Check time in secs since last HDFS FSCK against thresholds" ],
+    "fsck-time"  => [ \$fsck_time,  "Check HDFS FSCK time taken against thresholds" ],
     "max-blocks" => [ \$max_blocks, "Check max HDFS blocks against thresholds" ],
     "stats"      => [ \$stats,      "Output HDFS stats" ],
     %thresholdoptions,
@@ -166,7 +166,7 @@ if($verbose or $max_blocks){
 }
 my $msg2;
 if($stats){
-    $msg2 = sprintf(" size=%s dirs=%d files=%d min_replicated_blocks=%d 'min_replicated_blocks_%%'=%.2f%% over_rep_blocks=%d 'over_rep_blocks_%%'=%.2f%% under_rep_blocks=%d 'under_rep_blocks_%%'=%.2f%% mis_rep_blocks=%d 'mis_rep_blocks_%%'=%.2f%% default_rep_factor=%d avg_block_rep=%.2f corrupt_blocks=%d missing_replicas=%d 'missing_replicas_%%'=%.2f%% num_datanodes=%d num_racks=%d",
+    $msg2 = sprintf(", size=%s dirs=%d files=%d min_replicated_blocks=%d 'min_replicated_blocks_%%'=%.2f%% over_rep_blocks=%d 'over_rep_blocks_%%'=%.2f%% under_rep_blocks=%d 'under_rep_blocks_%%'=%.2f%% mis_rep_blocks=%d 'mis_rep_blocks_%%'=%.2f%% default_rep_factor=%d avg_block_rep=%.2f corrupt_blocks=%d missing_replicas=%d 'missing_replicas_%%'=%.2f%% num_datanodes=%d num_racks=%d",
     human_units($hdfs{"size"}),
     $hdfs{"dirs"}, $hdfs{"files"},
     $hdfs{"min_rep_blocks"},

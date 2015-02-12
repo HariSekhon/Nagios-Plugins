@@ -29,9 +29,9 @@ Caveats:
 1. In Replication check cannot currently detect corrupt or under-replicated blocks since JSP doesn't offer this information
 2. There are no byte counters, so we can only use the human summary and multiply out, and being a multiplier of a summary figure it's marginally less accurate
 
-Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for Cloudera CDH 4.3 (2.0.0-cdh4.3.0) and Hortonworks HDP 2.1 (2.4.0). If JSP output changes across versions, this plugin will need to be updated to parse the changes";
+Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for Cloudera CDH 4.3 (2.0.0-cdh4.3.0) and Hortonworks HDP 2.1 (2.4.0), also tested on HDP 2.2 (Apache 2.6.0). If JSP output changes across versions, this plugin will need to be updated to parse the changes";
 
-$VERSION = "0.9";
+$VERSION = "0.9.2";
 
 use strict;
 use warnings;
@@ -189,7 +189,7 @@ my $url_name = "namenode $host";
 # exclude node lists too?
 my $content;
 unless($datanode_blocks or $datanode_block_balance){
-    $content = curl $url, $url_name;
+    $content = curl $url, "$url_name DFS overview";
 }
 
 my $regex_td = '\s*(?:<\/a>\s*)?<td\s+id="\w+">\s*:\s*<td\s+id="\w+">\s*';
@@ -272,7 +272,7 @@ sub check_parsed {
 #############
 if($balance){
     parse_dfshealth();
-    $content = curl $url_live_nodes, $url_name;
+    $content = curl $url_live_nodes, "$url_name live nodes";
     vlog2 "parsing Namenode datanode % usage\n";
     if($content =~ />\s*Live Datanodes\s*:*\s*(\d+)\s*</){
         $dfs{"datanodes_available"} = $1;
@@ -305,7 +305,7 @@ if($balance){
     $status = "OK";
     $msg = sprintf("%.2f%% HDFS imbalance on space used %% across %d datanodes", $largest_datanode_used_pc_diff, scalar keys %datanodes_used_pc);
     check_thresholds($largest_datanode_used_pc_diff);
-    if(is_warning or is_critical){
+    if($verbose and (is_warning or is_critical)){
         my $msg2 = " [imbalanced nodes: ";
         foreach(sort keys %datanodes_imbalance){
             if($datanodes_imbalance{$_} >= $thresholds{"warning"}{"upper"}){
@@ -385,7 +385,7 @@ if($balance){
 ################
 } elsif($node_list){
     my @missing_nodes;
-    $content = curl $url_live_nodes, $url_name;
+    $content = curl $url_live_nodes, "$url_name live nodes";
     foreach my $node (@nodes){
         unless($content =~ />$node(?:\.$domain_regex)?<\//m){
             push(@missing_nodes, $node);
@@ -422,7 +422,7 @@ if($balance){
 ################
 #} elsif($dead_nodes){
 #    my @dead_nodes;
-#    $content = curl $url_dead_nodes, $url_name;
+#    $content = curl $url_dead_nodes, "$url_name dead nodes";
 #    foreach my $node (@nodes){
 #        unless($content =~ />$node(?:\.$domain_regex)?<\//m){
 #            push(@missing_nodes, $node);
@@ -499,7 +499,7 @@ if($balance){
     $msg .= " | 'Namenode $heap_str % Used'=$stats{heap_used_pc_calculated}%" . msg_perf_thresholds(1) . "0;100 'Namenode $heap_str Used'=$stats{heap_used_bytes}B 'NameNode $heap_str Committed'=$stats{heap_committed_bytes}B";
 ###############
 } elsif($datanode_blocks){
-    $content = curl $url_live_nodes, $url_name;
+    $content = curl $url_live_nodes, "$url_name live nodes";
     parse_datanode_blockcounts();
     unless(%datanode_blocks){
         quit "UNKNOWN", "no datanode block counts were recorded, either there are no datanodes or there was a parsing error to changes in a neweer version of the NameNode WebUI. $nagios_plugins_support_msg";
@@ -539,7 +539,7 @@ if($balance){
     $msg .= " num_datanodes=$num_datanodes";
     $msg .= " num_datanodes_exceeding_block_thresholds=" . ($datanodes_critical_blocks + $datanodes_warning_blocks);
 } elsif($datanode_block_balance){
-    $content = curl $url_live_nodes, $url_name;
+    $content = curl $url_live_nodes, "$url_name live nodes";
     parse_datanode_blockcounts();
     unless(%datanode_blocks){
         quit "UNKNOWN", "no datanode block counts were recorded, either there are no datanodes or there was a parsing error. $nagios_plugins_support_msg";
@@ -553,7 +553,12 @@ if($balance){
     }
     vlog2 "max blocks on a single datanode = $max_blocks";
     vlog2 "min blocks on a single datanode = $min_blocks";
-    my $block_imbalance = sprintf("%.2f", ( ($max_blocks - $min_blocks) / $min_blocks) * 100);
+    my $divisor = $min_blocks;
+    if($min_blocks < 1){
+        vlog2 "min blocks < 1, resetting divisor to 1 (% will be very high)";
+        $divisor = 1;
+    }
+    my $block_imbalance = sprintf("%.2f", ( ($max_blocks - $min_blocks) / $divisor) * 100);
     my $num_datanodes =  scalar keys %datanode_blocks;
     $msg .= "$block_imbalance% block imbalance across $num_datanodes datanodes";
     $status = "OK";

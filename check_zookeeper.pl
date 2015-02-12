@@ -25,7 +25,7 @@ Checks:
 
 Tested on ZooKeeper 3.4.5 and 3.4.6 Apache, Cloudera, Hortonworks and MapR. Requires ZooKeeper 3.4 onwards due to isro and mntr 4lw checks";
 
-$VERSION = "0.7";
+$VERSION = "0.7.1";
 
 use strict;
 use warnings;
@@ -36,6 +36,7 @@ BEGIN {
 }
 use HariSekhonUtils;
 use HariSekhon::ZooKeeper;
+use Math::Round;
 use Time::HiRes 'time';
 
 my $standalone;
@@ -278,6 +279,7 @@ if($last_line){
                        (\d+)\s+
                        (\d+)\s*$/x){
         $last_timestamp                         = $1;
+        # TODO: this should be 0 - otherwise requests are backing up
         $last_stats{"zk_outstanding_requests"}  = $2,
         $last_stats{"zk_packets_received"}      = $3,
         $last_stats{"zk_packets_sent"}          = $4,
@@ -330,7 +332,7 @@ if($secs < 0){
 } elsif ($secs >= 1){
     foreach(@stats){
         #next if ($_ eq "Node count");
-        $stats_diff{$_} = int((($mntr{$_} - $last_stats{$_} ) / $secs) + 0.5);
+        $stats_diff{$_} = round(($mntr{$_} - $last_stats{$_} ) / $secs);
         if ($stats_diff{$_} < 0) {
             quit "UNKNOWN", "recorded stat $_ is higher than current stat, resetting stats";
         }

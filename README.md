@@ -9,7 +9,7 @@ Hadoop and extensive API integration with all major Hadoop vendors (Hortonworks,
 
 I've been developing this Nagios Plugin Collection since 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
-It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web, Hadoop and NoSQL technologies (Cassandra, HBase, MongoDB, Riak, Couchbase, Memcached, Redis etc).
+It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web, Hadoop and NoSQL technologies (Cassandra, HBase, MongoDB, Riak, Couchbase, Memcached, Redis, SolrCloud, ElasticSearch etc).
 
 This should be the next stop after installing Nagios with it's basic plugins.
 
@@ -28,21 +28,24 @@ http://www.linkedin.com/in/harisekhon
 ### A Sample of cool Nagios Plugins in this collection ###
 
 - ```check_ssl_cert.pl``` - SSL expiry, chain of trust (including intermediate certs important for certain mobile devices), SNI, domain, wildcard and multi-domain support validation
-- ```check_mysql_query.pl``` - generic enough it obsoleted a dozen custom plugins and prevented writing many more
+- ```check_whois.pl``` - check domain expiry days left and details
+- ```check_mysql_query.pl``` - generic enough it obsoleted a dozen custom MySQL plugins and prevented writing many more
 - ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline
 - ```check_hadoop_*.pl``` - various Apache Hadoop monitoring utilities for HDFS, MapReduce and Yarn including HDFS cluster balance, block replication, space, block count limits, node counts, dead Datanodes and dead/blacklisted TaskTrackers, Namenode & JobTracker / Yarn Resource Manager heap usage, NameNode & JobTracker HA, NameNode safe mode, WebHDFS / HttpFS, HDFS writeability, HDFS fsck, HDFS file / directory existence & metadata attributes, gather metrics
+- ```check_kafka.pl``` - checks Kafka brokers end-to-end via API, acts as both a producer and a consumer and checks that a unique generated message passes through the Kafka broker cluster successfully
 - ```check_hbase_*.pl``` - various HBase monitoring utilities using Thrift + Stargate APIs, checking Masters/Backup Masters, RegionServers, table availability, unassigned regions, gather metrics
 - ```check_cassandra_*.pl / check_datastax_opscenter_*.pl``` - Cassandra and DataStax OpsCenter monitoring, including Cassandra cluster nodes, token balance, space, heap, keyspace replication settings, alerts, backups, best practice rule checks, DSE hadoop analytics service status and both nodetool and DataStax OpsCenter collected metrics
+- ```check_solr*.pl``` - checks for Solr and SolrCloud including API write/read/delete, arbitrary Solr queries vs num matching documents, API ping, Solr Core Heap / Index Size / Number of Docs for a given Solr Collection, and thresholds in ms against all operations as well as perfdata for graphing
 - ```check_ambari_*.pl``` - Hadoop cluster checks via Hortonworks Ambari API - checks the status of services, nodes and config managed by Ambari
 - ```check_cloudera_manager_*.pl``` - Hadoop cluster checks via Cloudera Manager API - checks states and health of cluster services/roles/nodes, management services, config staleness, Cloudera Enterprise license expiry, Cloudera Manager and CDH cluster versions, utility switches to list clusters/services/roles/nodes as well as list users and their role privileges, fetch a wealth of Hadoop & OS monitoring metrics from Cloudera Manager and compare to thresholds. Disclaimer: I worked for Cloudera, but seriously CM collects an impressive amount of metrics making check_cloudera_manager_metrics.pl alone a very versatile program from which to create hundreds of checks to flexibly alert on
 - ```check_mapr*.pl``` - Hadoop cluster checks via MapR Control System API - checks services and nodes, MapR-FS space (cluster and per volume), volume states, volume block replication, volume snapshots and mirroring, MapR-FS per disk space utilization on nodes, failed disks, CLDB heartbeats, MapR alarms, MapReduce mode and memory utilization, disk and role balancer metrics. These are noticeably faster than running equivalent maprcli commands (exceptions: disk/role balancer use maprcli).
 - ```check_ibm_biginsights_*.pl``` - Hadoop cluster checks via IBM BigInsights Console API - checks services, nodes, agents, BigSheets workbook runs, dfs paths and properties, HDFS space and block replication, BI console version, BI console applications deployed
-- ```check_puppet.rb``` - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
 - ```check_riak_*.pl``` - check Riak API writes/reads/deletes with timings, check a specific key's value against regex or value range, check all riak diagnostics, check nodes agree on ring status, gather statistics, alert on any single stat
 - ```check_redis_*.pl``` - check Redis API writes/reads/deletes with timings, check specific key's value against regex or value range, replication slaves I/O, replicated writes (write on master -> read from slave), publish/subscribe, connected clients, validate redis.conf against running server to check deployments or remote compliance checks, gather statistics, alert on any single stat
 - ```check_memcached_*.pl``` - check Memcached API writes/reads/deletes with timings, check specific key's value against regex or value range, number of current connections, gather statistics
 - ```check_zookeeper.pl``` - ZooKeeper server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gather statistics
 - ```check_zookeeper_znode.pl``` - ZooKeeper content checks using ZK Perl API, useful for HBase, Kafka, SolrCloud, Hadoop NameNode HA & JobTracker HA (ZKFC) and any other ZooKeeper based service. Very versatile with multiple optional checks including data vs regex, json field extraction, ephemeral status, child znodes, znode last modified age
+- ```check_puppet.rb``` - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
 
 ... and there are many more.
 

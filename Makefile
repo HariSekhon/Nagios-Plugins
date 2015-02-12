@@ -47,21 +47,29 @@ make:
 	#
 	# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
 	# Redis module required but didn't auto-pull: ExtUtils::Config ExtUtils::Helpers ExtUtils::InstallPaths TAP::Harness::Env Module::Build::Tiny Sub::Name
-	yes | sudo cpan \
+	# Kafka module required but didn't auto-pull: ExtUtils::Config, ExtUtils::Helpers, ExtUtils::InstallPaths, TAP::Harness::Env, Module::Build::Tiny, Sub::Exporter::Progressive, Const::Fast, Exporter::Tiny, List::MoreUtils, Devel::CheckLib, Compress::Snappy, Sub::Name
+	yes "" | sudo cpan \
 		Class:Accessor \
-		Data::Dumper \
+		Compress::Snappy \
+		Const::Fast \
 		DBD::mysql \
 		DBI \
+		Data::Dumper \
+		Devel::CheckLib \
 		Digest::SHA \
+		Exporter::Tiny \
 		ExtUtils::Config \
 		ExtUtils::Helpers \
 		ExtUtils::InstallPaths \
 		IO::Socket::SSL \
 		JSON \
 		JSON:XS \
+		Kafka \
 		LWP::Authen::Negotiate \
 		LWP::Simple \
 		LWP::UserAgent \
+		List::MoreUtils \
+		Math::Round \
 		Module::Build::Tiny \
 		MongoDB \
 		MongoDB::MongoClient \
@@ -74,6 +82,7 @@ make:
 		Readonly::XS \
 		Redis \
 		SMS::AQL \
+		Sub::Exporter::Progressive \
 		Sub::Name \
 		TAP::Harness::Env \
 		Test::SharedFork \
@@ -101,34 +110,33 @@ make:
 .PHONY: apt-packages
 apt-packages:
 	# needed to fetch and build CPAN modules and fetch the library submodule at end of build
-	apt-get install -y build-essential libwww-perl git || :
+	sudo apt-get install -y build-essential libwww-perl git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	apt-get install -y libdbd-mysql-perl libmysqlclient-dev || :
+	sudo apt-get install -y libdbd-mysql-perl libmysqlclient-dev || :
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	apt-get install -y libssl-dev || :
+	sudo apt-get install -y libssl-dev || :
 	# for XML::Simple building
-	apt-get install -y libexpat1-dev || :
+	sudo apt-get install -y libexpat1-dev || :
 	# for check_whois.pl
-	apt-get install -y jwhois || :
+	sudo apt-get install -y jwhois || :
 	# TODO: for LWP::Authenticate - prompts for realm + KDC, doesn't seem automatable and not properly tested yet
 	#apt-get install -y krb5-config || :
 	# for Cassandra's Python driver
-	apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev || :
+	sudo apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev || :
 
 .PHONY: yum-packages
 yum-packages:
-	# needed to fetch and build CPAN modules and fetch the library submodule at end of build
-	rpm -q gcc perl-CPAN perl-libwww-perl git || yum install -y gcc perl-CPAN perl-libwww-perl git || :
+	rpm -q gcc perl-CPAN perl-libwww-perl git || sudo yum install -y gcc perl-CPAN perl-libwww-perl git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	rpm -q perl-DBD-MySQL mysql-devel || yum install -y perl-DBD-MySQL mysql-devel || :
+	rpm -q perl-DBD-MySQL mysql-devel || sudo yum install -y perl-DBD-MySQL mysql-devel || :
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	rpm -q openssl-devel || yum install -y openssl-devel || :
+	rpm -q openssl-devel || sudo yum install -y openssl-devel || :
 	# for XML::Simple building
-	rpm -q expat-devel || yum install -y expat-devel || :
+	rpm -q expat-devel || sudo yum install -y expat-devel || :
 	# for check_whois.pl
-	rpm -q jwhois || yum install -y jwhois || :
+	rpm -q jwhois || sudo yum install -y jwhois || :
 	# for Cassandra's Python driver
-	rpm -q python-setuptools python-devel libev libev-devel libsnappy-devel || yum install -y python-setuptools python-devel libev libev-devel libsnappy-devel || :
+	rpm -q python-setuptools python-devel libev libev-devel libsnappy-devel || sudo yum install -y python-setuptools python-devel libev libev-devel libsnappy-devel || :
 
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins

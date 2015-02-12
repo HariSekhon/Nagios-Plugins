@@ -22,6 +22,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use Math::Round;
 
 my $errors = 0;
 my $ethtool  = "/sbin/ethtool";
@@ -264,7 +265,7 @@ if($statefile_found and not $stats_missing){
 
     # Only do per sec for things that make sense, 1 collision or 1 error will average out to 0 after 1 sec
     foreach(qw/RX_packets RX_bytes TX_packets TX_bytes/){
-        $stats_diff{$_} = int((($stats{$_} - $last_stats{$_} ) / $secs) + 0.5);
+        $stats_diff{$_} = round(($stats{$_} - $last_stats{$_} ) / $secs);
         if ($stats_diff{$_} < 0) {
             quit "UNKNOWN", "recorded stat $_ is higher than current stat, resetting stats";
         }

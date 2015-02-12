@@ -11,7 +11,7 @@
 
 # http://docs.wandisco.com/bigdata/nsnn/1.9h/api.html
 
-$DESCRIPTION = "Nagios Plugin to check the status of all WANdisco Non-Stop Hadoop nodes via NameNode JMX
+$DESCRIPTION = "Nagios Plugin to check the status of all WANdisco Non-Stop Hadoop nodes via DConE REST API
 
 Thresholds are checked against the sum of stopped and down nodes
 
