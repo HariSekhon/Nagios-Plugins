@@ -114,7 +114,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 2. API segfaults if you try to check the contents of a null znode such as those kept by SolrCloud servers eg. /solr/live_nodes/<hostname>:8983_solr, must use --null to skip checks other than existence
 ";
 
-$VERSION = "0.5.2";
+$VERSION = "0.6";
 
 use strict;
 use warnings;
@@ -128,14 +128,6 @@ use HariSekhonUtils;
 use HariSekhon::ZooKeeper;
 use Net::ZooKeeper qw/:DEFAULT :errors :log_levels/;
 
-my $default_zk_timeout = 2;
-my $zk_timeout = $default_zk_timeout;
-
-# Max num of chars to read from znode contents
-my $DATA_READ_LEN = 500;
-
-my $random_conn_order = 0;
-
 my $znode;
 my $null;
 my $expected_data;
@@ -146,8 +138,7 @@ my $check_child_znodes    = 0;
 my $check_no_child_znodes = 0;
 
 %options = (
-    "H|host=s"          => [ \$host,                  "ZooKeeper node(s) to connect to (\$ZOOKEEPER_HOST, \$HOST), should be a comma separated list of ZooKeepers the same as are configured on the ZooKeeper servers themselves with optional individual ports per server (node1:$ZK_DEFAULT_PORT,node2:$ZK_DEFAULT_PORT,node3:$ZK_DEFAULT_PORT). It takes longer to connect to 3 ZooKeepers than just one of them (around 5 secs per ZooKeeper specified + (session-timeout x any offline ZooKeepers) so you will need to increase --timeout). Connection order is deterministic and will be tried in the order specified unless --random-conn-order" ],
-    "P|port=s"          => [ \$port,                  "Port to connect to on ZooKeepers for any nodes not suffixed with :<port> (defaults to $ZK_DEFAULT_PORT, set to 5181 for MapR, \$ZOOKEEPER_PORT, \$PORT)" ],
+    %zookeeper_options,
     "z|znode=s"         => [ \$znode,                 "Znode to check exists. Useful for a variety of checks of ZooKeeper based services like HBase, SolrCloud, NameNode & JobTracker HA ZKFC" ],
     "n|null"            => [ \$null,                  "Do not check znode contents, use on null znodes such as SolrCloud /solr/live_nodes/<hostname>:8983_solr as the API segfaults when trying to retrieve data for these null znodes" ],
     "d|data=s"          => [ \$expected_data,         "Check given znode contains specific data (optional). This is a partial substring match, for more control use --regex with anchors. Careful when specifying non-printing characters which may appear as ?, may need to use regex to work around them with \".+\" to match any character" ],
@@ -156,13 +147,8 @@ my $check_no_child_znodes = 0;
     "e|ephemeral"       => [ \$check_ephemeral,       "Check given znode is ephemeral (optional)" ],
     "child-znodes"      => [ \$check_child_znodes,    "Check given znode has child znodes (optional)" ],
     "no-child-znodes"   => [ \$check_no_child_znodes, "Check given znode does not have child znodes (optional)" ],
-    "u|user=s"          => [ \$user,                  "User to connect with (\$ZOOKEEPER_USER environment variable. Not tested. YMMV. optional)" ],
-    "p|password=s"      => [ \$password,              "Password to connect with (\$ZOOKEEPER_PASSWORD environment variable. Not tested. YMMV. optional)" ],
-    "w|warning=s"       => [ \$warning,               "Warning  threshold or ran:ge (inclusive) for znode age (optional)" ],
-    "c|critical=s"      => [ \$critical,              "Critical threshold or ran:ge (inclusive) for znode age (optional)" ],
-    "random-conn-order" => [ \$random_conn_order,     "Randomize connection order" ],
-    "session-timeout=s" => [ \$zk_timeout,            "ZooKeeper session timeout in secs (default: $default_zk_timeout). This determines how long to wait for connection to downed ZooKeepers and affects total execution time" ],
 );
+@usage_order = qw/host port znode data regex json-field null ephemeral child-znodes no-child-znodes user password warning critical random-conn-order session-timeout/;
 
 if($progname eq "check_hbase_backup_masters_znode.pl"){
     $znode = "/hbase/backup-masters";
@@ -186,27 +172,10 @@ if($progname eq "check_hbase_backup_masters_znode.pl"){
     $znode = "/hadoop-ha/logicaljt/ActiveStandbyElectorLock";
     $check_ephemeral = 1;
 }
-@usage_order = qw/host port znode data regex json-field null ephemeral child-znodes no-child-znodes user password warning critical random-conn-order session-timeout/;
 
 get_options();
 
-$port = isPort($port) or usage "invalid ZooKeeper port given for all nodes";
-defined($host) or usage "ZooKeepers not defined";
-my @hosts = split(/\s*,\s*/, $host);
-@hosts or usage "ZooKeepers not defined";
-my $node_port;
-foreach(my $i = 0; $i < scalar @hosts; $i++){
-    undef $node_port;
-    if($hosts[$i] =~ /:(\d+)$/){
-        $node_port = isPort($1) or usage "invalid ZooKeeper port given for node " . $i+1;
-        $hosts[$i] =~ s/:$node_port$//;
-    }
-    $hosts[$i]  = validate_host($hosts[$i]);
-    $hosts[$i]  = validate_resolvable($hosts[$i]);
-    $node_port  = $port unless defined($node_port);
-    $hosts[$i] .= ":$node_port";
-    vlog_options "port", $node_port;
-}
+my @hosts = validate_hosts($host, $port);
 $znode = validate_filename($znode, 0, "znode");
 if($check_child_znodes and $check_no_child_znodes){
     usage "cannot specify both --child-znodes and --no-child-znodes simultaneously they are mutually exclusive";
@@ -231,91 +200,18 @@ set_timeout();
 $status = "UNKNOWN";
 $msg    = "code error - msg not defined";
 
-if($debug){
-    Net::ZooKeeper::set_log_level(&ZOO_LOG_LEVEL_DEBUG);
-} elsif($verbose > 3){
-    Net::ZooKeeper::set_log_level(&ZOO_LOG_LEVEL_INFO);
-} elsif($verbose > 1){
-    Net::ZooKeeper::set_log_level(&ZOO_LOG_LEVEL_WARN);
-}
+zoo_debug();
+
+plural @hosts;
 
 # API may raise SIG PIPE on connection failure
-local $SIG{'PIPE'} = sub { quit "UNKNOWN", "lost connection to ZooKeepers '" . join(",", @hosts) . "'"; };
+local $SIG{'PIPE'} = sub { quit "UNKNOWN", "lost connection to ZooKeeper$plural '" . join(",", @hosts) . "'"; };
 
 $zk_timeout *= 1000;
 
-if($random_conn_order){
-    vlog2 "using random connection order";
-    Net::ZooKeeper::set_deterministic_conn_order(0); # default
-} else {
-    vlog2 "setting deterministic connection order";
-    Net::ZooKeeper::set_deterministic_conn_order(1);
-}
+zookeeper_random_conn_order();
 
-my $zookeepers = join(",", @hosts);
-vlog2 "connecting to ZooKeeper nodes: $zookeepers";
-my $zkh = Net::ZooKeeper->new(  $zookeepers,
-                                "session_timeout" => $zk_timeout
-                             )
-    || quit "CRITICAL", "failed to create connection object to ZooKeepers within $zk_timeout secs: $!";
-vlog2 "ZooKeeper connection object created, won't be connected until we issue a call";
-
-# Not tested auth yet
-if(defined($user) and defined($password)){
-    $zkh->add_auth('digest', "$user:$password");
-}
-
-my $session_timeout = ($zkh->{session_timeout} / 1000) or quit "UNKNOWN", "invalid session timeout determined from ZooKeeper handle, possibly not connected to ZooKeeper?";
-vlog2 sprintf("session timeout is %.2f secs\n", $zk_timeout / 1000);
-
-sub translate_zoo_error($){
-    my $errno = shift;
-    isInt($errno, 1) or code_error "non int passed to translate_zoo_error()";
-    # this makes me want to cry, if anybody knows a better way of getting some sort of error translation out of this API please let me know!
-    no strict 'refs';
-    foreach(qw(
-        ZOK
-        ZSYSTEMERROR
-        ZRUNTIMEINCONSISTENCY
-        ZDATAINCONSISTENCY
-        ZCONNECTIONLOSS
-        ZMARSHALLINGERROR
-        ZUNIMPLEMENTED
-        ZOPERATIONTIMEOUT
-        ZBADARGUMENTS
-        ZINVALIDSTATE
-        ZAPIERROR
-        ZNONODE
-        ZNOAUTH
-        ZBADVERSION
-        ZNOCHILDRENFOREPHEMERALS
-        ZNODEEXISTS
-        ZNOTEMPTY
-        ZSESSIONEXPIRED
-        ZINVALIDCALLBACK
-        ZINVALIDACL
-        ZAUTHFAILED
-        ZCLOSING
-        ZNOTHING
-    )){
-        if(&$_ == $errno){
-            use strict 'refs';
-            return "$errno $_";
-        }
-    }
-    use strict 'refs';
-    return "<failed to translate zookeeper error for error code: $errno>";
-}
-
-vlog2 "checking znode '/' exists to determine if we're properly connected to ZooKeeper";
-my $connection_succeeded = 0;
-# the last attempt will retry all zookeepers two more times if that zookeeper fails to connect
-# to see this use -vv --session-timeout 0.001
-for(my $i=0; $i < scalar @hosts; $i++){
-    $zkh->exists("/") and $connection_succeeded = 1 and last;
-}
-$connection_succeeded or quit "CRITICAL", "connection error, failed to find znode '/': " . translate_zoo_error($zkh->get_error());
-vlog2 "found znode '/', connection to zookeeper succeeded\n";
+my $zkh = connect_zookeepers(@hosts);
 
 vlog3 "creating ZooKeeper stat object";
 my $stat = $zkh->stat();
@@ -338,7 +234,7 @@ if($null){
     my $data = $zkh->get($znode, 'data_read_len' => $DATA_READ_LEN);
                          #'stat' => $stat, 'watch' => $watch)
                          #|| quit "CRITICAL", "failed to read data from znode $znode: $!";
-    defined($data) or quit "CRITICAL", "no data returned for znode '$znode' from zookeepers '$zookeepers': " . $zkh->get_error();
+    defined($data) or quit "CRITICAL", "no data returned for znode '$znode' from zookeeper$plural '@hosts': " . $zkh->get_error();
     # /hadoop-ha/logicaljt/ActiveStandbyElectorLock contains carriage returns which messes up the output in terminal by causing the second line to overwrite the first
     $data =~ s/\r//g;
     $data = trim($data);
@@ -361,11 +257,11 @@ if($null){
     if((!defined($expected_data))){
         vlog2 "no expected data defined, checking znode is not blank";
         if($data =~ /^\s*$/){
-            quit "CRITICAL", "znode '$znode' is empty!" . ( $verbose ? " (if this intentional supply -d \"\")" : "" );
+            quit "CRITICAL", "znode '$znode' is empty!" . ( $verbose ? " (if this is intentional supply -d \"\")" : "" );
         }
     }
 
-    $msg = "retrieved znode '$znode' from zookeepers '$zookeepers'";
+    $msg = "retrieved znode '$znode' from zookeeper$plural '@hosts'";
     $msg .= sprintf(", value='%s'", $data) if $verbose;
 }
 
