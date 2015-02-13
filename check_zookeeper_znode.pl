@@ -302,7 +302,7 @@ if(defined($stat)){
     $msg .= sprintf(", last modified %s secs ago", $age_secs);
     check_thresholds($age_secs);
     if($age_secs < 0){
-        my $clock_mismatch_msg = "clock synchronization problem, modified timestamp on znode is in the future! $msg";
+        my $clock_mismatch_msg = "clock synchronization problem, modified timestamp on znode is in the future!";
         if($status eq "OK"){
             $msg = "$clock_mismatch_msg $msg";
         } else {
