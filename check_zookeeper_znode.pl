@@ -198,7 +198,6 @@ vlog2;
 set_timeout();
 
 $status = "UNKNOWN";
-$msg    = "code error - msg not defined";
 
 zoo_debug();
 
