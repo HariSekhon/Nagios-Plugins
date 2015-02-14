@@ -199,10 +199,7 @@ $status = "UNKNOWN";
 
 my $zkh = connect_zookeepers(@hosts);
 
-vlog2 "checking znode '$znode' exists";
-$zkh->exists($znode, 'stat' => $zk_stat) or quit "CRITICAL", "znode '$znode' does not exist! ZooKeeper returned: " . translate_zoo_error($zkh->get_error());
-$zk_stat or quit "UNKNOWN", "failed to get stats from znode $znode";
-vlog2 "znode '$znode' exists";
+check_znode_exists($zkh, $znode);
 
 # we don't get a session id until after a call to the server such as exists() above
 #my $session_id = $zkh->{session_id} or quit "UNKNOWN", "failed to determine ZooKeeper session id, possibly not connected to ZooKeeper?";
@@ -255,9 +252,9 @@ if($check_ephemeral){
 }
 
 if($check_child_znodes or $check_no_child_znodes){
+    vlog2 "checking for child znodes";
     my @child_znodes = $zkh->get_children($znode);
     my $child_znode_num = scalar @child_znodes;
-    vlog2 "checking for child znodes";
     vlog3 "$child_znode_num child znodes detected" . ( @child_znodes ? ":\n\n" . join("\n", @child_znodes) . "\n" : "" );
     if($check_child_znodes){
         if(not @child_znodes){
