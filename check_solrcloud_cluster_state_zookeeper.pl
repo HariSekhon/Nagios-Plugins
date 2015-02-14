@@ -80,39 +80,20 @@ $zk_timeout = validate_float($zk_timeout, "zookeeper session timeout", 0.001, 10
 vlog2;
 set_timeout();
 
-$status = "UNKNOWN";
-
-zoo_debug();
-
-plural @hosts;
-
-# API may raise SIG PIPE on connection failure
-local $SIG{'PIPE'} = sub { quit "UNKNOWN", "lost connection to ZooKeeper$plural '" . join(",", @hosts) . "'"; };
+$status = "OK";
 
 $zk_timeout *= 1000;
 
-zookeeper_random_conn_order();
-
 my $zkh = connect_zookeepers(@hosts);
 
-vlog3 "creating ZooKeeper stat object";
-my $stat = $zkh->stat();
-$stat or quit "UNKNOWN", "failed to create ZooKeeper stat object";
-vlog3 "stat object created";
-
-vlog2 "checking znode '$znode' exists";
-$zkh->exists($znode, 'stat' => $stat) or quit "CRITICAL", "znode '$znode' does not exist! ZooKeeper returned: " . translate_zoo_error($zkh->get_error());
-$stat or quit "UNKNOWN", "failed to get stats from znode $znode";
-vlog2 "znode '$znode' exists\n";
+check_znode_exists($zkh, $znode);
 
 # we don't get a session id until after a call to the server such as exists() above
 #my $session_id = $zkh->{session_id} or quit "UNKNOWN", "failed to determine ZooKeeper session id, possibly not connected to ZooKeeper?";
 #vlog2 sprintf("session id: %s", $session_id);
 
-$status = "OK";
-
 my $data = $zkh->get($znode, 'data_read_len' => $DATA_READ_LEN);
-                     #'stat' => $stat, 'watch' => $watch)
+                     #'stat' => $zk_stat, 'watch' => $watch)
                      #|| quit "CRITICAL", "failed to read data from znode $znode: $!";
 defined($data) or quit "CRITICAL", "no data returned for znode '$znode' from zookeeper$plural '@hosts': " . $zkh->get_error();
 # /hadoop-ha/logicaljt/ActiveStandbyElectorLock contains carriage returns which messes up the output in terminal by causing the second line to overwrite the first
@@ -265,8 +246,8 @@ if($show_settings){
     $msg =~ s/, $//;
 }
 
-if(defined($stat)){
-    my $mtime = $stat->{mtime} / 1000;
+if(defined($zk_stat)){
+    my $mtime = $zk_stat->{mtime} / 1000;
     isFloat($mtime) or quit "UNKNOWN", "invalid mtime returned for znode '$znode', got '$mtime'";
     vlog3 sprintf("znode '$znode' mtime = %s", $mtime);
     my $age_secs = time - int($mtime);
