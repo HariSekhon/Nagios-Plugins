@@ -75,14 +75,10 @@ $collection = validate_solr_collection($collection) if $collection;
 $user     = validate_user($user)         if defined($user);
 $password = validate_password($password) if defined($password);
 
-$zk_timeout = validate_float($zk_timeout, "zookeeper session timeout", 0.001, 100);
-
 vlog2;
 set_timeout();
 
 $status = "OK";
-
-$zk_timeout *= 1000;
 
 my $zkh = connect_zookeepers(@hosts);
 
