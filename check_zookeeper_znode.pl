@@ -114,7 +114,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 2. API segfaults if you try to check the contents of a null znode such as those kept by SolrCloud servers eg. /solr/live_nodes/<hostname>:8983_solr, must use --null to skip checks other than existence
 ";
 
-$VERSION = "0.6";
+$VERSION = "0.7";
 
 use strict;
 use warnings;
@@ -192,34 +192,16 @@ if($json_field){
     vlog_options "json field", $json_field;
 }
 
-$zk_timeout = validate_float($zk_timeout, "zookeeper session timeout", 0.001, 100);
-
 vlog2;
 set_timeout();
 
 $status = "UNKNOWN";
 
-zoo_debug();
-
-plural @hosts;
-
-# API may raise SIG PIPE on connection failure
-local $SIG{'PIPE'} = sub { quit "UNKNOWN", "lost connection to ZooKeeper$plural '" . join(",", @hosts) . "'"; };
-
-$zk_timeout *= 1000;
-
-zookeeper_random_conn_order();
-
 my $zkh = connect_zookeepers(@hosts);
 
-vlog3 "creating ZooKeeper stat object";
-my $stat = $zkh->stat();
-$stat or quit "UNKNOWN", "failed to create ZooKeeper stat object";
-vlog3 "stat object created";
-
 vlog2 "checking znode '$znode' exists";
-$zkh->exists($znode, 'stat' => $stat) or quit "CRITICAL", "znode '$znode' does not exist! ZooKeeper returned: " . translate_zoo_error($zkh->get_error());
-$stat or quit "UNKNOWN", "failed to get stats from znode $znode";
+$zkh->exists($znode, 'stat' => $zk_stat) or quit "CRITICAL", "znode '$znode' does not exist! ZooKeeper returned: " . translate_zoo_error($zkh->get_error());
+$zk_stat or quit "UNKNOWN", "failed to get stats from znode $znode";
 vlog2 "znode '$znode' exists";
 
 # we don't get a session id until after a call to the server such as exists() above
@@ -231,7 +213,7 @@ if($null){
     $msg = "znode '$znode' exists";
 } else {
     my $data = $zkh->get($znode, 'data_read_len' => $DATA_READ_LEN);
-                         #'stat' => $stat, 'watch' => $watch)
+                         #'stat' => $zk_stat, 'watch' => $watch)
                          #|| quit "CRITICAL", "failed to read data from znode $znode: $!";
     defined($data) or quit "CRITICAL", "no data returned for znode '$znode' from zookeeper$plural '@hosts': " . $zkh->get_error();
     # /hadoop-ha/logicaljt/ActiveStandbyElectorLock contains carriage returns which messes up the output in terminal by causing the second line to overwrite the first
@@ -265,7 +247,7 @@ if($null){
 }
 
 if($check_ephemeral){
-    if($stat->{ephemeral_owner}){
+    if($zk_stat->{ephemeral_owner}){
         vlog2 "znode '$znode' is ephemeral";
     } else {
         quit "CRITICAL", "znode '$znode' is not ephemeral";
@@ -292,8 +274,8 @@ if($check_child_znodes or $check_no_child_znodes){
     }
 }
 
-if(defined($stat)){
-    my $mtime = $stat->{mtime} / 1000;
+if(defined($zk_stat)){
+    my $mtime = $zk_stat->{mtime} / 1000;
     isFloat($mtime) or quit "UNKNOWN", "invalid mtime returned for znode '$znode', got '$mtime'";
     vlog3 sprintf("znode '$znode' mtime = %s", $mtime);
     my $age_secs = time - int($mtime);
