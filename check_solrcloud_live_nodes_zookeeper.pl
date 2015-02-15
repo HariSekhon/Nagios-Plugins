@@ -67,9 +67,9 @@ set_timeout();
 
 $status = "UNKNOWN";
 
-my $zkh = connect_zookeepers(@hosts);
+connect_zookeepers(@hosts);
 
-check_znode_exists($zkh, $znode);
+check_znode_exists($znode);
 
 $status = "OK";
 
