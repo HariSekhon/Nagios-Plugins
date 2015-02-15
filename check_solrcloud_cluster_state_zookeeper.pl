@@ -24,7 +24,7 @@ For a given SolrCloud Collection or all collections found if --collection is not
 
 See also adjacent plugins:
 
-check_solrcloud_server_znode.pl - checks individual Solr server ephemeral znodes
+check_solrcloud_server_znode.pl         - checks individual Solr server ephemeral znodes
 check_solrcloud_live_nodes_zookeeper.pl - checks thresholds on number of live SolrCloud nodes
 
 Tested on ZooKeeper 3.4.5 and 3.4.6 with SolrCloud 4.x
@@ -37,7 +37,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 2. API segfaults if you try to check the contents of a null znode such as those kept by SolrCloud servers eg. /solr/live_nodes/<hostname>:8983_solr - ie this will occur if you supply the incorrect base znode and it happens to be null
 ";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -160,11 +160,14 @@ sub check_collection($){
                 }
             }
         }
-        unless($found_active_replica){
+        if(not $found_active_replica and not defined($inactive_shards{$collection}{$shard})){
             $shards_without_active_replicas{$collection}{$shard} = $state;
             delete $inactive_replicas_active_shards{$collection}{$shard};
             delete $inactive_replicas_active_shards{$collection} unless %{$inactive_replicas_active_shards{$collection}};
         }
+    }
+    if(not defined(%{$inactive_shards{$collection}})){
+        delete $inactive_shards{$collection};
     }
     $facts{$collection}{"maxShardsPerNode"}  = get_field2_int($data, "$collection.maxShardsPerNode");
     $facts{$collection}{"router"}            = get_field2($data,     "$collection.router.name");
@@ -218,30 +221,35 @@ sub msg_shards($){
     foreach my $collection (sort keys %$hashref){
         my $num_inactive = scalar keys(%{$$hashref{$collection}});
         plural $num_inactive;
+        #next unless $num_inactive > 0;
         $msg .= "collection '$collection' => $num_inactive shard$plural down";
         if($verbose){
             $msg .= " (";
             foreach my $shard (sort keys %{$$hashref{$collection}}){
                 $msg .= "$shard,";
             }
-            $msg =~ s/,$/)/;
+            $msg =~ s/,$//;
         }
-        $msg .= ", ";
+        $msg .= "), ";
     }
     $msg =~ s/, $//;
 }
 
+# Initially used inverted index hashes to display uniquely all the different shard states, but then when extending to replica states this really became too much, simpler to just call shards and replicas 'down' if not active
 if(%inactive_shards){
     critical;
     $msg = "SolrCloud shards down: ";
     msg_shards(\%inactive_shards);
-    # Initially used inverted index hashes to display uniquely all the different shard states, but then when extending to replica states this really became too much, simpler to just call shards and replicas 'down' if not active
-    msg_additional_replicas_down()
+    if(%shards_without_active_replicas){
+        $msg .= ". SolrCloud shards 'active' but with no active replicas: ";
+        msg_shards(\%shards_without_active_replicas);
+    }
+    msg_additional_replicas_down();
 } elsif(%shards_without_active_replicas){
     critical;
     $msg = "SolrCloud shards 'active' but with no active replicas: ";
     msg_shards(\%shards_without_active_replicas);
-    msg_additional_replicas_down()
+    msg_additional_replicas_down();
 } elsif(%inactive_replicas and not $no_warn_replicas){
     warning;
     $msg = "SolrCloud shard replicas down: ";
