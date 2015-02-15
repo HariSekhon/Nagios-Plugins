@@ -59,9 +59,6 @@ $DATA_READ_LEN = 50000;
 my $znode = "/clusterstate.json";
 my $base = "/solr";
 
-my $collection;
-my $list_collections;
-
 env_vars("SOLR_COLLECTION", \$collection);
 
 %options = (
