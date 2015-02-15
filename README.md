@@ -1,4 +1,4 @@
-Advanced Nagios Plugins Collection [![Build Status](https://travis-ci.org/harisekhon/nagios-plugins.svg?branch=master)](https://travis-ci.org/harisekhon/nagios-plugins)
+Advanced Nagios Plugins Collection
 ==================================
 
 Largest and most advanced collection of unified Nagios monitoring code in the wild.
