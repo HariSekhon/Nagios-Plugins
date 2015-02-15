@@ -123,7 +123,7 @@ BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
-use HariSekhonUtils;
+use HariSekhonUtils qw/:DEFAULT :time/;
 use HariSekhon::ZooKeeper;
 use Net::ZooKeeper qw/:DEFAULT :errors :log_levels/;
 
@@ -146,6 +146,7 @@ my $check_no_child_znodes = 0;
     "e|ephemeral"       => [ \$check_ephemeral,       "Check given znode is ephemeral (optional)" ],
     "child-znodes"      => [ \$check_child_znodes,    "Check given znode has child znodes (optional)" ],
     "no-child-znodes"   => [ \$check_no_child_znodes, "Check given znode does not have child znodes (optional)" ],
+    %thresholdoptions,
 );
 @usage_order = qw/host port znode data regex json-field null ephemeral child-znodes no-child-znodes user password warning critical random-conn-order session-timeout/;
 
@@ -196,9 +197,9 @@ set_timeout();
 
 $status = "UNKNOWN";
 
-my $zkh = connect_zookeepers(@hosts);
+connect_zookeepers(@hosts);
 
-check_znode_exists($zkh, $znode);
+check_znode_exists($znode);
 
 # we don't get a session id until after a call to the server such as exists() above
 #my $session_id = $zkh->{session_id} or quit "UNKNOWN", "failed to determine ZooKeeper session id, possibly not connected to ZooKeeper?";
@@ -208,14 +209,7 @@ $status = "OK";
 if($null){
     $msg = "znode '$znode' exists";
 } else {
-    my $data = $zkh->get($znode, 'data_read_len' => $DATA_READ_LEN);
-                         #'stat' => $zk_stat, 'watch' => $watch)
-                         #|| quit "CRITICAL", "failed to read data from znode $znode: $!";
-    defined($data) or quit "CRITICAL", "no data returned for znode '$znode' from zookeeper$plural '@hosts': " . $zkh->get_error();
-    # /hadoop-ha/logicaljt/ActiveStandbyElectorLock contains carriage returns which messes up the output in terminal by causing the second line to overwrite the first
-    $data =~ s/\r//g;
-    $data = trim($data);
-    vlog3 "znode '$znode' data:\n\n$data\n";
+    my $data = get_znode_contents($znode);
     if($json_field){
         $data = isJson($data) or quit "CRITICAL", "znode '$znode' data is not json as expected, got '$data'";
         $data = get_field2($data, $json_field);
@@ -270,26 +264,9 @@ if($check_child_znodes or $check_no_child_znodes){
     }
 }
 
-if(defined($zk_stat)){
-    my $mtime = $zk_stat->{mtime} / 1000;
-    isFloat($mtime) or quit "UNKNOWN", "invalid mtime returned for znode '$znode', got '$mtime'";
-    vlog3 sprintf("znode '$znode' mtime = %s", $mtime);
-    my $age_secs = time - int($mtime);
-    vlog2 sprintf("znode mtime last modified %s secs ago", $age_secs);
-    $msg .= sprintf(", last modified %s secs ago", $age_secs);
-    check_thresholds($age_secs);
-    if($age_secs < 0){
-        my $clock_mismatch_msg = "clock synchronization problem, modified timestamp on znode is in the future!";
-        if($status eq "OK"){
-            $msg = "$clock_mismatch_msg $msg";
-        } else {
-            $msg .= ". Also, $clock_mismatch_msg";
-        }
-        warning;
-    }
-} else {
-    quit "UNKNOWN", "no stat object returned by ZooKeeper exists call for znode '$znode', try re-running with -vvvvD to see full debug output";
-}
+get_znode_age($znode);
+$msg .= sprintf(", last modified %s secs ago", sec2human($znode_age_secs));
+check_thresholds($znode_age_secs);
 
 if($null){
     $msg .= ( $verbose ? " (--null specified, remaining checks skipped)" : "");
