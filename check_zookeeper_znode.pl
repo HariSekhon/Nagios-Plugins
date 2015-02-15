@@ -122,7 +122,6 @@ use IO::Socket;
 BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
-    use lib "/usr/local/lib";
 }
 use HariSekhonUtils;
 use HariSekhon::ZooKeeper;
