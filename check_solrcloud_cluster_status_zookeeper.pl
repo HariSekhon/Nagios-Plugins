@@ -37,7 +37,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 2. API segfaults if you try to check the contents of a null znode such as those kept by SolrCloud servers eg. /solr/live_nodes/<hostname>:8983_solr - ie this will occur if you supply the incorrect base znode and it happens to be null
 ";
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -48,7 +48,7 @@ BEGIN {
     use lib "/usr/local/lib";
 }
 use HariSekhonUtils qw/:DEFAULT :time/;
-use HariSekhon::Solr qw/validate_solr_collection/;
+use HariSekhon::Solr;
 use HariSekhon::ZooKeeper;
 use Net::ZooKeeper qw/:DEFAULT :errors :log_levels/;
 
@@ -56,12 +56,10 @@ use Net::ZooKeeper qw/:DEFAULT :errors :log_levels/;
 $DATA_READ_LEN = 50000;
 #my $max_age = 600; # secs
 
-my $znode = "clusterstate.json";
+my $znode = "/clusterstate.json";
 my $base = "/solr";
 
 my $collection;
-my $no_warn_replicas;
-my $show_settings;
 my $list_collections;
 
 env_vars("SOLR_COLLECTION", \$collection);
@@ -80,9 +78,7 @@ env_vars("SOLR_COLLECTION", \$collection);
 get_options();
 
 my @hosts   = validate_hosts($host, $port);
-$znode      = validate_filename($base, 0, "base znode") . "/$znode";
-$znode      =~ s/\/+/\//g;
-$znode      = validate_filename($znode, 0, "clusterstate znode");
+validate_base_and_znode($base, $znode, "clusterstate");
 $collection = validate_solr_collection($collection) if $collection;
 #validate_thresholds(0, 1, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1}, "max znode age", $max_age);
 
@@ -102,173 +98,23 @@ check_znode_exists($znode);
 #my $session_id = $zkh->{session_id} or quit "UNKNOWN", "failed to determine ZooKeeper session id, possibly not connected to ZooKeeper?";
 #vlog2 sprintf("session id: %s", $session_id);
 
-my $data = get_znode_contents_json($znode);
+$json = get_znode_contents_json($znode);
 
-unless(scalar keys %$data){
+unless(scalar keys %$json){
     quit "CRITICAL", "no collections found in cluster state in zookeeper";
 }
 
 if($list_collections){
     print "Solr Collections:\n\n";
-    foreach(sort keys %$data){
+    foreach(sort keys %$json){
         print "$_\n";
     }
     exit $ERRORS{"UNKNOWN"};
 }
 
-my %inactive_shards;
-#my %inactive_shard_states;
-my %inactive_replicas;
-#my %inactive_replica_states;
-my %inactive_replicas_active_shards;
-my %shards_without_active_replicas;
-my %facts;
+check_collections();
 
-sub check_collection($){
-    my $collection = shift;
-    vlog2 "collection '$collection': ";
-    my %shards = get_field2_hash($data, "$collection.shards");
-    foreach my $shard (sort keys %shards){
-        my $state = get_field2($data, "$collection.shards.$shard.state");
-        vlog2 "\t\t\tshard '$shard' state '$state'";
-        unless($state eq "active"){
-            $inactive_shards{$collection}{$shard} = $state;
-            #push(@{$inactive_shard_states{$collection}{$state}}, $shard);
-        }
-        my %replicas = get_field2_hash($data, "$collection.shards.$shard.replicas");
-        my $found_active_replica = 0;
-        foreach my $replica (sort keys %replicas){
-            my $replica_name  = get_field2($data, "$collection.shards.$shard.replicas.$replica.node_name");
-            my $replica_state = get_field2($data, "$collection.shards.$shard.replicas.$replica.state");
-            $replica_name =~ s/_solr$//;
-            vlog2 "\t\t\t\t\treplica '$replica_name' state '$replica_state'";
-            if($replica_state eq "active"){
-                $found_active_replica++;
-            } else {
-                $inactive_replicas{$collection}{$shard}{$replica_name} = $replica_state;
-                #push(@{$inactive_replica_states{$collection}{$shard}{$replica_state}}, $replica_name);
-                if($state eq "active"){
-                    $inactive_replicas_active_shards{$collection}{$shard}{$replica_name} = $replica_state;
-                }
-            }
-        }
-        if(not $found_active_replica and not defined($inactive_shards{$collection}{$shard})){
-            $shards_without_active_replicas{$collection}{$shard} = $state;
-            delete $inactive_replicas_active_shards{$collection}{$shard};
-            delete $inactive_replicas_active_shards{$collection} unless %{$inactive_replicas_active_shards{$collection}};
-        }
-    }
-    if(not defined(%{$inactive_shards{$collection}})){
-        delete $inactive_shards{$collection};
-    }
-    $facts{$collection}{"maxShardsPerNode"}  = get_field2_int($data, "$collection.maxShardsPerNode");
-    $facts{$collection}{"router"}            = get_field2($data,     "$collection.router.name");
-    $facts{$collection}{"replicationFactor"} = get_field2_int($data, "$collection.replicationFactor");
-    $facts{$collection}{"autoAddReplicas"}   = get_field2($data,     "$collection.autoAddReplicas");
-    vlog2;
-}
-
-my $found = 0;
-foreach(keys %$data){
-    if($collection){
-        if($collection eq $_){
-            $found++;
-            check_collection($_);
-        }
-    } else {
-        check_collection($_);
-    }
-}
-if($collection and not $found){
-    quit "CRITICAL", "collection '$collection' not found, did you specify the correct name? See --list-collections for list of known collections";
-}
-
-sub msg_replicas_down($){
-    my $hashref = shift;
-    foreach my $collection (sort keys %$hashref){
-        $msg .= "collection '$collection' ";
-        foreach my $shard (sort keys %{$$hashref{$collection}}){
-            $msg .= "shard '$shard'";
-            if($verbose){
-                $msg .= " (" . join(",", sort keys %{$$hashref{$collection}{$shard}}) . ")";
-            }
-            $msg .= ", ";
-        }
-        $msg =~ s/, $//;
-    }
-    $msg =~ s/, $//;
-}
-
-sub msg_additional_replicas_down(){
-    unless($no_warn_replicas){
-        if(%inactive_replicas_active_shards){
-            $msg .= ". Additional backup shard replicas down (shards still up): ";
-            msg_replicas_down(\%inactive_replicas_active_shards);
-        }
-    }
-}
-
-sub msg_shards($){
-    my $hashref = shift;
-    foreach my $collection (sort keys %$hashref){
-        my $num_inactive = scalar keys(%{$$hashref{$collection}});
-        plural $num_inactive;
-        #next unless $num_inactive > 0;
-        $msg .= "collection '$collection' => $num_inactive shard$plural down";
-        if($verbose){
-            $msg .= " (";
-            foreach my $shard (sort keys %{$$hashref{$collection}}){
-                $msg .= "$shard,";
-            }
-            $msg =~ s/,$//;
-        }
-        $msg .= "), ";
-    }
-    $msg =~ s/, $//;
-}
-
-# Initially used inverted index hashes to display uniquely all the different shard states, but then when extending to replica states this really became too much, simpler to just call shards and replicas 'down' if not active
-if(%inactive_shards){
-    critical;
-    $msg = "SolrCloud shards down: ";
-    msg_shards(\%inactive_shards);
-    if(%shards_without_active_replicas){
-        $msg .= ". SolrCloud shards 'active' but with no active replicas: ";
-        msg_shards(\%shards_without_active_replicas);
-    }
-    msg_additional_replicas_down();
-} elsif(%shards_without_active_replicas){
-    critical;
-    $msg = "SolrCloud shards 'active' but with no active replicas: ";
-    msg_shards(\%shards_without_active_replicas);
-    msg_additional_replicas_down();
-} elsif(%inactive_replicas and not $no_warn_replicas){
-    warning;
-    $msg = "SolrCloud shard replicas down: ";
-    msg_replicas_down(\%inactive_replicas);
-} else {
-    my $collections;
-    if($collection){
-        $plural = "";
-        $collections = $collection;
-    } else {
-        plural keys %$data;
-        $collections = join(", ", sort keys %$data);
-    }
-    $msg = "all SolrCloud shards " . ( $no_warn_replicas ? "" : "and replicas " ) . "active for collection$plural: $collections";
-}
-
-if($show_settings){
-    $msg .= ". Replication Settings: ";
-    foreach my $collection (sort keys %facts){
-        $msg .= "collection '$collection'";
-        foreach(qw/maxShardsPerNode router replicationFactor autoAddReplicas/){
-            $msg .= " $_=" . $facts{$collection}{$_};
-        }
-        $msg .= ", ";
-    }
-    $msg =~ s/, $//;
-}
+msg_shard_status();
 
 get_znode_age($znode);
 $msg .= sprintf(". Cluster state last changed %s ago", sec2human($znode_age_secs));
