@@ -124,4 +124,5 @@ $msg .= sprintf('query_time=%dms', $query_time);
 msg_perf_thresholds();
 $msg .= sprintf(' query_QTime=%dms', $query_qtime);
 
+vlog2;
 quit $status, $msg;
