@@ -24,6 +24,8 @@ For a given SolrCloud Collection or all collections found if --collection is not
 
 See also adjacent plugins:
 
+check_solrcloud_cluster_status.pl - same as this plugin but directly via one of the API on one of the SolrCloud servers instead of ZooKeeper, doesn't require Net::ZooKeeper to be built.
+
 check_solrcloud_server_znode.pl         - checks individual Solr server ephemeral znodes
 check_solrcloud_live_nodes_zookeeper.pl - checks thresholds on number of live SolrCloud nodes
 
