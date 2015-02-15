@@ -22,12 +22,7 @@ For a given SolrCloud Collection or all collections found if --collection is not
 5. Optionally shows replication settings per collection
 6. Returns time since last cluster state change in both human form and perfdata secs for graphing
 
-See also adjacent plugins:
-
-check_solrcloud_cluster_status.pl - same as this plugin but directly via one of the API on one of the SolrCloud servers instead of ZooKeeper, doesn't require Net::ZooKeeper to be built.
-
-check_solrcloud_server_znode.pl         - checks individual Solr server ephemeral znodes
-check_solrcloud_live_nodes_zookeeper.pl - checks thresholds on number of live SolrCloud nodes
+See also adjacent plugin check_solrcloud_cluster_status.pl which does the same as this plugin but directly via one of the API on one of the SolrCloud servers instead of ZooKeeper, doesn't require Net::ZooKeeper to be built.
 
 Tested on ZooKeeper 3.4.5 and 3.4.6 with SolrCloud 4.x
 
