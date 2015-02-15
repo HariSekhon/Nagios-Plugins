@@ -41,8 +41,8 @@ use HariSekhonUtils qw/:DEFAULT :time/;
 use HariSekhon::ZooKeeper;
 use Net::ZooKeeper qw/:DEFAULT :errors :log_levels/;
 
-my $znode = "live_nodes";
-my $base = "/solr";
+my $znode = "/live_nodes";
+my $base  = "/solr";
 
 %options = (
     %zookeeper_options,
@@ -54,7 +54,7 @@ my $base = "/solr";
 get_options();
 
 my @hosts = validate_hosts($host, $port);
-$znode = validate_filename($base, 0, "base znode") . "/$znode";
+$znode = validate_filename($base, 0, "base znode") . $znode;
 $znode =~ s/\/+/\//g;
 $znode = validate_filename($znode, 0, "live nodes znode");
 validate_thresholds(1, 1, { 'simple' => 'lower', 'positive' => 1, 'integer' => 1});
@@ -93,7 +93,7 @@ if($verbose){
     $msg .= "]";
 }
 
-# The live_nodes znode age doesn't change when it live ephemeral child znodes are added / removed
+# The live_nodes znode age doesn't change when live ephemeral child znodes are added / removed
 #my $age_secs;
 #if(defined($zk_stat)){
 #    my $mtime = $zk_stat->{mtime} / 1000;
