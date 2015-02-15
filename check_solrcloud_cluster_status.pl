@@ -29,7 +29,7 @@ check_solrcloud_cluster_status_zookeeper.pl - same as this check but goes via Zo
 check_solrcloud_server_znode.pl         - checks individual Solr server ephemeral znodes
 check_solrcloud_live_nodes_zookeeper.pl - checks thresholds on number of live SolrCloud nodes
 
-Tested on Solr / SolrCloud 4.x";
+Tested on SolrCloud 4.x";
 
 our $VERSION = "0.1";
 
