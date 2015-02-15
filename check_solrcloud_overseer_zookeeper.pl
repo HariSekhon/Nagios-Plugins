@@ -83,7 +83,7 @@ $msg = "SolrCloud overseer node = $overseer";
 
 get_znode_age($znode);
 
-$msg .= ", last changed " . sec2human($znode_age_secs)  . " | overseer_last_state_change=${znode_age_secs}s";
+$msg .= ", last state change " . sec2human($znode_age_secs)  . " ago | overseer_last_state_change=${znode_age_secs}s";
 
 vlog2;
 quit $status, $msg;
