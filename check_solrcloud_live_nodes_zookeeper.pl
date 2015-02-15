@@ -13,7 +13,10 @@ $DESCRIPTION = "Nagios Plugin to check the number of live SolrCloud servers via 
 
 Thresholds for warning / critical apply to the minimum number of live nodes found in ZooKeeper
 
-See also check_solrcloud_server_znode.pl to check individual Solr server ephemeral znodes and check_solrcloud_cluster_state_zookeeper.pl for collection shard and replicas checks
+See also adjacent plugins:
+
+check_solrcloud_server_znode.pl            - checks individual Solr server ephemeral znodes
+check_solrcloud_cluster_state_zookeeper.pl - checks collection shards and active replicas
 
 Tested on ZooKeeper 3.4.5 and 3.4.6 with SolrCloud 4.x
 
