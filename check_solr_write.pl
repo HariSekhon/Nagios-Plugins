@@ -54,9 +54,11 @@ get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
-$collection = validate_solr_collection($collection) unless $list_collections;
-#validate_int($sleep, "sleep", 1, 2000);
-validate_thresholds();
+unless($list_collections){
+    $collection = validate_solr_collection($collection);
+    #validate_int($sleep, "sleep", 1, 2000);
+    validate_thresholds();
+}
 validate_ssl();
 
 vlog2;
