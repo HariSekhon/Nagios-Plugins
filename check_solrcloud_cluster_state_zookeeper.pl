@@ -47,7 +47,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
     use lib "/usr/local/lib";
 }
-use HariSekhonUtils;
+use HariSekhonUtils qw/:DEFAULT :time/;
 use HariSekhon::Solr qw/validate_solr_collection/;
 use HariSekhon::ZooKeeper;
 use Net::ZooKeeper qw/:DEFAULT :errors :log_levels/;
@@ -271,6 +271,7 @@ if($show_settings){
 }
 
 get_znode_age($znode);
+$msg .= sprintf(". Cluster state last changed %s ago", sec2human($znode_age_secs));
 $msg .= " | cluster_state_last_changed=${znode_age_secs}s";
 
 vlog2;
