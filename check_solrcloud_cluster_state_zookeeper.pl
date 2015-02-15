@@ -11,7 +11,21 @@
 
 $DESCRIPTION = "Nagios Plugin to check SolrCloud cluster state, specifically collection shards and replicas, via ZooKeeper contents
 
-See also check_solrcloud_server_znode.pl to check individual Solr server ephemeral znodes
+Checks:
+
+For a given SolrCloud Collection or all collections found if --collection is not specified:
+
+1. Checks there is at least one collection found
+2. Checks each shard of the collection is 'active'
+3. Checks each shard of the collection has at least one active replica
+4. Checks each shard for any down backup replicas (can be optionally disabled)
+5. Optionally shows replication settings per collection
+6. Returns time since last cluster state change in both human form and perfdata secs for graphing
+
+See also adjacent plugins:
+
+check_solrcloud_server_znode.pl - checks individual Solr server ephemeral znodes
+check_solrcloud_live_nodes_zookeeper.pl - checks thresholds on number of live SolrCloud nodes
 
 Tested on ZooKeeper 3.4.5 and 3.4.6 with SolrCloud 4.x
 
@@ -23,7 +37,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 2. API segfaults if you try to check the contents of a null znode such as those kept by SolrCloud servers eg. /solr/live_nodes/<hostname>:8983_solr - ie this will occur if you supply the incorrect base znode and it happens to be null
 ";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -56,7 +70,7 @@ env_vars("SOLR_COLLECTION", \$collection);
     %zookeeper_options,
     "b|base=s"         => [ \$base,             "Base Znode for Solr in ZooKeeper (default: /solr, should be just / for embedded or non-chrooted zookeeper)" ],
     "C|collection=s"   => [ \$collection,       "Solr Collection to check (defaults to all if not specified, \$SOLR_COLLECTION)" ],
-    "no-warn-replicas" => [ \$no_warn_replicas, "Do not warn on down replicas (only check for shards being up/down)" ],
+    "no-warn-replicas" => [ \$no_warn_replicas, "Do not warn on down backup replicas (only check for shards being active and having at least one active replica)" ],
     "show-settings"    => [ \$show_settings,    "Show collection shard/replication settings" ],
     "list-collections" => [ \$list_collections, "List Solr Collections and exit" ],
     #"a|max-age=s" =>  [ \$max_age,    "Max age of the clusterstate znode information in seconds (default: 600)" ],
@@ -115,6 +129,7 @@ my %inactive_shards;
 my %inactive_replicas;
 #my %inactive_replica_states;
 my %inactive_replicas_active_shards;
+my %shards_without_active_replicas;
 my %facts;
 
 sub check_collection($){
@@ -129,18 +144,26 @@ sub check_collection($){
             #push(@{$inactive_shard_states{$collection}{$state}}, $shard);
         }
         my %replicas = get_field2_hash($data, "$collection.shards.$shard.replicas");
+        my $found_active_replica = 0;
         foreach my $replica (sort keys %replicas){
             my $replica_name  = get_field2($data, "$collection.shards.$shard.replicas.$replica.node_name");
             my $replica_state = get_field2($data, "$collection.shards.$shard.replicas.$replica.state");
             $replica_name =~ s/_solr$//;
             vlog2 "\t\t\t\t\treplica '$replica_name' state '$replica_state'";
-            unless($replica_state eq "active"){
+            if($replica_state eq "active"){
+                $found_active_replica++;
+            } else {
                 $inactive_replicas{$collection}{$shard}{$replica_name} = $replica_state;
                 #push(@{$inactive_replica_states{$collection}{$shard}{$replica_state}}, $replica_name);
                 if($state eq "active"){
                     $inactive_replicas_active_shards{$collection}{$shard}{$replica_name} = $replica_state;
                 }
             }
+        }
+        unless($found_active_replica){
+            $shards_without_active_replicas{$collection}{$shard} = $state;
+            delete $inactive_replicas_active_shards{$collection}{$shard};
+            delete $inactive_replicas_active_shards{$collection} unless %{$inactive_replicas_active_shards{$collection}};
         }
     }
     $facts{$collection}{"maxShardsPerNode"}  = get_field2_int($data, "$collection.maxShardsPerNode");
@@ -165,59 +188,64 @@ if($collection and not $found){
     quit "CRITICAL", "collection '$collection' not found, did you specify the correct name? See --list-collections for list of known collections";
 }
 
-if(%inactive_shards){
-    critical;
-    $msg = "SolrCloud shards down: ";
-    # Initially used inverted index hashes to display uniquely all the different shard states, but then when extending to replica states this really became too much, simpler to just call shards and replicas 'down' if not active
-    foreach my $collection (sort keys %inactive_shards){
-        my $num_inactive = scalar keys(%{$inactive_shards{$collection}});
-        plural $num_inactive;
-        $msg .= "collection '$collection' => $num_inactive shard$plural down";
-        if($verbose){
-            $msg .= " (";
-            foreach my $shard (sort keys %{$inactive_shards{$collection}}){
-                $msg .= "$shard,";
-                #foreach my $replica_name (sort keys %{$inactive_replicas{$collection}{$shard}}){
-                    #$msg .= " (" . join(",", @{$inactive_replica_states{$collection}{$state}}) . "), ";
-                #}
-            }
-            $msg =~ s/,$/)/;
-        }
-        $msg .= ", ";
-    }
-    $msg =~ s/, $//;
-    unless($no_warn_replicas){
-        if(%inactive_replicas_active_shards){
-            $msg .= ". Additional backup shard replicas down (shards still up): ";
-            foreach my $collection (sort keys %inactive_replicas_active_shards){
-                $msg .= "collection '$collection' ";
-                foreach my $shard (sort keys %{$inactive_replicas_active_shards{$collection}}){
-                    $msg .= "shard '$shard'";
-                    if($verbose){
-                        $msg .= " (" . join(",", sort keys %{$inactive_replicas_active_shards{$collection}{$shard}}) . ")";
-                    }
-                    $msg .= ", ";
-                }
-                $msg =~ s/, $//;
-            }
-            $msg =~ s/, $//;
-        }
-    }
-} elsif(%inactive_replicas and not $no_warn_replicas){
-    warning;
-    $msg = "SolrCloud shard replicas down: ";
-    foreach my $collection (sort keys %inactive_replicas){
+sub msg_replicas_down($){
+    my $hashref = shift;
+    foreach my $collection (sort keys %$hashref){
         $msg .= "collection '$collection' ";
-        foreach my $shard (sort keys %{$inactive_replicas{$collection}}){
+        foreach my $shard (sort keys %{$$hashref{$collection}}){
             $msg .= "shard '$shard'";
             if($verbose){
-                $msg .= " (" . join(",", sort keys %{$inactive_replicas{$collection}{$shard}}) . ")";
+                $msg .= " (" . join(",", sort keys %{$$hashref{$collection}{$shard}}) . ")";
             }
             $msg .= ", ";
         }
         $msg =~ s/, $//;
     }
     $msg =~ s/, $//;
+}
+
+sub msg_additional_replicas_down(){
+    unless($no_warn_replicas){
+        if(%inactive_replicas_active_shards){
+            $msg .= ". Additional backup shard replicas down (shards still up): ";
+            msg_replicas_down(\%inactive_replicas_active_shards);
+        }
+    }
+}
+
+sub msg_shards($){
+    my $hashref = shift;
+    foreach my $collection (sort keys %$hashref){
+        my $num_inactive = scalar keys(%{$$hashref{$collection}});
+        plural $num_inactive;
+        $msg .= "collection '$collection' => $num_inactive shard$plural down";
+        if($verbose){
+            $msg .= " (";
+            foreach my $shard (sort keys %{$$hashref{$collection}}){
+                $msg .= "$shard,";
+            }
+            $msg =~ s/,$/)/;
+        }
+        $msg .= ", ";
+    }
+    $msg =~ s/, $//;
+}
+
+if(%inactive_shards){
+    critical;
+    $msg = "SolrCloud shards down: ";
+    msg_shards(\%inactive_shards);
+    # Initially used inverted index hashes to display uniquely all the different shard states, but then when extending to replica states this really became too much, simpler to just call shards and replicas 'down' if not active
+    msg_additional_replicas_down()
+} elsif(%shards_without_active_replicas){
+    critical;
+    $msg = "SolrCloud shards 'active' but with no active replicas: ";
+    msg_shards(\%shards_without_active_replicas);
+    msg_additional_replicas_down()
+} elsif(%inactive_replicas and not $no_warn_replicas){
+    warning;
+    $msg = "SolrCloud shard replicas down: ";
+    msg_replicas_down(\%inactive_replicas);
 } else {
     my $collections;
     if($collection){
