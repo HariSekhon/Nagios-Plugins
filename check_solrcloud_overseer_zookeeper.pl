@@ -1,0 +1,89 @@
+#!/usr/bin/perl -T
+# nagios: -epn
+#
+#  Author: Hari Sekhon
+#  Date: 2015-02-15 12:45:31 +0000 (Sun, 15 Feb 2015)
+#
+#  http://github.com/harisekhon
+#
+#  License: see accompanying LICENSE file
+#
+
+$DESCRIPTION = "Nagios Plugin to check the SolrCloud elected overseer in ZooKeeper
+
+See also adjacent plugins:
+
+check_solrcloud_server_znode.pl            - checks individual Solr server ephemeral znodes
+check_solrcloud_cluster_state_zookeeper.pl - checks collection shards and active replicas
+check_solrcloud_live_nodes_zookeeper.pl    - checks thresholds on number of live SolrCloud nodes
+
+Tested on ZooKeeper 3.4.5 and 3.4.6 with SolrCloud 4.x
+
+API / BUGS / Limitations:
+
+Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. Instructions for installing Net::ZooKeeper are found at https://github.com/harisekhon/nagios-plugins
+
+1. Net::ZooKeeper API is slow, takes 5 seconds to create a connection object per ZooKeeper node specified (before it even tries to connect to ZooKeeper which happenes sub-second). Unfortunately this is a limitation of the Net::ZooKeeper API
+2. API segfaults if you try to check the contents of a null znode such as those kept by SolrCloud servers eg. /solr/live_nodes/<hostname>:8983_solr - ie this will occur if you supply the incorrect base znode and it happens to be null
+";
+
+$VERSION = "0.1";
+
+use strict;
+use warnings;
+use IO::Socket;
+BEGIN {
+    use File::Basename;
+    use lib dirname(__FILE__) . "/lib";
+}
+use HariSekhonUtils qw/:DEFAULT :time/;
+use HariSekhon::ZooKeeper;
+use Net::ZooKeeper qw/:DEFAULT :errors :log_levels/;
+
+my $znode = "/overseer_elect/leader";
+my $base  = "/solr";
+
+%options = (
+    %zookeeper_options,
+    "b|base=s" => [ \$base, "Base Znode for Solr in ZooKeeper (default: /solr, should be just / for embedded or non-chrooted zookeeper)" ],
+);
+@usage_order = qw/host port user password base random-conn-order session-timeout/;
+
+get_options();
+
+my @hosts = validate_hosts($host, $port);
+$znode = validate_filename($base, 0, "base znode") . $znode;
+$znode =~ s/\/+/\//g;
+$znode = validate_filename($znode, 0, "overseer_elect leader znode");
+
+$user     = validate_user($user)         if defined($user);
+$password = validate_password($password) if defined($password);
+
+vlog2;
+set_timeout();
+
+$status = "UNKNOWN";
+
+connect_zookeepers(@hosts);
+
+check_znode_exists($znode);
+
+my $data = get_znode_contents_json($znode);
+
+$status = "OK";
+
+vlog2 "checking overseer elect leader znode";
+my $overseer = get_field2($data, "id");
+vlog2 "overseer = $overseer";
+$overseer =~ s/^\d+-//;
+$overseer =~ s/-n_\d+$//;
+$overseer =~ s/_solr$//;
+
+$msg = "SolrCloud overseer node = $overseer";
+
+get_znode_age($znode);
+
+$msg .= ", last changed " . sec2human($znode_age_secs)  . " | overseer_last_state_change=${znode_age_secs}s";
+
+vlog2;
+quit $status, $msg;
