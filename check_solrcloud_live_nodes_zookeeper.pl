@@ -94,29 +94,8 @@ if($verbose){
 }
 
 # The live_nodes znode age doesn't change when live ephemeral child znodes are added / removed
-#my $age_secs;
-#if(defined($zk_stat)){
-#    my $mtime = $zk_stat->{mtime} / 1000;
-#    isFloat($mtime) or quit "UNKNOWN", "invalid mtime returned for znode '$znode', got '$mtime'";
-#    vlog3 sprintf("znode '$znode' mtime = %s", $mtime);
-#    $age_secs = time - int($mtime);
-#    vlog2 "live nodes last changed $age_secs secs ago";
-#    $msg .= sprintf(". Live nodes last changed %s ago", sec2human($age_secs));
-#    if($age_secs < 0){
-#        my $clock_mismatch_msg = "clock synchronization problem, modified timestamp on znode is in the future!";
-#        if($status eq "OK"){
-#            $msg = "$clock_mismatch_msg $msg";
-#        } else {
-#            $msg .= ". Also, $clock_mismatch_msg";
-#        }
-#        warning;
-#    }
-#} else {
-#    quit "UNKNOWN", "no stat object returned by ZooKeeper exists call for znode '$znode', try re-running with -vvvvD to see full debug output";
-#}
 
 $msg .= " | live_nodes=$live_nodes";
 msg_perf_thresholds(0, "lower");
-#$msg .= " live_nodes_last_change=${age_secs}s";
 
 quit $status, $msg;
