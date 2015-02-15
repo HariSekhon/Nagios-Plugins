@@ -11,11 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the SolrCloud elected overseer in ZooKeeper
 
-See also adjacent plugins:
-
-check_solrcloud_server_znode.pl            - checks individual Solr server ephemeral znodes
-check_solrcloud_cluster_state_zookeeper.pl - checks collection shards and active replicas
-check_solrcloud_live_nodes_zookeeper.pl    - checks thresholds on number of live SolrCloud nodes
+See also adjacent plugin check_solrcloud_overseer.pl which does the same as this check but via the Solr API
 
 Tested on ZooKeeper 3.4.5 and 3.4.6 with SolrCloud 4.x
 
