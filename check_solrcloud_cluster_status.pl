@@ -22,12 +22,7 @@ For a given SolrCloud Collection or all collections found if --collection is not
 5. Optionally shows replication settings per collection
 6. Returns time since last cluster state change in both human form and perfdata secs for graphing
 
-See also adjacent plugins:
-
-check_solrcloud_cluster_status_zookeeper.pl - same as this check but goes via ZooKeeper which is tecnically the more correct thing to do since if the supplied SolrCloud node is down you will only get a 'connect refused' type feedback and not the extend of the outage in the cluster.
-
-check_solrcloud_server_znode.pl         - checks individual Solr server ephemeral znodes
-check_solrcloud_live_nodes_zookeeper.pl - checks thresholds on number of live SolrCloud nodes
+See also adjacent plugin check_solrcloud_cluster_status_zookeeper.pl which does the same as this check but goes via ZooKeeper which is tecnically the more correct thing to do since if the supplied SolrCloud node is down you will only get a 'connect refused' type feedback and not the extend of the outage in the cluster.
 
 Tested on SolrCloud 4.x";
 
