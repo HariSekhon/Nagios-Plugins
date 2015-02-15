@@ -47,7 +47,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
     use lib "/usr/local/lib";
 }
-use HariSekhonUtils qw/:DEFAULT :time/;
+use HariSekhonUtils;
 use HariSekhon::Solr qw/validate_solr_collection/;
 use HariSekhon::ZooKeeper;
 use Net::ZooKeeper qw/:DEFAULT :errors :log_levels/;
@@ -278,27 +278,8 @@ if($show_settings){
     $msg =~ s/, $//;
 }
 
-if(defined($zk_stat)){
-    my $mtime = $zk_stat->{mtime} / 1000;
-    isFloat($mtime) or quit "UNKNOWN", "invalid mtime returned for znode '$znode', got '$mtime'";
-    vlog3 sprintf("znode '$znode' mtime = %s", $mtime);
-    my $age_secs = time - int($mtime);
-    vlog2 "cluster state last modified $age_secs secs ago";
-    $msg .= sprintf(". Cluster state last modified %s ago", sec2human($age_secs));
-    #check_thresholds($age_secs, 0, "max znode age");
-    if($age_secs < 0){
-        my $clock_mismatch_msg = "clock synchronization problem, modified timestamp on znode is in the future!";
-        if($status eq "OK"){
-            $msg = "$clock_mismatch_msg $msg";
-        } else {
-            $msg .= ". Also, $clock_mismatch_msg";
-        }
-        warning;
-    }
-    $msg .= " | cluster_state_last_changed=${age_secs}s";
-} else {
-    quit "UNKNOWN", "no stat object returned by ZooKeeper exists call for znode '$znode', try re-running with -vvvvD to see full debug output";
-}
+get_znode_age($znode);
+$msg .= " | cluster_state_last_changed=${znode_age_secs}s";
 
 vlog2;
 quit $status, $msg;
