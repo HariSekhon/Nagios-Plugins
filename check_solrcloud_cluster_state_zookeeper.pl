@@ -94,23 +94,15 @@ set_timeout();
 
 $status = "OK";
 
-my $zkh = connect_zookeepers(@hosts);
+connect_zookeepers(@hosts);
 
-check_znode_exists($zkh, $znode);
+check_znode_exists($znode);
 
 # we don't get a session id until after a call to the server such as exists() above
 #my $session_id = $zkh->{session_id} or quit "UNKNOWN", "failed to determine ZooKeeper session id, possibly not connected to ZooKeeper?";
 #vlog2 sprintf("session id: %s", $session_id);
 
-my $data = $zkh->get($znode, 'data_read_len' => $DATA_READ_LEN);
-                     #'stat' => $zk_stat, 'watch' => $watch)
-                     #|| quit "CRITICAL", "failed to read data from znode $znode: $!";
-defined($data) or quit "CRITICAL", "no data returned for znode '$znode' from zookeeper$plural '@hosts': " . $zkh->get_error();
-# /hadoop-ha/logicaljt/ActiveStandbyElectorLock contains carriage returns which messes up the output in terminal by causing the second line to overwrite the first
-$data =~ s/\r//g;
-$data = trim($data);
-vlog3 "znode '$znode' data:\n\n$data\n";
-$data = isJson($data) or quit "CRITICAL", "znode '$znode' data is not json as expected, got '$data'";
+my $data = get_znode_contents_json($znode);
 
 unless(scalar keys %$data){
     quit "CRITICAL", "no collections found in cluster state in zookeeper";
