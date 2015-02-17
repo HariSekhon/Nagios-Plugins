@@ -110,19 +110,19 @@ make:
 .PHONY: apt-packages
 apt-packages:
 	# needed to fetch and build CPAN modules and fetch the library submodule at end of build
-	sudo apt-get install -y build-essential libwww-perl git || :
+	dpkg -l build-essential libwww-perl git &>/dev/null || sudo apt-get install -y build-essential libwww-perl git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	sudo apt-get install -y libdbd-mysql-perl libmysqlclient-dev || :
+	dpkg -l libdbd-mysql-perl libmysqlclient-dev &>/dev/null || sudo apt-get install -y libdbd-mysql-perl libmysqlclient-dev || :
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	sudo apt-get install -y libssl-dev || :
+	dpkg -l libssl-dev &>/dev/null || sudo apt-get install -y libssl-dev || :
 	# for XML::Simple building
-	sudo apt-get install -y libexpat1-dev || :
+	dpkg -l libexpat1-dev &>/dev/null || sudo apt-get install -y libexpat1-dev || :
 	# for check_whois.pl
-	sudo apt-get install -y jwhois || :
+	dpkg -l jwhois &>/dev/null || sudo apt-get install -y jwhois || :
 	# TODO: for LWP::Authenticate - prompts for realm + KDC, doesn't seem automatable and not properly tested yet
 	#apt-get install -y krb5-config || :
 	# for Cassandra's Python driver
-	sudo apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev || :
+	dpkg -l python-setuptools python-dev libev4 libev-dev libsnappy-dev &>/dev/null || sudo apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev || :
 
 .PHONY: yum-packages
 yum-packages:
