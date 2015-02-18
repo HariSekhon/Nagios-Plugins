@@ -34,7 +34,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 2. API segfaults if you try to check the contents of a null znode such as those kept by SolrCloud servers eg. /solr/live_nodes/<hostname>:8983_solr - ie this will occur if you supply the incorrect base znode and it happens to be null
 ";
 
-$VERSION = "0.4";
+$VERSION = "0.4.1";
 
 use strict;
 use warnings;
@@ -72,7 +72,7 @@ env_vars("SOLR_COLLECTION", \$collection);
 get_options();
 
 my @hosts   = validate_hosts($host, $port);
-validate_base_and_znode($base, $znode, "clusterstate");
+$znode      = validate_base_and_znode($base, $znode, "clusterstate");
 $collection = validate_solr_collection($collection) if $collection;
 #validate_thresholds(0, 1, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1}, "max znode age", $max_age);
 
