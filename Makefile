@@ -5,6 +5,12 @@
 #  http://github.com/harisekhon
 #
 
+ifdef TRAVIS
+	SUDO =
+else
+	SUDO = sudo
+endif
+
 .PHONY: make
 make:
 	[ -x /usr/bin/apt-get ] && make apt-packages || :
@@ -48,7 +54,7 @@ make:
 	# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
 	# Redis module required but didn't auto-pull: ExtUtils::Config ExtUtils::Helpers ExtUtils::InstallPaths TAP::Harness::Env Module::Build::Tiny Sub::Name
 	# Kafka module required but didn't auto-pull: ExtUtils::Config, ExtUtils::Helpers, ExtUtils::InstallPaths, TAP::Harness::Env, Module::Build::Tiny, Sub::Exporter::Progressive, Const::Fast, Exporter::Tiny, List::MoreUtils, Devel::CheckLib, Compress::Snappy, Sub::Name
-	yes "" | sudo cpan \
+	yes "" | $(SUDO) cpan \
 		Class:Accessor \
 		Compress::Snappy \
 		Const::Fast \
