@@ -18,7 +18,7 @@ See also check_solrcloud_live_nodes_zookeeper.pl which does the same as this plu
 Tested on SolrCloud 4.x
 ";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -32,14 +32,17 @@ use HariSekhon::Solr;
 
 %options = (
     %solroptions,
+    %solroptions_context,
     %thresholdoptions,
 );
-@usage_order = qw/host port user password warning critical/;
+@usage_order = qw/host port user password warning critical http-context/;
 
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
+$host = validate_host($host);
+$port = validate_port($port);
+validate_ssl();
+$http_context = validate_solr_context($http_context);
 validate_thresholds(1, 1, { 'simple' => 'lower', 'positive' => 1, 'integer' => 1});
 
 $user     = validate_user($user)         if defined($user);
@@ -77,4 +80,5 @@ $msg .= sprintf(" | live_nodes=%d", $live_nodes);
 msg_perf_thresholds(0, "lower");
 $msg .= sprintf(" query_time=%dms query_QTime=%dms", $query_time, $query_qtime);
 
+vlog2;
 quit $status, $msg;
