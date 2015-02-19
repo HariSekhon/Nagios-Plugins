@@ -26,7 +26,7 @@ See also adjacent plugin check_solrcloud_cluster_status_zookeeper.pl which does 
 
 Tested on SolrCloud 4.x";
 
-our $VERSION = "0.1";
+our $VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -42,15 +42,17 @@ $ua->agent("Hari Sekhon $progname $main::VERSION");
 %options = (
     %solroptions,
     %solroptions_collection,
+    %solroptions_context,
     "no-warn-replicas" => [ \$no_warn_replicas, "Do not warn on down backup replicas (only check for shards being active and having at least one active replica)" ],
     "show-settings"    => [ \$show_settings,    "Show collection shard/replication settings" ],
 );
-@usage_order = qw/host port user password collection base no-warn-replicas show-settings max-age random-conn-order session-timeout list-collections/;
+@usage_order = qw/host port user password collection no-warn-replicas show-settings http-context list-collections/;
 
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
+$host = validate_host($host);
+$port = validate_port($port);
+$http_context = validate_solr_context($http_context);
 validate_ssl();
 
 vlog2;
