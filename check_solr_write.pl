@@ -21,7 +21,7 @@ Test on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
 
 # Originally designed for Solr 4.0 onwards due to using JSON and the standard update handler which only supports JSON from 4.0, later rewritten to support Solr 3 via XML document addition instead
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -44,11 +44,12 @@ my $soft_commit;
 %options = (
     %solroptions,
     %solroptions_collection,
+    %solroptions_context,
     %thresholdoptions,
     "soft-commit"   =>  [ \$soft_commit,    "Soft commit instead of hard commit" ],
     #"sleep=s"       =>  [ \$sleep,          "Sleep in milliseconds between writing unique document and querying to verify it (default: 10)" ],
 );
-splice @usage_order, 6, 0, qw/collection soft-commit sleep/;
+splice @usage_order, 6, 0, qw/collection soft-commit sleep http-context/;
 
 get_options();
 
@@ -59,6 +60,7 @@ unless($list_collections){
     #validate_int($sleep, "sleep", 1, 2000);
     validate_thresholds();
 }
+$http_context = validate_solr_context($http_context);
 validate_ssl();
 
 vlog2;
@@ -94,7 +96,7 @@ $ua->default_header("Content-Type" => "application/xml");
 
 vlog2 "adding unique document to Solr collection '$collection'";
 vlog3 "document id '$unique_id'";
-$json = curl_solr "solr/$collection/update?commit=true" . ( $soft_commit ? "&softCommit=true" : "") . "&overwrite=false", "POST", $xml_doc;
+$json = curl_solr "$http_context/$collection/update?commit=true" . ( $soft_commit ? "&softCommit=true" : "") . "&overwrite=false", "POST", $xml_doc;
 
 $msg .= "wrote unique document to Solr collection '$collection' in ${query_time}ms";
 check_thresholds($query_time);
@@ -126,7 +128,7 @@ my $xml_delete = "
 </delete>
 ";
 vlog2 "\ndeleting unique document";
-$json = curl_solr "solr/$collection/update", "POST", $xml_delete;
+$json = curl_solr "$http_context/$collection/update", "POST", $xml_delete;
 
 ( $query_status eq 0 ) or quit "CRITICAL", "failed to delete unique document with id '$unique_id'";
 $msg .= ", deleted in ${query_time}ms";
@@ -135,4 +137,5 @@ $msg2 .= " delete_time=${query_time}ms" . msg_perf_thresholds(1) . " delete_QTim
 
 $msg .= " | $msg2";
 
+vlog2;
 quit $status, $msg;
