@@ -15,7 +15,7 @@ Optional thresholds on the core's index size, heap size, number of documents and
 
 Tested on Solr / SolrCloud 4.x";
 
-our $VERSION = "0.2";
+our $VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -35,12 +35,13 @@ my $core_num_docs_threshold;
 %options = (
     %solroptions,
     %solroptions_collection,
+    %solroptions_context,
     "s|index-size=s" => [ \$core_size_threshold,     "Core index size thresholds in MB" ],
     "e|heap-size=s"  => [ \$core_heap_threshold,     "Core heap size thresholds in MB" ],
     "n|num-docs=s"   => [ \$core_num_docs_threshold, "Core number of documents thresholds" ],
     %thresholdoptions,
 );
-splice @usage_order, 4, 0, qw/collection index-size heap-size num-docs query-time list-collections/;
+splice @usage_order, 4, 0, qw/collection index-size heap-size num-docs query-time http-context list-collections/;
 
 get_options();
 
@@ -53,6 +54,7 @@ unless($list_collections){
     validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1 }, "num docs",   $core_num_docs_threshold);
     validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1 });
 }
+$http_context = validate_solr_context($http_context);
 validate_ssl();
 
 vlog2;
