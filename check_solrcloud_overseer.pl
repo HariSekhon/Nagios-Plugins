@@ -11,12 +11,14 @@
 
 $DESCRIPTION = "Nagios Plugin to check Solr / SolrCloud Overseer via SolrCloud Collections API
 
+Thresholds apply to the query time.
+
 See also adjacent plugin check_solrcloud_overseer_zookeeper.pl which does the same but via ZooKeeper
 
 Tested on SolrCloud 4.x
 ";
 
-our $VERSION = "0.1";
+our $VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -31,15 +33,17 @@ $ua->agent("Hari Sekhon $progname $main::VERSION");
 
 %options = (
     %solroptions,
+    %solroptions_context,
     %thresholdoptions,
 );
-splice @usage_order, 4, 0, qw//;
+splice @usage_order, 6, 0, qw/http-context/;
 
 get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
 validate_thresholds();
+$http_context = validate_solr_context($http_context);
 validate_ssl();
 
 vlog2;
@@ -47,7 +51,7 @@ set_timeout();
 
 $status = "OK";
 
-$json = curl_solr "solr/admin/collections?action=OVERSEERSTATUS&distrib=true";
+$json = curl_solr "$http_context/admin/collections?action=OVERSEERSTATUS&distrib=true";
 
 my $overseer = get_field("leader");
 
@@ -58,4 +62,5 @@ $msg .= sprintf(' | query_time=%dms', $query_time);
 msg_perf_thresholds();
 $msg .= sprintf(' query_QTime=%sms', $query_time, $query_qtime);
 
+vlog2;
 quit $status, $msg;
