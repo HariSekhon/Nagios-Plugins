@@ -22,9 +22,9 @@ For a given SolrCloud Collection or all collections found if --collection is not
 5. Optionally shows replication settings per collection
 6. Returns time since last cluster state change in both human form and perfdata secs for graphing
 
-See also adjacent plugin check_solrcloud_cluster_status.pl which does the same as this plugin but directly via one of the API on one of the SolrCloud servers instead of ZooKeeper, doesn't require Net::ZooKeeper to be built.
+See also adjacent plugin check_solrcloud_cluster_status.pl which does the same as this plugin but directly via the Solr API on one of the SolrCloud servers instead of ZooKeeper, so doesn't require Net::ZooKeeper to be built.
 
-Tested on ZooKeeper 3.4.5 and 3.4.6 with SolrCloud 4.x
+Tested on ZooKeeper 3.4.5 / 3.4.6 with SolrCloud 4.x
 
 API / BUGS / Limitations:
 
@@ -47,7 +47,6 @@ BEGIN {
 use HariSekhonUtils qw/:DEFAULT :time/;
 use HariSekhon::Solr;
 use HariSekhon::ZooKeeper;
-use Net::ZooKeeper qw/:DEFAULT :errors :log_levels/;
 
 # Max num of chars to read from znode contents
 $DATA_READ_LEN = 50000;

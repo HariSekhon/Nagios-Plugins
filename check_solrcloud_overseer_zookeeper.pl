@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the SolrCloud elected overseer in ZooKeeper
 
-See also adjacent plugin check_solrcloud_overseer.pl which does the same as this check but via the Solr API
+See also adjacent plugin check_solrcloud_overseer.pl which does the same as this check but via the Solr API on one of the SolrCloud servers instead of ZooKeeper, so doesn't require Net::ZooKeeper to be built.
 
 Tested on ZooKeeper 3.4.5 and 3.4.6 with SolrCloud 4.x
 
@@ -34,7 +34,6 @@ BEGIN {
 }
 use HariSekhonUtils qw/:DEFAULT :time/;
 use HariSekhon::ZooKeeper;
-use Net::ZooKeeper qw/:DEFAULT :errors :log_levels/;
 
 my $znode = "/overseer_elect/leader";
 my $base  = "/solr";

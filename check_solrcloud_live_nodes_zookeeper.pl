@@ -13,9 +13,9 @@ $DESCRIPTION = "Nagios Plugin to check the number of live SolrCloud servers via 
 
 Thresholds for warning / critical apply to the minimum number of live nodes found in ZooKeeper
 
-See also adjacent plugin check_solrcloud_live_nodes which does the same as this check but directly against the Solr API
+See also adjacent plugin check_solrcloud_live_nodes.pl which does the same as this check but directly via the Solr API on one of the SolrCloud servers instead of ZooKeeper, so doesn't require Net::ZooKeeper to be built. 
 
-Tested on ZooKeeper 3.4.5 and 3.4.6 with SolrCloud 4.x
+Tested on ZooKeeper 3.4.5 / 3.4.6 with SolrCloud 4.x
 
 API / BUGS / Limitations:
 
@@ -36,7 +36,6 @@ BEGIN {
 }
 use HariSekhonUtils qw/:DEFAULT :time/;
 use HariSekhon::ZooKeeper;
-use Net::ZooKeeper qw/:DEFAULT :errors :log_levels/;
 
 my $znode = "/live_nodes";
 my $base  = "/solr";
