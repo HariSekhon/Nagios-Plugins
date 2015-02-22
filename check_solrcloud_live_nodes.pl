@@ -35,7 +35,7 @@ use HariSekhon::Solr;
     %solroptions_context,
     %thresholdoptions,
 );
-@usage_order = qw/host port user password warning critical http-context/;
+splice @usage_order, 6, 0, qw/http-context/;
 
 get_options();
 
