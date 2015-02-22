@@ -42,7 +42,7 @@ my $base  = "/solr";
     %zookeeper_options,
     "b|base=s" => [ \$base, "Base Znode for Solr in ZooKeeper (default: /solr, should be just / for embedded or non-chrooted zookeeper)" ],
 );
-@usage_order = qw/host port user password base random-conn-order session-timeout/;
+splice @usage_order, 6, 0, qw/base random-conn-order session-timeout/;
 
 get_options();
 
