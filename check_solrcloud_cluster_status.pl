@@ -46,7 +46,7 @@ $ua->agent("Hari Sekhon $progname $main::VERSION");
     "no-warn-replicas" => [ \$no_warn_replicas, "Do not warn on down backup replicas (only check for shards being active and having at least one active replica)" ],
     "show-settings"    => [ \$show_settings,    "Show collection shard/replication settings" ],
 );
-@usage_order = qw/host port user password collection no-warn-replicas show-settings http-context list-collections/;
+splice @usage_order, 6, 0, qw/collection no-warn-replicas show-settings list-collections http-context/;
 
 get_options();
 
