@@ -29,7 +29,7 @@ Tested on SolrCloud 4.x";
 # Replication status
 # Synthetic queries
 
-our $VERSION = "0.2";
+our $VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -121,32 +121,44 @@ if($list_keys){
 }
 
 unless(isHash($mbeans[1]) and %{$mbeans[1]}){
-    quit "UNKNOWN", "no metrics returned for category '$category'" . ( defined($key) ? " key '$key'" : "" ). ", did you specify a correct category as listed by --list-categories and correct key as listed by --list-keys?";
+    quit "UNKNOWN", "no metrics returned for category '$category'" . ( defined($key) ? " key '$key'" : "" ). ", did you specify a correct category as listed by --list-categories" . ( defined($key) ? " and correct key as listed by --list-keys?" : "");
 }
 
+#my $key_found  = 0;
+my $stat_found = 0;
 # This construct is the more general purpose left over from parsing all the metric categories, still viable now using only a single category
 foreach (my $i = 1; $i < scalar @mbeans; $i+=2){
     isHash($mbeans[$i]) or quit "UNKNOWN", "mbean member $i is not a hashref, got '$mbeans[$i]'. $nagios_plugins_support_msg_api";
     #print "i $i => " . Dumper(%{$mbeans[$i]});
-    foreach my $key (keys %{$mbeans[$i]}){
-        my $key_dot = $key;
-        $key_dot =~ s/\./\\./g;
-        #print "key $key => " . Dumper($mbeans[$i]{$key});
-        my %keys2 = get_field2_hash($mbeans[$i], "$key_dot.stats", 1);
-        if(%keys2){
-            foreach (sort keys %keys2){
+    foreach my $key2 (keys %{$mbeans[$i]}){
+        # if specifying wrong key then whole hash is empty so this logic is redundant
+        #if($key and $key eq $key2){
+        #    $key_found = 1;
+        #}
+        my $key2_dot = $key2;
+        $key2_dot =~ s/\./\\./g;
+        # When the stats field is null it results in the following warnings, which we temporarily suppress here:
+        #
+        # Odd number of elements in hash assignment at ./check_solr_metrics.pl line 135.
+        # Use of uninitialized value in list assignment at ./check_solr_metrics.pl line 135.
+        no warnings;
+        my %keys3 = get_field2_hash($mbeans[$i], "$key2_dot.stats", 1);
+        use warnings;
+        if(%keys3){
+            foreach (sort keys %keys3){
                 if($stat){
                     next unless $_ eq $stat;
                 }
-                my $value = $keys2{$_};
+                $stat_found = 1;
+                my $value = $keys3{$_};
                 if(defined($value) and isFloat($value)){
                     if(defined($stats{"${key}.$_"})){
                         code_error "duplicate key '${key}.$_' detected";
                     }
-                    vlog2 "$key => $_  = $value";
-                    $stats{$key}{$_} = $value;
+                    vlog2 "$key2 => $_  = $value";
+                    $stats{$key2}{$_} = $value;
                 } elsif($stat and not isFloat($value)){
-                    quit "UNKNOWN", "stat '$stat' for metric '$key' is not numeric, cannot be a statistic. Please specify a numeric statistic field instead, omit --stat to see the full list of valid metric stats";
+                    quit "UNKNOWN", "stat '$stat' for metric '$key2' is not numeric, cannot be a statistic. Please specify a numeric statistic field instead, omit --stat to see the full list of valid metric stats";
                 }
             }
         }
@@ -154,8 +166,19 @@ foreach (my $i = 1; $i < scalar @mbeans; $i+=2){
 }
 
 unless(%stats){
+    # never hits this since specifying either incorrect category or key returns empty hash
+#    if($key){
+#        if($key_found){
+#            quit "UNKNOWN", "no stats returned for category '$category' key '$key'";
+#        } else {
+#            quit "UNKNOWN", "key '$key' was not found, did you specify the correct key name? See --list-keys";
+#        }
     if($stat){
-        quit "UNKNOWN", "stat '$stat' not found for key '$key', did you specify the correct stat name? Try omitting it to see what stats are returned for this category";
+        if($stat_found){
+            quit "UNKNOWN", "no stat returned for category '$category' key '$key' stat '$stat'";
+        } else {
+            quit "UNKNOWN", "stat not found for category '$category' key '$key' stat '$stat', did you specify the correct stat name? Try omitting it to see what stats are returned for this category";
+        }
     } else {
         quit "UNKNOWN", "no stats collected. Stats may be null or $nagios_plugins_support_msg_api"
     }
