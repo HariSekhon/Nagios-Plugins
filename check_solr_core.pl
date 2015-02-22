@@ -41,7 +41,7 @@ my $core_num_docs_threshold;
     "n|num-docs=s"   => [ \$core_num_docs_threshold, "Core number of documents thresholds" ],
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, qw/collection index-size heap-size num-docs query-time http-context list-collections/;
+splice @usage_order, 6, 0, qw/collection index-size heap-size num-docs query-time list-collections http-context/;
 
 get_options();
 
