@@ -40,7 +40,7 @@ my $api_ping;
     %solroptions_context,
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, qw/collection http-context list-collections/;
+splice @usage_order, 6, 0, qw/collection list-collections http-context/;
 
 get_options();
 
