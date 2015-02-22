@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check Solr / SolrCloud metrics via Solr API
 
-There are too many metrics to practically output at the same time so you must at the least specify a category and possibly a specifc metric --key to return. Use the --list-categories switch to find out what categories are available, and then see output of what keys are returned (the first part of the metric name before the final dot).
+There are too many metrics to practically output at the same time so you must at the least specify a category and possibly a specific metric --key to return. Use the --list-categories/--list-keys switches to find out what categories and keys are available.
 
 Additionally, can drill down to a specific --stat to collect from that metric.
 
@@ -60,7 +60,7 @@ my %stats;
     %solroptions_context,
     %thresholdoptions,
 );
-@usage_order = qw/host port user password category key stat list-categories http-context/;
+@usage_order = qw/host port user password category key stat list-categories list-keys http-context/;
 
 get_options();
 
