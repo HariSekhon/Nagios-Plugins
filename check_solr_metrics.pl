@@ -60,7 +60,7 @@ my %stats;
     %solroptions_context,
     %thresholdoptions,
 );
-@usage_order = qw/host port user password category key stat list-categories list-keys http-context/;
+splice @usage_order, 6, 0, qw/category key stat list-categories list-keys http-context/;
 
 get_options();
 
