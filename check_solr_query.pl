@@ -45,7 +45,7 @@ my $num_docs_threshold = 1;
     "n|num-docs=s" => [ \$num_docs_threshold, "Minimum or range threshold for number of matching docs to expect in result for given query (default: 1)" ],
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, qw/collection query num-docs http-context list-collections/;
+splice @usage_order, 6, 0, qw/collection query num-docs list-collections http-context/;
 
 get_options();
 
