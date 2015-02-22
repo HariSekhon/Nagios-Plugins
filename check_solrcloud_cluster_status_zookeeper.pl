@@ -66,7 +66,7 @@ env_vars("SOLR_COLLECTION", \$collection);
     "list-collections" => [ \$list_collections, "List Solr Collections and exit" ],
     #"a|max-age=s" =>  [ \$max_age,    "Max age of the clusterstate znode information in seconds (default: 600)" ],
 );
-@usage_order = qw/host port user password collection base no-warn-replicas show-settings max-age random-conn-order session-timeout list-collections/;
+splice @usage_order, 6, 0, qw/collection base no-warn-replicas show-settings max-age list-collections random-conn-order session-timeout/;
 
 get_options();
 
