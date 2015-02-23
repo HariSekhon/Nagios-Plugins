@@ -193,7 +193,9 @@ if(@zoo_only_files){
 $msg .= scalar @files_checked . " files checked";
 $msg .= ", last config link change " . sec2human($link_age_secs) . " ago";
 $msg .= ", last config change " . sec2human($latest_change) . " ago";
-$msg .=" | 'collection $collection last config link change'=${link_age_secs}s";
+$msg .=" |";
+$msg .= " 'collection $collection last config change'=${latest_change}s";
+$msg .= " 'collection $collection last config link change'=${link_age_secs}s";
 
 vlog2;
 quit $status, $msg;
