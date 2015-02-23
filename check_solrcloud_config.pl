@@ -19,6 +19,8 @@ Checks:
 - all files in given local config directory are present in SolrCloud ZooKeeper config
 - all files in SolrCloud ZooKeeper config are found in the given local directory
 - files present both locally and in SolrCloud ZooKeeper have matching contents
+- in verbose mode shows which files are differing or missing between local Solr config vs ZooKeeper SolrCloud config
+- outputs the time since last config change in ZooKeeper as well as the last config linking change in ZooKeeper
 
 Tested on ZooKeeper 3.4.5 / 3.4.6 with SolrCloud 4.x
 
