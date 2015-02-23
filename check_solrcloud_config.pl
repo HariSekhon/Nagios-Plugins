@@ -20,8 +20,6 @@ Checks:
 - all files in SolrCloud ZooKeeper config are found in the given local directory
 - files present both locally and in SolrCloud ZooKeeper have matching contents
 
-*** As there are often a lot of files in the solr config directory you will need to increase the default timeout beyond 10 if checking against ZooKeepers over the network ***
-
 Tested on ZooKeeper 3.4.5 / 3.4.6 with SolrCloud 4.x
 
 API / BUGS / Limitations:
@@ -51,6 +49,8 @@ use File::Find;
 
 $DATA_READ_LEN = 1000000;
 
+set_timeout_default(20);
+
 my $znode = "/collections";
 my $base  = "/solr";
 my $config_name;
@@ -59,11 +59,11 @@ my $conf_dir;
 %options = (
     %zookeeper_options,
     %solroptions_collection,
+    "d|config-dir=s"    => [ \$conf_dir,    "Config directory of files containing solrconfig.xml, schema.xml etc to parse and compare to SolrCloud configuration" ],
     "n|config-name=s"   => [ \$config_name, "Config name to check the collection is linked against (optional)" ],
-    "d|config-dir=s"    => [ \$conf_dir,    "Configuration directory of files containing solrconfig.xml, schema.xml etc to parse and compare to SolrCloud configuration" ],
     "b|base=s"          => [ \$base,        "Base Znode for Solr in ZooKeeper (default: /solr, should be just / for embedded or non-chrooted zookeeper)" ],
 );
-splice @usage_order, 6, 0, qw/collection config-name config-dir base list-collections/;
+splice @usage_order, 6, 0, qw/collection config-dir config-name base list-collections/;
 
 get_options();
 
@@ -195,7 +195,7 @@ if(@zoo_only_files){
     $msg .= " (" . join(",", @zoo_only_files) . "), " if $verbose;
 }
 
-$msg .= scalar @files_checked . " files checked in SolrCloud collection '$collection' config '$configName'";
+$msg .= scalar @files_checked . " files checked in SolrCloud collection '$collection' ZooKeeper config '$configName'";
 $msg .= ", last config link change " . sec2human($link_age_secs) . " ago";
 $msg .= ", last config change " . sec2human($latest_change) . " ago";
 $msg .=" |";
