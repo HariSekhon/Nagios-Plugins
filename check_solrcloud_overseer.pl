@@ -57,7 +57,7 @@ my $overseer = get_field("leader");
 
 $msg .= "SolrCloud overseer leader is '$overseer', query time ${query_qtime}ms";
 check_thresholds($query_time);
-$msg .= ", query QTime ${query_qtime}ms";
+$msg .= ", QTime ${query_qtime}ms";
 $msg .= sprintf(' | query_time=%dms', $query_time);
 msg_perf_thresholds();
 $msg .= sprintf(' query_QTime=%sms', $query_time, $query_qtime);
