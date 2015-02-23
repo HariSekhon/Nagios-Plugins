@@ -192,7 +192,7 @@ if(@zoo_only_files){
     $msg .= " (" . join(",", @zoo_only_files) . "), " if $verbose;
 }
 
-$msg .= scalar @files_checked . " files checked";
+$msg .= scalar @files_checked . " files checked in SolrCloud collection '$collection'";
 $msg .= ", last config link change " . sec2human($link_age_secs) . " ago";
 $msg .= ", last config change " . sec2human($latest_change) . " ago";
 $msg .=" |";
@@ -201,8 +201,8 @@ $msg .= " 'zookeeper file count'=$zookeeper_file_count";
 $msg .= " 'differing file count'=" . scalar @differing_files;
 $msg .= " 'files only in local conf dir'=" . scalar @local_only_files;
 $msg .= " 'files only in zookeeper'=" . scalar @zoo_only_files;
-$msg .= " 'collection $collection last config change'=${latest_change}s";
-$msg .= " 'collection $collection last config link change'=${link_age_secs}s";
+$msg .= " 'last config link change'=${link_age_secs}s";
+$msg .= " 'last config change'=${latest_change}s";
 
 vlog2;
 quit $status, $msg;
