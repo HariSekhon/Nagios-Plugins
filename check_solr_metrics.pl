@@ -29,7 +29,7 @@ Tested on SolrCloud 4.x";
 # Replication status
 # Synthetic queries
 
-our $VERSION = "0.2.1";
+our $VERSION = "0.2.2";
 
 use strict;
 use warnings;
@@ -188,12 +188,12 @@ $msg .= "Solr " . lc $category . " ";
 my $msg2;
 my $num_stats = 0;
 foreach(keys %stats){
-    $num_stats += scalar keys $stats{$_};
+    $num_stats += scalar keys %{$stats{$_}};
 }
 vlog2 "$num_stats stats collected";
 foreach my $key (sort keys %stats){
     $msg .= "$key";
-    foreach(sort keys $stats{$key}){
+    foreach(sort keys %{$stats{$key}}){
         #print "$_=$stats{$_}\n";
         $msg  .= " $_=$stats{$key}{$_}";
         $msg2 .= " '${key} => $_'=$stats{$key}{$_}";
