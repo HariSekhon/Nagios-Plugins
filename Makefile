@@ -96,8 +96,9 @@ make:
 		Time::HiRes \
 		Type::Tiny::XS \
 		URI::Escape \
+		XML::SAX \
 		XML::Simple \
-		; echo
+		;
 		#Net::Async::CassandraCQL \
 	# Intentionally ignoring CPAN module build failures since some modules may fail for a multitude of reasons but this isn't really important unless you need the pieces of code that use them in which case you can solve those dependencies later
 	
