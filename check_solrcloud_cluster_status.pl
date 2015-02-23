@@ -81,7 +81,7 @@ if($list_collections){
 check_collections();
 
 msg_shard_status();
-$msg .= sprintf(', query time %dms | query_time=%dms', $query_time, $query_time);
+$msg .= sprintf(', query time %dms, QTime %dms | query_time=%dms', $query_time, $query_time, $query_qtime);
 msg_perf_thresholds();
 
 quit $status, $msg;
