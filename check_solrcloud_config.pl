@@ -33,7 +33,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 3. Since ZooKeeper znodes do not differentiate between files and directories, when checking znodes found in ZooKeeper for missing local files, znodes without children are compared to local files
 ";
 
-$VERSION = "0.3.1";
+$VERSION = "0.3.2";
 
 use strict;
 use warnings;
@@ -74,6 +74,7 @@ $user        = validate_user($user)         if defined($user);
 $password    = validate_password($password) if defined($password);
 $collection  = validate_solr_collection($collection);
 $znode       = validate_filename($base, 0, "base znode") . "$znode/$collection";
+$base        =~ s/\/+/\//g;
 $znode       =~ s/\/+/\//g;
 $znode       = validate_filename($znode, 0, "collection znode");
 $config_name = validate_alnum($config_name, "config name") if defined($config_name);
@@ -164,9 +165,9 @@ sub check_zookeeper_dir($){
     } else {
         $zookeeper_file_count++;
         my $filename = $znode;
-        $filename =~ s/^$base\/configs\/[^\/]+\///;
+        $filename =~ s/^$base\/?configs\/[^\/]+\///;
         $filename =~ s/\/+/\//g;
-        vlog2 "checking ZooKeeper config file '$filename'";
+        vlog2 "checking ZooKeeper config file '$znode'";
         my $file_age = get_znode_age($znode);
         if(not defined($latest_change) or $latest_change < $file_age){
             $latest_change = $file_age;
@@ -179,21 +180,25 @@ sub check_zookeeper_dir($){
 }
 check_zookeeper_dir($config_znode);
 
+my $differing_files  = scalar @differing_files;
+my $local_only_files = scalar @local_only_files;
+my $zoo_only_files   = scalar @zoo_only_files;
 if(@differing_files){
     critical;
-    $msg .= scalar @differing_files . " differing files";
+    plural $differing_files;
+    $msg .= "$differing_files differing file$plural";
     $msg .= " (" . join(",", @differing_files) . "), " if $verbose;
 }
 
 if(@local_only_files){
     critical;
-    $msg .= scalar @local_only_files . " files missing from ZooKeeper";
+    $msg .= "$local_only_files file$plural missing in ZooKeeper";
     $msg .= " (" . join(",", @local_only_files) . "), " if $verbose;
 }
 
 if(@zoo_only_files){
     critical;
-    $msg .= scalar @zoo_only_files . " files only found in ZooKeeper but not local directory";
+    $msg .= "$zoo_only_files file$plural only found in ZooKeeper but not local directory";
     $msg .= " (" . join(",", @zoo_only_files) . "), " if $verbose;
 }
 
@@ -203,9 +208,9 @@ $msg .= ", last config change " . sec2human($latest_change) . " ago";
 $msg .=" |";
 $msg .= " 'local file count'=" . scalar @files_checked;
 $msg .= " 'zookeeper file count'=$zookeeper_file_count";
-$msg .= " 'differing file count'=" . scalar @differing_files . ";;1";
-$msg .= " 'files only in local conf dir'=" . scalar @local_only_files . ";;1";
-$msg .= " 'files only in zookeeper'=" . scalar @zoo_only_files . ";;1";
+$msg .= " 'differing file count'=$differing_files;;1";
+$msg .= " 'files only in local conf dir'=$local_only_files;;1";
+$msg .= " 'files only in zookeeper'=$zoo_only_files;;1";
 $msg .= " 'last config link change'=${link_age_secs}s";
 $msg .= " 'last config change'=${latest_change}s";
 
