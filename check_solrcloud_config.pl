@@ -146,6 +146,7 @@ find({ "wanted" => \&check_file, "untaint" => 1}, $conf_dir);
 # for prototype checking for recursion
 sub check_zookeeper_dir($);
 
+my $zookeeper_file_count = 0;
 sub check_zookeeper_dir($){
     my $znode = shift;
     $znode =~ s/\/+/\//g;
@@ -157,6 +158,7 @@ sub check_zookeeper_dir($){
             check_zookeeper_dir("$znode/$_");
         }
     } else {
+        $zookeeper_file_count++;
         my $filename = $znode;
         $filename =~ s/^\/configs\/[^\/]+\///;
         vlog2 "checking ZooKeeper config file '$filename'";
@@ -194,6 +196,11 @@ $msg .= scalar @files_checked . " files checked";
 $msg .= ", last config link change " . sec2human($link_age_secs) . " ago";
 $msg .= ", last config change " . sec2human($latest_change) . " ago";
 $msg .=" |";
+$msg .= " 'local file count'=" . scalar @files_checked;
+$msg .= " 'zookeeper file count'=$zookeeper_file_count";
+$msg .= " 'differing file count'=" . scalar @differing_files;
+$msg .= " 'files only in local conf dir'=" . scalar @local_only_files;
+$msg .= " 'files only in zookeeper'=" . scalar @zoo_only_files;
 $msg .= " 'collection $collection last config change'=${latest_change}s";
 $msg .= " 'collection $collection last config link change'=${link_age_secs}s";
 
