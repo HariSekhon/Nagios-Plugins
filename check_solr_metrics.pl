@@ -204,7 +204,7 @@ foreach my $key (sort keys %stats){
     $msg .= ", ";
 }
 
-$msg .= sprintf('query time %dms QTime: %dms |', $query_time, $query_qtime);
+$msg .= sprintf('query time %dms, QTime %dms |', $query_time, $query_qtime);
 $msg .= $msg2;
 msg_perf_thresholds() if $stat;
 $msg .= sprintf(' query_time=%dms query_QTime=%dms', $query_time, $query_qtime);
