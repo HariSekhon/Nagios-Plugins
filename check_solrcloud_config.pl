@@ -31,7 +31,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 3. Since ZooKeeper znodes do not differentiate between files and directories, when checking znodes found in ZooKeeper for missing local files, znodes without children are compared to local files
 ";
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -126,9 +126,9 @@ sub check_file(){
     #isXml($file_data) or quit "UNKNOWN", "invalid/empty XML in '$filename'";
     my $znode = "$config_znode/$filename";
     $znode =~ s/\/+/\//g;
-    unless(check_znode_exists($znode)){
+    unless(check_znode_exists($znode, 1)){
         push(@local_only_files, $filename);
-        next;
+        return;
     }
     my $file_cloud_data = get_znode_contents($znode);
     $file_cloud_data =~ s/\r//g;
@@ -195,7 +195,7 @@ if(@zoo_only_files){
     $msg .= " (" . join(",", @zoo_only_files) . "), " if $verbose;
 }
 
-$msg .= scalar @files_checked . " files checked in SolrCloud collection '$collection' ZooKeeper config '$configName'";
+$msg .= scalar @files_checked . " files checked in SolrCloud collection '$collection' vs ZooKeeper config '$configName'";
 $msg .= ", last config link change " . sec2human($link_age_secs) . " ago";
 $msg .= ", last config change " . sec2human($latest_change) . " ago";
 $msg .=" |";
