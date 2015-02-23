@@ -201,9 +201,9 @@ $msg .= ", last config change " . sec2human($latest_change) . " ago";
 $msg .=" |";
 $msg .= " 'local file count'=" . scalar @files_checked;
 $msg .= " 'zookeeper file count'=$zookeeper_file_count";
-$msg .= " 'differing file count'=" . scalar @differing_files;
-$msg .= " 'files only in local conf dir'=" . scalar @local_only_files;
-$msg .= " 'files only in zookeeper'=" . scalar @zoo_only_files;
+$msg .= " 'differing file count'=" . scalar @differing_files . ";;1";
+$msg .= " 'files only in local conf dir'=" . scalar @local_only_files . ";;1";
+$msg .= " 'files only in zookeeper'=" . scalar @zoo_only_files . ";;1";
 $msg .= " 'last config link change'=${link_age_secs}s";
 $msg .= " 'last config change'=${latest_change}s";
 
