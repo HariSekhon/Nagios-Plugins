@@ -29,7 +29,7 @@ Tested on SolrCloud 4.x";
 # Replication status
 # Synthetic queries
 
-our $VERSION = "0.2.2";
+our $VERSION = "0.2.3";
 
 use strict;
 use warnings;
@@ -152,8 +152,8 @@ foreach (my $i = 1; $i < scalar @mbeans; $i+=2){
                 $stat_found = 1;
                 my $value = $keys3{$_};
                 if(defined($value) and isFloat($value)){
-                    if(defined($stats{"${key}.$_"})){
-                        code_error "duplicate key '${key}.$_' detected";
+                    if(defined($stats{"${key2}.$_"})){
+                        code_error "duplicate key '${key2}.$_' detected";
                     }
                     vlog2 "$key2 => $_  = $value";
                     $stats{$key2}{$_} = $value;
