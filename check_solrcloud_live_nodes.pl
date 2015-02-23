@@ -76,6 +76,7 @@ if($verbose){
     $msg .= "]";
 }
 
+#$msg .= sprintf(", query_time=%dms, QTime=%dms", $query_time, $query_qtime) if $verbose;
 $msg .= sprintf(" | live_nodes=%d", $live_nodes);
 msg_perf_thresholds(0, "lower");
 $msg .= sprintf(" query_time=%dms query_QTime=%dms", $query_time, $query_qtime);
