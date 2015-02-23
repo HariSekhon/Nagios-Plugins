@@ -15,10 +15,12 @@ This is to check that the published SolrCloud config for a given collection matc
 
 Checks:
 
-- the given config name is linked to the given SolrCloud collection
+- the given config name is linked to the given SolrCloud collection (optional)
 - all files in given local config directory are present in SolrCloud ZooKeeper config
 - all files in SolrCloud ZooKeeper config are found in the given local directory
 - files present both locally and in SolrCloud ZooKeeper have matching contents
+
+*** As there are often a lot of files in the solr config directory you will need to increase the default timeout beyond 10 if checking against ZooKeepers over the network ***
 
 Tested on ZooKeeper 3.4.5 / 3.4.6 with SolrCloud 4.x
 
@@ -31,7 +33,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 3. Since ZooKeeper znodes do not differentiate between files and directories, when checking znodes found in ZooKeeper for missing local files, znodes without children are compared to local files
 ";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -57,7 +59,7 @@ my $conf_dir;
 %options = (
     %zookeeper_options,
     %solroptions_collection,
-    "n|config-name=s"   => [ \$config_name, "Config name to check the collection is linked against" ],
+    "n|config-name=s"   => [ \$config_name, "Config name to check the collection is linked against (optional)" ],
     "d|config-dir=s"    => [ \$conf_dir,    "Configuration directory of files containing solrconfig.xml, schema.xml etc to parse and compare to SolrCloud configuration" ],
     "b|base=s"          => [ \$base,        "Base Znode for Solr in ZooKeeper (default: /solr, should be just / for embedded or non-chrooted zookeeper)" ],
 );
@@ -72,7 +74,7 @@ $collection  = validate_solr_collection($collection);
 $znode       = validate_filename($base, 0, "base znode") . "$znode/$collection";
 $znode       =~ s/\/+/\//g;
 $znode       = validate_filename($znode, 0, "collection znode");
-$config_name = validate_alnum($config_name, "config name");
+$config_name = validate_alnum($config_name, "config name") if defined($config_name);
 $conf_dir    = abs_path(validate_dir($conf_dir, 0, "conf-dir"));
 
 vlog2;
@@ -91,8 +93,8 @@ my $link_age_secs = get_znode_age($znode);
 $status = "OK";
 
 my $configName = get_field2($data, "configName");
-if($configName ne $config_name){
-    quit "CRITICAL", "collection '$collection' is linked against config '$configName' instead of expectd '$config_name'";
+if($config_name and $configName ne $config_name){
+    quit "CRITICAL", "collection '$collection' is linked against config '$configName' instead of expected '$config_name'";
 }
 
 my $config_znode = "$base/configs/$configName";
@@ -160,7 +162,8 @@ sub check_zookeeper_dir($){
     } else {
         $zookeeper_file_count++;
         my $filename = $znode;
-        $filename =~ s/^\/configs\/[^\/]+\///;
+        $filename =~ s/^$base\/configs\/[^\/]+\///;
+        $filename =~ s/\/+/\//g;
         vlog2 "checking ZooKeeper config file '$filename'";
         my $file_age = get_znode_age($znode);
         if(not defined($latest_change) or $latest_change < $file_age){
@@ -192,7 +195,7 @@ if(@zoo_only_files){
     $msg .= " (" . join(",", @zoo_only_files) . "), " if $verbose;
 }
 
-$msg .= scalar @files_checked . " files checked in SolrCloud collection '$collection'";
+$msg .= scalar @files_checked . " files checked in SolrCloud collection '$collection' config '$configName'";
 $msg .= ", last config link change " . sec2human($link_age_secs) . " ago";
 $msg .= ", last config change " . sec2human($latest_change) . " ago";
 $msg .=" |";
