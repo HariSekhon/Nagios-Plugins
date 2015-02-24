@@ -205,7 +205,7 @@ if(@zoo_only_files){
     $msg .= ", ";
 }
 
-$msg .= scalar @files_checked . " files checked in SolrCloud collection '$collection' vs ZooKeeper config '$configName'";
+$msg .= scalar @files_checked . " files checked vs SolrCloud collection '$collection' ZooKeeper config '$configName'";
 $msg .= ", last config link change " . sec2human($link_age_secs) . " ago";
 $msg .= ", last config change " . sec2human($latest_change) . " ago";
 $msg .=" |";
