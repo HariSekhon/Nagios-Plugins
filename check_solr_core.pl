@@ -15,7 +15,7 @@ Optional thresholds on the core's index size, heap size, number of documents and
 
 Tested on Solr / SolrCloud 4.x";
 
-our $VERSION = "0.2.1";
+our $VERSION = "0.2.2";
 
 use strict;
 use warnings;
@@ -105,7 +105,9 @@ foreach(sort keys %cores){
     $msg .= ", isDefaultCore: "  . ( get_field_int("status.$name.isDefaultCore") ? "true" : "false" );
     $msg .= ", uptime: "         . sec2human(get_field_int("status.$name.uptime") / 1000);
     $msg .= ", started: "        . get_field("status.$name.startTime");
-    $msg .= ", last modified: "  . get_field("status.$name.index.lastModified");
+    my $last_modified = get_field("status.$name.index.lastModified", 1);
+    $last_modified = "N/A" unless defined($last_modified);
+    $msg .= ", last modified: $last_modified";
     $msg .= ", query time ${query_time}ms";
     check_thresholds($query_time);
     $msg .= ", QTime: ${query_qtime}ms";
