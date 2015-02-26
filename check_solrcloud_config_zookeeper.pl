@@ -33,7 +33,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 3. Since ZooKeeper znodes do not differentiate between files and directories, when checking znodes found in ZooKeeper for missing local files, znodes without children are compared to local files
 ";
 
-$VERSION = "0.3.2";
+$VERSION = "0.3.3";
 
 use strict;
 use warnings;
@@ -187,22 +187,25 @@ if(@differing_files){
     critical;
     plural $differing_files;
     $msg .= "$differing_files differing file$plural";
-    $msg .= " (" . join(",", @differing_files) . "), " if $verbose;
+    $msg .= " (" . join(",", @differing_files) . ")" if $verbose;
+    $msg .= ", ";
 }
 
 if(@local_only_files){
     critical;
     $msg .= "$local_only_files file$plural missing in ZooKeeper";
-    $msg .= " (" . join(",", @local_only_files) . "), " if $verbose;
+    $msg .= " (" . join(",", @local_only_files) . ")" if $verbose;
+    $msg .= ", ";
 }
 
 if(@zoo_only_files){
     critical;
     $msg .= "$zoo_only_files file$plural only found in ZooKeeper but not local directory";
-    $msg .= " (" . join(",", @zoo_only_files) . "), " if $verbose;
+    $msg .= " (" . join(",", @zoo_only_files) . ")" if $verbose;
+    $msg .= ", ";
 }
 
-$msg .= scalar @files_checked . " files checked in SolrCloud collection '$collection' vs ZooKeeper config '$configName'";
+$msg .= scalar @files_checked . " files checked vs SolrCloud collection '$collection' ZooKeeper config '$configName'";
 $msg .= ", last config link change " . sec2human($link_age_secs) . " ago";
 $msg .= ", last config change " . sec2human($latest_change) . " ago";
 $msg .=" |";
