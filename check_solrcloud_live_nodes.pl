@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check the number of live SolrCloud servers via Solr API
+$DESCRIPTION = "Nagios Plugin to check the number of live SolrCloud servers via Solr Collections API
 
 Thresholds for warning / critical apply to the minimum number of live nodes found
 
