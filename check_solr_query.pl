@@ -19,7 +19,7 @@ Configurable warning/critical thresholds apply to the query (read) millisecond t
 
 Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
 
-$VERSION = "0.2.1";
+$VERSION = "0.2.2";
 
 use strict;
 use warnings;
@@ -40,18 +40,19 @@ my $num_docs_threshold = 1;
 %options = (
     %solroptions,
     %solroptions_collection,
+    %solroptions_list_cores,
     %solroptions_context,
     "q|query=s"    => [ \$query,              "Query to send to Solr" ],
     "n|num-docs=s" => [ \$num_docs_threshold, "Minimum or range threshold for number of matching docs to expect in result for given query (default: 1)" ],
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, qw/collection query num-docs list-collections http-context/;
+splice @usage_order, 6, 0, qw/collection query num-docs list-collections list-cores http-context/;
 
 get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
-unless($list_collections){
+unless($list_collections or $list_cores){
     $collection = validate_solr_collection($collection);
     $query or usage "query not defined";
     validate_thresholds(0, 0, { 'simple' => 'lower', 'positive' => 1, 'integer' => 1}, "num docs", $num_docs_threshold);
@@ -66,6 +67,7 @@ set_timeout();
 $status = "OK";
 
 list_solr_collections();
+list_solr_cores();
 
 $json = query_solr($collection, $query);
 
