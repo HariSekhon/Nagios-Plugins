@@ -17,7 +17,7 @@ Configurable warning/critical thresholds apply to this API call's millisecond ti
 
 Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
 
-$VERSION = "0.3.1";
+$VERSION = "0.3.2";
 
 use strict;
 use warnings;
@@ -37,19 +37,19 @@ my $api_ping;
 %options = (
     %solroptions,
     %solroptions_collection,
+    %solroptions_list_cores,
     %solroptions_context,
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, qw/collection list-collections http-context/;
+splice @usage_order, 6, 0, qw/collection list-collections list-cores http-context/;
 
 get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
-unless(defined($collection)){
-    $collection = "collection1";
+unless($list_collections or $list_cores){
+    $collection = validate_collection($collection);
 }
-$collection   = validate_collection($collection);
 $http_context = validate_solr_context($http_context);
 validate_ssl();
 validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1 });
@@ -60,6 +60,7 @@ set_timeout();
 $status = "OK";
 
 list_solr_collections();
+list_solr_cores();
 
 $url = "$http_context/$collection/admin/ping?distrib=false";
 
