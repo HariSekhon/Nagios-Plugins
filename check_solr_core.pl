@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check the stats of a Solr 4 core on the server instance for a given collection
+$DESCRIPTION = "Nagios Plugin to check the stats of a Solr 4 core on the server instance for a given core
 
 Optional thresholds on the core's index size, heap size, number of documents and query time
 
@@ -34,21 +34,21 @@ my $core_num_docs_threshold;
 
 %options = (
     %solroptions,
-    %solroptions_collection,
+    %solroptions_core,
     %solroptions_context,
     "s|index-size=s" => [ \$core_size_threshold,     "Core index size thresholds in MB" ],
     "e|heap-size=s"  => [ \$core_heap_threshold,     "Core heap size thresholds in MB" ],
     "n|num-docs=s"   => [ \$core_num_docs_threshold, "Core number of documents thresholds" ],
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, qw/collection index-size heap-size num-docs query-time list-collections http-context/;
+splice @usage_order, 6, 0, qw/core index-size heap-size num-docs query-time list-cores http-context/;
 
 get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
-unless($list_collections){
-    $collection = validate_solr_collection($collection);
+unless($list_cores){
+    $core = validate_solr_core($core);
     validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 0 }, "core heap",  $core_heap_threshold);
     validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 0 }, "core size",  $core_size_threshold);
     validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1 }, "num docs",   $core_num_docs_threshold);
@@ -62,7 +62,7 @@ set_timeout();
 
 $status = "OK";
 
-list_solr_collections();
+list_solr_cores();
 
 # This is disabled in newer versions of Solr
 #} elsif($stats){
@@ -83,10 +83,10 @@ my $name;
 my $found = 0;
 foreach(sort keys %cores){
     $name = get_field2($cores{$_}, "name");
-    quit "UNKNOWN", "collection '$_' does not match name field '$name'" if ($name ne $_);
-    next unless $name eq $collection;
+    quit "UNKNOWN", "core '$_' does not match name field '$name'" if ($name ne $_);
+    next unless $name eq $core;
     $found++;
-    $msg .= "core for collection '$name' ";
+    $msg .= "core for core '$name' ";
     $sizeInMB     = sprintf("%.2f", get_field("status.$name.index.sizeInBytes") / (1024*1024));
     $maxDoc       = get_field_int("status.$name.index.maxDoc");
     $numDocs      = get_field_int("status.$name.index.numDocs");
@@ -112,7 +112,7 @@ foreach(sort keys %cores){
     check_thresholds($query_time);
     $msg .= ", QTime: ${query_qtime}ms";
 }
-$found or quit "CRITICAL", "core for '$collection' not found, core not loaded or incorrect --collection name given. Use --list-collections to see available cores";
+$found or quit "CRITICAL", "core for '$core' not found, core not loaded or incorrect --core name given. Use --list-cores to see available cores";
 $msg .= " |";
 $msg .= " indexSize=${sizeInMB}MB";
 msg_perf_thresholds(0, 0, 'core size');
