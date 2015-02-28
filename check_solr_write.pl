@@ -21,7 +21,7 @@ Test on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
 
 # Originally designed for Solr 4.0 onwards due to using JSON and the standard update handler which only supports JSON from 4.0, later rewritten to support Solr 3 via XML document addition instead
 
-$VERSION = "0.2.1";
+$VERSION = "0.2.2";
 
 use strict;
 use warnings;
@@ -44,18 +44,19 @@ my $soft_commit;
 %options = (
     %solroptions,
     %solroptions_collection,
+    %solroptions_list_cores,
     %solroptions_context,
     %thresholdoptions,
     "soft-commit"   =>  [ \$soft_commit,    "Soft commit instead of hard commit" ],
     #"sleep=s"       =>  [ \$sleep,          "Sleep in milliseconds between writing unique document and querying to verify it (default: 10)" ],
 );
-splice @usage_order, 6, 0, qw/collection soft-commit sleep http-context/;
+splice @usage_order, 6, 0, qw/collection soft-commit sleep list-collections list-cores http-context/;
 
 get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
-unless($list_collections){
+unless($list_collections or $list_cores){
     $collection = validate_solr_collection($collection);
     #validate_int($sleep, "sleep", 1, 2000);
     validate_thresholds();
@@ -69,6 +70,7 @@ set_timeout();
 $status = "OK";
 
 list_solr_collections();
+list_solr_cores();
 
 my $hostname  = hostname;
 my $epoch     = time;
