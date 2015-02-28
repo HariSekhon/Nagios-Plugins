@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Solr / SolrCloud cluster status via Solr API
+$DESCRIPTION = "Nagios Plugin to check Solr / SolrCloud cluster status via Solr Collections API
 
 Checks:
 
