@@ -36,8 +36,8 @@ my $core_num_docs_threshold;
     %solroptions,
     %solroptions_core,
     %solroptions_context,
-    "s|index-size=s" => [ \$core_size_threshold,     "Core index size thresholds in MB" ],
-    "e|heap-size=s"  => [ \$core_heap_threshold,     "Core heap size thresholds in MB" ],
+    "s|index-size=s" => [ \$core_size_threshold,     "Core index size thresholds in MB (Solr 4.x)" ],
+    "e|heap-size=s"  => [ \$core_heap_threshold,     "Core heap size thresholds in MB (Solr 4.x)" ],
     "n|num-docs=s"   => [ \$core_num_docs_threshold, "Core number of documents thresholds" ],
     %thresholdoptions,
 );
