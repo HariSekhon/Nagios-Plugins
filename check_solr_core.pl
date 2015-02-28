@@ -13,9 +13,9 @@ $DESCRIPTION = "Nagios Plugin to check the stats of a Solr 4 core on the server 
 
 Optional thresholds on the core's index size, heap size, number of documents and query time
 
-Tested on Solr / SolrCloud 4.x";
+Tested on Solr 3.x and SolrCloud 4.x";
 
-our $VERSION = "0.2.2";
+our $VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -68,60 +68,84 @@ list_solr_cores();
 #} elsif($stats){
 #    $url .= "/stats.jsp";
 
-$json = curl_solr "$solr_admin/cores?distrib=false";
+$json = curl_solr "$solr_admin/cores?distrib=false&core=$core";
 
 my $sizeInMB;
+my $sizeInBytes;
 my $maxDoc;
 my $numDocs;
 my $deletedDocs;
 my $segmentCount;
 my $indexHeapUsageMB;
+my $indexHeapUsageBytes;
+my $isDefaultCore;
 
 $msg .= "";
 my %cores = get_field_hash("status");
 my $name;
 my $found = 0;
+my $core_not_found_msg = "core for '$core' not found, core not loaded or incorrect --core name given. Use --list-cores to see available cores";
 foreach(sort keys %cores){
+    if(isHash($cores{$_}) and not %{$cores{$_}}){
+        # blank collection hash is returned when specifying a core that isn't found
+        quit "CRITICAL", $core_not_found_msg;
+    }
     $name = get_field2($cores{$_}, "name");
-    quit "UNKNOWN", "core '$_' does not match name field '$name'" if ($name ne $_);
-    next unless $name eq $core;
+    # this seems to happen on Solr 3.x
+    #quit "UNKNOWN", "core '$_' does not match name field '$name'" if ($name ne $_);
+    #next unless $name eq $core;
     $found++;
-    $msg .= "core for core '$name' ";
-    $sizeInMB     = sprintf("%.2f", get_field("status.$name.index.sizeInBytes") / (1024*1024));
-    $maxDoc       = get_field_int("status.$name.index.maxDoc");
-    $numDocs      = get_field_int("status.$name.index.numDocs");
-    $deletedDocs  = get_field_int("status.$name.index.deletedDocs");
-    $segmentCount = get_field_int("status.$name.index.segmentCount");
-    $indexHeapUsageMB = sprintf("%.2f", get_field_int("status.$name.index.indexHeapUsageBytes") / (1024*1024));
-    $msg .= "indexSize: ${sizeInMB}MB"; # get_field("status.$name.index.size"); # this could be in KB
-    check_thresholds($sizeInMB, 0, "core size");
-    $msg .= ", indexHeapUsage: ${indexHeapUsageMB}MB";
-    check_thresholds($indexHeapUsageMB, 0, "core heap");
-    $msg .= ", numDocs: $numDocs";
+    $msg .= "Solr core '$core' ";
+    $sizeInBytes  = get_field("status.$core.index.sizeInBytes", "noquit"); # not available in Solr 3.x
+    $sizeInMB     = sprintf("%.2f", $sizeInBytes / (1024*1024)) if defined($sizeInBytes);
+    $maxDoc       = get_field_int("status.$core.index.maxDoc");
+    $numDocs      = get_field_int("status.$core.index.numDocs");
+    $deletedDocs  = get_field_int("status.$core.index.deletedDocs",  "noquit"); # not available in Solr 3.x
+    $segmentCount = get_field_int("status.$core.index.segmentCount", "noquit"); # not available in Solr 3.x
+    # get_field("status.$core.index.size"); # this could be in KB
+    $indexHeapUsageBytes = get_field_int("status.$core.index.indexHeapUsageBytes", "noquit"); # not available in Solr 3.x,
+    $indexHeapUsageMB = sprintf("%.2f", $indexHeapUsageBytes / (1024*1024)) if defined($indexHeapUsageBytes);
+    if(defined($sizeInMB)){
+        $msg .= "indexSize: ${sizeInMB}MB";
+        check_thresholds($sizeInMB, 0, "core size");
+        $msg .= ", ";
+    }
+    if(defined($indexHeapUsageMB)){
+        $msg .= "indexHeapUsage: ${indexHeapUsageMB}MB";
+        check_thresholds($indexHeapUsageMB, 0, "core heap");
+        $msg .= ", ";
+    }
+    $msg .= "numDocs: $numDocs";
     check_thresholds($numDocs, 0, "num docs");
     $msg .= ", maxDoc: $maxDoc";
-    $msg .= ", deletedDocs: $deletedDocs";
-    $msg .= ", segmentCount: $segmentCount";
-    $msg .= ", isDefaultCore: "  . ( get_field_int("status.$name.isDefaultCore") ? "true" : "false" );
-    $msg .= ", uptime: "         . sec2human(get_field_int("status.$name.uptime") / 1000);
-    $msg .= ", started: "        . get_field("status.$name.startTime");
-    my $last_modified = get_field("status.$name.index.lastModified", 1);
+    $msg .= ", deletedDocs: $deletedDocs" if defined($deletedDocs);
+    $msg .= ", segmentCount: $segmentCount" if defined($segmentCount);
+    $isDefaultCore = get_field_int("status.$core.isDefaultCore", "noquit"); # not available in Solr 3.x
+    $msg .= ", isDefaultCore: "  . ( $isDefaultCore ? "true" : "false" ) if defined($isDefaultCore);
+    $msg .= ", uptime: "         . sec2human(get_field_int("status.$core.uptime") / 1000);
+    $msg .= ", started: "        . get_field("status.$core.startTime");
+    my $last_modified = get_field("status.$core.index.lastModified", 1);
     $last_modified = "N/A" unless defined($last_modified);
     $msg .= ", last modified: $last_modified";
     $msg .= ", query time ${query_time}ms";
     check_thresholds($query_time);
     $msg .= ", QTime: ${query_qtime}ms";
 }
-$found or quit "CRITICAL", "core for '$core' not found, core not loaded or incorrect --core name given. Use --list-cores to see available cores";
+$found or quit "CRITICAL", $core_not_found_msg;
 $msg .= " |";
-$msg .= " indexSize=${sizeInMB}MB";
-msg_perf_thresholds(0, 0, 'core size');
-$msg .= " indexHeapUsage=${indexHeapUsageMB}MB";
-msg_perf_thresholds(0, 0, 'core heap');
+if(defined($sizeInMB)){
+    $msg .= " indexSize=${sizeInMB}MB";
+    msg_perf_thresholds(0, 0, 'core size');
+}
+if(defined($indexHeapUsageMB)){
+    $msg .= " indexHeapUsage=${indexHeapUsageMB}MB";
+    msg_perf_thresholds(0, 0, 'core heap');
+}
 $msg .= " numDocs=$numDocs";
 msg_perf_thresholds(0, 0, 'num docs');
 $msg .= " maxDoc=$maxDoc";
-$msg .= " segmentCount=$segmentCount";
+$msg .= " deletedDocs=$deletedDocs" if defined($deletedDocs);
+$msg .= " segmentCount=$segmentCount" if defined($segmentCount);
 $msg .= " ";
 
 $msg .= sprintf('query_time=%dms', $query_time);
