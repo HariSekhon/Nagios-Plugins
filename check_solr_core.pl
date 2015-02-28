@@ -68,7 +68,7 @@ list_solr_cores();
 #} elsif($stats){
 #    $url .= "/stats.jsp";
 
-$json = curl_solr "$solr_admin/cores?distrib=false&core=$core";
+$json = curl_solr "$solr_admin/cores?distrib=false&core=$core"; # same as action=STATUS
 
 my $sizeInMB;
 my $sizeInBytes;
