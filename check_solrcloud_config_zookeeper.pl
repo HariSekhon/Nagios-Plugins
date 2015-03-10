@@ -33,7 +33,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 3. Since ZooKeeper znodes do not differentiate between files and directories, when checking znodes found in ZooKeeper for missing local files, znodes without children are compared to local files
 ";
 
-$VERSION = "0.3.3";
+$VERSION = "0.3.4";
 
 use strict;
 use warnings;
@@ -44,8 +44,8 @@ BEGIN {
 }
 use HariSekhonUtils qw/:DEFAULT :time/;
 #use HariSekhon::DiffHashes;
-use HariSekhon::Solr;
 use HariSekhon::ZooKeeper;
+use HariSekhon::Solr;
 use Cwd 'abs_path';
 use File::Find;
 
@@ -84,6 +84,8 @@ vlog2;
 set_timeout();
 
 $status = "UNKNOWN";
+
+my $start = time;
 
 connect_zookeepers(@hosts);
 
@@ -205,7 +207,9 @@ if(@zoo_only_files){
     $msg .= ", ";
 }
 
+my $timer_secs = time - $start;
 $msg .= scalar @files_checked . " files checked vs SolrCloud collection '$collection' ZooKeeper config '$configName'";
+$msg .= ", check took $timer_secs secs" if $verbose;
 $msg .= ", last config link change " . sec2human($link_age_secs) . " ago";
 $msg .= ", last config change " . sec2human($latest_change) . " ago";
 $msg .=" |";
@@ -214,6 +218,7 @@ $msg .= " 'zookeeper file count'=$zookeeper_file_count";
 $msg .= " 'differing file count'=$differing_files;;1";
 $msg .= " 'files only in local conf dir'=$local_only_files;;1";
 $msg .= " 'files only in zookeeper'=$zoo_only_files;;1";
+$msg .= " 'time taken for check'=${timer_secs}s";
 $msg .= " 'last config link change'=${link_age_secs}s";
 $msg .= " 'last config change'=${latest_change}s";
 
