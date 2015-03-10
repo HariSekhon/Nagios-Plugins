@@ -34,7 +34,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 2. API segfaults if you try to check the contents of a null znode such as those kept by SolrCloud servers eg. /solr/live_nodes/<hostname>:8983_solr - ie this will occur if you supply the incorrect base znode and it happens to be null
 ";
 
-$VERSION = "0.4.1";
+$VERSION = "0.4.2";
 
 use strict;
 use warnings;
@@ -45,8 +45,8 @@ BEGIN {
     use lib "/usr/local/lib";
 }
 use HariSekhonUtils qw/:DEFAULT :time/;
-use HariSekhon::Solr;
 use HariSekhon::ZooKeeper;
+use HariSekhon::Solr;
 
 # Max num of chars to read from znode contents
 $DATA_READ_LEN = 50000;
