@@ -19,8 +19,9 @@ For a given SolrCloud Collection or all collections found if --collection is not
 2. Checks each shard of the collection is 'active'
 3. Checks each shard of the collection has at least one active replica
 4. Checks each shard for any down backup replicas (can be optionally disabled)
-5. Optionally shows replication settings per collection
-6. Returns time since last cluster state change in both human form and perfdata secs for graphing
+5. Shows which shard replica nodes are down in verbose level 1 or above
+6. Optionally shows replication settings per collection
+7. Returns time since last cluster state change in both human form and perfdata secs for graphing
 
 See also adjacent plugin check_solrcloud_cluster_status.pl which does the same as this plugin but directly via the Solr API on one of the SolrCloud servers instead of ZooKeeper, so doesn't require Net::ZooKeeper to be built.
 
