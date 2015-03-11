@@ -27,7 +27,7 @@ See also adjacent plugin check_solrcloud_cluster_status_zookeeper.pl which does 
 
 Tested on SolrCloud 4.x";
 
-our $VERSION = "0.2";
+our $VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -54,6 +54,7 @@ get_options();
 $host = validate_host($host);
 $port = validate_port($port);
 $http_context = validate_solr_context($http_context);
+$collection = validate_solr_collection($collection) if $collection;
 validate_ssl();
 
 vlog2;
