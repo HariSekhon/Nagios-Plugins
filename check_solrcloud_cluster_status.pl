@@ -19,8 +19,9 @@ For a given SolrCloud Collection or all collections found if --collection is not
 2. Checks each shard of the collection is 'active'
 3. Checks each shard of the collection has at least one active replica
 4. Checks each shard for any down backup replicas (can be optionally disabled)
-5. Optionally shows replication settings per collection
-6. Returns time since last cluster state change in both human form and perfdata secs for graphing
+5. Shows which shard replica nodes are down in verbose level 1 or above
+6. Optionally shows replication settings per collection
+7. Returns time since last cluster state change in both human form and perfdata secs for graphing
 
 See also adjacent plugin check_solrcloud_cluster_status_zookeeper.pl which does the same as this check but goes via ZooKeeper which is tecnically the more correct thing to do since if the supplied SolrCloud node is down you will only get a 'connect refused' type feedback and not the extend of the outage in the cluster.
 
