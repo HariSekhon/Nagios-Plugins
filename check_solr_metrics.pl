@@ -29,7 +29,7 @@ Tested on SolrCloud 4.x";
 # Replication status
 # Synthetic queries
 
-our $VERSION = "0.2.3";
+our $VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -52,7 +52,8 @@ my %stats;
 
 %options = (
     %solroptions,
-    "C|cat|category=s" => [ \$category,         "Category of statistics to return (required unless doing --list-categories)" ],
+    %solroptions_collection,
+    "A|cat|category=s" => [ \$category,         "Category of statistics to return (required unless doing --list-categories)" ],
     "K|key=s"          => [ \$key,              "Specific metrics to fetch by key name (case sensitive, optional)" ],
     "s|stat=s"         => [ \$stat,             "Stat for given metric key, optional thresholds will apply to this if specified" ],
     "list-categories"  => [ \$list_categories,  "List metric categories and exit" ],
@@ -66,6 +67,7 @@ get_options();
 
 $host     = validate_host($host);
 $port     = validate_port($port);
+$collection = validate_collection($collection) unless $list_collections;
 unless($list_categories){
     $category = validate_alnum($category, "category");
     # Solr Categories are case sensitive uppercase otherwise nothing is returned
@@ -73,7 +75,7 @@ unless($list_categories){
 }
 if(defined($key)){
     #$key = validate_alnum($key, "key");
-    $key =~ /^(\w[\.\w\@\[\]\s-]+\w)$/ or usage "invalid key defined, must be alphanumeric with dots to separate mbean from metric key";
+    $key =~ /^([\w\/][\.\w\@\[\]\s-]+[\w\/])$/ or usage "invalid key defined, must be alphanumeric with dots to separate mbean from metric key";
     $key = $1;
     #$stat = $2 if $2;
     validate_thresholds();
@@ -87,7 +89,9 @@ set_timeout();
 
 $status = "OK";
 
-my $url = "$solr_admin/mbeans?stats=true";
+list_solr_collections();
+
+my $url = "$http_context/$collection/admin/mbeans?stats=true";
 unless($list_categories){
     $url .= "&cat=$category" if $category;
     unless($list_keys){
