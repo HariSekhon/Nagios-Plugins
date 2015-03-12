@@ -19,7 +19,7 @@ Configurable warning/critical thresholds apply to the query (read) millisecond t
 
 Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
 
-$VERSION = "0.2.2";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -34,7 +34,7 @@ $ua->agent("Hari Sekhon $progname $main::VERSION");
 
 set_threshold_defaults(100, 2000);
 
-my $query;
+my $query = "*:*";
 my $num_docs_threshold = 1;
 
 %options = (
@@ -42,7 +42,7 @@ my $num_docs_threshold = 1;
     %solroptions_collection,
     %solroptions_list_cores,
     %solroptions_context,
-    "q|query=s"    => [ \$query,              "Query to send to Solr" ],
+    "q|query=s"    => [ \$query,              "Query to send to Solr (defaults to \"*:*\")" ],
     "n|num-docs=s" => [ \$num_docs_threshold, "Minimum or range threshold for number of matching docs to expect in result for given query (default: 1)" ],
     %thresholdoptions,
 );
@@ -55,6 +55,7 @@ $port = validate_port($port);
 unless($list_collections or $list_cores){
     $collection = validate_solr_collection($collection);
     $query or usage "query not defined";
+    vlog_options "query", $query;
     validate_thresholds(0, 0, { 'simple' => 'lower', 'positive' => 1, 'integer' => 1}, "num docs", $num_docs_threshold);
     validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1});
 }
@@ -72,7 +73,7 @@ list_solr_cores();
 $json = query_solr($collection, $query);
 
 # reuse specific error from get_field
-defined($num_found) or get_field_int("response.numFound");
+$num_found = get_field_int("response.numFound") unless defined($num_found);
 #my @docs = get_field("responseHeader.response.docs");
 # docs id, name fields etc
 
