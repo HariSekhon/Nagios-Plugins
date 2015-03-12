@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2013-10-15 04:56:49 +0100 (Tue, 15 Oct 2013)
 #
-#  http://github.com/harisekhon
+#  http://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
 #  

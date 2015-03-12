@@ -5,7 +5,7 @@
 #  Date: 2014-04-28 20:32:45 +0100 (Mon, 28 Apr 2014)
 #  2012 originally?
 #
-#  http://github.com/harisekhon
+#  http://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
 #
