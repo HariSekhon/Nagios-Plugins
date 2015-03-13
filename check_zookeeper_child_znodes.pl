@@ -117,7 +117,7 @@ unless($no_ephemeral){
 }
 
 $msg .= " | num_child_znodes=$num_child_znodes";
-msg_perf_thresholds();
+msg_perf_thresholds(0, 1);
 
 vlog2;
 quit $status, $msg;
