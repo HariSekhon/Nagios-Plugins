@@ -46,7 +46,7 @@ my $no_ephemeral;
 
 %options = (
     %zookeeper_options,
-    "z|znode=s"          => [ \$znode,          "Znode to check exists. Useful for a variety of checks of ZooKeeper based services like HBase, SolrCloud, NameNode & JobTracker HA ZKFC" ],
+    "z|znode=s"          => [ \$znode,          "Znode parent to check for the number of child znodes" ],
     "no-ephemeral-check" => [ \$no_ephemeral,   "Do not enforce check that child znodes are ephemeral" ],
     %thresholdoptions,
 );
