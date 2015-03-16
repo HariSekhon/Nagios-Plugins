@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check ZooKeeper ephemeral child znodes to check
 
 Optional thresholds apply to the minimum number of child znodes to expect - this is to the number of worker nodes you expect to be alive.
 
-Non-ephemeral znodes raises a warning by default as this will skew the purpose of the check which is supposed to be for live application workers where their znodes are only held as long as they stay in contact with the ZooKeeper. If really wanting to only check the number of child znodes and not care if they are really live node ephemeral znodes the use the --no-ephemeral-check switch.
+Non-ephemeral znodes raises a warning by default as this will skew the purpose of the check which is supposed to be for live application workers where their znodes are only held as long as they stay in contact with the ZooKeeper. If really wanting to only check the number of child znodes and not care if they are really live node ephemeral znodes then use the --no-ephemeral-check switch.
 
 Base off adjacent check_zookeeper_znode.pl (also part of the Advanced Nagios Plugins Collection)
 
