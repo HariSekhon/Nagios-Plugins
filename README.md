@@ -144,7 +144,7 @@ Then install the Perl CPAN and Python modules as listed in the next sections.
 
 If installing the Perl CPAN modules via your package manager or by hand instead of running the 'make' command as listed in Quick Setup, then read the 'Makefile' file for the list of Perl CPAN modules that you need to install.
 
-###### Net::ZooKeeper for check_zookeeper_znode.pl (various znode checks for HBase/SolrCloud) and check_solrcloud_*_zookeeper.pl ######
+###### Net::ZooKeeper (for check_zookeeper_znode.pl, check_zookeeper_child_znodes.pl, check_solrcloud_*_zookeeper.pl) ######
 
 The ```check_zookeeper_znode.pl``` plugin requires the Net::ZooKeeper Perl CPAN module but this is not a simple ```cpan Net::ZooKeeper```, that will fail. Follow these instructions precisely or debug at your own peril:
 
