@@ -29,7 +29,7 @@ Tested on SolrCloud 4.x";
 # Replication status
 # Synthetic queries
 
-our $VERSION = "0.3";
+our $VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -61,13 +61,13 @@ my %stats;
     %solroptions_context,
     %thresholdoptions,
 );
-splice @usage_order, 6, 0, qw/category key stat list-categories list-keys http-context/;
+splice @usage_order, 6, 0, qw/collection category key stat list-collections list-categories list-keys http-context/;
 
 get_options();
 
 $host     = validate_host($host);
 $port     = validate_port($port);
-$collection = validate_collection($collection) unless $list_collections;
+$collection = validate_solr_collection($collection) unless $list_collections;
 unless($list_categories){
     $category = validate_alnum($category, "category");
     # Solr Categories are case sensitive uppercase otherwise nothing is returned
