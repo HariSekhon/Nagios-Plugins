@@ -29,7 +29,7 @@ Tested on SolrCloud 4.x";
 # Replication status
 # Synthetic queries
 
-our $VERSION = "0.3.1";
+our $VERSION = "0.3.2";
 
 use strict;
 use warnings;
@@ -75,7 +75,7 @@ unless($list_categories){
 }
 if(defined($key)){
     #$key = validate_alnum($key, "key");
-    $key =~ /^([\w\/][\.\w\@\[\]\s-]+[\w\/])$/ or usage "invalid key defined, must be alphanumeric with dots to separate mbean from metric key";
+    $key =~ /^([\w\/][\.\w\@\[\]\/\s-]+[\w\/])$/ or usage "invalid key defined, must be alphanumeric with dots to separate mbean from metric key";
     $key = $1;
     #$stat = $2 if $2;
     validate_thresholds();
