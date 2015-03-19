@@ -24,6 +24,8 @@ BEGIN {
 use HariSekhonUtils;
 use HariSekhon::ElasticSearch;
 
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
+
 my $cluster_name_regex;
 my $node_thresholds;
 my $data_node_thresholds;
