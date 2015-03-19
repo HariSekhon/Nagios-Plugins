@@ -9,11 +9,18 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check a given ElasticSearch node is online, returning json with ok status and optionally it's ElasticSearch / Lucene versions
+$DESCRIPTION = "Nagios Plugin to check a given ElasticSearch node
 
-Tested on ElasticSearch 0.90.1 and 1.2.1";
+Checks:
 
-$VERSION = "0.1";
+- node is online and returning json with ok 200 status
+- optionally check node is a member of the expected cluster
+- optionally checks node's ElasticSearch / Lucene versions
+- in verbose mode also prints out the generated Marvel node name
+
+Tested on ElasticSearch 0.90.1, 1.2.1, 1.4.4";
+
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -23,22 +30,24 @@ BEGIN {
 }
 use HariSekhonUtils;
 use HariSekhon::ElasticSearch;
-use LWP::Simple '$ua';
 
+my $cluster;
 my $es_version_regex;
 my $lc_version_regex;
 
 %options = (
     %hostoptions,
-    "elasticsearch-version=s"   => [ \$es_version_regex,  "ElasticSearch version regex to expect (optional)" ],
-    "lucene-version=s"          => [ \$lc_version_regex,  "Lucene version regex to expect (optional)" ],
+    "C|cluster=s"       => [ \$cluster,           "Cluster to expect membership of (optional)" ],
+    "es-version=s"      => [ \$es_version_regex,  "ElasticSearch version regex to expect (optional)" ],
+    "lucene-version=s"  => [ \$lc_version_regex,  "Lucene version regex to expect (optional)" ],
 );
-splice @usage_order, 4, 0, qw/elasticsearch-version lucene-version/;
+splice @usage_order, 4, 0, qw/cluster es-version lucene-version/;
 
 get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
+$cluster = validate_elasticsearch_cluster($cluster) if $cluster;
 $es_version_regex = validate_regex($es_version_regex, "elasticsearch version") if defined($es_version_regex);
 $lc_version_regex = validate_regex($lc_version_regex, "lucene version") if defined($lc_version_regex);
 
@@ -52,14 +61,20 @@ $json = curl_elasticsearch "/";
 my $elasticsearch_status = get_field("status");
 $msg .= "status: '$elasticsearch_status'";
 check_string($elasticsearch_status, 200);
+my $cluster_name = get_field("cluster_name");
+$msg .= ", cluster: '$cluster_name'";
+check_string($cluster_name, $cluster) if $cluster;
+my $node_name = get_field("name", 1);
+$msg .= ", node name: '$node_name'" if($node_name and $verbose);
 
 my $es_version = get_field2(get_field("version"), "number");
 my $lc_version = get_field2(get_field("version"), "lucene_version");
 isVersion($es_version) or quit "UNKNOWN", "invalid version returned for elasticsearch";
 isVersion($lc_version) or quit "UNKNOWN", "invalid version returned for lucene";
 $msg .= ", elasticsearch version: $es_version";
-check_regex($es_version, $es_version_regex);
+check_regex($es_version, $es_version_regex) if $es_version_regex;
 $msg .= ", lucene version: $lc_version";
-check_regex($lc_version, $lc_version_regex);
+check_regex($lc_version, $lc_version_regex) if $lc_version_regex;
 
+vlog2;
 quit $status, $msg;
