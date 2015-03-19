@@ -43,7 +43,7 @@ my $lc_version_regex;
     "es-version=s"      => [ \$es_version_regex,  "ElasticSearch version regex to expect (optional)" ],
     "lucene-version=s"  => [ \$lc_version_regex,  "Lucene version regex to expect (optional)" ],
 );
-splice @usage_order, 4, 0, qw/cluster es-version lucene-version/;
+splice @usage_order, 6, 0, qw/cluster es-version lucene-version/;
 
 get_options();
 
