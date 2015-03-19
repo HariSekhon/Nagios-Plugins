@@ -39,7 +39,7 @@ my $lc_version_regex;
 
 %options = (
     %hostoptions,
-    "C|cluster=s"       => [ \$cluster,           "Cluster to expect membership of (optional)" ],
+    "C|cluster=s"       => [ \$cluster,           "Cluster to expect membership of (optional, available in 1.4, not 1.2)" ],
     "es-version=s"      => [ \$es_version_regex,  "ElasticSearch version regex to expect (optional)" ],
     "lucene-version=s"  => [ \$lc_version_regex,  "Lucene version regex to expect (optional)" ],
 );
@@ -63,9 +63,11 @@ $json = curl_elasticsearch "/";
 my $elasticsearch_status = get_field("status");
 $msg .= "status: '$elasticsearch_status'";
 check_string($elasticsearch_status, 200);
-my $cluster_name = get_field("cluster_name");
-$msg .= ", cluster: '$cluster_name'";
-check_string($cluster_name, $cluster) if $cluster;
+my $cluster_name = get_field("cluster_name", 1);
+if($cluster_name){
+    $msg .= ", cluster: '$cluster_name'";
+    check_string($cluster_name, $cluster) if $cluster;
+}
 my $node_name = get_field("name", 1);
 $msg .= ", node name: '$node_name'" if($node_name and $verbose);
 
