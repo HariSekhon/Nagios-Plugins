@@ -9,16 +9,16 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check a given ElasticSearch node
+$DESCRIPTION = "Nagios Plugin to check a given Elasticsearch node
 
 Checks:
 
 - node is online and returning json with ok 200 status
 - optionally check node is a member of the expected cluster
-- optionally checks node's ElasticSearch / Lucene versions
+- optionally checks node's Elasticsearch / Lucene versions
 - in verbose mode also prints out the generated Marvel node name
 
-Tested on ElasticSearch 0.90.1, 1.2.1, 1.4.4";
+Tested on Elasticsearch 0.90.1, 1.2.1, 1.4.4";
 
 $VERSION = "0.2";
 
@@ -40,7 +40,7 @@ my $lc_version_regex;
 %options = (
     %hostoptions,
     "C|cluster=s"       => [ \$cluster,           "Cluster to expect membership of (optional, available in 1.4, not 1.2)" ],
-    "es-version=s"      => [ \$es_version_regex,  "ElasticSearch version regex to expect (optional)" ],
+    "es-version=s"      => [ \$es_version_regex,  "Elasticsearch version regex to expect (optional)" ],
     "lucene-version=s"  => [ \$lc_version_regex,  "Lucene version regex to expect (optional)" ],
 );
 splice @usage_order, 6, 0, qw/cluster es-version lucene-version/;
