@@ -1,7 +1,7 @@
 Advanced Nagios Plugins Collection [![Build Status](https://travis-ci.org/harisekhon/nagios-plugins.svg?branch=master)](https://travis-ci.org/harisekhon/nagios-plugins)
 ==================================
 
-##### Please Star this repo instead of Forking it, it changes often with fixes and updates for software so you should be working off this repo unless submitting patch pull requests #####
+##### Please Star this repo instead of Forking it, it changes often with fixes, updates and improvements to work with newer software releases so you should be working off this repo unless submitting patch pull requests #####
 
 Largest and most advanced collection of unified Nagios monitoring code in the wild.
 
