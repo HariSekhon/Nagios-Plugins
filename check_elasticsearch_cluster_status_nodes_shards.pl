@@ -28,7 +28,7 @@ use HariSekhon::ElasticSearch;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-my $cluster_name_regex;
+my $cluster;
 my $node_thresholds;
 my $data_node_thresholds;
 my $active_primary_shard_thresholds;
@@ -39,7 +39,7 @@ my $unassigned_shard_thresholds = "0,1";
 
 %options = (
     %hostoptions,
-    "C|cluster-name=s"          =>  [ \$cluster_name_regex,                 "Cluster name to expect (optional). Cluster name is used for auto-discovery and should be unique to each cluster in a single network" ],
+    "C|cluster-name=s"          =>  [ \$cluster,                            "Cluster name to expect (optional). Cluster name is used for auto-discovery and should be unique to each cluster in a single network" ],
     "n|nodes=s"                 =>  [ \$node_thresholds,                    "Node thresholds (inclusive, optional)" ],
     "d|data-nodes=s"            =>  [ \$data_node_thresholds,               "Data Node thresholds (inclusive, optional)" ],
     "active-primary-shards=s"   =>  [ \$active_primary_shard_thresholds,    "Active Primary Shards thresholds (inclusive, optional)" ],
@@ -54,7 +54,7 @@ get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
-$cluster_name_regex = validate_regex($cluster_name_regex, "cluster name") if defined($cluster_name_regex);
+$cluster = validate_elasticsearch_cluster($cluster) if defined($cluster);
 my $options_upper = { "simple" => "upper", "integer" => 1, "positive" => 1 };
 my $options_lower = { "simple" => "lower", "integer" => 1, "positive" => 1 };
 validate_thresholds(undef, undef, $options_lower, "nodes",                  $node_thresholds);
@@ -74,7 +74,7 @@ $json = curl_elasticsearch "/_cluster/health";
 
 my $cluster_name = get_field("cluster_name");
 $msg .= "cluster name: '$cluster_name'";
-check_regex($cluster_name, $cluster_name_regex);
+check_string($cluster_name, $cluster);
 
 my $elasticsearch_status = get_field("status");
 $msg .= ", status: '$elasticsearch_status'";
