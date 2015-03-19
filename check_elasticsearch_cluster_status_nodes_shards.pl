@@ -13,6 +13,13 @@ $DESCRIPTION = "Nagios Plugin to check Elasticsearch cluster status, nodes and s
 
 Optional thresholds apply to all counts of nodes, data nodes, active primary shards, active shards, relocating shards, initializing shards and unassigned shards in <warning>,<critical> format where each threshold can take a standard Nagios ra:nge
 
+See the adjacent individual plugins listed below which are more concisely checking each of these things... I would remove this plugin but it was already written and some people may prefer to be able to do all of this in one check:
+
+check_elasticsearch_cluster_status.pl
+check_elasticsearch_nodes.pl
+check_elasticsearch_data_nodes.pl
+check_elasticsearch_cluster_shards.pl
+
 Tested on Elasticsearch 0.90.1, 1.2.1, 1.4.4";
 
 $VERSION = "0.2";
