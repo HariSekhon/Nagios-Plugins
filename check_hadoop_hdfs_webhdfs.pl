@@ -48,7 +48,7 @@ use Time::HiRes;
 
 my $ua = LWP::UserAgent->new( 'requests_redirectable' => ['GET', 'PUT'] );
 
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 if($progname =~ /httpfs/i){
     set_port_default(14000);

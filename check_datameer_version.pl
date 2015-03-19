@@ -28,7 +28,7 @@ use HariSekhon::Datameer;
 use JSON::XS;
 use LWP::Simple '$ua';
 
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 my $expected;
 

@@ -34,7 +34,7 @@ use HariSekhon::Solr;
 use Sys::Hostname 'hostname';
 use Time::HiRes qw/sleep time/;
 
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 set_threshold_defaults(200, 2000);
 

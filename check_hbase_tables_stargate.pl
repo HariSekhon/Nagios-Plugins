@@ -36,7 +36,7 @@ BEGIN {
 use HariSekhonUtils;
 use LWP::Simple '$ua';
 
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 set_port_default(20550);
 

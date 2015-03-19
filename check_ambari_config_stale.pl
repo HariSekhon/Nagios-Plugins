@@ -29,7 +29,7 @@ use HariSekhonUtils;
 use HariSekhon::Ambari;
 use Data::Dumper;
 
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 %options = (
     %hostoptions,

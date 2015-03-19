@@ -124,7 +124,7 @@ if($last_tstamp > 0 and $last_tstamp < $now){
 vlog2 "$diff_secs secs since last run\n";
 
 my $ua = LWP::UserAgent->new;
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
 validate_resolvable($host);
 my $req = HTTP::Request->new(GET => $url);
 

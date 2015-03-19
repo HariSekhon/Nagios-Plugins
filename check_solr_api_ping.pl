@@ -28,7 +28,7 @@ BEGIN {
 use HariSekhonUtils qw/:DEFAULT :time/;
 use HariSekhon::Solr;
 
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 set_threshold_defaults(200, 1000);
 

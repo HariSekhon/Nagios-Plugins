@@ -32,7 +32,7 @@ use LWP::Simple '$ua';
 use POSIX qw/floor ceil/;
 use Time::Local;
 
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 my $default_warning  = 31;
 my $default_critical = 15;

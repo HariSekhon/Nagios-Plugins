@@ -23,7 +23,7 @@ use HariSekhonUtils;
 use LWP::Simple '$ua';
 use JSON::XS;
 
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 my $default_port = 25000;
 $port = $default_port;

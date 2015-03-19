@@ -52,7 +52,7 @@ set_http_timeout($timeout - 1);
 
 $status = "OK";
 
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 my $blockScannerReport = curl "http://$host:$port/blockScannerReport", "datanode $host";
 

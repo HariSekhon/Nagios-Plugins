@@ -32,7 +32,7 @@ BEGIN {
 use HariSekhonUtils;
 use HariSekhon::Ambari;
 
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 my $service_state       = 0;
 my $all_service_states  = 0;

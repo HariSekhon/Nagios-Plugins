@@ -30,7 +30,7 @@ BEGIN {
 use HariSekhonUtils;
 use HariSekhon::Solr;
 
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 set_threshold_defaults(100, 2000);
 

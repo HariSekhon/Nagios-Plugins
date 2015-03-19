@@ -41,7 +41,7 @@ use HariSekhonUtils qw/:DEFAULT :time/;
 use HariSekhon::Solr;
 use URI::Escape;
 
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 my $category;
 my $key;

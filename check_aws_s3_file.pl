@@ -30,7 +30,7 @@ use Time::HiRes 'time';
 use XML::Simple;
 
 our $ua = LWP::UserAgent->new;
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 my $aws_host = "s3.amazonaws.com";
 my $bucket;

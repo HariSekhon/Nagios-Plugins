@@ -31,7 +31,7 @@ use HariSekhon::Datameer;
 use JSON::XS;
 use LWP::Simple '$ua';
 
-$ua->agent("Hari Sekhon $progname $main::VERSION");
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 my $default_warning  = 80;
 my $default_critical = 90;
