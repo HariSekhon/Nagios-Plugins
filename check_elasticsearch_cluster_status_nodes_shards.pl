@@ -31,7 +31,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use HariSekhon::ElasticSearch;
+use HariSekhon::Elasticsearch;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
