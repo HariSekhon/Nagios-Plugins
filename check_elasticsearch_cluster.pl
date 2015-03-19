@@ -9,11 +9,13 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check ElasticSearch cluster status, node and shard counts
+$DESCRIPTION = "Nagios Plugin to check ElasticSearch cluster status, nodes and shards
+
+Optional thresholds apply to all counts of nodes, data nodes, active primary shards, active shards, relocating shards, initializing shards and unassigned shards in <warning>,<critical> format where each threshold can take a standard Nagios ra:nge
 
 Tested on ElasticSearch 0.90.1, 1.2.1, 1.4.4";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -83,11 +85,6 @@ if($elasticsearch_status eq "yellow"){
     check_string($elasticsearch_status, "green");
 }
 
-my $timed_out = get_field("timed_out");
-$timed_out = ( $timed_out ? "true" : "false" );
-$msg .= ", timed out: $timed_out";
-check_string($timed_out, "false");
-
 my $nodes = get_field_int("number_of_nodes");
 $msg .= ", nodes: $nodes";
 check_thresholds($nodes, 0, "nodes");
@@ -115,6 +112,14 @@ check_thresholds($initializing_shards, 0, "initializing shards");
 my $unassigned_shards = get_field_int("unassigned_shards");
 $msg .= ", unassigned shards: $unassigned_shards";
 check_thresholds($unassigned_shards, 0, "unassigned shards");
+
+my $timed_out = get_field("timed_out");
+#$timed_out = ( $timed_out ? "true" : "false" );
+if($timed_out){
+    critical;
+    $msg .= ", TIMED OUT: TRUE";
+    #check_string($timed_out, "false");
+}
 
 vlog2;
 quit $status, $msg;
