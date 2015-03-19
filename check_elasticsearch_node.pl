@@ -31,6 +31,8 @@ BEGIN {
 use HariSekhonUtils;
 use HariSekhon::ElasticSearch;
 
+$ua->agent("Hari Sekhon $progname version $main::VERSION");
+
 my $cluster;
 my $es_version_regex;
 my $lc_version_regex;
