@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Elasticsearch cluster nodes available
+$DESCRIPTION = "Nagios Plugin to check the number of Elasticsearch nodes available in a cluster
 
 Tested on Elasticsearch 0.90.1, 1.2.1, 1.4.4";
 
