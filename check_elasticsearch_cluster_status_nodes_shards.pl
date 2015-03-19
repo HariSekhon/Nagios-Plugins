@@ -9,11 +9,11 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check ElasticSearch cluster status, nodes and shards
+$DESCRIPTION = "Nagios Plugin to check Elasticsearch cluster status, nodes and shards
 
 Optional thresholds apply to all counts of nodes, data nodes, active primary shards, active shards, relocating shards, initializing shards and unassigned shards in <warning>,<critical> format where each threshold can take a standard Nagios ra:nge
 
-Tested on ElasticSearch 0.90.1, 1.2.1, 1.4.4";
+Tested on Elasticsearch 0.90.1, 1.2.1, 1.4.4";
 
 $VERSION = "0.2";
 
