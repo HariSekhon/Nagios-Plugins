@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check ElasticSearch cluster status, node and shard counts
 
-Tested on ElasticSearch 0.90.1 and 1.2.1";
+Tested on ElasticSearch 0.90.1, 1.2.1, 1.4.4";
 
 $VERSION = "0.1";
 
@@ -114,4 +114,5 @@ my $unassigned_shards = get_field_int("unassigned_shards");
 $msg .= ", unassigned shards: $unassigned_shards";
 check_thresholds($unassigned_shards, 0, "unassigned shards");
 
+vlog2;
 quit $status, $msg;
