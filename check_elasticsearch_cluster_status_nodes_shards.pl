@@ -76,14 +76,7 @@ my $cluster_name = get_field("cluster_name");
 $msg .= "cluster name: '$cluster_name'";
 check_string($cluster_name, $cluster);
 
-my $elasticsearch_status = get_field("status");
-$msg .= ", status: '$elasticsearch_status'";
-if($elasticsearch_status eq "yellow"){
-    warning;
-    $msg .= " (expected: 'green')";
-} else {
-    check_string($elasticsearch_status, "green");
-}
+$msg .= check_elasticsearch_status(get_field("status"));
 
 my $nodes = get_field_int("number_of_nodes");
 $msg .= ", nodes: $nodes";
