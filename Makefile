@@ -89,6 +89,7 @@ make:
 		Readonly \
 		Readonly::XS \
 		Redis \
+		Search::Elasticsearch \
 		SMS::AQL \
 		Sub::Exporter::Progressive \
 		Sub::Name \
