@@ -1,1 +1,4 @@
 *.pyc
+*.log
+zookeeper-*.tar.gz
+zookeeper-*/
