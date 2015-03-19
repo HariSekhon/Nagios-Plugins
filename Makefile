@@ -65,8 +65,10 @@ make:
 		Digest::SHA \
 		Exporter::Tiny \
 		ExtUtils::Config \
+		ExtUtils::Constant \
 		ExtUtils::Helpers \
 		ExtUtils::InstallPaths \
+		IO::Socket::IP \
 		IO::Socket::SSL \
 		JSON \
 		JSON:XS \
