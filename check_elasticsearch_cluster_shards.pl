@@ -15,7 +15,7 @@ Thresholds apply to counts of active primary shards, active shards, relocating s
 
 Tested on Elasticsearch 0.90.1, 1.2.1, 1.4.4";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -70,25 +70,32 @@ my $cluster_name = get_field("cluster_name");
 $msg .= "cluster name: '$cluster_name'";
 check_string($cluster_name, $cluster);
 
+my $msg2 = "";
+
 my $active_primary_shards = get_field_int("active_primary_shards");
 $msg .= ", active primary shards: $active_primary_shards";
 check_thresholds($active_primary_shards, 0, "active primary shards");
+$msg2 .= " 'active primary shards'=$active_primary_shards" . msg_perf_thresholds(1, 1, "active primary shards");
 
 my $active_shards = get_field_int("active_shards");
 $msg .= ", active shards: $active_shards";
 check_thresholds($active_shards, 0, "active shards");
+$msg2 .= " 'active shards'=$active_shards" . msg_perf_thresholds(1, 1, "active shards");
 
 my $relocating_shards = get_field_int("relocating_shards");
 $msg .= ", relocating shards: $relocating_shards";
 check_thresholds($relocating_shards, 0, "relocating shards");
+$msg2 .= " 'relocating shards'=$relocating_shards" . msg_perf_thresholds(1, 0, "relocating shards");
 
 my $initializing_shards = get_field_int("initializing_shards");
 $msg .= ", inititializing shards: $initializing_shards";
 check_thresholds($initializing_shards, 0, "initializing shards");
+$msg2 .= " 'initializing shards'=$initializing_shards" . msg_perf_thresholds(1, 0, "initializing shards");
 
 my $unassigned_shards = get_field_int("unassigned_shards");
 $msg .= ", unassigned shards: $unassigned_shards";
 check_thresholds($unassigned_shards, 0, "unassigned shards");
+$msg2 .= " 'unassigned shards'=$unassigned_shards" . msg_perf_thresholds(1, 0, "unassigned shards");
 
 my $timed_out = get_field("timed_out");
 #$timed_out = ( $timed_out ? "true" : "false" );
@@ -97,6 +104,8 @@ if($timed_out){
     $msg .= ", TIMED OUT: TRUE";
     #check_string($timed_out, "false");
 }
+
+$msg .= " |$msg2";
 
 vlog2;
 quit $status, $msg;
