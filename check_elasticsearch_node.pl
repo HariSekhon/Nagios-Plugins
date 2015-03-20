@@ -18,7 +18,7 @@ Checks:
 - optionally checks node's Elasticsearch / Lucene versions
 - in verbose mode also prints out the generated Marvel node name
 
-Tested on Elasticsearch 0.90.1, 1.2.1, 1.4.4";
+Tested on Elasticsearch 0.90.1, 1.2.1, 1.3.0, 1.4.4";
 
 $VERSION = "0.2";
 
@@ -39,7 +39,7 @@ my $lc_version_regex;
 
 %options = (
     %hostoptions,
-    "C|cluster=s"       => [ \$cluster,           "Cluster to expect membership of (optional, available in 1.4, not 1.2)" ],
+    "C|cluster=s"       => [ \$cluster,           "Cluster to expect membership of (optional, available from 1.3" ],
     "es-version=s"      => [ \$es_version_regex,  "Elasticsearch version regex to expect (optional)" ],
     "lucene-version=s"  => [ \$lc_version_regex,  "Lucene version regex to expect (optional)" ],
 );
