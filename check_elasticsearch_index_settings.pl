@@ -18,11 +18,13 @@ Optional Checks:
 - number of replicas
 - any arbitrary setting key (eg. index.refresh_interval) against a given expected value or 'default' (meaning unset, implying it's still the default value)
 
+hint: use -vvv to see the full debug output of what settings are returned by Elasticsearch
+
 Caveats: since Elasticsearch doesn't output settings which have default values, there is no way to determine whether a given arbitrary key is in it's default setting or if the key is simply not a valid setting that will never show up.
 
 Tested on Elasticsearch 1.2.1 and 1.4.4";
 
-$VERSION = "0.4";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -37,18 +39,18 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 my $expected_shards;
 my $expected_replicas;
-my $expected_key;
+my $key;
 my $expected_value;
 
 %options = (
     %hostoptions,
     %elasticsearch_index,
-    "expected-shards=s"   =>  [ \$expected_shards,    "Expected shards (optional)" ],
-    "expected-replicas=s" =>  [ \$expected_replicas,  "Expected replicas (optional)" ],
-    "expected-key=s"      =>  [ \$expected_key,       "Expected setting key (eg. index.refresh_interval), will be prefixed with 'index.' if not containg it to use shorter keys" ],
-    "expected-value=s"    =>  [ \$expected_value,     "Expected setting value (eg. 30, use 'default' to check the key doesn't exist which implies default value)" ],
+    "A|shards=s"   =>  [ \$expected_shards,    "Expected shards (optional)" ],
+    "R|replicas=s" =>  [ \$expected_replicas,  "Expected replicas (optional)" ],
+    "K|key=s"      =>  [ \$key,                "Expected setting key to check (eg. index.refresh_interval), will be prefixed with 'index.' if not starting with index for convenience of being able to use shorter keys" ],
+    "L|value=s"    =>  [ \$expected_value,     "Expected setting value (optional, eg. 30, use 'default' to check the key doesn't exist which implies default value)" ],
 );
-push(@usage_order, qw/expected-shards expected-replicas expected-key expected-value/);
+push(@usage_order, qw/shards replicas key value/);
 
 get_options();
 
@@ -57,13 +59,15 @@ $port  = validate_port($port);
 $index = validate_elasticsearch_index($index);
 $expected_shards   = validate_int($expected_shards,   "expected shards",   1, 1000000) if defined($expected_shards);
 $expected_replicas = validate_int($expected_replicas, "expected replicas", 1, 1000)    if defined($expected_replicas);
-if(defined($expected_key)){
-    defined($expected_value) or usage "--expected-value must be defined if specifying --expected-key";
-    $expected_key =~ /^(\w[\w\.\*]+)$/ or usage "invalid --expected-key";
-    $expected_key = "index.$expected_key" unless $expected_key =~ /^index\./;
+if(defined($key)){
+    #defined($expected_value) or usage "--expected-value must be defined if specifying --expected-key";
+    $key =~ /^(\w[\w\.\*]+)$/ or usage "invalid --key";
+    $key = "index.$key" unless $key =~ /^index\./;
+    vlog_options "key", $key;
+    vlog_options "expected value", $expected_value if defined($expected_value);
 }
 if(defined($expected_value)){
-    defined($expected_key) or usage "--expected-key must be defined if specifying --expected-value";
+    defined($key) or usage "--key must be defined if specifying --expected-value";
 }
 
 vlog2;
@@ -73,44 +77,62 @@ $status = "OK";
 
 list_elasticsearch_indices();
 
-curl_elasticsearch "/$index/_settings";
+curl_elasticsearch "/$index/_settings?flat_settings";
 
 # escape any dots in index name to not separate
 ( my $index2 = $index ) =~ s/\./\\./g;
-my $replicas = get_field_int("$index2.settings.index.number_of_replicas");
-my $shards   = get_field_int("$index2.settings.index.number_of_shards");
+
+sub get_flat_setting($;$){
+    my $setting = shift;
+    my $not_required = shift;
+    $setting =~ s/\./\\./g;
+    $setting = "$index.settings.$setting";
+    vlog2 "extracting setting key $setting\n";
+    get_field($setting, $not_required);
+}
+
+# switched to flat settings, must escape dots inside the setting now
+#my $shards   = get_field_int("$index2.settings.index.number_of_shards");
+#my $replicas = get_field_int("$index2.settings.index.number_of_replicas");
+my $shards   = get_field_int("$index2.settings.index\\.number_of_shards");
+my $replicas = get_field_int("$index2.settings.index\\.number_of_replicas");
+
+$msg = "index '$index'";
+my $msg2 = "";
 
 sub msg_shards_replicas(){
     $msg .= " shards=$shards";
     check_string($shards, $expected_shards) if defined($expected_shards);
     $msg .= " replicas=$replicas";
     check_string($replicas, $expected_replicas) if defined($expected_replicas);
+    $msg2 .= " shards=$shards replicas=$replicas";
 }
 
-$msg = "index '$index'";
-
 my $value;
-if(defined($expected_key)){
+if(defined($key)){
     if($expected_shards or $expected_replicas){
         msg_shards_replicas();
         $msg .= ",";
     }
-    #( my $key = $expected_key ) =~ s/\./\\./g;
-    vlog2 "extracting setting key $index2.settings.$expected_key";
-    $value = get_field("$index2.settings.$expected_key", 1);
+    $value = get_flat_setting($key, 1);
     if(defined($value)){
-        $msg .= " setting $expected_key=$value";
+        ( my $key2 = $key ) =~ s/^index\.//;
+        $msg .= " setting $key2=$value";
         check_string($value, $expected_value) if defined($expected_value);
-    } elsif($expected_value eq 'default'){
-        $msg .= " setting $expected_key=unset (default)";
+        if(isFloat($value)){
+            $msg2 .= " '$key2'=$value";
+        }
+    } elsif(defined($expected_value) and $expected_value eq 'default'){
+        $msg .= " setting $key=unset (default)";
     } else {
         critical;
-        $msg .= " setting $expected_key not found (expected $expected_value)";
+        $msg .= " setting $key NOT FOUND";
+        $msg .= " (expected '$expected_value')" if defined($expected_value);
     }
 } else {
     msg_shards_replicas();
 }
 
-$msg .= " | shards=$shards replicas=$replicas";
+$msg .= " |$msg2" if $msg2;
 
 quit $status, $msg;
