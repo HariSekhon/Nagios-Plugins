@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check the number of replicas of a given Elastic
 
 Tested on Elasticsearch 1.2.1 and 1.4.4";
 
-$VERSION = "0.5";
+$VERSION = "0.6";
 
 use strict;
 use warnings;
@@ -50,7 +50,7 @@ $status = "OK";
 
 list_elasticsearch_indices();
 
-curl_elasticsearch "/$index/_settings?flat_settings";
+curl_elasticsearch "/$index/_settings?flat_settings&name=index.number_of_replicas";
 
 # escape any dots in index name to not separate
 ( my $index2 = $index ) =~ s/\./\\./g;
