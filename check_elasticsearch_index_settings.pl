@@ -12,7 +12,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the settings of a given Elasticsearch index
 
-Optional expected values for number of shards and replicas will be checked if given
+Optionally checks number of shards and/or replicas against expected values if given
 
 Tested on Elasticsearch 1.2.1 and 1.4.4";
 
