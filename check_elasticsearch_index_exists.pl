@@ -10,7 +10,9 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-$DESCRIPTION = "Nagios Plugin to check a given index exists in Elasticsearch";
+$DESCRIPTION = "Nagios Plugin to check a given index exists in Elasticsearch
+
+Tested on Elasticsearch 1.2.1 and 1.4.4";
 
 $VERSION = "0.1";
 
