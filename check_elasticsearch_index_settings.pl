@@ -91,27 +91,31 @@ sub get_flat_setting($;$){
     get_field($setting, $not_required);
 }
 
-# switched to flat settings, must escape dots inside the setting now
-#my $shards   = get_field_int("$index2.settings.index.number_of_shards");
-#my $replicas = get_field_int("$index2.settings.index.number_of_replicas");
-my $shards   = get_field_int("$index2.settings.index\\.number_of_shards");
-my $replicas = get_field_int("$index2.settings.index\\.number_of_replicas");
-
 $msg = "index '$index'";
 my $msg2 = "";
 
-sub msg_shards_replicas(){
+sub msg_shards(){
+    # switched to flat settings, must escape dots inside the setting now
+    #my $shards   = get_field_int("$index2.settings.index.number_of_shards");
+    my $shards   = get_field_int("$index2.settings.index\\.number_of_shards");
     $msg .= " shards=$shards";
     check_string($shards, $expected_shards) if defined($expected_shards);
+    $msg2 .= " shards=$shards";
+}
+
+sub msg_replicas(){
+    #my $replicas = get_field_int("$index2.settings.index.number_of_replicas");
+    my $replicas = get_field_int("$index2.settings.index\\.number_of_replicas");
     $msg .= " replicas=$replicas";
     check_string($replicas, $expected_replicas) if defined($expected_replicas);
-    $msg2 .= " shards=$shards replicas=$replicas";
+    $msg2 .= " replicas=$replicas";
 }
 
 my $value;
 if(defined($key)){
-    if($expected_shards or $expected_replicas){
-        msg_shards_replicas();
+    if(defined($expected_shards) or defined($expected_replicas)){
+        msg_shards() if defined($expected_shards);
+        msg_replicas() if defined($expected_replicas);
         $msg .= ",";
     }
     $value = get_flat_setting($key, 1);
@@ -130,7 +134,8 @@ if(defined($key)){
         $msg .= " (expected '$expected_value')" if defined($expected_value);
     }
 } else {
-    msg_shards_replicas();
+    msg_shards();
+    msg_replicas();
 }
 
 $msg .= " |$msg2" if $msg2;
