@@ -10,7 +10,7 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-$DESCRIPTION = "Nagios Plugin to check the stats of a given Elasticsearch index
+$DESCRIPTION = "Nagios Plugin to check the stats for a given Elasticsearch index or all indices if no specific index given
 
 - Can fetch one or more given stats (fetches all stats for 'total' if none are given)
 - Optional --warning/--critical threshold ranges may be applied if specifying only one stat
@@ -48,7 +48,7 @@ get_options();
 
 $host  = validate_host($host);
 $port  = validate_port($port);
-$index = validate_elasticsearch_index($index);
+$index = validate_elasticsearch_index($index) if $index;
 my @keys;
 @keys = split(/\s*,\s*/, $keys) if defined($keys);
 @keys = uniq_array @keys if @keys;
@@ -74,14 +74,21 @@ $status = "OK";
 
 list_elasticsearch_indices();
 
-$json = curl_elasticsearch "/$index/_stats";
+my $url = "";
+$url .= "/$index" if $index;
+$url .= "/_stats";
+$json = curl_elasticsearch $url;
 
-# escape any dots in index name to not separate
-( my $index2 = $index ) =~ s/\./\\./g;
+if($index){
+    # escape any dots in index name to not separate
+    ( my $index2 = $index ) =~ s/\./\\./g;
+    $json = get_field("indices.$index2");
+    $msg = "index '$index'";
+} else {
+    $json = get_field("_all");
+    $msg = "all indices";
+}
 
-$json = get_field("indices.$index2");
-
-$msg = "index '$index'";
 my $msg2 = "";
 
 sub recurse_stats($$);
