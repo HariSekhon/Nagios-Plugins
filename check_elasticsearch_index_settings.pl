@@ -47,7 +47,7 @@ my $expected_value;
     %elasticsearch_index,
     "A|shards=s"   =>  [ \$expected_shards,    "Expected shards (optional)" ],
     "R|replicas=s" =>  [ \$expected_replicas,  "Expected replicas (optional)" ],
-    "K|key=s"      =>  [ \$key,                "Expected setting key to check (eg. index.refresh_interval), will be prefixed with 'index.' if not starting with index for convenience of being able to use shorter keys" ],
+    "K|key=s"      =>  [ \$key,                "Setting key to check (eg. index.refresh_interval), will be prefixed with 'index.' if not starting with index for convenience of being able to use shorter keys" ],
     "L|value=s"    =>  [ \$expected_value,     "Expected setting value (optional, eg. 30, use 'default' to check the key doesn't exist which implies default value)" ],
 );
 
