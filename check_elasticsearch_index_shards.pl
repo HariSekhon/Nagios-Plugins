@@ -34,7 +34,6 @@ my $expected_shards;
     %elasticsearch_index,
     "A|shards=s" => [ \$expected_shards, "Expected shards (optional)" ],
 );
-push(@usage_order, qw/shards/);
 
 get_options();
 
