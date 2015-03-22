@@ -22,7 +22,7 @@ I also take suggestions for interesting new plugins or those involving interesti
 
 Hari Sekhon
 
-Big Data Contractor
+Big Data Contractor, United Kingdom
 
 http://www.linkedin.com/in/harisekhon
 
