@@ -44,15 +44,15 @@ my $expected_value;
     %thresholdoptions,
 );
 
-$DESCRIPTION =~ s/ or all.*// if $progname =~ /index/;
+#$DESCRIPTION =~ s/ or all.*// if $progname =~ /index/;
 
 get_options();
 
 $host  = validate_host($host);
 $port  = validate_port($port);
-if($progname =~ /index/){
-    $index or usage "index not specified";
-}
+#if($progname =~ /index/){
+#    $index or usage "index not specified";
+#}
 $index = validate_elasticsearch_index($index) if $index;
 my @keys;
 @keys = split(/\s*,\s*/, $keys) if defined($keys);
