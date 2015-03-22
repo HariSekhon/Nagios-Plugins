@@ -50,7 +50,6 @@ my $expected_value;
     "K|key=s"      =>  [ \$key,                "Expected setting key to check (eg. index.refresh_interval), will be prefixed with 'index.' if not starting with index for convenience of being able to use shorter keys" ],
     "L|value=s"    =>  [ \$expected_value,     "Expected setting value (optional, eg. 30, use 'default' to check the key doesn't exist which implies default value)" ],
 );
-push(@usage_order, qw/shards replicas key value/);
 
 get_options();
 
@@ -67,7 +66,7 @@ if(defined($key)){
     vlog_options "expected value", $expected_value if defined($expected_value);
 }
 if(defined($expected_value)){
-    defined($key) or usage "--key must be defined if specifying --expected-value";
+    defined($key) or usage "--key must be defined if specifying --value";
 }
 
 vlog2;
