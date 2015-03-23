@@ -92,7 +92,7 @@ $msg .= " ($ip)" if $verbose;
 $msg .= " = " . human_units($bytes);
 check_thresholds($bytes);
 
-$msg .= " | total_fielddata=$bytes";
+$msg .= " | total_fielddata=${bytes}b";
 msg_perf_thresholds();
 
 vlog2;
