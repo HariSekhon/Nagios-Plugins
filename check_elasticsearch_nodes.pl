@@ -11,9 +11,11 @@
 
 $DESCRIPTION = "Nagios Plugin to check the number of Elasticsearch nodes available in a cluster
 
+Thresholds apply by default to minimum number of nodes, but also accepts Nagios range thresholds
+
 Tested on Elasticsearch 0.90.1, 1.2.1, 1.4.4";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -25,6 +27,8 @@ use HariSekhonUtils;
 use HariSekhon::Elasticsearch;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
+
+set_threshold_defaults(2, 1);
 
 my $cluster;
 
@@ -55,7 +59,7 @@ $msg .= "$nodes node$plural";
 check_thresholds($nodes);
 
 my $cluster_name = get_field("cluster_name");
-$msg .= " in cluster '$cluster_name'";
+$msg .= " in elasticsearch cluster '$cluster_name'";
 check_string($cluster_name, $cluster);
 $msg .= " | nodes=$nodes";
 msg_perf_thresholds(0, 1);
