@@ -16,7 +16,7 @@ Optional --warning/--critical threshold ranges may be applied to the volume in b
 
 Tested on Elasticsearch 1.2.1 and 1.4.4";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -65,7 +65,7 @@ my $ip;
 my $bytes;
 print "Nodes:\n\n" if $list_nodes;
 foreach(split(/\n/, $content)){
-    @parts = split(/\s+/, $content);
+    @parts = split(/\s+/, $_);
     defined($parts[2]) or quit "UNKNOWN", "failed to find 3rd field in result. $nagios_plugins_support_msg_api";
     isIP($parts[1]) or quit "UNKNOWN", "returned non-IP for 1st field in result. $nagios_plugins_support_msg_api";
     $ip = $parts[1];
@@ -78,6 +78,7 @@ foreach(split(/\n/, $content)){
     if($node eq $ip or $node eq $node_hostname){
         isInt($parts[2]) or quit "UNKNOWN", "returned non-integer for 2nd field in result. $nagios_plugins_support_msg_api";
         $bytes = $parts[2];
+        last;
     }
 }
 exit $ERRORS{"UNKNOWN"} if($list_nodes);
