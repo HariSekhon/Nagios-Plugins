@@ -12,19 +12,13 @@
 
 $DESCRIPTION = "Nagios Plugin to check the settings of a given Elasticsearch index
 
-Optional Checks:
-
-- number of shards
-- number of replicas
-- any arbitrary setting key (eg. index.refresh_interval) against a given expected value or 'default' (meaning unset, implying it's still the default value)
-
-hint: use -vvv to see the full debug output of what settings are returned by Elasticsearch
+Checks any arbitrary setting key (eg. index.refresh_interval) against a given expected value or 'default' (meaning unset, implying it's still the default value)
 
 Caveats: since Elasticsearch doesn't output settings which have default values, there is no way to determine whether a given arbitrary key is in it's default setting or if the key is simply not a valid setting that will never show up.
 
 Tested on Elasticsearch 1.2.1 and 1.4.4";
 
-$VERSION = "0.5";
+$VERSION = "0.6";
 
 use strict;
 use warnings;
@@ -45,9 +39,10 @@ my $expected_value;
 %options = (
     %hostoptions,
     %elasticsearch_index,
-    "A|shards=s"   =>  [ \$expected_shards,    "Expected shards (optional)" ],
-    "R|replicas=s" =>  [ \$expected_replicas,  "Expected replicas (optional)" ],
-    "K|key=s"      =>  [ \$key,                "Setting key to check (eg. index.refresh_interval), will be prefixed with 'index.' if not starting with index for convenience of being able to use shorter keys" ],
+    #"A|shards=s"   =>  [ \$expected_shards,    "Expected shards (optional)" ],
+    #"R|replicas=s" =>  [ \$expected_replicas,  "Expected replicas (optional)" ],
+    #"K|key=s"      =>  [ \$key,                "Setting key to check (eg. index.refresh_interval), will be prefixed with 'index.' if not starting with index for convenience of being able to use shorter keys" ],
+    "K|key=s"      =>  [ \$key,                "Setting key to check (eg. index.refresh_interval)" ],
     "L|value=s"    =>  [ \$expected_value,     "Expected setting value (optional, eg. 30, use 'default' to check the key doesn't exist which implies default value)" ],
 );
 
@@ -56,12 +51,12 @@ get_options();
 $host  = validate_host($host);
 $port  = validate_port($port);
 $index = validate_elasticsearch_index($index);
-$expected_shards   = validate_int($expected_shards,   "expected shards",   1, 1000000) if defined($expected_shards);
-$expected_replicas = validate_int($expected_replicas, "expected replicas", 1, 1000)    if defined($expected_replicas);
+#$expected_shards   = validate_int($expected_shards,   "expected shards",   1, 1000000) if defined($expected_shards);
+#$expected_replicas = validate_int($expected_replicas, "expected replicas", 1, 1000)    if defined($expected_replicas);
 if(defined($key)){
     #defined($expected_value) or usage "--expected-value must be defined if specifying --expected-key";
     $key =~ /^(\w[\w\.\*]+)$/ or usage "invalid --key";
-    $key = "index.$key" unless $key =~ /^index\./;
+    #$key = "index.$key" unless $key =~ /^index\./;
     vlog_options "key", $key;
     vlog_options "expected value", $expected_value if defined($expected_value);
 }
@@ -90,51 +85,62 @@ sub get_flat_setting($;$){
     get_field($setting, $not_required);
 }
 
-$msg = "index '$index'";
+$msg = "index '$index' setting";
 my $msg2 = "";
 
-sub msg_shards(){
-    # switched to flat settings, must escape dots inside the setting now
-    #my $shards   = get_field_int("$index2.settings.index.number_of_shards");
-    my $shards   = get_field_int("$index2.settings.index\\.number_of_shards");
-    $msg .= " shards=$shards";
-    check_string($shards, $expected_shards) if defined($expected_shards);
-    $msg2 .= " shards=$shards";
-}
-
-sub msg_replicas(){
-    #my $replicas = get_field_int("$index2.settings.index.number_of_replicas");
-    my $replicas = get_field_int("$index2.settings.index\\.number_of_replicas");
-    $msg .= " replicas=$replicas";
-    check_string($replicas, $expected_replicas) if defined($expected_replicas);
-    $msg2 .= " replicas=$replicas";
-}
+#sub msg_shards(){
+#    # switched to flat settings, must escape dots inside the setting now
+#    #my $shards   = get_field_int("$index2.settings.index.number_of_shards");
+#    my $shards   = get_field_int("$index2.settings.index\\.number_of_shards");
+#    $msg .= " shards=$shards";
+#    check_string($shards, $expected_shards) if defined($expected_shards);
+#    $msg2 .= " shards=$shards";
+#}
+#
+#sub msg_replicas(){
+#    #my $replicas = get_field_int("$index2.settings.index.number_of_replicas");
+#    my $replicas = get_field_int("$index2.settings.index\\.number_of_replicas");
+#    $msg .= " replicas=$replicas";
+#    check_string($replicas, $expected_replicas) if defined($expected_replicas);
+#    $msg2 .= " replicas=$replicas";
+#}
 
 my $value;
 if(defined($key)){
-    if(defined($expected_shards) or defined($expected_replicas)){
-        msg_shards() if defined($expected_shards);
-        msg_replicas() if defined($expected_replicas);
-        $msg .= ",";
-    }
+    #if(defined($expected_shards) or defined($expected_replicas)){
+    #    msg_shards() if defined($expected_shards);
+    #    msg_replicas() if defined($expected_replicas);
+    #    $msg .= ",";
+    #}
     $value = get_flat_setting($key, 1);
     if(defined($value)){
-        ( my $key2 = $key ) =~ s/^index\.//;
-        $msg .= " setting $key2=$value";
+        ( my $key2 = $key ); # =~ s/^index\.//;
+        $msg .= " $key2=$value";
         check_string($value, $expected_value) if defined($expected_value);
         if(isFloat($value)){
             $msg2 .= " '$key2'=$value";
         }
     } elsif(defined($expected_value) and $expected_value eq 'default'){
-        $msg .= " setting $key=unset (default)";
+        $msg .= " $key=unset (default)";
     } else {
         critical;
-        $msg .= " setting $key NOT FOUND";
+        $msg .= " $key NOT FOUND";
         $msg .= " (expected '$expected_value')" if defined($expected_value);
     }
 } else {
-    msg_shards();
-    msg_replicas();
+    $msg .= "s:";
+    my %settings = get_field_hash("$index2.settings");
+    foreach(sort keys %settings){
+        ( my $key2 = $_ ); # =~ s/^index\.//;
+        $value = $settings{$_};
+        $msg .= " $_=$value";
+        next if $key2 =~ /^(?:index.creation_date|index.version.created)$/;
+        if(isFloat($value)){
+            $msg2 .= " '$key2'=$value";
+        }
+    }
+    #msg_shards();
+    #msg_replicas();
 }
 
 $msg .= " |$msg2" if $msg2;
