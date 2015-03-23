@@ -15,7 +15,7 @@ Thresholds apply to counts of active primary shards, active shards, relocating s
 
 Tested on Elasticsearch 0.90.1, 1.2.1, 1.4.4";
 
-$VERSION = "0.3.1";
+$VERSION = "0.3.2";
 
 use strict;
 use warnings;
@@ -31,7 +31,7 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 my $cluster;
 my $active_primary_shard_thresholds;
 my $active_shard_thresholds;
-my $relocating_shard_thresholds;
+my $relocating_shard_thresholds = "0,0:";
 my $initializing_shard_thresholds = "0,0:";
 my $unassigned_shard_thresholds = "0,1";
 
@@ -40,7 +40,7 @@ my $unassigned_shard_thresholds = "0,1";
     "C|cluster-name=s"          =>  [ \$cluster,                            "Cluster name to expect (optional). Cluster name is used for auto-discovery and should be unique to each cluster in a single network" ],
     "active-primary-shards=s"   =>  [ \$active_primary_shard_thresholds,    "Active Primary Shards lower thresholds (inclusive, optional)" ],
     "active-shards=s"           =>  [ \$active_shard_thresholds,            "Active Shards lower thresholds (inclusive, optional)" ],
-    "relocating-shards=s"       =>  [ \$relocating_shard_thresholds,        "Relocating Shards upper thresholds (inclusive, optional)" ],
+    "relocating-shards=s"       =>  [ \$relocating_shard_thresholds,        "Relocating Shards upper thresholds (inclusive, default w,c: 0,0:)" ],
     "initializing-shards=s"     =>  [ \$initializing_shard_thresholds,      "Initializing Shards upper thresholds (inclusive, default w,c: 0,0:)" ],
     "unassigned-shards=s"       =>  [ \$unassigned_shard_thresholds,        "Unassigned Shards upper thresholds (inclusive, default w,c: 0,1)" ],
 );
