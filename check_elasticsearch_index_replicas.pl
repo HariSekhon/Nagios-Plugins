@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check the number of replicas of a given Elastic
 
 Tested on Elasticsearch 1.2.1 and 1.4.4";
 
-$VERSION = "0.6";
+$VERSION = "0.7";
 
 use strict;
 use warnings;
@@ -27,21 +27,24 @@ use HariSekhon::Elasticsearch;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-my $expected_replicas;
+#my $expected_replicas = "1,0";
+set_threshold_defaults(1,0);
 
 %options = (
     %hostoptions,
     %elasticsearch_index,
-    "R|replicas=s" => [ \$expected_replicas, "Expected replicas (optional)" ],
+    #"R|replicas=s" => [ \$expected_replicas, "Expected replicas (default: w,c = 1,0)" ],
+    %thresholdoptions,
 );
-push(@usage_order, qw/replicas/);
 
 get_options();
 
 $host  = validate_host($host);
 $port  = validate_port($port);
 $index = validate_elasticsearch_index($index);
-$expected_replicas = validate_int($expected_replicas, "expected replicas", 1, 1000000) if defined($expected_replicas);
+#$expected_replicas = validate_int($expected_replicas, "expected replicas", 0, 1000000) if defined($expected_replicas);
+#validate_thresholds(0, 0, { 'simple' => 'lower', 'positive' => 1, 'integer' => 1}, "expected replicas", $expected_replicas);
+validate_thresholds(0, 0, { 'simple' => 'lower', 'positive' => 1, 'integer' => 1});
 
 vlog2;
 set_timeout();
@@ -61,7 +64,11 @@ $msg = "index '$index'";
 #my $replicas   = get_field_int("$index2.settings.index.number_of_replicas");
 my $replicas   = get_field_int("$index2.settings.index\\.number_of_replicas");
 $msg .= " replicas=$replicas";
-check_string($replicas, $expected_replicas) if defined($expected_replicas);
+#check_string($replicas, $expected_replicas) if defined($expected_replicas);
+#check_thresholds($replicas, 0, "expected replicas");
+check_thresholds($replicas);
 $msg .= " | replicas=$replicas";
+#msg_perf_thresholds(0, 'lower', 'expected replicas');
+msg_perf_thresholds(0, 'lower');
 
 quit $status, $msg;
