@@ -14,9 +14,11 @@ $DESCRIPTION = "Nagios Plugin to check the volume of fielddata for a given Elast
 
 Optional --warning/--critical threshold ranges may be applied to the volume in bytes
 
+Also outputs total fielddata on all nodes
+
 Tested on Elasticsearch 1.2.1 and 1.4.4";
 
-$VERSION = "0.2.1";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -63,22 +65,33 @@ my @parts;
 my $node_hostname;
 my $ip;
 my $bytes;
-print "Nodes:\n\n" if $list_nodes;
+my $total = 0;
+my $found = 0;
+if($list_nodes){
+    print "Nodes:\n\n" if $list_nodes;
+    printf "%-35s\t%s\n", "Hostname", "IP";
+}
+my ($this_name, $this_ip, $this_bytes);
 foreach(split(/\n/, $content)){
     @parts = split(/\s+/, $_);
-    defined($parts[2]) or quit "UNKNOWN", "failed to find 3rd field in result. $nagios_plugins_support_msg_api";
-    isIP($parts[1]) or quit "UNKNOWN", "returned non-IP for 1st field in result. $nagios_plugins_support_msg_api";
-    $ip = $parts[1];
+    defined($parts[2])    or quit "UNKNOWN", "failed to find 3rd field in result. $nagios_plugins_support_msg_api";
     isHostname($parts[0]) or quit "UNKNOWN", "invalid hostname returned for 1st field in result. $nagios_plugins_support_msg_api";
-    $node_hostname = $parts[0];
+    isIP($parts[1])       or quit "UNKNOWN", "returned non-IP for 1st field in result. $nagios_plugins_support_msg_api";
+    isInt($parts[2])      or quit "UNKNOWN", "returned non-integer for 2nd field in result. $nagios_plugins_support_msg_api";
+    $this_name  = $parts[0];
+    $this_ip    = $parts[1];
+    $this_bytes = $parts[2];
     if($list_nodes){
-        print "$node_hostname\t$ip\n";
+        printf "%-35s\t%s\n", $this_name, $this_ip;
         next;
     }
-    if($node eq $ip or $node eq $node_hostname){
-        isInt($parts[2]) or quit "UNKNOWN", "returned non-integer for 2nd field in result. $nagios_plugins_support_msg_api";
-        $bytes = $parts[2];
-        last;
+    $total += $this_bytes;
+    next if $found;
+    if($node eq $this_ip or $node eq $this_name){
+        $node_hostname = $this_name;
+        $ip    = $this_ip;
+        $bytes = $this_bytes;
+        $found = 1;
     }
 }
 exit $ERRORS{"UNKNOWN"} if($list_nodes);
@@ -87,12 +100,12 @@ exit $ERRORS{"UNKNOWN"} if($list_nodes);
 
 $msg = "elasticsearch ";
 
-$msg .= "total fielddata on node '$node_hostname'";
+$msg .= "fielddata on node '$node_hostname'";
 $msg .= " ($ip)" if $verbose;
 $msg .= " = " . human_units($bytes);
 check_thresholds($bytes);
-
-$msg .= " | total_fielddata=${bytes}b";
+$msg .= ", total fielddata on all nodes = " . human_units($total);
+$msg .= " | node_fielddata=${bytes}b";
 msg_perf_thresholds();
 
 vlog2;
