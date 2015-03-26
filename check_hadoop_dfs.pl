@@ -19,7 +19,7 @@ $DESCRIPTION = "Nagios Hadoop Plugin to check various health aspects of HDFS via
 - checks HDFS % Used Balance is within thresholds
 - checks number of available datanodes and if there are any dead datanodes
 
-Originally written for old vanilla Apache Hadoop 0.20.x, updated for CDH 4.3 (Apache 2.0.0), HDP 2.1 (Apache 2.4.0), HDP 2.2 (Apache 2.6.0)
+Originally written for old vanilla Apache Hadoop 0.20.x, updated for CDH 4.3 (Apache 2.0.0), CDH 5.0 (Apache 2.3.0), HDP 2.1 (Apache 2.4.0), HDP 2.2 (Apache 2.6.0)
 
 Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclaimer I work for Cloudera but seriously it's good it gives you access to a wealth of information)";
 
@@ -28,7 +28,7 @@ Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclai
 # 1. Min Configured Capacity per node (from node section output).
 # 2. Last Contact: convert the date to secs and check against thresholds.
 
-$VERSION = "0.7.5";
+$VERSION = "0.7.6";
 
 use strict;
 use warnings;
@@ -146,6 +146,7 @@ my %datanodes;
 if(join("", @output) =~ /^\s*$/){
     quit "CRITICAL", "blank output returned from '$cmd' (wrong user or mis-configured HDFS cluster settings?)";
 }
+$dfs{"missing_blocks"} = 0;
 foreach(@output){
     # skip blank lines and lines with just --------------------
     if (/^(?:-+|\s*)$/ or /DEPRECATED|Instead use the hdfs command for it|Live datanodes:/){
@@ -171,7 +172,10 @@ foreach(@output){
     } elsif(/^Blocks with corrupt replicas:\s*(\d+)\s*$/i){
         $dfs{"corrupt_blocks"} = $1;
     } elsif(/^Missing blocks:\s*(\d+)\s*$/i){
-        $dfs{"missing_blocks"} = $1;
+        $dfs{"missing_blocks"} += $1;
+    } elsif(/^Missing blocks\(with replication factor\s\d+\):\s*(\d+)\s*$/i){
+        # This might not be accurate to accumulate but safer than ignoring it, at worst it'll lead to a higher missing block count we can correct later rather than missing this scenario entirely the number isn't included in the base missing blocks
+        $dfs{"missing_blocks"} += $1;
     } elsif(/^Datanodes available:\s*(\d+)\s*(?:\((\d+) total, (\d+) dead\))?\s*$/i){
         $dfs{"datanodes_available"} = $1;
         $dfs{"datanodes_total"}     = $2 if defined($2);
