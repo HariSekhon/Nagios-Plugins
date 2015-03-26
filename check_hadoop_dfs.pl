@@ -173,7 +173,7 @@ foreach(@output){
         $dfs{"corrupt_blocks"} = $1;
     } elsif(/^Missing blocks:\s*(\d+)\s*$/i){
         $dfs{"missing_blocks"} += $1;
-    } elsif(/^Missing blocks\(with replication factor\s\d+\):\s*(\d+)\s*$/i){
+    } elsif(/^Missing blocks\s*\(with replication factor\s\d+\):\s*(\d+)\s*$/i){
         # This might not be accurate to accumulate but safer than ignoring it, at worst it'll lead to a higher missing block count we can correct later rather than missing this scenario entirely the number isn't included in the base missing blocks
         $dfs{"missing_blocks"} += $1;
     } elsif(/^Datanodes available:\s*(\d+)\s*(?:\((\d+) total, (\d+) dead\))?\s*$/i){
