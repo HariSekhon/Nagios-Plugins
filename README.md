@@ -100,11 +100,11 @@ I've tried to keep the quality here high so a lot of plugins I've written over t
 
 I'm aware of Nagios::Plugin but my library has a lot more utility functions in it and I've written it to be highly convenient for me to develop with.
 
-###### Legacy ######
+###### Older Plugins ######
 
-Some older plugins (especially those written in languages other than Perl) may not adhere to all of the criteria above so most have been filed away under the legacy/ directory (they were used by people out there in production so I didn't want to remove them entirely). Legacy plugins also indicate that I haven't run or made updates to them in a few years so those may require tweaks and updates.
+Some older plugins (especially those written in languages other than Perl) may not adhere to all of the criteria above so most have been filed away under the older/ directory (they were used by people out there in production so I didn't want to remove them entirely). Older plugins also indicate that I haven't run or made updates to them in a few years so those may require tweaks and updates.
 
-If you're new remember to check out the legacy/ directory for more plugins that are less current but that you might find useful.
+If you're new remember to check out the older/ directory for more plugins that are less current but that you might find useful.
 
 ### Quick Setup ###
 
@@ -198,7 +198,7 @@ and here on Max OS X:
 
 ### Other Dependencies ###
 
-Some plugins, especially ones under the legacy directory such as those that check 3ware/LSI raid controllers, SVN, VNC etc require external binaries to work, but the plugins will tell you if they are missing. Please see the respective vendor websites for 3ware, LSI etc to fetch those binaries and then re-run those plugins.
+Some plugins, especially ones under the older/ directory such as those that check 3ware/LSI raid controllers, SVN, VNC etc require external binaries to work, but the plugins will tell you if they are missing. Please see the respective vendor websites for 3ware, LSI etc to fetch those binaries and then re-run those plugins.
 
 The ```check_puppet.rb``` plugin uses Puppet's native Ruby libraries to parse the Puppet config and as such will only be run where Puppet is properly installed.
 
