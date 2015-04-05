@@ -1,4 +1,4 @@
-TODO
-====
+Nagios utils.pm plugins
+=======================
 
-Most of these plugins work with the standard Nagios utils.pm library but I intend to rewrite them to use my personal HariSekhonUtils library before I consider them release-worthy so they are currently here in purgatory.
+These plugins currently use the standard Nagios utils.pm library, but will be rewritten to use my better personal library at some point.
