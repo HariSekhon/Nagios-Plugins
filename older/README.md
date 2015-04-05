@@ -1,5 +1,5 @@
-Legacy Plugins Collection
-=========================
+Older Plugins
+=============
 
 This is an older part of the plugins collecion that I think may still be useful. I haven't run some of these in several years, most were written on Python 2.4, so they may need updating to work with newer software dependencies.
 
