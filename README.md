@@ -80,6 +80,8 @@ Several plugins have been merged together and replaced with symlinks to the unif
 
 Some plugins such as those relating to Redis and Couchbase also have different modes and expose different options when called as different program names, so those symlinks are not just cosmetic. An example of this is write replication, which exposes extra options to read from a slave after writing to the master to check that replication is 100% working.
 
+ePN optimization is not supported at this time by any of the plugins as I ran 13,000 checks per Nagios server years ago without ePN optimization - it's not worth the effort.
+
 ##### Contributions #####
 
 Patches, improvements and even general feedback are welcome in the form of GitHub pull requests and issue tickets.
