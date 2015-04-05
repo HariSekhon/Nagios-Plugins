@@ -7,4 +7,4 @@ A couple of these I used quite a lot, IIRC the check_automatic_services.wsf and 
 
 The third one check_services.wsf I don't think I ever publicly released due to not having spent enough time validating it. It's provided here for reference only. I may finish it if someone sponsors me to do so.
 
-I can't remember if I ever finished the generic services event handler either but have included it here for reference purposes only. I may finish it if someone sponsors me to do so.
+I can't remember if I ever finished the generic services event handler either but have included it here for reference purposes only.
