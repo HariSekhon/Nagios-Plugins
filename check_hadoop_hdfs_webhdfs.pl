@@ -207,7 +207,6 @@ if($write){
     $op     = "OPEN&offset=0&length=1024";
     vlog2 "reading canary file back";
     $response = $ua->get("$url$op");
-    vlog3 "$response\n";
     check_response($response);
     unless($response->content eq $canary_contents){
         quit "CRITICAL", "mismatch on reading back canary file's contents (expected: '$canary_contents', got: '" . $response->content . "')";
@@ -220,7 +219,6 @@ if($write){
 } else {
     vlog2 "GET $url$op";
     my $response = $ua->get("$url$op");
-    vlog3 "$response\n";
     check_response($response);
     my $json;
     try {
