@@ -31,10 +31,12 @@ OR
 
 If you are running NameNode HA then you should be pointing this program to the HttpFS server and not one NameNode directly to avoid hitting the Standby NameNode by mistake or requiring extra logic to determine the Active NameNode first which may take additional round trips.
 
+Support Kerberos authentication but must have a valid kerberos ticket and must use the fqdn of the server, not an IP address and not a short name, otherwise you will get a \"401 Authentication required\" error.
+
 Tested on CDH 4.5 and HDP 2.2
 ";
 
-$VERSION = "0.3.3";
+$VERSION = "0.3.4";
 
 use strict;
 use warnings;
@@ -79,7 +81,6 @@ my %file_checks = (
 
 %options = (
     %hostoptions,
-    #"u|user=s"          => [ \$user,                          "User to connect as (\$USERNAME, \$USER). Tries to determine system user running as if it doesn't find one of these environment vars)" ],
     "u|user=s"          => $useroptions{"u|user=s"},
     "w|write"           => [ \$write,                         "Write unique canary file to hdfs:///tmp to check HDFS is writable and not in Safe mode" ],
     "p|path=s"          => [ \$path,                          "File or directory to check exists in Hadoop HDFS"  ],
@@ -94,6 +95,7 @@ my %file_checks = (
     "a|last-accessed=s" => [ \$file_checks{"last accessed"},  "Last-accessed time maximum in seconds" ],
     "m|last-modified=s" => [ \$file_checks{"last modified"},  "Last-modified time maximum in seconds" ],
 );
+$options{"u|user=s"}[1] .= ". If not specified and none of those environment variables are found, tries to determine system user this program is running as. If using Kerberos must ensure this matches the keytab principal";
 
 if($progname =~ /write/i){
     $write = 1;
@@ -171,7 +173,8 @@ if($write){
     $path = $canary_file;
 }
 $path =~ s/^\///;
-my $url  = "http://$ip:$port/$webhdfs_uri/$path?user.name=$user&op="; # uppercase OP= only works on WebHDFS, not on HttpFS
+# Do not use resolved IP address here - it prevents Kerberos authentication
+my $url  = "http://$host:$port/$webhdfs_uri/$path?user.name=$user&op="; # uppercase OP= only works on WebHDFS, not on HttpFS
 
 $ua->show_progress(1) if $debug;
 
