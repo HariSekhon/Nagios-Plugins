@@ -34,7 +34,7 @@ If you are running NameNode HA then you should be pointing this program to the H
 Tested on CDH 4.5 and HDP 2.2
 ";
 
-$VERSION = "0.3.2";
+$VERSION = "0.3.3";
 
 use strict;
 use warnings;
@@ -79,6 +79,8 @@ my %file_checks = (
 
 %options = (
     %hostoptions,
+    #"u|user=s"          => [ \$user,                          "User to connect as (\$USERNAME, \$USER). Tries to determine system user running as if it doesn't find one of these environment vars)" ],
+    "u|user=s"          => $useroptions{"u|user=s"},
     "w|write"           => [ \$write,                         "Write unique canary file to hdfs:///tmp to check HDFS is writable and not in Safe mode" ],
     "p|path=s"          => [ \$path,                          "File or directory to check exists in Hadoop HDFS"  ],
     "T|type=s"          => [ \$file_checks{"type"},           "'FILE' or 'DIRECTORY' (default: 'FILE')" ],
@@ -100,7 +102,7 @@ if($progname =~ /write/i){
     delete $options{"w|write"};
 }
 
-@usage_order = qw/host port write path type owner group permission zero size blocksize replication last-accessed last-modified/;
+@usage_order = qw/host port user write path type owner group permission zero size blocksize replication last-accessed last-modified/;
 get_options();
 
 $host = validate_host($host);
@@ -151,15 +153,18 @@ set_timeout();
 
 $status = "UNKNOWN";
 
-my $webhdfs_uri = 'webhdfs/v1';
-my $ip  = validate_resolvable($host);
-vlog2 "resolved $host to $ip\n";
-
 # inherit HADOOP*_USERNAME, HADOOP*_USER vars as more flexible
 $user = (getpwuid($>))[0] unless $user;
 if(not $user or $user =~ /&/){
     quit "UNKNOWN", "couldn't determine user to send to NameNode from environment variables (\$USER, \$USERNAME) or getpwuid() call";
 }
+vlog_options "user", $user;
+vlog2;
+
+my $webhdfs_uri = 'webhdfs/v1';
+my $ip  = validate_resolvable($host);
+vlog2 "resolved $host to $ip\n";
+
 my $op = "GETFILESTATUS";
 if($write){
     $op   = "CREATE&overwrite=false";
