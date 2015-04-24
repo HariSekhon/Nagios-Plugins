@@ -29,10 +29,12 @@ OR
 
 - HDFS writable - writes a small unique canary file to hdfs:///tmp to check that HDFS is fully available and not in Safe mode (implies enough DataNodes have checked in after startup to achieve 99.9% block availability by default). Deletes the canary file as part of the test to avoid build up of small files.
 
-Tested on CDH 4.5
+If you are running NameNode HA then you should be pointing this program to the HttpFS server and not one NameNode directly to avoid hitting the Standby NameNode by mistake or requiring extra logic to determine the Active NameNode first which may take additional round trips.
+
+Tested on CDH 4.5 and HDP 2.2
 ";
 
-$VERSION = "0.3.1";
+$VERSION = "0.3.2";
 
 use strict;
 use warnings;
@@ -142,15 +144,22 @@ if($write){
     foreach(sort keys %file_checks){
         vlog_options $_, $file_checks{$_} if defined($file_checks{$_});
     }
-
 }
+
+vlog2;
+set_timeout();
+
+$status = "UNKNOWN";
 
 my $webhdfs_uri = 'webhdfs/v1';
 my $ip  = validate_resolvable($host);
-vlog2 "\nresolved $host to $ip";
+vlog2 "resolved $host to $ip\n";
 
 # inherit HADOOP*_USERNAME, HADOOP*_USER vars as more flexible
-#my $user = (getpwuid($>))[0];
+$user = (getpwuid($>))[0] unless $user;
+if(not $user or $user =~ /&/){
+    quit "UNKNOWN", "couldn't determine user to send to NameNode from environment variables (\$USER, \$USERNAME) or getpwuid() call";
+}
 my $op = "GETFILESTATUS";
 if($write){
     $op   = "CREATE&overwrite=false";
@@ -158,11 +167,6 @@ if($write){
 }
 $path =~ s/^\///;
 my $url  = "http://$ip:$port/$webhdfs_uri/$path?user.name=$user&op="; # uppercase OP= only works on WebHDFS, not on HttpFS
-
-vlog2;
-set_timeout();
-
-$status = "UNKNOWN";
 
 $ua->show_progress(1) if $debug;
 
@@ -195,6 +199,7 @@ sub check_response($){
 
 if($write){
     vlog2 "writing canary file '$canary_file'";
+    vlog2 "PUT $url$op";
     my $response = $ua->put("$url$op", Content => $canary_contents, "Content-Type" => "application/octet-stream");
     check_response($response);
     $status = "OK";
@@ -202,6 +207,7 @@ if($write){
     $op     = "OPEN&offset=0&length=1024";
     vlog2 "reading canary file back";
     $response = $ua->get("$url$op");
+    vlog3 "$response\n";
     check_response($response);
     unless($response->content eq $canary_contents){
         quit "CRITICAL", "mismatch on reading back canary file's contents (expected: '$canary_contents', got: '" . $response->content . "')";
@@ -212,7 +218,9 @@ if($write){
     $response = $ua->delete("$url$op");
     check_response($response);
 } else {
+    vlog2 "GET $url$op";
     my $response = $ua->get("$url$op");
+    vlog3 "$response\n";
     check_response($response);
     my $json;
     try {
