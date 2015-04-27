@@ -24,7 +24,7 @@ Requirements:
 - kinit command in standard system path
 ";
 
-$VERSION = "0.4";
+$VERSION = "0.4.2";
 
 use strict;
 use warnings;
@@ -155,6 +155,7 @@ foreach(@output){
     }
 }
 
-$msg = "$principal TGT validated";
+$msg = "Kerberos TGT validated for principal '$principal'";
+$msg .= " with keytab '$keytab'" if $verbose;
 
 quit $status, $msg;
