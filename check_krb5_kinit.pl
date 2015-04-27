@@ -151,7 +151,7 @@ foreach(@output){
     /(\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\d{4})\s+(\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\d{4})\s+krbtgt\/$domain_regex\@$domain_regex/i
         or quit "CRITICAL", "unrecognized line: '$_'. $nagios_plugins_support_msg";
     if($1 eq $2){
-        quit "CRITICAL", "TGT start and expiry are the same (misconfiguration of the kerberos principal in the KDC?)";
+        quit "CRITICAL", "TGT start and expiry are the same (misconfiguration of the kerberos principal '$principal' in the KDC while requesting renewable ticket?)";
     }
 }
 
