@@ -147,7 +147,7 @@ foreach(@output){
     /^\s*Issued\s+Expires\s+Principal\s*$/i or
     /^\s*renew until/i
     );
-    /(\d{2}\/\d{2}\/\d{2}\s+\d{2}:\d{2}:\d{2})\s+(\d{2}\/\d{2}\/\d{2}\s+\d{2}:\d{2}:\d{2})\s+krbtgt\/$domain_regex\@$domain_regex/i or
+    /(\d{2}\/\d{2}\/\d{2,4}\s+\d{2}:\d{2}:\d{2})\s+(\d{2}\/\d{2}\/\d{2,4}\s+\d{2}:\d{2}:\d{2})\s+krbtgt\/$domain_regex\@$domain_regex/i or
     /(\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\d{4})\s+(\w{3}\s+\d{1,2}\s+\d{2}:\d{2}:\d{2}\s+\d{4})\s+krbtgt\/$domain_regex\@$domain_regex/i
         or quit "CRITICAL", "unrecognized line: '$_'. $nagios_plugins_support_msg";
     if($1 eq $2){
