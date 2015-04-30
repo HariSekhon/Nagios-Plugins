@@ -6,9 +6,17 @@
 #
 
 ifdef TRAVIS
-	SUDO =
+    SUDO2 =
 else
-	SUDO = sudo
+    SUDO2 = sudo
+endif
+
+# EUID /  UID not exported in Make
+ifeq '$(USER)' 'root'
+    SUDO =
+    SUDO2 =
+else
+    SUDO = sudo
 endif
 
 .PHONY: make
@@ -54,7 +62,7 @@ make:
 	# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
 	# Redis module required but didn't auto-pull: ExtUtils::Config ExtUtils::Helpers ExtUtils::InstallPaths TAP::Harness::Env Module::Build::Tiny Sub::Name
 	# Kafka module required but didn't auto-pull: ExtUtils::Config, ExtUtils::Helpers, ExtUtils::InstallPaths, TAP::Harness::Env, Module::Build::Tiny, Sub::Exporter::Progressive, Const::Fast, Exporter::Tiny, List::MoreUtils, Devel::CheckLib, Compress::Snappy, Sub::Name
-	yes "" | $(SUDO) cpan \
+	yes "" | $(SUDO2) cpan \
 		Class:Accessor \
 		Compress::Snappy \
 		Const::Fast \
@@ -108,45 +116,45 @@ make:
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
 	easy_install -U setuptools || :
-	sudo easy_install pip || :
+	$(SUDO) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
-	sudo pip install cassandra-driver scales blist lz4 python-snappy || :
+	$(SUDO) pip install cassandra-driver scales blist lz4 python-snappy || :
 	
 	# install MySQLdb python module for check_logserver.py / check_syslog_mysql.py
 	# fails if MySQL isn't installed locally
-	#sudo pip install MySQLdb
+	#$(SUDO) pip install MySQLdb
 
 
 .PHONY: apt-packages
 apt-packages:
 	# needed to fetch and build CPAN modules and fetch the library submodule at end of build
-	dpkg -l build-essential libwww-perl git &>/dev/null || sudo apt-get install -y build-essential libwww-perl git || :
+	dpkg -l build-essential libwww-perl git &>/dev/null || $(SUDO) apt-get install -y build-essential libwww-perl git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	dpkg -l libdbd-mysql-perl libmysqlclient-dev &>/dev/null || sudo apt-get install -y libdbd-mysql-perl libmysqlclient-dev || :
+	dpkg -l libdbd-mysql-perl libmysqlclient-dev &>/dev/null || $(SUDO) apt-get install -y libdbd-mysql-perl libmysqlclient-dev || :
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	dpkg -l libssl-dev &>/dev/null || sudo apt-get install -y libssl-dev || :
+	dpkg -l libssl-dev &>/dev/null || $(SUDO) apt-get install -y libssl-dev || :
 	# for XML::Simple building
-	dpkg -l libexpat1-dev &>/dev/null || sudo apt-get install -y libexpat1-dev || :
+	dpkg -l libexpat1-dev &>/dev/null || $(SUDO) apt-get install -y libexpat1-dev || :
 	# for check_whois.pl
-	dpkg -l jwhois &>/dev/null || sudo apt-get install -y jwhois || :
+	dpkg -l jwhois &>/dev/null || $(SUDO) apt-get install -y jwhois || :
 	# TODO: for LWP::Authenticate - prompts for realm + KDC, doesn't seem automatable and not properly tested yet
 	#apt-get install -y krb5-config || :
 	# for Cassandra's Python driver
-	dpkg -l python-setuptools python-dev libev4 libev-dev libsnappy-dev &>/dev/null || sudo apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev || :
+	dpkg -l python-setuptools python-dev libev4 libev-dev libsnappy-dev &>/dev/null || $(SUDO) apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev || :
 
 .PHONY: yum-packages
 yum-packages:
-	rpm -q gcc perl-CPAN perl-libwww-perl git || sudo yum install -y gcc perl-CPAN perl-libwww-perl git || :
+	rpm -q gcc perl-CPAN perl-libwww-perl git || $(SUDO) yum install -y gcc perl-CPAN perl-libwww-perl git || :
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	rpm -q perl-DBD-MySQL mysql-devel || sudo yum install -y perl-DBD-MySQL mysql-devel || :
+	rpm -q perl-DBD-MySQL mysql-devel || $(SUDO) yum install -y perl-DBD-MySQL mysql-devel || :
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	rpm -q openssl-devel || sudo yum install -y openssl-devel || :
+	rpm -q openssl-devel || $(SUDO) yum install -y openssl-devel || :
 	# for XML::Simple building
-	rpm -q expat-devel || sudo yum install -y expat-devel || :
+	rpm -q expat-devel || $(SUDO) yum install -y expat-devel || :
 	# for check_whois.pl
-	rpm -q jwhois || sudo yum install -y jwhois || :
+	rpm -q jwhois || $(SUDO) yum install -y jwhois || :
 	# for Cassandra's Python driver
-	rpm -q python-setuptools python-devel libev libev-devel libsnappy-devel || sudo yum install -y python-setuptools python-devel libev libev-devel libsnappy-devel || :
+	rpm -q python-setuptools python-devel libev libev-devel libsnappy-devel || $(SUDO) yum install -y python-setuptools python-devel libev libev-devel libsnappy-devel || :
 
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
@@ -157,10 +165,10 @@ zookeeper:
 	[ -d zookeeper-$(ZOOKEEPER_VERSION) ] || tar zxvf zookeeper-$(ZOOKEEPER_VERSION).tar.gz
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				./configure
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				make
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				sudo make install
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				$(SUDO) make install
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	perl Makefile.PL --zookeeper-include=/usr/local/include/zookeeper --zookeeper-lib=/usr/local/lib
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	LD_RUN_PATH=/usr/local/lib make
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	sudo make install
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	$(SUDO) make install
 	perl -e "use Net::ZooKeeper"
 
 
