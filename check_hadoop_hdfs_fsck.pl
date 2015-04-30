@@ -20,7 +20,7 @@ Checks the status of the HDFS FSCK output and optionally one of the following ag
 
 In order to constrain the runtime of this plugin you must run the Hadoop FSCK separately and have this plugin check the output file results. Recommend you do not use any extra switches as it'll enlarge the output and slow down this result parsing plugin's execution time.
 
-hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && mv /tmp/hdfs-fsck.log
+hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && mv /tmp/hdfs-fsck.log.tmp /tmp/hdfs-fsck.log
 
 ./check_hadoop_fsck.pl -f /tmp/hdfs-fsck.log
 
