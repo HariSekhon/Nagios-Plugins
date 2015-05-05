@@ -10,7 +10,7 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-our $DESCRIPTION = "Nagios Plugin to check the stats for a given Elasticsearch index or all indices if no specific index given
+$DESCRIPTION = "Nagios Plugin to check the stats for a given Elasticsearch index or all indices if no specific index given
 
 - Can fetch one or more given stats (fetches all stats for 'total' if none are given)
 - Optional --warning/--critical threshold ranges may be applied if specifying only one stat
@@ -43,8 +43,6 @@ my $expected_value;
     #"shorten"   => [ \$shorten,        "Shorten key names using sections: instead of duplicating the full stat key name prefixes for every stat" ],
     %thresholdoptions,
 );
-
-#$DESCRIPTION =~ s/ or all.*// if $progname =~ /index/;
 
 get_options();
 
