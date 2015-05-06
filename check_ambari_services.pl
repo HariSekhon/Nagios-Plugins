@@ -18,10 +18,11 @@ or
 - a given service's state
 
 - optionally suppresses alerts in maintenance mode if using the switch --maintenance-ok
+- reports but does not raise critical for components which do not have running states such as HCatalog, Kerberos, Pig, Slider, Sqoop, Tez
 
-Tested on Ambari 1.4.4 / 1.6.1 on Hortonworks HDP 2.0 and 2.1";
+Tested on Ambari 1.4.4 / 1.6.1 / 1.7.0 / 2.0.0 on Hortonworks HDP 2.0, 2.1, 2.2";
 
-$VERSION = "0.6.3";
+$VERSION = "0.6.4";
 
 use strict;
 use warnings;
@@ -33,6 +34,16 @@ use HariSekhonUtils;
 use HariSekhon::Ambari;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
+
+# moved this up here for you users to easily add to as Ambari keeps adding components, if you just add it to this list it won't raise critical
+my @services_to_not_alert_on = qw(
+                                    HCatalog
+                                    Kerberos
+                                    Pig
+                                    Slider
+                                    Sqoop
+                                    Tez
+                                 );
 
 my $service_state       = 0;
 my $all_service_states  = 0;
@@ -82,8 +93,7 @@ sub get_service_state($){
         # ok
         $service_state = lc $service_state;
     } elsif($service_state eq "INSTALLED"){
-        # This depends on the capitalization from hadoop_service_name
-        if(grep { $service_name eq $_ } qw/HCatalog Pig Slider Sqoop Tez/){
+        if(grep { lc($service_name) eq lc($_) } @services_to_not_alert_on){
             #ok
             $service_state = lc $service_state;
         } else {
@@ -101,6 +111,7 @@ sub get_service_state($){
     }
     $msg .= "$service_name=$service_state";
     if($verbose){
+        $maintenance_state = lc $maintenance_state if $maintenance_state eq "OFF";
         $msg .= " (maintenance=$maintenance_state)";
     }
     return $msg;
