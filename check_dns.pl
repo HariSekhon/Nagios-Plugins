@@ -9,11 +9,13 @@
 #  License: see accompanying LICENSE file
 #
 
+my @valid_types = qw/A MX NS PTR SOA SRV TXT/;
+
 $DESCRIPTION = "Nagios Plugin to test a DNS record
 
 Primarily written to check things like NS and MX records for domains which the standard check_dns Nagios plugin can't do.
 
-Also supports A, PTR, SOA, SRV and TXT records";
+Full list of supported record types: " . join(", ", @valid_types);
 
 # TODO: root name servers switch, determine root name servers for the specific TLD and go straight to them to bypass intermediate caching
 
@@ -40,8 +42,6 @@ my $expected_result;
 my $expected_regex;
 my $expected_regex2;
 my $no_uniq_results;
-
-my @valid_types = qw/A MX NS PTR SOA SRV TXT/;
 
 %options = (
     "s|server=s"            => [ \$server,          "DNS server(s) to query, can be a comma separated list of servers" ],
