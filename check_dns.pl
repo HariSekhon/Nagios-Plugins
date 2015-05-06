@@ -72,7 +72,7 @@ vlog_options "type",   $type;
 
 my @expected_results;
 if($expected_result){
-    @expected_results = sort split(/\s,\s/,   $expected_result);
+    @expected_results = sort split(/\s*,\s*/,   $expected_result);
     if($type eq "A"){
         foreach(@expected_results){
             isIP($_) or usage "invalid expected result '$_' for A record, should be an IP address";
