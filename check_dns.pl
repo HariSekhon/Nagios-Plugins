@@ -16,7 +16,7 @@ which the standard check_dns Nagios plugin can't do";
 
 # TODO: root name servers switch, determine root name servers for the specific TLD and go straight to them to bypass intermediate caching
 
-$VERSION = "0.7.3";
+$VERSION = "0.8.0";
 
 use strict;
 use warnings;
@@ -27,6 +27,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use Data::Dumper;
 
 $status_prefix = "DNS";
 my $default_type = "A";
@@ -40,7 +41,7 @@ my $expected_regex2;
 my $no_uniq_results;
 
 # TODO: add SRV support
-my @valid_types = qw/A MX NS PTR TXT/;
+my @valid_types = qw/A MX NS PTR TXT SOA/;
 
 %options = (
     "s|server=s"            => [ \$server,          "DNS server(s) to query, can be a comma separated list of servers" ],
@@ -71,7 +72,7 @@ vlog_options "type",   $type;
 
 my @expected_results;
 if($expected_result){
-    @expected_results = sort split(/\s*,\s*/, $expected_result);
+    @expected_results = sort split(/\s,\s/,   $expected_result);
     if($type eq "A"){
         foreach(@expected_results){
             isIP($_) or usage "invalid expected result '$_' for A record, should be an IP address";
@@ -109,13 +110,17 @@ my $start = time;
 my $query = $res->query($record, $type);
 my $stop  = time;
 my $total_time = sprintf("%.4f", $stop - $start);
-$query or quit "CRITICAL", "query returned with no answer from servers " . join(",", @servers) . " in $total_time secs";
+vlog2;
+plural @servers;
+$query or quit "CRITICAL", "query returned with no answer from server$plural " . join(",", @servers) . " in $total_time secs" . ( $verbose ? " for record '$record' type '$type'" : "");
 vlog2 "query returned in $total_time secs";
-my $perfdata = "| dns_query_time='${total_time}s'";
+my $perfdata = " | dns_query_time='${total_time}s'";
 
+vlog3 "returned records:\n";
 foreach my $rr ($query->answer){
+    vlog3 Dumper($rr);
     my $result;
-     if($rr->type eq "A"){
+    if($rr->type eq "A"){
         $result = $rr->address;
     } elsif($rr->type eq "CNAME"){
         $result = $rr->cname;
@@ -128,14 +133,18 @@ foreach my $rr ($query->answer){
         $result = $rr->ptrdname;
     } elsif($rr->type eq "TXT"){
         $result = $rr->txtdata;
+    } elsif($rr->type eq "SOA"){
+        $result = $rr->serial;
     } else {
         quit "UNKNOWN", "unknown/unsupported record type '$rr->type' returned for record '$record'";
     }
-    vlog2 "got result: $result";
+    vlog2 "got result: $result\n";
     if($type eq "A"){
         isIP($result) or quit "CRITICAL", "invalid result '$result' returned for A record by DNS server, expected IP address for A record$perfdata";
-    } elsif(grep($type, qw/CNAME MX NS PTR/)){
-        isFqdn($result) or quit "CRITICAL", "invalid result '$result' returned by DNS server, expected FQDN for this record type$perfdata";
+    } elsif(grep { $type eq $_ } qw/CNAME MX NS PTR/){
+        isFqdn($result) or quit "CRITICAL", "invalid result '$result' returned " . ($verbose ? "for record '$record' type '$type' ": "") . "by DNS server, expected FQDN for this record type$perfdata";
+    } elsif($type eq "SOA"){
+        isInt($result) or quit "CRITICAL", "invalid serial result '$result' returned for SOA record " . ($verbose ? "'$record' ": "") . "by DNS server, expected an unsigned integer$perfdata";
     }
     push(@results, $result);
     if(@expected_results){
@@ -173,6 +182,8 @@ if(scalar @rogue_results or scalar @missing_results){
 } elsif(scalar @regex_mismatches){
     critical;
     $msg .= "regex validation failed on '" . join(",", @regex_mismatches) . "' against regex '$expected_regex', returns '";
+} elsif($type eq "SOA"){
+    $msg .= "return serial '";
 } else {
     $msg .= "returns '";
 }
