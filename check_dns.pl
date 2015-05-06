@@ -26,7 +26,7 @@ BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
-use HariSekhonUtils;
+use HariSekhonUtils qw/:DEFAULT :regex/;
 use Data::Dumper;
 
 $status_prefix = "DNS";
@@ -40,8 +40,7 @@ my $expected_regex;
 my $expected_regex2;
 my $no_uniq_results;
 
-# TODO: add SRV support
-my @valid_types = qw/A MX NS PTR TXT SOA/;
+my @valid_types = qw/A MX NS PTR SOA SRV TXT/;
 
 %options = (
     "s|server=s"            => [ \$server,          "DNS server(s) to query, can be a comma separated list of servers" ],
@@ -63,6 +62,8 @@ foreach(@servers){
 grep($type, @valid_types) or usage "unsupport type '$type' given, must be one of: " . join(",", @valid_types);
 if($type eq "PTR"){
     $record = isIP($record) or usage "invalid record given for type PTR, should be an IP";
+} elsif($type eq "SRV"){
+    $record =~ /^[A-Za-z_\.-]+\.$domain_regex/ or usage "invalid record given for type SRV, must contain only alphanumeric, underscores, dashes followed by a valid domain name format";
 } else {
     $record = isDomain($record) or isFqdn($record) or usage "invalid record given, should be a domain or fully qualified host name";
 }
@@ -131,17 +132,19 @@ foreach my $rr ($query->answer){
         $result = $rr->nsdname;
     } elsif($rr->type eq "PTR"){
         $result = $rr->ptrdname;
-    } elsif($rr->type eq "TXT"){
-        $result = $rr->txtdata;
     } elsif($rr->type eq "SOA"){
         $result = $rr->serial;
+    } elsif($rr->type eq "SRV"){
+        $result = $rr->target;
+    } elsif($rr->type eq "TXT"){
+        $result = $rr->txtdata;
     } else {
         quit "UNKNOWN", "unknown/unsupported record type '$rr->type' returned for record '$record'";
     }
     vlog2 "got result: $result\n";
     if($type eq "A"){
         isIP($result) or quit "CRITICAL", "invalid result '$result' returned for A record by DNS server, expected IP address for A record$perfdata";
-    } elsif(grep { $type eq $_ } qw/CNAME MX NS PTR/){
+    } elsif(grep { $type eq $_ } qw/CNAME MX NS PTR SRV/){
         isFqdn($result) or quit "CRITICAL", "invalid result '$result' returned " . ($verbose ? "for record '$record' type '$type' ": "") . "by DNS server, expected FQDN for this record type$perfdata";
     } elsif($type eq "SOA"){
         isInt($result) or quit "CRITICAL", "invalid serial result '$result' returned for SOA record " . ($verbose ? "'$record' ": "") . "by DNS server, expected an unsigned integer$perfdata";
