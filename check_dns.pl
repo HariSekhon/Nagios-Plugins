@@ -11,8 +11,9 @@
 
 $DESCRIPTION = "Nagios Plugin to test a DNS record
 
-Primarily written to check things like NS and MX records for domains
-which the standard check_dns Nagios plugin can't do";
+Primarily written to check things like NS and MX records for domains which the standard check_dns Nagios plugin can't do.
+
+Also supports normal A records, PTR, SOA, SRV, TXT records";
 
 # TODO: root name servers switch, determine root name servers for the specific TLD and go straight to them to bypass intermediate caching
 
