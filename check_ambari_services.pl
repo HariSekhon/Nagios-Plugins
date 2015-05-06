@@ -35,7 +35,14 @@ use HariSekhon::Ambari;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-# moved this up here for you users to easily add to as Ambari keeps adding components, if you just add it to this list it won't raise critical
+# Services without running components to exclude from raising critical (still output though) i
+#
+# I've moved this to the top for you users to easily add to as Ambari keeps adding components, if you just add it to this list below it won't raise critical
+#
+# Please raise a github ticket or even better submit a patch via a github pull request if you add to this list:
+#
+# https://github.com/harisekhon/nagios-plugins/issues
+#
 my @services_to_not_alert_on = qw(
                                     HCatalog
                                     Kerberos
