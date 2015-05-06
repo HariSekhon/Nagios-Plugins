@@ -198,9 +198,9 @@ $msg .= $perfdata;
 
 my $extended_command = dirname $progname;
 $extended_command .= "/$progname -s $server -r $record -q $type";
-$extended_command .= " -e $expected_result" if $expected_result;
+$extended_command .= " -e $expected_result"  if $expected_result;
 $extended_command .= " -R '$expected_regex'" if $expected_regex;
-$extended_command .= " -t $timeout"   if($timeout ne $timeout_default);
+$extended_command .= " -t $timeout"          if($timeout ne $timeout_default);
 vlog3 "\nextended command: $extended_command\n\n";
 
 quit $status, $msg;
