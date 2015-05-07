@@ -1,9 +1,9 @@
 Advanced Nagios Plugins Collection [![Build Status](https://travis-ci.org/harisekhon/nagios-plugins.svg?branch=master)](https://travis-ci.org/harisekhon/nagios-plugins)
 ==================================
 
-Largest and most advanced collection of unified Nagios monitoring code in the wild.
+Largest and most advanced collection of unified production-grade Nagios monitoring code in the wild.
 
-Largest collection of Hadoop & NoSQL monitoring code for Nagios, written by a former Clouderan (Cloudera was the first Hadoop Big Data vendor).
+Largest collection of Hadoop & NoSQL monitoring code, written by a former Clouderan (Cloudera was the first Hadoop Big Data vendor).
 
 Hadoop and extensive API integration with all major Hadoop vendors (Hortonworks, Cloudera, MapR, IBM).
 
