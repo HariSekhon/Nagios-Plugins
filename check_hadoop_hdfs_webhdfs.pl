@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #  
 
-$DESCRIPTION = "Nagios Plugin to check HDFS files/directories or writable via WebHDFS API or HttpFS server
+our $DESCRIPTION = "Nagios Plugin to check HDFS files/directories or writable via WebHDFS API or HttpFS server
 
 Checks:
 
@@ -25,16 +25,14 @@ Checks:
 
 OR
 
-- HDFS writable - writes a small unique canary file to hdfs:///tmp to check that HDFS is fully available and not in Safe mode (implies enough DataNodes have checked in after startup to achieve 99.9% block availability by default). Deletes the canary file as part of the test to avoid build up of small files.
+- HDFS writable - writes a small unique canary file to hdfs:///tmp to check that HDFS is fully available and not in Safe mode (implies enough DataNodes have checked in after startup to achieve 99.9% block availability by default). Deletes the canary file as part of the test to avoid build up of small files. However, if the operation times out on read back or delete then small files will be left in HDFS /tmp, so you should run a periodic cleanup of those (see hadoop_hdfs_retention_policy.pl in https://github.com/harisekhon/toolbox).
 
-If you are running NameNode HA then you should be pointing this program to the HttpFS server and not one NameNode directly to avoid hitting the Standby NameNode by mistake or requiring extra logic to determine the Active NameNode first which may take additional round trips.
-
-Support Kerberos authentication but must have a valid kerberos ticket and must use the fqdn of the server, not an IP address and not a short name, otherwise you will get a \"401 Authentication required\" error.
+Supports Kerberos authentication but must have a valid kerberos ticket and must use the FQDN of the server, not an IP address and not a short name, otherwise you will get a \"401 Authentication required\" error.
 
 Tested on CDH 4.5 and HDP 2.2
 ";
 
-$VERSION = "0.3.4";
+$VERSION = "0.5.0";
 
 use strict;
 use warnings;
@@ -94,6 +92,15 @@ my %file_checks = (
     "m|last-modified=s" => [ \$file_checks{"last modified"},  "Last-modified time maximum in seconds" ],
 );
 $options{"u|user=s"}[1] .= ". If not specified and none of those environment variables are found, tries to determine system user this program is running as. If using Kerberos must ensure this matches the keytab principal";
+$options{"H|host=s"}[1] .= ". Must use FQDN if using Kerberos";
+if($progname =~ /webhdfs/i){
+    $DESCRIPTION =~ s/Tested on/Supports NameNode HA if specifying more than one NameNode will work like the standard HDFS client and failover to the other instead of returning errors such as \"403 Forbidden: org.apache.hadoop.ipc.StandbyException: Operation category READ is not supported in state standby\". This however is not the optimal method as it results in 2 network round trips in case the first attempted NameNode is not the Active one (this is how HDFS client works too) and may extend the runtime of this plugin, making it more likely to time out.
+
+In a NameNode HA configuration it's more correct to run an HttpFS server as a WebHDFS frontend and specify that as the --host instead - it's the same protocol but on a different port. The HttpFS server then handles the failover upstream resulting in fewer network trips for this plugin making it less likely to time out.
+
+Tested on/;
+    $options{"H|host=s"}[1] .= ". Can specify both NameNodes in HDFS HA setup comma delimited to avoid \"Operation category READ is not supported in state standby\" type errors. However this can result in 2 round trips and it is more efficient to use an HttpFS server instead";
+}
 
 if($progname =~ /write/i){
     $write = 1;
@@ -105,7 +112,16 @@ if($progname =~ /write/i){
 @usage_order = qw/host port user write path type owner group permission zero size blocksize replication last-accessed last-modified/;
 get_options();
 
-$host = validate_host($host);
+my @hosts;
+if($progname =~ /webhdfs/i and $host =~ /,/){
+    @hosts = split(/\s*,\s*/, $host);
+    foreach(my $i = 0; $i < scalar @hosts; $i++){
+        $hosts[$i] = validate_host($hosts[$i]);
+    }
+    @hosts = uniq_array2 @hosts;
+} else {
+    $hosts[0] = validate_host($host);
+}
 $port = validate_port($port);
 
 my $canary_file;
@@ -119,6 +135,7 @@ if($write){
     if($path){
         usage "cannot specify --path with --write";
     }
+    $path = $canary_file;
     foreach(keys %file_checks){
         next if $_ eq "type";
         $file_checks{$_} and usage "cannot specify file checks with --write";
@@ -151,7 +168,7 @@ if($write){
 vlog2;
 set_timeout();
 
-$status = "UNKNOWN";
+$status = "OK";
 
 # inherit HADOOP*_USERNAME, HADOOP*_USER vars as more flexible
 $user = (getpwuid($>))[0] unless $user;
@@ -162,19 +179,20 @@ vlog_options "user", $user;
 vlog2;
 
 my $webhdfs_uri = 'webhdfs/v1';
-my $ip  = validate_resolvable($host);
-vlog2 "resolved $host to $ip\n";
-
-my $op = "GETFILESTATUS";
-if($write){
-    $op   = "CREATE&overwrite=false";
-    $path = $canary_file;
+foreach my $host (@hosts){
+    my $ip  = validate_resolvable($host);
+    vlog2 "resolved $host to $ip";
 }
+vlog2;
+
 $path =~ s/^\///;
-# Do not use resolved IP address here - it prevents Kerberos authentication
-my $url  = "http://$host:$port/$webhdfs_uri/$path?user.name=$user&op="; # uppercase OP= only works on WebHDFS, not on HttpFS
+my $url_main = "$webhdfs_uri/$path?user.name=$user&op="; # uppercase OP= only works on WebHDFS, not on HttpFS
 
 $ua->show_progress(1) if $debug;
+
+my $namenode_index = 0;
+# track which namenodes we have tried so we can wrap back around rather than just incrementing $namenode_index which would miss a failover in the direction of index decrease
+my @attempted_namenodes = ( $hosts[$namenode_index] );
 
 sub check_response($){
     my $response = shift;
@@ -185,47 +203,108 @@ sub check_response($){
     vlog2 "message: " . $response->message . "\n";
     if(!$response->is_success){
         my $err = $response->code . " " . $response->message;
+        my $json;
         try {
-            my $json = decode_json($content);
-            if(defined($json->{"RemoteException"}->{"javaClassName"})){
-                if($json->{"RemoteException"}->{"javaClassName"} eq "java.io.FileNotFoundException"){
-                    $err = "";
-                } else {
-                    $err .= ": " . $json->{"RemoteException"}->{"javaClassName"};
-                }
-            }
-            if(defined($json->{"RemoteException"}->{"message"})){
-                $err .= ": " if $err;
-                $err .= $json->{"RemoteException"}->{"message"};
-            }
+            $json = decode_json($content);
         };
+        if(defined($json->{"RemoteException"}->{"javaClassName"})){
+            if($json->{"RemoteException"}->{"javaClassName"} eq "java.io.FileNotFoundException"){
+                $err = "";
+            } elsif($json->{"RemoteException"}->{"javaClassName"} eq "org.apache.hadoop.ipc.StandbyException" and scalar @attempted_namenodes < scalar @hosts){
+                foreach(my $i = 0; $i < scalar @hosts; $i++){
+                    unless(grep { $_ eq $hosts[$i] } @attempted_namenodes){
+                        $namenode_index = $i;
+                        push(@attempted_namenodes, $hosts[$namenode_index]); 
+                    }
+                }
+                vlog2 "got Standby NameNode exception, failing over to other NameNode $hosts[$namenode_index]\n";
+                return 0;
+            } else {
+                $err .= ": " . $json->{"RemoteException"}->{"javaClassName"};
+            }
+        }
+        if(defined($json->{"RemoteException"}->{"message"})){
+            $err .= ": " if $err;
+            $err .= $json->{"RemoteException"}->{"message"};
+        }
         quit "CRITICAL", $err;
     }
+    return 1;
+}
+
+# For prototype checking
+sub write_hdfs_file();
+sub read_hdfs_file();
+sub delete_hdfs_file();
+sub get_hdfs_filestatus();
+
+sub write_hdfs_file(){
+    # Do not use resolved IP address here, use originally supplied host FQDN otherwise it prevents Kerberos authentication
+    # Dynamically increment $namenode_index so we can failover and try the other NameNode
+    my $url = "http://$hosts[$namenode_index]:$port/${url_main}CREATE&overwrite=false";
+    $timeout_current_action = "writing file" . ( @attempted_namenodes > 1 ? " after failing over to other host" : "");
+    vlog2 "writing canary file '$canary_file'";
+    vlog3 "PUT $url";
+    my $response = $ua->put($url, Content => $canary_contents, "Content-Type" => "application/octet-stream");
+    unless(check_response($response)){
+        $response = write_hdfs_file();
+    }
+    return $response;
+}
+
+sub read_hdfs_file(){
+    # Do not use resolved IP address here, use originally supplied host FQDN otherwise it prevents Kerberos authentication
+    # Dynamically increment $namenode_index so we can failover and try the other NameNode
+    my $url = "http://$hosts[$namenode_index]:$port/${url_main}OPEN&offset=0&length=1024";
+    $timeout_current_action = "reading file" . ( @attempted_namenodes > 1 ? " after failing over to other host" : "");
+    vlog3 "GET $url";
+    my $response = $ua->get($url);
+    unless(check_response($response)){
+        $response = read_hdfs_file();
+    }
+    return $response;
+}
+
+sub delete_hdfs_file(){
+    # Do not use resolved IP address here, use originally supplied host FQDN otherwise it prevents Kerberos authentication
+    # Dynamically increment $namenode_index so we can failover and try the other NameNode
+    my $url = "http://$hosts[$namenode_index]:$port/${url_main}DELETE&recursive=false";
+    $timeout_current_action = "deleting file" . ( @attempted_namenodes > 1 ? " after failing over to other host" : "");
+    vlog3 "DELETE $url";
+    my $response = $ua->delete($url);
+    unless(check_response($response)){
+        $response = delete_hdfs_file();
+    }
+    return $response;
+}
+
+sub get_hdfs_filestatus(){
+    # Do not use resolved IP address here, use originally supplied host FQDN otherwise it prevents Kerberos authentication
+    # Dynamically increment $namenode_index so we can failover and try the other NameNode
+    my $url = "http://$hosts[$namenode_index]:$port/${url_main}GETFILESTATUS";
+    $timeout_current_action = "getting " . (lc($file_checks{"type"}) || "path") . " status" . ( @attempted_namenodes > 1 ? " after failing over to other host" : "");
+    vlog3 "GET $url";
+    my $response = $ua->get($url);
+    unless(check_response($response)){
+        $response = get_hdfs_filestatus();
+    }
+    return $response;
 }
 
 if($write){
-    vlog2 "writing canary file '$canary_file'";
-    vlog2 "PUT $url$op";
-    my $response = $ua->put("$url$op", Content => $canary_contents, "Content-Type" => "application/octet-stream");
-    check_response($response);
-    $status = "OK";
-    $msg    = "HDFS canary file written";
-    $op     = "OPEN&offset=0&length=1024";
+    my $response = write_hdfs_file();
+    $msg = "HDFS canary file written";
     vlog2 "reading canary file back";
-    $response = $ua->get("$url$op");
-    check_response($response);
+    $response = read_hdfs_file();
     unless($response->content eq $canary_contents){
         quit "CRITICAL", "mismatch on reading back canary file's contents (expected: '$canary_contents', got: '" . $response->content . "')";
     }
     $msg .= ", contents read back and verified successfully";
-    $op   = "DELETE&recursive=false";
     vlog2 "deleting canary file";
-    $response = $ua->delete("$url$op");
-    check_response($response);
+    $response = delete_hdfs_file();
 } else {
-    vlog2 "GET $url$op";
-    my $response = $ua->get("$url$op");
-    check_response($response);
+    vlog2 "getting " . (lc($file_checks{"type"}) || "path");
+    my $response = get_hdfs_filestatus();
     my $json;
     try {
         $json = decode_json($response->content);
