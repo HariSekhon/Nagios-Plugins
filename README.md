@@ -17,6 +17,7 @@ These programs can also be run standalone on the command line as tools and used 
 
 I also take suggestions for interesting new plugins or those involving interesting open source technologies.
 
+Github pull requests for patches and features are more than welcome.
 
 Hari Sekhon
 
