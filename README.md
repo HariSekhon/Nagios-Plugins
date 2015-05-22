@@ -227,7 +227,7 @@ Just make sure to install the Perl CPAN modules listed above first as some plugi
 
 ### Further Utilities ###
 
-Check out the adjacent ToolBox repo https://github.com/harisekhon/toolbox for other useful tools such as Hadoop HDFS per block read performance + location debugging (hadoop_hdfs_time_block_reads.jy), watch_url.pl for debugging load balanced web farms, tools for Ambari, Pig, Spark, Elasticsearch, Solr, SQL/Hive/MySQL/Cassandra/Neo4j code reCasing, scrub.pl output anonymizer for posting debug outputs with hostnames and IPs stripped out etc...
+Check out the adjacent ToolBox repo https://github.com/harisekhon/toolbox for other useful tools such as Hadoop HDFS per block read performance + location debugging (```hadoop_hdfs_time_block_reads.jy```), ```watch_url.pl``` for debugging load balanced web farms, tools for Ambari, Pig, Spark, Elasticsearch, Solr, SQL/Hive/MySQL/PostgreSQL/Impala/Cassandra/MSSQL/Oracle/Pig/Neo4j code reCasing, ```scrub.pl``` output anonymizer for posting debug outputs with hostnames and IPs stripped out etc...
 
 ##### Weblinks #####
 
