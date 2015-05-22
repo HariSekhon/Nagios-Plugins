@@ -11,9 +11,9 @@ I've been developing this Nagios Plugin Collection since 2006. The basic Nagios 
 
 It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web, Hadoop and NoSQL technologies (Cassandra, HBase, MongoDB, Riak, Couchbase, Memcached, Redis, SolrCloud, ElasticSearch etc).
 
-This should be the next stop after installing Nagios with it's basic plugins.
-
 These programs can also be run standalone on the command line as tools and used in scripts as well as run via Nagios.
+
+This should be the next stop after installing Nagios with it's basic plugins.
 
 I also take suggestions for interesting new plugins or those involving interesting open source technologies.
 
