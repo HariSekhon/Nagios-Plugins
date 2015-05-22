@@ -3,71 +3,71 @@
 #  Date: Fri May 22 09:48:39 UTC 2015
 #
 
-name: nagios-plugins
+name: Advanced Nagios Plugins Collection (NoSQL, Hadoop, Redis, Cassandra, Elasticsearch, Solr, MySQL, Linux, HBase, MongoDB etc)
 description: "file:///README.md"
 url: "https://github.com/harisekhon/nagios-plugins"
 type: Plugin
 license: BSD modified (see LICENSE file)
-vendor:
-  - Adaptec
-  - Amazon
-  - Apache Foundation
-  - Centos
-  - Debian
-  - IBM
-  - Linux
-  - PuppetLabs
-  - RedHat
-  - Sun
-  - The MIT Kerberos Consortium
-tags:
-  - Ambari
-  - AWS
-  - Cassandra
-  - Cloudera
-  - Cluster
-  - Couchbase
-  - Datameer
-  - DataStax
-  - DHCP
-  - DNS
-  - Elasitcsearch
-  - Git
-  - Hadoop
-  - HBase
-  - HDFS
-  - Hortonworks
-  - Impala
-  - Kafka
-  - Kerberos
-  - Linux
-  - MapR
-  - MapReduce
-  - MongoDB
-  - MySQL
-  - Neo4j
-  - NoSQL
-  - Puppet
-  - Redis
-  - Riak
-  - Solr
-  - SolrCloud
-  - Spark
-  - SSH
-  - SSL
-  - SVN
-  - Syslog
-  - TFTP
-  - Whois
-  - Yarn
-  - ZooKeeper
-target: 
-  - Cluster
-  - Database
-  - Hardware
-  - Log
-  - Network
-  - Operating System
-  - Process
-  - Service
-  - Storage
+vendor: Linux
+#  - Adaptec
+#  - Amazon
+#  - Apache Foundation
+#  - Centos
+#  - Debian
+#  - IBM
+#  - Linux
+#  - PuppetLabs
+#  - RedHat
+#  - Sun
+#  - The MIT Kerberos Consortium
+tags: NoSQL
+#  - Ambari
+#  - AWS
+#  - Cassandra
+#  - Cloudera
+#  - Cluster
+#  - Couchbase
+#  - Datameer
+#  - DataStax
+#  - DHCP
+#  - DNS
+#  - Elasitcsearch
+#  - Git
+#  - Hadoop
+#  - HBase
+#  - HDFS
+#  - Hortonworks
+#  - Impala
+#  - Kafka
+#  - Kerberos
+#  - Linux
+#  - MapR
+#  - MapReduce
+#  - MongoDB
+#  - MySQL
+#  - Neo4j
+#  - NoSQL
+#  - Puppet
+#  - Redis
+#  - Riak
+#  - Solr
+#  - SolrCloud
+#  - Spark
+#  - SSH
+#  - SSL
+#  - SVN
+#  - Syslog
+#  - TFTP
+#  - Whois
+#  - Yarn
+#  - ZooKeeper
+target: Cluster
+#  - Cluster
+#  - Database
+#  - Hardware
+#  - Log
+#  - Network
+#  - Operating System
+#  - Process
+#  - Service
+#  - Storage
