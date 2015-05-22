@@ -5,7 +5,7 @@
 
 name: nagios-plugins
 description: "file:///README.md"
-url: "https://github.com/harisekhon"
+url: "https://github.com/harisekhon/nagios-plugins"
 type: Plugin
 license: BSD modified (see LICENSE file)
 vendor:
