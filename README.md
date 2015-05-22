@@ -240,6 +240,8 @@ Check out the adjacent ToolBox repo https://github.com/harisekhon/toolbox for ot
 * Nagios Command Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command
 * Nagios Service Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service
 
+* Newer Icinga monitoring successor to Nagios: https://www.icinga.org/
+
 Datameer plugins referenced from Datameer docs in the Weblinks section along with the official Nagios links. See here for more information on Datameer monitoring with Nagios:
 
 * http://www.datameer.com/documentation/display/DAS30/Monitoring+Hadoop+and+Datameer+using+Nagios
