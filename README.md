@@ -232,7 +232,7 @@ Check out the adjacent ToolBox repo https://github.com/harisekhon/toolbox for ot
 * ```watch_url.pl``` for debugging load balanced web farms
 * tools for Ambari, Pig, Hive, Spark + IPython Notebook, Elasticsearch, Solr
 * SQL/Hive/MySQL/PostgreSQL/Impala/Cassandra/MSSQL/Oracle/Pig/Neo4j code reCasing
-* ```scrub.pl``` anonymizer for cleaning debug outputs and logs before posting online, replaces hostnames/domains/FQDNs, IPs, passwords in Cisco/Juniper configs, custom extensible phrases like your name or your company name
+* ```scrub.pl``` sanitizes debug outputs / logs for posting online - replaces hostnames/domains/FQDNs, IPs, passwords in Cisco/Juniper configs, custom extensible phrases like your name or your company name
 
 ##### Weblinks #####
 
