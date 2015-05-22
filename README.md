@@ -9,7 +9,7 @@ Hadoop and extensive API integration with all major Hadoop vendors (Hortonworks,
 
 I've been developing this Nagios Plugin Collection since 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
-It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web, Hadoop and NoSQL technologies (Cassandra, HBase, MongoDB, Riak, Couchbase, Memcached, Redis, SolrCloud, ElasticSearch etc).
+It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web, Hadoop and NoSQL technologies (Cassandra, HBase, MongoDB, Riak, Couchbase, Memcached, Redis, Solr, SolrCloud, ElasticSearch etc).
 
 These programs can also be run standalone on the command line as tools and used in scripts as well as run via Nagios.
 
