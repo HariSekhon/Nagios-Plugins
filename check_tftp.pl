@@ -9,7 +9,9 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check a TFTP Server is working by fetching a given file from the server";
+$DESCRIPTION = "Nagios Plugin to check a TFTP Server is working by fetching a given file from the server
+
+I originally wrote this to check my PXE boot servers were available and serving pxelinux";
 
 $VERSION = "0.2";
 
