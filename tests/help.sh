@@ -28,7 +28,7 @@ for x in $(echo *.pl *.py *.rb 2>/dev/null); do
         continue
     fi
     echo ./$x --help
-    ./$x --help >/dev/null
+    ./$x --help # >/dev/null
     status=$?
     set -e
     # quick hack for older programs
