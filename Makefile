@@ -62,7 +62,7 @@ make:
 	# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
 	# Redis module required but didn't auto-pull: ExtUtils::Config ExtUtils::Helpers ExtUtils::InstallPaths TAP::Harness::Env Module::Build::Tiny Sub::Name
 	# Kafka module required but didn't auto-pull: ExtUtils::Config, ExtUtils::Helpers, ExtUtils::InstallPaths, TAP::Harness::Env, Module::Build::Tiny, Sub::Exporter::Progressive, Const::Fast, Exporter::Tiny, List::MoreUtils, Devel::CheckLib, Compress::Snappy, Sub::Name
-	# Module::CPANfile::Result is needed for Hijk which is auto-pulled by Search::Elasticsearch but doesn't auto-pull Module::CPANfile::Result
+	# Module::CPANfile::Result and Module::Install::Admin are needed for Hijk which is auto-pulled by Search::Elasticsearch but doesn't auto-pull Module::CPANfile::Result
 	yes "" | $(SUDO2) cpan \
 		Class:Accessor \
 		Compress::Snappy \
@@ -89,6 +89,7 @@ make:
 		Math::Round \
 		Module::Build::Tiny \
 		Module::CPANfile::Result \
+		Module::Install::Admin \
 		MongoDB \
 		MongoDB::MongoClient \
 		Net::DNS \
