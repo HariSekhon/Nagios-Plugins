@@ -157,7 +157,7 @@ yum-packages:
 	# for check_whois.pl
 	rpm -q jwhois || $(SUDO) yum install -y jwhois || :
 	# for Cassandra's Python driver
-	rpm -q python-setuptools python-devel libev libev-devel libsnappy-devel || $(SUDO) yum install -y python-setuptools python-devel libev libev-devel libsnappy-devel || :
+	rpm -q python-setuptools python-pip python-devel libev libev-devel libsnappy-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel libev libev-devel libsnappy-devel || :
 
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
