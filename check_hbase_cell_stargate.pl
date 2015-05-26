@@ -31,7 +31,7 @@ since this is all the Stargate server gives us for a response.
 Another option is to use check_hbase_cell.pl / check_hbase_cell_thrift.pl which uses the Thrift API and has better error reporting
 ";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -82,7 +82,7 @@ get_options();
 $host       = validate_host($host);
 $host       = validate_resolvable($host);
 $port       = validate_port($port);
-$table      = validate_database_tablename($table, "allow_qualified");
+$table      = validate_database_tablename($table, "HBase", "allow_qualified");
 $row        = validate_hbase_rowkey($row);
 $column     = validate_hbase_column_qualifier($column);
 if(defined($expected)){
