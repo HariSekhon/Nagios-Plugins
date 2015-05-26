@@ -80,7 +80,7 @@ make:
 		IO::Socket::IP \
 		IO::Socket::SSL \
 		JSON \
-		JSON:XS \
+		JSON::XS \
 		Kafka \
 		LWP::Authen::Negotiate \
 		LWP::Simple \
