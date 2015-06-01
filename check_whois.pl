@@ -41,6 +41,10 @@ DISCLAIMER:
 3. I recommend you run the latest version of jwhois that you can get, I've found a scenario where older jwhois on Debian Wheezy didn't return expiry information for google.name compared to the version on CentOS
 ";
 
+# For developing/testing on Mac I've found this has worked:
+#
+# brew install homebrew/boneyard/jwhois
+
 # Whois perl libraries aren't great so calling whois binary and checking manually
 # so we have more control over this, can get sticky but it looks like this is the reason
 # there isn't a universal whois lib for perl!
