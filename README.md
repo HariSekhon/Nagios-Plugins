@@ -231,7 +231,7 @@ Please raise a ticket on Github (Issues near the top right).
 
 ### Contributions ###
 
-Contributions are more than welcome with patches accepted in the form of Github pull requests.
+Contributions are more than welcome with patches accepted in the form of Github pull requests, for which you will receive attribution automatically as Github tracks these merges.
 
 ### Further Utilities ###
 
