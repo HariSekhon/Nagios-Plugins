@@ -227,7 +227,9 @@ Just make sure to install the Perl CPAN modules listed above first as some plugi
 
 ### Support for Bugs or Feature Requests ###
 
-Please raise a ticket on Github (Issues near the top right).
+Please raise a ticket on Github for any bugs or problems encountered in the use of this code (Issues near the top right). Please make sure you have run ```make``` to pull the latest library submodule and built the necessary CPAN modules, (see [Quick Setup](https://github.com/harisekhon/nagios-plugins#quick-setup) above)
+
+Make sure you paste the full output when using the ```-vvv``` switch in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` found in my toolbox repo [Toolbox](https://github.com/harisekhon/toolbox) 
 
 ### Contributions ###
 
@@ -235,7 +237,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 ### Further Utilities ###
 
-Check out the adjacent ToolBox repo https://github.com/harisekhon/toolbox for other useful tools such as:
+Check out the adjacent [ToolBox](https://github.com/harisekhon/toolbox) repo for other useful tools such as:
 * Hadoop HDFS performance debugger, native checksum extractor, file retention policy script, HDFS file stats, cluster XML config differ
 * ```watch_url.pl``` for debugging load balanced web farms
 * tools for Ambari, Pig, Hive, Spark + IPython Notebook, Elasticsearch, Solr
