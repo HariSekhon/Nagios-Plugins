@@ -225,9 +225,13 @@ All plugins come with --help which lists all options as well as giving a program
 
 Just make sure to install the Perl CPAN modules listed above first as some plugins won't run until you've installed the required Perl modules.
 
-### Support for Bugs and Feature Requests ###
+### Support for Bugs or Feature Requests ###
 
 Please raise a ticket on Github (Issues near the top right).
+
+### Contributions ###
+
+Contributions are more than welcome with patches accepted in the form of Github pull requests.
 
 ### Further Utilities ###
 
