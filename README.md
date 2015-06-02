@@ -225,6 +225,10 @@ All plugins come with --help which lists all options as well as giving a program
 
 Just make sure to install the Perl CPAN modules listed above first as some plugins won't run until you've installed the required Perl modules.
 
+### Bugs, Feature Requests, Comments, Help! ###
+
+Please raise a ticket on Github to the top right under Issues.
+
 ### Further Utilities ###
 
 Check out the adjacent ToolBox repo https://github.com/harisekhon/toolbox for other useful tools such as:
