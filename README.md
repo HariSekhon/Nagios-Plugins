@@ -229,7 +229,7 @@ Just make sure to install the Perl CPAN modules listed above first as some plugi
 
 Please raise a ticket on Github for any bugs or problems encountered in the use of this code (Issues near the top right).
 
-Please make sure you have run ```make``` first to pull the latest library submodule and build the necessary CPAN modules, (see [Quick Setup](https://github.com/harisekhon/nagios-plugins#quick-setup) above) and check that all the CPAN modules actually built sine
+Please make sure you have run ```make``` first to pull the latest library submodule and build the necessary CPAN modules, (see [Quick Setup](https://github.com/harisekhon/nagios-plugins#quick-setup) above).
 
 Make sure you run the code by hand on the command line with the ```-vvv``` switch for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` found in my [Toolbox](https://github.com/harisekhon/toolbox) repo.
 
