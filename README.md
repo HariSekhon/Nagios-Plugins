@@ -244,7 +244,7 @@ Check out the adjacent [ToolBox](https://github.com/harisekhon/toolbox) repo for
 * Hadoop HDFS performance debugger, native checksum extractor, file retention policy script, HDFS file stats, cluster XML config differ
 * ```watch_url.pl``` for debugging load balanced web farms
 * tools for Ambari, Pig, Hive, Spark + IPython Notebook, Elasticsearch, Solr
-* SQL/Hive/MySQL/PostgreSQL/Impala/Cassandra/MSSQL/Oracle/Pig/Neo4j code reCasing
+* SQL code reCaser for Hive / Cassandra / Pig / Neo4j / MySQL / PostgreSQL / Impala / MSSQL / Oracle
 * ```scrub.pl``` anonymizes configs / logs for posting online - replaces hostnames/domains/FQDNs, IPs, passwords/keys in Cisco/Juniper configs, custom extensible phrases like your name or your company name
 
 ##### Weblinks #####
