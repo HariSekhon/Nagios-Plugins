@@ -323,7 +323,7 @@ catch {
     } else {
         if($_[0] eq "Can't get metadata: topic = '<undef>'"){
             # XXX: workaround to lack of is_server_alive() is_server_connected() methods working
-            quit "CRITICAL", "failed to get metadata, broker offline or wrong port (some deployments use 9092, some such as Hortonworks use 6667)?";
+            quit "CRITICAL", "failed to get metadata, broker offline or wrong port? (some deployments use 9092, some such as Hortonworks use 6667)";
         }
         quit "CRITICAL", "Error: $_[0]";
     }
