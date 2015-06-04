@@ -240,6 +240,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 ### Further Utilities ###
 
 Check out the adjacent [ToolBox](https://github.com/harisekhon/toolbox) repo for other useful tools such as:
+* Hive / Pig => Elasticsearch / SolrCloud
 * Hadoop HDFS performance debugger, native checksum extractor, file retention policy script, HDFS file stats, cluster XML config differ
 * ```watch_url.pl``` for debugging load balanced web farms
 * tools for Ambari, Pig, Hive, Spark + IPython Notebook, Elasticsearch, Solr
