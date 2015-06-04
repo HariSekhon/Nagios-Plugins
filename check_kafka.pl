@@ -26,7 +26,7 @@ Limitations (these all currently have tickets open to fix in the underlying API)
 - first run if given a topic that doesn't already exist will cause the error \"Error: There are no known brokers: topic = '<topic>'\"
 ";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 # Kafka lib requires Perl 5.10
 use 5.010;
@@ -105,7 +105,7 @@ $port = validate_port($port);
 # XXX: currently no way to list topics in Perl's Kafka API
 #unless($list_topics){
     $topic or usage "topic not defined";
-    $topic =~ /^([A-Za-z0-9]+)$/ or usage "topic must be alphanumeric";
+    $topic =~ /^([A-Za-z0-9\.]+)$/ or usage "topic must be alphanumeric and may contain dots";
     $topic = $1;
 #}
 $partition = validate_int($partition, "partition", 0, 10000);
@@ -213,6 +213,8 @@ try {
         if($list_partitions or $verbose > 2){
             foreach my $topic (sort keys %$metadata){
                 print "topic $topic:\n";
+                # escape topics with dots in them for passing to get_field() subs
+                $topic =~ s/\./\\./g;
                 my $topic_metadata = get_field2($metadata, $topic);
                 foreach my $partition (sort keys %$topic_metadata){
                     printf("\t\tPartition: %-8s Replicas: %-10s ISR: %-10s Leader: %s\n", $partition, join(",", get_field2_array($topic_metadata, "$partition.Replicas")), join(",", get_field2_array($topic_metadata, "$partition.Isr")), get_field2($topic_metadata, "$partition.Leader") );
@@ -321,7 +323,7 @@ catch {
     } else {
         if($_[0] eq "Can't get metadata: topic = '<undef>'"){
             # XXX: workaround to lack of is_server_alive() is_server_connected() methods working
-            quit "CRITICAL", "failed to get metadata, broker offline?";
+            quit "CRITICAL", "failed to get metadata, broker offline or wrong port (some deployments use 9092, some such as Hortonworks use 6667)?";
         }
         quit "CRITICAL", "Error: $_[0]";
     }
