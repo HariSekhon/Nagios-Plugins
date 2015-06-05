@@ -26,7 +26,7 @@ Checks:
 
 Tested on ZooKeeper 3.4.5 and 3.4.6 Apache, Cloudera, Hortonworks and MapR. Requires ZooKeeper 3.4 onwards due to isro and mntr 4lw checks";
 
-$VERSION = "0.8";
+$VERSION = "0.8.1";
 
 use strict;
 use warnings;
@@ -243,6 +243,16 @@ foreach(sort keys %mntr){
     # In the ZooKeeper code base these two stats are set to -1 if ZooKeeper is unable to determine these metrics
     if($_ eq "zk_open_file_descriptor_count" or $_ eq "zk_max_file_descriptor_count"){
         if($mntr{$_} == -1){
+            $mntr{$_} = "N/A";
+            next;
+        }
+    } elsif($_ eq "zk_min_latency"){
+        # this can appear, handle with warning below
+        #$mntr{"zk_min_latency"} = -681;
+        if($mntr{$_} < 0){
+            warning;
+            $msg .= "min latency < 0! (run 'srst' command on ZooKeeper to reset stats to fix). ";
+            # invalid reset to N/A
             $mntr{$_} = "N/A";
             next;
         }
