@@ -189,7 +189,7 @@ class YumTester:
                 output = self.strip_output(output)
                 end(UNKNOWN, "%s" % output)
         else:
-            if not 'Loading "security" plugin' in output \
+            if (not ('Loading "security" plugin' in output or 'Loaded plugins:.*security' in output)) \
                or "Command line error: no such option: --security" in output:
                 end(UNKNOWN, "Security plugin for yum is required. Try to "    \
                            + "'yum install yum-security' (RHEL5) or 'yum install yum-plugin-security' (RHEL6) and then re-run "     \
