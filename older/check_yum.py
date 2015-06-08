@@ -16,7 +16,7 @@
 
 __author__  = "Hari Sekhon"
 __title__   = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.7.2"
+__version__ = "0.7.3"
 
 # Standard Nagios return codes
 OK       = 0
@@ -274,13 +274,15 @@ class YumTester:
                        + "format. Please make sure you have upgraded to the "  \
                        + "latest version of this plugin. If the problem "      \
                        + "persists, please contact the author for a fix")
+        number_packages = 0
         if len(output2) == 1:
             # There are no updates but we have passed 
             # the loading and setting up of repositories
-            number_packages = 0
+            pass
         else:
-            number_packages = len([x for x in output2[1].split("\n") \
-                                                        if len(x.split()) > 1 ])
+            for x in  output2[1].split("\n"):
+                if len(x.split()) > 1 and x[0:1] != " ":
+                    number_packages += 1
         
         try:
             number_packages = int(number_packages)
@@ -310,10 +312,11 @@ class YumTester:
                 count += 1
         if count != number_packages:
             end(UNKNOWN, "Error parsing package information, inconsistent "    \
-                       + "package count, yum output may have changed. Please " \
+                       + "package count (%d count vs %s num packages)" % (count, number_packages) \
+                       + ", yum output may have changed. Please " \
                        + "make sure you have upgraded to the latest version "  \
                        + "of this plugin. If the problem persists, then "      \
-                       + "please contact the author for a fix")
+                       + "please contact Hari Sekhon for a fix")
 
         return number_packages
 
