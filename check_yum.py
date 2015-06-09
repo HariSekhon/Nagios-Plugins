@@ -8,7 +8,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# UPDATED NOTE: This was written ages ago and is known to work only on RHEL5 based systems. I have had people ask me to update this for RHEL6, so I've written a new version in Perl which integrates better with my existing framework, see http://github.com/harisekhon/nagios-plugins
+# UPDATED NOTE: This was written ages ago for RHEL5, but has been updated for RHEL6
 
 """Nagios plugin to test for Yum updates on RedHat/CentOS Linux.
    Can optionally alert on any available updates as well as just
