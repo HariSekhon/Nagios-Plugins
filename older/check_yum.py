@@ -16,7 +16,7 @@
 
 __author__  = "Hari Sekhon"
 __title__   = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.7.3"
+__version__ = "0.7.4"
 
 # Standard Nagios return codes
 OK       = 0
@@ -332,10 +332,17 @@ class YumTester:
 
         re_security_summary = \
                 re.compile("Needed \d+ of \d+ packages, for security")
+        re_summary_rhel6 = re.compile('(\d+) package\(s\) needed for security, out of (\d+) available')
         re_no_security_updates_available = \
                 re.compile("No packages needed,? for security[,;] \d+ (?:packages )?available")
         summary_line_found = False
         for line in output:
+            if re_summary_rhel6.match(line):
+                m = re_summary_rhel6.match(line)
+                summary_line_found = True
+                number_security_updates = m.group(1)
+                number_total_updates    = m.group(2)
+                break
             if re_no_security_updates_available.match(line):
                 summary_line_found = True
                 number_security_updates = 0
