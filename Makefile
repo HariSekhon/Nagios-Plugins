@@ -184,7 +184,7 @@ test:
 	cd lib && make test
 	# doesn't return a non-zero exit code to test
 	# for x in *.pl; do perl -T -c $x; done
-	# TODO: add my functional tests back in here	
+	# TODO: add more functional tests back in here
 	tests/help.sh
 
 .PHONY: install
