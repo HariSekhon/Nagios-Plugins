@@ -667,7 +667,7 @@ def main():
 
     if version:
         print __version__
-        sys.exit(OK)
+        sys.exit(UNKNOWN)
 
     if not tester.leasefile:
         print "UNKNOWN: no lease file specified. See --help for details\n"
