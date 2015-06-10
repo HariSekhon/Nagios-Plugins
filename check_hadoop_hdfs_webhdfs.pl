@@ -42,6 +42,7 @@ BEGIN {
 }
 use HariSekhonUtils;
 use JSON::XS 'decode_json';
+# pulls in LWP::Authen::Negotiate if available (cpan'd in Makefile) and uses the kinit'd TGT if found
 use LWP::UserAgent;
 use Sys::Hostname;
 use Time::HiRes;

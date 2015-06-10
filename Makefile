@@ -51,8 +51,6 @@ make:
 	#sudo cpan DateTime::Locale DateTime::TimeZone
 	#sudo cpan DateTime
 
-	# TODO: check LWP::Authen::Negotiate with webhdfs against Kerberized cluster
-	
 	# You may need to set this to get the DBD::mysql module to install if you have mysql installed locally to /usr/local/mysql
 	#export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/usr/local/mysql/lib/"
 
