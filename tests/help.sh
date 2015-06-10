@@ -17,6 +17,13 @@ set -eu
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
+
+export PERLBREW_ROOT="${PERLBREW_ROOT:-~/perl5/perlbrew}"
+
+# For Travis CI which installs modules locally
+#export PERL5LIB="$srcdir/$TRAVIS_PERL_VERSION"
+export PERL5LIB="$PERLBREW_ROOT"
+
 for x in $(echo *.pl *.py *.rb 2>/dev/null); do
     [[ "$x" =~ ^\* ]] && continue
     [[ "$x" = "check_puppet.rb" ]] && continue
@@ -32,7 +39,8 @@ for x in $(echo *.pl *.py *.rb 2>/dev/null); do
     status=$?
     set -e
     # quick hack for older programs
-    [ "$x" = "check_dhcpd_leases.py" -o "$x" = "check_linux_ram.py" ] && [ $status = 0 ] && { echo "allowing $x to have zero exit code"; continue; }
+    [ "$x" = "check_dhcpd_leases.py" -o "$x" = "check_linux_ram.py"  -o "$x" = "check_yum.py" ] && [ $status = 0 ] && { echo "allowing $x to have zero exit code"; continue; }
     [ $status = 3 ] || { echo "status code for $x --help was $status not expected 3"; exit 1; }
+    echo "================================================================================"
 done
 echo "All Perl / Python / Ruby programs found exited with expected code 3 for --help"
