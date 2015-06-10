@@ -41,7 +41,7 @@ for x in $(echo *.pl *.py *.rb 2>/dev/null); do
     [[ "$x" =~ ^\* ]] && continue
     [[ "$x" = "check_puppet.rb" ]] && continue
     # Kafka module requires Perl >= 5.10, skip when running tests on 5.8 for CentOS 5 for which everything else works
-    [[ "$x" = "check_kafka.pl" && "${TRAVIS_PERL_VERSION%.*}" = "5.8" ]] && { echo "skipping check_kafka.pl on Perl 5.8 since the Kafka CPAN module requires Perl >= 5.10"; continue; }
+    [[ "$x" = "check_kafka.pl" && "$TRAVIS_PERL_VERSION" = "5.8" ]] && { echo "skipping check_kafka.pl on Perl 5.8 since the Kafka CPAN module requires Perl >= 5.10"; continue; }
     set +e
     # ignore zookeeper as it may not be built
     grep -q "Net::ZooKeeper" "$x" && { echo "skipping $x due to Net::ZooKeeper dependency which may not be built"; continue; }
