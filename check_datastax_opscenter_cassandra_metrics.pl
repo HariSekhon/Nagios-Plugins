@@ -55,7 +55,7 @@ my $period = 1; # last minute
 my $latest_only;
 #my @metrics;
 
-env_vars(["DATASTAX_OPSCENTER_DATACENTER", "DATACENTER"], $dc);
+env_vars(["DATASTAX_OPSCENTER_DATACENTER", "DATACENTER"], \$dc);
 
 %options = (
     %hostoptions,
