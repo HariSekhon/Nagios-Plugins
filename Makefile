@@ -65,6 +65,8 @@ make:
 	# Module::CPANfile::Result and Module::Install::Admin are needed for Hijk which is auto-pulled by Search::Elasticsearch but doesn't auto-pull Module::CPANfile::Result
 	# Module::Build::Tiny and Const::Fast must be built before Kafka, doesn't auto-pull in correct order
 	# Proc::Daemon needed by Kafka::TestInternals
+	# Proc::Daemon fails on tests, force install anyway to appease Travis
+	yes "" | $(SUDO2) cpan -fi Proc::Daemon
 	yes "" | $(SUDO2) cpan \
 		YAML \
 		Module::Build::Tiny \
