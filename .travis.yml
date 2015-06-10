@@ -10,13 +10,17 @@ perl:
   - "5.8"
 
 install:
-  - cd lib && make apt-packages && cpanm --installdeps --notest . || echo CPANM LIB FAILED
+  - pushd lib
+  - make apt-packages
+  - cpanm --installdeps --notest . || echo CPANM LIB FAILED
+  - popd
   - make apt-packages
   - cpanm --installdeps --notest . || echo CPANM FAILED
   - make
 
 #script:
-#  - tests/travis.sh
+  #- tests/help.sh
+  #- tests/travis.sh
 
 services:
   - cassandra
