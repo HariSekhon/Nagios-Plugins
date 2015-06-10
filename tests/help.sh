@@ -23,15 +23,19 @@ export PERLBREW_ROOT="${PERLBREW_ROOT:-~/perl5/perlbrew}"
 export TRAVIS_PERL_VERSION="${TRAVIS_PERL_VERSION:-*}"
 
 # For Travis CI which installs modules locally
-#export PERL5LIB="$srcdir/$TRAVIS_PERL_VERSION"
 export PERL5LIB=$(echo \
-    $PERL5LIB \
+    ${PERL5LIB:-.} \
     $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/site_perl/$TRAVIS_PERL_VERSION.*/x86_64-linux \
     $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/site_perl/$TRAVIS_PERL_VERSION.* \
     $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/$TRAVIS_PERL_VERSION.*/x86_64-linux \
     $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/$TRAVIS_PERL_VERSION.* \
     | tr '\n' ':'
 )
+# Taint code doesn't use PERL5LIB, use -I instead
+I_lib=""
+for x in $(echo "$PERL5LIB" | tr ':' ' '); do
+    I_lib+="-I $x "
+done
 
 for x in $(echo *.pl *.py *.rb 2>/dev/null); do
     [[ "$x" =~ ^\* ]] && continue
@@ -43,12 +47,18 @@ for x in $(echo *.pl *.py *.rb 2>/dev/null); do
     if [ -z "$commit" ]; then
         continue
     fi
-    echo ./$x --help
-    ./$x --help # >/dev/null
+    optional_cmd=""
+    if [[ $x =~ .*\.pl$ ]]; then
+        optional_cmd="perl -T $I_lib"
+    fi
+    echo $optional_cmd ./$x --help
+    $optional_cmd ./$x --help # >/dev/null
     status=$?
     set -e
     # quick hack for older programs
-    [ "$x" = "check_dhcpd_leases.py" -o "$x" = "check_linux_ram.py"  -o "$x" = "check_yum.py" ] && [ $status = 0 ] && { echo "allowing $x to have zero exit code"; continue; }
+    [ "$x" = "check_dhcpd_leases.py" -o \
+      "$x" = "check_linux_ram.py"    -o \
+      "$x" = "check_yum.py" ] && [ $status = 0 ] && { echo "allowing $x to have zero exit code"; continue; }
     [ $status = 3 ] || { echo "status code for $x --help was $status not expected 3"; exit 1; }
     echo "================================================================================"
 done
