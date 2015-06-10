@@ -34,8 +34,11 @@ set_port_default(7474);
 
 env_creds("Neo4j");
 
+my $expect_enabled;
+
 %options = (
     %hostoptions,
+    "expect-enabled"   =>  [ \$expect_enabled,    "Check remote shell is enabled instead of disabled" ],
 );
 @usage_order = qw/host port/;
 
@@ -79,10 +82,17 @@ defined($remote_shell_enabled) or quit "UNKNOWN", "failed to find remote_shell_e
 
 $msg = "Neo4j ";
 if($remote_shell_enabled){
-    critical;
-    $msg .= "REMOTE SHELL ENABLED";
+    $msg .= "remote shell enabled";
+    unless($expect_enabled){
+        critical;
+        $msg = uc $msg;
+    }
 } else {
     $msg .= "remote shell is disabled";
+    if($expect_enabled){
+        critical;
+        $msg = uc $msg;
+    }
 }
 
 quit $status, $msg;
