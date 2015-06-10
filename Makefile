@@ -64,12 +64,14 @@ make:
 	# Kafka module required but didn't auto-pull: ExtUtils::Config, ExtUtils::Helpers, ExtUtils::InstallPaths, TAP::Harness::Env, Module::Build::Tiny, Sub::Exporter::Progressive, Const::Fast, Exporter::Tiny, List::MoreUtils, Devel::CheckLib, Compress::Snappy, Sub::Name
 	# Module::CPANfile::Result and Module::Install::Admin are needed for Hijk which is auto-pulled by Search::Elasticsearch but doesn't auto-pull Module::CPANfile::Result
 	# Module::Build::Tiny and Const::Fast must be built before Kafka, doesn't auto-pull in correct order
+	# Proc::Daemon needed by Kafka::TestInternals
 	yes "" | $(SUDO2) cpan \
 		YAML \
 		Module::Build::Tiny \
 		Const::Fast \
 		Class:Accessor \
 		Compress::Snappy \
+		Proc::Daemon \
 		DBD::mysql \
 		DBI \
 		Data::Dumper \
