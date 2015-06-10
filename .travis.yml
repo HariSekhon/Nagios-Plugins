@@ -27,7 +27,6 @@ services:
   - redis
   - riak
 
-# this does one build per set of env vars, so don't make it a list
 env:
   global:
     - CASSANDRA_HOST=localhost
