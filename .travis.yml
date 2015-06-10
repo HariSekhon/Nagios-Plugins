@@ -29,6 +29,7 @@ env:
   global:
     - CASSANDRA_HOST=localhost
     - ELASTICSEARCH_HOST=localhost
+    - ELASTICSEARCH_INDEX=travis-test
     - MEMCACHED_HOST=localhost
     - MONGODB_HOST=localhost
     - MYSQL_DATABASE=user
