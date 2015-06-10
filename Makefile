@@ -69,7 +69,7 @@ make:
 		YAML \
 		Module::Build::Tiny \
 		Const::Fast \
-		Class:Accessor \
+		Class::Accessor \
 		Compress::Snappy \
 		Proc::Daemon \
 		DBD::mysql \
