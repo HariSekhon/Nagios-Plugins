@@ -20,7 +20,7 @@ DO NOT ADD a semi-colon to the end of your query in Nagios, although this plugin
 
 # TODO: add retry switch if valid below threshold
 
-$VERSION = "1.1.1";
+$VERSION = "1.1.2";
 
 use strict;
 use warnings;
@@ -56,11 +56,12 @@ my $short;
 my $units = "";
 
 env_creds("MYSQL", "MySQL");
+env_var("MYSQL_DATABASE", \$database);
 
 %options = (
     %hostoptions,
     %useroptions,
-    "d|database=s"  => [ \$database, "MySQL database" ],
+    "d|database=s"  => [ \$database, "MySQL database (\$MYSQL_DATABASE)" ],
     "s|mysql-socket=s" => [ \$mysql_socket,    "MySQL socket file through which to connect (defaults: " . join(", ", @default_mysql_sockets) . ")" ],
     "q|query=s"     => [ \$query,    "MySQL query to execute" ],
     "f|field=s"     => [ \$field,    "Field number/name to check the results of (defaults to '1')" ],
