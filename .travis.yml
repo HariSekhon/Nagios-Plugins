@@ -10,8 +10,9 @@ perl:
   - "5.8"
 
 install:
+  - cd lib && make apt-packages && cpanm --installdeps . && cd ..
   - make apt-packages
-  - cpanm --installdeps --skip-installed --notest .
+  - cpanm --installdeps --notest .
   - make
 
 services:
