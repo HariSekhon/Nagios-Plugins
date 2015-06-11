@@ -176,9 +176,8 @@ echo "
 find / -name redis.conf
 ps -ef | grep -i redis
 perl -T $I_lib ./check_redis_clients.pl -vvv
-#hr
-# can't find config
-#perl -T $I_lib ./check_redis_config.pl
+hr
+perl -T $I_lib ./check_redis_config.pl
 #hr
 # no key yet
 #perl -T $I_lib ./check_redis_key.pl -k test -e hari
