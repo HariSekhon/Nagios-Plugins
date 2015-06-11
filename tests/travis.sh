@@ -156,7 +156,7 @@ echo "
 "
 
 # MYSQL_HOST, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD obtained via .travis.yml
-perl -T $I_lib ./check_mysql_config.pl
+perl -T $I_lib ./check_mysql_config.pl -vvv
 hr
 perl -T $I_lib ./check_mysql_query.pl -q "show tables in information_schema" -vv -o CHARACTER_SETS
 
