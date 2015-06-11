@@ -9,9 +9,11 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check MemCached statistics";
+$DESCRIPTION = "Nagios Plugin to check MemCached statistics
 
-$VERSION = "0.7";
+Tested on Memcached from around 2010/2011 and 1.4.4";
+
+$VERSION = "0.8";
 
 use strict;
 use warnings;
@@ -20,17 +22,15 @@ BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
-use HariSekhonUtils;
+use HariSekhonUtils qw/:DEFAULT :time/;
 
-my $default_port = 11211;
-$port = $default_port;
+set_port_default(11211);
+set_timeout_range(1, 60);
 
-$timeout_min = 1;
-$timeout_max = 60;
+env_creds("MEMCACHED");
 
 %options = (
-    "H|host=s"           => [ \$host,       "Host to connect to" ],
-    "P|port=i"           => [ \$port,       "Port to connect to (default: $default_port)" ],
+    %hostoptions,
     "w|warning=i"        => [ \$warning,    "Warning threshold for current connections" ],
     "c|critical=i"       => [ \$critical,   "Critical threshold for current connections" ],
 );
@@ -40,7 +40,7 @@ get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
-validate_thresholds(1,1);
+validate_thresholds(1, 1, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1});
 vlog2;
 
 set_timeout();
@@ -143,15 +143,20 @@ vlog2 "closed connection\n";
 #    #vlog "$_: $stats{$_}";
 #}
 
-my $msg = "Memcached ";
+$msg = "Memcached ";
 foreach(qw/curr_connections threads curr_items total_items version uptime/){
     defined($stats{$_}) or quit "CRITICAL", "$_ was not found in output from memcached on '$host:$port'";
     $msg .= "$_: " . $stats{$_};
-    $msg .= "(w=$warning/c=$critical)" if /^curr_connections$/;
+    if($_ eq "curr_connections"){
+        check_thresholds($stats{$_}, undef, "current connections");
+        vlog2;
+    } elsif($_ eq "uptime" and isInt($stats{$_})){
+        $msg .= " secs (" . sec2human($stats{$_}) . ")"
+    }
     $msg .= ", ";
 }
 
-$msg =~ s/, $/|/;
+$msg =~ s/, $/ | /;
 my $var;
 my $pnp4nagios_datatype = "";
 foreach(sort keys %stats2){
@@ -189,23 +194,19 @@ my %stats3;
 my $msg2 = "Unknown stats found: ";
 foreach(sort keys %stats){
     unless(defined($stats2{$_})){
-        $status = "WARNING";
+        warning;
         $stats3{$_} = 1;
     }
 }
 if(scalar keys %stats3 > 0){
-    $status = "WARNING";
+    warning;
     foreach(sort keys %stats3){
         $msg2  .= "$_,";
     }
     $msg2 =~ s/,$//;
-    $msg2 .= " (plugin may need updating)";
+    $msg2 .= ". $nagios_plugins_support_msg";
     $msg = "$msg2. $msg";
 }
-if($stats{"curr_connections"} >= $critical){
-    $status = "CRITICAL";
-} elsif($stats{"curr_connections"} >= $warning) {
-    $status = "WARNING";
-}
 
-quit($status, $msg);
+vlog2;
+quit $status, $msg;
