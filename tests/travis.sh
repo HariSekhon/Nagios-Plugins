@@ -47,10 +47,15 @@ echo "
 # ============================================================================ #
 "
 # CASSANDRA_HOST and CASSANDRA_CONF obtained via .travis.yml
+# workarounds for nodetool "You must set the CASSANDRA_CONF and CLASSPATH vars"
 export CASSANDRA_CONF="${CASSANDRA_CONF:-/usr/local/cassandra/conf}"
-export CLASSPATH="${CLASSPATH:-.}" # workaround for nodetool "You must set the CASSANDRA_CONF and CLASSPATH vars"
-for x in $(find /usr/local/cassandra -name '*.jar'); do
-    export CLASSPATH="CLASSPATH:$x"
+#export CLASSPATH="${CLASSPATH:-.}"
+#for x in $(find /usr/local/cassandra -name '*.jar'); do
+#    export CLASSPATH="CLASSPATH:$x"
+#done
+for x in $(find /usr/local/cassandra -name '*cassandra.in.sh*'); do
+    echo "sourcing $x"
+    . "$x"
 done
 perl -T $I_lib ./check_cassandra_balance.pl
 hr
