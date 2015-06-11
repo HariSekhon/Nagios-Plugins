@@ -46,6 +46,7 @@ my $warn_on_missing_variables = 0;
 
 # using regex here now
 my @config_file_only = (
+    "bind-address",
     "binlog-(?:do|ignore)-db",
     "default-storage-engine",
     "federated",
@@ -59,6 +60,7 @@ my @config_file_only = (
     "relay_log_info_file",
     "replicate-ignore(?:db|table)",
     "skip-bdb",
+    "skip-federated",
     "user",
     #"log-bin.*",
     #"myisam-recover",
@@ -75,6 +77,7 @@ my @mysql_on_off = (
 );
 
 my %mysql_convert_names = (
+    "key_buffer"        => "key_buffer_size",
     "myisam-recover"    => "myisam_recover_options",
     "skip-slave-start"  => "init_slave",
 );
