@@ -174,6 +174,7 @@ echo "
 
 # RIAK_HOST obtained via .travis.yml
 find / -name redis.conf
+ps -ef | grep -i redis
 perl -T $I_lib ./check_redis_clients.pl -vvv
 #hr
 # can't find config
