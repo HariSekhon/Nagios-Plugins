@@ -49,11 +49,12 @@ echo "
 find / -iname cassandra
 ps -ef|grep -i cassandra
 # CASSANDRA_HOST obtained via .travis.yml
+export CASSANDRA_CONF=/usr/local/cassandra/conf
 perl -T $I_lib ./check_cassandra_balance.pl
 hr
-perl -T $I_lib ./check_cassandra_heap.pl -vvv
+perl -T $I_lib ./check_cassandra_heap.pl
 hr
-perl -T $I_lib ./check_cassandra_netstats.pl -vvv
+perl -T $I_lib ./check_cassandra_netstats.pl
 hr
 perl -T $I_lib ./check_cassandra_tpstats.pl
 
