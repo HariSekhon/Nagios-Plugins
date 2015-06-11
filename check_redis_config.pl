@@ -22,9 +22,11 @@ Detects password in this order of priority (highest first):
 2. \$REDIS_PASSWORD environment variable (recommended)
 3. requirepass setting in config file
 
-Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Collection)";
+Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Collection)
 
-$VERSION = "0.6";
+Tested on Redis 2.4.10 and 2.8.9";
+
+$VERSION = "0.7";
 
 use strict;
 use warnings;
@@ -59,8 +61,11 @@ my @running_conf_only = qw(
                             maxmemory.*
                        );
 
-my $default_config = "/etc/redis.conf";
-my $conf = $default_config;
+my @default_config_locations = qw(
+    /etc/redis/redis.conf
+    /etc/redis.conf
+);
+my $conf;
 
 $host = "localhost";
 
@@ -69,7 +74,7 @@ my $no_warn_missing   = 0;
 
 our %options = (
     %redis_options,
-    "C|config=s"    => [ \$conf,        "Redis config file (default: $default_config)" ],
+    "C|config=s"    => [ \$conf,        "Redis config file (defaults: @default_config_locations)" ],
 );
 delete $options{"precision=i"};
 
@@ -79,6 +84,20 @@ get_options();
 $host       = validate_host($host);
 $port       = validate_port($port);
 $password   = validate_password($password) if $password;
+unless($conf){
+    vlog2 "no config specified";
+    foreach(@default_config_locations){
+        if( -f $_ ){
+            unless( -r $_ ) {
+                warn "config '$_' found but not readable!\n";
+                next;
+            }
+            $conf = $_;
+            vlog2 "found config: $_";
+            last;
+        }
+    }
+}
 $conf       = validate_file($conf, 0, "config");
 validate_thresholds();
 
