@@ -49,7 +49,7 @@ echo "
 
 # CASSANDRA_HOST and CASSANDRA_CONF obtained via .travis.yml
 # workarounds for nodetool "You must set the CASSANDRA_CONF and CLASSPATH vars"
-export CASSANDRA_HOME=/usr/local/cassandra
+export CASSANDRA_HOME="${CASSANDRA_HOME:-/usr/local/cassandra}"
 export CASSANDRA_CONF="${CASSANDRA_CONF:-$CASSANDRA_HOME/conf}"
 #export CLASSPATH="${CLASSPATH:-.}"
 #for x in $(find /usr/local/cassandra -name '*.jar'); do

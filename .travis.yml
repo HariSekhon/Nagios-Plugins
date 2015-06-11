@@ -32,12 +32,14 @@ services:
   - mysql
   #- postgreql
   - neo4j
+  #- rabbitmq
   - redis
   - riak
 
 env:
   global:
     - CASSANDRA_HOST=localhost
+    - CASSANDRA_HOME=/usr/local/cassandra
     - CASSANDRA_CONF=/usr/local/cassandra/conf
     - ELASTICSEARCH_HOST=localhost
     - ELASTICSEARCH_INDEX=travis-test
