@@ -211,7 +211,7 @@ echo "
 # ============================================================================ #
 "
 
-curl -XPUT localhosti:8098/types/myType/buckets/myBucket/keys/myKey -d 'hari'
+curl -XPUT localhost:8098/types/myType/buckets/myBucket/keys/myKey -d 'hari'
 # RIAK_HOST obtained via .travis.yml
 # needs sudo
 #perl -T $I_lib ./check_riak_diag.pl
