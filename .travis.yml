@@ -10,16 +10,17 @@ perl:
   - "5.8"
 
 install:
-  - pushd lib
-  - make apt-packages
-  - cpanm --installdeps --notest . || echo CPANM LIB FAILED
-  - popd
-  - make apt-packages
-  - cpanm --installdeps --notest . || echo CPANM FAILED
+  #- pushd lib
+  #- make apt-packages
+  #- cpanm --installdeps --notest . || echo CPANM LIB FAILED
+  #- popd
+  #- make apt-packages
+  #- cpanm --installdeps --notest . || echo CPANM FAILED
+  # integrated cpanm in to core Makefiles
   - make
 
-#script:
-  #- tests/help.sh
+script:
+  - tests/help.sh
   #- tests/travis.sh
 
 services:
