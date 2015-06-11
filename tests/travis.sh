@@ -50,6 +50,7 @@ find / -iname cassandra 2>/dev/null
 ps -ef|grep -i cassandra
 # CASSANDRA_HOST and CASSANDRA_CONF obtained via .travis.yml
 export CASSANDRA_CONF="${CASSANDRA_CONF:-/usr/local/cassandra/conf}"
+export CLASSPATH="${CLASSPATH:-.}" # workaround for nodetool "You must set the CASSANDRA_CONF and CLASSPATH vars"
 perl -T $I_lib ./check_cassandra_balance.pl
 hr
 perl -T $I_lib ./check_cassandra_heap.pl -vvv
