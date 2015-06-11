@@ -185,7 +185,7 @@ perl -T $I_lib ./check_neo4j_remote_shell_enabled.pl
 hr
 perl -T $I_lib ./check_neo4j_stats.pl
 hr
-perl -T $I_lib ./check_neo4j_store_sizes.pl
+perl -T $I_lib ./check_neo4j_store_sizes.pl -vvv
 hr
 perl -T $I_lib ./check_neo4j_version.pl
 
