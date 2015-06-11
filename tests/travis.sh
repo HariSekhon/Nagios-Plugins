@@ -184,10 +184,8 @@ echo "
 # ============================================================================ #
 "
 
-neo4j-shell -c '
-LOAD CSV WITH HEADERS FROM "http://neo4j.com/docs/2.2.2/csv/import/persons.csv" AS csvLine
-CREATE (p:Person { id: toInt(csvLine.id), name: csvLine.name })
-'
+neo4j-shell -c 'CREATE (p:Person { name: "Hari Sekhon" })'
+hr
 # NEO4J_HOST obtained via .travis.yml
 perl -T $I_lib ./check_neo4j_readonly.pl
 hr
