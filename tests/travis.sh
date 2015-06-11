@@ -46,12 +46,10 @@ echo "
 #                               C a s s a n d r a
 # ============================================================================ #
 "
-find / -iname cassandra 2>/dev/null
-ps -ef|grep -i cassandra
 # CASSANDRA_HOST and CASSANDRA_CONF obtained via .travis.yml
 export CASSANDRA_CONF="${CASSANDRA_CONF:-/usr/local/cassandra/conf}"
 export CLASSPATH="${CLASSPATH:-.}" # workaround for nodetool "You must set the CASSANDRA_CONF and CLASSPATH vars"
-for x in /usr/local/cassandra/lib/*.jar; do
+for x in $(find /usr/local/cassandra -name '*.jar'); do
     export CLASSPATH="CLASSPATH:$x"
 done
 perl -T $I_lib ./check_cassandra_balance.pl
