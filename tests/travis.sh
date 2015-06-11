@@ -72,15 +72,9 @@ perl -T $I_lib ./check_elasticsearch_fielddata.pl --list-nodes
 hr
 perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices
 hr
-perl -T $I_lib ./check_elasticsearch_cluster_shards.pl
+perl -T $I_lib ./check_elasticsearch_data_nodes.pl -w 1
 hr
-perl -T $I_lib ./check_elasticsearch_cluster_status_nodes_shards.pl
-hr
-perl -T $I_lib ./check_elasticsearch_cluster_status.pl
-hr
-perl -T $I_lib ./check_elasticsearch_data_nodes.pl
-hr
-perl -T $I_lib ./check_elasticsearch_fielddata.pl -N $ELASTICSEARCH_HOST
+perl -T $I_lib ./check_elasticsearch_fielddata.pl -N $ELASTICSEARCH_HOST -vvv
 hr
 perl -T $I_lib ./check_elasticsearch_index_exists.pl
 #hr
@@ -100,7 +94,15 @@ perl -T $I_lib ./check_elasticsearch_nodes.pl
 #hr
 #perl -T $I_lib ./check_elasticsearch_node_stats.pl
 hr
+echo "sleeping for 10 secs to allow shard to get assigned and cluster to settle"
+sleep 10
 perl -T $I_lib ./check_elasticsearch_shards_detail.pl
+hr
+perl -T $I_lib ./check_elasticsearch_cluster_status.pl
+hr
+perl -T $I_lib ./check_elasticsearch_cluster_shards.pl
+hr
+perl -T $I_lib ./check_elasticsearch_cluster_status_nodes_shards.pl
 
 echo; echo
 
@@ -129,7 +131,10 @@ echo "
 #hr
 #perl -T $I_lib ./check_mongodb_master_rest.pl
 #hr
-perl -T $I_lib ./check_mongodb_write.pl
+# Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
+if [ "$TRAVIS_PERL_VERSION" != "5.8" ]; then
+    perl -T $I_lib ./check_mongodb_write.pl
+fi
 
 echo; echo
 
@@ -172,7 +177,7 @@ echo "
 "
 
 # RIAK_HOST obtained via .travis.yml
-perl -T $I_lib ./check_redis_clients.pl -vvv
+perl -T $I_lib ./check_redis_clients.pl
 hr
 perl -T $I_lib ./check_redis_config.pl
 #hr
