@@ -99,9 +99,9 @@ my %stats2 = (
     "version"               => [0, 0],
 );
 
-vlog3 "sending stats request";
+vlog2 "sending stats request";
 print $conn "stats\n" or quit "CRITICAL", "Failed to send stat request: $!";
-vlog3 "stats request sent";
+vlog2 "stats request sent";
 my $line;
 my $linecount = 0;
 my $err_msg;
@@ -121,6 +121,7 @@ while (<$conn>){
         quit "CRITICAL", "$err_msg memcached '$host:$port': '$_'";
     }
     last if /END/;
+    next if /^STAT libevent /;
     /^STAT \w+ [\d\.]+$/ or quit "CRITICAL", "unrecognized line in output: '$_'";
     #vlog3 "processing line: '$_'";
     $line = $_;
@@ -134,7 +135,7 @@ while (<$conn>){
         }
     }
 }
-vlog3 "got response" if ($linecount > 0);
+vlog2 "got response" if ($linecount > 0);
 close $conn;
 vlog2 "closed connection\n";
 # Different versions of memcached output different stats unfortunately so this sanity check while good may break stuff
