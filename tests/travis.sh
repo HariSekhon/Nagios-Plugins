@@ -46,15 +46,15 @@ echo "
 #                               C a s s a n d r a
 # ============================================================================ #
 "
-find / -iname cassandra
+find / -iname cassandra 2>/dev/null
 ps -ef|grep -i cassandra
-# CASSANDRA_HOST obtained via .travis.yml
-export CASSANDRA_CONF=/usr/local/cassandra/conf
+# CASSANDRA_HOST and CASSANDRA_CONF obtained via .travis.yml
+export CASSANDRA_CONF="${CASSANDRA_CONF:-/usr/local/cassandra/conf}"
 perl -T $I_lib ./check_cassandra_balance.pl
 hr
-perl -T $I_lib ./check_cassandra_heap.pl
+perl -T $I_lib ./check_cassandra_heap.pl -vvv
 hr
-perl -T $I_lib ./check_cassandra_netstats.pl
+perl -T $I_lib ./check_cassandra_netstats.pl -vvv
 hr
 perl -T $I_lib ./check_cassandra_tpstats.pl
 
