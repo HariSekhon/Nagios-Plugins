@@ -123,8 +123,9 @@ echo "
 "
 
 # MEMCACHED_HOST obtained via .travis.yml
+echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc localhost 11211
 perl -T $I_lib ./check_memcached_write.pl
-#perl -T $I_lib ./check_memcached_key.pl -k test -e hari
+perl -T $I_lib ./check_memcached_key.pl -k myKey -e hari
 perl -T $I_lib ./check_memcached_stats.pl -w 20 -c 30
 
 echo; echo
@@ -186,13 +187,13 @@ echo "
 # ============================================================================ #
 "
 
+echo set myKey hari | redis-cli
 # RIAK_HOST obtained via .travis.yml
 perl -T $I_lib ./check_redis_clients.pl
 hr
 perl -T $I_lib ./check_redis_config.pl
-#hr
-# no key yet
-#perl -T $I_lib ./check_redis_key.pl -k test -e hari
+hr
+perl -T $I_lib ./check_redis_key.pl -k myKey -e hari
 hr
 perl -T $I_lib ./check_redis_publish_subscribe.pl
 hr
@@ -210,13 +211,13 @@ echo "
 # ============================================================================ #
 "
 
+curl -XPUT localhosti:8098/types/myType/buckets/myBucket/keys/myKey -d 'hari'
 # RIAK_HOST obtained via .travis.yml
 # needs sudo
 #perl -T $I_lib ./check_riak_diag.pl
 #hr
-# no key yet
-#perl -T $I_lib ./check_riak_key.pl -k somekey
-#hr
+perl -T $I_lib ./check_riak_key.pl -b myBucket -k myKey -e hari
+hr
 # needs sudo
 #perl -T $I_lib ./check_riak_ringready.pl
 hr
