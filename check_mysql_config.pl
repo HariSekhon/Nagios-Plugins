@@ -16,7 +16,7 @@ Primarily written to check that DBAs hadn't changed any running DB from Puppet d
 A friend and ex-colleague of mine Tom Liakos @ Specificmedia pointed out a long time after I wrote this that Percona independently developed a similar tool called pt-config-diff (part of the Percona toolkit) around the same time.
 ";
 
-$VERSION = "1.1.0";
+$VERSION = "1.2.0";
 
 use strict;
 use warnings;
@@ -29,12 +29,15 @@ use DBI;
 
 set_port_default(3306);
 
-my $default_config_file     = "/etc/my.cnf";
+my @default_config_locations = qw(
+    /etc/mysql/my.cnf
+    /etc/my.cnf
+);
 my $default_mysql_instance  = "mysqld";
 my @default_mysql_sockets = ( "/var/lib/mysql/mysql.sock", "/tmp/mysql.sock");
 my $mysql_socket;
 
-my $config_file     = $default_config_file;
+my $config_file;
 my $mysql_instance  = $default_mysql_instance;
 my $password        = "";
 my %mysql_config;
@@ -91,7 +94,7 @@ my %mysql_modes = (
 env_creds("MYSQL", "MySQL");
 
 %options = (
-    "c|config|config-file=s"    => [ \$config_file,     "Path to MySQL my.cnf config file (default: $default_config_file)" ],
+    "c|config|config-file=s"    => [ \$config_file,     "Path to MySQL my.cnf config file (defaults: @default_config_locations)" ],
     %hostoptions,
     %useroptions,
     "d|mysql-instance=s"        => [ \$mysql_instance,  "MySQL [instance] in my.cnf to test (default: $default_mysql_instance)" ],
@@ -123,8 +126,21 @@ if($host){
 }
 $user        = validate_user($user);
 $password    = validate_password($password) if $password;
-$config_file = validate_filename($config_file);
-vlog2 "config file: '$config_file'";
+unless($config_file){
+    vlog2 "no config specified";
+    foreach(@default_config_locations){
+        if( -f $_ ){
+            unless( -r $_ ) {
+                warn "config '$_' found but not readable!\n";
+                next;
+            }
+            $config_file = $_;
+            vlog2 "found config: $_";
+            last;
+        }
+    }
+}
+$config_file = validate_filename($config_file, undef, "config file");
 $mysql_instance = validate_database($mysql_instance);
 
 vlog2;
