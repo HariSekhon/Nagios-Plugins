@@ -63,6 +63,8 @@ for x in $(echo *.pl *.py *.rb 2>/dev/null); do
     # quick hack for older programs
     [ "$x" = "check_dhcpd_leases.py" -o \
       "$x" = "check_linux_ram.py"    -o \
+      "$x" = "check_logserver.py"    -o \
+      "$x" = "check_syslog_mysql.py" -o \
       "$x" = "check_yum.py" ] && [ $status = 0 ] && { echo "allowing $x to have zero exit code"; continue; }
     [ $status = 3 ] || { echo "status code for $x --help was $status not expected 3"; exit 1; }
     echo "================================================================================"
