@@ -55,6 +55,7 @@ export CASSANDRA_CONF="${CASSANDRA_CONF:-$CASSANDRA_HOME/conf}"
 #for x in $(find /usr/local/cassandra -name '*.jar'); do
 #    export CLASSPATH="CLASSPATH:$x"
 #done
+find "$CASSANDRA_HOME" -name '*cassandra.in.sh*'
 for x in $(find "$CASSANDRA_HOME" -name '*cassandra.in.sh*'); do
     echo "sourcing $x"
     . "$x"
