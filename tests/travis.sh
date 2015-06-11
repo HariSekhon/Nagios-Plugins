@@ -122,7 +122,7 @@ echo "
 # MEMCACHED_HOST obtained via .travis.yml
 perl -T $I_lib ./check_memcached_write.pl
 #perl -T $I_lib ./check_memcached_key.pl -k test -e hari
-perl -T $I_lib ./check_memcached_stats.pl
+perl -T $I_lib ./check_memcached_stats.pl -w 20 -c 30
 
 echo; echo
 
