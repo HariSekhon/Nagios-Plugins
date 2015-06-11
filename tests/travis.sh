@@ -47,23 +47,25 @@ echo "
 # ============================================================================ #
 "
 
-nodetool status
+# even bare 'nodetool status' has broken environment in Travis, nothing to do with say Taint security
+#nodetool status
 # CASSANDRA_HOST and CASSANDRA_CONF obtained via .travis.yml
 # workarounds for nodetool "You must set the CASSANDRA_CONF and CLASSPATH vars"
 export CASSANDRA_HOME="${CASSANDRA_HOME:-/usr/local/cassandra}"
 export CASSANDRA_CONF="${CASSANDRA_CONF:-$CASSANDRA_HOME/conf}"
 #export CLASSPATH="${CLASSPATH:-.}"
-#for x in $(find /usr/local/cassandra -name '*.jar'); do
-#    export CLASSPATH="CLASSPATH:$x"
-#done
-find "$CASSANDRA_HOME" -name '*cassandra.in.sh*'
-set +u
-for x in $(find "$CASSANDRA_HOME" -name '*cassandra.in.sh*'); do
-    echo "sourcing $x"
-    . "$x"
+for x in $(find /usr/local/cassandra -name '*.jar'); do
+    export CLASSPATH="CLASSPATH:$x"
 done
-set -u
-nodetool status
+echo "using CLASSPATH=$CLASSPATH"
+#find "$CASSANDRA_HOME" -name '*cassandra.in.sh*'
+# doesn't work
+#set +u
+#for x in $(find "$CASSANDRA_HOME" -name '*cassandra.in.sh*'); do
+#    echo "sourcing $x"
+#    . "$x"
+#done
+#set -u
 perl -T $I_lib ./check_cassandra_balance.pl
 hr
 perl -T $I_lib ./check_cassandra_heap.pl -vvv
@@ -92,9 +94,17 @@ curl -XPUT "http://localhost:9200/$ELASTICSEARCH_INDEX/" -d '
 }
 '
 hr
+perl -T $I_lib ./check_elasticsearch.pl -v
+hr
 perl -T $I_lib ./check_elasticsearch_fielddata.pl --list-nodes
 hr
 perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices
+hr
+perl -T $I_lib ./check_elasticsearch_cluster_shards.pl
+hr
+perl -T $I_lib ./check_elasticsearch_cluster_status.pl
+hr
+perl -T $I_lib ./check_elasticsearch_cluster_status_nodes_shards.pl
 hr
 perl -T $I_lib ./check_elasticsearch_data_nodes.pl -w 1
 hr
@@ -119,14 +129,6 @@ perl -T $I_lib ./check_elasticsearch_nodes.pl -w 1
 #perl -T $I_lib ./check_elasticsearch_node_stats.pl
 hr
 perl -T $I_lib ./check_elasticsearch_shards_detail.pl
-hr
-perl -T $I_lib ./check_elasticsearch_cluster_status.pl
-hr
-perl -T $I_lib ./check_elasticsearch_cluster_shards.pl
-hr
-perl -T $I_lib ./check_elasticsearch_cluster_status_nodes_shards.pl
-hr
-perl -T $I_lib ./check_elasticsearch.pl -v
 
 echo; echo
 
