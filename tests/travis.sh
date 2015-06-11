@@ -56,10 +56,12 @@ export CASSANDRA_CONF="${CASSANDRA_CONF:-$CASSANDRA_HOME/conf}"
 #    export CLASSPATH="CLASSPATH:$x"
 #done
 find "$CASSANDRA_HOME" -name '*cassandra.in.sh*'
+set +u
 for x in $(find "$CASSANDRA_HOME" -name '*cassandra.in.sh*'); do
     echo "sourcing $x"
     . "$x"
 done
+set -u
 perl -T $I_lib ./check_cassandra_balance.pl
 hr
 perl -T $I_lib ./check_cassandra_heap.pl -vvv
