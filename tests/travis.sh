@@ -71,7 +71,14 @@ echo "
 "
 
 # ELASTICSEARCH_HOST, ELASTICSEARCH_INDEX obtained via .travis.yml
-curl -XPUT "http://localhost:9200/$ELASTICSEARCH_INDEX/"
+curl -XPUT "http://localhost:9200/$ELASTICSEARCH_INDEX/" -d '
+    "settings": {
+        "index": {
+            "number_of_shards": 1
+            "number_of_replicas": 0,
+        }
+    }
+'
 hr
 perl -T $I_lib ./check_elasticsearch_fielddata.pl --list-nodes
 hr
@@ -95,12 +102,10 @@ perl -T $I_lib ./check_elasticsearch_index_stats.pl
 hr
 perl -T $I_lib ./check_elasticsearch_master_node.pl
 hr
-perl -T $I_lib ./check_elasticsearch_nodes.pl
+perl -T $I_lib ./check_elasticsearch_nodes.pl -w 1
 #hr
 #perl -T $I_lib ./check_elasticsearch_node_stats.pl
 hr
-echo "sleeping for 300 secs to allow shard to get assigned and cluster to settle"
-sleep 300
 perl -T $I_lib ./check_elasticsearch_shards_detail.pl
 hr
 perl -T $I_lib ./check_elasticsearch_cluster_status.pl
