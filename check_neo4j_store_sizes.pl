@@ -74,7 +74,7 @@ catch {
 
 #vlog3(Dumper($json));
 isArray($json) or quit "UNKNOWN", "output returned by Neo4j is not structured in output array. $nagios_plugins_support_msg_api";
-defined($json->[0]->{"attributes"}) or quit "UNKNOWN", "'attributes' field not returned by Neo4j! Is there any data in this Neo4j instance yet? Otherwise $nagios_plugins_support_msg_api";
+defined($json->[0]->{"attributes"}) or quit "UNKNOWN", "'attributes' field not returned by Neo4j! Perhaps this is Neo4j 1.x (see check_neo4j_version.pl)? Otherwise $nagios_plugins_support_msg_api";
 isArray($json->[0]->{"attributes"}) or quit "UNKNOWN", "attributes field returned by Neo4j is not an array as expected! $nagios_plugins_support_msg_api";
 
 my %stats;
