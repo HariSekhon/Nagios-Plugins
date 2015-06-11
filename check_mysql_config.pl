@@ -131,15 +131,15 @@ if($host){
 $user        = validate_user($user);
 $password    = validate_password($password) if $password;
 unless($config_file){
-    vlog2 "no config specified";
+    vlog2 "no config file specified";
     foreach(@default_config_locations){
         if( -f $_ ){
             unless( -r $_ ) {
-                warn "config '$_' found but not readable!\n";
+                warn "config file '$_' found but not readable!\n";
                 next;
             }
             $config_file = $_;
-            vlog2 "found config: $_";
+            vlog2 "found config file: $_";
             last;
         }
     }
