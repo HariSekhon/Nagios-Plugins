@@ -252,4 +252,5 @@ if ($graph and isFloat($result, 1)) {
 }
 $msg .= "mysql_query_time=${query_time}s" unless $no_querytime;
 
+vlog2;
 quit $status, $msg;
