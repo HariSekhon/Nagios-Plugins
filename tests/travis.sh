@@ -47,6 +47,7 @@ echo "
 # ============================================================================ #
 "
 
+nodetool status
 # CASSANDRA_HOST and CASSANDRA_CONF obtained via .travis.yml
 # workarounds for nodetool "You must set the CASSANDRA_CONF and CLASSPATH vars"
 export CASSANDRA_HOME="${CASSANDRA_HOME:-/usr/local/cassandra}"
@@ -62,6 +63,7 @@ for x in $(find "$CASSANDRA_HOME" -name '*cassandra.in.sh*'); do
     . "$x"
 done
 set -u
+nodetool status
 perl -T $I_lib ./check_cassandra_balance.pl
 hr
 perl -T $I_lib ./check_cassandra_heap.pl -vvv
@@ -80,12 +82,14 @@ echo "
 
 # ELASTICSEARCH_HOST, ELASTICSEARCH_INDEX obtained via .travis.yml
 curl -XPUT "http://localhost:9200/$ELASTICSEARCH_INDEX/" -d '
+{
     "settings": {
         "index": {
             "number_of_shards": 1,
             "number_of_replicas": 0
         }
     }
+}
 '
 hr
 perl -T $I_lib ./check_elasticsearch_fielddata.pl --list-nodes
