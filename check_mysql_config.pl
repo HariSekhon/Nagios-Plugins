@@ -16,7 +16,7 @@ Primarily written to check that DBAs hadn't changed any running DB from Puppet d
 A friend and ex-colleague of mine Tom Liakos @ Specificmedia pointed out a long time after I wrote this that Percona independently developed a similar tool called pt-config-diff (part of the Percona toolkit) around the same time.
 ";
 
-$VERSION = "1.2.0";
+$VERSION = "1.2.1";
 
 use strict;
 use warnings;
@@ -70,6 +70,7 @@ my @config_file_only = (
 my @mysql_on_off = (
     "log-bin",
     "log-slow-queries",
+    "log_slow_queries",
     "skip-slave-start",
 );
 
