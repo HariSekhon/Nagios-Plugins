@@ -38,7 +38,7 @@ try:
 except ImportError:
     print "You must have the MySQLdb python library",
     print "installed to run this plugin"
-    sys.exit(UNKNOWN)
+    sys.exit(CRITICAL)
 from optparse import OptionParser
 
 SCRIPTNAME = os.path.basename(sys.argv[0])
