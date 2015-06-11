@@ -72,8 +72,8 @@ echo "
 curl -XPUT "http://localhost:9200/$ELASTICSEARCH_INDEX/" -d '
     "settings": {
         "index": {
-            "number_of_shards": 1
-            "number_of_replicas": 0,
+            "number_of_shards": 1,
+            "number_of_replicas": 0
         }
     }
 '
