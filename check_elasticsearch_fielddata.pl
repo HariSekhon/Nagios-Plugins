@@ -88,10 +88,10 @@ foreach(split(/\n/, $content)){
     $total += $this_bytes;
     next if $found;
     if($node eq $this_ip or $node eq $this_name){
-        vlog2 "found node $node, node hostname = $node_hostname, ip = $ip";
         $node_hostname = $this_name;
         $ip    = $this_ip;
         $bytes = $this_bytes;
+        vlog2 "found node $node, node hostname = $node_hostname, ip = $ip";
         $found = 1;
     }
 }
