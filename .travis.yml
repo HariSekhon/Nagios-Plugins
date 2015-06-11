@@ -21,7 +21,7 @@ install:
 
 script:
   - tests/help.sh
-  #- tests/travis.sh
+  - tests/travis.sh
 
 services:
   - cassandra
