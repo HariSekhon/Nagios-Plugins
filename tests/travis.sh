@@ -46,12 +46,14 @@ echo "
 #                               C a s s a n d r a
 # ============================================================================ #
 "
+find / -iname cassandra
+ps -ef|grep -i cassandra
 # CASSANDRA_HOST obtained via .travis.yml
 perl -T $I_lib ./check_cassandra_balance.pl
 hr
-perl -T $I_lib ./check_cassandra_heap.pl
+perl -T $I_lib ./check_cassandra_heap.pl -vvv
 hr
-perl -T $I_lib ./check_cassandra_netstats.pl
+perl -T $I_lib ./check_cassandra_netstats.pl -vvv
 hr
 perl -T $I_lib ./check_cassandra_tpstats.pl
 
@@ -112,7 +114,6 @@ echo "
 perl -T $I_lib ./check_memcached_write.pl
 #perl -T $I_lib ./check_memcached_key.pl -k test -e hari
 perl -T $I_lib ./check_memcached_stats.pl
-hr
 
 echo; echo
 
@@ -123,12 +124,12 @@ echo "
 "
 
 # MONGODB_HOST obtained via .travis.yml
-perl -T $I_lib ./check_mongodb_master.pl
-hr
+# not part of a replica set so this fails
+#perl -T $I_lib ./check_mongodb_master.pl
+#hr
 #perl -T $I_lib ./check_mongodb_master_rest.pl
 #hr
 perl -T $I_lib ./check_mongodb_write.pl
-hr
 
 echo; echo
 
@@ -138,6 +139,7 @@ echo "
 # ============================================================================ #
 "
 
+find / -name my.cnf
 # MYSQL_HOST, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD obtained via .travis.yml
 perl -T $I_lib ./check_mysql_config.pl
 hr
@@ -158,10 +160,9 @@ perl -T $I_lib ./check_neo4j_remote_shell_enabled.pl
 hr
 perl -T $I_lib ./check_neo4j_stats.pl
 hr
-perl -T $I_lib ./check_neo4ji_stores.pl
+perl -T $I_lib ./check_neo4j_store_sizes.pl
 hr
 perl -T $I_lib ./check_neo4j_version.pl
-hr
 
 echo; echo
 
@@ -172,10 +173,13 @@ echo "
 "
 
 # RIAK_HOST obtained via .travis.yml
-perl -T $I_lib ./check_redis_clients.pl
-hr
-perl -T $I_lib ./check_redis_config.pl
+find / -name redis.conf
+perl -T $I_lib ./check_redis_clients.pl -vvv
 #hr
+# can't find config
+#perl -T $I_lib ./check_redis_config.pl
+#hr
+# no key yet
 #perl -T $I_lib ./check_redis_key.pl -k test -e hari
 hr
 perl -T $I_lib ./check_redis_publish_subscribe.pl
@@ -185,7 +189,6 @@ hr
 perl -T $I_lib ./check_redis_version.pl
 hr
 perl -T $I_lib ./check_redis_write.pl
-hr
 
 echo; echo
 
@@ -196,11 +199,14 @@ echo "
 "
 
 # RIAK_HOST obtained via .travis.yml
-perl -T $I_lib ./check_riak_diag.pl
+# needs sudo
+#perl -T $I_lib ./check_riak_diag.pl
 #hr
+# no key yet
 #perl -T $I_lib ./check_riak_key.pl -k somekey
-hr
-perl -T $I_lib ./check_riak_ringready.pl
+#hr
+# needs sudo
+#perl -T $I_lib ./check_riak_ringready.pl
 hr
 perl -T $I_lib ./check_riak_stats.pl --all-metrics
 hr
