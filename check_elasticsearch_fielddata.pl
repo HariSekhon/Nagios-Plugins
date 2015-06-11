@@ -18,7 +18,7 @@ Also outputs total fielddata on all nodes
 
 Tested on Elasticsearch 1.2.1 and 1.4.4";
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -67,7 +67,7 @@ my $ip;
 my $bytes;
 my $total = 0;
 my $found = 0;
-if($list_nodes){
+if($list_nodes or $verbose >= 2){
     print "Nodes:\n\n" if $list_nodes;
     printf "%-35s\t%s\n", "Hostname", "IP";
 }
@@ -81,13 +81,14 @@ foreach(split(/\n/, $content)){
     $this_name  = $parts[0];
     $this_ip    = $parts[1];
     $this_bytes = $parts[2];
-    if($list_nodes){
+    if($list_nodes or $verbose >= 2){
         printf "%-35s\t%s\n", $this_name, $this_ip;
         next;
     }
     $total += $this_bytes;
     next if $found;
     if($node eq $this_ip or $node eq $this_name){
+        vlog2 "found node $node, node hostname = $node_hostname, ip = $ip";
         $node_hostname = $this_name;
         $ip    = $this_ip;
         $bytes = $this_bytes;
@@ -96,7 +97,7 @@ foreach(split(/\n/, $content)){
 }
 exit $ERRORS{"UNKNOWN"} if($list_nodes);
 
-($node eq $ip or $node eq $node_hostname) or quit "UNKNOWN", "failed to find node '$node' in result from Elasticsearch";
+((defined($ip) and $node eq $ip) or (defined($node_hostname) and $node eq $node_hostname)) or quit "UNKNOWN", "failed to find node '$node' in result from Elasticsearch";
 
 $msg = "elasticsearch ";
 
