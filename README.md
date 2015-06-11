@@ -73,6 +73,7 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - graphing data where appropriate (use PNP4Nagios for automatic graphing)
 - code reuse, especially for more complex input/output validations and error handling
 - support for use of $USERNAME and $PASSWORD environment variables as well as more specific overrides (eg. $MYSQL_USERNAME, $REDIS_PASSWORD) to give administrators the option to avoid leaking --password credentials in the process list for all users to see
+- continuous integration with unit tests for the custom supporting libraries and functional tests for the plugins of NoSQL technologies and datastores natively supported by Travis CI (currently Cassandra, Elasticsearch, Memcached, MongoDB, MySQL, Neo4j, Redis, Riak)
 - easy rapid development of new high quality robust Nagios plugins with minimal lines of code
 
 Several plugins have been merged together and replaced with symlinks to the unified plugins bookmarking their areas of functionality, similar to some plugins from the standard nagios plugins collection.
