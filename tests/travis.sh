@@ -139,7 +139,6 @@ echo "
 # ============================================================================ #
 "
 
-find / -name my.cnf
 # MYSQL_HOST, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD obtained via .travis.yml
 perl -T $I_lib ./check_mysql_config.pl
 hr
@@ -173,8 +172,6 @@ echo "
 "
 
 # RIAK_HOST obtained via .travis.yml
-find / -name redis.conf
-ps -ef | grep -i redis
 perl -T $I_lib ./check_redis_clients.pl -vvv
 hr
 perl -T $I_lib ./check_redis_config.pl
