@@ -26,7 +26,7 @@ Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Coll
 
 Tested on Redis 2.4.10 and 2.8.9";
 
-$VERSION = "0.7";
+$VERSION = "0.7.1";
 
 use strict;
 use warnings;
@@ -119,7 +119,7 @@ while(<$fh>){
     s/^\s*//;
     s/\s*$//;
     debug "conf file:  $_";
-    /^\s*([\w\.-]+)\s+(.+?)\s*$/ or quit "UNKNOWN", "unrecognized line in config file '$conf': '$_'. $nagios_plugins_support_msg";
+    /^\s*([\w\.-]+)\s+["']?(.+?)["']?\s*$/ or quit "UNKNOWN", "unrecognized line in config file '$conf': '$_'. $nagios_plugins_support_msg";
     $key   = lc $1;
     $value = lc $2;
     if($key eq "dir"){
