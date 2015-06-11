@@ -13,7 +13,7 @@
 #  http://www.linkedin.com/in/harisekhon
 #
 
-set -u
+set -eu
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
