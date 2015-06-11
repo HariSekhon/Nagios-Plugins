@@ -43,7 +43,7 @@ for x in $(echo *.pl *.py *.rb 2>/dev/null); do
     # Kafka module requires Perl >= 5.10, skip when running tests on 5.8 for CentOS 5 for which everything else works
     if [ "$TRAVIS_PERL_VERSION" = "5.8" ]; then
         [ "$x" = "check_kafka.pl" ] && { echo "skipping check_kafka.pl on Perl 5.8 since the Kafka CPAN module requires Perl >= 5.10"; continue; }
-        [[ "$x" = "check_mongodb_*.pl" ]] && { echo "skipping check_mongodb_*.pl on Perl 5.8 since the MongoDB module requires Type::Tiny::XS which breaks for some unknown reason"; continue; }
+        [[ "$x" =~ check_mongodb_.*.pl ]] && { echo "skipping check_mongodb_*.pl on Perl 5.8 since the MongoDB module requires Type::Tiny::XS which breaks for some unknown reason"; continue; }
     fi
     set +e
     # ignore zookeeper as it may not be built
