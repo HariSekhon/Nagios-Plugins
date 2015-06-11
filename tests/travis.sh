@@ -99,8 +99,8 @@ perl -T $I_lib ./check_elasticsearch_nodes.pl
 #hr
 #perl -T $I_lib ./check_elasticsearch_node_stats.pl
 hr
-echo "sleeping for 10 secs to allow shard to get assigned and cluster to settle"
-sleep 30
+echo "sleeping for 300 secs to allow shard to get assigned and cluster to settle"
+sleep 300
 perl -T $I_lib ./check_elasticsearch_shards_detail.pl
 hr
 perl -T $I_lib ./check_elasticsearch_cluster_status.pl
