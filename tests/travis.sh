@@ -126,7 +126,7 @@ echo "
 echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc localhost 11211
 perl -T $I_lib ./check_memcached_write.pl
 perl -T $I_lib ./check_memcached_key.pl -k myKey -e hari
-perl -T $I_lib ./check_memcached_stats.pl -w 20 -c 30
+perl -T $I_lib ./check_memcached_stats.pl -w 20 -c 30 -vvv
 
 echo; echo
 
