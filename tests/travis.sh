@@ -76,7 +76,7 @@ perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices
 hr
 perl -T $I_lib ./check_elasticsearch_data_nodes.pl -w 1
 hr
-perl -T $I_lib ./check_elasticsearch_fielddata.pl -N $ELASTICSEARCH_HOST -vvv
+perl -T $I_lib ./check_elasticsearch_fielddata.pl -N 127.0.0.1
 hr
 perl -T $I_lib ./check_elasticsearch_index_exists.pl
 #hr
