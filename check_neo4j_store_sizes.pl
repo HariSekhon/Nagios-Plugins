@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check the Neo4j data store sizes using the Neo4
 
 Tested on Neo4j 2.0.3";
 
-$VERSION = "0.1";
+$VERSION = "0.1.1";
 
 use strict;
 use warnings;
@@ -74,7 +74,7 @@ catch {
 
 #vlog3(Dumper($json));
 isArray($json) or quit "UNKNOWN", "output returned by Neo4j is not structured in output array. $nagios_plugins_support_msg_api";
-defined($json->[0]->{"attributes"}) or quit "UNKNOWN", "'attributes' field not returned by Neo4j! $nagios_plugins_support_msg_api";
+defined($json->[0]->{"attributes"}) or quit "UNKNOWN", "'attributes' field not returned by Neo4j! Is there any data in this Neo4j instance yet? Otherwise $nagios_plugins_support_msg_api";
 isArray($json->[0]->{"attributes"}) or quit "UNKNOWN", "attributes field returned by Neo4j is not an array as expected! $nagios_plugins_support_msg_api";
 
 my %stats;
