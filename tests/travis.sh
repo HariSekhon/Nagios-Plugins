@@ -105,6 +105,8 @@ hr
 perl -T $I_lib ./check_elasticsearch_cluster_shards.pl
 hr
 perl -T $I_lib ./check_elasticsearch_cluster_status_nodes_shards.pl
+hr
+perl -T $I_lib ./check_elasticsearch.pl -v
 
 echo; echo
 
