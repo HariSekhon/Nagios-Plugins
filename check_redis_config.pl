@@ -48,6 +48,7 @@ my @config_file_only = qw(
                            bind
                            daemonize
                            databases
+                           include
                            logfile
                            maxclients
                            pidfile
