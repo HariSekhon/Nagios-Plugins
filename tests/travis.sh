@@ -113,7 +113,7 @@ perl -T $I_lib ./check_elasticsearch_cluster_status.pl
 hr
 perl -T $I_lib ./check_elasticsearch_cluster_status_nodes_shards.pl
 hr
-perl -T $I_lib ./check_elasticsearch_data_nodes.pl -w 1
+perl -T $I_lib ./check_elasticsearch_data_nodes.pl -w 1 -v
 hr
 perl -T $I_lib ./check_elasticsearch_fielddata.pl -N 127.0.0.1
 hr
@@ -121,7 +121,7 @@ perl -T $I_lib ./check_elasticsearch_index_exists.pl
 #hr
 #perl -T $I_lib ./check_elasticsearch_index_health.pl
 hr
-perl -T $I_lib ./check_elasticsearch_index_replicas.pl -w 0
+perl -T $I_lib ./check_elasticsearch_index_replicas.pl -w 0 -v
 hr
 perl -T $I_lib ./check_elasticsearch_index_settings.pl
 hr
@@ -131,7 +131,7 @@ perl -T $I_lib ./check_elasticsearch_index_stats.pl
 hr
 perl -T $I_lib ./check_elasticsearch_master_node.pl
 hr
-perl -T $I_lib ./check_elasticsearch_nodes.pl -w 1
+perl -T $I_lib ./check_elasticsearch_nodes.pl -w 1 -v
 #hr
 #perl -T $I_lib ./check_elasticsearch_node_stats.pl
 hr
@@ -151,8 +151,10 @@ echo done
 hr
 # MEMCACHED_HOST obtained via .travis.yml
 perl -T $I_lib ./check_memcached_write.pl
+hr
 perl -T $I_lib ./check_memcached_key.pl -k myKey -e hari
-perl -T $I_lib ./check_memcached_stats.pl -w 20 -c 30 -vvv
+hr
+perl -T $I_lib ./check_memcached_stats.pl -w 15 -c 20 -v
 
 echo; echo
 
@@ -184,7 +186,7 @@ echo "
 # MYSQL_HOST, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD obtained via .travis.yml
 perl -T $I_lib ./check_mysql_config.pl --warn-on-missing
 hr
-perl -T $I_lib ./check_mysql_query.pl -q "show tables in information_schema" -vv -o CHARACTER_SETS
+perl -T $I_lib ./check_mysql_query.pl -q "show tables in information_schema" -o CHARACTER_SETS
 
 echo; echo
 
@@ -204,6 +206,8 @@ hr
 perl -T $I_lib ./check_neo4j_remote_shell_enabled.pl
 hr
 perl -T $I_lib ./check_neo4j_stats.pl
+hr
+perl -T $I_lib ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 1:1 -v
 hr
 # Neo4J on Travis doesn't seem to return anything resulting in "'attributes' field not returned by Neo4J" error
 #perl -T $I_lib ./check_neo4j_store_sizes.pl -vvv
@@ -233,6 +237,8 @@ perl -T $I_lib ./check_redis_publish_subscribe.pl
 hr
 perl -T $I_lib ./check_redis_stats.pl
 hr
+perl -T $I_lib ./check_redis_stats.pl -s connected_clients -c 1:1 -v
+hr
 perl -T $I_lib ./check_redis_version.pl
 hr
 perl -T $I_lib ./check_redis_write.pl
@@ -253,16 +259,22 @@ echo "done"
 hr
 # RIAK_HOST obtained via .travis.yml
 # needs sudo
-#perl -T $I_lib ./check_riak_diag.pl
-#hr
+sudo perl -T $I_lib ./check_riak_diag.pl
+hr
 perl -T $I_lib ./check_riak_key.pl -b myBucket -k myKey -e hari
 hr
 # needs sudo
-#perl -T $I_lib ./check_riak_ringready.pl
-#hr
-perl -T $I_lib ./check_riak_stats.pl --all-metrics
+sudo perl -T $I_lib ./check_riak_ringready.pl
+hr
+perl -T $I_lib ./check_riak_stats.pl --all
+hr
+perl -T $I_lib ./check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
+hr
+perl -T $I_lib ./check_riak_stats.pl -s disk.0.id -c 1024: -v
 hr
 perl -T $I_lib ./check_riak_write.pl
+hr
+perl -T $I_lib ./check_riak_version.pl
 
 echo "
 # ============================================================================ #
