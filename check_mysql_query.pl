@@ -16,6 +16,8 @@ It looks like a similar plugin has now been added to the standard Nagios Plugins
 Only the first row returned is considered for the result so your SQL query should take that in to account.
 
 DO NOT ADD a semi-colon to the end of your query in Nagios, although this plugin can handle this fine and it works on the command line, in Nagios the command will end up being prematurely terminated and result in a null critical error that is hard to debug and that this plugin cannot catch since it's raised by the shell before this plugin is executed
+
+Tested on MySQL 5.0, 5.1 and 5.5
 ";
 
 # TODO: add retry switch if valid below threshold

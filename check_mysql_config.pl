@@ -14,6 +14,8 @@ $DESCRIPTION = "Nagios Plugin to check MySQL config file matches running MySQL s
 Primarily written to check that DBAs hadn't changed any running DB from Puppet deployed config without backporting their changes. Can also be used for baseline configuration compliance checking.
 
 A friend and ex-colleague of mine Tom Liakos @ Specificmedia pointed out a long time after I wrote this that Percona independently developed a similar tool called pt-config-diff (part of the Percona toolkit) around the same time.
+
+Tested on MySQL 5.0, 5.1 and 5.5
 ";
 
 $VERSION = "1.2.1";
