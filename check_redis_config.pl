@@ -286,18 +286,26 @@ foreach my $key (sort keys %config){
     if($key eq "client-output-buffer-limit"){
         my $tmp = "";
         foreach my $tmp2 (split(/\s/, $config_value)){
-            if(grep { $tmp2 =~ /^(\d+)($_)$/ } qw/kb mb gb tb pb/){
-                $tmp2 = expand_units($1, $2);
+            foreach my $unit (qw/kb mb gb tb pb/){
+                if($tmp2 =~ /^(\d+)($unit)$/i){
+                    $tmp2 = expand_units($1, $2, "client-output-buffer-limit");
+                    last;
+                }
             }
             $tmp .= " $tmp2";
         }
         $config_value = trim($tmp);
-        if($config_value =~ /^pubsub/){
-            $config_value = "normal 0 0 0 $config_value";
+        my $regex_prefix = '^normal\s+\d+\s+\d+\s+\d+\s+slave\s+\d+\s+\d+\s+\d+\s+';
+        if($config{$key} ne $config_value){
+            vlog2 "translated $key value '$config{$key}' => '$config_value' for comparison and prefixing '$regex_prefix'";
         }
-    }
-    unless($running_value eq $config_value){
-        push(@mismatched_config, $key);
+        unless($running_value =~ /$regex_prefix\Q$config_value\E$/){
+            push(@mismatched_config, $key);
+        }
+    } else {
+        unless($running_value eq $config_value){
+            push(@mismatched_config, $key);
+        }
     }
 }
 
@@ -315,9 +323,9 @@ vlog3;
 $msg = "";
 if(@mismatched_config){
     critical;
-    #$msg .= "mismatched config: ";
+    $msg .= "mismatched config in file vs live running server: ";
     foreach(sort @mismatched_config){
-        $msg .= "$_ value mismatch config:'$config{$_}' vs live server:'$running_config{$_}', ";
+        $msg .= "$_ = '$config{$_}' vs '$running_config{$_}', ";
     }
 }
 if((!$no_warn_missing) and @missing_config){
