@@ -47,26 +47,29 @@ echo "
 # ============================================================================ #
 "
 
-# workarounds for nodetool "You must set the CASSANDRA_CONF and CLASSPATH vars"
-export CASSANDRA_HOME="${CASSANDRA_HOME:-/usr/local/cassandra}"
+# Cassandra build in Travis is quite broken, appears due to an incorrect upgrade in the VM image
 
-# Cassandra service on Travis is really broken, some hack to make it work
+# workarounds for nodetool "You must set the CASSANDRA_CONF and CLASSPATH vars"
+# even bare 'nodetool status' has broken environment in Travis, nothing to do with say Taint security
+# Cassandra service on Travis is really broken, some hacks to make it work
 if [ -n "$TRAVIS" ]; then
+    export CASSANDRA_HOME="${CASSANDRA_HOME:-/usr/local/cassandra}"
     sudo sed -ibak 's/jamm-0.2.5.jar/jamm-0.2.8.jar/' $CASSANDRA_HOME/bin/cassandra.in.sh
     sudo sed -ribak 's/^(multithreaded_compaction|memtable_flush_queue_size|preheat_kernel_page_cache|compaction_preheat_key_cache|in_memory_compaction_limit_in_mb):.*//' $CASSANDRA_HOME/conf/cassandra.yaml
     sudo service cassandra start
     # For nodetool to get CASSANDRA_CONF and CLASSPATH
+    set +u
     . $CASSANDRA_HOME/bin/cassandra.in.sh
+    set -e
 fi
 
-# even bare 'nodetool status' has broken environment in Travis, nothing to do with say Taint security
 nodetool status
 # CASSANDRA_HOST obtained via .travis.yml
-#export CLASSPATH="${CLASSPATH:-.}"
-for x in $(find /usr/local/cassandra -name '*.jar'); do
-    export CLASSPATH="CLASSPATH:$x"
-done
-echo "using CLASSPATH=$CLASSPATH"
+#for x in $(find /usr/local/cassandra -name '*.jar'); do
+#    export CLASSPATH="CLASSPATH:$x"
+#done
+echo "CASSANDRA_CONF=$CASSANDRA_CONF"
+echo "CLASSPATH=$CLASSPATH"
 #find "$CASSANDRA_HOME" -name '*cassandra.in.sh*'
 # doesn't work
 #set +u
