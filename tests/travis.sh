@@ -102,9 +102,10 @@ hr
 # ELASTICSEARCH_HOST, ELASTICSEARCH_INDEX obtained via .travis.yml
 perl -T $I_lib ./check_elasticsearch.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_fielddata.pl --list-nodes
+# Listing checks return UNKNOWN, so reset their exit code to zero
+perl -T $I_lib ./check_elasticsearch_fielddata.pl --list-nodes || :
 hr
-perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices
+perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices || :
 hr
 perl -T $I_lib ./check_elasticsearch_cluster_shards.pl
 hr
