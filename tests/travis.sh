@@ -121,7 +121,7 @@ perl -T $I_lib ./check_elasticsearch_index_exists.pl
 #hr
 #perl -T $I_lib ./check_elasticsearch_index_health.pl
 hr
-perl -T $I_lib ./check_elasticsearch_index_replicas.pl
+perl -T $I_lib ./check_elasticsearch_index_replicas.pl -w 0
 hr
 perl -T $I_lib ./check_elasticsearch_index_settings.pl
 hr
