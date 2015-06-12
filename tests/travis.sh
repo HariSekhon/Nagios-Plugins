@@ -85,7 +85,7 @@ echo "
 # ============================================================================ #
 "
 
-# ELASTICSEARCH_HOST, ELASTICSEARCH_INDEX obtained via .travis.yml
+echo "creating test Elasticsearch index '$ELASTICSEARCH_INDEX'"
 curl -XPUT "http://localhost:9200/$ELASTICSEARCH_INDEX/" -d '
 {
     "settings": {
@@ -96,7 +96,10 @@ curl -XPUT "http://localhost:9200/$ELASTICSEARCH_INDEX/" -d '
     }
 }
 '
+echo
+echo done
 hr
+# ELASTICSEARCH_HOST, ELASTICSEARCH_INDEX obtained via .travis.yml
 perl -T $I_lib ./check_elasticsearch.pl -v
 hr
 perl -T $I_lib ./check_elasticsearch_fielddata.pl --list-nodes
@@ -141,8 +144,11 @@ echo "
 # ============================================================================ #
 "
 
-# MEMCACHED_HOST obtained via .travis.yml
+echo "creating test Memcached key-value"
 echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc localhost 11211
+echo done
+hr
+# MEMCACHED_HOST obtained via .travis.yml
 perl -T $I_lib ./check_memcached_write.pl
 perl -T $I_lib ./check_memcached_key.pl -k myKey -e hari
 perl -T $I_lib ./check_memcached_stats.pl -w 20 -c 30 -vvv
@@ -187,7 +193,9 @@ echo "
 # ============================================================================ #
 "
 
+echo "creating test Neo4J node"
 neo4j-shell -c 'CREATE (p:Person { name: "Hari Sekhon" })'
+echo done
 hr
 # NEO4J_HOST obtained via .travis.yml
 perl -T $I_lib ./check_neo4j_readonly.pl
@@ -209,8 +217,11 @@ echo "
 # ============================================================================ #
 "
 
+echo "creating test Redis key-value"
 echo set myKey hari | redis-cli
-# RIAK_HOST obtained via .travis.yml
+echo done
+hr
+# REDIS_HOST obtained via .travis.yml
 perl -T $I_lib ./check_redis_clients.pl
 hr
 perl -T $I_lib ./check_redis_config.pl
@@ -233,10 +244,12 @@ echo "
 # ============================================================================ #
 "
 
+echo "creating test Riak document"
 # don't use new bucket types yet
 #curl -XPUT localhost:8098/types/myType/buckets/myBucket/keys/myKey -d 'hari'
 curl -XPUT localhost:8098/buckets/myBucket/keys/myKey -d 'hari'
-echo
+echo "done"
+hr
 # RIAK_HOST obtained via .travis.yml
 # needs sudo
 #perl -T $I_lib ./check_riak_diag.pl
