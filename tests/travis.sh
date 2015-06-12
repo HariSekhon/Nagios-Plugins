@@ -60,22 +60,22 @@ if [ -n "$TRAVIS" ]; then
     # stop printing xss = $JAVA_OPTS which will break nodetool parsing
     sudo sed -ibak2 's/^echo "xss = .*//' $CASSANDRA_HOME/conf/cassandra-env.sh
     sudo service cassandra status || sudo service cassandra start
+    hr
 fi
 
 # /usr/local/bin/nodetool symlink doesn't source cassandra.in.sh properly
 #nodetool status
 /usr/local/cassandra/bin/nodetool status
+hr
 # Cassandra checks are broken due to broken nodetool environment
 # must set full path to /usr/local/cassandra/bin/nodetool to bypass /usr/local/bin/nodetool symlink which doesn't source cassandra.in.sh properly and breaks with "You must set the CASSANDRA_CONF and CLASSPATH vars@
-set +e
-perl -T $I_lib ./check_cassandra_balance.pl  -n /usr/local/cassandra/bin/nodetool
+perl -T $I_lib ./check_cassandra_balance.pl  -n /usr/local/cassandra/bin/nodetool -v
 hr
-perl -T $I_lib ./check_cassandra_heap.pl     -n /usr/local/cassandra/bin/nodetool
+perl -T $I_lib ./check_cassandra_heap.pl     -n /usr/local/cassandra/bin/nodetool -w 70 -c 90 -v
 hr
-perl -T $I_lib ./check_cassandra_netstats.pl -n /usr/local/cassandra/bin/nodetool
+perl -T $I_lib ./check_cassandra_netstats.pl -n /usr/local/cassandra/bin/nodetool -v
 hr
-perl -T $I_lib ./check_cassandra_tpstats.pl  -n /usr/local/cassandra/bin/nodetool
-set -e
+perl -T $I_lib ./check_cassandra_tpstats.pl  -n /usr/local/cassandra/bin/nodetool -v
 
 echo; echo
 
@@ -107,35 +107,35 @@ perl -T $I_lib ./check_elasticsearch_fielddata.pl --list-nodes || :
 hr
 perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices || :
 hr
-perl -T $I_lib ./check_elasticsearch_cluster_shards.pl
+perl -T $I_lib ./check_elasticsearch_cluster_shards.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_cluster_status.pl
+perl -T $I_lib ./check_elasticsearch_cluster_status.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_cluster_status_nodes_shards.pl
+perl -T $I_lib ./check_elasticsearch_cluster_status_nodes_shards.pl -v
 hr
 perl -T $I_lib ./check_elasticsearch_data_nodes.pl -w 1 -v
 hr
-perl -T $I_lib ./check_elasticsearch_fielddata.pl -N 127.0.0.1
+perl -T $I_lib ./check_elasticsearch_fielddata.pl -N 127.0.0.1 -v
 hr
-perl -T $I_lib ./check_elasticsearch_index_exists.pl
+perl -T $I_lib ./check_elasticsearch_index_exists.pl -v
 #hr
-#perl -T $I_lib ./check_elasticsearch_index_health.pl
+#perl -T $I_lib ./check_elasticsearch_index_health.pl -v
 hr
 perl -T $I_lib ./check_elasticsearch_index_replicas.pl -w 0 -v
 hr
-perl -T $I_lib ./check_elasticsearch_index_settings.pl
+perl -T $I_lib ./check_elasticsearch_index_settings.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_index_shards.pl
+perl -T $I_lib ./check_elasticsearch_index_shards.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_index_stats.pl
+perl -T $I_lib ./check_elasticsearch_index_stats.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_master_node.pl
+perl -T $I_lib ./check_elasticsearch_master_node.pl -v
 hr
 perl -T $I_lib ./check_elasticsearch_nodes.pl -w 1 -v
 #hr
-#perl -T $I_lib ./check_elasticsearch_node_stats.pl
+#perl -T $I_lib ./check_elasticsearch_node_stats.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_shards_detail.pl
+perl -T $I_lib ./check_elasticsearch_shards_detail.pl -v
 
 echo; echo
 
@@ -150,9 +150,9 @@ echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc localhost 11211
 echo done
 hr
 # MEMCACHED_HOST obtained via .travis.yml
-perl -T $I_lib ./check_memcached_write.pl
+perl -T $I_lib ./check_memcached_write.pl -v
 hr
-perl -T $I_lib ./check_memcached_key.pl -k myKey -e hari
+perl -T $I_lib ./check_memcached_key.pl -k myKey -e hari -v
 hr
 perl -T $I_lib ./check_memcached_stats.pl -w 15 -c 20 -v
 
@@ -172,7 +172,7 @@ echo "
 #hr
 # Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
 if [ "$TRAVIS_PERL_VERSION" != "5.8" ]; then
-    perl -T $I_lib ./check_mongodb_write.pl
+    perl -T $I_lib ./check_mongodb_write.pl -v
 fi
 
 echo; echo
@@ -184,9 +184,9 @@ echo "
 "
 
 # MYSQL_HOST, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD obtained via .travis.yml
-perl -T $I_lib ./check_mysql_config.pl --warn-on-missing
+perl -T $I_lib ./check_mysql_config.pl --warn-on-missing -v
 hr
-perl -T $I_lib ./check_mysql_query.pl -q "show tables in information_schema" -o CHARACTER_SETS
+perl -T $I_lib ./check_mysql_query.pl -q "show tables in information_schema" -o CHARACTER_SETS -v
 
 echo; echo
 
@@ -201,18 +201,18 @@ neo4j-shell -c 'CREATE (p:Person { name: "Hari Sekhon" })'
 echo done
 hr
 # NEO4J_HOST obtained via .travis.yml
-perl -T $I_lib ./check_neo4j_readonly.pl
+perl -T $I_lib ./check_neo4j_readonly.pl -v
 hr
-perl -T $I_lib ./check_neo4j_remote_shell_enabled.pl
+perl -T $I_lib ./check_neo4j_remote_shell_enabled.pl -v
 hr
-perl -T $I_lib ./check_neo4j_stats.pl
+perl -T $I_lib ./check_neo4j_stats.pl -v
 hr
 perl -T $I_lib ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 1:1 -v
 hr
 # Neo4J on Travis doesn't seem to return anything resulting in "'attributes' field not returned by Neo4J" error
 #perl -T $I_lib ./check_neo4j_store_sizes.pl -vvv
 #hr
-perl -T $I_lib ./check_neo4j_version.pl
+perl -T $I_lib ./check_neo4j_version.pl -v
 
 echo; echo
 
@@ -227,21 +227,21 @@ echo set myKey hari | redis-cli
 echo done
 hr
 # REDIS_HOST obtained via .travis.yml
-perl -T $I_lib ./check_redis_clients.pl
+perl -T $I_lib ./check_redis_clients.pl -v
 hr
-perl -T $I_lib ./check_redis_config.pl --no-warn-extra
+perl -T $I_lib ./check_redis_config.pl --no-warn-extra -v
 hr
-perl -T $I_lib ./check_redis_key.pl -k myKey -e hari
+perl -T $I_lib ./check_redis_key.pl -k myKey -e hari -v
 hr
-perl -T $I_lib ./check_redis_publish_subscribe.pl
+perl -T $I_lib ./check_redis_publish_subscribe.pl -v
 hr
-perl -T $I_lib ./check_redis_stats.pl
+perl -T $I_lib ./check_redis_stats.pl -v
 hr
 perl -T $I_lib ./check_redis_stats.pl -s connected_clients -c 1:1 -v
 hr
-perl -T $I_lib ./check_redis_version.pl
+perl -T $I_lib ./check_redis_version.pl -v
 hr
-perl -T $I_lib ./check_redis_write.pl
+perl -T $I_lib ./check_redis_write.pl -v
 
 echo; echo
 
@@ -264,18 +264,18 @@ hr
 # needs sudo - uses wrong version of perl if not explicit path with sudo
 sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_diag.pl -vvv || :
 hr
-perl -T $I_lib ./check_riak_key.pl -b myBucket -k myKey -e hari
+perl -T $I_lib ./check_riak_key.pl -b myBucket -k myKey -e hari -v
 hr
 # needs sudo
-sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_ringready.pl
+sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_ringready.pl -v
 hr
-perl -T $I_lib ./check_riak_stats.pl --all
+perl -T $I_lib ./check_riak_stats.pl --all -v
 hr
 perl -T $I_lib ./check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
 hr
 perl -T $I_lib ./check_riak_stats.pl -s disk.0.size -c 1024: -v
 hr
-perl -T $I_lib ./check_riak_write.pl
+perl -T $I_lib ./check_riak_write.pl -v
 hr
 perl -T $I_lib ./check_riak_version.pl
 
