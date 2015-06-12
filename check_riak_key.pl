@@ -18,7 +18,9 @@ Checks:
 3. checks key's returned value against warning/critical range thresholds (optional)
    raises warning/critical if the value is outside thresholds or not a floating point number
 4. outputs the read timing to a given precision for reporting and graphing
-5. optionally outputs the key's value for graphing purposes";
+5. optionally outputs the key's value for graphing purposes
+
+Tested on Riak 1.x, 2.0.2, 2.1.1";
 
 $VERSION = "0.7.1";
 

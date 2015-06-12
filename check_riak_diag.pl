@@ -13,7 +13,9 @@ $DESCRIPTION = "Simple Nagios Plugin to check 'riak-admin diag' for cluster heal
 
 Raises Critical or Warning if any such diagnostics are found, outputs the number of critical, warning and notice diagnostics
 
-Designed to be run on each Riak node via NRPE";
+Designed to be run on each Riak node via NRPE
+
+Tested on Riak 1.x, 2.0.2, 2.1.1";
 
 $VERSION = "0.1";
 

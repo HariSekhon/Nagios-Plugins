@@ -22,7 +22,9 @@ Checks:
 5. records the write/read/delete timings to a given precision for reporting and graphing
 6. compares each operation's time taken against the warning/critical thresholds if given
 
-Control of Riak's n_val for the nagios bucket should be done separately, preferably by pre-creating the bucket with the desired n_val";
+Control of Riak's n_val for the nagios bucket should be done separately, preferably by pre-creating the bucket with the desired n_val
+
+Tested on Riak 1.x, 2.0.2, 2.1.1";
 
 $VERSION = "0.8.1";
 
