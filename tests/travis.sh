@@ -259,12 +259,13 @@ echo "done"
 hr
 # RIAK_HOST obtained via .travis.yml
 # needs sudo
-sudo perl -T $I_lib ./check_riak_diag.pl
+which perl
+#sudo perl -T $I_lib ./check_riak_diag.pl
 hr
 perl -T $I_lib ./check_riak_key.pl -b myBucket -k myKey -e hari
 hr
 # needs sudo
-sudo perl -T $I_lib ./check_riak_ringready.pl
+#sudo perl -T $I_lib ./check_riak_ringready.pl
 hr
 perl -T $I_lib ./check_riak_stats.pl --all
 hr
