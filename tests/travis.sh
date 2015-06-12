@@ -47,12 +47,21 @@ echo "
 # ============================================================================ #
 "
 
-# even bare 'nodetool status' has broken environment in Travis, nothing to do with say Taint security
-#nodetool status
-# CASSANDRA_HOST and CASSANDRA_CONF obtained via .travis.yml
 # workarounds for nodetool "You must set the CASSANDRA_CONF and CLASSPATH vars"
 export CASSANDRA_HOME="${CASSANDRA_HOME:-/usr/local/cassandra}"
-export CASSANDRA_CONF="${CASSANDRA_CONF:-$CASSANDRA_HOME/conf}"
+
+# Cassandra service on Travis is really broken, some hack to make it work
+if [ -n "$TRAVIS" ]; then
+    sed -ibak 's/jamm-0.2.5.jar/jamm-0.2.8.jar/' $CASSANDRA_HOME/bin/cassandra.in.sh
+    sed -ribak 's/^(multithreaded_compaction|memtable_flush_queue_size|preheat_kernel_page_cache|compaction_preheat_key_cache|in_memory_compaction_limit_in_mb):.*//' conf/cassandra.yaml ; grep multithreaded_compaction $CASSANDRA_HOME/conf/cassandra.yaml
+    sudo service cassandra start
+    # For nodetool to get CASSANDRA_CONF and CLASSPATH
+    . $CASSANDRA_HOME/bin/cassandra.in.sh
+fi
+
+# even bare 'nodetool status' has broken environment in Travis, nothing to do with say Taint security
+nodetool status
+# CASSANDRA_HOST obtained via .travis.yml
 #export CLASSPATH="${CLASSPATH:-.}"
 for x in $(find /usr/local/cassandra -name '*.jar'); do
     export CLASSPATH="CLASSPATH:$x"

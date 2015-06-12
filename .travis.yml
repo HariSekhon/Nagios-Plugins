@@ -40,7 +40,6 @@ env:
   global:
     - CASSANDRA_HOST=localhost
     - CASSANDRA_HOME=/usr/local/cassandra
-    - CASSANDRA_CONF=/usr/local/cassandra/conf
     - ELASTICSEARCH_HOST=localhost
     - ELASTICSEARCH_INDEX=travis-test
     - MEMCACHED_HOST=localhost
