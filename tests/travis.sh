@@ -63,7 +63,9 @@ if [ -n "$TRAVIS" ]; then
     set -e
 fi
 
-nodetool status
+# /usr/local/bin/nodetool
+#nodetool status
+/usr/local/cassandra/bin/nodetool status
 # CASSANDRA_HOST obtained via .travis.yml
 #for x in $(find /usr/local/cassandra -name '*.jar'); do
 #    export CLASSPATH="CLASSPATH:$x"
