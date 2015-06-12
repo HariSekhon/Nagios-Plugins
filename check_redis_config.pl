@@ -26,7 +26,7 @@ Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Coll
 
 Tested on Redis 2.4.10 and 2.8.9";
 
-$VERSION = "0.7.1";
+$VERSION = "0.8.0";
 
 use strict;
 use warnings;
@@ -45,8 +45,10 @@ my $config_cmd = $default_config_cmd;
 # REGEX
 my @config_file_only = qw(
                            activerehashing
+                           bind
                            daemonize
                            databases
+                           logfile
                            maxclients
                            pidfile
                            port
@@ -74,11 +76,13 @@ my $no_warn_missing   = 0;
 
 our %options = (
     %redis_options,
-    "C|config=s"    => [ \$conf,        "Redis config file (defaults: @default_config_locations)" ],
+    "C|config=s"        =>  [ \$conf,               "Redis config file (defaults: @default_config_locations)" ],
+    "no-warn-missing"   =>  [ \$no_warn_missing,    "Do not warn on missing config variables found in config file but not on live server" ],
+    "no-warn-extra"     =>  [ \$no_warn_extra,      "Do not warn on extra config variables found on server but not in config file" ],
 );
 delete $options{"precision=i"};
 
-@usage_order = qw/host port password config/;
+@usage_order = qw/host port password config no-warn-missing no-warn-extra/;
 get_options();
 
 $host       = validate_host($host);
@@ -98,8 +102,10 @@ unless($conf){
         }
     }
 }
-$conf       = validate_file($conf, 0, "config");
-validate_thresholds();
+$conf = validate_file($conf, 0, "config");
+vlog_options_bool "warn on missing", ! $no_warn_missing;
+vlog_options_bool "warn on extra", ! $no_warn_extra;
+
 
 vlog2;
 set_timeout();
@@ -119,7 +125,7 @@ while(<$fh>){
     s/^\s*//;
     s/\s*$//;
     debug "conf file:  $_";
-    /^\s*([\w\.-]+)\s+["']?(.+?)["']?\s*$/ or quit "UNKNOWN", "unrecognized line in config file '$conf': '$_'. $nagios_plugins_support_msg";
+    /^\s*([\w\.-]+)\s+["']?([^'"]*)["']?\s*$/ or quit "UNKNOWN", "unrecognized line in config file '$conf': '$_'. $nagios_plugins_support_msg";
     $key   = lc $1;
     $value = lc $2;
     if($key eq "dir"){
@@ -274,7 +280,23 @@ foreach my $key (sort keys %config){
         }
         next;
     }
-    unless($config{$key} eq $running_config{$key}){
+    my $running_value = $running_config{$key};
+    my $config_value  = $config{$key};
+    # special exception of client-output-buffer-limit in Travis, couldn't make generic as it also requires special prefix handling
+    if($key eq "client-output-buffer-limit"){
+        my $tmp = "";
+        foreach my $tmp2 (split(/\s/, $config_value)){
+            if(grep { $tmp2 =~ /^(\d+)($_)$/ } qw/kb mb gb tb pb/){
+                $tmp2 = expand_units($1, $2);
+            }
+            $tmp .= " $tmp2";
+        }
+        $config_value = trim($tmp);
+        if($config_value =~ /^pubsub/){
+            $config_value = "normal 0 0 0 $config_value";
+        }
+    }
+    unless($running_value eq $config_value){
         push(@mismatched_config, $key);
     }
 }
@@ -288,13 +310,14 @@ foreach my $key (sort keys %running_config){
         }
     }
 }
+vlog3;
 
 $msg = "";
 if(@mismatched_config){
     critical;
     #$msg .= "mismatched config: ";
     foreach(sort @mismatched_config){
-        $msg .= "$_ value mismatch '$config{$_}' in config vs '$running_config{$_}' live on server, ";
+        $msg .= "$_ value mismatch config:'$config{$_}' vs live server:'$running_config{$_}', ";
     }
 }
 if((!$no_warn_missing) and @missing_config){
@@ -319,5 +342,4 @@ if((!$no_warn_extra) and @extra_config){
 $msg = sprintf("%d config values tested from config file '%s', %s", scalar keys %config, $conf, $msg);
 $msg =~ s/, $//;
 
-vlog2;
 quit $status, $msg;
