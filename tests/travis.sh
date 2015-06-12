@@ -52,8 +52,8 @@ export CASSANDRA_HOME="${CASSANDRA_HOME:-/usr/local/cassandra}"
 
 # Cassandra service on Travis is really broken, some hack to make it work
 if [ -n "$TRAVIS" ]; then
-    sed -ibak 's/jamm-0.2.5.jar/jamm-0.2.8.jar/' $CASSANDRA_HOME/bin/cassandra.in.sh
-    sed -ribak 's/^(multithreaded_compaction|memtable_flush_queue_size|preheat_kernel_page_cache|compaction_preheat_key_cache|in_memory_compaction_limit_in_mb):.*//' conf/cassandra.yaml ; grep multithreaded_compaction $CASSANDRA_HOME/conf/cassandra.yaml
+    sudo sed -ibak 's/jamm-0.2.5.jar/jamm-0.2.8.jar/' $CASSANDRA_HOME/bin/cassandra.in.sh
+    sudo sed -ribak 's/^(multithreaded_compaction|memtable_flush_queue_size|preheat_kernel_page_cache|compaction_preheat_key_cache|in_memory_compaction_limit_in_mb):.*//' conf/cassandra.yaml ; grep multithreaded_compaction $CASSANDRA_HOME/conf/cassandra.yaml
     sudo service cassandra start
     # For nodetool to get CASSANDRA_CONF and CLASSPATH
     . $CASSANDRA_HOME/bin/cassandra.in.sh
