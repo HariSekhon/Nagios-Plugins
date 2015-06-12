@@ -54,8 +54,10 @@ echo "
 # Cassandra service on Travis is really broken, some hacks to make it work
 if [ -n "$TRAVIS" ]; then
     export CASSANDRA_HOME="${CASSANDRA_HOME:-/usr/local/cassandra}"
-    sudo sed -ibak 's/jamm-0.2.5.jar/jamm-0.2.8.jar/' $CASSANDRA_HOME/bin/cassandra.in.sh
+    sudo sed -ibak 's/jamm-0.2.5.jar/jamm-0.2.8.jar/' $CASSANDRA_HOME/bin/cassandra.in.sh $CASSANDRA_HOME/conf/cassandra-env.sh
     sudo sed -ribak 's/^(multithreaded_compaction|memtable_flush_queue_size|preheat_kernel_page_cache|compaction_preheat_key_cache|in_memory_compaction_limit_in_mb):.*//' $CASSANDRA_HOME/conf/cassandra.yaml
+    # stop printing xss = $JAVA_OPTS which will break nodetool parsing
+    sudo sed -ibak2 's/^echo "xss = .*//' $CASSANDRA_HOME/conf/cassandra-env.sh
     sudo service cassandra start
     # For nodetool to get CASSANDRA_CONF and CLASSPATH
     set +u
