@@ -258,14 +258,13 @@ curl -XPUT localhost:8098/buckets/myBucket/keys/myKey -d 'hari'
 echo "done"
 hr
 # RIAK_HOST obtained via .travis.yml
-# needs sudo
-which perl
-#sudo perl -T $I_lib ./check_riak_diag.pl
+# needs sudo - uses wrong version of perl if not explicit path with sudo
+sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_diag.pl
 hr
 perl -T $I_lib ./check_riak_key.pl -b myBucket -k myKey -e hari
 hr
 # needs sudo
-#sudo perl -T $I_lib ./check_riak_ringready.pl
+sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_ringready.pl
 hr
 perl -T $I_lib ./check_riak_stats.pl --all
 hr
