@@ -225,7 +225,7 @@ hr
 # REDIS_HOST obtained via .travis.yml
 perl -T $I_lib ./check_redis_clients.pl
 hr
-perl -T $I_lib ./check_redis_config.pl
+perl -T $I_lib ./check_redis_config.pl --no-warn-extra
 hr
 perl -T $I_lib ./check_redis_key.pl -k myKey -e hari
 hr
