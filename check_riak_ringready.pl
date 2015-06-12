@@ -13,9 +13,11 @@ $DESCRIPTION = "Simple Nagios Plugin which calls 'riak-admin ringready' to check
 
 Useful to check that ring state has settled after changing cluster memberships
 
-Designed to be run on a Riak node over NRPE";
+Designed to be run on a Riak node over NRPE
 
-$VERSION = "0.1";
+Tested on Riak 1.x, 2.0.0, 2.1.1";
+
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -54,5 +56,6 @@ my $msg = join(" ", cmd("riak-admin ringready"));
 $msg =~ s/\s+/ /g;
 $msg =~ s/, /,/;
 $msg =~ /^TRUE/ and $status = "OK";
+$msg =~ s/\[.*// unless $verbose;
 
 quit $status, $msg;
