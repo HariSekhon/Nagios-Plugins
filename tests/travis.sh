@@ -54,10 +54,11 @@ echo "
 # Cassandra service on Travis is really broken, some hacks to make it work
 if [ -n "$TRAVIS" ]; then
     export CASSANDRA_HOME="${CASSANDRA_HOME:-/usr/local/cassandra}"
+    # these were only necessary on the debug VM but not in the actual Travis env for some reason
     #sudo sed -ibak 's/jamm-0.2.5.jar/jamm-0.2.8.jar/' $CASSANDRA_HOME/bin/cassandra.in.sh $CASSANDRA_HOME/conf/cassandra-env.sh
     #sudo sed -ribak 's/^(multithreaded_compaction|memtable_flush_queue_size|preheat_kernel_page_cache|compaction_preheat_key_cache|in_memory_compaction_limit_in_mb):.*//' $CASSANDRA_HOME/conf/cassandra.yaml
     # stop printing xss = $JAVA_OPTS which will break nodetool parsing
-    #sudo sed -ibak2 's/^echo "xss = .*//' $CASSANDRA_HOME/conf/cassandra-env.sh
+    sudo sed -ibak2 's/^echo "xss = .*//' $CASSANDRA_HOME/conf/cassandra-env.sh
     sudo service cassandra status || sudo service cassandra start
 fi
 
@@ -250,6 +251,8 @@ echo "
 # ============================================================================ #
 "
 
+echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
+sudo riak-admin bucket-type create myBucket '{"props":{"n_val":1}}'
 echo "creating test Riak document"
 # don't use new bucket types yet
 #curl -XPUT localhost:8098/types/myType/buckets/myBucket/keys/myKey -d 'hari'
