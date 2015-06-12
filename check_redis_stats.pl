@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-our $developed_on = "Developed on Redis 2.4.10";
+our $tested_on = "Tested on Redis 2.4.10 and 2.8.19";
 
 our $DESCRIPTION = "Nagios Plugin to check a Redis server's stats
 
@@ -17,7 +17,7 @@ our $DESCRIPTION = "Nagios Plugin to check a Redis server's stats
 2. If specifying a single stat, checks the result matches expected value or warning/critical thresholds if specified
 3. Outputs perfdata for all float value stats for graphing
 
-$developed_on";
+$tested_on";
 
 $VERSION = "0.7.1";
 
@@ -61,7 +61,7 @@ if($progname eq "check_redis_version.pl"){
                  . "2. link to master is up\n"
                  . "3. replication last I/O is within warning/critical thresholds\n"
                  . "4. checks if master sync is in progress (raises warning)\n"
-                 . "\n" . $developed_on . "\n";
+                 . "\n" . $tested_on . "\n";
     $statlist = "role,master_host,master_port,master_link_status,master_last_io_seconds_ago,master_sync_in_progress";
     delete $options{"s|stats=s"};
     delete $options{"e|expected=s"};

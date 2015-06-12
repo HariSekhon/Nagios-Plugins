@@ -24,7 +24,7 @@ Detects password in this order of priority (highest first):
 
 Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Collection)
 
-Tested on Redis 2.4.10 and 2.8.9";
+Tested on Redis 2.4.10 and 2.8.19";
 
 $VERSION = "0.8.0";
 
