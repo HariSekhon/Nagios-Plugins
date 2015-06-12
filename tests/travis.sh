@@ -64,8 +64,6 @@ fi
 # /usr/local/bin/nodetool symlink doesn't source cassandra.in.sh properly
 #nodetool status
 /usr/local/cassandra/bin/nodetool status
-echo "CASSANDRA_CONF=$CASSANDRA_CONF"
-echo "CLASSPATH=$CLASSPATH"
 # Cassandra checks are broken due to broken nodetool environment
 # must set full path to /usr/local/cassandra/bin/nodetool to bypass /usr/local/bin/nodetool symlink which doesn't source cassandra.in.sh properly and breaks with "You must set the CASSANDRA_CONF and CLASSPATH vars@
 set +e
