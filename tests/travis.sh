@@ -271,7 +271,7 @@ perl -T $I_lib ./check_riak_stats.pl --all
 hr
 perl -T $I_lib ./check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
 hr
-perl -T $I_lib ./check_riak_stats.pl -s disk.0.id -c 1024: -v
+perl -T $I_lib ./check_riak_stats.pl -s disk.0.size -c 1024: -v
 hr
 perl -T $I_lib ./check_riak_write.pl
 hr
