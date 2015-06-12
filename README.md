@@ -110,7 +110,7 @@ If you're new remember to check out the older/ directory for more plugins that a
 
 Building is basically one ```make``` command.
 
-Don't bother copying plugins out as most require the co-located libraries I've written so you should copy this directory as a whole - it's simpler than trying to extract bits and pieces.
+Don't copy plugins out as most require the co-located libraries I've written so you should copy this directory as a whole after building it - it's simpler than trying to extract bits and pieces.
 
 Be aware this will install yum rpms / apt debs automatically as well as a load of CPAN modules for Perl. If you don't want all that stuff automatically installed you must use the manual setup further down. You may need to install the GNU make system package if the make command isn't found (```yum install make```)
 
