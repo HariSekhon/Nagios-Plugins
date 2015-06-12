@@ -18,7 +18,7 @@ Checks:
 - optionally checks node's Elasticsearch / Lucene versions
 - in verbose mode also prints out the generated Marvel node name
 
-Tested on Elasticsearch 0.90.1, 1.2.1, 1.3.0, 1.4.4";
+Tested on Elasticsearch 0.90.1, 1.2.1, 1.3.0, 1.4.0, 1.4.4";
 
 $VERSION = "0.2";
 

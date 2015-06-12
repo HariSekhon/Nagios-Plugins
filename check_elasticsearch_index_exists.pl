@@ -12,7 +12,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check a given index exists in Elasticsearch
 
-Tested on Elasticsearch 1.2.1 and 1.4.4";
+Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4";
 
 $VERSION = "0.1";
 

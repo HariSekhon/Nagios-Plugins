@@ -16,7 +16,7 @@ $DESCRIPTION = "Nagios Plugin to check the stats for a given Elasticsearch index
 - Optional --warning/--critical threshold ranges may be applied if specifying only one stat
 - Will output stats KB/MB/GB/PB values in brackets in verbose mode for size_in_bytes stats
 
-Tested on Elasticsearch 1.2.1 and 1.4.4";
+Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4";
 
 $VERSION = "0.1";
 

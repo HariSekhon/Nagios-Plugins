@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check the number of docs in an Elasticsearch cl
 
 Optional --warning/--critical threshold ranges may be applied to the number of docs
 
-Tested on Elasticsearch 1.2.1 and 1.4.4";
+Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4";
 
 $VERSION = "0.1";
 

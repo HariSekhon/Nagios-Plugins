@@ -12,7 +12,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the number of shards of a given Elasticsearch index
 
-Tested on Elasticsearch 1.2.1 and 1.4.4";
+Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4";
 
 $VERSION = "0.6";
 
