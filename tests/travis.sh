@@ -57,40 +57,25 @@ if [ -n "$TRAVIS" ]; then
     #sudo sed -ibak 's/jamm-0.2.5.jar/jamm-0.2.8.jar/' $CASSANDRA_HOME/bin/cassandra.in.sh $CASSANDRA_HOME/conf/cassandra-env.sh
     #sudo sed -ribak 's/^(multithreaded_compaction|memtable_flush_queue_size|preheat_kernel_page_cache|compaction_preheat_key_cache|in_memory_compaction_limit_in_mb):.*//' $CASSANDRA_HOME/conf/cassandra.yaml
     # stop printing xss = $JAVA_OPTS which will break nodetool parsing
-    sudo sed -ibak2 's/^echo "xss = .*//' $CASSANDRA_HOME/conf/cassandra-env.sh
+    #sudo sed -ibak2 's/^echo "xss = .*//' $CASSANDRA_HOME/conf/cassandra-env.sh
     sudo service cassandra status || sudo service cassandra start
-    # For nodetool to get CASSANDRA_CONF and CLASSPATH
-    set +u
-    #. $CASSANDRA_HOME/bin/cassandra.in.sh
-    set -e
 fi
 
-# /usr/local/bin/nodetool
+# /usr/local/bin/nodetool symlink doesn't source cassandra.in.sh properly
 #nodetool status
 /usr/local/cassandra/bin/nodetool status
-# CASSANDRA_HOST obtained via .travis.yml
-#for x in $(find /usr/local/cassandra -name '*.jar'); do
-#    export CLASSPATH="CLASSPATH:$x"
-#done
 echo "CASSANDRA_CONF=$CASSANDRA_CONF"
 echo "CLASSPATH=$CLASSPATH"
-#find "$CASSANDRA_HOME" -name '*cassandra.in.sh*'
-# doesn't work
-#set +u
-#for x in $(find "$CASSANDRA_HOME" -name '*cassandra.in.sh*'); do
-#    echo "sourcing $x"
-#    . "$x"
-#done
-#set -u
 # Cassandra checks are broken due to broken nodetool environment
+# must set full path to /usr/local/cassandra/bin/nodetool to bypass /usr/local/bin/nodetool symlink which doesn't source cassandra.in.sh properly and breaks with "You must set the CASSANDRA_CONF and CLASSPATH vars@
 set +e
-perl -T $I_lib ./check_cassandra_balance.pl
+perl -T $I_lib ./check_cassandra_balance.pl  -n /usr/local/cassandra/bin/nodetool
 hr
-perl -T $I_lib ./check_cassandra_heap.pl -vvv
+perl -T $I_lib ./check_cassandra_heap.pl     -n /usr/local/cassandra/bin/nodetool
 hr
-perl -T $I_lib ./check_cassandra_netstats.pl -vvv
+perl -T $I_lib ./check_cassandra_netstats.pl -n /usr/local/cassandra/bin/nodetool
 hr
-perl -T $I_lib ./check_cassandra_tpstats.pl
+perl -T $I_lib ./check_cassandra_tpstats.pl  -n /usr/local/cassandra/bin/nodetool
 set -e
 
 echo; echo
@@ -275,7 +260,7 @@ echo "done"
 hr
 # RIAK_HOST obtained via .travis.yml
 # needs sudo - uses wrong version of perl if not explicit path with sudo
-sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_diag.pl
+sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_diag.pl -vvv || :
 hr
 perl -T $I_lib ./check_riak_key.pl -b myBucket -k myKey -e hari
 hr
