@@ -266,7 +266,9 @@ sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib .
 hr
 perl -T $I_lib ./check_riak_key.pl -b myBucket -k myKey -e hari -v
 hr
-# needs sudo
+sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_member_status.pl -v
+hr
+# needs sudo - riak must be started as root in Travis
 sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_ringready.pl -v
 hr
 perl -T $I_lib ./check_riak_stats.pl --all -v
@@ -275,7 +277,8 @@ perl -T $I_lib ./check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
 hr
 perl -T $I_lib ./check_riak_stats.pl -s disk.0.size -c 1024: -v
 hr
-#sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_write_local.pl -v
+# needs sudo - riak must be started as root in Travis
+sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_write_local.pl -v
 perl -T $I_lib ./check_riak_write_local.pl -v
 hr
 perl -T $I_lib ./check_riak_write.pl -v
