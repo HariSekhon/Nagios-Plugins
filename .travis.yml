@@ -21,7 +21,7 @@ install:
 
 script:
   - tests/help.sh
-  - tests/travis.sh
+  - for x in tests/*.sh; do [ "$x" = "tests/help.sh" ] && continue; ./$x done
 
 services:
   - cassandra
