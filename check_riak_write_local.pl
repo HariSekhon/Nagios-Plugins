@@ -46,13 +46,11 @@ set_timeout();
 $status = "OK";
 
 vlog2 "running $cmd";
-my @output = cmd($cmd, 1);
+$msg = join(" ", cmd($cmd, 1));
 vlog2 "checking $cmd results";
 
-my $output = join("\n", @output);
-$output =~ /^Successfully/ or critical;
-$output =~ s/ to '[^']+'\s*$//g unless $verbose;
-$msg = $output;
+$msg =~ /^Successfully/ or critical;
+$msg =~ s/ to '[^']+'\s*$//g unless $verbose;
 
 vlog2;
 quit $status, $msg;
