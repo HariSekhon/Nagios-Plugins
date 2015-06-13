@@ -279,7 +279,6 @@ perl -T $I_lib ./check_riak_stats.pl -s disk.0.size -c 1024: -v
 hr
 # needs sudo - riak must be started as root in Travis
 sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_write_local.pl -v
-perl -T $I_lib ./check_riak_write_local.pl -v
 hr
 perl -T $I_lib ./check_riak_write.pl -v
 hr
