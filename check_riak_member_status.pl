@@ -113,12 +113,20 @@ unless($valid + $leaving + $exiting + $joining + $down > 0){
     $msg = "No valid node states detected! $msg";
 }
 
-foreach my $key (sort keys %nodes){
-    vlog2 "$key nodes: " . join(", ", @{$nodes{$key}});
+foreach my $status_type (sort keys %nodes){
+    vlog2 "$status_type nodes: " . join(", ", @{$nodes{$status_type}});
 }
 
 
 check_thresholds($down);
+if($verbose){
+    $msg .= " {";
+    foreach my $status_type (sort keys %nodes){
+        $msg .= "$status_type=[" . join(",", @{$nodes{$status_type}}) . "], ";
+    }
+    $msg =~ s/, $//;
+    $msg .= "}";
+}
 $msg .= " | valid=$valid leaving=$leaving exiting=$exiting joining=$joining down=$down";
 msg_perf_thresholds();
 
