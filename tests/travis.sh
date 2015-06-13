@@ -262,7 +262,7 @@ echo "done"
 hr
 # RIAK_HOST obtained via .travis.yml
 # needs sudo - uses wrong version of perl if not explicit path with sudo
-sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_diag.pl --ignore-warnings
+sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_diag.pl --ignore-warnings -v
 hr
 perl -T $I_lib ./check_riak_key.pl -b myBucket -k myKey -e hari -v
 hr
@@ -274,6 +274,9 @@ hr
 perl -T $I_lib ./check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
 hr
 perl -T $I_lib ./check_riak_stats.pl -s disk.0.size -c 1024: -v
+hr
+#sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_write_local.pl -v
+perl -T $I_lib ./check_riak_write_local.pl -v
 hr
 perl -T $I_lib ./check_riak_write.pl -v
 hr
