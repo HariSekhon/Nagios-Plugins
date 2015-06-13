@@ -17,7 +17,7 @@ Designed to be run on a Riak node over NRPE
 
 Tested on Riak 1.x, 2.0.0, 2.1.1";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -26,36 +26,30 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-
-# This is the default install path for riak-admin from packages
-$ENV{"PATH"} .= ":/usr/sbin";
-
-my $path = "";
+use HariSekhon::Riak;
 
 %options = (
-    "riak-admin-path=s"  => [ \$path, "Path to directory containing riak-admin command if differing from the default /usr/sbin" ],
+    %riak_admin_path_option,
 );
 
 get_options();
 
-if($path){
-    if(grep {$_ eq $path } split(":", $ENV{"PATH"})){
-        usage "$path already in \$PATH ($ENV{PATH})";
-    }
-    $path = validate_directory($path, undef, "riak-admin PATH", "no vlog");
-    $ENV{"PATH"} = "$path:$ENV{PATH}";
-    vlog2 "\$PATH for riak-admin:",   $ENV{"PATH"};
-    vlog2;
-}
-
 set_timeout();
+
+get_riak_admin_path();
 
 $status = "CRITICAL";
 
-my $msg = join(" ", cmd("riak-admin ringready"));
+my $cmd = "riak-admin ringready";
+
+vlog2 "running $cmd";
+$msg = join(" ", cmd($cmd, 1));
+vlog2 "checking $cmd results";
+
 $msg =~ s/\s+/ /g;
 $msg =~ s/, /,/;
 $msg =~ /^TRUE/ and $status = "OK";
 $msg =~ s/\[.*// unless $verbose;
 
+vlog2;
 quit $status, $msg;
