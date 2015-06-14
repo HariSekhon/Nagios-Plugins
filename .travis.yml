@@ -21,7 +21,7 @@ install:
 
 script:
   - tests/help.sh
-  - for x in tests/*.sh; do [ "$x" = "tests/help.sh" ] && continue; ./$x || break; done
+  - for x in tests/*.sh; do [ "$x" = "tests/help.sh" ] && continue; ./$x || exit $?; done
 
 services:
   - cassandra
