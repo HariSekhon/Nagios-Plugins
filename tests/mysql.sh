@@ -27,7 +27,7 @@ echo "
 "
 
 # MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD obtained via .travis.yml
-MYSQL_HOST="${MYSQL_HOST:-localhost}"
+export MYSQL_HOST="${MYSQL_HOST:-localhost}"
 
 perl -T $I_lib ./check_mysql_config.pl --warn-on-missing -v
 hr

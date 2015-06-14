@@ -26,7 +26,7 @@ echo "
 # ============================================================================ #
 "
 
-MEMCACHED_HOST="${MEMCACHED_HOST:-localhost}"
+export MEMCACHED_HOST="${MEMCACHED_HOST:-localhost}"
 
 echo "creating test Memcached key-value"
 echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc $MEMCACHED_HOST 11211

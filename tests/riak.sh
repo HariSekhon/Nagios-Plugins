@@ -27,7 +27,7 @@ echo "
 "
 
 # RIAK_HOST no longer obtained via .travis.yml, some of these require local riak-admin tool so only makes more sense to run all tests locally
-RIAK_HOST="localhost"
+export RIAK_HOST="localhost"
 
 echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
 $sudo riak-admin bucket-type create myBucket '{"props":{"n_val":1}}' || :

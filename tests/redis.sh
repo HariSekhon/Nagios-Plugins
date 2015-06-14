@@ -26,7 +26,7 @@ echo "
 # ============================================================================ #
 "
 
-REDIS_HOST="${REDIS_HOST:-localhost}"
+export REDIS_HOST="${REDIS_HOST:-localhost}"
 
 echo "creating test Redis key-value"
 echo set myKey hari | redis-cli -h "$REDIS_HOST"

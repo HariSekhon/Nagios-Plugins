@@ -26,7 +26,7 @@ echo "
 # ============================================================================ #
 "
 
-CASSANDRA_HOST="${CASSANDRA_HOST:-localhost}"
+export CASSANDRA_HOST="${CASSANDRA_HOST:-localhost}"
 
 # Cassandra build in Travis is quite broken, appears due to an incorrect upgrade in the VM image
 
