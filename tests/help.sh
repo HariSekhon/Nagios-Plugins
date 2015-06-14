@@ -18,24 +18,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-export PERLBREW_ROOT="${PERLBREW_ROOT:-~/perl5/perlbrew}"
-
-export TRAVIS_PERL_VERSION="${TRAVIS_PERL_VERSION:-*}"
-
-# For Travis CI which installs modules locally
-export PERL5LIB=$(echo \
-    ${PERL5LIB:-.} \
-    $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/site_perl/$TRAVIS_PERL_VERSION.*/x86_64-linux \
-    $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/site_perl/$TRAVIS_PERL_VERSION.* \
-    $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/$TRAVIS_PERL_VERSION.*/x86_64-linux \
-    $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/$TRAVIS_PERL_VERSION.* \
-    | tr '\n' ':'
-)
-# Taint code doesn't use PERL5LIB, use -I instead
-I_lib=""
-for x in $(echo "$PERL5LIB" | tr ':' ' '); do
-    I_lib+="-I $x "
-done
+. tests/travis.sh
 
 for x in $(echo *.pl *.py *.rb 2>/dev/null); do
     [[ "$x" =~ ^\* ]] && continue

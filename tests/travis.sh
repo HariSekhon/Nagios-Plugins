@@ -14,9 +14,6 @@
 #
 
 set -eu
-srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-cd "$srcdir/..";
 
 export PERLBREW_ROOT="${PERLBREW_ROOT:-~/perl5/perlbrew}"
 
