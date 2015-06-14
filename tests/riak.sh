@@ -31,8 +31,8 @@ export RIAK_HOST="localhost"
 
 echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
 $sudo riak-admin bucket-type create myBucket '{"props":{"n_val":1}}' || :
-$sudo riak-admin bucket-type update myBucket '{"props":{"n_val":1}}'
 $sudo riak-admin bucket-type activate myBucket
+$sudo riak-admin bucket-type update myBucket '{"props":{"n_val":1}}'
 echo "creating test Riak document"
 # don't use new bucket types yet
 #curl -XPUT localhost:8098/types/myType/buckets/myBucket/keys/myKey -d 'hari'
