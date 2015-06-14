@@ -26,8 +26,10 @@ echo "
 # ============================================================================ #
 "
 
+REDIS_HOST="${REDIS_HOST:-localhost}"
+
 echo "creating test Redis key-value"
-echo set myKey hari | redis-cli
+echo set myKey hari | redis-cli -h "$REDIS_HOST"
 echo done
 hr
 # REDIS_HOST obtained via .travis.yml

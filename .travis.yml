@@ -38,16 +38,6 @@ services:
 
 env:
   global:
-    - CASSANDRA_HOST=localhost
-    - CASSANDRA_HOME=/usr/local/cassandra
-    - ELASTICSEARCH_HOST=localhost
-    - ELASTICSEARCH_INDEX=travis-test
-    - MEMCACHED_HOST=localhost
-    - MONGODB_HOST=localhost
     - MYSQL_DATABASE=user
-    - MYSQL_HOST=localhost
     - MYSQL_PASSWORD=""
     - MYSQL_USER=travis
-    - NEO4J_HOST=localhost
-    - REDIS_HOST=localhost
-    - RIAK_HOST=localhost

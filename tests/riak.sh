@@ -26,25 +26,28 @@ echo "
 # ============================================================================ #
 "
 
+# RIAK_HOST no longer obtained via .travis.yml, some of these require local riak-admin tool so only makes more sense to run all tests locally
+RIAK_HOST="localhost"
+
 echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
-sudo riak-admin bucket-type create myBucket '{"props":{"n_val":1}}'
-sudo riak-admin bucket-type activate myBucket
+$sudo riak-admin bucket-type create myBucket '{"props":{"n_val":1}}' || :
+$sudo riak-admin bucket-type update myBucket '{"props":{"n_val":1}}'
+$sudo riak-admin bucket-type activate myBucket
 echo "creating test Riak document"
 # don't use new bucket types yet
 #curl -XPUT localhost:8098/types/myType/buckets/myBucket/keys/myKey -d 'hari'
-curl -XPUT localhost:8098/buckets/myBucket/keys/myKey -d 'hari'
+curl -XPUT $RIAK_HOST:8098/buckets/myBucket/keys/myKey -d 'hari'
 echo "done"
 hr
-# RIAK_HOST obtained via .travis.yml
 # needs sudo - uses wrong version of perl if not explicit path with sudo
-sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_diag.pl --ignore-warnings -v
+$sudo $perl -T $I_lib ./check_riak_diag.pl --ignore-warnings -v
 hr
 perl -T $I_lib ./check_riak_key.pl -b myBucket -k myKey -e hari -v
 hr
-sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_member_status.pl -v
+$sudo $perl -T $I_lib ./check_riak_member_status.pl -v
 hr
 # needs sudo - riak must be started as root in Travis
-sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_ringready.pl -v
+$sudo $perl -T $I_lib ./check_riak_ringready.pl -v
 hr
 perl -T $I_lib ./check_riak_stats.pl --all -v
 hr
@@ -53,7 +56,7 @@ hr
 perl -T $I_lib ./check_riak_stats.pl -s disk.0.size -c 1024: -v
 hr
 # needs sudo - riak must be started as root in Travis
-sudo /home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl -T $I_lib ./check_riak_write_local.pl -v
+$sudo $perl -T $I_lib ./check_riak_write_local.pl -v
 hr
 perl -T $I_lib ./check_riak_write.pl -v
 hr

@@ -26,8 +26,10 @@ echo "
 # ============================================================================ #
 "
 
+NEO4J_HOST="${NEO4J_HOST:-localhost}"
+
 echo "creating test Neo4J node"
-neo4j-shell -c 'CREATE (p:Person { name: "Hari Sekhon" })'
+neo4j-shell -host $NEO4J_HOST -c 'CREATE (p:Person { name: "Hari Sekhon" })'
 echo done
 hr
 # NEO4J_HOST obtained via .travis.yml

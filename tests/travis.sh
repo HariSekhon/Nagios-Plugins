@@ -37,3 +37,11 @@ done
 hr(){
     echo "===================="
 }
+
+if [ -n "${TRAVIS:-}" ]; then
+    sudo=sudo
+    perl="/home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl"
+else
+    sudo=""
+    perl=perl
+fi

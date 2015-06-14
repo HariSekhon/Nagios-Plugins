@@ -26,6 +26,9 @@ echo "
 # ============================================================================ #
 "
 
+ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST:-localhost}"
+ELASTICSEARCH_INDEX="${ELASTICSEARCH_INDEX:-test}"
+
 echo "creating test Elasticsearch index '$ELASTICSEARCH_INDEX'"
 curl -XPUT "http://localhost:9200/$ELASTICSEARCH_INDEX/" -d '
 {

@@ -26,8 +26,10 @@ echo "
 # ============================================================================ #
 "
 
+MEMCACHED_HOST="${MEMCACHED_HOST:-localhost}"
+
 echo "creating test Memcached key-value"
-echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc localhost 11211
+echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc $MEMCACHED_HOST 11211
 echo done
 hr
 # MEMCACHED_HOST obtained via .travis.yml

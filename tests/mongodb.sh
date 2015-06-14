@@ -26,7 +26,8 @@ echo "
 # ============================================================================ #
 "
 
-# MONGODB_HOST obtained via .travis.yml
+MONGODB_HOST="${MONGODB_HOST:-localhost}"
+
 # not part of a replica set so this fails
 #perl -T $I_lib ./check_mongodb_master.pl
 #hr
