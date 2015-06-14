@@ -43,7 +43,6 @@ curl -XPUT "http://localhost:9200/$ELASTICSEARCH_INDEX/" -d '
 echo
 echo done
 hr
-# ELASTICSEARCH_HOST, ELASTICSEARCH_INDEX obtained via .travis.yml
 perl -T $I_lib ./check_elasticsearch.pl -v
 hr
 # Listing checks return UNKNOWN, so reset their exit code to zero
