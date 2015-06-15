@@ -61,6 +61,8 @@ hr
 perl -T $I_lib ./check_elasticsearch_fielddata.pl -N 127.0.0.1 -v
 hr
 perl -T $I_lib ./check_elasticsearch_index_exists.pl -v
+hr
+perl -T $I_lib ./check_elasticsearch_index_age.pl -v -w 0:1
 #hr
 #perl -T $I_lib ./check_elasticsearch_index_health.pl -v
 hr
