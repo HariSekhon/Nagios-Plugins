@@ -48,6 +48,14 @@ my @config_file_only = qw(
                              server\.\d+
                        );
 
+# defaults appear when nothing in config file
+my @running_only = qw(
+                            dataLogDir
+                            maxClientCnxns
+                            maxSessionTimeout
+                            minSessionTimeout
+);
+
 $host = "localhost";
 
 my $ZK_DEFAULT_CONFIG = "/etc/zookeeper/conf/zoo.cfg";
@@ -99,6 +107,7 @@ vlog3;
 
 $status = "OK";
 
+vlog2;
 vlog2 "getting running zookeeper config from '$host:$port'";
 vlog3;
 zoo_cmd "conf", $timeout - 1;
@@ -118,7 +127,7 @@ while(<$zk_conn>){
     next if $key =~ /^serverId$/;
     $running_config{$key} = $value;
 }
-vlog3;
+vlog2;
 
 my @missing_config;
 my @mismatched_config;
@@ -126,7 +135,7 @@ my @extra_config;
 foreach my $key (sort keys %config){
     unless(defined($running_config{$key})){
         if(grep { $key =~ /^$_$/ } @config_file_only){
-            vlog3 "skipping: $key (config file only due to bug)";
+            vlog2 "config only, but exempted due to ZK bug: $key";
             next;
         } else {
             push(@missing_config, $key);
@@ -137,10 +146,15 @@ foreach my $key (sort keys %config){
         push(@mismatched_config, $key);
     }
 }
+vlog2;
 
-foreach(sort keys %running_config){
-    unless(defined($config{$_})){
-        push(@extra_config, $_);
+foreach my $key (sort keys %running_config){
+    unless(defined($config{$key})){
+        if(grep { $_ eq $key } @running_only){
+            vlog2 "running only, but exempted: $key";
+            next;
+        }
+        push(@extra_config, $key);
     }
 }
 
@@ -174,4 +188,5 @@ if((!$no_warn_extra) and @extra_config){
 $msg = sprintf("%d config values tested from config file '$conf', %s", scalar keys %config, $msg);
 $msg =~ s/, $//;
 
+vlog2;
 quit $status, $msg;
