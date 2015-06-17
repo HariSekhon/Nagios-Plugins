@@ -252,6 +252,11 @@ Check out the adjacent [ToolBox](https://github.com/harisekhon/toolbox) repo for
 * code reCaser for SQL / Pig / Neo4j / Hive HQL / Cassandra / MySQL / PostgreSQL / Impala / MSSQL / Oracle
 * ```scrub.pl``` anonymizes configs / logs for posting online - replaces hostnames/domains/FQDNs, IPs, passwords/keys in Cisco/Juniper configs, custom extensible phrases like your name or your company name
 
+### See Also ###
+
+* [My Perl/Python library] - used throughout this code as a submodule to make the programs in this repo short
+* [Spark => Elasticsearch ] - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of ```pig-text-to-elasticsearch.pig```
+
 ##### Weblinks #####
 
 * Official Nagios Homepage: http://www.nagios.org/
