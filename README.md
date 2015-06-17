@@ -254,8 +254,8 @@ Check out the adjacent [ToolBox](https://github.com/harisekhon/toolbox) repo for
 
 ### See Also ###
 
-* [My Perl/Python library] - used throughout this code as a submodule to make the programs in this repo short
-* [Spark => Elasticsearch ] - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of ```pig-text-to-elasticsearch.pig```
+* [My Perl/Python library](https://github.com/harisekhon/lib) - used throughout this code as a submodule to make the programs in this repo short
+* [Spark => Elasticsearch](https://github.com/harisekhon/spark-to-elasticsearch) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of ```pig-text-to-elasticsearch.pig```
 
 ##### Weblinks #####
 
