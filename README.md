@@ -244,7 +244,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 ### Further Utilities ###
 
-Check out the adjacent [ToolBox](https://github.com/harisekhon/toolbox) repo for other useful tools such as:
+[ToolBox](https://github.com/harisekhon/toolbox) repo - contains 30+ programs including useful tools such as:
 * Hive / Pig => Elasticsearch / SolrCloud indexers
 * Hadoop HDFS performance debugger, native checksum extractor, file retention policy script, HDFS file stats, XML & running Hadoop cluster config differ
 * ```watch_url.pl``` for debugging load balanced web farms
