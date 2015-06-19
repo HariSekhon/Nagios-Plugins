@@ -32,7 +32,7 @@ http://www.linkedin.com/in/harisekhon
 ### A Sample of cool Nagios Plugins in this collection ###
 
 - ```check_ssl_cert.pl``` - SSL expiry, chain of trust (including intermediate certs important for certain mobile devices), SNI, domain, wildcard and multi-domain support validation
-- ```check_whois.pl``` - check domain expiry days left and details
+- ```check_whois.pl``` - check domain expiry days left and registration details match expected (ie. you haven't lost your domain!)
 - ```check_mysql_query.pl``` - generic enough it obsoleted a dozen custom MySQL plugins and prevented writing many more
 - ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline
 - ```check_hadoop_*.pl``` - various Apache Hadoop monitoring utilities for HDFS, MapReduce and Yarn including HDFS cluster balance, block replication, space, block count limits, node counts, dead Datanodes and dead/blacklisted TaskTrackers, Namenode & JobTracker / Yarn Resource Manager heap usage, NameNode & JobTracker HA, NameNode safe mode, WebHDFS (with HDFS HA failover support), HttpFS, HDFS writeability, HDFS fsck, HDFS file / directory existence & metadata attributes, gather metrics
