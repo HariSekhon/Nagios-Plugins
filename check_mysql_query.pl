@@ -22,7 +22,7 @@ Tested on MySQL 5.0, 5.1 and 5.5
 
 # TODO: add retry switch if valid below threshold
 
-$VERSION = "1.1.2";
+$VERSION = "1.1.3";
 
 use strict;
 use warnings;
@@ -41,7 +41,7 @@ my @default_mysql_sockets = ( "/var/lib/mysql/mysql.sock", "/tmp/mysql.sock");
 my $mysql_socket;
 
 my $default_message = "query returned";
-my $database = "";
+my $database;
 my $epoch;
 my $query;
 my $field = 1;
