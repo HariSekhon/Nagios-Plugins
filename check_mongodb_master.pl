@@ -39,7 +39,7 @@ splice @usage_order, 6, 0, "expected-master";
 
 get_options();
 
-validate_mongo_hosts();
+$hosts    = validate_mongo_hosts($host);
 $user     = validate_user($user);
 $password = validate_password($password) if $password;
 if(scalar @hosts > 1){
@@ -53,7 +53,7 @@ set_timeout();
 
 $status = "OK";
 
-my $client = connect_mongo();
+my $client = connect_mongo($hosts);
 
 my @dbs = $client->database_names;
 @dbs or quit "UNKNOWN", "no databases found on Mongod server, cannot call ismaster";
