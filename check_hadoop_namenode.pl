@@ -31,7 +31,7 @@ Caveats:
 
 Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for Cloudera CDH 4.3 (2.0.0-cdh4.3.0) and Hortonworks HDP 2.1 (2.4.0), also tested on HDP 2.2 (Apache 2.6.0). If JSP output changes across versions, this plugin will need to be updated to parse the changes";
 
-$VERSION = "0.9.2";
+$VERSION = "0.9.3";
 
 use strict;
 use warnings;
@@ -52,6 +52,9 @@ my $non_heap        = 0;
 my $node_list       = "";
 my $node_count      = 0;
 my $replication     = 0;
+
+my $default_space_warning  = 80;
+my $default_space_critical = 90;
 
 my $default_blockcount_warning  = 250000;
 my $default_blockcount_critical = 350000;
@@ -120,6 +123,9 @@ $port = validate_port($port, "NameNode");
 if($datanode_blocks){
     $warning  = $default_blockcount_warning  unless defined($warning);
     $critical = $default_blockcount_critical unless defined($critical);
+} elsif($hdfs_space){
+    $warning  = $default_space_warning  unless defined($warning);
+    $critical = $default_space_critical unless defined($critical);
 }
 my $url;
 my @nodes;
