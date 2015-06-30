@@ -80,6 +80,6 @@ perl -T $I_lib ./check_elasticsearch_nodes.pl -w 1 -v
 #hr
 #perl -T $I_lib ./check_elasticsearch_node_stats.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_shards_detail.pl -v
+perl -T $I_lib ./check_elasticsearch_shards_state_detail.pl -v
 
 echo; echo
