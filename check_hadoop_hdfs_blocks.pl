@@ -66,7 +66,7 @@ my $content;
 $content = curl $url, "$url_name DFS overview";
 
 my $total_blocks;
-if($content =~ /\bblocks\s*=\s*(\d+)\s+total/){
+if($content =~ /(\d+)\s+blocks/){
     $total_blocks = $1;
 } else {
     quit "UNKNOWN", "failed to find total block count";
