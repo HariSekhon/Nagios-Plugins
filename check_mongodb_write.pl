@@ -107,7 +107,7 @@ my $precision         = $default_precision;
 @usage_order = qw/host port database collection user password write-concern read-concern wtimeout ssl sasl sasl-mechanism warning critical precision/;
 get_options();
 
-validate_mongo_hosts();
+$hosts       = validate_mongo_hosts($host);
 $database    = validate_database($database, "Mongo");
 $collection  = validate_collection($collection, "Mongo");
 #unless(($user + $password) / 2 == 0) {
@@ -159,7 +159,7 @@ vlog2;
 set_timeout();
 
 my $start_time = time;
-my $client = connect_mongo(
+my $client = connect_mongo( $hosts,
                             {
                                 "w"              => $write_concern,
                                 "r"              => $read_concern,

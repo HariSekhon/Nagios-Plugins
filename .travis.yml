@@ -38,6 +38,6 @@ services:
 
 env:
   global:
-    - MYSQL_DATABASE=user
+    - MYSQL_DATABASE=mysql
     - MYSQL_PASSWORD=""
     - MYSQL_USER=travis

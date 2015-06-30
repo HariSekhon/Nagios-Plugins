@@ -18,7 +18,7 @@ A friend and ex-colleague of mine Tom Liakos @ Specificmedia pointed out a long 
 Tested on MySQL 5.0, 5.1 and 5.5
 ";
 
-$VERSION = "1.2.1";
+$VERSION = "1.2.2";
 
 use strict;
 use warnings;
@@ -34,6 +34,8 @@ set_port_default(3306);
 my @default_config_locations = qw(
     /etc/mysql/my.cnf
     /etc/my.cnf
+    /usr/local/mysqld/my.cnf
+    /usr/local/mysql/my.cnf
 );
 my $default_mysql_instance  = "mysqld";
 my @default_mysql_sockets = ( "/var/lib/mysql/mysql.sock", "/tmp/mysql.sock");
