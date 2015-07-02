@@ -20,7 +20,7 @@ $DESCRIPTION = "Nagios Plugin to check the stats for a given Elasticsearch node
 - Optional --warning/--critical threshold ranges if given are applied to the first float value found (--key order is preserved for this reason if wnating to return more than one thing at a time but still have a threshold on one of them, the first one in the --key list)
 - Will output stats KB/MB/GB/PB values in brackets in verbose mode for size_in_bytes stats
 
-Must specify a valid Elasticsearch node name, not hostname/FQDN as this code was designed for real nodes, not client nodes like logstash-<fqdn>-<\\d+>-<\\d+> which also share the same hostname/FQDN and will result in multiple ambiguous matches.
+Should specify an Elasticsearch node name rather than a hostname/FQDN/IP, as sometimes hosts may have more than once instance or client nodes like logstash-<fqdn>-<\\d+>-<\\d+> which also share the same hostname/FQDN and will result in multiple ambiguous matches, resulting in an UNKNOWN error condition to flag to correct this and be more specific.
 
 Tested on Elasticsearch 1.4.0, 1.4.4";
 
@@ -52,7 +52,10 @@ get_options();
 $host  = validate_host($host);
 $port  = validate_port($port);
 # this is the node name, not using validate_host because an IP returns logstash clients and don't want to have to deal with that
-$node  = validate_hostname($node, "node") unless $list_nodes;
+#$node  = validate_hostname($node, "node") unless $list_nodes;
+# hostname is too restrictive because of default Marvel names, and in some cases we may want to just do it by IP or hostname or whatever as long as there are not more than one colocated node (including client nodes like LogStash) on the same hosts
+$node =~ /^([\w\s\._-]+)$/ or usage "invalid node name specified, must be alphanumeric, may contain spaces, dashes, underscores and dots";
+$node = $1;
 my @keys;
 @keys = split(/\s*,\s*/, $keys) if defined($keys);
 @keys = uniq_array_ordered @keys if @keys;
@@ -87,7 +90,7 @@ unless(%nodes){
 
 # escape any dots in node name to not separate
 if(scalar keys %nodes > 1){
-    quit "UNKNOWN", "more than one node returned for '$node'. You have probably specified the hostname/fqdn which may be used by multiple clients on the same host including LogStash, rather than the unique node name of the Elasticsearch node";
+    quit "UNKNOWN", "more than one node returned for '$node'. You have probably specified the hostname/FQDN/IP which may host multiple clients on the same machine such as LogStash client nodes, rather than the unique instance's Elasticsearch node name, which can be found via --list-nodes";
 }
 $json = get_field("nodes." . (keys %nodes)[0]);
 $msg = "node '$node'";
