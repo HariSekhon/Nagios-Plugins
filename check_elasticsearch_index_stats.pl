@@ -121,11 +121,11 @@ sub recurse_stats($$){
             $msg2 .= " '$key'=$val";
         }
         if($verbose){
-            if($key =~ /size_in_bytes$/ and isFloat($val) and $val > 1024){ # KB or above
-                $msg .= " (" . human_units($val) . ")";
-                $msg2 .= "b";
+            if($key =~ /[\b_]bytes$/ and isFloat($val) and $val > 1024){ # KB or above
+                $msg  .= " (" . human_units($val) . ")";
             }
         }
+        $msg2 .= perf_suffix($key);
     }
 }
 
@@ -159,6 +159,7 @@ sub get_stat($){
     check_thresholds($value) if $num_keys == 1;
     if(isFloat($value)){
         $msg2 .= " '$key'=$value";
+        $msg2 .= perf_suffix($key);
         $msg2 .= msg_perf_thresholds(1) if $num_keys == 1;
     }
 }
