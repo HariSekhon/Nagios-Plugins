@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check a Linux Server's timezone is set as expected";
 
-$VERSION = "0.5";
+$VERSION = "0.6";
 
 use strict;
 use warnings;
@@ -21,20 +21,21 @@ BEGIN {
 }
 use HariSekhonUtils;
 
-my $timezone_file;
-my $localtime_file = "/etc/localtime";
 my $timezone;
-my $etc_localtime;
 my $alternate_timezone;
-my $timezone_dir = "/usr/share/zoneinfo";
+my $localtime_file  = "/etc/localtime";
 my $sysconfig_clock = "/etc/sysconfig/clock";
+my $zoneinfo_file;
+my $zoneinfo_dir    = "/usr/share/zoneinfo";
+my $no_warn_symlinks;
 
 %options = (
-    "T|timezone=s"       => [ \$timezone,           "Timezone to expect the server in. Required (can be any valid timezone from $timezone_dir/ eg. UTC or GMT)" ],
-    "A|alternate=s"      => [ \$alternate_timezone, "Alternative timezone to expect the server in. Optional (defaults to timezone). Useful to allowing BST daylight saving time shifts by specifying a second timezone to allow (eg BST)" ],
-    "L|localtime-file=s" => [ \$etc_localtime,      "Timezone file to compare $localtime_file and $sysconfig_clock to. Optional (defaults to timezone). Useful when your localtime is set to say Europe/London which shows up as GMT but you still want to validate that $localtime_file is set to Europe/London for following DST changes. (Can be any valid timezone file under $timezone_dir/ eg. UTC or GMT)" ],
+    "T|timezone=s"       => [ \$timezone,           "Timezone to expect the server in as shown by 'date' (eg. GMT)" ],
+    "A|alternate=s"      => [ \$alternate_timezone, "Alternative timezone to expect the server in. Optional (defaults to same as --timezone). Useful to allow daylight saving time shifts by specifying a second timezone to allow (eg. BST)" ],
+    "Z|zoneinfo-file=s"  => [ \$zoneinfo_file,      "Timezone file to compare $localtime_file and $sysconfig_clock to. Optional (defaults to --timezone suffixed to $zoneinfo_dir). Useful when your localtime is set to say Europe/London which shows up as GMT/BST but you still want to validate that $localtime_file is set to Europe/London for following daylight saving time changes back and forth. Can be any valid timezone file under $zoneinfo_dir/ (eg. UTC or GMT) or a fully qualified path to a timezone file" ],
+    "no-warn-symlinks"   => [ \$no_warn_symlinks,   "Do not warn on detecting symlinks for $localtime_file or $sysconfig_clock" ],
 );
-@usage_order = qw/timezone alternate localtime-time/;
+@usage_order = qw/timezone alternate zoneinfo-file no-warn-symlinks/;
 
 get_options();
 linux_only();
@@ -43,12 +44,12 @@ $status = "OK";
 
 defined($timezone) || usage "timezone not specified";
 $timezone =~ /^[\w\/\+-]+$/ || usage "invalid timezone specified";
-$etc_localtime = $timezone unless defined($etc_localtime);
+$zoneinfo_file = $timezone unless defined($zoneinfo_file);
 $alternate_timezone = $timezone unless defined($alternate_timezone);
-$timezone_file = "$timezone_dir/$etc_localtime";
-$timezone_file = validate_filename($timezone_file);
-( -f "$timezone_dir/$timezone" ) || usage "timezone does not appear to be valid, timezone file '$timezone_file' not found";
-( -f "$timezone_file" ) || usage "localtime file does not appear to be valid, timezone file '$timezone_file' not found";
+unless(isPathQualified($zoneinfo_file)){
+    $zoneinfo_file = "$zoneinfo_dir/$zoneinfo_file";
+}
+$zoneinfo_file = validate_filename($zoneinfo_file);
 
 set_timeout();
 
@@ -67,41 +68,42 @@ unless("$server_timezone" eq "$timezone" or "$server_timezone" eq "$alternate_ti
     $timezone_mismatch = 1;
 }
 
-vlog2 "checking $localtime_file against $timezone_file";
+vlog2 "checking $localtime_file against $zoneinfo_file";
 my $fh1 = open_file($localtime_file);
-my $fh2 = open_file($timezone_file);
+my $fh2 = open_file($zoneinfo_file);
 my $linecount = 0;
 while(<$fh1>){
     unless($_ eq <$fh2>){
         critical;
         if($verbose and not $timezone_mismatch){
-            $msg .= ", localtime file '$localtime_file' does not match timezone file '$timezone_file'";
+            $msg = "localtime file '$localtime_file' does not match timezone file '$zoneinfo_file'! $msg";
             last;
         }
     }
     $linecount++;
     if($linecount > 10){
         warning;
-        $msg .= ", localtime file '$localtime_file' exceeded 10 lines, aborting check";
+        $msg = "localtime file '$localtime_file' exceeded 10 lines, aborting check! $msg";
     }
 }
 close $fh1;
 close $fh2;
 
-unless( -r $sysconfig_clock){
-    warning;
-    $msg .= ", unable to read file '$sysconfig_clock'";
-}
+# let open_file handle the validation
+#unless( -r $sysconfig_clock){
+#    warning;
+#    $msg .= "unable to read file '$sysconfig_clock'! $msg";
+#}
 vlog2 "checking $sysconfig_clock";
 my $fh3 = open_file($sysconfig_clock);
 while(<$fh3>){
     chomp;
     vlog3 "$sysconfig_clock: $_";
     if(/^\s*ZONE\s*=\s*"?(.+?)"?\s*$/){
-        unless($1 eq $etc_localtime){
+        unless($1 eq $timezone){
             critical;
             if($verbose or not $timezone_mismatch){
-                $msg .= ", $sysconfig_clock incorrectly configured (expected: '$etc_localtime', got: '$1')";
+                $msg = "$sysconfig_clock incorrectly configured (expected: '$timezone', got: '$1')! $msg";
             }
             last;
         }
@@ -109,11 +111,18 @@ while(<$fh3>){
 }
 close $fh3;
 
+my $symlinks_found = 0;
 foreach(($localtime_file, $sysconfig_clock)){
     if ( -l $_ ){
-        warning;
-        $msg .= ", '$_' is a symlink!";
+        $symlinks_found = 1;
+        if($verbose or not $no_warn_symlinks){
+            $msg .= ", '$_' is a symlink";
+        }
     }
+}
+if($symlinks_found and not $no_warn_symlinks){
+    warning;
+    $msg .= "!";
 }
 
 quit $status, $msg;
