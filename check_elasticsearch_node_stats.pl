@@ -22,6 +22,8 @@ $DESCRIPTION = "Nagios Plugin to check the stats for a given Elasticsearch node
 
 Should specify an Elasticsearch node name rather than a hostname/FQDN/IP, as sometimes hosts may have more than once instance or client nodes like logstash-<fqdn>-<\\d+>-<\\d+> which also share the same hostname/FQDN and will result in multiple ambiguous matches, resulting in an UNKNOWN error condition to flag to correct this and be more specific.
 
+For a convenient list of all stats one per line use -vv
+
 Tested on Elasticsearch 1.4.0, 1.4.4";
 
 $VERSION = "0.1";
@@ -54,8 +56,11 @@ $port  = validate_port($port);
 # this is the node name, not using validate_host because an IP returns logstash clients and don't want to have to deal with that
 #$node  = validate_hostname($node, "node") unless $list_nodes;
 # hostname is too restrictive because of default Marvel names, and in some cases we may want to just do it by IP or hostname or whatever as long as there are not more than one colocated node (including client nodes like LogStash) on the same hosts
-$node =~ /^([\w\s\._-]+)$/ or usage "invalid node name specified, must be alphanumeric, may contain spaces, dashes, underscores and dots";
-$node = $1;
+unless($list_nodes){
+    defined($node) or usage "node not defined, see --list-nodes";
+    $node =~ /^([\w\s\._-]+)$/ or usage "invalid node name specified, must be alphanumeric, may contain spaces, dashes, underscores and dots";
+    $node = $1;
+}
 my @keys;
 @keys = split(/\s*,\s*/, $keys) if defined($keys);
 @keys = uniq_array_ordered @keys if @keys;
@@ -113,6 +118,7 @@ sub recurse_stats($$){
             recurse_stats("$key$i", $$val[$i]);
         }
     } else {
+        vlog2 "$key=$val";
         $msg  .= " $key=$val";
         if(isFloat($val)){
             $msg2 .= " '$key'=$val";
@@ -128,6 +134,7 @@ sub recurse_stats($$){
 
 sub get_all_stats(){
     recurse_stats("", $json);
+    vlog2;
 }
 
 # Only apply thresholds to a single stat, the first key for which a float is detected
