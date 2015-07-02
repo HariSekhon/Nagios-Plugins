@@ -117,7 +117,9 @@ sub recurse_stats($$){
         #$key2  =~ s/.*?\.// if $shorten;
         $key2  =~ s/^(?:primaries|total)\.//;
         $msg  .= " $key2=$val";
-        $msg2 .= " '$key'=$val";
+        if(isFloat($val)){
+            $msg2 .= " '$key'=$val";
+        }
         if($verbose){
             if($key =~ /size_in_bytes$/ and isFloat($val) and $val > 1024){ # KB or above
                 $msg .= " (" . human_units($val) . ")";
