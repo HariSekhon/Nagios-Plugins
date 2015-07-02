@@ -146,16 +146,16 @@ sub get_total_stats(){
 
 sub get_stat($){
     my $key = shift;
-        my $value;
-        $value = get_field_float($key);
-        # don't truncate prefix, this way user can mix and match primaries and total stats
-        #( my $key2 = $key ) =~ s/.*?\.//;
-        $msg .= " $key=$value";
-        check_thresholds($value) if $num_keys == 1;
-        if(isFloat($value)){
-            $msg2 .= " '$key'=$value";
-            $msg2 .= msg_perf_thresholds(1) if $num_keys == 1;
-        }
+    my $value;
+    $value = get_field_float($key);
+    # don't truncate prefix, this way user can mix and match primaries and total stats
+    #( my $key2 = $key ) =~ s/.*?\.//;
+    $msg .= " $key=$value";
+    check_thresholds($value) if $num_keys == 1;
+    if(isFloat($value)){
+        $msg2 .= " '$key'=$value";
+        $msg2 .= msg_perf_thresholds(1) if $num_keys == 1;
+    }
 }
 
 plural $num_keys;
