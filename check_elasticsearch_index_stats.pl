@@ -16,6 +16,8 @@ $DESCRIPTION = "Nagios Plugin to check the stats for a given Elasticsearch index
 - Optional --warning/--critical threshold ranges may be applied if specifying only one stat
 - Will output stats KB/MB/GB/PB values in brackets in verbose mode for size_in_bytes stats
 
+use -vv to see a convenient list of stats one per line to select from.
+
 Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4";
 
 $VERSION = "0.2";
@@ -113,6 +115,7 @@ sub recurse_stats($$){
             recurse_stats("$key$i", $$val[$i]);
         }
     } else {
+        vlog2 "$key=$val";
         my $key2 = $key;
         #$key2  =~ s/.*?\.// if $shorten;
         $key2  =~ s/^(?:primaries|total)\.//;
@@ -147,6 +150,7 @@ sub get_total_stats(){
         recurse_stats("total.$_", $$sections{$_});
         #$msg .= ", " if $shorten;
     }
+    vlog2;
 }
 
 sub get_stat($){
