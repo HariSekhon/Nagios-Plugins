@@ -18,7 +18,7 @@ $DESCRIPTION = "Nagios Plugin to check the stats for a given Elasticsearch index
 
 Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -106,8 +106,11 @@ sub recurse_stats($$){
         }
     } elsif(isArray($val)){
         $key .= "." if $key;
-        foreach(@{$val}){
-            recurse_stats("$key$_", $_);
+        #foreach(@{$val}){
+        #    recurse_stats("$key$_", $_);
+        #}
+        foreach(my $i=0; $i < scalar @{$val}; $i++){
+            recurse_stats("$key$i", $$val[$i]);
         }
     } else {
         my $key2 = $key;
