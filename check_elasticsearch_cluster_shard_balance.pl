@@ -44,7 +44,7 @@ get_options();
 
 $host  = validate_host($host);
 $port  = validate_port($port);
-validate_thresholds(0, 0, { 'simple' => 'upper', 'integer' => 1, 'positive' => 1});
+validate_thresholds(0, 0, { 'simple' => 'upper', 'integer' => 0, 'positive' => 1});
 
 vlog2;
 set_timeout();
