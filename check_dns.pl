@@ -19,7 +19,7 @@ Full list of supported record types: " . join(", ", @valid_types);
 
 # TODO: root name servers switch, determine root name servers for the specific TLD and go straight to them to bypass intermediate caching
 
-$VERSION = "0.8.0";
+$VERSION = "0.8.1";
 
 use strict;
 use warnings;
@@ -57,10 +57,10 @@ get_options();
 
 $server or usage "server(s) not specified";
 @servers = split(/\s*[,\s]\s*/, $server);
-foreach(@servers){
-    $_ = isHostname($_) || isIP($_) || usage "invalid server '$_' given, should be a hostname or IP address";
+for(my $i=0; $i < scalar @servers; $i++){
+    $servers[$i] = validate_host($servers[$i]);
 }
-grep($type, @valid_types) or usage "unsupport type '$type' given, must be one of: " . join(",", @valid_types);
+grep($type, @valid_types) or usage "unsupported type '$type' given, must be one of: " . join(",", @valid_types);
 if($type eq "PTR"){
     $record = isIP($record) or usage "invalid record given for type PTR, should be an IP";
 } elsif($type eq "SRV"){
@@ -93,8 +93,15 @@ set_timeout();
 
 $status = "OK";
 
+my @resolved_dns_servers;
+for(my $i=0; $i < scalar @servers; $i++){
+    $servers[$i] = resolve_ip($servers[$i]) || next;
+    push(@resolved_dns_servers, $servers[$i]);
+}
+@resolved_dns_servers || quit "CRITICAL", "no given DNS servers resolved to IPs, cannot query them";
+
 my $res = Net::DNS::Resolver->new(
-    nameservers => [@servers],
+    nameservers => [@resolved_dns_servers],
     recurse     => 1,
     debug       => $debug,
 );
