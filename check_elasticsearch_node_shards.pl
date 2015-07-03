@@ -33,6 +33,8 @@ use HariSekhon::Elasticsearch;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
+set_threshold_defaults("1:", 10000);
+
 %options = (
     %hostoptions,
     %elasticsearch_node,
