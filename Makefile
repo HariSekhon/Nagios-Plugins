@@ -147,7 +147,8 @@ apt-packages:
 	# TODO: for LWP::Authenticate - prompts for realm + KDC, probably automatable but not tested yet
 	#apt-get install -y krb5-config || :
 	# for Cassandra's Python driver
-	dpkg -l python-setuptools python-dev libev4 libev-dev libsnappy-dev &>/dev/null || $(SUDO) apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev || :
+	#dpkg -l python-setuptools python-dev libev4 libev-dev libsnappy-dev &>/dev/null ||
+	$(SUDO) apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev || :
 
 .PHONY: yum-packages
 yum-packages:
