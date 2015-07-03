@@ -91,6 +91,8 @@ foreach my $line (split(/\n/, $content)){
         $shards_by_ip{$ip}{$node_name}{"shards"}    = $shards;
         $shards_by_ip{$ip}{$node_name}{"node_host"} = $node_host;
     } elsif($line =~ /^\s*shards\s+host\s+ip\s+node\s*$/){
+    } elsif($line =~ /^\s*\d+\s+UNASSIGNED\s*$/){
+        # use the other existing elasticsearch plugins adjacent to this one to check for unassigned shards
     } elsif($line =~ /^\s*$/){
     } else {
         quit "UNKNOWN", "unrecognized output from Elasticsearch API detected! $nagios_plugins_support_msg_api";
