@@ -52,6 +52,8 @@ perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices || :
 hr
 perl -T $I_lib ./check_elasticsearch_cluster_shards.pl -v
 hr
+perl -T $I_lib ./check_elasticsearch_cluster_shards_imbalance.pl -v
+hr
 perl -T $I_lib ./check_elasticsearch_cluster_stats.pl -v
 hr
 perl -T $I_lib ./check_elasticsearch_cluster_status.pl -v
