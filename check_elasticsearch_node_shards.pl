@@ -135,7 +135,8 @@ unless(defined($shards)){
 }
 defined($shards) or quit "UNKNOWN", "failed to determine number of shards for node '$node'. Did you specify the correct node name? See --list-nodes";
 
-$msg = "Elasticsearch node host '$nodehost' name '$nodename' has $shards shards";
+plural $shards;
+$msg = "Elasticsearch node host '$nodehost' name '$nodename' has $shards shard$plural";
 check_thresholds($shards);
 $msg .= " | node_shards=$shards";
 msg_perf_thresholds();
