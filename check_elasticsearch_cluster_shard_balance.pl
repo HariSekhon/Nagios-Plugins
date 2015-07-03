@@ -10,7 +10,7 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-# http://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.html
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-allocation.html
 
 # forked from check_elasticsearch_node_stats.pl
 
