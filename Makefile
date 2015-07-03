@@ -122,7 +122,7 @@ make:
 	
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
-	easy_install -U setuptools || :
+	$(SUDO) easy_install -U setuptools || :
 	$(SUDO) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	$(SUDO) pip install cassandra-driver scales blist lz4 python-snappy || :
@@ -144,7 +144,7 @@ apt-packages:
 	dpkg -l libexpat1-dev &>/dev/null || $(SUDO) apt-get install -y libexpat1-dev || :
 	# for check_whois.pl
 	dpkg -l jwhois &>/dev/null || $(SUDO) apt-get install -y jwhois || :
-	# TODO: for LWP::Authenticate - prompts for realm + KDC, doesn't seem automatable and not properly tested yet
+	# TODO: for LWP::Authenticate - prompts for realm + KDC, probably automatable but not tested yet
 	#apt-get install -y krb5-config || :
 	# for Cassandra's Python driver
 	dpkg -l python-setuptools python-dev libev4 libev-dev libsnappy-dev &>/dev/null || $(SUDO) apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev || :
