@@ -11,7 +11,7 @@
 
 # forked from check_hadoop_namenode.pl
 
-$DESCRIPTION = "Nagios Plugin to check the number of total blocks on the HDFS NameNode (works against either the Active or Standby NameNode in an HA configuration) via the Namenode JSP pages in order to detect when you need to tune heapsize up.
+$DESCRIPTION = "Nagios Plugin to check the number of total blocks on the HDFS NameNode (works against either the Active or Standby NameNode in an HA configuration) via the Namenode JSP pages in order to detect when you need to tune JVM heap size up.
 
 See also check_hadoop_namenode.pl for heap size and block checks
 
