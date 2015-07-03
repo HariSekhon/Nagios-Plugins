@@ -10,7 +10,7 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-# http://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.htmlhttp://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-stats.html
+# http://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-stats.html
 
 # forked from check_elasticsearch_index_stats.pl
 
