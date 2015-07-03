@@ -2,7 +2,7 @@
 # nagios: -epn
 #
 #  Author: Hari Sekhon
-#  Date: 2015-03-21 16:53:17 +0000 (Sat, 21 Mar 2015)
+#  Date: 2013-06-03 21:43:25 +0100 (Mon, 03 Jun 2013) 
 #
 #  https://github.com/harisekhon/nagios-plugins
 #
@@ -11,8 +11,6 @@
 #  vim:ts=4:sts=4:sw=4:et
 
 # http://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.html
-
-# forked from check_elasticsearch_index_stats.pl
 
 $DESCRIPTION = "Nagios Plugin to check the stats for a given Elasticsearch node
 
