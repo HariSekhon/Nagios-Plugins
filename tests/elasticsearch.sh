@@ -50,6 +50,8 @@ perl -T $I_lib ./check_elasticsearch_fielddata.pl --list-nodes || :
 hr
 perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices || :
 hr
+perl -T $I_lib ./check_elasticsearch_cluster_disk_balance.pl -v
+hr
 perl -T $I_lib ./check_elasticsearch_cluster_shards.pl -v
 hr
 perl -T $I_lib ./check_elasticsearch_cluster_shard_balance.pl -v
