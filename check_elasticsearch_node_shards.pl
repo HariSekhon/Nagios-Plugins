@@ -10,7 +10,7 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
-# http://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.html
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-allocation.html
 
 # forked from check_elasticsearch_node_stats.pl
 
@@ -67,7 +67,7 @@ my $url = "/_cat/allocation?h=shards,host,ip,node";
 $url .= "&v" if $verbose > 2;
 my $content = curl_elasticsearch_raw $url;
 
-my $regex = qr/^\s*(\d+)\s+(\S+)\s+(\S+)\s+(\S+)\s*$/;
+my $regex = qr/^\s*(\d+)\s+(\S+)\s+(\S+)\s+(.+?)\s*$/;
 
 my $nodename;
 my $nodehost;
@@ -77,6 +77,7 @@ my %shards_by_hostname;
 my %shards_by_nodename;
 my %shards_by_ip;
 foreach my $line (split(/\n/, $content)){
+    #vlog3 "line: $line";
     if($line =~ $regex){
         my $shards    = $1;
         my $node_host = $2;
