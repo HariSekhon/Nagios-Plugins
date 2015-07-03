@@ -10,6 +10,8 @@
 #
 #  vim:ts=4:sts=4:sw=4:et
 
+# https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-stats.html
+
 $DESCRIPTION = "Nagios Plugin to check the stats for a given Elasticsearch index or all indices if no specific index given
 
 - Can fetch one or more given stats (fetches all stats for 'total' if none are given)
