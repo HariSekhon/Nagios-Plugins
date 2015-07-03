@@ -20,7 +20,7 @@ Should specify an Elasticsearch node name rather than a hostname/FQDN/IP (see --
 
 Tested on Elasticsearch 1.4.0, 1.4.4";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -85,12 +85,10 @@ foreach my $line (split(/\n/, $content)){
         $shards_by_nodename{$node_name}{"shards"}    = $shards;
         $shards_by_nodename{$node_name}{"node_host"} = $node_host;
         $shards_by_nodename{$node_name}{"ip"}        = $ip;
-        $shards_by_hostname{$node_host}{"shards"}    = $shards;
-        $shards_by_hostname{$node_host}{"node_name"} = $node_name;
-        $shards_by_hostname{$node_host}{"ip"}        = $ip;
-        $shards_by_ip{$ip}{"shards"}    = $shards;
-        $shards_by_ip{$ip}{"node_name"} = $node_name;
-        $shards_by_ip{$ip}{"node_host"} = $node_host;
+        $shards_by_hostname{$node_host}{$node_name}{"shards"} = $shards;
+        $shards_by_hostname{$node_host}{$node_name}{"ip"}     = $ip;
+        $shards_by_ip{$ip}{$node_name}{"shards"}    = $shards;
+        $shards_by_ip{$ip}{$node_name}{"node_host"} = $node_host;
     } elsif($line =~ /^\s*shards\s+host\s+ip\s+node\s*$/){
     } elsif($line =~ /^\s*$/){
     } else {
@@ -111,9 +109,12 @@ unless(defined($shards)){
             if(scalar keys %{$shards_by_hostname{$node_host}} > 1){
                 quit "UNKNOWN", "multiple nodes with hostname '$node_host', must specify the more unique node name, see --list-nodes";
             }
-            $shards   = ($shards_by_hostname{$node_host})[0]{"shards"};
-            $nodename = ($shards_by_hostname{$node_host})[0]{"node_host"};
-            $nodehost = ($shards_by_hostname{$node_host})[0]{"node_name"};
+            foreach my $node_name (keys %{$shards_by_hostname{$node_host}}){
+                $shards   = $shards_by_hostname{$node_host}{$node_name}{"shards"};
+                $nodename = $node_name;
+                $nodehost = $node_host;
+                last;
+            }
         }
     }
 }
@@ -123,9 +124,12 @@ unless(defined($shards)){
             if(scalar keys %{$shards_by_ip{$ip}} > 1){
                 quit "UNKNOWN", "multiple nodes with ip '$ip', must specify the more unique node name, see --list-nodes";
             }
-            $shards   = ($shards_by_ip{$ip})[0]{"shards"};
-            $nodehost = ($shards_by_ip{$ip})[0]{"node_host"};
-            $nodename = ($shards_by_ip{$ip})[0]{"node_name"};
+            foreach my $node_name (keys %{$shards_by_ip{$ip}}){
+                $shards   = $shards_by_ip{$ip}{$node_name}{"shards"};
+                $nodename = $node_name;
+                $nodehost = $shards_by_ip{$ip}{$node_name}{"node_host"};
+                last;
+            }
         }
     }
 }
