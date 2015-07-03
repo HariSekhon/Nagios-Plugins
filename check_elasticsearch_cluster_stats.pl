@@ -82,10 +82,10 @@ sub recurse_stats($$){
     my $key = shift;
     my $val = shift;
     if(isHash($val)){
-        # special exception since this isn't of value stats wise
-        return if $key eq "nodes.plugins";
         $key .= "." if $key;
         foreach(sort keys %{$val}){
+            # special exception since plugins don't contain stats
+            next if "$key$_" eq "nodes.plugins";
             recurse_stats("$key$_", ${$val}{$_});
         }
     } elsif(isArray($val)){
