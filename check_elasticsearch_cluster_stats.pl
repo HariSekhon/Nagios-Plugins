@@ -94,6 +94,7 @@ sub recurse_stats($$){
             recurse_stats("$key$i", $$val[$i]);
         }
     } else {
+        return if $key eq "timestamp";
         vlog2 "$key=$val";
         $msg  .= " $key=$val";
         if(isFloat($val)){
