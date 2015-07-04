@@ -263,7 +263,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 * Nagios Command Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command
 * Nagios Service Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service
 
-* Newer Icinga monitoring successor to Nagios: https://www.icinga.org/
+* Icinga (newer alternative to Nagios): https://www.icinga.org/
 
 ###### Datameer ######
 
