@@ -16,11 +16,11 @@
 
 $DESCRIPTION = "Nagios Plugin to check max shard imbalance in number of shards between Elasticsearch nodes in a cluster
 
-In order to account for client nodes like co-located LogStash this code ignores nodes with 0 shards (see check_elasticsearch_node_shards.pl to cover that which automatically alerts warning on on 0 shard nodes)
+In order to account for client nodes like co-located LogStash this code ignores nodes with 0 shards (see check_elasticsearch_node_shards.pl to cover that which automatically alerts warning on on 0 shard nodes).
 
 Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -33,7 +33,7 @@ use HariSekhon::Elasticsearch;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-set_threshold_defaults(30, 100);
+set_threshold_defaults(30, 200);
 
 %options = (
     %hostoptions,
@@ -106,7 +106,7 @@ foreach my $node_name (sort keys %shards_by_nodename){
         $min_shards_nodename = $node_name;
         $min_shards_hostname = $shards_by_nodename{$node_name}{"node_host"};
     }
-    if( ( not defined($max_shards) ) or $shards < $max_shards ){
+    if( ( not defined($max_shards) ) or $shards > $max_shards ){
         $max_shards = $shards;
         $max_shards_nodename = $node_name;
         $max_shards_hostname = $shards_by_nodename{$node_name}{"node_host"};
@@ -114,6 +114,9 @@ foreach my $node_name (sort keys %shards_by_nodename){
 }
 unless(defined($min_shards)){
     quit "UNKNOWN", "min shards not found, did you run this against empty elasticsearch node(s)?";
+}
+unless($min_shards > 0){
+    quit "UNKNOWN", "min shards = 0, did you run this against empty elasticsearch node(s)?";
 }
 unless(
     defined($max_shards) and
@@ -125,7 +128,10 @@ unless(
    quit "UNKNOWN", "failed to determine details for min/max shards/hostname/nodename. $nagios_plugins_support_msg";
 }
 
-my $max_shard_imbalance = ( $max_shards - $min_shards ) / $min_shards;
+# protect against divide by zero
+$min_shards = 1 if not $min_shards;
+
+my $max_shard_imbalance = ( $max_shards - $min_shards ) / $min_shards * 100;
 
 $max_shard_imbalance = sprintf("%.2f", $max_shard_imbalance);
 
