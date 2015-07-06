@@ -47,8 +47,6 @@ set_timeout();
 
 $status = "OK";
 
-list_elasticsearch_nodes();
-
 # This looks like it's fields might have changed in 1.6
 my $url = "/_cat/allocation?h=disk.percent,host,ip,node";
 $url .= "&v" if $verbose > 2;
