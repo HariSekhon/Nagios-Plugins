@@ -12,13 +12,11 @@
 
 # https://www.elastic.co/guide/en/elasticsearch/reference/current/cat-allocation.html
 
-$DESCRIPTION = "Nagios Plugin to check max disk imbalance in % space used between Elasticsearch nodes in a cluster
+$DESCRIPTION = "Nagios Plugin to check the difference in max disk % space used between Elasticsearch nodes in a cluster
 
 Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4";
 
-# In order to account for client nodes like co-located LogStash this code ignores nodes with 0% space used
-
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -31,7 +29,7 @@ use HariSekhon::Elasticsearch;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-set_threshold_defaults(30, 100);
+set_threshold_defaults(20, 80);
 
 %options = (
     %hostoptions,
@@ -42,7 +40,7 @@ get_options();
 
 $host  = validate_host($host);
 $port  = validate_port($port);
-validate_thresholds(0, 0, { 'simple' => 'upper', 'integer' => 0, 'positive' => 1});
+validate_thresholds(0, 0, { 'simple' => 'upper', 'integer' => 0, 'positive' => 1, 'min' => 0, 'max' => 100 });
 
 vlog2;
 set_timeout();
@@ -58,6 +56,7 @@ my $content = curl_elasticsearch_raw $url;
 
 # the last node name may contain spaces
 my $regex = qr/^\s*(\d+)\s+(\S+)\s+(\S+)\s+(.+?)\s*$/;
+my $regex_nodisk = qr/^\s+\S+\s+\S+\s+.+?\s*$/;
 
 my %disk_by_nodename;
 my %hosts;
@@ -75,11 +74,13 @@ foreach my $line (split(/\n/, $content)){
         $disk_by_nodename{$node_name}{"node_host"} = $node_host;
         $disk_by_nodename{$node_name}{"ip"}        = $ip;
         $hosts{$node_host} = 1;
+    } elsif($line =~ $regex_nodisk){
+        # LogStash, skip
     } elsif($line =~ /^\s*disk.percent\s+host\s+ip\s+node\s*$/){
     } elsif($line =~ /^\s*UNASSIGNED\s*$/){
     } elsif($line =~ /^\s*$/){
     } else {
-        quit "UNKNOWN", "unrecognized output from Elasticsearch API detected! $nagios_plugins_support_msg_api";
+        quit "UNKNOWN", "unrecognized output from Elasticsearch API detected! $nagios_plugins_support_msg_api. Offending line was '$line'";
     }
 }
 
@@ -122,12 +123,19 @@ unless(
    quit "UNKNOWN", "failed to determine details for min/max disk/hostname/nodename. $nagios_plugins_support_msg";
 }
 
-my $max_disk_imbalance = ( $max_disk - $min_disk ) / $min_disk;
+# Changed to using direct % difference as it'll be simpler for users to understand
+#
+# guard against divide by zero
+#my $divisor = $min_disk || 1;
+#
+#my $max_disk_imbalance = ( $max_disk - $min_disk ) / $divisor * 100;
+
+my $max_disk_imbalance = $max_disk - $min_disk;
 
 $max_disk_imbalance = sprintf("%.2f", $max_disk_imbalance);
 
 plural $num_nodes;
-$msg  = sprintf("Elasticsearch max disk imbalance = %.2f%%", $max_disk_imbalance);
+$msg  = sprintf("Elasticsearch max disk %% difference = %.2f%%", $max_disk_imbalance);
 check_thresholds($max_disk_imbalance);
 $msg .= sprintf(" between %d node$plural", $num_nodes, $plural);
 plural $num_hosts;
