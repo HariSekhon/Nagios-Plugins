@@ -83,7 +83,7 @@ foreach my $line (split(/\n/, $content)){
 }
 
 if($num_nodes == 0){
-    quit "UNKNOWN", "no nodes found with disk % > 0";
+    quit "UNKNOWN", "no nodes found with disk %";
 }
 
 my $num_hosts = scalar keys %hosts;
