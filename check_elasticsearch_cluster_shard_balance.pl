@@ -129,9 +129,9 @@ unless(
 }
 
 # protect against divide by zero
-$min_shards = 1 if not $min_shards;
+my $divisor = $min_shards || 1;
 
-my $max_shard_imbalance = ( $max_shards - $min_shards ) / $min_shards * 100;
+my $max_shard_imbalance = ( $max_shards - $min_shards ) / $divisor * 100;
 
 $max_shard_imbalance = sprintf("%.2f", $max_shard_imbalance);
 
