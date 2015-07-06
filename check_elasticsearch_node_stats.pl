@@ -18,7 +18,7 @@ $DESCRIPTION = "Nagios Plugin to check the stats for a given Elasticsearch node
 - Optional --warning/--critical threshold ranges if given are applied to the first float value found (--key order is preserved for this reason if wnating to return more than one thing at a time but still have a threshold on one of them, the first one in the --key list)
 - Will output stats KB/MB/GB/PB values in brackets in verbose mode for size_in_bytes stats
 
-Should specify an Elasticsearch node name rather than a hostname/FQDN/IP (see --list-nodes), as sometimes hosts may have more than once instance or client nodes like logstash-<fqdn>-<\\d+>-<\\d+> which also share the same hostname/FQDN and will result in multiple ambiguous matches, resulting in an UNKNOWN error condition to flag to correct this and be more specific.
+Should specify an Elasticsearch node name rather than a hostname/FQDN/IP (see --list-nodes), as sometimes hosts may have more than once instance or client nodes like logstash-<fqdn>-<\\d+>-<\\d+> which also share the same hostname/FQDN and will result in multiple ambiguous matches, resulting in an UNKNOWN error condition to flag for user to correct this and be more specific.
 
 For a convenient list of all stats one per line use -vv
 
