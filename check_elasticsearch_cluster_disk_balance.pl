@@ -66,7 +66,8 @@ foreach my $line (split(/\n/, $content)){
         my $node_host = $2;
         my $ip        = $3;
         my $node_name = $4;
-        next if $disk == 0;
+        # client nodes like LogStash have blank not zero
+        #next if $disk == 0;
         $num_nodes++;
         $disk_by_nodename{$node_name}{"disk"}      = $disk;
         $disk_by_nodename{$node_name}{"node_host"} = $node_host;
