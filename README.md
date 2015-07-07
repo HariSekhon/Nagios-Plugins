@@ -188,7 +188,7 @@ The MongoDB Perl driver does compile on RHEL6 but there is a small bug in the Re
 ```
 Readonly::XS is not a standalone module. You should not use it directly. at /usr/local/lib64/perl5/Readonly/XS.pm line 34.
 ```
-The workaround is to edit the Readonly module and comment out the "eval 'use Readonly::XS'" on line 33 of the Readonly module.
+The workaround is to edit the Readonly module and comment out the ```eval 'use Readonly::XS'``` on line 33 of the Readonly module.
 
 This is located here on Linux:
 ```
