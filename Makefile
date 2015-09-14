@@ -162,6 +162,8 @@ yum-packages:
 	# for check_whois.pl
 	rpm -q jwhois || $(SUDO) yum install -y jwhois || :
 	# for Cassandra's Python driver
+	# python-pip requires EPEL, so try to get the correct EPEL rpm - for Make must escape the $3
+	rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm" || :
 	rpm -q python-setuptools python-pip python-devel libev libev-devel libsnappy-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel libev libev-devel libsnappy-devel || :
 
 
