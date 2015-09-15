@@ -163,15 +163,18 @@ yum-packages:
 	rpm -q jwhois || $(SUDO) yum install -y jwhois || :
 	# for Cassandra's Python driver
 	# python-pip requires EPEL, so try to get the correct EPEL rpm - for Make must escape the $3
-	rpm -q wget || yum install -y wget || :
 	rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm" || :
 	rpm -q python-setuptools python-pip python-devel libev libev-devel libsnappy-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel libev libev-devel libsnappy-devel || :
+	# to fetch ZooKeeper
+	rpm -q wget || yum install -y wget || :
 
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
 ZOOKEEPER_VERSION = 3.4.6
 .PHONY: zookeeper
 zookeeper:
+	[ -x /usr/bin/apt-get ] && make apt-packages || :
+	[ -x /usr/bin/yum ]     && make yum-packages || :
 	[ -f zookeeper-$(ZOOKEEPER_VERSION).tar.gz ] || wget -O zookeeper-$(ZOOKEEPER_VERSION).tar.gz http://www.mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-$(ZOOKEEPER_VERSION)/zookeeper-$(ZOOKEEPER_VERSION).tar.gz
 	[ -d zookeeper-$(ZOOKEEPER_VERSION) ] || tar zxvf zookeeper-$(ZOOKEEPER_VERSION).tar.gz
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				./configure
