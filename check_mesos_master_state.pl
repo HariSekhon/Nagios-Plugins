@@ -51,6 +51,9 @@ my $url = "http://$host:$port/state.json";
 $json = curl_json $url, "Mesos Master state";
 vlog3 Dumper($json);
 
+if(not defined($json->{"cluster"})){
+    quit "UNKNOWN", "cluster field not found, did you query a Mesos slave or some other service instead of the Mesos master?";
+}
 my $cluster = get_field("cluster");
 my $leader  = get_field("leader");
 my $activated_slaves = get_field_int("activated_slaves");
