@@ -66,7 +66,7 @@ my $deactivated_slaves  = get_field_int("deactivated_slaves");
 my $uptime_secs = int(time - $start_time);
 my $human_time  = sec2human($uptime_secs);
 
-$msg = "cluster '$cluster' leader '$leader', activated_slaves=$activated_slaves, deactivated_slaves=$deactivated_slaves, version '$version'";
+$msg = "Mesos cluster '$cluster' leader '$leader', activated_slaves=$activated_slaves, deactivated_slaves=$deactivated_slaves, version '$version'";
 $msg .= " started $human_time ago ($uptime_secs secs)" if $verbose;
 $msg .= " | activated_slaves=$activated_slaves deactivated_slaves=$deactivated_slaves";
 
