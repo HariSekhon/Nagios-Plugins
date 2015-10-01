@@ -12,6 +12,8 @@
 
 $DESCRIPTION = "Nagios Plugin to check Mesos Master state via Rest API
 
+Outputs various details such as leader, version and activated/deactivated slaves. Also outputs uptime if using --verbose
+
 Tested on Mesos 0.23 and 0.24";
 
 $VERSION = "0.1";
@@ -22,7 +24,7 @@ BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
-use HariSekhonUtils;
+use HariSekhonUtils qw/:DEFAULT :time/;
 use Data::Dumper;
 use LWP::Simple '$ua';
 
@@ -54,12 +56,17 @@ vlog3 Dumper($json);
 if(not defined($json->{"cluster"})){
     quit "UNKNOWN", "cluster field not found, did you query a Mesos slave or some other service instead of the Mesos master?";
 }
-my $cluster = get_field("cluster");
-my $leader  = get_field("leader");
-my $activated_slaves = get_field_int("activated_slaves");
-my $version = get_field("version");
-my $deactivated_slaves = get_field_int("deactivated_slaves");
+my $cluster             = get_field("cluster");
+my $leader              = get_field("leader");
+my $activated_slaves    = get_field_int("activated_slaves");
+my $version             = get_field("version");
+my $deactivated_slaves  = get_field_int("deactivated_slaves");
+my $start_time          = get_field_float("start_time");
+my $uptime_secs = int(time - $start_time);
+my $human_time  = sec2human($uptime_secs);
 
-$msg = "cluster '$cluster' leader '$leader', activated_slaves=$activated_slaves, deactivated_slaves=$deactivated_slaves, version '$version' | activated_slaves=$activated_slaves deactivated_slaves=$deactivated_slaves";
+$msg = "cluster '$cluster' leader '$leader', activated_slaves=$activated_slaves, deactivated_slaves=$deactivated_slaves, version '$version'";
+$msg .= " started $human_time ago ($uptime_secs secs)" if $verbose;
+$msg .= " | activated_slaves=$activated_slaves deactivated_slaves=$deactivated_slaves";
 
 quit $status, $msg;
