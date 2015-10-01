@@ -58,10 +58,10 @@ if(not defined($json->{"cluster"})){
 }
 my $cluster             = get_field("cluster");
 my $leader              = get_field("leader");
-my $activated_slaves    = get_field_int("activated_slaves");
 my $version             = get_field("version");
-my $deactivated_slaves  = get_field_int("deactivated_slaves");
 my $start_time          = get_field_float("start_time");
+my $activated_slaves    = get_field_int("activated_slaves");
+my $deactivated_slaves  = get_field_int("deactivated_slaves");
 my $uptime_secs = int(time - $start_time);
 my $human_time  = sec2human($uptime_secs);
 
