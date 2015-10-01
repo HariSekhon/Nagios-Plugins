@@ -12,7 +12,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check Mesos Master state via Rest API
 
-Outputs various details such as leader, version and activated/deactivated slaves. Also outputs uptime if using --verbose
+Outputs various details such as leader, version and activated/deactivated slaves (with perfdata). Also outputs uptime if using --verbose
 
 Tested on Mesos 0.23 and 0.24";
 
