@@ -58,7 +58,7 @@ vlog3 Dumper($json);
 my $cluster = get_field("cluster");
 my $deactivated_slaves = get_field_int("deactivated_slaves");
 
-$msg = "cluster '$cluster' deactivated_slaves=$deactivated_slaves";
+$msg = "Mesos cluster '$cluster' deactivated_slaves=$deactivated_slaves";
 check_thresholds($deactivated_slaves);
 $msg .= " | deactivated_slaves=$deactivated_slaves";
 msg_perf_thresholds();
