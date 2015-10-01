@@ -9,7 +9,7 @@ Hadoop and extensive API integration with all major Hadoop vendors (Hortonworks,
 
 I've been developing this Nagios Plugin Collection since 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
-It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web, Hadoop and NoSQL technologies (Cassandra, HBase, MongoDB, Riak, Couchbase, Memcached, Redis, Solr, SolrCloud, ElasticSearch etc).
+It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web, Hadoop and NoSQL technologies (Cassandra, HBase, MongoDB, Riak, Couchbase, Memcached, Redis, Solr, SolrCloud, ElasticSearch...), Mesos etc.
 
 These programs can also be run standalone on the command line as tools and used in scripts as well as run via Nagios.
 
@@ -49,6 +49,7 @@ http://www.linkedin.com/in/harisekhon
 - ```check_riak_*.pl``` - check Riak API writes/reads/deletes with timings, check a specific key's value against regex or value range, check all riak diagnostics, check node states, check all nodes agree on ring status, gather statistics, alert on any single stat
 - ```check_redis_*.pl``` - check Redis API writes/reads/deletes with timings, check specific key's value against regex or value range, replication slaves I/O, replicated writes (write on master -> read from slave), publish/subscribe, connected clients, validate redis.conf against running server to check deployments or remote compliance checks, gather statistics, alert on any single stat
 - ```check_memcached_*.pl``` - check Memcached API writes/reads/deletes with timings, check specific key's value against regex or value range, number of current connections, gather statistics
+- ```check_mesos_*.pl``` - check Mesos master health API, master & slaves state information including leader and versions, activated & deactivated slaves, master & slave metrics
 - ```check_zookeeper.pl``` - ZooKeeper server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gather statistics
 - ```check_zookeeper_*znode*.pl``` - ZooKeeper znode checks using ZK Perl API, useful for HBase, Kafka, SolrCloud, Hadoop NameNode HA & JobTracker HA (ZKFC) and any other ZooKeeper based service. Very versatile with multiple optional checks including data vs regex, json field extraction, ephemeral status, child znodes, znode last modified age
 - ```check_puppet.rb``` - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
