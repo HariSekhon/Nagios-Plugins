@@ -16,7 +16,9 @@
 
 $DESCRIPTION = "Nagios Plugin to check number of Chronos jobs
 
-Optional thresholds apply to minimum number of jobs but can use standard nagios threshold format of <min>:<max> for each threshold to check max number of jobs";
+Optional thresholds apply to minimum number of jobs but can use standard nagios threshold format of <min>:<max> for each threshold to check max number of jobs
+
+Tested on Chronos 2.5.0";
 
 $VERSION = "0.1";
 
