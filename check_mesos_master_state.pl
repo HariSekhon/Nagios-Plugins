@@ -37,8 +37,8 @@ set_port_default(5050);
 
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
+$host = validate_host($host);
+$port = validate_port($port);
 
 vlog2;
 set_timeout();
