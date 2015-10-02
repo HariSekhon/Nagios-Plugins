@@ -29,6 +29,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use LWP::Simple '$ua';
 
 set_port_default(8080);
 
