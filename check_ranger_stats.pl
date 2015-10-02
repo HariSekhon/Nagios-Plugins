@@ -29,6 +29,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use Data::Dumper;
 use LWP::Simple '$ua';
 
 set_port_default(6080);
@@ -43,6 +44,7 @@ my @valid_types = qw/policy repository/;
     %hostoptions,
     %useroptions,
     "T|type=s" => [ \$type, "Stat to query, Optional, can be one of (otherwise queries all of): " . join(", ", @valid_types) ],
+    #%ssloptions,
     %thresholdoptions,
 );
 splice @usage_order, 6, 0, qw/type/;
@@ -70,20 +72,22 @@ $status = "OK";
 my $url = "$protocol://$host:$port/service/public/api";
 
 my @types = @valid_types;
-@types = qw/$type/ if($type);
+@types = $type if(defined($type));
 my $count;
 my $msg2;
 
-foreach(@types){
+foreach my $type (@types){
     $json = curl_json "$url/$type", "Ranger", $user, $password;
-    $count = get_field_int("totalcount");
+    vlog3 Dumper($json);
+    $count = get_field_int("totalCount");
     $msg .= ", $type count = $count";
     check_thresholds($count);
     $msg2 .= " '${type} count'=$count";
-    msg_perf_thresholds();
+    $msg2 .= msg_perf_thresholds(1);
 }
 $msg =~ s/^, //;
 
 $msg = "Ranger $msg |$msg2";
 
+vlog2;
 quit $status, $msg;
