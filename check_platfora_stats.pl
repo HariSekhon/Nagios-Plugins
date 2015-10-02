@@ -54,14 +54,14 @@ $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password) if $password;
 
-defined($type) of usage "--type not defined";
+defined($type) or usage "--type not defined";
 $type = lc $type;
 grep { $_ eq $type } @valid_types or usage "invalid --type, must be one of the following valid types: " . join(", ", @valid_types);
 
 validate_ssl();
 validate_thresholds();
 
-if($ssl and $port == $default_port){
+if($ssl and $port == 8080){
     vlog2 "\nchanging default port from 8080 to 8443 for SSL";
     $port = 8443;
 }
