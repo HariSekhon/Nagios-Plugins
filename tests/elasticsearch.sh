@@ -86,7 +86,7 @@ perl -T $I_lib ./check_elasticsearch_master_node.pl -v
 hr
 perl -T $I_lib ./check_elasticsearch_nodes.pl -v -w 1
 hr
-perl -T $I_lib ./check_elasticsearch_node_disk_percent.pl -N 127.0.0.1 -v
+perl -T $I_lib ./check_elasticsearch_node_disk_percent.pl -N 127.0.0.1 -v -w 90 -c 95
 hr
 perl -T $I_lib ./check_elasticsearch_node_shards.pl -N 127.0.0.1 -v
 hr
