@@ -18,7 +18,7 @@ $DESCRIPTION = "Nagios Plugin to check Platfora stats via the Rest API
 
 Must check a single stat on each call due to the way the API is structured it might be too slow to issue multiple calls in a single plugin run.
 
-Tested on Platfora 4.5.2";
+Tested on Platfora 4.5.3";
 
 $VERSION = "0.1";
 
