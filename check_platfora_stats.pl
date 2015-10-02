@@ -53,7 +53,7 @@ get_options();
 $host       = validate_host($host);
 $port       = validate_port($port);
 $user       = validate_user($user);
-$password   = validate_password($password) if $password;
+$password   = validate_password($password);
 
 defined($type) or usage "--type not defined";
 $type = lc $type;
