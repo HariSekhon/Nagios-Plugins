@@ -41,7 +41,7 @@ my @valid_types = qw/users groups datasources datasets lensbuilds lenses vizboar
 %options = (
     %hostoptions,
     %useroptions,
-    "T|type=s" => [ \$type, "Type of Platfora object to query, must be one of: " . join(", ", @valid_types) ],
+    "T|type=s" => [ \$type, "Type of Platfora object to query, Required, must be one of: " . join(", ", @valid_types) ],
     %ssloptions,
     %thresholdoptions,
 );
