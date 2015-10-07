@@ -9,6 +9,10 @@
 #  License: see accompanying LICENSE file
 #
 
+# No longer checking /etc/sysconfig/clock as it's been removed from RHEL7:
+#
+# https://github.com/harisekhon/nagios-plugins/issues/66
+
 $DESCRIPTION = "Nagios Plugin to check a Linux Server's timezone is set as expected";
 
 $VERSION = "0.6";
@@ -24,16 +28,16 @@ use HariSekhonUtils;
 my $timezone;
 my $alternate_timezone;
 my $localtime_file  = "/etc/localtime";
-my $sysconfig_clock = "/etc/sysconfig/clock";
+#my $sysconfig_clock = "/etc/sysconfig/clock";
 my $zoneinfo_file;
 my $zoneinfo_dir    = "/usr/share/zoneinfo";
-my $no_warn_symlinks;
+#my $no_warn_symlinks;
 
 %options = (
-    "T|timezone=s"       => [ \$timezone,           "Timezone to expect the server in as shown by 'date' (eg. GMT)" ],
+    "T|timezone=s"       => [ \$timezone,           "Timezone to expect the server in as shown by the 'date' command (eg. GMT)" ],
     "A|alternate=s"      => [ \$alternate_timezone, "Alternative timezone to expect the server in. Optional (defaults to same as --timezone). Useful to allow daylight saving time shifts by specifying a second timezone to allow (eg. BST)" ],
-    "Z|zoneinfo-file=s"  => [ \$zoneinfo_file,      "Timezone file to compare $localtime_file and $sysconfig_clock to. Optional (defaults to --timezone suffixed to $zoneinfo_dir). Useful when your localtime is set to say Europe/London which shows up as GMT/BST but you still want to validate that $localtime_file is set to Europe/London for following daylight saving time changes back and forth. Can be any valid timezone file under $zoneinfo_dir/ (eg. UTC or GMT) or a fully qualified path to a timezone file" ],
-    "no-warn-symlinks"   => [ \$no_warn_symlinks,   "Do not warn on detecting symlinks for $localtime_file or $sysconfig_clock" ],
+    "Z|zoneinfo-file=s"  => [ \$zoneinfo_file,      "Timezone file to compare $localtime_file to. Optional (defaults to --timezone suffixed to $zoneinfo_dir). Useful when your localtime is set to say Europe/London which shows up as GMT/BST but you still want to validate that $localtime_file is set to Europe/London for following daylight saving time changes back and forth. Can be any valid timezone file under $zoneinfo_dir/ (eg. UTC or GMT) or a fully qualified path to a timezone file" ],
+    #"no-warn-symlinks"   => [ \$no_warn_symlinks,   "Do not warn on detecting symlinks for $localtime_file or $sysconfig_clock" ],
 );
 @usage_order = qw/timezone alternate zoneinfo-file no-warn-symlinks/;
 
@@ -94,35 +98,35 @@ close $fh2;
 #    warning;
 #    $msg .= "unable to read file '$sysconfig_clock'! $msg";
 #}
-vlog2 "checking $sysconfig_clock";
-my $fh3 = open_file($sysconfig_clock);
-while(<$fh3>){
-    chomp;
-    vlog3 "$sysconfig_clock: $_";
-    if(/^\s*ZONE\s*=\s*"?(.+?)"?\s*$/){
-        unless($1 eq $timezone){
-            critical;
-            if($verbose or not $timezone_mismatch){
-                $msg = "$sysconfig_clock incorrectly configured (expected: '$timezone', got: '$1')! $msg";
-            }
-            last;
-        }
-    }
-}
-close $fh3;
+#vlog2 "checking $sysconfig_clock";
+#my $fh3 = open_file($sysconfig_clock);
+#while(<$fh3>){
+#    chomp;
+#    vlog3 "$sysconfig_clock: $_";
+#    if(/^\s*ZONE\s*=\s*"?(.+?)"?\s*$/){
+#        unless($1 eq $timezone){
+#            critical;
+#            if($verbose or not $timezone_mismatch){
+#                $msg = "$sysconfig_clock incorrectly configured (expected: '$timezone', got: '$1')! $msg";
+#            }
+#            last;
+#        }
+#    }
+#}
+#close $fh3;
 
-my $symlinks_found = 0;
-foreach(($localtime_file, $sysconfig_clock)){
-    if ( -l $_ ){
-        $symlinks_found = 1;
-        if($verbose or not $no_warn_symlinks){
-            $msg .= ", '$_' is a symlink";
-        }
-    }
-}
-if($symlinks_found and not $no_warn_symlinks){
-    warning;
-    $msg .= "!";
-}
+#my $symlinks_found = 0;
+#foreach(($localtime_file, $sysconfig_clock)){
+#    if ( -l $_ ){
+#        $symlinks_found = 1;
+#        if($verbose or not $no_warn_symlinks){
+#            $msg .= ", '$_' is a symlink";
+#        }
+#    }
+#}
+#if($symlinks_found and not $no_warn_symlinks){
+#    warning;
+#    $msg .= "!";
+#}
 
 quit $status, $msg;
