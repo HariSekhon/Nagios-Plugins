@@ -20,7 +20,7 @@ Must check a single stat on each call due to the way the API is structured it mi
 
 Tested on Platfora 4.5.3";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -28,6 +28,9 @@ BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
+# seems to be a recent bug in IO::Socket::SSL not respecting $ua->ssl_opt(verify_hostname => 0)
+# Net::SSL seems to ignore verification altogether - a potential hack workaround for now for self-signed certs like Platfora generates
+#use Net::SSL;
 use HariSekhonUtils;
 use LWP::Simple '$ua';
 
@@ -37,7 +40,20 @@ env_creds("Platfora");
 
 our $protocol = "http";
 my $type;
-my @valid_types = qw/users groups datasources datasets lensbuilds lenses vizboards workflows permissions renderjobs/;
+
+# lensbuilds are not yet supported by the API when testing against Platfora 4.5.3 even though they were in the documentation
+    #lensbuilds
+my @valid_types = qw(
+    users
+    groups
+    datasources
+    datasets
+    lenses
+    vizboards
+    workflows
+    permissions
+    renderjobs
+);
 
 %options = (
     %hostoptions,
@@ -72,7 +88,7 @@ set_timeout();
 
 $status = "OK";
 
-my $url = "$protocol://$host:$port/api/v1/$type&limit=1";
+my $url = "$protocol://$host:$port/api/v1/$type?limit=1";
 
 $json = curl_json $url, "Platfora", $user, $password;
 
