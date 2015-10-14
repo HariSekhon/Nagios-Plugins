@@ -28,4 +28,6 @@ echo "
 
 perl -T $I_lib ./check_linux_timezone.pl -T UTC -Z /usr/share/zoneinfo/UTC -A UTC
 hr
+perl -T $I_lib ./check_ssl_cert.pl -H www.google.com -w 2 -c 1 -v
+hr
 echo; echo
