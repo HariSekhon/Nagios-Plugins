@@ -41,7 +41,7 @@ env_creds("Platfora");
 our $protocol = "http";
 my $type;
 
-# lensbuilds are not yet supported by the API when testing against Platfora 4.5.3 even though they were in the documentation
+# lensbuilds are not yet supported by the API when testing against Platfora 4.5.3
     #lensbuilds
 my @valid_types = qw(
     users
