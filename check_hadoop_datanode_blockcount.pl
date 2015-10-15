@@ -59,7 +59,8 @@ my $blockScannerReport = curl "http://$host:$port/blockScannerReport", "datanode
 my $block_count;
 if($blockScannerReport =~ /Total Blocks\s+:\s+(\d+)/){
     $block_count = $1;
-} elsif($blockScannerReport =~ /Periodic block scanner is not running. Please check the datanode log if this is unexpected/){
+#} elsif($blockScannerReport =~ /Periodic block scanner is not running\. Please check the datanode log if this is unexpected/){
+} elsif($blockScannerReport =~ /block scanner .*not running/i){
     quit "UNKNOWN", "Periodic block scanner is not running. Please check the datanode log if this is unexpected.";
 } else {
     quit "CRITICAL", "failed to find total block count from blockScannerReport, $nagios_plugins_support_msg";
