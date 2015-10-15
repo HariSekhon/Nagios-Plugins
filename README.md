@@ -183,34 +183,6 @@ After this check it's properly installed by doing
 ```perl -e "use Net::ZooKeeper"```
 which should return no errors if successful.
 
-###### MongoDB / Readonly library bug ######
-
-The MongoDB Perl driver from CPAN doesn't seem to compile properly on RHEL5 based systems. PyMongo rewrite was considered but the extensive library of functions results in better code quality for the Perl plugins, it's easier to just upgrade your OS to RHEL6.
-
-The MongoDB Perl driver does compile on RHEL6 but there is a small bug in the Readonly CPAN module that the MongoDB CPAN module uses. When it tries to call Readonly::XS, a MAGIC_COOKIE mismatch results in the following error:
-```
-Readonly::XS is not a standalone module. You should not use it directly. at /usr/local/lib64/perl5/Readonly/XS.pm line 34.
-```
-The workaround is to edit the Readonly module and comment out the ```eval 'use Readonly::XS'``` on line 33 of the Readonly module.
-
-This is located here on Linux:
-```
-/usr/local/share/perl5/Readonly.pm
-```
-
-and here on Max OS X:
-```
-/Library/Perl/5.16/Readonly.pm
-```
-
-###### IO::Socket::SSL doesn't respect ignoring self-signed certs in recent version(s) eg. 2.020 #####
-
-Recent version(s) of IO::Socket::SSL (2.020) seem to fail to respect options to ignore self-signed certs. The workaround is to create the hidden touch file below in the same top-level directory as the library to make this it include and use Net::SSL instead of IO::Socket::SSL.
-
-```
-touch .use_net_ssl
-```
-
 ### Other Dependencies ###
 
 Some plugins, especially ones under the older/ directory such as those that check 3ware/LSI raid controllers, SVN, VNC etc require external binaries to work, but the plugins will tell you if they are missing. Please see the respective vendor websites for 3ware, LSI etc to fetch those binaries and then re-run those plugins.
@@ -240,6 +212,36 @@ If you update often and want to just quickly git pull + submodule update but ski
 All plugins come with --help which lists all options as well as giving a program description, often including a detailed account of what is checked in the code.
 
 Just make sure to install the Perl CPAN modules listed above first as some plugins won't run until you've installed the required Perl modules.
+
+##### Bugs & Workarounds #####
+
+###### MongoDB / Readonly library bug ######
+
+The MongoDB Perl driver from CPAN doesn't seem to compile properly on RHEL5 based systems. PyMongo rewrite was considered but the extensive library of functions results in better code quality for the Perl plugins, it's easier to just upgrade your OS to RHEL6.
+
+The MongoDB Perl driver does compile on RHEL6 but there is a small bug in the Readonly CPAN module that the MongoDB CPAN module uses. When it tries to call Readonly::XS, a MAGIC_COOKIE mismatch results in the following error:
+```
+Readonly::XS is not a standalone module. You should not use it directly. at /usr/local/lib64/perl5/Readonly/XS.pm line 34.
+```
+The workaround is to edit the Readonly module and comment out the ```eval 'use Readonly::XS'``` on line 33 of the Readonly module.
+
+This is located here on Linux:
+```
+/usr/local/share/perl5/Readonly.pm
+```
+
+and here on Max OS X:
+```
+/Library/Perl/5.16/Readonly.pm
+```
+
+###### IO::Socket::SSL doesn't respect ignoring self-signed certs in recent version(s) eg. 2.020 #####
+
+Recent version(s) of IO::Socket::SSL (2.020) seem to fail to respect options to ignore self-signed certs. The workaround is to create the hidden touch file below in the same top-level directory as the library to make this it include and use Net::SSL instead of IO::Socket::SSL.
+
+```
+touch .use_net_ssl
+```
 
 ### Support for Bugs or Feature Requests ###
 
