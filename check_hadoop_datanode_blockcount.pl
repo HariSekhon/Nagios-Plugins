@@ -25,7 +25,7 @@ use LWP::Simple '$ua';
 my $default_port = 50075;
 $port = $default_port;
 
-# This is based on experience, real clusters seem to run in to problems after 300,000 blocks per DN. Cloudera Manager also alerts around thsi point
+# This is based on experience, real clusters seem to run in to problems after 300,000 blocks per DN. Cloudera Manager also alerts around this point
 my $default_warning  = 300000;
 my $default_critical = 500000;
 
