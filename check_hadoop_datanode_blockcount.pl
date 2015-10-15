@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the number of blocks on a Hadoop HDFS Datanode via it's blockScannerReport";
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -59,6 +59,8 @@ my $blockScannerReport = curl "http://$host:$port/blockScannerReport", "datanode
 my $block_count;
 if($blockScannerReport =~ /Total Blocks\s+:\s+(\d+)/){
     $block_count = $1;
+} elsif($blockScannerReport =~ /Periodic block scanner is not running. Please check the datanode log if this is unexpected/){
+    quit "UNKNOWN", "Periodic block scanner is not running. Please check the datanode log if this is unexpected.";
 } else {
     quit "CRITICAL", "failed to find total block count from blockScannerReport, $nagios_plugins_support_msg";
 }
