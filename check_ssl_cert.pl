@@ -21,7 +21,7 @@ Checks:
 4. Subject Alternative Names supported by certificate (optional)
 5. SNI - Server Name Identification - supply hostname identifier for servers that contain multiple certificates to tell the server which SSL certificate to use (optional)";
 
-$VERSION = "0.9.10";
+$VERSION = "0.9.11";
 
 use warnings;
 use strict;
@@ -47,6 +47,7 @@ my $sni_hostname;
 my $end_date;
 my $expected_domain;
 my $no_validate;
+my $cert_domain_invalid;
 # Worked on OpenSSL 0.98.x on RHEL5 and Mac OS X 10.6-10.9
 #my $openssl_output_for_shell_regex = '[\w\s_:=@\*,\/\.\(\)\n+-]+';
 # OpenSSL 1.0.x on RHEL6 outputs session tickets and prints hex which can include single quotes, and quotemeta breaks certificate interpretation so not using this now
@@ -66,9 +67,10 @@ my @output;
     "w|warning=s"                   => [ \$warning,             "The warning threshold in days before expiry (defaults to $default_warning)" ],
     "c|critical=s"                  => [ \$critical,            "The critical threshold in days before expiry (defaults to $default_critical)" ],
     "C|CApath=s"                    => [ \$CApath,              "Path to ssl root certs dir (will attempt to determine from openssl binary if not supplied)" ],
-    "N|no-validate"                 => [ \$no_validate,         "Do not validate the SSL certificate chain" ]
+    "N|no-validate"                 => [ \$no_validate,         "Do not validate the SSL certificate chain" ],
+    "cert-domain-invalid"	    => [ \$cert_domain_invalid, "Do not check that the domain on the returned certicate is valid according to domain naming rules. This was added for Platfora which had 'localhost' as the domain name. An alternative is to add 'localhost' to lib/custom_tlds.txt" ]
 );
-@usage_order = qw/host port domain subject-alternative-names SNI-hostname warning critical CApath no-validate/;
+@usage_order = qw/host port domain subject-alternative-names SNI-hostname warning critical CApath no-validate cert-domain-invalid/;
 
 get_options();
 
@@ -185,6 +187,7 @@ foreach (@output){
 }
 
 sub is_cert_domain ($) {
+    return 1 if $cert_domain_invalid;
     my $domain = shift;
     if($domain =~ /^\*\./){
         $domain =~ s/^\*\.//;
@@ -196,7 +199,7 @@ defined($domain)   or quit "CRITICAL", "failed to determine certificate domain n
 defined($end_date) or quit "CRITICAL", "failed to determine certificate expiry date";
 vlog2 "Domain: $domain";
 vlog2 "Certificate Expires: $end_date\n";
-is_cert_domain($domain) or quit "UNKNOWN", "unrecognized domain certficate returned. $nagios_plugins_support_msg";
+is_cert_domain($domain) or quit "UNKNOWN", "invalid domain '$domain' return for certficate. If this is an internal domain not using an official IANA TLD then you can either add the TLD to lib/custom_tlds.txt to pass this validation, or use --cert-domain-invalid to skip this check entirely. $nagios_plugins_support_msg";
 
 my ($month, $day, $time, $year, $tz) = split(/\s+/, $end_date);
 my ($hour, $min, $sec)               = split(/\:/, $time);
