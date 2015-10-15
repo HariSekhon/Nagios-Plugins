@@ -203,6 +203,14 @@ and here on Max OS X:
 /Library/Perl/5.16/Readonly.pm
 ```
 
+###### IO::Socket::SSL doesn't respect ignoring self-signed certs in recent version(s) eg. 2.020 #####
+
+Recent version(s) of IO::Socket::SSL (2.020) seem to fail to respect options to ignore self-signed certs. The workaround is to create the hidden touch file below in the same top-level directory as the library to make this it include and use Net::SSL instead of IO::Socket::SSL. The down side is that Net::SSL doesn't seem to validate certificates at all.
+
+```
+touch .use_net_ssl
+```
+
 ### Other Dependencies ###
 
 Some plugins, especially ones under the older/ directory such as those that check 3ware/LSI raid controllers, SVN, VNC etc require external binaries to work, but the plugins will tell you if they are missing. Please see the respective vendor websites for 3ware, LSI etc to fetch those binaries and then re-run those plugins.
