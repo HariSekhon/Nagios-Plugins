@@ -202,7 +202,6 @@ install:
 update:
 	make update2
 	make
-	make test
 
 .PHONY: update2
 update2:
