@@ -22,7 +22,7 @@ Tested on MySQL 5.0, 5.1 and 5.5
 
 # TODO: add retry switch if valid below threshold
 
-$VERSION = "1.1.3";
+$VERSION = "1.1.4";
 
 use strict;
 use warnings;
@@ -143,7 +143,7 @@ if($host){
     or quit "CRITICAL", "Couldn't connect to '$host:$port' database '$database' (DBI error: " . DBI->errstr . ")";
 } else { # connect through local socket
     vlog2 "connecting to MySQL database via socket '$mysql_socket'\n";
-    $dbh = DBI->connect("DBI:mysql:", $user, $password, { mysql_socket => $mysql_socket, Taint => 1, PrintError => 0, RaiseError => 0 }) || quit "CRITICAL", "failed to connect to MySQL database through socket: $DBI::errstr";
+    $dbh = DBI->connect("DBI:mysql:$database", $user, $password, { mysql_socket => $mysql_socket, Taint => 1, PrintError => 0, RaiseError => 0 }) || quit "CRITICAL", "failed to connect to MySQL database through socket: $DBI::errstr";
 };
 vlog2 "login to database successful\n";
 
