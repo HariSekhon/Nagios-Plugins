@@ -18,9 +18,9 @@ Outputs all metrics by default, or can specify one or more metrics.
 
 May specify optional thresholds if fetching a single metric.
 
-Tested on Mesos 0.23 and 0.24";
+Tested on Mesos 0.23, 0.24, 0.25";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -45,6 +45,7 @@ my @metric_counters = qw(
     master/tasks_finished
     master/tasks_killed
     master/tasks_lost
+    master/invalid_executor_to_framework_messages
     master/invalid_framework_to_executor_messages
     master/invalid_status_update_acknowledgements
     master/invalid_status_updates
