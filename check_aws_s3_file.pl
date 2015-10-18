@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check if a given file is present in AWS S3 via 
 
 Bucket names must follow the more restrictive 3 to 63 alphanumeric character international standard, dots are not supported in the bucket name due to using strict DNS shortname regex validation";
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -142,8 +142,14 @@ if($res->code eq 200){
     $msg .= " $aws_host in $time_taken secs | time_taken=${time_taken}s";
 } else {
     critical;
-    my $data = XMLin($res->content, forcearray => 1, keyattr => []);
-    $msg = "failed to retrieve file '$file' from $aws_host: " . $res->status_line . " - " . $data->{Message}[0];
+    my $data;
+    if($res->content){
+        $data = XMLin($res->content, forcearray => 1, keyattr => []);
+    }
+    $msg = "failed to retrieve file '$file' from $aws_host: " . $res->status_line;
+    if(defined($data)){
+        $msg .= " - " . $data->{Message}[0];
+    }
 }
 
 quit $status, $msg;
