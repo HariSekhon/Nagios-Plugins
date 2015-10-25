@@ -84,6 +84,7 @@ if(defined($algo)){
 }
 if(defined($expected_checksum)){
     isHex($expected_checksum) or usage "invalid --checksum given, not hexadecimal";
+    $no_compare and usage "cannot specify --no-compare and --checksum at the same time";
     vlog_options "expected checksum", $expected_checksum;
 }
 
