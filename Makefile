@@ -76,7 +76,11 @@ make:
 		DBI \
 		Data::Dumper \
 		Devel::CheckLib \
+		Digest::Adler32 \
+		Digest::CRC \
+		Digest::MD5 \
 		Digest::SHA \
+		Digest::SHA1 \
 		Exporter::Tiny \
 		ExtUtils::Config \
 		ExtUtils::Constant \
