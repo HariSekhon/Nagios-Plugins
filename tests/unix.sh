@@ -29,6 +29,7 @@ echo "
 perl -T $I_lib ./check_ssl_cert.pl -H www.google.com -w 2 -c 1 -v
 hr
 echo test > test.txt
+perl -T $I_lib ./check_file_checksum.pl -f test.txt -v -c '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83'
 perl -T $I_lib ./check_file_checksum.pl -f test.txt -vn -a adler32
 perl -T $I_lib ./check_file_adler32.pl  -f test.txt -v -c '062801cb'
 perl -T $I_lib ./check_file_crc.pl      -f test.txt -v -c '3bb935c6'
