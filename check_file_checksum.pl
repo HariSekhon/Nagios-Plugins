@@ -85,6 +85,7 @@ if(defined($expected_checksum)){
     $no_compare and usage "cannot specify --no-compare and --checksum at the same time";
     vlog_options "expected checksum", $expected_checksum;
 }
+vlog_options_bool "no-compare", $no_compare;
 
 vlog2;
 set_timeout();
