@@ -75,13 +75,11 @@ if($algo){
 get_options();
 
 $file = validate_filename($file);
-if(defined($algo)){
-    $algo = lc $algo;
-    unless(grep { $algo eq $_ } @valid_algos){
-        usage "invalid --algorithm given, must be one of: @valid_algos";
-    }
-    vlog_options "algorithm", $algo;
+$algo = lc $algo;
+unless(grep { $algo eq $_ } @valid_algos){
+    usage "invalid --algorithm given, must be one of: @valid_algos";
 }
+vlog_options "algorithm", $algo;
 if(defined($expected_checksum)){
     isHex($expected_checksum) or usage "invalid --checksum given, not hexadecimal";
     $no_compare and usage "cannot specify --no-compare and --checksum at the same time";
