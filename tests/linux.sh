@@ -20,6 +20,8 @@ cd "$srcdir/..";
 
 . tests/travis.sh
 
+[ `uname -s` = "Linux" ] || exit 0
+
 echo "
 # ============================================================================ #
 #                                   L i n u x
@@ -27,17 +29,5 @@ echo "
 "
 
 perl -T $I_lib ./check_linux_timezone.pl -T UTC -Z /usr/share/zoneinfo/UTC -A UTC
-hr
-perl -T $I_lib ./check_ssl_cert.pl -H www.google.com -w 2 -c 1 -v
-hr
-echo test > test.txt
-perl -T $I_lib ./check_file_checksum.pl -f test.txt -vn -a adler32
-perl -T $I_lib ./check_file_adler32.pl  -f test.txt -v -c '062801cb'
-perl -T $I_lib ./check_file_crc.pl      -f test.txt -v -c '3bb935c6'
-perl -T $I_lib ./check_file_md5.pl      -f test.txt -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
-perl -T $I_lib ./check_file_sha1.pl     -f test.txt -v --checksum '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83'
-perl -T $I_lib ./check_file_sha256.pl   -f test.txt -v -c 'f2ca1bb6c7e907d06dafe4687e579fce76b37e4e93b7605022da52e6ccc26fd2'
-perl -T $I_lib ./check_file_sha512.pl   -f test.txt -v -c '0e3e75234abc68f4378a86b3f4b32a198ba301845b0cd6e50106e874345700cc6663a86c1ea125dc5e92be17c98f9a0f85ca9d5f595db2012f7cc3571945c123'
-rm -f test.txt
 hr
 echo; echo
