@@ -61,7 +61,7 @@ if($blockScannerReport =~ /Total Blocks\s+:\s+(\d+)/){
     $block_count = $1;
 #} elsif($blockScannerReport =~ /Periodic block scanner is not running\. Please check the datanode log if this is unexpected/){
 } elsif($blockScannerReport =~ /block scanner .*not running/i){
-    quit "UNKNOWN", "Periodic block scanner is not running. Please check the datanode log if this is unexpected.";
+    quit "UNKNOWN", "Periodic block scanner is not running. Please check the datanode log if this is unexpected. Perhaps you have dfs.block.scanner.volume.bytes.per.second = 0 in your hdfs-site.xml?";
 } else {
     quit "CRITICAL", "failed to find total block count from blockScannerReport, $nagios_plugins_support_msg";
 }
