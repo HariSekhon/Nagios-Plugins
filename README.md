@@ -249,7 +249,7 @@ Please raise a ticket on Github for any bugs or problems encountered in the use 
 
 Please make sure you have run ```make``` first to pull the latest library submodule and build the necessary CPAN modules, (see [Quick Setup](https://github.com/harisekhon/nagios-plugins#quick-setup) above).
 
-Make sure you run the code by hand on the command line with the ```-vvv``` switch for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` found in my [Toolbox](https://github.com/harisekhon/toolbox) repo.
+Make sure you run the code by hand on the command line with the ```-vvv``` switch for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` found in my [Tools](https://github.com/harisekhon/tools) repo.
 
 ### Contributions ###
 
@@ -257,7 +257,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 ### Further Utilities ###
 
-[ToolBox repo](https://github.com/harisekhon/toolbox) - contains 30+ programs including useful tools such as:
+[Tools repo](https://github.com/harisekhon/tools) & [PyTools](https://github.com/harisekhon/pytools) repos - contains 30+ programs including useful tools such as:
 * Hive / Pig => Elasticsearch / SolrCloud indexers
 * Hadoop HDFS performance debugger, native checksum extractor, file retention policy script, HDFS file stats, XML & running Hadoop cluster config differ
 * ```watch_url.pl``` for debugging load balanced web farms
@@ -267,8 +267,9 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 ### See Also ###
 
-* [My Perl/Python library](https://github.com/harisekhon/lib) - used throughout this code as a submodule to make the programs in this repo short
-* [Spark => Elasticsearch](https://github.com/harisekhon/spark-to-elasticsearch) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of my ```pig-text-to-elasticsearch.pig``` from [Toolbox](https://github.com/harisekhon/toolbox)
+* [My Perl library](https://github.com/harisekhon/lib) - used throughout this code as a submodule to make the programs in this repo short
+* [My Python library](https://github.com/harisekhon/pylib) - Python version of the above library
+* [Spark => Elasticsearch](https://github.com/harisekhon/spark-to-elasticsearch) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of my ```pig-text-to-elasticsearch.pig``` from [Tools](https://github.com/harisekhon/tools)
 
 ##### Weblinks #####
 
