@@ -28,6 +28,6 @@ echo "
 # ============================================================================ #
 "
 
-perl -T $I_lib ./check_linux_timezone.pl -T UTC -Z /usr/share/zoneinfo/UTC -A UTC
+$perl -T $I_lib ./check_linux_timezone.pl -T UTC -Z /usr/share/zoneinfo/UTC -A UTC
 hr
 echo; echo

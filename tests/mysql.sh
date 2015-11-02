@@ -32,12 +32,12 @@ export MYSQL_DATABASE="${MYSQL_DATABASE:-mysql}"
 export MYSQL_PASSWORD="${MYSQL_PASSWORD:-}"
 export MYSQL_USER="${MYSQL_USER:-travis}"
 
-perl -T $I_lib ./check_mysql_config.pl --warn-on-missing -v
+$perl -T $I_lib ./check_mysql_config.pl --warn-on-missing -v
 hr
-perl -T $I_lib ./check_mysql_query.pl -q "SHOW TABLES IN information_schema" -o CHARACTER_SETS -v
+$perl -T $I_lib ./check_mysql_query.pl -q "SHOW TABLES IN information_schema" -o CHARACTER_SETS -v
 # test Unix Socket connection
-perl -T $I_lib ./check_mysql_query.pl -u root -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
+$perl -T $I_lib ./check_mysql_query.pl -u root -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
 # test TCP connection
-perl -T $I_lib ./check_mysql_query.pl -H localhost -u root -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
+$perl -T $I_lib ./check_mysql_query.pl -H localhost -u root -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
 
 echo; echo

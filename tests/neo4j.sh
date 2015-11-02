@@ -33,17 +33,17 @@ neo4j-shell -host $NEO4J_HOST -c 'CREATE (p:Person { name: "Hari Sekhon" })'
 echo done
 hr
 # NEO4J_HOST obtained via .travis.yml
-perl -T $I_lib ./check_neo4j_readonly.pl -v
+$perl -T $I_lib ./check_neo4j_readonly.pl -v
 hr
-perl -T $I_lib ./check_neo4j_remote_shell_enabled.pl -v
+$perl -T $I_lib ./check_neo4j_remote_shell_enabled.pl -v
 hr
-perl -T $I_lib ./check_neo4j_stats.pl -v
+$perl -T $I_lib ./check_neo4j_stats.pl -v
 hr
-perl -T $I_lib ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 1:1 -v
+$perl -T $I_lib ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 1:1 -v
 hr
 # Neo4J on Travis doesn't seem to return anything resulting in "'attributes' field not returned by Neo4J" error
 #perl -T $I_lib ./check_neo4j_store_sizes.pl -vvv
 #hr
-perl -T $I_lib ./check_neo4j_version.pl -v
+$perl -T $I_lib ./check_neo4j_version.pl -v
 
 echo; echo

@@ -43,55 +43,55 @@ curl -XPUT "http://localhost:9200/$ELASTICSEARCH_INDEX/" -d '
 echo
 echo done
 hr
-perl -T $I_lib ./check_elasticsearch.pl -v
+$perl -T $I_lib ./check_elasticsearch.pl -v
 hr
 # Listing checks return UNKNOWN, so reset their exit code to zero
-perl -T $I_lib ./check_elasticsearch_fielddata.pl --list-nodes || :
+$perl -T $I_lib ./check_elasticsearch_fielddata.pl --list-nodes || :
 hr
-perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices || :
+$perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices || :
 hr
-perl -T $I_lib ./check_elasticsearch_cluster_disk_balance.pl -v
+$perl -T $I_lib ./check_elasticsearch_cluster_disk_balance.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_cluster_shards.pl -v
+$perl -T $I_lib ./check_elasticsearch_cluster_shards.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_cluster_shard_balance.pl -v
+$perl -T $I_lib ./check_elasticsearch_cluster_shard_balance.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_cluster_stats.pl -v
+$perl -T $I_lib ./check_elasticsearch_cluster_stats.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_cluster_status.pl -v
+$perl -T $I_lib ./check_elasticsearch_cluster_status.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_cluster_status_nodes_shards.pl -v
+$perl -T $I_lib ./check_elasticsearch_cluster_status_nodes_shards.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_data_nodes.pl -w 1 -v
+$perl -T $I_lib ./check_elasticsearch_data_nodes.pl -w 1 -v
 hr
-perl -T $I_lib ./check_elasticsearch_doc_count.pl -v
+$perl -T $I_lib ./check_elasticsearch_doc_count.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_fielddata.pl -N 127.0.0.1 -v
+$perl -T $I_lib ./check_elasticsearch_fielddata.pl -N 127.0.0.1 -v
 hr
-perl -T $I_lib ./check_elasticsearch_index_exists.pl -v
+$perl -T $I_lib ./check_elasticsearch_index_exists.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_index_age.pl -v -w 0:1
+$perl -T $I_lib ./check_elasticsearch_index_age.pl -v -w 0:1
 #hr
 #perl -T $I_lib ./check_elasticsearch_index_health.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_index_replicas.pl -w 0 -v
+$perl -T $I_lib ./check_elasticsearch_index_replicas.pl -w 0 -v
 hr
-perl -T $I_lib ./check_elasticsearch_index_settings.pl -v
+$perl -T $I_lib ./check_elasticsearch_index_settings.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_index_shards.pl -v
+$perl -T $I_lib ./check_elasticsearch_index_shards.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_index_stats.pl -v
+$perl -T $I_lib ./check_elasticsearch_index_stats.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_master_node.pl -v
+$perl -T $I_lib ./check_elasticsearch_master_node.pl -v
 hr
-perl -T $I_lib ./check_elasticsearch_nodes.pl -v -w 1
+$perl -T $I_lib ./check_elasticsearch_nodes.pl -v -w 1
 hr
-perl -T $I_lib ./check_elasticsearch_node_disk_percent.pl -N 127.0.0.1 -v -w 90 -c 95
+$perl -T $I_lib ./check_elasticsearch_node_disk_percent.pl -N 127.0.0.1 -v -w 90 -c 95
 hr
-perl -T $I_lib ./check_elasticsearch_node_shards.pl -N 127.0.0.1 -v
+$perl -T $I_lib ./check_elasticsearch_node_shards.pl -N 127.0.0.1 -v
 hr
-perl -T $I_lib ./check_elasticsearch_node_stats.pl -N 127.0.0.1 -v
+$perl -T $I_lib ./check_elasticsearch_node_stats.pl -N 127.0.0.1 -v
 hr
-perl -T $I_lib ./check_elasticsearch_shards_state_detail.pl -v
+$perl -T $I_lib ./check_elasticsearch_shards_state_detail.pl -v
 
 echo; echo

@@ -33,10 +33,10 @@ echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc $MEMCACHED_HOST 11211
 echo done
 hr
 # MEMCACHED_HOST obtained via .travis.yml
-perl -T $I_lib ./check_memcached_write.pl -v
+$perl -T $I_lib ./check_memcached_write.pl -v
 hr
-perl -T $I_lib ./check_memcached_key.pl -k myKey -e hari -v
+$perl -T $I_lib ./check_memcached_key.pl -k myKey -e hari -v
 hr
-perl -T $I_lib ./check_memcached_stats.pl -w 15 -c 20 -v
+$perl -T $I_lib ./check_memcached_stats.pl -w 15 -c 20 -v
 
 echo; echo

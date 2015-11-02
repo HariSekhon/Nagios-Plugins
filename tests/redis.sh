@@ -33,20 +33,20 @@ echo set myKey hari | redis-cli -h "$REDIS_HOST"
 echo done
 hr
 # REDIS_HOST obtained via .travis.yml
-perl -T $I_lib ./check_redis_clients.pl -v
+$perl -T $I_lib ./check_redis_clients.pl -v
 hr
-perl -T $I_lib ./check_redis_config.pl --no-warn-extra -v
+$perl -T $I_lib ./check_redis_config.pl --no-warn-extra -v
 hr
-perl -T $I_lib ./check_redis_key.pl -k myKey -e hari -v
+$perl -T $I_lib ./check_redis_key.pl -k myKey -e hari -v
 hr
-perl -T $I_lib ./check_redis_publish_subscribe.pl -v
+$perl -T $I_lib ./check_redis_publish_subscribe.pl -v
 hr
-perl -T $I_lib ./check_redis_stats.pl -v
+$perl -T $I_lib ./check_redis_stats.pl -v
 hr
-perl -T $I_lib ./check_redis_stats.pl -s connected_clients -c 1:1 -v
+$perl -T $I_lib ./check_redis_stats.pl -s connected_clients -c 1:1 -v
 hr
-perl -T $I_lib ./check_redis_version.pl -v
+$perl -T $I_lib ./check_redis_version.pl -v
 hr
-perl -T $I_lib ./check_redis_write.pl -v
+$perl -T $I_lib ./check_redis_write.pl -v
 
 echo; echo

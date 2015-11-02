@@ -42,24 +42,24 @@ hr
 # needs sudo - uses wrong version of perl if not explicit path with sudo
 $sudo $perl -T $I_lib ./check_riak_diag.pl --ignore-warnings -v
 hr
-perl -T $I_lib ./check_riak_key.pl -b myBucket -k myKey -e hari -v
+$perl -T $I_lib ./check_riak_key.pl -b myBucket -k myKey -e hari -v
 hr
 $sudo $perl -T $I_lib ./check_riak_member_status.pl -v
 hr
 # needs sudo - riak must be started as root in Travis
 $sudo $perl -T $I_lib ./check_riak_ringready.pl -v
 hr
-perl -T $I_lib ./check_riak_stats.pl --all -v
+$perl -T $I_lib ./check_riak_stats.pl --all -v
 hr
-perl -T $I_lib ./check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
+$perl -T $I_lib ./check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
 hr
-perl -T $I_lib ./check_riak_stats.pl -s disk.0.size -c 1024: -v
+$perl -T $I_lib ./check_riak_stats.pl -s disk.0.size -c 1024: -v
 hr
 # needs sudo - riak must be started as root in Travis
 $sudo $perl -T $I_lib ./check_riak_write_local.pl -v
 hr
-perl -T $I_lib ./check_riak_write.pl -v
+$perl -T $I_lib ./check_riak_write.pl -v
 hr
-perl -T $I_lib ./check_riak_version.pl
+$perl -T $I_lib ./check_riak_version.pl
 
 echo; echo

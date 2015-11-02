@@ -29,13 +29,13 @@ echo "
 export MONGODB_HOST="${MONGODB_HOST:-localhost}"
 
 # not part of a replica set so this fails
-#perl -T $I_lib ./check_mongodb_master.pl
+#$perl -T $I_lib ./check_mongodb_master.pl
 #hr
-#perl -T $I_lib ./check_mongodb_master_rest.pl
+#$perl -T $I_lib ./check_mongodb_master_rest.pl
 #hr
 # Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
 if [ "$TRAVIS_PERL_VERSION" != "5.8" ]; then
-    perl -T $I_lib ./check_mongodb_write.pl -v
+    $perl -T $I_lib ./check_mongodb_write.pl -v
 fi
 
 echo; echo

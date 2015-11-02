@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#
+#   Author: Hari Sekhon
+#   Date: 2013-11-13 18:37:55 +0000 (Wed, 13 Nov 2013)
+#  $LastChangedBy$
+#  $LastChangedDate$
+#  $Revision$
+#  $URL$
+#  $Id$
+#
+#  vim:ts=4:sts=4:sw=4:et
+
+set -e
+set -u
+srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+cd "$srcdir/.."
+
+for x in *.pl *.rb ; do
+    printf '\e[0m'
+    echo $x
+    printf '\e[1;41m'
+    ./$x --help >/dev/null; [ $? -eq 3 ] || { echo "$x failed to exit with return code 3"; exit 1; }
+    ./$x --help | grep -i -e error -e 'at \./' -e invalid && exit 1
+done
