@@ -18,7 +18,7 @@ A friend and ex-colleague of mine Tom Liakos @ Specificmedia pointed out a long 
 Tested on MySQL 5.0, 5.1 and 5.5
 ";
 
-$VERSION = "1.2.2";
+$VERSION = "1.2.3";
 
 use strict;
 use warnings;
@@ -130,7 +130,7 @@ if($host){
     unless($mysql_socket){
         usage "host not defined and no mysql socket found, must specify one of --host or --socket";
     }
-    $mysql_socket = validate_filename($mysql_socket, 0, "mysql socket");
+    $mysql_socket = validate_filename($mysql_socket, "mysql socket");
 }
 $user        = validate_user($user);
 $password    = validate_password($password) if $password;
@@ -148,7 +148,7 @@ unless($config_file){
         }
     }
 }
-$config_file = validate_filename($config_file, undef, "config file");
+$config_file = validate_filename($config_file, "config file");
 $mysql_instance = validate_database($mysql_instance);
 
 vlog2;

@@ -25,7 +25,7 @@ Tested on ZooKeeper 3.x, 3.4.5 and 3.4.6 on Apache, Cloudera, Hortonworks and Ma
 BUGS: there are bugs in ZooKeeper's live running config where it doesn't report all the configuration variables from the config file. I checked this with my colleague Patrick Hunt @ Cloudera who reviewed those additions. If you get a warning about missing config not found on running server then you can use the -m switch to ignore it but please also raise a ticket to create an exception for that variable at https://github.com/harisekhon/nagios-plugins/issues/new
 ";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -76,7 +76,7 @@ get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
-$conf       = validate_file($conf, 0, "zookeeper config");
+$conf       = validate_file($conf, "zookeeper config");
 
 vlog2;
 set_timeout();

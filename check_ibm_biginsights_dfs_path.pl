@@ -30,7 +30,7 @@ The following additional checks may be applied to directories. Not available for
 
 Tested on IBM BigInsights Console 2.1.2.0";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -86,7 +86,7 @@ validate_ssl();
 
 # ============================================================================ #
 # taken from check_hadoop_hdfs_file_webhdfs.pl
-$path       = validate_filename($path, 0, "path");
+$path       = validate_filename($path, "path");
 $path =~ /^\// or usage "--path must be a full path starting with a slash /";
 
 if($file_checks{"empty"} and $file_checks{"size"}){

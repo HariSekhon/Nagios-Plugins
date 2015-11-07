@@ -26,7 +26,7 @@ Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Coll
 
 Tested on Redis 2.4.10 and 2.8.19";
 
-$VERSION = "0.8.0";
+$VERSION = "0.8.1";
 
 use strict;
 use warnings;
@@ -103,7 +103,7 @@ unless($conf){
         }
     }
 }
-$conf = validate_file($conf, 0, "config");
+$conf = validate_file($conf, "config");
 vlog_options_bool "warn on missing", ! $no_warn_missing;
 vlog_options_bool "warn on extra", ! $no_warn_extra;
 

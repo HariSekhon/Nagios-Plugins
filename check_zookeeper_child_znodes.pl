@@ -55,7 +55,7 @@ my $no_ephemeral;
 get_options();
 
 my @hosts = validate_hosts($host, $port);
-$znode = validate_filename($znode, 0, "znode");
+$znode = validate_filename($znode, "znode");
 validate_thresholds(0, 0, { 'simple' => 'lower', 'positive' => 1, 'integer' => 1});
 
 $user     = validate_user($user)         if defined($user);

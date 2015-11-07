@@ -17,7 +17,7 @@ See instead newer single purpose check_mapr_* plugins in the Advanced Nagios Plu
 
 Tested on MapR M3 version 3.1.0.23703.GA";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -249,7 +249,7 @@ if(defined($tls_noverify)){
     $ua->ssl_opts( verify_hostname => 0 );
 }
 if(defined($ssl_ca_path)){
-    $ssl_ca_path = validate_directory($ssl_ca_path, undef, "SSL CA directory", "no vlog");
+    $ssl_ca_path = validate_directory($ssl_ca_path, "SSL CA directory", undef, "no vlog");
     $ua->ssl_opts( SSL_ca_path => $ssl_ca_path );
 }
 vlog_options "SSL CA Path",  $ssl_ca_path  if defined($ssl_ca_path);

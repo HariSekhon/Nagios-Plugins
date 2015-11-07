@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check if a given file is present in AWS S3 via 
 
 Bucket names must follow the more restrictive 3 to 63 alphanumeric character international standard, dots are not supported in the bucket name due to using strict DNS shortname regex validation";
 
-$VERSION = "0.4";
+$VERSION = "0.4.1";
 
 use strict;
 use warnings;
@@ -78,7 +78,7 @@ if(defined($ssl_noverify)){
     $ua->ssl_opts( verify_hostname => 0 );
 }
 if(defined($ssl_ca_path)){
-    $ssl_ca_path = validate_directory($ssl_ca_path, undef, "SSL CA directory", "no vlog");
+    $ssl_ca_path = validate_directory($ssl_ca_path, "SSL CA directory", undef, "no vlog");
     $ua->ssl_opts( ssl_ca_path => $ssl_ca_path );
 }
 if($no_ssl){

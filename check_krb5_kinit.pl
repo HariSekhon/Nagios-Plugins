@@ -24,7 +24,7 @@ Requirements:
 - kinit command in standard system path
 ";
 
-$VERSION = "0.4.2";
+$VERSION = "0.4.3";
 
 use strict;
 use warnings;
@@ -76,10 +76,10 @@ if($kdc){
     $port  = validate_port($port);
     $realm = validate_krb5_realm($realm);
 }
-$keytab    = validate_file($keytab, undef, "keytab");
+$keytab    = validate_file($keytab, "keytab");
 $principal = validate_krb5_princ($principal);
 if($conf){
-    $conf      = validate_file($conf  , undef, "conf");
+    $conf      = validate_file($conf, "conf");
     $conf =~ /(?:.*\/)?krb5.conf$/ or usage "must specify a file called krb5.conf if using --conf";
 }
 

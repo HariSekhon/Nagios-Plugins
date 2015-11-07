@@ -21,7 +21,7 @@ Checks:
 4. Subject Alternative Names supported by certificate (optional)
 5. SNI - Server Name Identification - supply hostname identifier for servers that contain multiple certificates to tell the server which SSL certificate to use (optional)";
 
-$VERSION = "0.9.11";
+$VERSION = "0.9.12";
 
 use warnings;
 use strict;
@@ -76,7 +76,7 @@ get_options();
 
 $host   = validate_host($host);
 $port   = validate_port($port);
-$CApath = validate_dir($CApath, 0, "CA path") if defined($CApath);
+$CApath = validate_dir($CApath, "CA path") if defined($CApath);
 $sni_hostname = validate_hostname($sni_hostname, "SNI") if $sni_hostname;
 validate_thresholds(1, 1, { "simple" => "lower", "integer" => 0, "positive" => 1 } );
 
@@ -115,7 +115,7 @@ unless(defined($CApath)){
     unless(defined($CApath)){
         usage "CApath to root certs was not specified and could not be found from openssl binary";
     }
-    $CApath = validate_dir($CApath, 0, "CA path");
+    $CApath = validate_dir($CApath, "CA path");
 }
 
 vlog2;

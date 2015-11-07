@@ -22,7 +22,7 @@ Tested on MySQL 5.0, 5.1 and 5.5
 
 # TODO: add retry switch if valid below threshold
 
-$VERSION = "1.1.4";
+$VERSION = "1.1.5";
 
 use strict;
 use warnings;
@@ -99,7 +99,7 @@ if($host){
     unless($mysql_socket){
         usage "host not defined and no mysql socket found, must specify one of --host or --mysql-socket";
     }
-    $mysql_socket = validate_filename($mysql_socket, 0, "mysql socket");
+    $mysql_socket = validate_filename($mysql_socket, "mysql socket");
 }
 $user       = validate_user($user);
 $password   = validate_password($password) if $password;

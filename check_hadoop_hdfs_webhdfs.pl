@@ -32,7 +32,7 @@ Supports Kerberos authentication but must have a valid kerberos ticket and must 
 Tested on CDH 4.5 and HDP 2.2
 ";
 
-$VERSION = "0.5.0";
+$VERSION = "0.5.1";
 
 use strict;
 use warnings;
@@ -132,7 +132,7 @@ if($write){
     vlog_options "write", "true";
     $canary_contents = random_alnum(20);
     $canary_file = "/tmp/$progname.canary." . hostname . "." . Time::HiRes::time . "." . substr($canary_contents, 0, 10);
-    $canary_file = validate_filename($canary_file, 0, "canary file");
+    $canary_file = validate_filename($canary_file, "canary file");
     if($path){
         usage "cannot specify --path with --write";
     }
@@ -142,7 +142,7 @@ if($write){
         $file_checks{$_} and usage "cannot specify file checks with --write";
     }
 } else {
-    $path = validate_filename($path, 0, "path");
+    $path = validate_filename($path, "path");
 
     if($file_checks{"zero"} and $file_checks{"size"}){
         usage "--zero and --size are mutually exclusive";
