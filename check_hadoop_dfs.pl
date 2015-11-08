@@ -115,7 +115,7 @@ unless($hadoop_bin_tmp = which($hadoop_bin)){
 }
 $hadoop_bin = $hadoop_bin_tmp;
 $hadoop_bin  =~ /\b\/?(?:hadoop|hdfs)$/ or quit "UNKNOWN", "invalid hadoop program '$hadoop_bin' given, should be called hadoop or hdfs!";
-vlog_options "hadoop path", $hadoop_bin;
+vlog_option "hadoop path", $hadoop_bin;
 vlog2;
 set_timeout();
 

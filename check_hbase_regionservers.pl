@@ -49,7 +49,7 @@ $host   = validate_host($host);
 $host   = validate_resolvable($host);
 $port   = validate_port($port);
 my $url = "http://$host:$port/status/cluster";
-vlog_options "url", $url;
+vlog_option "url", $url;
 validate_thresholds();
 
 vlog2;

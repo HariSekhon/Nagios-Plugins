@@ -57,7 +57,7 @@ my $num_keys = scalar @keys;
 if(@keys){
     foreach my $key (@keys){
         $key =~ /^([A-Za-z0-9][\w\.]+[A-Za-z0-9])$/ or usage "invalid --key '$key', must be alphanumeric with optional underscores and dashes in the middle";
-        vlog_options "key", $key;
+        vlog_option "key", $key;
     }
 }
 if(defined($warning) or defined($critical)){

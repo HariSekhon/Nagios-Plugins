@@ -64,7 +64,7 @@ $password   = validate_password($password);
 validate_cm_cluster_options();
 
 if($all_metrics){
-    vlog_options "metrics", "ALL";
+    vlog_option "metrics", "ALL";
 } elsif(listing_cm_components()){
 } else {
     defined($metrics) or usage "no metrics specified";
@@ -75,7 +75,7 @@ if($all_metrics){
     }
     @metrics or usage "no valid metrics given";
     @metrics = sort @metrics;
-    vlog_options "metrics", "[ " . join(" ", @metrics) . " ]"; 
+    vlog_option "metrics", "[ " . join(" ", @metrics) . " ]"; 
 }
 
 validate_thresholds();

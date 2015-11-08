@@ -68,9 +68,9 @@ if($type eq "PTR"){
 } else {
     $record = isDomain($record) or isFqdn($record) or usage "invalid record given, should be a domain or fully qualified host name";
 }
-vlog_options "server", join(",", @servers);
-vlog_options "record", $record;
-vlog_options "type",   $type;
+vlog_option "server", join(",", @servers);
+vlog_option "record", $record;
+vlog_option "type",   $type;
 
 my @expected_results;
 if($expected_result){
@@ -84,7 +84,7 @@ if($expected_result){
             isFqdn($_) or usage "invalid expected result '$_' for CNAME/MX/NS/PTR record, should be an fqdn";
         }
     }
-    vlog_options "expected results", $expected_result;
+    vlog_option "expected results", $expected_result;
 }
 $expected_regex2 = validate_regex($expected_regex) if defined($expected_regex);
 

@@ -104,7 +104,7 @@ if(defined($file_checks{"type"}) and $file_checks{"type"}){
 #
 foreach(sort keys %file_checks){
     if(defined($file_checks{$_})){
-        vlog_options $_, $file_checks{$_};
+        vlog_option $_, $file_checks{$_};
         next if $_ eq "type";
         if((not defined($file_checks{"type"})) or $file_checks{"type"} ne "DIRECTORY"){
             usage "checks can only be specified for directories since the BigInsights Console API only returns metadata for directories. If a directory is expected then make it explicit with -T DIRECTORY"

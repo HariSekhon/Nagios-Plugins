@@ -57,8 +57,8 @@ if(defined($key)){
     #defined($expected_value) or usage "--expected-value must be defined if specifying --expected-key";
     $key =~ /^(\w[\w\.\*]+)$/ or usage "invalid --key";
     #$key = "index.$key" unless $key =~ /^index\./;
-    vlog_options "key", $key;
-    vlog_options "expected value", $expected_value if defined($expected_value);
+    vlog_option "key", $key;
+    vlog_option "expected value", $expected_value if defined($expected_value);
 }
 if(defined($expected_value)){
     defined($key) or usage "--key must be defined if specifying --value";

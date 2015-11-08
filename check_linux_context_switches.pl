@@ -40,8 +40,8 @@ get_options();
 
 validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1});
 
-vlog_options "stat file",   $stat;
-vlog_options "state file",  $statefile;
+vlog_option "stat file",   $stat;
+vlog_option "state file",  $statefile;
 vlog2;
 
 linux_only();

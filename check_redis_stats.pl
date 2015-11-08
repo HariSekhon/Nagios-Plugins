@@ -85,7 +85,7 @@ if(defined($statlist)){
         foreach my $stat (@stats){
             $stat =~ /^([\w_-]+)$/;
             $stat = $1;
-            vlog_options "stat", $stat;
+            vlog_option "stat", $stat;
         }
         @stats or usage "no valid stats specified";
     }

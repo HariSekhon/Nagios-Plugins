@@ -57,7 +57,7 @@ if(defined($metriclist)){
     foreach my $metric (@metrics){
         $metric =~ /^([\w_-]+)$/;
         $metric = $1;
-        vlog_options "metric", $metric;
+        vlog_option "metric", $metric;
     }
     @metrics or usage "no valid metrics specified";
 }

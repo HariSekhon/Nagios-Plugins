@@ -95,7 +95,7 @@ if($device){
     $device = validate_alnum($device, "device");
 }
 if($latest_only){
-    vlog_options "latest only", "true";
+    vlog_option "latest only", "true";
     vlog2 "resetting --time-period to 1 since --latest-only is set" if $period ne 1;
     $period = 1;
 }
@@ -108,7 +108,7 @@ $period = validate_int($period, "time period (last N minutes)", 1);
 #    }
 #    @metrics or usage "no valid metrics given";
 #    @metrics = uniq_array @metrics;
-#    vlog_options "metrics", "[ " . join(" ", @metrics) . " ]"; 
+#    vlog_option "metrics", "[ " . join(" ", @metrics) . " ]"; 
 #}
 #$metric = $metrics[0];
 validate_thresholds();

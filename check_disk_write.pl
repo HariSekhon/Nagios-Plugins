@@ -37,7 +37,7 @@ defined($dir) or usage "directory not specified";
 $dir = File::Spec->rel2abs($dir); # also canonicalizes, but sets "." if $dir undefined
 $dir = validate_directory($dir);
 my $random_string = sprintf("%s %s %s", $progname, time, random_alnum(20));
-vlog_options "random string", "'$random_string'\n";
+vlog_option "random string", "'$random_string'\n";
 
 set_timeout();
 

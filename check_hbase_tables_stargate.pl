@@ -66,10 +66,10 @@ foreach $table (@tables){
         $table = isDatabaseTableName($table) || usage "invalid table name $table given";
     }
 }
-vlog_options "tables", "[ " . join(" , ", @tables) . " ]";
+vlog_option "tables", "[ " . join(" , ", @tables) . " ]";
 
 my $url = "http://$host:$port/status/cluster";
-vlog_options "url", $url;
+vlog_option "url", $url;
 
 vlog2;
 set_timeout();

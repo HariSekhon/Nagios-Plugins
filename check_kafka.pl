@@ -116,7 +116,7 @@ if($RequiredAcks eq "ISR"){
 } else {
     isInt($RequiredAcks) or usage "--required-acks must be one of: ISR, LOG or an integer number >= 1";
 }
-vlog_options "required acks", $RequiredAcks;
+vlog_option "required acks", $RequiredAcks;
 # XXX: API Bug: doesn't allow zero attempts as of 0.8009
 $send_max_attempts    = validate_int($send_max_attempts,    "send-max-attempts",    1, 100);
 $receive_max_attempts = validate_int($receive_max_attempts, "receive-max-attempts", 1, 100);

@@ -65,7 +65,7 @@ if(defined($database)){
 if(defined($expected)){
     $expected = validate_regex($expected);
 }
-vlog_options "graph", "true" if $graph;
+vlog_option "graph", "true" if $graph;
 if(defined($units)){
     $units = validate_units($units);
 }

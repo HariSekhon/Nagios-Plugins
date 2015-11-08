@@ -49,7 +49,7 @@ $port  = validate_port($port);
 unless($list_nodes){
     defined($node) or usage "node not defined, see --list-nodes to see which nodes are available to specify";
     $node = (isIP($node) or isHostname($node)) or usage "invalid node specified, must be IP or hostname of node according to --list-nodes";
-    vlog_options "node", $node;
+    vlog_option "node", $node;
 }
 validate_thresholds(0, 0);
 

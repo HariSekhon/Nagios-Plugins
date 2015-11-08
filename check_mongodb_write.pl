@@ -134,8 +134,8 @@ if(isInt($read_concern)){
 } else {
     grep { $read_concern  eq $_ } @valid_concerns  or usage "invalid read concern given";
 }
-vlog_options "write concern", $write_concern;
-vlog_options "read concern",  $read_concern;
+vlog_option "write concern", $write_concern;
+vlog_option "read concern",  $read_concern;
 validate_int($wtimeout, "wtimeout", 1, 1000000);
 validate_mongo_sasl();
 validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 1, "integer" => 0 } );
@@ -151,7 +151,7 @@ my $value      = random_alnum(20);
 my $hostname   = hostname;
 my $id         = "HariSekhon:$progname:$hostname:$epoch:" . substr($value, 0, 10);
 my $document   = "{ '_id': '$id', 'value': '$value' }";
-vlog_options "document", $document;
+vlog_option "document", $document;
 
 $status = "OK";
 

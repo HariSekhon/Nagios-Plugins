@@ -82,11 +82,11 @@ if(defined($ssl_ca_path)){
     $ua->ssl_opts( ssl_ca_path => $ssl_ca_path );
 }
 if($no_ssl){
-    vlog_options "ssl enabled",  "false";
+    vlog_option "ssl enabled",  "false";
 } else {
-    vlog_options "ssl enabled",  "true";
-    vlog_options "SSL CA Path",  $ssl_ca_path  if defined($ssl_ca_path);
-    vlog_options "ssl noverify", "true" if $ssl_noverify;
+    vlog_option "ssl enabled",  "true";
+    vlog_option "SSL CA Path",  $ssl_ca_path  if defined($ssl_ca_path);
+    vlog_option "ssl noverify", "true" if $ssl_noverify;
 }
 
 vlog2;
@@ -114,7 +114,7 @@ $request_type = "GET" if $GET;
 my $canonicalized_string = "$request_type\n\n\n$date_header\n/$bucket/$file";
 # converts in place
 utf8::encode($canonicalized_string);
-#vlog_options "canonicalized_string", "'$canonicalized_string'";
+#vlog_option "canonicalized_string", "'$canonicalized_string'";
 
 vlog2 "crafting authenticated request";
 my $request = HTTP::Request->new($request_type => $url);

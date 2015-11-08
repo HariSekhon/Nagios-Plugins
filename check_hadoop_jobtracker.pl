@@ -82,7 +82,7 @@ if($nodes and ($heap or $non_heap)){
     usage "Cannot specify both --nodes and --[non-]heap-usage";
 }
 $host = isHost($host) || usage "JobTracker host invalid, must be hostname/FQDN or IP address";
-vlog_options "host", "'$host'";
+vlog_option "host", "'$host'";
 $host = validate_resolvable($host);
 $port = validate_port($port);
 

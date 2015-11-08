@@ -104,8 +104,8 @@ unless($conf){
     }
 }
 $conf = validate_file($conf, "config");
-vlog_options_bool "warn on missing", ! $no_warn_missing;
-vlog_options_bool "warn on extra", ! $no_warn_extra;
+vlog_option_bool "warn on missing", ! $no_warn_missing;
+vlog_option_bool "warn on extra", ! $no_warn_extra;
 
 
 vlog2;

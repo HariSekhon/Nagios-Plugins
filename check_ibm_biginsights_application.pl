@@ -48,7 +48,7 @@ $user     = validate_user($user);
 $password = validate_password($password);
 unless($list_apps){
     defined($app) or usage "application not defined";
-    vlog_options "application", $app;
+    vlog_option "application", $app;
 }
 validate_ssl();
 

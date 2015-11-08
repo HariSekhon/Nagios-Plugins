@@ -88,7 +88,7 @@ $column     = validate_hbase_column_qualifier($column);
 if(defined($expected)){
     $expected = validate_regex($expected);
 }
-vlog_options "graph", "true" if $graph;
+vlog_option "graph", "true" if $graph;
 $units     = validate_units($units) if defined($units);
 $precision = validate_int($precision, "precision", 1, 20);
 validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 0, "integer" => 0 } );
@@ -96,7 +96,7 @@ validate_thresholds(undef, undef, { "simple" => "upper", "positive" => 0, "integ
 my $cell_info = "table '$table' row '$row' column '$column'";
 
 my $url = "http://$host:$port/" . uri_escape($table) . "/" . uri_escape($row) . "/" . uri_escape($column) . "?v=1";
-vlog_options "url", $url;
+vlog_option "url", $url;
 
 vlog2;
 set_timeout();

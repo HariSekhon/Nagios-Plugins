@@ -133,7 +133,7 @@ my @nodes;
 if($node_list){
     @nodes = split(/\s*,\s*/, $node_list);
     push(@nodes, @ARGV); # for convenience as mentioned in usage
-    vlog_options "nodes", "[ " . join(", ", @nodes) . " ]";
+    vlog_option "nodes", "[ " . join(", ", @nodes) . " ]";
     @nodes or usage "must specify nodes if using -n / --node-list switch";
 }
 unless($hdfs_space  or

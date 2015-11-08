@@ -51,11 +51,11 @@ $service_desc =~ /^([\w\s_-]+)$/ or usage "invalid service description given, mu
 $service_desc = $1;
 $perf_label   =~ /^([\w\s_\/-]+)$/ or usage "invalid perfdata label given, must be alphanumberic/whitespace or /";
 $perf_label   = $1;
-vlog_options "host regex", $host_regex if $host_regex;
-vlog_options "service description", $service_desc;
-vlog_options "perf label", $perf_label;
+vlog_option "host regex", $host_regex if $host_regex;
+vlog_option "service description", $service_desc;
+vlog_option "perf label", $perf_label;
 $status_dat   = validate_filename($status_dat);
-vlog_options "status file", $status_dat;
+vlog_option "status file", $status_dat;
 $units = validate_units($units) if $units;
 validate_thresholds();
 

@@ -189,7 +189,7 @@ $expected_regex = validate_regex($expected_regex) if defined($expected_regex);
 if($json_field){
     $json_field =~ /^([\w\\.-]+)$/ or usage "invalid --json-field, must be alphanumeric, dots and backslash";
     $json_field = $1;
-    vlog_options "json field", $json_field;
+    vlog_option "json field", $json_field;
 }
 
 vlog2;

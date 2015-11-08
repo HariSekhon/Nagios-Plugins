@@ -129,7 +129,7 @@ my $canary_file;
 my $canary_contents;
 
 if($write){
-    vlog_options "write", "true";
+    vlog_option "write", "true";
     $canary_contents = random_alnum(20);
     $canary_file = "/tmp/$progname.canary." . hostname . "." . Time::HiRes::time . "." . substr($canary_contents, 0, 10);
     $canary_file = validate_filename($canary_file, "canary file");
@@ -162,7 +162,7 @@ if($write){
     }
 
     foreach(sort keys %file_checks){
-        vlog_options $_, $file_checks{$_} if defined($file_checks{$_});
+        vlog_option $_, $file_checks{$_} if defined($file_checks{$_});
     }
 }
 
@@ -176,7 +176,7 @@ $user = (getpwuid($>))[0] unless $user;
 if(not $user or $user =~ /&/){
     quit "UNKNOWN", "couldn't determine user to send to NameNode from environment variables (\$USER, \$USERNAME) or getpwuid() call";
 }
-vlog_options "user", $user;
+vlog_option "user", $user;
 vlog2;
 
 my $webhdfs_uri = 'webhdfs/v1';

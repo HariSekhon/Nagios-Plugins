@@ -252,8 +252,8 @@ if(defined($ssl_ca_path)){
     $ssl_ca_path = validate_directory($ssl_ca_path, "SSL CA directory", undef, "no vlog");
     $ua->ssl_opts( SSL_ca_path => $ssl_ca_path );
 }
-vlog_options "SSL CA Path",  $ssl_ca_path  if defined($ssl_ca_path);
-vlog_options "SSL noverify", $tls_noverify ? "true" : "false";
+vlog_option "SSL CA Path",  $ssl_ca_path  if defined($ssl_ca_path);
+vlog_option "SSL noverify", $tls_noverify ? "true" : "false";
 validate_thresholds();
 
 vlog2;

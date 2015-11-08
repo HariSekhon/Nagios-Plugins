@@ -94,8 +94,8 @@ my $epoch  = time;
 # there cannot be any space in the memcached key
 my $value  = random_alnum(20);
 my $key    = "nagios:HariSekhon:$progname:$epoch:" . substr($value, 0, 10);
-vlog_options "key",   $key;
-vlog_options "value", $value;
+vlog_option "key",   $key;
+vlog_option "value", $value;
 my $flags  = 0;
 my $bytes  = length($value);
 vlog2;

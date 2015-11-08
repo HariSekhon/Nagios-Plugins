@@ -73,7 +73,7 @@ if($all_stats){
     foreach my $metric (split(/\s*[,\s]\s*/, $metrics)){
         $metric =~ /^[A-Z]+[\w\.:]*[A-Z0-9]+$/i or usage "invalid stats '$metric' given, must be alphanumeric, may contain underscores, dots and colons in middle";
         grep(/^$metric$/, @stats) or push(@stats, $metric);
-        vlog_options "stat", $metric;
+        vlog_option "stat", $metric;
     }
     @stats or usage "no valid stats specified";
 }

@@ -102,8 +102,8 @@ vlog2;
 my $epoch  = time;
 my $value  = random_alnum(20);
 my $key    = "HariSekhon:$progname:$host:$epoch:" . substr($value, 0, 10);
-vlog_options "key",    $key;
-vlog_options "value",  $value;
+vlog_option "key",    $key;
+vlog_option "value",  $value;
 vlog2;
 set_timeout();
 

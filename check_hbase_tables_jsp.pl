@@ -69,7 +69,7 @@ foreach $table (@tables){
     }
 }
 
-vlog_options "tables", "[ " . join(" , ", @tables) . " ]";
+vlog_option "tables", "[ " . join(" , ", @tables) . " ]";
 vlog2;
 set_timeout();
 set_http_timeout($timeout / 2);

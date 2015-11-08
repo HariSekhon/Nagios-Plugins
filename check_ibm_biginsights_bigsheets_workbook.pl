@@ -53,7 +53,7 @@ unless($list_workbooks){
 #$workbook = $1;
 # switched to uri escape but not doing it here, as we want to preserve the name for the final output
 #$workbook = uri_escape($workbook);
-    vlog_options "workbook", $workbook;
+    vlog_option "workbook", $workbook;
 }
 validate_ssl();
 

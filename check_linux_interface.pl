@@ -56,26 +56,26 @@ if(defined($expected_duplex)){
     $expected_duplex = ucfirst lc $expected_duplex;
     $expected_duplex =~ /^(Full|Half)$/ or usage "invalid duplex specified, must be either Full or Half";
     $expected_duplex = $1;
-    vlog_options "expected duplex", $expected_duplex;
+    vlog_option "expected duplex", $expected_duplex;
 }
 
 if(defined($expected_speed)){
     $expected_speed =~ /^(10{1,4})$/ or usage "invalid speed specified, must be one of: 10/100/1000/10000";
     $expected_speed = $1;
-    vlog_options "expected speed", $expected_speed;
+    vlog_option "expected speed", $expected_speed;
 }
 
 if(defined($expected_mtu)){
     $expected_mtu =~ /^(\d{1,4})$/ or usage "invalid mtu specified, must be 1-4 digits";
     $expected_mtu = $1;
-    vlog_options "expected mtu", $expected_mtu;
+    vlog_option "expected mtu", $expected_mtu;
 }
 
 if(defined($expected_promisc)){
     # lc $expected_promisc;
     $expected_promisc =~ /^(on|off)$/ or usage "promiscuous mode must be either set to either 'on' or 'off'";
     $expected_promisc = $1;
-    vlog_options "expected promiscuous mode", $expected_promisc;
+    vlog_option "expected promiscuous mode", $expected_promisc;
 }
 vlog2;
 

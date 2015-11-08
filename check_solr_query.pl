@@ -57,8 +57,8 @@ $port = validate_port($port);
 unless($list_collections or $list_cores){
     $collection = validate_solr_collection($collection);
     $query or usage "query not defined";
-    vlog_options "query", $query;
-    vlog_options "filter", $filter if defined($filter);
+    vlog_option "query", $query;
+    vlog_option "filter", $filter if defined($filter);
     validate_thresholds(0, 0, { 'simple' => 'lower', 'positive' => 1, 'integer' => 1}, "num docs", $num_docs_threshold);
     validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1});
 }

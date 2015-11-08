@@ -79,13 +79,13 @@ $algo = lc $algo;
 unless(grep { $algo eq $_ } @valid_algos){
     usage "invalid --algorithm given, must be one of: @valid_algos";
 }
-vlog_options "algorithm", $algo;
+vlog_option "algorithm", $algo;
 if(defined($expected_checksum)){
     isHex($expected_checksum) or usage "invalid --checksum given, not hexadecimal";
     $no_compare and usage "cannot specify --no-compare and --checksum at the same time";
-    vlog_options "expected checksum", $expected_checksum;
+    vlog_option "expected checksum", $expected_checksum;
 }
-vlog_options_bool "no-compare", $no_compare;
+vlog_option_bool "no-compare", $no_compare;
 
 vlog2;
 set_timeout();

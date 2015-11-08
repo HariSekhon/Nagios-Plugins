@@ -89,7 +89,7 @@ foreach $table (@tables){
         $table = isDatabaseTableName($table) || usage "invalid table name $table given";
     }
 }
-vlog_options "tables", "[ " . join(" , ", @tables) . " ]";
+vlog_option "tables", "[ " . join(" , ", @tables) . " ]";
 
 vlog2;
 set_timeout();

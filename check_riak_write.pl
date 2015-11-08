@@ -71,9 +71,9 @@ my $bucket = "nagios";
 my $value  = random_alnum(20);
 my $key    = "HariSekhon:$progname:$host:$epoch:" . substr($value, 0, 10);
 my $bucket_key = "key '$key' bucket '$bucket'";
-vlog_options "bucket", $bucket;
-vlog_options "key",    $key;
-vlog_options "value",  $value;
+vlog_option "bucket", $bucket;
+vlog_option "key",    $key;
+vlog_option "value",  $value;
 
 vlog2;
 set_timeout();
@@ -83,7 +83,7 @@ $ua->show_progress(1) if $debug;
 
 my $ip     = validate_resolvable($host);
 my $url    = "http://$ip:$port/riak/$bucket/$key";
-vlog_options "url",    $url;
+vlog_option "url",    $url;
 
 
 sub riak_key($){

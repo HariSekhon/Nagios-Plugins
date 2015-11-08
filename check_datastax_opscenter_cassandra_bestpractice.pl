@@ -61,9 +61,9 @@ if($run and not $rule){
 if($rule){
     $rule =~ /^([\w-]+)$/ or usage "invalid --check argument, must be alphanumeric with dashes or underscores";
     $rule = $1;
-    vlog_options "rule", $rule;
+    vlog_option "rule", $rule;
 }
-vlog_options "run now", ( $run ? "true" : "false");
+vlog_option "run now", ( $run ? "true" : "false");
 
 vlog2;
 set_timeout();

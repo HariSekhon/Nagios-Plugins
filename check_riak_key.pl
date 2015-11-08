@@ -74,7 +74,7 @@ $bucket    = validate_alnum($bucket, "bucket");
 if(defined($expected)){
     $expected = validate_regex($expected);
 }
-vlog_options "graph", "true" if $graph;
+vlog_option "graph", "true" if $graph;
 if(defined($units)){
     $units = validate_units($units);
 }
@@ -88,7 +88,7 @@ $ip        = validate_resolvable($host);
 
 my $node   = "riak node '$host:$port'";
 my $url    = "http://$ip:$port/riak/$bucket/$key";
-vlog_options "url",    $url;
+vlog_option "url",    $url;
 my $bucket_key = "key '$key' bucket '$bucket'";
 
 my $http_timeout = sprintf("%.2f", $timeout - 0.5);
