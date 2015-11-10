@@ -23,6 +23,8 @@ cd "$srcdir/..";
 for x in $(echo *.pl *.py *.rb 2>/dev/null); do
     [[ "$x" =~ ^\* ]] && continue
     [[ "$x" = "check_puppet.rb" ]] && continue
+    # temporarily disable check_kafka.pl check as there is an upstream library breakage
+    [[ "$x" = "check_kafka.pl" ]] && continue
     # Kafka module requires Perl >= 5.10, skip when running tests on 5.8 for CentOS 5 for which everything else works
     if [ "$TRAVIS_PERL_VERSION" = "5.8" ]; then
         [ "$x" = "check_kafka.pl" ] && { echo "skipping check_kafka.pl on Perl 5.8 since the Kafka CPAN module requires Perl >= 5.10"; continue; }
