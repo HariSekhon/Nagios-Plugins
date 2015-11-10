@@ -74,7 +74,7 @@ if($all_metrics){
         push(@metrics, $1);
     }
     @metrics or usage "no valid metrics given";
-    @metrics = sort @metrics;
+    @metrics = uniq_array @metrics;
     vlog_option "metrics", "[ " . join(" ", @metrics) . " ]"; 
 }
 
