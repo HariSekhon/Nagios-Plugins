@@ -28,7 +28,7 @@ echo "
 
 export SPARK_HOST="${ELASTICSEARCH_HOST:-localhost}"
 
-SPARK_VERSION=1.5.0
+SPARK_VERSION=1.5.2
 BIN="bin-hadoop2.6"
 SPARK="spark-$SPARK_VERSION-$BIN"
 TAR="$SPARK.tgz"
@@ -45,11 +45,11 @@ if ! [ -d "$SPARK" ]; then
     echo
 fi
 
-if ! ps -ef | grep -i "org.apache.spark.deploy.master.Master"; then
+if ! ps -ef | grep -qi "org.apache.spark.deploy.master.Maste[r]"; then
     "$SPARK/sbin/start-master.sh" &
     sleep 10
 fi
-if ! ps -ef | grep -i "org.apache.spark.deploy.worker.Worker"; then
+if ! ps -ef | grep -qi "org.apache.spark.deploy.worker.Worke[r]"; then
     "$SPARK/sbin/start-slave.sh" $(hostname -f):7077 &
     sleep 10
 fi
