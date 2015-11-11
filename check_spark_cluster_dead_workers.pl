@@ -80,7 +80,7 @@ foreach(split("\n", $html)){
     } elsif(/DEAD/){
         $dead_workers++;
     # careful to not also match master's "Status: ALIVE" line, however if "Status: DEAD" matches above then the page itself shouldn't be up
-    } elsif(not $alive_workers_found and /ALIVE/ and not /Status[^<>]*:/i){
+    } elsif((not $alive_workers_found) and /ALIVE/ and not /Status[^<>]*:/i){
         $alive_workers++
    }
 }
