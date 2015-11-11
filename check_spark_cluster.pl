@@ -13,7 +13,9 @@ $DESCRIPTION = "Nagios Plugin to check a Spark cluster via the Spark Master HTTP
 
 Optional thresholds can be applied to the number of Spark Workers
 
-Tested on Apache Spark 0.8.1 and 0.9.1 standalone and 0.9.0 on Cloudera CDH 5.0";
+Written for Apache Spark 0.8.1 & 0.9.1 standalone (also tested on 0.9.0 on Cloudera CDH 5.0)
+
+Updated for Apache Spark 1.5.0 standalone";
 
 $VERSION = "0.1";
 
@@ -65,15 +67,15 @@ my $workers = 0;
 foreach(split("\n", $html)){
     /ALIVE/ && $workers++;
 }
-$html =~ /Cores:.*?(\d+)\s+Total.*(\d+)\s+Used/is or quit "UNKNOWN", "failed to determine spark cluster cores. $nagios_plugins_support_msg";
+$html =~ /Cores.*?(\d+)\s+Total.*?(\d+)\s+Used/ism or quit "UNKNOWN", "failed to determine spark cluster cores. $nagios_plugins_support_msg";
 my $cores             = $1;
 my $cores_used        = $2;
-$html =~ /Memory:.*?(\d+(?:\.\d+)?)\s*(\w+)\s+Total.*?(\d+(?:\.\d+)?)\s*(\w+)\s+Used/is or quit "UNKNOWN", "failed to determine spark cluster memory. $nagios_plugins_support_msg";
+$html =~ /Memory.*?(\d+(?:\.\d+)?)\s*(\w+)\s+Total.*?(\d+(?:\.\d+)?)\s*(\w+)\s+Used/ism or quit "UNKNOWN", "failed to determine spark cluster memory. $nagios_plugins_support_msg";
 my $memory            = $1;
 my $memory_units      = $2;
 my $memory_used       = $3;
 my $memory_used_units = $4;
-$html =~ /Applications:.*?(\d+).*?Running.*?(\d+).*?Completed/is or quit "UNKNOWN", "failed to determine spark applications. $nagios_plugins_support_msg";
+$html =~ /Applications.*?(\d+).*?Running.*?(\d+).*?Completed/ism or quit "UNKNOWN", "failed to determine spark applications. $nagios_plugins_support_msg";
 my $apps_running      = $1;
 my $apps_completed    = $2;
 
