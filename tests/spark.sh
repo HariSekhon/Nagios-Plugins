@@ -26,7 +26,7 @@ echo "
 # ============================================================================ #
 "
 
-export SPARK_HOST="${ELASTICSEARCH_HOST:-localhost}"
+export SPARK_HOST="${SPARK_HOST:-localhost}"
 
 SPARK_VERSION=1.5.2
 BIN="bin-hadoop2.6"
@@ -45,21 +45,27 @@ if ! [ -d "$SPARK" ]; then
     echo
 fi
 
-if ! ps -ef | grep -qi "org.apache.spark.deploy.master.Maste[r]"; then
-    "$SPARK/sbin/start-master.sh" &
-    sleep 10
+if ps -ef | grep -qi "org.apache.spark.deploy.master.Maste[r]"; then
+    echo "killing already running Spark Master"
+    ps -ef | grep -i "org.apache.spark.deploy.master.Maste[r]" | awk '{print $2}' | xargs kill
+    sleep 5;
 fi
-if ! ps -ef | grep -qi "org.apache.spark.deploy.worker.Worke[r]"; then
-    "$SPARK/sbin/start-slave.sh" $(hostname -f):7077 &
-    sleep 10
+"$SPARK/sbin/start-master.sh" &
+sleep 10
+if ps -ef | grep -qi "org.apache.spark.deploy.worker.Worke[r]"; then
+    echo "killing already running Spark Worker"
+    ps -ef | grep -i "org.apache.spark.deploy.worker.Worke[r]" | awk '{print $2}' | xargs kill
+    sleep 5;
 fi
+"$SPARK/sbin/start-slave.sh" $(hostname -f):7077 &
+sleep 10
 
 cd "$srcdir/..";
 echo
 hr
 $perl -T $I_lib ./check_spark_cluster.pl -c 1:
 hr
-$perl -T $I_lib ./check_spark_cluster_dead_workers.pl -c 1 -v
+$perl -T $I_lib ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v
 hr
 $perl -T $I_lib ./check_spark_cluster_memory.pl -w 80 -c 90 -v
 hr
