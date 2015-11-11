@@ -49,8 +49,10 @@ if ! ps -ef | grep -i "org.apache.spark.deploy.master.Master"; then
     "$SPARK/sbin/start-master.sh" &
     sleep 10
 fi
-"$SPARK/sbin/start-slave.sh" $(hostname -f):7077 &
-sleep 10
+if ! ps -ef | grep -i "org.apache.spark.deploy.worker.Worker"; then
+    "$SPARK/sbin/start-slave.sh" $(hostname -f):7077 &
+    sleep 10
+fi
 
 cd "$srcdir/..";
 echo
