@@ -26,7 +26,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 Net::ZooKeeper API is slow, takes 5 seconds to create a connection object per ZooKeeper node specified (before it even tries to connect to ZooKeeper which happens sub-second). Unfortunately this is a limitation of the Net::ZooKeeper API
 ";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -55,7 +55,7 @@ my $no_ephemeral;
 get_options();
 
 my @hosts = validate_hosts($host, $port);
-$znode = validate_filename($znode, "znode");
+$znode = validate_znode($znode);
 validate_thresholds(0, 0, { 'simple' => 'lower', 'positive' => 1, 'integer' => 1});
 
 $user     = validate_user($user)         if defined($user);
