@@ -11,9 +11,11 @@
 
 $DESCRIPTION = "Nagios Plugin to check Spark cluster memory used % via the Spark Master HTTP interface
 
-Tested on Apache Spark 0.8.1 and 0.9.1 standalone and 0.9.0 on Cloudera CDH 5.0";
+Written for Apache Spark 0.8.1 / 0.9.1 standalone (also tested on 0.9.0 on Cloudera CDH 5.0)
 
-$VERSION = "0.1";
+Updated for Apache Spark 1.5.0 standalone";
+
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -57,7 +59,7 @@ my $html = curl $url, "Spark Master";
 
 $html =~ /Spark Master at spark:\/\//i or quit "UNKNOWN", "returned html implies this is not the Spark Master, did you connect to the wrong service/host/port? Apache Spark defaults to port 8080 but in Cloudera CDH it defaults to port 18080. Also try incrementing the port number as Spark will bind to a port number 1 higher if the initial port is already occupied by another process";
 
-$html =~ /Memory:.*?(\d+(?:\.\d+)?)\s*(\w+)\s+Total.*?(\d+(?:\.\d+)?)\s*(\w+)\s+Used/is or quit "UNKNOWN", "failed to determine spark cluster memory. $nagios_plugins_support_msg";
+$html =~ /Memory.*?(\d+(?:\.\d+)?)\s*(\w+)\s+Total.*?(\d+(?:\.\d+)?)\s*(\w+)\s+Used/ism or quit "UNKNOWN", "failed to determine spark cluster memory. $nagios_plugins_support_msg";
 my $memory            = $1;
 my $memory_units      = $2;
 my $memory_used       = $3;
