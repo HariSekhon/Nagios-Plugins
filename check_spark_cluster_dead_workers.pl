@@ -68,15 +68,19 @@ if($html =~ /Workers.*?(\d+)/i){
 }
 my $alive_workers = 0;
 my $dead_workers  = 0;
-# This works on Spark 1.5.0 but not 1.3.1
-if( $html =~ /Alive Workers.*?(\d+)/i){ #or quit "UNKNOWN", "failed to determine alive workers. $nagios_plugins_support_msg";
+my $alive_workers_found = 0;
+# This works on Spark 1.5.0 but not 1.3.1 so make it optional and do second sweep if it's not found
+if( $html =~ /Alive Workers.*?(\d+)/i){
     $alive_workers = $1;
+    $alive_workers_found = 1;
 }
 foreach(split("\n", $html)){
-    if(/DEAD/){
+    if(/Status[^<>]*:.*DEAD/){
+        quit "CRITICAL", "master status is reporting as DEAD";
+    } elsif(/DEAD/){
         $dead_workers++;
-    # careful to notalso match master's "Status: ALIVE" line, however if "Status: DEAD" then the page itself shouldn't be up
-    } elsif(not defined($alive_workers) and /ALIVE/ and not /Status[^<>]*:/i){
+    # careful to not also match master's "Status: ALIVE" line, however if "Status: DEAD" matches above then the page itself shouldn't be up
+    } elsif(not $alive_workers_found and /ALIVE/ and not /Status[^<>]*:/i){
         $alive_workers++
    }
 }
@@ -95,4 +99,5 @@ $msg .= " alive_workers=$alive_workers";
 #    quit "UNKNOWN", "ERROR alive ($alive_workers) + dead workers ($dead_workers) != total workers ($total_workers)!!! $nagios_plugins_support_msg"
 #}
 
+vlog2;
 quit $status, $msg;
