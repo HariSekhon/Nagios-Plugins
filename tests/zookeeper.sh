@@ -29,7 +29,7 @@ echo "
 export ZOOKEEPER_HOST="${ELASTICSEARCH_HOST:-localhost}"
 
 ZOOKEEPER_VERSION=3.4.6
-#zookeeper="zookeeper-$ZOOKEEPER_VERSION"
+zookeeper="zookeeper-$ZOOKEEPER_VERSION"
 #TAR="$zookeeper.tgz"
 
 #if ! [ -e "$TAR" ]; then
@@ -44,15 +44,20 @@ ZOOKEEPER_VERSION=3.4.6
 #    echo
 #fi
 
-"$zookeeper/bin/zkServer.sh" &
-sleep 10
-
 cd "$srcdir/..";
+
+if [ -z "$(netstat -an | grep [:.]2181)" ]; then
+    cp -vf "$zookeeper/conf/zoo_sample.cfg" "$zookeeper/conf/zoo.cfg"
+
+    "$zookeeper/bin/zkServer.sh" start &
+    sleep 10
+fi
+
 echo
 hr
 $perl -T $I_lib ./check_zookeeper.pl -s -w 10 -c 20 -v
 hr
-$perl -T $I_lib ./check_zookeeper_config.pl -C ../$zookeeper/config/zoo_sample.cfg -v
+$perl -T $I_lib ./check_zookeeper_config.pl -C "$zookeeper/conf/zoo.cfg" -v
 hr
 $perl -T $I_lib ./check_zookeeper_child_znodes.pl -z / -v
 hr
