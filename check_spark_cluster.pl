@@ -17,7 +17,7 @@ Written for Apache Spark 0.8.1 & 0.9.1 standalone (also tested on 0.9.0 on Cloud
 
 Updated for Apache Spark 1.5.0 standalone";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
