@@ -19,6 +19,7 @@ install:
   #- cpanm --installdeps --notest . || echo CPANM FAILED
   # integrated cpanm in to core Makefiles
   - make
+  - make zookeeper
 
 script:
   - for x in tests/*.sh; do [ "$x" = "tests/help.sh" ] && continue; ./$x || exit $?; done
