@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check a Spark cluster for dead workers via the Spark Master HTTP interface
 
-Written for Apache Spark 0.8.1 & 0.9.1 standalone (also tested on 0.9.0 on Cloudera CDH 5.0)
+Written for Apache Spark 0.8.1 / 0.9.1 standalone (also tested on 0.9.0 on Cloudera CDH 5.0)
 
 Updated for Apache Spark 1.5.0 standalone";
 
@@ -61,31 +61,36 @@ my $html = curl $url, "Spark Master";
 
 $html =~ /Spark Master at spark:\/\//i or quit "UNKNOWN", "returned html implies this is not the Spark Master, did you connect to the wrong service/host/port? Apache Spark defaults to port 8080 but in Cloudera CDH it defaults to port 18080. Also try incrementing the port number as Spark will bind to a port number 1 higher if the initial port is already occupied by another process";
 
-# no longer shown in Spark UI
-#$html =~ /Workers:.*?(\d+)/i or quit "UNKNOWN", "failed to determine spark cluster workers. $nagios_plugins_support_msg";
-#my $total_workers = $1;
-#vlog2 "total workers = $total_workers";
-$html =~ /Alive Workers.*?(\d+)/i or quit "UNKNOWN", "failed to determine alive workers. $nagios_plugins_support_msg";
-my $alive_workers = $1;
-vlog2 "alive workers = $alive_workers";
+# shown in Spark 1.3.1 but not in 1.5.0
+if($html =~ /Workers.*?(\d+)/i){
+    my $total_workers = $1;
+    vlog2 "total workers = $total_workers";
+}
+my $alive_workers = 0;
 my $dead_workers  = 0;
+# This works on Spark 1.5.0 but not 1.3.1
+if( $html =~ /Alive Workers.*?(\d+)/i){ #or quit "UNKNOWN", "failed to determine alive workers. $nagios_plugins_support_msg";
+    $alive_workers = $1;
+}
 foreach(split("\n", $html)){
     if(/DEAD/){
         $dead_workers++;
-# would also match master's "Status: ALIVE" line, however if "Status: DEAD" then the page itself shouldn't be up
-#    } elsif(/ALIVE/){
-#        $alive_workers++
+    # careful to notalso match master's "Status: ALIVE" line, however if "Status: DEAD" then the page itself shouldn't be up
+    } elsif(not defined($alive_workers) and /ALIVE/ and not /Status[^<>]*:/i){
+        $alive_workers++
    }
 }
+vlog2 "alive workers = $alive_workers";
 vlog2 "dead  workers = $dead_workers";
 vlog2;
+$alive_workers or quit "CRITICAL", "no alive workers found";
 
 $msg .= "$dead_workers dead workers";
 check_thresholds($dead_workers);
 $msg .= ", $alive_workers alive workers | dead_workers=$dead_workers";
 msg_perf_thresholds();
 $msg .= " alive_workers=$alive_workers";
-# there is no longer total workers to run this sanity check against
+# can't rely on this being here any more for this sanity check
 #if( ( $alive_workers + $dead_workers ) != $total_workers ){
 #    quit "UNKNOWN", "ERROR alive ($alive_workers) + dead workers ($dead_workers) != total workers ($total_workers)!!! $nagios_plugins_support_msg"
 #}
