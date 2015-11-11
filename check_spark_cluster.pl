@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check a Spark cluster via the Spark Master HTTP
 
 Optional thresholds can be applied to the number of Spark Workers
 
-Written for Apache Spark 0.8.1 & 0.9.1 standalone (also tested on 0.9.0 on Cloudera CDH 5.0)
+Written for Apache Spark 0.8.1 / 0.9.1 standalone (also tested on 0.9.0 on Cloudera CDH 5.0)
 
 Updated for Apache Spark 1.5.0 standalone";
 
