@@ -114,7 +114,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 2. API segfaults if you try to check the contents of a null znode such as those kept by SolrCloud servers eg. /solr/live_nodes/<hostname>:8983_solr, must use --null to skip checks other than existence
 ";
 
-$VERSION = "0.7.1";
+$VERSION = "0.7.2";
 
 use strict;
 use warnings;
@@ -176,7 +176,7 @@ if($progname eq "check_hbase_backup_masters_znode.pl"){
 get_options();
 
 my @hosts = validate_hosts($host, $port);
-$znode = validate_filename($znode, "znode");
+$znode = validate_znode($znode);
 if($check_child_znodes and $check_no_child_znodes){
     usage "cannot specify both --child-znodes and --no-child-znodes simultaneously they are mutually exclusive";
 }
