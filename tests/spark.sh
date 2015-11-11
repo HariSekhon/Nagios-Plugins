@@ -48,16 +48,20 @@ fi
 if ps -ef | grep -qi "org.apache.spark.deploy.master.Maste[r]"; then
     echo "killing already running Spark Master"
     ps -ef | grep -i "org.apache.spark.deploy.master.Maste[r]" | awk '{print $2}' | xargs kill
+    echo "waiting 10 secs for old master to shut down"
     sleep 10;
 fi
 "$SPARK/sbin/start-master.sh" &
+echo "waiting 10 secs for new master to start up"
 sleep 10
 if ps -ef | grep -qi "org.apache.spark.deploy.worker.Worke[r]"; then
     echo "killing already running Spark Worker"
     ps -ef | grep -i "org.apache.spark.deploy.worker.Worke[r]" | awk '{print $2}' | xargs kill
+    echo "waiting 10 secs for old worker to shut down"
     sleep 10;
 fi
 "$SPARK/sbin/start-slave.sh" $(hostname -f):7077 &
+echo "waiting 15 secs for new worker to start up"
 sleep 15
 
 cd "$srcdir/..";
