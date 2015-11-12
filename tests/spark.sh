@@ -67,13 +67,13 @@ sleep 15
 cd "$srcdir/..";
 echo
 hr
-$perl -T $I_lib ./check_spark_cluster.pl -c 1: -v
+$perl -T $I_lib ./check_spark_cluster.pl -c 1: -vvv
 hr
 $perl -T $I_lib ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -vvv
 hr
-$perl -T $I_lib ./check_spark_cluster_memory.pl -w 80 -c 90 -v
+$perl -T $I_lib ./check_spark_cluster_memory.pl -w 80 -c 90 -vvv
 hr
-$perl -T $I_lib ./check_spark_worker.pl -w 80 -c 90 -v
+$perl -T $I_lib ./check_spark_worker.pl -w 80 -c 90 -vvv
 hr
 
 echo; echo
