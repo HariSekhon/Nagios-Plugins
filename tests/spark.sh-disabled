@@ -20,15 +20,16 @@ cd "$srcdir/";
 
 . ./travis.sh
 
+SPARK_VERSION="$SPARK_VERSION:-1.5.2}"
+
 echo "
 # ============================================================================ #
-#                               S p a r k
+#                               S p a r k   $SPARK_VERSION
 # ============================================================================ #
 "
 
 export SPARK_HOST="${SPARK_HOST:-localhost}"
 
-SPARK_VERSION=1.5.2
 BIN="bin-hadoop2.6"
 SPARK="spark-$SPARK_VERSION-$BIN"
 TAR="$SPARK.tgz"
