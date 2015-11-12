@@ -59,7 +59,7 @@ $perl -T $I_lib ./check_zookeeper.pl -s -w 10 -c 20 -v
 hr
 $perl -T $I_lib ./check_zookeeper_config.pl -C "$zookeeper/conf/zoo.cfg" -v
 hr
-$perl -T $I_lib ./check_zookeeper_child_znodes.pl -z / -v
+$perl -T $I_lib ./check_zookeeper_child_znodes.pl -z / --no-ephemeral-check -v
 hr
 $perl -T $I_lib ./check_zookeeper_znode.pl -z / -v -n --child-znodes
 hr
