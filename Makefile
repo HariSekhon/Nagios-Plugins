@@ -155,6 +155,8 @@ apt-packages:
 	# for Cassandra's Python driver
 	#dpkg -l python-setuptools python-dev libev4 libev-dev libsnappy-dev &>/dev/null ||
 	$(SUDO) apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev || :
+	# HiveServer2
+	$(SUDO) pip install pyhs2 || :
 
 .PHONY: yum-packages
 yum-packages:
@@ -173,9 +175,14 @@ yum-packages:
 	rpm -q python-setuptools python-pip python-devel libev libev-devel libsnappy-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel libev libev-devel libsnappy-devel || :
 	# to fetch ZooKeeper
 	rpm -q wget || yum install -y wget || :
+	# needed to build pyhs2
+	# libgsasl-devel saslwrapper-devel
+	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel || :
 
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
+# doesn't build on Mac < 3.4.7 / 3.5.1 / 3.6.0 but the others are in the public mirrors yet
+# https://issues.apache.org/jira/browse/ZOOKEEPER-2049
 ZOOKEEPER_VERSION = 3.4.6
 .PHONY: zookeeper
 zookeeper:
