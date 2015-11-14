@@ -80,7 +80,7 @@ DISCLAIMER:
 # Update: I have used this in production for nearly 800 domains across a great variety of over 100 TLDs/second-level domains last I checked, including:
 # ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at, co.il, co.in, co.kr, co.nz, co.nz, co.uk, co.uk, com, com, com.au, com.au, com.bo, com.br, com.cn, com.ee, com.hk, com.hk, com.mx, com.mx, com.my, com.pe, com.pl, com.pt, com.sg, com.sg, com.tr, com.tw, com.tw, com.ve, de, dk, dk, eu, fi, fm, fm, fr, gs, hk, hk, hu, idv.tw, ie, in, info, info, io, it, it, jp, jp, kr, lu, me, me.uk, mobi, mobi, ms, mx, mx, my, name, net, net, net.au, net.br, net.cn, net.nz, nf, nl, no, nu, org, org, org.cn, org.nz, org.tw, org.uk, org.uk, pl, ru, se, sg, sg, sh, tc, tel, tel, tl, tm, tv, tv, tv.br, tw, us, us, vg, xxx
 
-$VERSION = "0.10.9";
+$VERSION = "0.10.10";
 
 use strict;
 use warnings;
@@ -208,37 +208,52 @@ my $expiry_not_checked_msg = "EXPIRY NOT CHECKED for domain $domain,";
 
 my @dns_servers;
 @{$results{"status"}} = ();
+
+# https://www.icann.org/resources/pages/epp-status-codes-2014-06-16-en
+# statuses we don't want to accept:
+#                       inactive
+#                       pendingCreate
+#                       pendingDelete
+#                       pendingRestore
+#                       redemptionPeriod
+#                       serverHold
+#                       serverRenewProhibited
 my @valid_statuses = qw/
-                        ACTIVO
                         Active
+                        ACTIVO
+                        addPeriod
+                        AUTORENEWPERIOD
                         CLIENT-DELETE-PROHIBITED
                         CLIENT-RENEW-PROHIBITED
                         CLIENT-UPDATE-PROHIBITED
                         CLIENT-XFER-PROHIBITED
-                        Complete
-                        Delegated
-                        Granted
-                        HOLD
-                        RENEWPERIOD
-                        VERIFIED
                         clientDeleteProhibited
                         clientRenewProhibited
                         clientTransferProhibited
                         clientUpdateProhibited
+                        Complete
                         connect
+                        Delegated
+                        Granted
+                        HOLD
                         ok
+                        pendingRenew
+                        pendingTransfer
+                        pendingUpdate
                         published
                         registered
+                        RENEWPERIOD
                         serverDeleteProhibited
                         serverTransferProhibited
                         serverUpdateProhibited
+                        TRANSFERPERIOD
+                        VERIFIED
                         /;
 # add valid statuses with spaces in them
 push(@valid_statuses,
     (
         "200 Active",
         "auto-renew grace",
-        "AUTORENEWPERIOD",
         "CLIENT DELETE PROHIBITED",
         "CLIENT RENEW PROHIBITED",
         "CLIENT TRANSFER PROHIBITED",
@@ -248,9 +263,8 @@ push(@valid_statuses,
         "paid and in zone",
         "Registered until expiry date",
         "SERVER UPDATE PROHIBITED",
-        "TRANSFER PROHIBITED",
-        "TRANSFERPERIOD",
-        "Transfer Locked"
+        "Transfer Locked",
+        "TRANSFER PROHIBITED"
     )
 );
 my @not_registered_statuses = qw/free/;
