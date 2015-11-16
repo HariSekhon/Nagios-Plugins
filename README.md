@@ -201,6 +201,12 @@ sudo easy_install pip
 sudo pip install MySQL-python
 ```
 
+### Usage --help ###
+
+All plugins come with --help which lists all options as well as giving a program description, often including a detailed account of what is checked in the code.
+
+Just make sure to install the Perl CPAN modules listed above first as some plugins won't run until you've installed the required Perl modules.
+
 #### Configuration for Strict Domain / FQDN validation ####
 
 Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via the [Lib](https://github.com/harisekhon/lib) submodule - see there for details on configuring this to permit custom TLDs like ```.local``` or ```.intranet``` (both supported by default).
@@ -210,12 +216,6 @@ Strict validations include host/domain/FQDNs using TLDs which are populated from
 Run ```make update```. This will git pull and then git submodule update which is necessary to pick up corresponding library updates, then try to build again using 'make install' to fetch any new CPAN dependencies.
 
 If you update often and want to just quickly git pull + submodule update but skip rebuilding all those dependencies each time then run ```make update2``` (will miss new library dependencies - do full ```make update``` if you encounter issues).
-
-### Usage --help ###
-
-All plugins come with --help which lists all options as well as giving a program description, often including a detailed account of what is checked in the code.
-
-Just make sure to install the Perl CPAN modules listed above first as some plugins won't run until you've installed the required Perl modules.
 
 ##### Bugs & Workarounds #####
 
