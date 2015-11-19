@@ -48,5 +48,8 @@ hr
 $perl -T $I_lib ./check_redis_version.pl -v
 hr
 $perl -T $I_lib ./check_redis_write.pl -v
+hr
+echo "checking for no code failure masking root cause in catch quit handler"
+$perl -T $I_lib ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v | grep -v ' line '
 
 echo; echo
