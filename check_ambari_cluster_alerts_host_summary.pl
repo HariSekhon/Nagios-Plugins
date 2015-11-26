@@ -51,7 +51,7 @@ set_timeout();
 
 $status = "OK";
 
-$url_prefix = "http://$host:$port$api";
+$url_prefix = "$protocol://$host:$port$api";
 
 list_ambari_components();
 cluster_required();
