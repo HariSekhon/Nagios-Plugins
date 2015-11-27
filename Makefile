@@ -12,7 +12,8 @@ else
 endif
 
 # EUID /  UID not exported in Make
-ifeq '$(USER)' 'root'
+# USER not populated in Docker
+ifeq '$(shell id -u)' '0'
     SUDO =
     SUDO2 =
 else
