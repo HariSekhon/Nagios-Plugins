@@ -45,7 +45,7 @@ $cluster    = validate_ambari_cluster($cluster) if $cluster;
 
 validate_tls();
 
-validate_thresholds();
+validate_thresholds(undef, undef, { 'simple' => 'lower', 'integer' => 1, 'positive' => 1 } );
 
 vlog2;
 set_timeout();
@@ -63,7 +63,7 @@ my $total_hosts = get_field_int("Clusters.total_hosts");
 $msg .= $total_hosts;
 check_thresholds($total_hosts);
 $msg .= " | total_hosts=$total_hosts";
-msg_perf_thresholds();
+msg_perf_thresholds(undef, "lower");
 
 vlog2;
 quit $status, $msg;
