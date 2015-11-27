@@ -59,7 +59,7 @@ cluster_required();
 $msg = "Ambari cluster '$cluster' version = ";
 $json = curl_ambari "$url_prefix/clusters/$cluster?fields=Clusters/version";
 my $version = get_field("Clusters.version");
-$msg .= $version;
+$msg .= "'$version'";
 if(defined($expected) and $version ne $expected){
     critical;
     $msg .= " (expected '$expected')";
