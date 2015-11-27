@@ -6,18 +6,18 @@
 #
 
 ifdef TRAVIS
-    SUDO2 =
+	SUDO2 =
 else
-    SUDO2 = sudo
+	SUDO2 = sudo
 endif
 
 # EUID /  UID not exported in Make
 # USER not populated in Docker
 ifeq '$(shell id -u)' '0'
-    SUDO =
-    SUDO2 =
+	SUDO =
+	SUDO2 =
 else
-    SUDO = sudo
+	SUDO = sudo
 endif
 
 .PHONY: make
