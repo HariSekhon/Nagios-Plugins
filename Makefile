@@ -160,7 +160,7 @@ apt-packages:
 
 .PHONY: yum-packages
 yum-packages:
-	rpm -q gcc gcc-c++ perl-CPAN perl-libwww-perl git || $(SUDO) yum install -y gcc gcc-c++ perl-CPAN perl-libwww-perl git
+	rpm -q gcc gcc-c++ perl-CPAN perl-libwww-perl || $(SUDO) yum install -y gcc gcc-c++ perl-CPAN perl-libwww-perl
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	rpm -q perl-DBD-MySQL mysql-devel || $(SUDO) yum install -y perl-DBD-MySQL mysql-devel
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
@@ -171,7 +171,13 @@ yum-packages:
 	rpm -q jwhois || $(SUDO) yum install -y jwhois
 	# for Cassandra's Python driver
 	# python-pip requires EPEL, so try to get the correct EPEL rpm - for Make must escape the $3
-	$(SUDO) rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
+	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
+	# must instead do wget 
+	#$(SUDO) rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
+	wget -O /tmp/epel.rpm  "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
+	$(SUDO) rpm -ivh /tmp/epel.rpm
+	# only available on EPEL in CentOS 5
+	rpm -q git || $(SUDO) yum install -y git
 	rpm -q python-setuptools python-pip python-devel libev libev-devel snappy-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel libev libev-devel snappy-devel
 	# to fetch ZooKeeper
 	rpm -q wget || yum install -y wget
