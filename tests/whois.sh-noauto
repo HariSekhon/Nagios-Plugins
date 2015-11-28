@@ -28,6 +28,20 @@ echo "
 # ============================================================================ #
 "
 
+# Don't run this all the time, give it a 50% chance of running to prevent getting blacklisted by registrars all the time
+if [ -n "${TRAVIS:-}" ]; then
+    if ! [ "$(($RANDOM % 10))" = 0 ]; then
+        echo "Skipping Whois checks (90% of the time in Travis to avoid blacklisting"
+        exit 0
+    fi
+else
+    if ! [ "$(($RANDOM % 2))" = 0 ]; then
+        echo "Skipping Whois checks (50% of the time to avoid blacklisting)"
+        exit 0
+    fi
+fi
+echo "Running Whois checks"
+
 # random domains including some I used to work for to try to get some variation in registrars
 domains="
 cloudera.com
@@ -175,17 +189,37 @@ echo "Testing Domains including expiry:"
 for domain in $domains; do
     printf "%-20s  " "$domain:"
     # don't want people with 25 days left on their domains raising errors here, setting thresholds lower to always pass
-    $perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 || :
+    set +eo pipefail
+    $perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2
+    if [ $? -ne 0 -a $? -eq 3 ]; then
+        $perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 | egrep -qi 'denied|quota|exceeded|blacklisted' && continue
+        exit 1
+    fi
+    set -e
 done
 
+# check_whois.pl has exception handling to give OK back in it's base code so this isn't needed
 #echo "Testing Domains excluding expiry:"
 #for domain in $domains_noexpiry; do
+#    set +eo pipefail
 #    $perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-expiry
+#    if [ $? -ne 0 ]; then
+#    if [ $? -ne 0 -a $? -eq 3 ]; then
+#        $perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-expiry | egrep -qi 'denied|quota|exceeded|blacklisted' && continue
+#        exit 1
+#    fi
+#    set -e
 #done
 
 echo "Testing Domains excluding nameservers:"
 for domain in $domains_no_nameservers; do
+    set +eo pipefail
     $perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-nameservers
+    if [ $? -ne 0 -a $? -eq 3 ]; then
+        $perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-nameservers | egrep -qi 'denied|quota|exceeded|blacklisted' && continue
+        exit 1
+    fi
+    set -e
 done
 
 echo; echo
