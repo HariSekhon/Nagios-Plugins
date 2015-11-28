@@ -190,9 +190,11 @@ for domain in $domains; do
     printf "%-20s  " "$domain:"
     # don't want people with 25 days left on their domains raising errors here, setting thresholds lower to always pass
     set +eo pipefail
-    $perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2
-    if [ $? -ne 0 -a $? -eq 3 ]; then
-        $perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 | egrep -qi 'denied|quota|exceeded|blacklisted' && continue
+    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2`
+    result=$?
+    echo "$output"
+    if [ $result -ne 0 -a $result -eq 3 ]; then
+        egrep -qi 'denied|quota|exceeded|blacklisted' <<< "$output" && continue
         exit 1
     fi
     set -e
@@ -202,10 +204,11 @@ done
 #echo "Testing Domains excluding expiry:"
 #for domain in $domains_noexpiry; do
 #    set +eo pipefail
-#    $perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-expiry
-#    if [ $? -ne 0 ]; then
-#    if [ $? -ne 0 -a $? -eq 3 ]; then
-#        $perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-expiry | egrep -qi 'denied|quota|exceeded|blacklisted' && continue
+#    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-expiry`
+#    result=$?
+#    echo "$output"
+#    if [ $result -ne 0 -a $result -eq 3 ]; then
+#        egrep -qi 'denied|quota|exceeded|blacklisted' <<< "$output" && continue
 #        exit 1
 #    fi
 #    set -e
@@ -214,9 +217,11 @@ done
 echo "Testing Domains excluding nameservers:"
 for domain in $domains_no_nameservers; do
     set +eo pipefail
-    $perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-nameservers
-    if [ $? -ne 0 -a $? -eq 3 ]; then
-        $perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-nameservers | egrep -qi 'denied|quota|exceeded|blacklisted' && continue
+    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-nameservers`
+    result=$?
+    echo "$output"
+    if [ $result -ne 0 -a $result -eq 3 ]; then
+        egrep -qi 'denied|quota|exceeded|blacklisted' <<< "$output" && continue
         exit 1
     fi
     set -e
