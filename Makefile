@@ -176,6 +176,7 @@ yum-packages:
 	#$(SUDO) rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
 	wget -O /tmp/epel.rpm  "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
 	$(SUDO) rpm -ivh /tmp/epel.rpm
+	rm /tmp/epel.rpm
 	# only available on EPEL in CentOS 5
 	rpm -q git || $(SUDO) yum install -y git
 	rpm -q python-setuptools python-pip python-devel libev libev-devel snappy-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel libev libev-devel snappy-devel
