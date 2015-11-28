@@ -160,7 +160,7 @@ apt-packages:
 
 .PHONY: yum-packages
 yum-packages:
-	rpm -q gcc gcc-c++ perl-CPAN perl-libwww-perl wget || $(SUDO) yum install -y gcc gcc-c++ perl-CPAN perl-libwww-perl wget
+	rpm -q gcc gcc-c++ perl-CPAN perl-libwww-perl wget tar || $(SUDO) yum install -y gcc gcc-c++ perl-CPAN perl-libwww-perl wget tar
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	rpm -q perl-DBD-MySQL mysql-devel || $(SUDO) yum install -y perl-DBD-MySQL mysql-devel
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
