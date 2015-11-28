@@ -252,6 +252,7 @@ push(@valid_statuses,
         "paid and in zone",
         "Registered until expiry date",
         "SERVER UPDATE PROHIBITED",
+        "Transfer Allowed",
         "Transfer Locked",
         "TRANSFER PROHIBITED",
         "UPDATE PROHIBITED"
