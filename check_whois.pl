@@ -32,7 +32,7 @@ Checks:
 
 I have used this in production for nearly 800 domains across a great variety of over 100 TLDs/second-level domains last I checked, including:
 
-ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at, co.il, co.in, co.kr, co.nz, co.nz, co.uk, co.uk, com, com, com.au, com.au, com.bo, com.br, com.cn, com.ee, com.hk, com.hk, com.mx, com.mx, com.my, com.pe, com.pl, com.pt, com.sg, com.sg, com.tr, com.tw, com.tw, com.ve, de, dk, dk, eu, fi, fm, fm, fr, gs, hk, hk, hu, idv.tw, ie, in, info, info, io, it, it, jp, jp, kr, lu, me, me.uk, mobi, mobi, ms, mx, mx, my, name, net, net, net.au, net.br, net.cn, net.nz, nf, nl, no, nu, org, org, org.cn, org.nz, org.tw, org.uk, org.uk, pl, ru, se, sg, sg, sh, tc, tel, tel, tl, tm, tv, tv, tv.br, tw, us, us, vg, xxx
+ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at, co.il, co.in, co.kr, co.nz, co.nz, co.uk, co.uk, com, com, com.au, com.au, com.bo, com.br, com.cn, com.ee, com.hk, com.hk, com.mx, com.mx, com.my, com.pe, com.pl, com.pt, com.sg, com.sg, com.tr, com.tw, com.tw, com.ve, de, dk, dk, eu, fi, fm, fm, fr, gs, guru, hk, hu, idv.tw, ie, in, info, info, io, it, jp, jp, kr, london, lu, me, me.uk, mobi, mobi, ms, mx, mx, my, name, net, net, net.au, net.br, net.cn, net.nz, nf, nl, no, nu, org, org, org.cn, org.nz, org.tw, org.uk, org.uk, pl, ru, se, sg, sg, sh, tc, tel, tel, tl, tm, tv, tv.br, tw, us, us, vg, xxx
 
 DISCLAIMER:
 
@@ -44,6 +44,11 @@ DISCLAIMER:
 # For developing/testing on Mac I've found this has worked:
 #
 # brew install homebrew/boneyard/jwhois
+#
+# Update: this doens't seem to work any more, now gives below error for any domain, even though version is the same as on Linux :-/
+#
+# [Querying whois.verisign-grs.com]
+# [Unable to connect to remote host]
 
 # Whois perl libraries aren't great so calling whois binary and checking manually
 # so we have more control over this, can get sticky but it looks like this is the reason
@@ -59,28 +64,7 @@ DISCLAIMER:
 # THERE IS A LOT OF REGEX. EVEN IF YOU ARE A REGEX MASTER YOU CANNOT PREDICT ALL SIDE EFFECTS
 # YOU MUST RELY ON THE ACCOMPANYING TESTS I HAVE WRITTEN IF YOU CHANGE ANYTHING AT ALL
 
-# So far I've used this with the following TLD registrars
-# - .asia
-# - .biz
-# - .com
-# - .de
-# - .dk
-# - .eu
-# - .fi
-# - .fr
-# - .info
-# - .it
-# - .net
-# - .nl
-# - .no
-# - .org
-# - .se
-# - .tv
-# - .uk
-# Update: I have used this in production for nearly 800 domains across a great variety of over 100 TLDs/second-level domains last I checked, including:
-# ac, ag, am, asia, asia, at, at, be, biz, biz, ca, cc, cc, ch, cl, cn, co, co.at, co.il, co.in, co.kr, co.nz, co.nz, co.uk, co.uk, com, com, com.au, com.au, com.bo, com.br, com.cn, com.ee, com.hk, com.hk, com.mx, com.mx, com.my, com.pe, com.pl, com.pt, com.sg, com.sg, com.tr, com.tw, com.tw, com.ve, de, dk, dk, eu, fi, fm, fm, fr, gs, hk, hk, hu, idv.tw, ie, in, info, info, io, it, it, jp, jp, kr, lu, me, me.uk, mobi, mobi, ms, mx, mx, my, name, net, net, net.au, net.br, net.cn, net.nz, nf, nl, no, nu, org, org, org.cn, org.nz, org.tw, org.uk, org.uk, pl, ru, se, sg, sg, sh, tc, tel, tel, tl, tm, tv, tv, tv.br, tw, us, us, vg, xxx
-
-$VERSION = "0.10.10";
+$VERSION = "0.11.0";
 
 use strict;
 use warnings;
@@ -112,7 +96,7 @@ my %tld_alt_whois = (
     #"vn" => "whois.iana.org"
     );
 
-my @tlds_with_no_expiry      = qw/ac at be ch cl de hu eu fr lu name nl no pe sh tc vg za/;
+my @tlds_with_no_expiry      = qw/at be ch de hu eu lu name nl no pe/;
 my @tlds_with_no_nameservers = qw/ac sh/;
 
 %options = (
@@ -204,6 +188,9 @@ my %mon = (
 );
 
 my $not_registered_msg = "domain '$domain' not registered!!!";
+if($domain =~ /^www/){
+    $not_registered_msg .= " Did you accidentally specify the FQDN? Try removing 'www' from the beginning?";
+}
 my $expiry_not_checked_msg = "EXPIRY NOT CHECKED for domain $domain,";
 
 my @dns_servers;
@@ -248,6 +235,7 @@ my @valid_statuses = qw/
                         serverUpdateProhibited
                         TRANSFERPERIOD
                         VERIFIED
+                        VerifiedID
                         /;
 # add valid statuses with spaces in them
 push(@valid_statuses,
@@ -258,13 +246,15 @@ push(@valid_statuses,
         "CLIENT RENEW PROHIBITED",
         "CLIENT TRANSFER PROHIBITED",
         "CLIENT UPDATE PROHIBITED",
+        "DELETE PROHIBITED",
         "NOT AVAILABLE",
         "NOT DELEGATED",
         "paid and in zone",
         "Registered until expiry date",
         "SERVER UPDATE PROHIBITED",
         "Transfer Locked",
-        "TRANSFER PROHIBITED"
+        "TRANSFER PROHIBITED",
+        "UPDATE PROHIBITED"
     )
 );
 my @not_registered_statuses = qw/free/;
@@ -279,7 +269,13 @@ foreach(@valid_statuses2){
 sub valid_status {
     my $status = shift;
     #vlog2("* checking status: $status");
-    if(grep(lc($_) eq lc($status), @valid_statuses)){
+    if($status =~ /,/){
+        foreach my $status_part (split(",", $status)){
+            if(grep(lc($_) eq lc($status_part), @valid_statuses)){
+                return 1;
+            }
+        }
+    } elsif(grep(lc($_) eq lc($status), @valid_statuses)){
         return 1;
     } else {
         foreach(@valid_statuses2){
@@ -319,12 +315,13 @@ foreach(@output){
        /(?:daily whois-limit exceeded for client (?:$ip_regex)?|too many requests|Look up quota exceeded|exceeded.+query.+limit|WHOIS LIMIT EXCEEDED)/io or
        /^query_status:\s+[13-9]\d{2}\s+/io or
        /^\s*Invalid input\s*$/io or
-       /^% Quota exceeded/io or
+       /quota exceeded/io or
        /Unable to locate remote host/io or
        /Unable to connect/io or
-       /Can't access/io
+       /Can't access/io or
+       /No Data Found/o
         ){
-        quit "UNKNOWN", strip($_);
+        quit "UNKNOWN", "error while checking domain '$domain': " . strip($_);
     } elsif(/No entries found|NOT FOUND|No match/io   or
             /Status:\s+AVAILABLE/io                   or
             /(?:$domain).+(?<!Not )\b(?:free|available)\b/io or
@@ -377,15 +374,16 @@ foreach(@output){
         $results{"expiry"} = "$day-$month-$year";
         vlog2("Expiry: $results{expiry}");
     # GoDaddy registration dates eg. 'Registrar Registration Expiration Date: 2015-09-02T16:50:03Z'
-    } elsif(/^\s*(?:Expiration|Registry Expiry|Registrar Registration Expiration|Expires On)(?: Date)?:\s*(\d{4})-(\d{2})-(\d{2})(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?[A-Z]?)?\s*$/io){
+    } elsif(/\b(?:Expiration|Registry Expiry|Registrar Registration Expiration|Expires On)(?:\s+Date)?.*?(\d{4})-(\d{2})-(\d{2})(?:[^\d]|$)/io){
         ($day, $month, $year) = ($3, $2, $1);
         $results{"expiry"} = "$day-$month-$year";
     } elsif (/^\s*(?:Query:|Domain(?:[ _]?Name)?\s*(?:\(ASCII\))?[.:]+)\s*(.+?)\s*$/io or
              /^(?:[a-z]?\s)?\[Domain Name\]\s+(.+?)\s*$/o or
-             /^Nome de [^\s]+\s*\/\s*Domain Name:\s*($domain_regex2)\s*$/io or
-             /^\s*Nombre de Dominio:\s*($domain_regex2)\s*$/io or
-             /^Dominio:\s*($domain_regex2)/io or
-             /^Domain\s+\"?($domain_regex2)\"?/io
+             /^Nome de [^\s]+\s*\/\s*Domain Name:\s*($domain_regex_strict)\s*$/io or
+             /^\s*Nombre de Dominio:\s*($domain_regex_strict)\s*$/io or
+             /^Dominio:\s*($domain_regex_strict)/io or
+             /^Domain\s+\"?($domain_regex_strict)\"?/io or
+             /^ACE:\s($domain_regex_strict)\s/
              ){
         if($results{"domain"}){
             unless($results{"domain"} eq $1){
@@ -401,7 +399,7 @@ foreach(@output){
              /(?:prim|sec)ns\d?fqdn\s*:\s*($fqdn_regex)\s*$/io){
         my $nameserver = $1;
         $nameserver =~ s/\.$//;
-        validate_fqdn($nameserver) or isIP($nameserver) or quit "CRITICAL", "name server '$nameserver' returned by whois lookup is not a valid hostname or ip address!!! Check '$domain' domain name servers are working properly!";
+        isFqdn($nameserver) or isIP($nameserver) or quit "CRITICAL", "name server '$nameserver' returned by whois lookup is not a valid hostname or ip address!!! Check '$domain' domain name servers are working properly!";
         push(@dns_servers, lc($nameserver)) unless(grep(lc($_) eq lc($nameserver), @dns_servers));
     } elsif (/^(?:[a-z]\s)?\s*\[?(?:Domain(?: Name)?|Record)?\s*(?:Creat.*?|Regist[a-z]+|Commencement) ?(?:Date|on)?\]?:?\s*(\d+[-\.\/](?:\d+|\w+)[-\.\/]\d+)/io){
         $results{"created"} = $1;
@@ -467,7 +465,7 @@ foreach(my $i=0;$i<scalar @output;$i++){
     if($line =~ /^\s*Domain name:?\s*$/io){
         $output[$i+1] or last;
         $line = $output[$i+1] or code_error "hit end of output";
-        if($line =~ /($domain_regex2)/o){
+        if($line =~ /($domain_regex_strict)/o){
             $results{"domain"} = $1;
         }
     } elsif($line =~ /^\s*Registrar:?\s*$/io){
@@ -605,7 +603,7 @@ if($results{"registrar"}){
     $results{"registrar"} =~ s/,?\s*(?:LLC|Inc|Ltd|S\.?A\.?S?|(?:Ltd )?R\d+-ASIA)?\.?(?:\s+\((?:[\w-]+|http:\/\/$hostname_regex)\))?\.?\s*$//io;
 } else {
     foreach(@output){
-        if (/^\[Querying\s+(?:http:\/\/)?($domain_regex2)(?:$url_path_suffix_regex)?\]$/){
+        if (/^\[Querying\s+(?:http:\/\/)?($domain_regex_strict)(?:$url_path_suffix_regex)?\]$/){
             $results{"registrar"} = $1;
             $results{"registrar"} =~ s/(?:www|whois)\.//o;
         }
@@ -676,7 +674,10 @@ unless($no_expiry){
         $results{"expiry_epoch"} = timegm(0,0,0,$day,$month,$year);
         vlog2("expiry_epoch epoch: $results{expiry_epoch}");
     } else {
-        quit "UNKNOWN", "couldn't find expiry in output from whois $domain (use -vvv to check output, some registrars don't supply it in which case you may need to use --no-expiry switch)";
+        if(defined($results{"domain"})){
+            quit "UNKNOWN", "expiry not found in output from whois $domain (use -vvv to check output, some registrars don't supply it in which case you may need to use --no-expiry switch)";
+        }
+        quit "UNKNOWN", "neither domain nor expiry found in output for whois $domain, domain not registered? Use -vvv to check output, registrars output may have changed. $nagios_plugins_support_msg";
     }
     $results{"expiry_epoch"} or quit "UNKNOWN", "couldn't calculate expiry epoch from expiry '$results{expiry}' in output from whois $domain";
 }
@@ -743,17 +744,17 @@ unless($no_nameservers_listed){
         $msg = "No nameservers found. $msg";
     }
 }
-unless($results{"domain"}){
-    if($tld eq "cl"){
-        my $domain_minus_tld = $domain;
-        $domain_minus_tld =~ s/\.[^\.]+$//;
-        foreach(@output){
-            if(/http:\/\/www\.nic\.cl\/cgi-bin\/dom-CL\?q=$domain_minus_tld/o){
-                $results{"domain"} = $domain;
-            }
-        }
-    }
-}
+#unless($results{"domain"}){
+#    if($tld eq "cl"){
+#        my $domain_minus_tld = $domain;
+#        $domain_minus_tld =~ s/\.[^\.]+$//;
+#        foreach(@output){
+#            if(/http:\/\/www\.nic\.cl\/cgi-bin\/dom-CL\?q=$domain_minus_tld/o){
+#                $results{"domain"} = $domain;
+#            }
+#        }
+#    }
+#}
 # Registrant and updated aren't output by all whois servers
 foreach my $result (("expiry", "domain")){
     next if ($no_expiry   and $result eq "expiry");
