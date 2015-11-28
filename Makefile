@@ -141,20 +141,22 @@ make:
 
 .PHONY: apt-packages
 apt-packages:
+	# being old-skool I still used apt-get but it can't install build-essential due to dep conflicts trying to install newer gcc/g++, aptitude holds the packages back and works
+	$(SUDO) apt-get install -y aptitude
 	# needed to fetch and build CPAN modules and fetch the library submodule at end of build
-	$(SUDO) apt-get install -y build-essential libwww-perl git
+	$(SUDO) aptitude install -y build-essential libwww-perl git
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	$(SUDO) apt-get install -y libdbd-mysql-perl libmysqlclient-dev
+	$(SUDO) aptitude install -y libdbd-mysql-perl libmysqlclient-dev
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	$(SUDO) apt-get install -y libssl-dev
+	$(SUDO) aptitude install -y libssl-dev
 	# for XML::Simple building
-	$(SUDO) apt-get install -y libexpat1-dev
+	$(SUDO) aptitude install -y libexpat1-dev
 	# for check_whois.pl
-	$(SUDO) apt-get install -y jwhois
+	$(SUDO) aptitude install -y jwhois
 	# TODO: for LWP::Authenticate - prompts for realm + KDC, probably automatable but not tested yet
-	#apt-get install -y krb5-config
+	#aptitude install -y krb5-config
 	# for Cassandra's Python driver
-	$(SUDO) apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev
+	$(SUDO) aptitude install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev
 	# HiveServer2
 	$(SUDO) pip install pyhs2
 
