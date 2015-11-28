@@ -55,6 +55,8 @@ my $disablerepo;
 
 get_options();
 
+linux_only();
+
 my $opts = "";
 $opts .= "-C" if $cache_only;
 
