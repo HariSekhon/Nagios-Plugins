@@ -142,19 +142,18 @@ make:
 .PHONY: apt-packages
 apt-packages:
 	# needed to fetch and build CPAN modules and fetch the library submodule at end of build
-	dpkg -l build-essential libwww-perl git &>/dev/null || $(SUDO) apt-get install -y build-essential libwww-perl git
+	$(SUDO) apt-get install -y build-essential libwww-perl git
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	dpkg -l libdbd-mysql-perl libmysqlclient-dev &>/dev/null || $(SUDO) apt-get install -y libdbd-mysql-perl libmysqlclient-dev
+	$(SUDO) apt-get install -y libdbd-mysql-perl libmysqlclient-dev
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	dpkg -l libssl-dev &>/dev/null || $(SUDO) apt-get install -y libssl-dev
+	$(SUDO) apt-get install -y libssl-dev
 	# for XML::Simple building
-	dpkg -l libexpat1-dev &>/dev/null || $(SUDO) apt-get install -y libexpat1-dev
+	$(SUDO) apt-get install -y libexpat1-dev
 	# for check_whois.pl
-	dpkg -l jwhois &>/dev/null || $(SUDO) apt-get install -y jwhois
+	$(SUDO) apt-get install -y jwhois
 	# TODO: for LWP::Authenticate - prompts for realm + KDC, probably automatable but not tested yet
 	#apt-get install -y krb5-config
 	# for Cassandra's Python driver
-	#dpkg -l python-setuptools python-dev libev4 libev-dev libsnappy-dev &>/dev/null
 	$(SUDO) apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev
 	# HiveServer2
 	$(SUDO) pip install pyhs2
@@ -173,7 +172,7 @@ yum-packages:
 	# for Cassandra's Python driver
 	# python-pip requires EPEL, so try to get the correct EPEL rpm - for Make must escape the $3
 	$(SUDO) rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
-	rpm -q python-setuptools python-pip python-devel libev libev-devel libsnappy-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel libev libev-devel libsnappy-devel
+	rpm -q python-setuptools python-pip python-devel libev libev-devel snappy-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel libev libev-devel snappy-devel
 	# to fetch ZooKeeper
 	rpm -q wget || yum install -y wget
 	# needed to build pyhs2
