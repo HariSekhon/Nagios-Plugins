@@ -71,7 +71,8 @@ com.br
 com.cn
 com.hk
 com.mx
-com.my
+# .com.my times out
+#com.my
 com.pe
 com.pl
 com.pt
@@ -85,13 +86,15 @@ eu
 fi
 fm
 fr
-gs
+# .gs times out
+#gs
 hk
 hu
 ie
 in
 info
-io
+# .io times out
+#io
 it
 jp
 kr
@@ -100,8 +103,8 @@ me
 mobi
 ms
 mx
+# .my times outs
 #my
-name
 net
 net.au
 net.br
@@ -135,6 +138,7 @@ xxx
 #"
 
 tlds_no_nameservers="
+name
 no
 com.bo
 idv.tw
@@ -142,7 +146,8 @@ idv.tw
 
 domains="$domains
 $(
-    for tld in $tlds; do
+    sed 's/#.*//;/^[[:space:]]*$/d' <<< "$tlds" |
+    while read tld; do
         echo google.$tld
     done
 )
@@ -150,7 +155,8 @@ $(
 
 #domains_no_expiry="
 #$(
-#    for tld in $tlds_no_expiry; do
+#    sed 's/#.*//;/^[[:space:]]*$/d' <<< "$tlds_no_expiry" |
+#    while read tld; do
 #        echo google.$tld
 #    done
 #)
@@ -158,8 +164,8 @@ $(
 
 domains_no_nameservers="
 $(
-    for tld in $tlds_no_nameservers; do
-        [ "${tld:0:1}" = "#" ] & continue
+    sed 's/#.*//;/^[[:space:]]*$/d' <<< "$tlds_no_nameservers" |
+    while read tld; do
         echo google.$tld
     done
 )
@@ -167,6 +173,7 @@ $(
 
 echo "Testing Domains including expiry:"
 for domain in $domains; do
+    printf "%-20s  " "$domain:"
     # don't want people with 25 days left on their domains raising errors here, setting thresholds lower to always pass
     $perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 || :
 done
