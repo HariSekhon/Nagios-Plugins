@@ -152,8 +152,9 @@ apt-packages:
 	$(SUDO) apt-get install -y libexpat1-dev
 	# for check_whois.pl
 	$(SUDO) apt-get install -y jwhois
-	# TODO: for LWP::Authenticate - prompts for realm + KDC, probably automatable but not tested yet
-	#apt-get install -y krb5-config
+	# for LWP::Authenticate
+	#apt-get install -y krb5-config # prompts for realm + KDC, use libkrb5-dev instead
+	$(SUDO) apt-get install -y libkrb5-dev
 	# for Cassandra's Python driver
 	$(SUDO) apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev
 	# HiveServer2
