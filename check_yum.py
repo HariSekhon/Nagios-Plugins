@@ -8,15 +8,19 @@
 #  License: see accompanying LICENSE file
 #
 
-# UPDATED NOTE: This was written ages ago for RHEL5, but has been updated for RHEL6
+"""
+Nagios plugin to test for Yum updates on RedHat/CentOS Linux.
 
-"""Nagios plugin to test for Yum updates on RedHat/CentOS Linux.
-   Can optionally alert on any available updates as well as just
-   security related updates"""
+Can optionally alert on any available updates as well as just security related updates
+
+See also: check_yum.pl (also part of the Advanced Nagios Plugins Collection)
+
+Tested on CentOS 5 / 6 / 7
+"""
 
 __author__  = "Hari Sekhon"
 __title__   = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.7.4"
+__version__ = "0.7.5"
 
 # Standard Nagios return codes
 OK       = 0
@@ -331,27 +335,29 @@ class YumTester:
         output = self.run(cmd)
 
         re_security_summary = \
-                re.compile("Needed \d+ of \d+ packages, for security")
+                re.compile("Needed (\d+) of (\d+) packages, for security")
         re_summary_rhel6 = re.compile('(\d+) package\(s\) needed for security, out of (\d+) available')
         re_no_security_updates_available = \
-                re.compile("No packages needed,? for security[,;] \d+ (?:packages )?available")
+                re.compile("No packages needed,? for security[;,] (\d+) (?:packages )?available")
         summary_line_found = False
         for line in output:
-            if re_summary_rhel6.match(line):
-                m = re_summary_rhel6.match(line)
+            m = re_summary_rhel6.match(line)
+            if m:
                 summary_line_found = True
                 number_security_updates = m.group(1)
                 number_total_updates    = m.group(2)
                 break
-            if re_no_security_updates_available.match(line):
+            m = re_no_security_updates_available.match(line)
+            if m:
                 summary_line_found = True
                 number_security_updates = 0
-                number_total_updates    = line.split()[5]
+                number_total_updates    = m.group(1)
                 break
-            elif re_security_summary.match(line):
+            m = re_security_summary.match(line)
+            if m:
                 summary_line_found = True
-                number_security_updates = line.split()[1]
-                number_total_updates    = line.split()[3]
+                number_security_updates = m.group(1)
+                number_total_updates    = m.group(2)
                 break
 
         if not summary_line_found:
@@ -464,7 +470,8 @@ def main():
     tester = YumTester()
     parser = OptionParser()
 
-    parser.add_option( "--all-updates",
+    parser.add_option( "-A",
+                       "--all-updates",
                        action="store_true",
                        dest="all_updates",
                        help="Does not distinguish between security and "      \
@@ -475,7 +482,8 @@ def main():
                           + "version. You may want to use "                   \
                           + "--warn-on-any-update instead of this option")
 
-    parser.add_option( "--warn-on-any-update",
+    parser.add_option( "-W",
+                       "--warn-on-any-update",
                        action="store_true",
                        dest="warn_on_any_update",
                        help="Warns if there are any (non-security) package "   \
@@ -497,7 +505,8 @@ def main():
                           + "check itself doesn't have to do it, possibly "  \
                           + "speeding up execution (by 1-2 seconds in tests)")
 
-    parser.add_option( "--no-warn-on-lock",
+    parser.add_option( "-N",
+                       "--no-warn-on-lock",
                        action="store_true",
                        dest="no_warn_on_lock",
                        help="Return OK instead of WARNING when yum is locked " \
@@ -506,14 +515,16 @@ def main():
                           + "the security standpoint, but may be wanted to "   \
                           + "reduce the number of alerts that may "            \
                           + "intermittently pop up when someone is running "   \
-                          + "yum interactively for package management")
+                          + "yum for package management")
 
-    parser.add_option( "--enablerepo",
+    parser.add_option( "-e",
+                       "--enablerepo",
                        dest="repository_to_enable",
                        help="Explicitly enables a reposity when calling yum. "
                           + "Can take a comma separated list of repositories")
 
-    parser.add_option( "--disablerepo",
+    parser.add_option( "-d",
+                       "--disablerepo",
                        dest="repository_to_disable",
                        help="Explicitly disables a repository when calling yum. " \
                           + "Can take a comma separated list of repositories")
