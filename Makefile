@@ -128,7 +128,7 @@ make:
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
 	$(SUDO) easy_install -U setuptools
-	$(SUDO) easy_install pip
+	$(SUDO) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	$(SUDO) pip install cassandra-driver scales blist lz4 python-snappy
 	
@@ -185,6 +185,8 @@ yum-packages:
 	# needed to build pyhs2
 	# libgsasl-devel saslwrapper-devel
 	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel
+	# for check_yum.pl / check_yum.py
+	yum install -y yum-security yum-plugin-security
 
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
