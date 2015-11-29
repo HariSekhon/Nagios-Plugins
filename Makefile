@@ -2,21 +2,22 @@
 #  Author: Hari Sekhon
 #  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
 #
-#  http://github.com/harisekhon/nagios-plugins
+#  https://github.com/harisekhon/nagios-plugins
 #
 
 ifdef TRAVIS
-    SUDO2 =
+	SUDO2 =
 else
-    SUDO2 = sudo
+	SUDO2 = sudo
 endif
 
 # EUID /  UID not exported in Make
-ifeq '$(USER)' 'root'
-    SUDO =
-    SUDO2 =
+# USER not populated in Docker
+ifeq '$(shell id -u)' '0'
+	SUDO =
+	SUDO2 =
 else
-    SUDO = sudo
+	SUDO = sudo
 endif
 
 .PHONY: make
@@ -120,64 +121,74 @@ make:
 		URI::Escape \
 		XML::SAX \
 		XML::Simple \
-		; echo
+		;
 		#Net::Async::CassandraCQL \
 	# Intentionally ignoring CPAN module build failures since some modules may fail for a multitude of reasons but this isn't really important unless you need the pieces of code that use them in which case you can solve those dependencies later
 	
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
-	$(SUDO) easy_install -U setuptools || :
+	$(SUDO) easy_install -U setuptools
 	$(SUDO) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
-	$(SUDO) pip install cassandra-driver scales blist lz4 python-snappy || :
+	$(SUDO) pip install cassandra-driver scales blist lz4 python-snappy
 	
 	# install MySQLdb python module for check_logserver.py / check_syslog_mysql.py
 	# fails if MySQL isn't installed locally
-	$(SUDO) pip install MySQL-python || :
-	echo
-	echo BUILD SUCCESSFUL
+	$(SUDO) pip install MySQL-python
+	@echo
+	@echo BUILD SUCCESSFUL
 
 
 .PHONY: apt-packages
 apt-packages:
+	$(SUDO) apt-get update
 	# needed to fetch and build CPAN modules and fetch the library submodule at end of build
-	dpkg -l build-essential libwww-perl git &>/dev/null || $(SUDO) apt-get install -y build-essential libwww-perl git || :
+	$(SUDO) apt-get install -y build-essential libwww-perl git
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	dpkg -l libdbd-mysql-perl libmysqlclient-dev &>/dev/null || $(SUDO) apt-get install -y libdbd-mysql-perl libmysqlclient-dev || :
+	$(SUDO) apt-get install -y libdbd-mysql-perl libmysqlclient-dev
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	dpkg -l libssl-dev &>/dev/null || $(SUDO) apt-get install -y libssl-dev || :
+	$(SUDO) apt-get install -y libssl-dev
 	# for XML::Simple building
-	dpkg -l libexpat1-dev &>/dev/null || $(SUDO) apt-get install -y libexpat1-dev || :
+	$(SUDO) apt-get install -y libexpat1-dev
 	# for check_whois.pl
-	dpkg -l jwhois &>/dev/null || $(SUDO) apt-get install -y jwhois || :
-	# TODO: for LWP::Authenticate - prompts for realm + KDC, probably automatable but not tested yet
-	#apt-get install -y krb5-config || :
+	$(SUDO) apt-get install -y jwhois
+	# for LWP::Authenticate
+	#apt-get install -y krb5-config # prompts for realm + KDC, use libkrb5-dev instead
+	$(SUDO) apt-get install -y libkrb5-dev
 	# for Cassandra's Python driver
-	#dpkg -l python-setuptools python-dev libev4 libev-dev libsnappy-dev &>/dev/null ||
-	$(SUDO) apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev || :
+	$(SUDO) apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev
 	# HiveServer2
-	$(SUDO) pip install pyhs2 || :
+	$(SUDO) pip install pyhs2
 
 .PHONY: yum-packages
 yum-packages:
-	rpm -q gcc gcc-c++ perl-CPAN perl-libwww-perl git || $(SUDO) yum install -y gcc gcc-c++ perl-CPAN perl-libwww-perl git || :
+	rpm -q gcc gcc-c++ perl-CPAN perl-libwww-perl wget tar || $(SUDO) yum install -y gcc gcc-c++ perl-CPAN perl-libwww-perl wget tar
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	rpm -q perl-DBD-MySQL mysql-devel || $(SUDO) yum install -y perl-DBD-MySQL mysql-devel || :
+	rpm -q perl-DBD-MySQL mysql-devel || $(SUDO) yum install -y perl-DBD-MySQL mysql-devel
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	rpm -q openssl-devel || $(SUDO) yum install -y openssl-devel || :
+	rpm -q openssl-devel || $(SUDO) yum install -y openssl-devel
 	# for XML::Simple building
-	rpm -q expat-devel || $(SUDO) yum install -y expat-devel || :
+	rpm -q expat-devel || $(SUDO) yum install -y expat-devel
 	# for check_whois.pl
-	rpm -q jwhois || $(SUDO) yum install -y jwhois || :
+	rpm -q jwhois || $(SUDO) yum install -y jwhois
 	# for Cassandra's Python driver
 	# python-pip requires EPEL, so try to get the correct EPEL rpm - for Make must escape the $3
-	$(SUDO) rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm" || :
-	rpm -q python-setuptools python-pip python-devel libev libev-devel libsnappy-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel libev libev-devel libsnappy-devel || :
+	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
+	# must instead do wget 
+	#$(SUDO) rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
+	wget -O /tmp/epel.rpm  "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
+	$(SUDO) rpm -ivh /tmp/epel.rpm
+	rm /tmp/epel.rpm
+	# only available on EPEL in CentOS 5
+	rpm -q git || $(SUDO) yum install -y git
+	rpm -q python-setuptools python-pip python-devel libev libev-devel snappy-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel libev libev-devel snappy-devel
 	# to fetch ZooKeeper
-	rpm -q wget || yum install -y wget || :
+	rpm -q wget || yum install -y wget
 	# needed to build pyhs2
 	# libgsasl-devel saslwrapper-devel
-	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel || :
+	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel
+	# for check_yum.pl / check_yum.py
+	yum install -y yum-security yum-plugin-security
 
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins

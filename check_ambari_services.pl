@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2013-12-02 20:31:30 +0000 (Mon, 02 Dec 2013)
 #
-#  http://github.com/harisekhon/nagios-plugins
+#  https://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
 #
@@ -22,7 +22,7 @@ or
 
 Tested on Ambari 1.4.4 / 1.6.1 / 1.7.0 / 2.0.0 on Hortonworks HDP 2.0, 2.1, 2.2";
 
-$VERSION = "0.6.4";
+$VERSION = "0.7";
 
 use strict;
 use warnings;
@@ -81,7 +81,7 @@ set_timeout();
 
 $status = "OK";
 
-$url_prefix = "http://$host:$port$api";
+$url_prefix = "$protocol://$host:$port$api";
 
 list_ambari_components();
 cluster_required();

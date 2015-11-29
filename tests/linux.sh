@@ -30,4 +30,13 @@ echo "
 
 $perl -T $I_lib ./check_linux_timezone.pl -T UTC -Z /usr/share/zoneinfo/UTC -A UTC
 hr
+if [ -x /usr/bin/yum ]; then
+    $perl -T $I_lib ./check_yum.pl
+    $perl -T $I_lib ./check_yum.pl --all-updates || :
+    hr
+    ./check_yum.py
+    ./check_yum.py --all-updates || :
+    hr
+fi
+
 echo; echo
