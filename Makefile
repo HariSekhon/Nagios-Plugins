@@ -123,9 +123,8 @@ make:
 		;
 	# newer versions of the Redis module require Perl >= 5.10, this will install the older compatible version for RHEL5/CentOS5 servers still running Perl 5.8 if the latest module fails
 	# the backdated version might not be the perfect version, found by digging around in the git repo
-	$(SUDO2) cpanm Redis || $(SUDO2) cpanm DAMS/Redis-1.976
+	$(SUDO2) cpanm Redis || $(SUDO2) cpanm DAMS/Redis-1.976.tar.gz
 		#Net::Async::CassandraCQL \
-	# Intentionally ignoring CPAN module build failures since some modules may fail for a multitude of reasons but this isn't really important unless you need the pieces of code that use them in which case you can solve those dependencies later
 	
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
