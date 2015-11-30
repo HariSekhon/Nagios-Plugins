@@ -276,11 +276,11 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 * [My Perl library](https://github.com/harisekhon/lib) - used throughout this code as a submodule to make the programs in this repo short
 * [My Python library](https://github.com/harisekhon/pylib) - Python version of the above library
-* [Spark => Elasticsearch](https://github.com/harisekhon/spark-to-elasticsearch) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of my ```pig-text-to-elasticsearch.pig``` from [Tools](https://github.com/harisekhon/tools)
+* [Spark => Elasticsearch](https://github.com/harisekhon/spark-apps) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of my ```pig-text-to-elasticsearch.pig``` from [Tools](https://github.com/harisekhon/tools)
 
 ##### Weblinks #####
 
-* Official Nagios Homepage: http://www.nagios.org/
+* Official Nagios Homepage: https://www.nagios.org/
 * Nagios Command Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command
 * Nagios Service Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service
 
