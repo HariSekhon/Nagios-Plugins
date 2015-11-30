@@ -20,7 +20,7 @@ Checks:
 
 Tested on Elasticsearch 0.90.1, 1.2.1, 1.3.0, 1.4.0, 1.4.4";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -60,9 +60,11 @@ $status = "OK";
 
 $json = curl_elasticsearch "/";
 
-my $elasticsearch_status = get_field("status");
-$msg .= "status: '$elasticsearch_status'";
-check_string($elasticsearch_status, 200);
+my $elasticsearch_status = get_field("status", "noquit");
+if(defined($elasticsearch_status)){
+    $msg .= "status: '$elasticsearch_status'";
+    check_string($elasticsearch_status, 200);
+}
 my $cluster_name = get_field("cluster_name", 1);
 if($cluster_name){
     $msg .= ", cluster: '$cluster_name'";
