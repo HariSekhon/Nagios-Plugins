@@ -177,8 +177,8 @@ yum-packages:
 	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
 	# must instead do wget 
 	#$(SUDO) rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
-	wget -O /tmp/epel.rpm  "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
-	$(SUDO) rpm -ivh /tmp/epel.rpm
+	rpm -q epel-release || wget -O /tmp/epel.rpm  "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
+	test -t /tmp/epel.rpm && $(SUDO) rpm -ivh /tmp/epel.rpm
 	rm /tmp/epel.rpm
 	# only available on EPEL in CentOS 5
 	rpm -q git || $(SUDO) yum install -y git
