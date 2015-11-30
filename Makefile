@@ -22,8 +22,8 @@ endif
 
 .PHONY: make
 make:
-	[ -x /usr/bin/apt-get ] && make apt-packages || :
-	[ -x /usr/bin/yum ]     && make yum-packages || :
+	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
+	if [ -x /usr/bin/yum ];     then make yum-packages; fi
 	
 	git submodule init
 	git submodule update
