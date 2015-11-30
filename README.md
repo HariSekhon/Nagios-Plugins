@@ -116,7 +116,7 @@ Building is basically one ```make``` command.
 
 Don't copy plugins out as most require the co-located libraries I've written so you should copy this directory as a whole after building it - it's simpler than trying to extract bits and pieces.
 
-Be aware this will install yum rpms / apt debs automatically as well as a load of CPAN modules for Perl. If you don't want all that stuff automatically installed you must use the manual setup further down. You may need to install the GNU make system package if the make command isn't found (```yum install make``` / ```apt-get install make```)
+Be aware this will install yum rpms / apt debs automatically as well as a load of CPAN modules for Perl. If you don't want all that stuff automatically installed you must use the manual setup further down. You may need to install the GNU make system package if the ```make``` command isn't found (```yum install make``` / ```apt-get install make```)
 
 Also be aware this has become quite a large project and will take at least 10 minutes to build. Just be glad it's automated and tested on RHEL/CentOS 5/6/7 & Debian/Ubuntu systems. Build will work on Mac OS X too but will not handle system package dependencies.
 
