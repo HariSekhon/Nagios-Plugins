@@ -68,7 +68,7 @@ make:
 	# Proc::Daemon needed by Kafka::TestInternals
 	# Proc::Daemon fails on tests, force install anyway to appease Travis
 	yes "" | $(SUDO2) cpan App::cpanminus
-    which cpanm || :
+	which cpanm || :
 	yes "" | $(SUDO2) $(CPANM) --notest \
 		YAML \
 		Module::Build::Tiny \
