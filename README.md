@@ -119,6 +119,9 @@ Don't copy plugins out as most require the co-located libraries I've written so 
 Be aware this will install yum rpms / apt debs automatically as well as a load of CPAN modules for Perl. If you don't want all that stuff automatically installed you must use the manual setup further down. You may need to install the GNU make system package if the ```make``` command isn't found (```yum install make``` / ```apt-get install make```)
 
 Also be aware this has become quite a large project and will take at least 10 minutes to build. Just be glad it's automated and tested on RHEL/CentOS 5/6/7 & Debian/Ubuntu systems. Build will work on Mac OS X too but will not handle system package dependencies.
+<!--
+Make sure /usr/local/bin is in your $PATH when running make as otherwise it'll fail to find ```cpanm```
+-->
 
 ```
 git clone https://github.com/harisekhon/nagios-plugins
