@@ -65,8 +65,8 @@ make:
 	# Module::Build::Tiny and Const::Fast must be built before Kafka, doesn't auto-pull in correct order
 	# Proc::Daemon needed by Kafka::TestInternals
 	# Proc::Daemon fails on tests, force install anyway to appease Travis
-	yes "" | $(SUDO2) cpan App::cpanminus
-	yes "" | $(SUDO2) cpanm --notest \
+	yes "" | $(SUDO2) /usr/bin/cpan App::cpanminus
+	yes "" | $(SUDO2) /usr/local/bin/cpanm --notest \
 		YAML \
 		Module::Build::Tiny \
 		Const::Fast \
