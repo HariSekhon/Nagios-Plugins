@@ -7,8 +7,10 @@
 
 ifdef TRAVIS
 	SUDO2 =
+	CPANM = cpanm
 else
 	SUDO2 = sudo
+	CPANM = /usr/local/bin/cpanm
 endif
 
 # EUID /  UID not exported in Make
@@ -66,7 +68,8 @@ make:
 	# Proc::Daemon needed by Kafka::TestInternals
 	# Proc::Daemon fails on tests, force install anyway to appease Travis
 	yes "" | $(SUDO2) cpan App::cpanminus
-	yes "" | $(SUDO2) cpanm --notest \
+    which cpanm || :
+	yes "" | $(SUDO2) $(CPANM) --notest \
 		YAML \
 		Module::Build::Tiny \
 		Const::Fast \
@@ -123,7 +126,7 @@ make:
 		;
 	# newer versions of the Redis module require Perl >= 5.10, this will install the older compatible version for RHEL5/CentOS5 servers still running Perl 5.8 if the latest module fails
 	# the backdated version might not be the perfect version, found by digging around in the git repo
-	$(SUDO2) cpanm Redis || $(SUDO2) cpanm DAMS/Redis-1.976.tar.gz
+	$(SUDO2) $(CPANM) Redis || $(SUDO2) $(CPANM) DAMS/Redis-1.976.tar.gz
 		#Net::Async::CassandraCQL \
 	
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
