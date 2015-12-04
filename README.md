@@ -131,7 +131,7 @@ make
 
 This will use 'sudo' to install all required Perl modules from CPAN and then initialize my library git repo as a submodule. If you want to install some of the common Perl CPAN modules such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN then follow the Manual Setup section below.
 
-If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.5, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
+If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.7, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
 
 ```
 make zookeeper
@@ -171,7 +171,7 @@ The above listed programs require the Net::ZooKeeper Perl CPAN module but this i
 
 ```
 # install C client library
-export ZOOKEEPER_VERSION=3.4.5
+export ZOOKEEPER_VERSION=3.4.7
 [ -f zookeeper-$ZOOKEEPER_VERSION.tar.gz ] || wget -O zookeeper-$ZOOKEEPER_VERSION.tar.gz http://www.mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-$ZOOKEEPER_VERSION/zookeeper-$ZOOKEEPER_VERSION.tar.gz
 tar zxvf zookeeper-$ZOOKEEPER_VERSION.tar.gz
 cd zookeeper-$ZOOKEEPER_VERSION/src/c
