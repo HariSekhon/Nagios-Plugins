@@ -28,7 +28,7 @@ echo "
 
 export ZOOKEEPER_HOST="${ELASTICSEARCH_HOST:-localhost}"
 
-ZOOKEEPER_VERSION=3.4.6
+ZOOKEEPER_VERSION=3.4.7
 zookeeper="zookeeper-$ZOOKEEPER_VERSION"
 #TAR="$zookeeper.tgz"
 
