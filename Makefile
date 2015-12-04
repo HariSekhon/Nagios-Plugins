@@ -197,7 +197,7 @@ yum-packages:
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
 # doesn't build on Mac < 3.4.7 / 3.5.1 / 3.6.0 but the others are in the public mirrors yet
 # https://issues.apache.org/jira/browse/ZOOKEEPER-2049
-ZOOKEEPER_VERSION = 3.4.6
+ZOOKEEPER_VERSION = 3.4.7
 .PHONY: zookeeper
 zookeeper:
 	[ -x /usr/bin/apt-get ] && make apt-packages || :
