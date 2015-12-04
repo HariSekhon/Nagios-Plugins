@@ -151,7 +151,7 @@ apt-packages:
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	$(SUDO) apt-get install -y libdbd-mysql-perl libmysqlclient-dev
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	$(SUDO) apt-get install -y libssl-dev
+	$(SUDO) apt-get install -y libssl-dev libsasl2-dev
 	# for XML::Simple building
 	$(SUDO) apt-get install -y libexpat1-dev
 	# for check_whois.pl
