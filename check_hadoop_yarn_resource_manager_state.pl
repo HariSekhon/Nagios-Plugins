@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2014-03-05 21:45:08 +0000 (Wed, 05 Mar 2014)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  http://github.com/harisekhon
 #
 #  License: see accompanying LICENSE file
 #
@@ -27,6 +27,7 @@ use JSON::XS;
 use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
+$ua->requests_redirectable([]);
 
 set_port_default(8088);
 
@@ -48,7 +49,41 @@ $status = "OK";
 
 my $url = "http://$host:$port/ws/v1/cluster";
 
-my $content = curl $url;
+sub error_handler($) {
+	my $response = shift;
+
+	open my $tmpfile, ">","/tmp/protocoll_check_hadoop_yarn_resource_manager_state";
+        print $tmpfile Dumper $response;
+        print $tmpfile "response code: ", $response->code ,"\n";
+        close $tmpfile;
+
+
+
+        if($response->code eq "307"){
+            my $active = $response->header("Location");
+            quit("OK", "Standby RM, active at $active");
+        }
+        unless($response->code eq "200"){
+            my $additional_information = "";
+            my $json;
+            if($json = isJson($response->content)){
+                if(defined($json->{"status"})){
+                    $additional_information .= ". Status: " . $json->{"status"};
+                }
+                if(defined($json->{"reason"})){
+                    $additional_information .= ". Reason: " . $json->{"reason"};
+                } elsif(defined($json->{"message"})){
+                    $additional_information .= ". Message: " . $json->{"message"};
+                }
+            }
+            quit("CRITICAL", $response->code . " " . $response->message . $additional_information);
+        }
+        unless($response->content){
+            quit("CRITICAL", "blank content returned from '" . $response->request->uri . "'");
+        }
+}
+
+my $content = curl $url, undef, undef, undef, \&error_handler;
 
 try{
     $json = decode_json $content;

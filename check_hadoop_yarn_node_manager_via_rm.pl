@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2014-03-05 21:45:08 +0000 (Wed, 05 Mar 2014)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  http://github.com/harisekhon
 #
 #  License: see accompanying LICENSE file
 #
@@ -92,6 +92,22 @@ sub rm_error_handler($){
     my $json;
     my $additional_information = "";
     my $err = "";
+
+    open my $tmpfile, ">","/tmp/protocoll_check_hadoop_yarn_node_manager_via_rm";
+    print $tmpfile Dumper $response;
+    print $tmpfile "response code: ", $response->code ,"\n";
+    close $tmpfile;
+
+
+# handling redirect responses 307
+
+    if($response->code eq "307"){
+         my $active = $response->header("Location");
+         quit("OK", "Standby RM, active at $active");
+    }
+
+#
+
     if($json = isJson($content)){
         if(defined($json->{"RemoteException"}{"javaClassName"})){
             $err .= $json->{"RemoteException"}{"javaClassName"} . ": ";
@@ -117,6 +133,8 @@ try{
     $json = decode_json $content;
 };
 catch{
+    if ($content =~ /This is standby RM. Redirecting to the current active RM: http:/) { quit $status, "Standby RM";}
+
     quit "invalid json returned by Yarn Resource Manager at '$url'";
 };
 vlog3(Dumper($json));
