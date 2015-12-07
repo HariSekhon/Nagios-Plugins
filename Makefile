@@ -7,8 +7,10 @@
 
 ifdef TRAVIS
 	SUDO2 =
+	CPANM = cpanm
 else
 	SUDO2 = sudo
+	CPANM = /usr/local/bin/cpanm
 endif
 
 # EUID /  UID not exported in Make
@@ -22,8 +24,8 @@ endif
 
 .PHONY: make
 make:
-	[ -x /usr/bin/apt-get ] && make apt-packages || :
-	[ -x /usr/bin/yum ]     && make yum-packages || :
+	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
+	if [ -x /usr/bin/yum ];     then make yum-packages; fi
 	
 	git submodule init
 	git submodule update
@@ -66,7 +68,8 @@ make:
 	# Proc::Daemon needed by Kafka::TestInternals
 	# Proc::Daemon fails on tests, force install anyway to appease Travis
 	yes "" | $(SUDO2) cpan App::cpanminus
-	yes "" | $(SUDO2) cpanm --notest \
+	which cpanm || :
+	yes "" | $(SUDO2) $(CPANM) --notest \
 		YAML \
 		Module::Build::Tiny \
 		Const::Fast \
@@ -108,7 +111,6 @@ make:
 		Net::SSH::Expect \
 		Readonly \
 		Readonly::XS \
-		Redis \
 		Search::Elasticsearch \
 		SMS::AQL \
 		Sub::Exporter::Progressive \
@@ -122,8 +124,10 @@ make:
 		XML::SAX \
 		XML::Simple \
 		;
+	# newer versions of the Redis module require Perl >= 5.10, this will install the older compatible version for RHEL5/CentOS5 servers still running Perl 5.8 if the latest module fails
+	# the backdated version might not be the perfect version, found by digging around in the git repo
+	$(SUDO2) $(CPANM) Redis || $(SUDO2) $(CPANM) DAMS/Redis-1.976.tar.gz
 		#Net::Async::CassandraCQL \
-	# Intentionally ignoring CPAN module build failures since some modules may fail for a multitude of reasons but this isn't really important unless you need the pieces of code that use them in which case you can solve those dependencies later
 	
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
@@ -147,7 +151,7 @@ apt-packages:
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	$(SUDO) apt-get install -y libdbd-mysql-perl libmysqlclient-dev
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	$(SUDO) apt-get install -y libssl-dev
+	$(SUDO) apt-get install -y libssl-dev libsasl2-dev
 	# for XML::Simple building
 	$(SUDO) apt-get install -y libexpat1-dev
 	# for check_whois.pl
@@ -176,9 +180,8 @@ yum-packages:
 	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
 	# must instead do wget 
 	#$(SUDO) rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
-	wget -O /tmp/epel.rpm  "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
-	$(SUDO) rpm -ivh /tmp/epel.rpm
-	rm /tmp/epel.rpm
+	rpm -q epel-release || { wget -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm; }
+	rm /tmp/epel.rpm || :
 	# only available on EPEL in CentOS 5
 	rpm -q git || $(SUDO) yum install -y git
 	rpm -q python-setuptools python-pip python-devel libev libev-devel snappy-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel libev libev-devel snappy-devel
@@ -194,7 +197,8 @@ yum-packages:
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
 # doesn't build on Mac < 3.4.7 / 3.5.1 / 3.6.0 but the others are in the public mirrors yet
 # https://issues.apache.org/jira/browse/ZOOKEEPER-2049
-ZOOKEEPER_VERSION = 3.4.6
+# XXX: if updating this version, make sure to also update tests/zookeeper.sh
+ZOOKEEPER_VERSION = 3.4.7
 .PHONY: zookeeper
 zookeeper:
 	[ -x /usr/bin/apt-get ] && make apt-packages || :

@@ -28,8 +28,11 @@ HBase Master /
                                - 'regionserver:'
                                - 'RegionServerDynamicStatistics:'
 
-NOTE: NameNode and DataNode metrics pages are currently blank. See check_hadoop_jmx.pl for some jmx metrics instead
+UPDATE: newer /metrics pages are often blank. See check_hadoop_jmx.pl for jmx metrics & info instead
+
 ";
+
+# Tested on MRv1 JobTracker/TaskTracker, HBase 0.94
 
 $VERSION = "0.4";
 
@@ -69,7 +72,7 @@ if($all_metrics){
 } else {
     defined($metrics) or usage "no metrics specified";
     foreach my $metric (split(/\s*[,\s]\s*/, $metrics)){
-        $metric =~ /^[A-Z]+[\w:]*[A-Z]+$/i or usage "invalid metric '$metric' given, must be alphanumeric, may contain underscores and colons in middle";
+        $metric =~ /^[A-Za-z]+[\w:]*[A-Za-z]+$/i or usage "invalid metric '$metric' given, must be alphanumeric, may contain underscores and colons in middle";
         grep(/^$metric$/, @stats) or push(@stats, $metric);
     }
     @stats or usage "no valid metrics specified";
@@ -93,7 +96,7 @@ sub check_stats_parsed(){
             if($port == 50070 or $port == 50075){
                 quit "UNKNOWN", "no stats collected from /metrics page, NameNode and DataNode /metrics pages did not export any metrics at the time of writing, see --help description for daemons supporting this information";
             } else {
-                quit "UNKNOWN", "no stats collected from /metrics page (daemon recently started?)";
+                quit "UNKNOWN", "no stats collected from /metrics page (daemon recently started? Also, some newer versions of Hadoop do not populate this, see adjacent check_*_jmx.pl instead)";
             }
         }elsif(scalar keys %stats < 10){
             quit "UNKNOWN", "<10 stats collected from /metrics page (daemon recently started?). This could also be an error, try running with -vvv to see what the deal is";

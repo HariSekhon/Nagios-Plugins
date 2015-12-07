@@ -35,7 +35,7 @@ http://www.linkedin.com/in/harisekhon
 - ```check_whois.pl``` - check domain expiry days left and registration details match expected
 - ```check_mysql_query.pl``` - generic enough it obsoleted a dozen custom MySQL plugins and prevented writing many more
 - ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline
-- ```check_hadoop_*.pl``` - various Apache Hadoop monitoring utilities for HDFS, YARN and MapReduce (both MRv1 & MRv2) including HDFS cluster balance, block replication, space, block count limits per datanode / cluster total, node counts, dead Datanodes/TaskTrackers/NodeManagers, blacklisted TaskTrackers, unhealthy NodeManagers, Namenode & JobTracker / Yarn Resource Manager heap usage, NameNode & JobTracker HA, NameNode safe mode, WebHDFS (with HDFS HA failover support), HttpFS, HDFS writeability, HDFS fsck, HDFS file / directory existence & metadata attributes, gather metrics
+- ```check_hadoop_*.pl``` - various Apache Hadoop monitoring utilities for HDFS, YARN and MapReduce (both MRv1 & MRv2) including HDFS cluster balance, block replication, space, block count limits per datanode / cluster total, node counts, dead Datanodes/TaskTrackers/NodeManagers, blacklisted TaskTrackers, unhealthy NodeManagers, Namenode & JobTracker / Yarn Resource Manager heap usage, NameNode & JobTracker HA, NameNode safe mode, WebHDFS (with HDFS HA failover support), HttpFS, HDFS writeability, HDFS fsck, HDFS file / directory existence & metadata attributes, gather metrics and JMX information
 - ```check_kafka.pl``` - checks Kafka brokers end-to-end via API, acts as both a producer and a consumer and checks that a unique generated message passes through the Kafka broker cluster successfully
 - ```check_hbase_*.pl``` - various HBase monitoring utilities using Thrift + Stargate APIs, checking Masters/Backup Masters, RegionServers, table availability, unassigned regions, gather metrics
 - ```check_cassandra_*.pl / check_datastax_opscenter_*.pl``` - Cassandra and DataStax OpsCenter monitoring, including Cassandra cluster nodes, token balance, space, heap, keyspace replication settings, alerts, backups, best practice rule checks, DSE hadoop analytics service status and both nodetool and DataStax OpsCenter collected metrics
@@ -116,9 +116,12 @@ Building is basically one ```make``` command.
 
 Don't copy plugins out as most require the co-located libraries I've written so you should copy this directory as a whole after building it - it's simpler than trying to extract bits and pieces.
 
-Be aware this will install yum rpms / apt debs automatically as well as a load of CPAN modules for Perl. If you don't want all that stuff automatically installed you must use the manual setup further down. You may need to install the GNU make system package if the make command isn't found (```yum install make``` / ```apt-get install make```)
+Be aware this will install yum rpms / apt debs automatically as well as a load of CPAN modules for Perl. If you don't want all that stuff automatically installed you must use the manual setup further down. You may need to install the GNU make system package if the ```make``` command isn't found (```yum install make``` / ```apt-get install make```)
 
 Also be aware this has become quite a large project and will take at least 10 minutes to build. Just be glad it's automated and tested on RHEL/CentOS 5/6/7 & Debian/Ubuntu systems. Build will work on Mac OS X too but will not handle system package dependencies.
+<!--
+Make sure /usr/local/bin is in your $PATH when running make as otherwise it'll fail to find ```cpanm```
+-->
 
 ```
 git clone https://github.com/harisekhon/nagios-plugins
@@ -128,7 +131,7 @@ make
 
 This will use 'sudo' to install all required Perl modules from CPAN and then initialize my library git repo as a submodule. If you want to install some of the common Perl CPAN modules such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN then follow the Manual Setup section below.
 
-If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.5, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
+If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.7, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
 
 ```
 make zookeeper
@@ -168,7 +171,7 @@ The above listed programs require the Net::ZooKeeper Perl CPAN module but this i
 
 ```
 # install C client library
-export ZOOKEEPER_VERSION=3.4.5
+export ZOOKEEPER_VERSION=3.4.7
 [ -f zookeeper-$ZOOKEEPER_VERSION.tar.gz ] || wget -O zookeeper-$ZOOKEEPER_VERSION.tar.gz http://www.mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-$ZOOKEEPER_VERSION/zookeeper-$ZOOKEEPER_VERSION.tar.gz
 tar zxvf zookeeper-$ZOOKEEPER_VERSION.tar.gz
 cd zookeeper-$ZOOKEEPER_VERSION/src/c
@@ -276,11 +279,11 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 * [My Perl library](https://github.com/harisekhon/lib) - used throughout this code as a submodule to make the programs in this repo short
 * [My Python library](https://github.com/harisekhon/pylib) - Python version of the above library
-* [Spark => Elasticsearch](https://github.com/harisekhon/spark-to-elasticsearch) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of my ```pig-text-to-elasticsearch.pig``` from [Tools](https://github.com/harisekhon/tools)
+* [Spark => Elasticsearch](https://github.com/harisekhon/spark-apps) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of my ```pig-text-to-elasticsearch.pig``` from [Tools](https://github.com/harisekhon/tools)
 
 ##### Weblinks #####
 
-* Official Nagios Homepage: http://www.nagios.org/
+* Official Nagios Homepage: https://www.nagios.org/
 * Nagios Command Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command
 * Nagios Service Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service
 

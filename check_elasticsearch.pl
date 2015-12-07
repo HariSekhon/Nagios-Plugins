@@ -20,7 +20,7 @@ Checks:
 
 Tested on Elasticsearch 0.90.1, 1.2.1, 1.3.0, 1.4.0, 1.4.4";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -60,22 +60,24 @@ $status = "OK";
 
 $json = curl_elasticsearch "/";
 
-my $elasticsearch_status = get_field("status");
-$msg .= "status: '$elasticsearch_status'";
-check_string($elasticsearch_status, 200);
+my $elasticsearch_status = get_field("status", "noquit");
+if(defined($elasticsearch_status)){
+    $msg .= "status: '$elasticsearch_status', ";
+    check_string($elasticsearch_status, 200);
+}
 my $cluster_name = get_field("cluster_name", 1);
 if($cluster_name){
-    $msg .= ", cluster: '$cluster_name'";
+    $msg .= "cluster: '$cluster_name', ";
     check_string($cluster_name, $cluster) if $cluster;
 }
 my $node_name = get_field("name", 1);
-$msg .= ", node name: '$node_name'" if($node_name and $verbose);
+$msg .= "node name: '$node_name'" if($node_name and $verbose);
 
 my $es_version = get_field2(get_field("version"), "number");
 my $lc_version = get_field2(get_field("version"), "lucene_version");
 isVersion($es_version) or quit "UNKNOWN", "invalid version returned for elasticsearch";
 isVersion($lc_version) or quit "UNKNOWN", "invalid version returned for lucene";
-$msg .= ", elasticsearch version: $es_version";
+$msg .= "elasticsearch version: $es_version";
 check_regex($es_version, $es_version_regex) if $es_version_regex;
 $msg .= ", lucene version: $lc_version";
 check_regex($lc_version, $lc_version_regex) if $lc_version_regex;
