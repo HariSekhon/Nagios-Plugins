@@ -6,7 +6,9 @@
 
 language: perl
 perl:
-  - "5.20"
+  #- "5.20"
+  # newer 5.20.3 builds are broken with 'Can't locate strict.pm in @INC'
+  - "5.20.0"
   # latest Redis cpan module requires Perl >= 5.10
   - "5.10"
   # there is workaround in build now to install older version if latest fails for RHEL5/CentOS5 servers
