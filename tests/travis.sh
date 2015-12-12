@@ -40,7 +40,8 @@ hr(){
 
 if [ -n "${TRAVIS:-}" ]; then
     sudo=sudo
-    perl="/home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl"
+    #perl="/home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl"
+    perl=perl
 else
     sudo=""
     perl=perl
