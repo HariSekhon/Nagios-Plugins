@@ -5,7 +5,7 @@
 #  https://github.com/harisekhon/nagios-plugins
 #
 
-ifdef TRAVIS
+ifdef PERLBREW_PERL
 	SUDO2 =
 	CPANM = cpanm
 else
