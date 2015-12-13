@@ -34,7 +34,7 @@ export MONGODB_HOST="${MONGODB_HOST:-localhost}"
 #$perl -T $I_lib ./check_mongodb_master_rest.pl
 #hr
 # Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
-if [ "$TRAVIS_PERL_VERSION" != "5.8" ]; then
+if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
     $perl -T $I_lib ./check_mongodb_write.pl -v
 fi
 
