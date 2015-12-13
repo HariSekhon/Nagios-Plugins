@@ -72,7 +72,7 @@ my $volumes          = 0;
     #"list-blacklisted-users"   => [ \$blacklist_users,     "List blacklisted users" ],
 );
 
-@usage_order = qw/host port user password cluster node node-alarms node-count node-health heartbeat mapreduce-stats list-cldbs list-vips ssl-CA-path ssl-noverify warning critical/;
+@usage_order = qw/host port user password cluster node node-alarms node-count node-health heartbeat mapreduce-stats list-clusters list-nodes list-cldbs list-vips ssl-CA-path ssl-noverify no-ssl warning critical/;
 
 # TODO:
 #
@@ -144,16 +144,7 @@ if($list_cldbs){
 } else {
     usage "no check specified";
 }
-
-if(defined($tls_noverify)){
-    $ua->ssl_opts( verify_hostname => 0 );
-}
-if(defined($ssl_ca_path)){
-    $ssl_ca_path = validate_directory($ssl_ca_path, "SSL CA directory", undef, "no vlog");
-    $ua->ssl_opts( SSL_ca_path => $ssl_ca_path );
-}
-vlog_option "SSL CA Path",  $ssl_ca_path  if defined($ssl_ca_path);
-vlog_option "SSL noverify", $tls_noverify ? "true" : "false";
+validate_ssl();
 validate_thresholds();
 
 vlog2;
