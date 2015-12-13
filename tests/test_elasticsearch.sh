@@ -66,7 +66,8 @@ $perl -T $I_lib ./check_elasticsearch_data_nodes.pl -w 1 -v
 hr
 $perl -T $I_lib ./check_elasticsearch_doc_count.pl -v
 hr
-$perl -T $I_lib ./check_elasticsearch_fielddata.pl -N 127.0.0.1 -v
+$perl -T $I_lib ./check_elasticsearch_fielddata.pl -N 127.0.0.1 -v ||
+$perl -T $I_lib ./check_elasticsearch_fielddata.pl -N $(hostname -f) -v
 hr
 $perl -T $I_lib ./check_elasticsearch_index_exists.pl -v
 hr
@@ -86,11 +87,14 @@ $perl -T $I_lib ./check_elasticsearch_master_node.pl -v
 hr
 $perl -T $I_lib ./check_elasticsearch_nodes.pl -v -w 1
 hr
-$perl -T $I_lib ./check_elasticsearch_node_disk_percent.pl -N 127.0.0.1 -v -w 90 -c 95
+$perl -T $I_lib ./check_elasticsearch_node_disk_percent.pl -N 127.0.0.1 -v -w 90 -c 95 ||
+$perl -T $I_lib ./check_elasticsearch_node_disk_percent.pl -N $(hostname -f) -v -w 90 -c 95
 hr
-$perl -T $I_lib ./check_elasticsearch_node_shards.pl -N 127.0.0.1 -v
+$perl -T $I_lib ./check_elasticsearch_node_shards.pl -N 127.0.0.1 -v ||
+$perl -T $I_lib ./check_elasticsearch_node_shards.pl -N $(hostname -f) -v
 hr
-$perl -T $I_lib ./check_elasticsearch_node_stats.pl -N 127.0.0.1 -v
+$perl -T $I_lib ./check_elasticsearch_node_stats.pl -N 127.0.0.1 -v ||
+$perl -T $I_lib ./check_elasticsearch_node_stats.pl -N $(hostname -f) -v
 hr
 $perl -T $I_lib ./check_elasticsearch_shards_state_detail.pl -v
 
