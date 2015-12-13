@@ -26,8 +26,7 @@ install:
   - make zookeeper
 
 script:
-  - for x in tests/*.sh; do [ "$x" = "tests/help.sh" ] && continue; ./$x || exit $?; done
-  - tests/help.sh
+  - tests/all.sh
 
 services:
   - cassandra
