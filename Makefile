@@ -239,3 +239,4 @@ update2:
 .PHONY: clean
 clean:
 	rm -fr zookeeper-$(ZOOKEEPER_VERSION).tar.gz zookeeper-$(ZOOKEEPER_VERSION)
+	rm -fr tests/spark-*-bin-hadoop*
