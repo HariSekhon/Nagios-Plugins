@@ -20,7 +20,7 @@ cd "$srcdir/";
 
 . ./utils.sh
 
-SPARK_VERSION="$SPARK_VERSION:-1.5.2}"
+SPARK_VERSION="${SPARK_VERSION:-1.5.2}"
 
 echo "
 # ============================================================================ #
