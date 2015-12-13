@@ -13,6 +13,8 @@
 
 $DESCRIPTION = "Nagios Plugin to check MapR Control System information via the MCS REST API
 
+Obsolete. DO NOT USE.
+
 Used to support Service & Node health, MapR-FS Space Used %, Node count, Alarms, Failed Disks, Cluster Version & License, MapReduce statistics
 
 Now see instead newer single purpose check_mapr_* plugins adjacent in the Advanced Nagios Plugins Collection as they offer cleaner code with better control and more features.
