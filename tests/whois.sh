@@ -31,7 +31,7 @@ echo "
 # Don't run this all the time, give it a 50% chance of running to prevent getting blacklisted by registrars all the time
 if [ -n "${TRAVIS:-}" ]; then
     if ! [ "$(($RANDOM % 10))" = 0 ]; then
-        echo "Skipping Whois checks (90% of the time in Travis to avoid blacklisting"
+        echo "Skipping Whois checks (90% of the time in Travis to avoid blacklisting)"
         exit 0
     fi
 else

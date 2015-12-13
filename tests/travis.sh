@@ -40,6 +40,14 @@ hr(){
 
 if [ -n "${TRAVIS:-}" ]; then
     sudo=sudo
+    # gets this error when not specifying full perl path:
+        # Can't load '/home/travis/perl5/perlbrew/perls/5.16/lib/5.16.3/x86_64-linux/auto/re/re.so' for module re: /home/travis/perl5/perlbrew/perls/5.16/lib/5.16.3/x86_64-linux/auto/re/re.so: undefined symbol: PL_valid_types_IVX at /home/travis/perl5/perlbrew/perls/5.16/lib/5.16.3/XSLoader.pm line 68.
+        # at /home/travis/perl5/perlbrew/perls/5.16/lib/5.16.3/x86_64-linux/re.pm line 85.
+        # Compilation failed in require at /home/travis/perl5/perlbrew/perls/5.16/lib/5.16.3/File/Basename.pm line 44.
+        # BEGIN failed--compilation aborted at /home/travis/perl5/perlbrew/perls/5.16/lib/5.16.3/File/Basename.pm line 47.
+        # Compilation failed in require at ./check_riak_diag.pl line 25.
+        # BEGIN failed--compilation aborted at ./check_riak_diag.pl line 25.
+    #perl=perl
     perl="/home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl"
 else
     sudo=""
