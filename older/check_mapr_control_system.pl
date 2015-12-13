@@ -13,7 +13,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check MapR Control System information via the MCS REST API
 
-Obsolete. DO NOT USE.
+Obsolete. Nearly all functionality has been stripped out. DO NOT USE except for CLDB listings
 
 Used to support Service & Node health, MapR-FS Space Used %, Node count, Alarms, Failed Disks, Cluster Version & License, MapReduce statistics
 
