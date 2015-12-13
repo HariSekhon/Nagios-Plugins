@@ -18,7 +18,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. tests/travis.sh
+. tests/utils.sh
 
 [ `uname -s` = "Linux" ] || exit 0
 
