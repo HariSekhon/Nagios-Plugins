@@ -15,30 +15,34 @@
 
 set -eu
 
-export PERLBREW_ROOT="${PERLBREW_ROOT:-~/perl5/perlbrew}"
-
-export TRAVIS_PERL_VERSION="${TRAVIS_PERL_VERSION:-*}"
-
-# For Travis CI which installs modules locally
-export PERL5LIB=$(echo \
-    ${PERL5LIB:-.} \
-    $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/site_perl/$TRAVIS_PERL_VERSION.*/x86_64-linux \
-    $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/site_perl/$TRAVIS_PERL_VERSION.* \
-    $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/$TRAVIS_PERL_VERSION.*/x86_64-linux \
-    $PERLBREW_ROOT/perls/$TRAVIS_PERL_VERSION/lib/$TRAVIS_PERL_VERSION.* \
-    | tr '\n' ':'
-)
-# Taint code doesn't use PERL5LIB, use -I instead
-I_lib=""
-for x in $(echo "$PERL5LIB" | tr ':' ' '); do
-    I_lib+="-I $x "
-done
-
 hr(){
     echo "===================="
 }
 
-if [ -n "${TRAVIS:-}" ]; then
+# Taint code doesn't use PERL5LIB, use -I instead
+I_lib=""
+
+if [ -n "${PERLBREW_PERL:-}" ]; then
+
+    PERL_VERSION="${PERLBREW_PERL}"
+    PERL_VERSION="${PERLBREW_PERL/perl-/}"
+
+    # For Travis CI which installs modules locally
+    export PERL5LIB=$(echo \
+        ${PERL5LIB:-.} \
+        $PERLBREW_ROOT/perls/$PERLBREW_PERL/lib/site_perl/$PERL_VERSION/x86_64-linux \
+        $PERLBREW_ROOT/perls/$PERLBREW_PERL/lib/site_perl/$PERL_VERSION/darwin-2level \
+        $PERLBREW_ROOT/perls/$PERLBREW_PERL/lib/site_perl/$PERL_VERSION \
+        $PERLBREW_ROOT/perls/$PERLBREW_PERL/lib/$PERL_VERSION/x86_64-linux \
+        $PERLBREW_ROOT/perls/$PERLBREW_PERL/lib/$PERL_VERSION/darwin-2level \
+        $PERLBREW_ROOT/perls/$PERLBREW_PERL/lib/$PERL_VERSION \
+        | tr '\n' ':'
+    )
+
+    for x in $(echo "$PERL5LIB" | tr ':' ' '); do
+        I_lib+="-I $x "
+    done
+
     sudo=sudo
     # gets this error when not specifying full perl path:
         # Can't load '/home/travis/perl5/perlbrew/perls/5.16/lib/5.16.3/x86_64-linux/auto/re/re.so' for module re: /home/travis/perl5/perlbrew/perls/5.16/lib/5.16.3/x86_64-linux/auto/re/re.so: undefined symbol: PL_valid_types_IVX at /home/travis/perl5/perlbrew/perls/5.16/lib/5.16.3/XSLoader.pm line 68.
@@ -48,7 +52,7 @@ if [ -n "${TRAVIS:-}" ]; then
         # Compilation failed in require at ./check_riak_diag.pl line 25.
         # BEGIN failed--compilation aborted at ./check_riak_diag.pl line 25.
     #perl=perl
-    perl="/home/travis/perl5/perlbrew/perls/$TRAVIS_PERL_VERSION/bin/perl"
+    perl="$PRELBREW_ROOT/perls/$PERLBREW_PERL/bin/perl"
 else
     sudo=""
     perl=perl
