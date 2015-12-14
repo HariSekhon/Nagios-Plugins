@@ -38,14 +38,14 @@ make
 
 Don't copy plugins out as most require the co-located libraries I've written so you should copy this directory as a whole after building it - it's simpler than trying to extract bits and pieces.
 
-Be aware this will install yum rpms / apt debs automatically as well as a load of CPAN modules for Perl. If you don't want all that stuff automatically installed you must follow the [Manual Setup](https://github.com/harisekhon/nagios-plugins#manual-setup) process instead. You may need to install the GNU make system package if the ```make``` command isn't found (```yum install make``` / ```apt-get install make```)
+Be aware this will install yum rpms / apt debs automatically as well as a load of CPAN modules for Perl. If you don't want all that stuff automatically installed you must follow the [Manual Setup](https://github.com/harisekhon/nagios-plugins#manual-setup) section instead. You may need to install the GNU make system package if the ```make``` command isn't found (```yum install make``` / ```apt-get install make```)
 
 Also be aware this has become quite a large project and will take at least 10 minutes to build. Just be glad it's automated and tested on RHEL/CentOS 5/6/7 & Debian/Ubuntu systems. Build will work on Mac OS X too but will not handle system package dependencies.
 <!--
 Make sure /usr/local/bin is in your $PATH when running make as otherwise it'll fail to find ```cpanm```
 -->
 
-This automated build will use 'sudo' to install all required Perl modules from CPAN and then initialize my library git repo as a submodule. If you want to install some of the common Perl CPAN modules such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN then follow the [Manual Setup](https://github.com/harisekhon/nagios-plugins#manual-setup) section below.
+This automated build will use 'sudo' to install all required Perl modules from CPAN and then initialize my library git repo as a submodule. If you want to install some of the common Perl CPAN modules such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN then follow the [Manual Setup](https://github.com/harisekhon/nagios-plugins#manual-setup) section instead.
 
 If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.7, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
 
