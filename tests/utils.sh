@@ -14,6 +14,7 @@
 #
 
 set -eu
+srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 hr(){
     echo "===================="
@@ -59,3 +60,5 @@ else
     perl=perl
     PERL_MAJOR_VERSION="$($perl -v | $perl -ne '/This is perl (\d+), version (\d+),/ && print "$1.$2"')"
 fi
+
+. "$srcdir/excluded.sh"
