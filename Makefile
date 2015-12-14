@@ -228,8 +228,8 @@ install:
 
 .PHONY: update
 update:
-	make update2
-	make
+	@make update2
+	@make
 
 .PHONY: update2
 update2:
@@ -238,5 +238,8 @@ update2:
 
 .PHONY: clean
 clean:
-	rm -fr zookeeper-$(ZOOKEEPER_VERSION).tar.gz zookeeper-$(ZOOKEEPER_VERSION)
+	@make clean-zookeeper
 	rm -fr tests/spark-*-bin-hadoop*
+.PHONY: clean-zookeeper
+clean-zookeeper:
+	rm -fr zookeeper-$(ZOOKEEPER_VERSION).tar.gz zookeeper-$(ZOOKEEPER_VERSION)
