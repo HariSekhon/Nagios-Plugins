@@ -26,7 +26,7 @@ Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Coll
 
 Tested on Redis 2.4.10 and 2.8.19";
 
-$VERSION = "0.8.1";
+$VERSION = "0.8.2";
 
 use strict;
 use warnings;
@@ -45,6 +45,7 @@ my $config_cmd = $default_config_cmd;
 # REGEX
 my @config_file_only = qw(
                            activerehashing
+                           appendfilename
                            bind
                            daemonize
                            databases
