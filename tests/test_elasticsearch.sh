@@ -64,7 +64,12 @@ $perl -T $I_lib ./check_elasticsearch_cluster_shard_balance.pl -v
 hr
 $perl -T $I_lib ./check_elasticsearch_cluster_stats.pl -v
 hr
+set +e
 $perl -T $I_lib ./check_elasticsearch_cluster_status.pl -v
+# travis has yellow status
+result=$?
+[ $result = 0 -o $result = 1 ] || exit $result
+set -e
 hr
 $perl -T $I_lib ./check_elasticsearch_cluster_status_nodes_shards.pl -v
 hr
