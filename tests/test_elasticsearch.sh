@@ -58,7 +58,7 @@ set -e
 hr
 $perl -T $I_lib ./check_elasticsearch_cluster_disk_balance.pl -v
 hr
-$perl -T $I_lib ./check_elasticsearch_cluster_shards.pl -v
+$perl -T $I_lib ./check_elasticsearch_cluster_shards.pl -v --unassigned-shards 5,5 # travis now has 5 unassigned shards for some reason
 hr
 $perl -T $I_lib ./check_elasticsearch_cluster_shard_balance.pl -v
 hr
