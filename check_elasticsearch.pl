@@ -71,7 +71,7 @@ if($cluster_name){
     check_string($cluster_name, $cluster) if $cluster;
 }
 my $node_name = get_field("name", 1);
-$msg .= "node name: '$node_name'" if($node_name and $verbose);
+$msg .= "node name: '$node_name', " if($node_name and $verbose);
 
 my $es_version = get_field2(get_field("version"), "number");
 my $lc_version = get_field2(get_field("version"), "lucene_version");
