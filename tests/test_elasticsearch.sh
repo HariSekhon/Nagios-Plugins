@@ -29,6 +29,8 @@ echo "
 export ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST:-localhost}"
 export ELASTICSEARCH_INDEX="${ELASTICSEARCH_INDEX:-test}"
 
+echo "deleting twitter index as 5 unassigned shards are breaking tests"
+curl -XDELETE "http://localhost:9200/twitter" || :
 echo "creating test Elasticsearch index '$ELASTICSEARCH_INDEX'"
 curl -XPUT "http://localhost:9200/$ELASTICSEARCH_INDEX/" -d '
 {
@@ -58,7 +60,7 @@ set -e
 hr
 $perl -T $I_lib ./check_elasticsearch_cluster_disk_balance.pl -v
 hr
-$perl -T $I_lib ./check_elasticsearch_cluster_shards.pl -v --unassigned-shards 5,5 # travis now has 5 unassigned shards for some reason
+$perl -T $I_lib ./check_elasticsearch_cluster_shards.pl -v # --unassigned-shards 5,5 # travis now has 5 unassigned shards for some reason
 hr
 $perl -T $I_lib ./check_elasticsearch_cluster_shard_balance.pl -v
 hr
