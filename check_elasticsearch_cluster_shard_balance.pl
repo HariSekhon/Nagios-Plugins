@@ -138,7 +138,7 @@ $max_shard_imbalance = sprintf("%.2f", $max_shard_imbalance);
 plural $num_nodes;
 $msg  = sprintf("Elasticsearch max shard imbalance = %.2f%%", $max_shard_imbalance);
 check_thresholds($max_shard_imbalance);
-$msg .= sprintf(" between %d node$plural", $num_nodes, $plural);
+$msg .= sprintf(" between %d node%s", $num_nodes, $plural);
 plural $num_hosts;
 $msg .= sprintf(" on %d host%s", $num_hosts, $plural);
 if($unassigned_shards){
