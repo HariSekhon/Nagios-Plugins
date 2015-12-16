@@ -54,6 +54,7 @@ hr
 $perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices
 result=$?
 [ $result = 3 ] || exit $result
+set -e
 hr
 $perl -T $I_lib ./check_elasticsearch_cluster_disk_balance.pl -v
 hr
