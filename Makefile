@@ -5,12 +5,14 @@
 #  https://github.com/harisekhon/nagios-plugins
 #
 
-ifdef PERLBREW_PERL
+export PATH := $(PATH):/usr/local/bin
+
+CPANM = cpanm
+
+ifneq ("$(PERLBREW_PERL)$(TRAVIS)", "")
 	SUDO2 =
-	CPANM = cpanm
 else
 	SUDO2 = sudo
-	CPANM = /usr/local/bin/cpanm
 endif
 
 # EUID /  UID not exported in Make
