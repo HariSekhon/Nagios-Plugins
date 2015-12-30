@@ -25,5 +25,5 @@ cd "$srcdir/";
 for x in 1.4.1 1.5.2; do
     export SPARK_VERSION="$x"
     # will auto follow the corresponding spark script name without -all
-    "./${0/-all}"
+    "$srcdir/$(basename "${0/-all}")"
 done
