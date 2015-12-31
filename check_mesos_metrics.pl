@@ -12,7 +12,7 @@
 
 # http://mesos.apache.org/documentation/latest/monitoring/
 
-$DESCRIPTION = "Nagios Plugin to check Mesos metrics for either a Master of Slave via the Rest API
+$DESCRIPTION = "Nagios Plugin to check Mesos metrics for either a Master or Slave via the Rest API
 
 Outputs all metrics by default, or can specify one or more metrics.
 
