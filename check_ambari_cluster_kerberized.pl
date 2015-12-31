@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check that an Ambari managed Hadoop cluster has Kerberos enabled via Ambari REST API
+$DESCRIPTION = "Nagios Plugin to check that an Ambari managed Hadoop cluster has Kerberos security enabled via Ambari REST API
 
 Returns CRITICAL if security_type != KERBEROS
 
