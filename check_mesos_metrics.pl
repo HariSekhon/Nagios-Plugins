@@ -12,7 +12,7 @@
 
 # http://mesos.apache.org/documentation/latest/monitoring/
 
-$DESCRIPTION = "Nagios Plugin to check Mesos metrics for either a Master or Slave via the Rest API
+our $DESCRIPTION = "Nagios Plugin to check Mesos metrics for either a Master or Slave via the Rest API
 
 Outputs all metrics by default, or can specify one or more metrics.
 
@@ -84,9 +84,11 @@ my @metric_counters = qw(
 if($progname =~ /master/){
     env_creds(["Mesos Master", "Mesos"], "Mesos Master");
     set_port_default(5050);
+    $DESCRIPTION =~ s/metrics for either a Master or Slave/Master metrics/;
 } elsif($progname =~ /slave/){
     env_creds(["Mesos Slave", "Mesos"], "Mesos Slave");
     set_port_default(5051);
+    $DESCRIPTION =~ s/metrics for either a Master or Slave/Slave metrics/;
 } else {
     env_creds("Mesos");
 }
