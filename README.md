@@ -222,6 +222,14 @@ If you update often and want to just quickly git pull + submodule update but ski
 
 ##### Bugs & Workarounds #####
 
+###### Kafka NetAddr/IP/InetBase autoload bug ######
+
+If you encounter the following error when trying to use ```check_kafka.pl```:
+```Can't locate auto/NetAddr/IP/InetBase/AF_INET6.al in @INC```
+This is an upstream bug related to autoloader, which you can work around by editing ```NetAddr/IP/InetBase.pm``` and adding the following line explicitly near the top just after ```package NetAddr::IP::InetBase;```: 
+```use Socket;```
+You may also need to install Socket6 from CPAN.
+
 ###### MongoDB / Readonly library bug ######
 
 The MongoDB Perl driver from CPAN doesn't seem to compile properly on RHEL5 based systems. PyMongo rewrite was considered but the extensive library of functions results in better code quality for the Perl plugins, it's easier to just upgrade your OS to RHEL6.
