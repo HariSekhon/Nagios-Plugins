@@ -225,9 +225,13 @@ If you update often and want to just quickly git pull + submodule update but ski
 ###### Kafka NetAddr/IP/InetBase autoload bug ######
 
 If you encounter the following error when trying to use ```check_kafka.pl```:
+
 ```Can't locate auto/NetAddr/IP/InetBase/AF_INET6.al in @INC```
+
 This is an upstream bug related to autoloader, which you can work around by editing ```NetAddr/IP/InetBase.pm``` and adding the following line explicitly near the top just after ```package NetAddr::IP::InetBase;```: 
+
 ```use Socket;```
+
 You may also need to install Socket6 from CPAN.
 
 ###### MongoDB / Readonly library bug ######
