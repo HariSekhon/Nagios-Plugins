@@ -222,7 +222,7 @@ If you update often and want to just quickly git pull + submodule update but ski
 
 ##### Bugs & Workarounds #####
 
-###### Kafka NetAddr/IP/InetBase autoload bug ######
+###### Kafka dependency NetAddr/IP/InetBase autoload bug ######
 
 If you encounter the following error when trying to use ```check_kafka.pl```:
 
@@ -234,7 +234,7 @@ This is an upstream bug related to autoloader, which you can work around by edit
 
 You may also need to install Socket6 from CPAN.
 
-###### MongoDB / Readonly library bug ######
+###### MongoDB dependency Readonly library bug ######
 
 The MongoDB Perl driver from CPAN doesn't seem to compile properly on RHEL5 based systems. PyMongo rewrite was considered but the extensive library of functions results in better code quality for the Perl plugins, it's easier to just upgrade your OS to RHEL6.
 
