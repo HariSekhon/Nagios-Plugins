@@ -199,7 +199,7 @@ yum-packages:
 # doesn't build on Mac < 3.4.7 / 3.5.1 / 3.6.0 but the others are in the public mirrors yet
 # https://issues.apache.org/jira/browse/ZOOKEEPER-2049
 # XXX: if updating this version, make sure to also update tests/zookeeper.sh
-ZOOKEEPER_VERSION = 3.4.7
+ZOOKEEPER_VERSION = 3.4.6
 .PHONY: zookeeper
 zookeeper:
 	[ -x /usr/bin/apt-get ] && make apt-packages || :
