@@ -1,3 +1,6 @@
 [submodule "lib"]
 	path = lib
 	url = https://github.com/harisekhon/lib
+[submodule "pylib"]
+	path = pylib
+	url = https://github.com/harisekhon/pylib
