@@ -61,7 +61,9 @@ make clean-zookeeper
 
 All plugins come with --help which lists all options as well as giving a program description, often including a detailed account of what is checked in the code.
 
-Just make sure to install the required Perl CPAN modules first.
+Some common options also support optional environment variables for convenience to reduce repeated --switch usage or to hide them from being exposed in the process list. These are indicated in the --help descriptions in brackets next to each option eg. $HOST, $PASSWORD or more specific ones with higher precedence like $ELASTICSEARCH_HOST, $REDIS_PASSWORD etc.
+
+Make sure to install the required Perl CPAN modules first before calling --help.
 
 ### A Sample of cool Nagios Plugins in this collection ###
 
