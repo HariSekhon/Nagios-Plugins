@@ -29,7 +29,7 @@ echo "
 export ZOOKEEPER_HOST="${ELASTICSEARCH_HOST:-localhost}"
 
 # XXX: make sure to keep this aligned with Makefile to pull down correct zookeeper version
-ZOOKEEPER_VERSION=3.4.7
+ZOOKEEPER_VERSION=3.4.6
 zookeeper="zookeeper-$ZOOKEEPER_VERSION"
 #TAR="$zookeeper.tgz"
 
