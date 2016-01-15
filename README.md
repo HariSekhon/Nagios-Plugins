@@ -94,6 +94,10 @@ Just make sure to install the required Perl CPAN modules first.
 
 This code base is under active development and there are many more cool plugins pending import.
 
+### Kerberos Security Support ###
+
+For HTTP based plugins Kerberos is implicitly supported by LWP as long as the LWP::Authen::Negotiate CPAN module is installed (part of the automated ```make``` build). This will look for a valid TGT in the environment and if found will use it for SPNego.
+
 ### Quality ###
 
 Most of the plugins I've read from Nagios Exchange and Monitoring Exchange (now Icinga Exchange) in the last decade have not been of the quality required to run in production environments I've worked in (ever seen plugins written in Bash with little validation, or mere 200-300 line plugins without robust input/output validation and error handling, resulting in "UNKNOWN: (null)" when something goes wrong - right when you need them - then you know what I mean). That prompted me to write my own plugins whenever I had an idea or requirement.
