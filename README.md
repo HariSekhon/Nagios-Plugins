@@ -47,7 +47,7 @@ Make sure /usr/local/bin is in your $PATH when running make as otherwise it'll f
 
 This automated build will use 'sudo' to install all required Perl modules from CPAN and then initialize my library git repo as a submodule. If you want to install some of the common Perl CPAN modules such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN then follow the [Manual Setup](https://github.com/harisekhon/nagios-plugins#manual-setup) section instead.
 
-If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.7, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
+If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.6, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
 
 ```
 make zookeeper
@@ -281,8 +281,10 @@ Contributions are more than welcome with patches accepted in the form of Github 
 * Hadoop HDFS performance debugger, native checksum extractor, file retention policy script, HDFS file stats, XML & running Hadoop cluster config differ
 * ```watch_url.pl``` for debugging load balanced web farms
 * tools for Ambari, Pig, Hive, Spark + IPython Notebook, Solr CLI
-* code reCaser for SQL / Pig / Neo4j / Hive HQL / Cassandra / MySQL / PostgreSQL / Impala / MSSQL / Oracle
+* code reCaser for SQL / Pig / Neo4j / Hive HQL / Cassandra / MySQL / PostgreSQL / Impala / MSSQL / Oracle / Dockerfiles
 * ```scrub.pl``` anonymizes configs / logs for posting online - replaces hostnames/domains/FQDNs, IPs, passwords/keys in Cisco/Juniper configs, custom extensible phrases like your name or your company name
+* ```validate_json/yaml/xml.py``` - validates JSON, XML, YAML including recursive directories, standard input and even multi-record JSON as found in MongoDB and Hadoop / Big Data systems.
+* PySpark JSON => Parquet converter
 
 ### See Also ###
 
