@@ -163,6 +163,7 @@ apt-packages:
 	$(SUDO) apt-get install -y libkrb5-dev
 	# for Cassandra's Python driver
 	$(SUDO) apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev
+	$(SUDO) easy_install pip || :
 	# HiveServer2
 	$(SUDO) pip install pyhs2
 
