@@ -156,8 +156,8 @@ apt-packages:
 	$(SUDO) apt-get install -y libssl-dev libsasl2-dev
 	# for XML::Simple building
 	$(SUDO) apt-get install -y libexpat1-dev
-	# for check_whois.pl
-	$(SUDO) apt-get install -y jwhois
+	# for check_whois.pl - looks like this has been removed from repos :-/
+	$(SUDO) apt-get install -y jwhois || :
 	# for LWP::Authenticate
 	#apt-get install -y krb5-config # prompts for realm + KDC, use libkrb5-dev instead
 	$(SUDO) apt-get install -y libkrb5-dev
