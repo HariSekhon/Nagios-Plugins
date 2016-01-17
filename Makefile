@@ -142,7 +142,7 @@ make:
 	# fails if MySQL isn't installed locally
 	$(SUDO) pip install MySQL-python
 	@echo
-	@echo BUILD SUCCESSFUL (nagios-plugins)
+	@echo "BUILD SUCCESSFUL (nagios-plugins)"
 
 
 .PHONY: apt-packages
