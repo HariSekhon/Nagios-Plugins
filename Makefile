@@ -149,11 +149,15 @@ make:
 apt-packages:
 	$(SUDO) apt-get update
 	# needed to fetch and build CPAN modules and fetch the library submodule at end of build
-	$(SUDO) apt-get install -y build-essential libwww-perl git
+	$(SUDO) apt-get install -y build-essential
+	$(SUDO) apt-get install -y libwww-perl
+	$(SUDO) apt-get install -y git
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	$(SUDO) apt-get install -y libdbd-mysql-perl libmysqlclient-dev
+	$(SUDO) apt-get install -y libdbd-mysql-perl
+	$(SUDO) apt-get install -y libmysqlclient-dev
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	$(SUDO) apt-get install -y libssl-dev libsasl2-dev
+	$(SUDO) apt-get install -y libssl-dev
+	$(SUDO) apt-get install -y libsasl2-dev
 	# for XML::Simple building
 	$(SUDO) apt-get install -y libexpat1-dev
 	# for check_whois.pl - looks like this has been removed from repos :-/
@@ -162,16 +166,27 @@ apt-packages:
 	#apt-get install -y krb5-config # prompts for realm + KDC, use libkrb5-dev instead
 	$(SUDO) apt-get install -y libkrb5-dev
 	# for Cassandra's Python driver
-	$(SUDO) apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev
+	#$(SUDO) apt-get install -y python-setuptools
+	$(SUDO) apt-get install -y python-dev
+	$(SUDO) apt-get install -y libev4
+	$(SUDO) apt-get install -y libev-dev
+	$(SUDO) apt-get install -y libsnappy-dev
 	$(SUDO) easy_install pip || :
 	# HiveServer2
 	$(SUDO) pip install pyhs2
 
 .PHONY: yum-packages
 yum-packages:
-	rpm -q gcc gcc-c++ perl-CPAN perl-libwww-perl wget tar || $(SUDO) yum install -y gcc gcc-c++ perl-CPAN perl-libwww-perl wget tar
+	rpm -q gcc 				|| $(SUDO) yum install -y gcc
+	rpm -q gcc-c++ 			|| $(SUDO) yum install -y gcc-c++
+	rpm -q perl-CPAN 		|| $(SUDO) yum install -y perl-CPAN
+	rpm -q perl-libwww-perl || $(SUDO) yum install -y perl-libwww-perl
+	# to fetch and untar ZooKeeper, plus wget epel rpm
+	rpm -q wget 			|| $(SUDO) yum install -y wget
+	rpm -q tar 				|| $(SUDO) yum install -y tar
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	rpm -q perl-DBD-MySQL mysql-devel || $(SUDO) yum install -y perl-DBD-MySQL mysql-devel
+	rpm -q mysql-devel 		|| $(SUDO) yum install -y mysql-devel
+	rpm -q perl-DBD-MySQL 	|| $(SUDO) yum install -y perl-DBD-MySQL
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 	rpm -q openssl-devel || $(SUDO) yum install -y openssl-devel
 	# for XML::Simple building
@@ -185,14 +200,17 @@ yum-packages:
 	rpm -q jwhois || $(SUDO) yum install -y jwhois
 	# only available on EPEL in CentOS 5
 	rpm -q git || $(SUDO) yum install -y git
-	rpm -q python-setuptools python-pip python-devel libev libev-devel snappy-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel libev libev-devel snappy-devel
-	# to fetch ZooKeeper
-	rpm -q wget || yum install -y wget
+	rpm -q python-setuptools || $(SUDO) yum install -y python-setuptools
+	rpm -q python-pip || $(SUDO) yum install -y python-pip
+	rpm -q python-devel || $(SUDO) yum install -y python-devel
+	rpm -q libev || $(SUDO) yum install -y libev
+	rpm -q libev-devel || $(SUDO) yum install -y libev-devel
+	rpm -q snappy-devel || $(SUDO) yum install -y snappy-devel
 	# needed to build pyhs2
 	# libgsasl-devel saslwrapper-devel
 	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel
 	# for check_yum.pl / check_yum.py
-	yum install -y yum-security yum-plugin-security
+	rpm -q yum-security yum-plugin-security || yum install -y yum-security yum-plugin-security
 
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
