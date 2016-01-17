@@ -64,7 +64,7 @@ DISCLAIMER:
 # THERE IS A LOT OF REGEX. EVEN IF YOU ARE A REGEX MASTER YOU CANNOT PREDICT ALL SIDE EFFECTS
 # YOU MUST RELY ON THE ACCOMPANYING TESTS I HAVE WRITTEN IF YOU CHANGE ANYTHING AT ALL
 
-$VERSION = "0.11.0";
+$VERSION = "0.11.1";
 
 use strict;
 use warnings;
@@ -463,7 +463,10 @@ foreach(@output){
 my $no_nameservers_listed = 0;
 foreach(my $i=0;$i<scalar @output;$i++){
     my $line = $output[$i];
-    if($line =~ /^\s*Domain name:?\s*$/io){
+    if($line =~ /^\s*Domain name:?\s*$/io
+        # for Estonia EE registrar eg. myspace.com.ee
+            or $line =~ /^\s*Domain:\s*$/io
+        ){
         $output[$i+1] or last;
         $line = $output[$i+1] or code_error "hit end of output";
         if($line =~ /($domain_regex_strict)/o){
