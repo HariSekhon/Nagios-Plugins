@@ -28,7 +28,7 @@ install:
   #- cpanm --installdeps --notest . || echo CPANM FAILED
   # integrated cpanm in to core Makefiles
   - make
-  - make zookeeper
+  - [ $(($RANDOM % 3)) == 0 ] && make zookeeper
 
 script:
   - tests/all.sh
