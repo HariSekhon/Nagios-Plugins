@@ -184,6 +184,7 @@ yum-packages:
 	# to fetch and untar ZooKeeper, plus wget epel rpm
 	rpm -q wget 			|| $(SUDO) yum install -y wget
 	rpm -q tar 				|| $(SUDO) yum install -y tar
+	rpm -q which			|| $(SUDO) yum install -y which
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	rpm -q mysql-devel 		|| $(SUDO) yum install -y mysql-devel
 	rpm -q perl-DBD-MySQL 	|| $(SUDO) yum install -y perl-DBD-MySQL
