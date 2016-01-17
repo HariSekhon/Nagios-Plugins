@@ -166,7 +166,8 @@ apt-packages:
 	#apt-get install -y krb5-config # prompts for realm + KDC, use libkrb5-dev instead
 	$(SUDO) apt-get install -y libkrb5-dev
 	# for Cassandra's Python driver
-	#$(SUDO) apt-get install -y python-setuptools
+	$(SUDO) apt-get install -y python-setuptools
+	$(SUDO) apt-get install -y python-pip
 	$(SUDO) apt-get install -y python-dev
 	$(SUDO) apt-get install -y libev4
 	$(SUDO) apt-get install -y libev-dev
@@ -202,11 +203,11 @@ yum-packages:
 	# only available on EPEL in CentOS 5
 	rpm -q git || $(SUDO) yum install -y git
 	rpm -q python-setuptools || $(SUDO) yum install -y python-setuptools
-	rpm -q python-pip || $(SUDO) yum install -y python-pip
-	rpm -q python-devel || $(SUDO) yum install -y python-devel
-	rpm -q libev || $(SUDO) yum install -y libev
-	rpm -q libev-devel || $(SUDO) yum install -y libev-devel
-	rpm -q snappy-devel || $(SUDO) yum install -y snappy-devel
+	rpm -q python-pip 		 || $(SUDO) yum install -y python-pip
+	rpm -q python-devel 	 || $(SUDO) yum install -y python-devel
+	rpm -q libev 			 || $(SUDO) yum install -y libev
+	rpm -q libev-devel 		 || $(SUDO) yum install -y libev-devel
+	rpm -q snappy-devel 	 || $(SUDO) yum install -y snappy-devel
 	# needed to build pyhs2
 	# libgsasl-devel saslwrapper-devel
 	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel
