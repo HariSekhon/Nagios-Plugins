@@ -33,4 +33,4 @@ done
 ./help.sh
 
 cd "$srcdir/.."
-bash-tools/travis.sh
+bash-tools/all.sh
