@@ -177,7 +177,7 @@ yum-packages:
 	# for XML::Simple building
 	rpm -q expat-devel || $(SUDO) yum install -y expat-devel
 	# for Cassandra's Python driver
-	# python-pip requires EPEL, so try to get the correct EPEL rpm - for Make must escape the $3
+	# python-pip requires EPEL, so try to get the correct EPEL rpm
 	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
 	# must instead do wget 
 	#$(SUDO) rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
