@@ -4,3 +4,7 @@
 [submodule "pylib"]
 	path = pylib
 	url = https://github.com/harisekhon/pylib
+[submodule "Dockerfiles"]
+	path = Dockerfiles
+	url = https://github.com/harisekhon/Dockerfiles
+	branch = master
