@@ -16,6 +16,9 @@ perl:
   # other CPAN modules are broken for Perl 5.8, re-visit
   #- "5.8"
 
+notifications:
+  email: false
+
 install:
   #- pushd lib
   #- make apt-packages
