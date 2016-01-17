@@ -176,13 +176,14 @@ yum-packages:
 	rpm -q openssl-devel || $(SUDO) yum install -y openssl-devel
 	# for XML::Simple building
 	rpm -q expat-devel || $(SUDO) yum install -y expat-devel
-	rpm -q jwhois || $(SUDO) yum install -y jwhois
 	# for Cassandra's Python driver
 	# python-pip requires EPEL, so try to get the correct EPEL rpm - for Make must escape the $3
 	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
 	# must instead do wget 
 	#$(SUDO) rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
 	rpm -q epel-release || yum install -y epel-release || { wget -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
+	# for check_whois.pl
+	rpm -q jwhois || $(SUDO) yum install -y jwhois
 	# only available on EPEL in CentOS 5
 	rpm -q git || $(SUDO) yum install -y git
 	rpm -q python-setuptools python-pip python-devel libev libev-devel snappy-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel libev libev-devel snappy-devel
