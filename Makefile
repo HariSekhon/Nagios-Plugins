@@ -156,13 +156,14 @@ apt-packages:
 	$(SUDO) apt-get install -y libssl-dev libsasl2-dev
 	# for XML::Simple building
 	$(SUDO) apt-get install -y libexpat1-dev
-	# for check_whois.pl
-	$(SUDO) apt-get install -y jwhois
+	# for check_whois.pl - looks like this has been removed from repos :-/
+	$(SUDO) apt-get install -y jwhois || :
 	# for LWP::Authenticate
 	#apt-get install -y krb5-config # prompts for realm + KDC, use libkrb5-dev instead
 	$(SUDO) apt-get install -y libkrb5-dev
 	# for Cassandra's Python driver
 	$(SUDO) apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev
+	$(SUDO) easy_install pip || :
 	# HiveServer2
 	$(SUDO) pip install pyhs2
 
@@ -175,8 +176,8 @@ yum-packages:
 	rpm -q openssl-devel || $(SUDO) yum install -y openssl-devel
 	# for XML::Simple building
 	rpm -q expat-devel || $(SUDO) yum install -y expat-devel
-	# for check_whois.pl
-	rpm -q jwhois || $(SUDO) yum install -y jwhois
+	# for check_whois.pl - looks like this has been removed from repos :-/
+	rpm -q jwhois || $(SUDO) yum install -y jwhois || :
 	# for Cassandra's Python driver
 	# python-pip requires EPEL, so try to get the correct EPEL rpm - for Make must escape the $3
 	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
