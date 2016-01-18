@@ -97,7 +97,11 @@ class ConsulCheckKey(NagiosPlugin):
         validate_chars(key, 'key', r'\w\/-')
         if regex:
             validate_regex(regex, 'key')
-        req = requests.get('http://%(host)s:%(port)s/v1/kv/%(key)s' % locals())
+        req = None
+        try:
+            req = requests.get('http://%(host)s:%(port)s/v1/kv/%(key)s' % locals())
+        except requests.exceptions.RequestException as _:
+            qquit('CRITICAL', _)
         log.debug("response: %s %s" % (req.status_code, req.reason))
         log.debug("content: '%s'" % req.content)
         if req.status_code != 200:
