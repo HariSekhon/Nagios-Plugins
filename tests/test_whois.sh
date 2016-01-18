@@ -193,7 +193,7 @@ for domain in $domains; do
     printf "%-20s  " "$domain:"
     # don't want people with 25 days left on their domains raising errors here, setting thresholds lower to always pass
     set +eo pipefail
-    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2`
+    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 -vvv`
     result=$?
     echo "$output"
     if [ $result -ne 0 -a $result -eq 3 ]; then
@@ -221,7 +221,7 @@ echo "Testing Domains excluding nameservers:"
 for domain in $domains_no_nameservers; do
     [ "$(($RANDOM % 20))" = 0 ] || continue
     set +eo pipefail
-    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-nameservers`
+    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-nameservers -vvv`
     result=$?
     echo "$output"
     if [ $result -ne 0 -a $result -eq 3 ]; then
