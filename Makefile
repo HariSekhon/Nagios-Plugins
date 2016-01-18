@@ -33,6 +33,7 @@ build:
 	git submodule update --remote --recursive
 
 	cd lib && make
+	cd pylib && make
 
 	# There are problems with the tests for this module dependency of Net::Async::CassandraCQL, forcing install works and allows us to use check_cassandra_write.pl
 	#sudo cpan -f IO::Async::Stream
@@ -238,6 +239,7 @@ zookeeper:
 .PHONY: test
 test:
 	cd lib && make test
+	cd pylib && make test
 	tests/all.sh
 
 .PHONY: install
