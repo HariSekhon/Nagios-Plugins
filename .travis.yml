@@ -31,7 +31,8 @@ install:
   # integrated cpanm in to core Makefiles
   # workaround for strange error when building pylib submodule, /usr/local/lib/python2.7, /usr/local/man, /usr/lib/python2.7 etc...
   # can't do /usr/lib, otherwise /usr/lib/sudo/sudoers.so breaks with "sudo: /usr/lib/sudo/sudoers.so must be only be writable by owner"
-  - sudo chmod -R 777 /opt/python /usr/local /usr/lib/python*
+  # 777 causes "Insecure directory in $ENV{PATH} while running with -T switch at lib/HariSekhonUtils.pm line 1316" - nice catch to this hackery by Perl taint security
+  - sudo chmod -R 755 /opt/python /usr/local /usr/lib/python*
   - make
   - make zookeeper
 
