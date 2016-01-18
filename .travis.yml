@@ -33,6 +33,8 @@ install:
   # can't do /usr/lib, otherwise /usr/lib/sudo/sudoers.so breaks with "sudo: /usr/lib/sudo/sudoers.so must be only be writable by owner"
   # 777 causes "Insecure directory in $ENV{PATH} while running with -T switch at lib/HariSekhonUtils.pm line 1316" - nice catch to this hackery by Perl taint security
   - sudo chmod -R 755 /opt/python /usr/local /usr/lib/python*
+  # with 755 perms goes back to "error: could not create '/usr/local/lib/python2.7/dist-packages/markupsafe': Permission denied"
+  - sudo chown -R root /opt/python /usr/local /usr/lib/python*
   - make
   - make zookeeper
 
