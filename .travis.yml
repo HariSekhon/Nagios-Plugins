@@ -16,7 +16,7 @@ perl:
   # other CPAN modules are broken for Perl 5.8, re-visit
   #- "5.8"
 
-sudo: true
+sudo: required
 
 notifications:
   email: false
@@ -36,6 +36,7 @@ script:
   - tests/all.sh
 
 services:
+  - docker
   - cassandra
   #- couchdb
   - elasticsearch
