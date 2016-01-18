@@ -29,6 +29,8 @@ install:
   #- make apt-packages
   #- cpanm --installdeps --notest . || echo CPANM FAILED
   # integrated cpanm in to core Makefiles
+  # workaround for strange error when building pylib submodule
+  - sudo chmod -R 777 /opt/python
   - make
   - make zookeeper
 
