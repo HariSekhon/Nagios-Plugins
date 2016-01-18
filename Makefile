@@ -138,6 +138,7 @@ build:
 	$(SUDO) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	$(SUDO) pip install cassandra-driver scales blist lz4 python-snappy
+	$(SUDO) pip install requests
 	
 	# install MySQLdb python module for check_logserver.py / check_syslog_mysql.py
 	# fails if MySQL isn't installed locally
