@@ -30,7 +30,8 @@ install:
   #- cpanm --installdeps --notest . || echo CPANM FAILED
   # integrated cpanm in to core Makefiles
   # workaround for strange error when building pylib submodule, /usr/local/lib/python2.7, /usr/local/man, /usr/lib/python2.7 etc...
-  - sudo chmod -R 777 /opt/python /usr/local /usr/lib/
+  # can't do /usr/lib, otherwise /usr/lib/sudo/sudoers.so breaks with "sudo: /usr/lib/sudo/sudoers.so must be only be writable by owner"
+  - sudo chmod -R 777 /opt/python /usr/local /usr/lib/python*
   - make
   - make zookeeper
 
