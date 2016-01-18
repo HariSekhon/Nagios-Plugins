@@ -32,9 +32,10 @@ install:
   # workaround for strange error when building pylib submodule, /usr/local/lib/python2.7, /usr/local/man, /usr/lib/python2.7 etc...
   # can't do /usr/lib, otherwise /usr/lib/sudo/sudoers.so breaks with "sudo: /usr/lib/sudo/sudoers.so must be only be writable by owner"
   # 777 causes "Insecure directory in $ENV{PATH} while running with -T switch at lib/HariSekhonUtils.pm line 1316" - nice catch to this hackery by Perl taint security
-  - sudo chmod -R 755 /opt/python /usr/local /usr/lib/python*
+  #- sudo chmod -R 755 /opt/python /usr/local /usr/lib/python*
   # with 755 perms goes back to "error: could not create '/usr/local/lib/python2.7/dist-packages/markupsafe': Permission denied"
-  - sudo chown -R root /opt/python /usr/local /usr/lib/python*
+  # chown root still same error... must be because pure python submodules don't sudo in Travis
+  - sudo chown -R travis /opt/python /usr/local /usr/lib/python*
   - make
   - make zookeeper
 
