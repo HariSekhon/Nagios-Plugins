@@ -16,7 +16,7 @@
 
 """
 
-Nagios Plugin to check the contents of a given Consul key, optionally against a regex
+Nagios Plugin to check Consul key-value store via a given key and optionally match the contents against a given regex
 
 """
 
@@ -53,7 +53,7 @@ class ConsulCheckKey(NagiosPlugin):
     def add_options(self):
         self.add_hostoption('Consul', default_host='localhost', default_port='8500')
         self.parser.add_option('-k', '--key', help='Key to query from Consul')
-        self.parser.add_option('-r', '--regex', help='Regex to compare the key contents against')
+        self.parser.add_option('-r', '--regex', help="Regex to compare the key's value against (optional)")
 
     def extract_value(self, content): # pylint: disable=no-self-use
         json_data = None
