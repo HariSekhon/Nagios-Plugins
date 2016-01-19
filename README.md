@@ -7,6 +7,8 @@ Largest collection of Hadoop & NoSQL monitoring code, written by a former Cloude
 
 Hadoop and extensive API integration with all major Hadoop vendors (Hortonworks, Cloudera, MapR, IBM).
 
+**This project has become large and as a result all python plugins will be moving to their own repo at some point in the near future.**
+
 I've been developing this Nagios Plugin Collection since 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
 It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web, Hadoop and NoSQL technologies (Cassandra, HBase, MongoDB, Riak, Couchbase, Memcached, Redis, Solr, SolrCloud, ElasticSearch...), Mesos etc.
