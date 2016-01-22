@@ -16,9 +16,9 @@ Optional --warning/--critical threshold ranges may be applied to the volume in b
 
 Also outputs total fielddata on all nodes
 
-Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4";
+Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4, 2.1.1";
 
-$VERSION = "0.3.1";
+$VERSION = "0.3.2";
 
 use strict;
 use warnings;
@@ -75,7 +75,7 @@ my ($this_name, $this_ip, $this_bytes);
 foreach(split(/\n/, $content)){
     @parts = split(/\s+/, $_);
     defined($parts[2])    or quit "UNKNOWN", "failed to find 3rd field in result. $nagios_plugins_support_msg_api";
-    isHostname($parts[0]) or quit "UNKNOWN", "invalid hostname returned for 1st field in result. $nagios_plugins_support_msg_api";
+    isHost($parts[0])     or quit "UNKNOWN", "invalid host returned for 1st field in result. $nagios_plugins_support_msg_api";
     isIP($parts[1])       or quit "UNKNOWN", "returned non-IP for 1st field in result. $nagios_plugins_support_msg_api";
     isInt($parts[2])      or quit "UNKNOWN", "returned non-integer for 2nd field in result. $nagios_plugins_support_msg_api";
     $this_name  = $parts[0];
