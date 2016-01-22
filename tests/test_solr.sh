@@ -28,19 +28,19 @@ export SOLR_HOST="${SOLR_HOST:-localhost}"
 export SOLR_PORT="${SOLR_PORT:-8983}"
 export SOLR_COLLECTION="${SOLR_COLLECTION:-test}"
 export SOLR_CORE="${SOLR_COLLECTION:-${SOLR_CORE:-test}}"
-export DOCKER_CONTAINER_NAME="nagios-plugins-solr"
+export DOCKER_CONTAINER="nagios-plugins-solr"
 
 if ! which docker &>/dev/null; then
     echo 'WARNING: Docker not found, skipping Solr checks!!!'
 fi
 
 echo "Setting up test Solr docker container"
-if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]nagios-plugins-solr$"; then
+if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     echo "Starting Docker Solr test container"
-    docker run -d --name "$DOCKER_CONTAINER_NAME" -p 8983:8983 solr
+    docker run -d --name "$DOCKER_CONTAINER" -p 8983:8983 solr
     sleep 5
-    docker exec -it --user=solr "$DOCKER_CONTAINER_NAME" bin/solr create_core -c "$SOLR_CORE"
-    docker exec -it --user=solr "$DOCKER_CONTAINER_NAME" bin/post -c "$SOLR_CORE" example/exampledocs/money.xml
+    docker exec -it --user=solr "$DOCKER_CONTAINER" bin/solr create_core -c "$SOLR_CORE"
+    docker exec -it --user=solr "$DOCKER_CONTAINER" bin/post -c "$SOLR_CORE" example/exampledocs/money.xml
 else
     echo "Docker Solr test container already running"
 fi
@@ -60,9 +60,9 @@ $perl -T $I_lib ./check_solr_query.pl -n 4 -v
 hr
 $perl -T $I_lib ./check_solr_write.pl -vvv 
 # TODO: docker exec this to be a SolrCloud
-#docker exec -it --user=solr "$DOCKER_CONTAINER_NAME" bin/solr delete_core -c "$SOLR_CORE"
+#docker exec -it --user=solr "$DOCKER_CONTAINER" bin/solr delete_core -c "$SOLR_CORE"
 hr
 echo
 echo -n "Deleting container "
-docker rm -f "$DOCKER_CONTAINER_NAME"
+docker rm -f "$DOCKER_CONTAINER"
 echo; echo
