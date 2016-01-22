@@ -43,7 +43,7 @@ script:
   - tests/all.sh
 
 services:
-  #- docker
+  - docker
   - cassandra
   #- couchdb
   - elasticsearch
