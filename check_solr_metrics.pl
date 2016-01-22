@@ -29,7 +29,7 @@ Tested on SolrCloud 4.x";
 # Replication status
 # Synthetic queries
 
-our $VERSION = "0.3.3";
+our $VERSION = "0.3.4";
 
 use strict;
 use warnings;
@@ -65,8 +65,8 @@ splice @usage_order, 6, 0, qw/collection category key stat list-collections list
 
 get_options();
 
-$host     = validate_host($host);
-$port     = validate_port($port);
+$host = validate_host($host);
+$port = validate_port($port);
 $collection = validate_solr_collection($collection) unless $list_collections;
 unless($list_categories){
     $category = validate_alnum($category, "category");
@@ -80,7 +80,7 @@ if(defined($key)){
     #$stat = $2 if $2;
     validate_thresholds();
 }
-$stat = validate_alnum($stat, "stat") if defined($stat);
+$stat = validate_chars($stat, "stat", "A-Za-z0-9_") if defined($stat);
 $http_context = validate_solr_context($http_context);
 validate_ssl();
 
