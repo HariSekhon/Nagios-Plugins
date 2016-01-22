@@ -14,9 +14,9 @@ $DESCRIPTION = "Nagios Plugin to check which is the master node in an Elasticsea
 
 Optional --node may be specified to check it hasn't changed, raises warning if it has as this may signal a failover event has occured
 
-Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4";
+Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4, 2.1.1";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -57,14 +57,14 @@ my @parts;
 defined($parts[2]) or quit "UNKNOWN", "failed to find 3rd field in result. $nagios_plugins_support_msg_api";
 isIP($parts[2]) or quit "UNKNOWN", "returned non-IP for 3rd field in result. $nagios_plugins_support_msg_api";
 my $ip = $parts[2];
-isHostname($parts[1]) or quit "UNKNOWN", "returned invalid hostname in 2nd field of result. $nagios_plugins_support_msg_api";
+isHost($parts[1]) or quit "UNKNOWN", "returned invalid hostname in 2nd field of result. $nagios_plugins_support_msg_api";
 my $node_hostname = $parts[1];
 
 $msg = "elasticsearch ";
 
 $msg .= "master node = '$node_hostname'";
 if(defined($node) and not ($node eq $node_hostname or $node eq $ip)){
-    $msg .= " [$ip]";
+    $msg .= " [$ip]" unless $node_hostname eq $ip;
     warning;
     $msg .= " (expected '$node')";
 } elsif($verbose){
