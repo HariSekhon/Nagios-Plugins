@@ -29,7 +29,7 @@ echo "
 export ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST:-localhost}"
 export ELASTICSEARCH_PORT="${ELASTICSEARCH_PORT:-9200}"
 export ELASTICSEARCH_INDEX="${ELASTICSEARCH_INDEX:-test}"
-export DOCKER_CONTAINER_NAME="nagios-plugins-elasticsearch"
+export DOCKER_CONTAINER="nagios-plugins-elasticsearch"
 
 if ! which docker &>/dev/null; then
     echo 'WARNING: Docker not found, skipping Elasticsearch checks!!!'
@@ -37,11 +37,11 @@ fi
 
 echo "Setting up test Elasticsearch container"
 # reuse container it's faster
-#docker rm -f "$DOCKER_CONTAINER_NAME" &>/dev/null
+#docker rm -f "$DOCKER_CONTAINER" &>/dev/null
 #sleep 1
-if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]nagios-plugins-elasticsearch$"; then
+if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     echo "Starting Docker Elasticsearch test container"
-    docker run -d --name "$DOCKER_CONTAINER_NAME" -p 9200:9200 elasticsearch
+    docker run -d --name "$DOCKER_CONTAINER" -p 9200:9200 elasticsearch
     sleep 10
 else
     echo "Docker Elasticsearch test container already running"
@@ -134,5 +134,5 @@ $perl -T $I_lib ./check_elasticsearch_shards_state_detail.pl -v
 hr
 echo
 echo -n "Deleting container "
-docker rm -f "$DOCKER_CONTAINER_NAME"
+docker rm -f "$DOCKER_CONTAINER"
 echo; echo
