@@ -26,6 +26,7 @@ echo "
 # ============================================================================ #
 "
 
+set -x
 export CASSANDRA_HOST="${CASSANDRA_HOST:-localhost}"
 
 # Cassandra build in Travis is quite broken, appears due to an incorrect upgrade in the VM image
@@ -33,7 +34,8 @@ export CASSANDRA_HOST="${CASSANDRA_HOST:-localhost}"
 # workarounds for nodetool "You must set the CASSANDRA_CONF and CLASSPATH vars"
 # even bare 'nodetool status' has broken environment in Travis, nothing to do with say Taint security
 # Cassandra service on Travis is really broken, some hacks to make it work
-if [ -n "${TRAVIS:-}" ]; then
+#if [ -n "${TRAVIS:-}" ]; then
+if false; then
     export CASSANDRA_HOME="${CASSANDRA_HOME:-/usr/local/cassandra}"
     # these were only necessary on the debug VM but not in the actual Travis env for some reason
     #sudo sed -ibak 's/jamm-0.2.5.jar/jamm-0.2.8.jar/' $CASSANDRA_HOME/bin/cassandra.in.sh $CASSANDRA_HOME/conf/cassandra-env.sh
@@ -45,8 +47,8 @@ if [ -n "${TRAVIS:-}" ]; then
 fi
 
 # /usr/local/bin/nodetool symlink doesn't source cassandra.in.sh properly
-#nodetool status
-/usr/local/cassandra/bin/nodetool status
+nodetool status || :
+/usr/local/cassandra/bin/nodetool status || :
 hr
 # Cassandra checks are broken due to broken nodetool environment
 # must set full path to /usr/local/cassandra/bin/nodetool to bypass /usr/local/bin/nodetool symlink which doesn't source cassandra.in.sh properly and breaks with "You must set the CASSANDRA_CONF and CLASSPATH vars@
