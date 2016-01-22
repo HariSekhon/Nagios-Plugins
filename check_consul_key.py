@@ -83,8 +83,7 @@ class ConsulCheckKey(NagiosPlugin):
 
     # TODO: add thresholds if data is numeric
     def run(self):
-        if self.args:
-            self.usage()
+        self.no_args()
         host = self.options.host
         port = self.options.port
         validate_host(host)
@@ -98,8 +97,10 @@ class ConsulCheckKey(NagiosPlugin):
         if regex:
             validate_regex(regex, 'key')
         req = None
+        url = 'http://%(host)s:%(port)s/v1/kv/%(key)s' % locals()
+        log.debug('GET %s' % url)
         try:
-            req = requests.get('http://%(host)s:%(port)s/v1/kv/%(key)s' % locals())
+            req = requests.get(url)
         except requests.exceptions.RequestException as _:
             qquit('CRITICAL', _)
         log.debug("response: %s %s" % (req.status_code, req.reason))
