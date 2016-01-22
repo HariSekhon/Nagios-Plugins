@@ -39,7 +39,7 @@ echo "Setting up test Elasticsearch container"
 # reuse container it's faster
 #docker rm -f "$DOCKER_CONTAINER_NAME" &>/dev/null
 #sleep 1
-if ! docker ps | tee /dev/stderr | grep -q nagios-plugins-elasticsearch; then
+if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]nagios-plugins-elasticsearch$"; then
     echo "Starting Docker Elasticsearch test container"
     docker run -d --name "$DOCKER_CONTAINER_NAME" -p 9200:9200 elasticsearch
     sleep 10
