@@ -43,7 +43,8 @@ script:
   - tests/all.sh
 
 services:
-  - docker
+  # docker breaks cassandra, mysql, probably everything
+  #- docker
   - cassandra
   #- couchdb
   - elasticsearch
