@@ -33,6 +33,7 @@ export DOCKER_CONTAINER="nagios-plugins-elasticsearch"
 
 if ! which docker &>/dev/null; then
     echo 'WARNING: Docker not found, skipping Elasticsearch checks!!!'
+    exit 0
 fi
 
 echo "Setting up test Elasticsearch container"
