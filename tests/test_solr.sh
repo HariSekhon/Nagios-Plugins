@@ -34,6 +34,7 @@ export DOCKER_CONTAINER="nagios-plugins-solr"
 
 if ! which docker &>/dev/null; then
     echo 'WARNING: Docker not found, skipping Solr checks!!!'
+    exit 0
 fi
 
 echo "Setting up test Solr docker container"
