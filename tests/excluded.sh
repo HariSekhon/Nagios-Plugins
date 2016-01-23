@@ -18,6 +18,7 @@
 # split from utils.sh as this is specific to this repo
 
 set -eu
+[ -n "${DEBUG:-}" ] && set -x
 
 $perl -e 'use Net::ZooKeeper' &>/dev/null && zookeeper_built="true" || zookeeper_built=""
 
