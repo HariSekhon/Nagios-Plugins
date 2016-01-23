@@ -16,6 +16,8 @@
 set -euo pipefail
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+cd "$srcdir/.."
+
 . ./tests/utils.sh
 
 echo "
