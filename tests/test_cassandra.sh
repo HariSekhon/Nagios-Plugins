@@ -33,8 +33,8 @@ export CASSANDRA_HOST="${CASSANDRA_HOST:-localhost}"
 # workarounds for nodetool "You must set the CASSANDRA_CONF and CLASSPATH vars"
 # even bare 'nodetool status' has broken environment in Travis, nothing to do with say Taint security
 # Cassandra service on Travis is really broken, some hacks to make it work
-#if [ -n "${TRAVIS:-}" ]; then
-if false; then
+if [ -n "${TRAVIS:-}" ]; then
+#if false; then
     export CASSANDRA_HOME="${CASSANDRA_HOME:-/usr/local/cassandra}"
     # these were only necessary on the debug VM but not in the actual Travis env for some reason
     #sudo sed -ibak 's/jamm-0.2.5.jar/jamm-0.2.8.jar/' $CASSANDRA_HOME/bin/cassandra.in.sh $CASSANDRA_HOME/conf/cassandra-env.sh
