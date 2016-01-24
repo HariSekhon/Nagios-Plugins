@@ -21,6 +21,10 @@ sudo: required
 notifications:
   email: false
 
+branches:
+  only:
+    - master
+
 install:
   #- pushd lib
   #- make apt-packages
