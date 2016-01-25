@@ -29,19 +29,8 @@ echo "
 # ============================================================================ #
 "
 
-# Update: changed to run every time but with a small number of domains, it's better
-# Don't run this all the time, give it a 50% chance of running to prevent getting blacklisted by registrars all the time
-#if [ -n "${TRAVIS:-}" ]; then
-#    if ! [ "$(($RANDOM % 10))" = 0 ]; then
-#        echo "Skipping Whois checks (90% of the time in Travis to avoid blacklisting)"
-#        exit 0
-#    fi
-#else
-#    if ! [ "$(($RANDOM % 2))" = 0 ]; then
-#        echo "Skipping Whois checks (50% of the time to avoid blacklisting)"
-#        exit 0
-#    fi
-#fi
+# will do a small subset of random domains unless first arg passed to signify all
+ALL="${1:-}"
 
 echo "Running Whois checks"
 
@@ -192,7 +181,7 @@ echo "Testing Domains including expiry:"
 for domain in $domains; do
     [ "$(($RANDOM % 20))" = 0 ] || continue
     # for some reason .cn domains often fail on Travis, probably blacklisted
-    [[ -n "${TRAVIS:-}" && "$domain" =~ \.cn$ ]] && continue
+    [[ -z "$ALL" && -n "${TRAVIS:-}" && "$domain" =~ \.cn$ ]] && continue
     printf "%-20s  " "$domain:"
     # don't want people with 25 days left on their domains raising errors here, setting thresholds lower to always pass
     set +eo pipefail
@@ -222,7 +211,7 @@ done
 
 echo "Testing Domains excluding nameservers:"
 for domain in $domains_no_nameservers; do
-    [ "$(($RANDOM % 20))" = 0 ] || continue
+    [ -z "$ALL" -a "$(($RANDOM % 20))" = 0 ] || continue
     set +eo pipefail
     output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-nameservers -t 30 -vvv`
     result=$?
