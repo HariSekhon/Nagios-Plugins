@@ -18,26 +18,45 @@ set -euo pipefail
 
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-. utils.sh
+cd "$srcdir/.."
+
+. "$srcdir/utils.sh"
 
 export DOCKER_CONTAINER="nagios-plugins-consul"
+CONSUL_HOST="${CONSUL_HOST:-${DOCKER_HOST:-localhost}}"
+CONSUL_HOST="${CONSUL_HOST#tcp://}"
+export CONSUL_HOST="${HOST%:*}"
+export CONSUL_PORT="${CONSUL_PORT:-8500}"
 
 if ! which docker &>/dev/null; then
     echo 'WARNING: Docker not found, skipping Consul checks!!!'
     exit 0
 fi
 
+hr
 echo "Setting up test Consul container"
+hr
 # reuse container it's faster
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
 #sleep 1
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+    hr
     echo "Starting Docker Consul test container"
-    docker run -d --name "$DOCKER_CONTAINER" -p 8500:8500 harisekhon/consul agent -data-dir /tmp -client 0.0.0.0
+    docker run -d --name "$DOCKER_CONTAINER" -p $CONSUL_PORT:$CONSUL_PORT harisekhon/consul agent -dev -data-dir /tmp -client 0.0.0.0
     sleep 5
 else
     echo "Docker Consul test container already running"
 fi
+
+hr
+testkey="nagios/consul/testkey1"
+echo "Writing random value to test key $testkey"
+random_val=$RANDOM
+curl -X PUT -d "$random_val" "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$testkey"
+echo
+
+hr
+./check_consul_key.py -k /nagios/consul/testkey1 -r "^$random_val$"
 
 hr
 echo
