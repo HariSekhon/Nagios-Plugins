@@ -38,9 +38,10 @@ except ImportError as _:
 libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
-    from harisekhon.utils import qquit, log, isFloat, isList, support_msg_api   # pylint: disable=wrong-import-position
-    from harisekhon.utils import validate_host, validate_port, validate_chars, validate_regex # pylint: disable=wrong-import-position,line-too-long
-    from harisekhon import NagiosPlugin # pylint: disable=wrong-import-position
+    # pylint: disable=wrong-import-position
+    from harisekhon.utils import qquit, log, isFloat, isList, isStr, support_msg_api
+    from harisekhon.utils import validate_host, validate_port, validate_chars, validate_regex
+    from harisekhon import NagiosPlugin
 except ImportError as _:
     print('module import failed: %s' % _)
     sys.exit(4)
@@ -106,7 +107,10 @@ class ConsulCheckKey(NagiosPlugin):
         log.debug("response: %s %s" % (req.status_code, req.reason))
         log.debug("content: '%s'" % req.content)
         if req.status_code != 200:
-            qquit('CRITICAL', "failed to retrieve consul key '%s': '%s' %s" % (key, req.status_code, req.reason))
+            err = ''
+            if isStr(req.content) and len(req.content.split('\n')) < 2:
+                err += ': ' + req.content
+            qquit('CRITICAL', "failed to retrieve consul key '%s': '%s' %s%s" % (key, req.status_code, req.reason, err))
         value = self.extract_value(req.content)
         log.info("value = '%(value)s'" % locals())
         self.ok()
