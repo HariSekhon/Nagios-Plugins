@@ -108,7 +108,7 @@ class ConsulCheckKey(NagiosPlugin):
         log.debug("content: '%s'" % req.content)
         if req.status_code != 200:
             err = ''
-            if isStr(req.content) and len(req.content.split('\n')) < 2:
+            if req.content and isStr(req.content) and len(req.content.split('\n')) < 2:
                 err += ': ' + req.content
             qquit('CRITICAL', "failed to retrieve consul key '%s': '%s' %s%s" % (key, req.status_code, req.reason, err))
         value = self.extract_value(req.content)
