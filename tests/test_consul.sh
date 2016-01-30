@@ -25,7 +25,7 @@ cd "$srcdir/.."
 export DOCKER_CONTAINER="nagios-plugins-consul"
 CONSUL_HOST="${CONSUL_HOST:-${DOCKER_HOST:-localhost}}"
 CONSUL_HOST="${CONSUL_HOST#tcp://}"
-export CONSUL_HOST="${HOST%:*}"
+export CONSUL_HOST="${CONSUL_HOST%:*}"
 export CONSUL_PORT="${CONSUL_PORT:-8500}"
 
 if ! which docker &>/dev/null; then
