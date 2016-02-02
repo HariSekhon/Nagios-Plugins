@@ -177,8 +177,7 @@ apt-packages:
 	$(SUDO) apt-get install -y libev-dev
 	$(SUDO) apt-get install -y libsnappy-dev
 	$(SUDO) easy_install pip || :
-	# HiveServer2
-	$(SUDO) pip install pyhs2
+	$(SUDO) pip install -r requirements.txt
 
 .PHONY: yum-packages
 yum-packages:
