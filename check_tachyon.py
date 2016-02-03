@@ -18,7 +18,7 @@
 
 Nagios Plugin to check a Tachyon Master/Worker is online
 
-Queries the WebUI and displays the uptime
+Queries the WebUI and displays the version and uptime
 
 """
 
