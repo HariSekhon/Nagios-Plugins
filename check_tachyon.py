@@ -35,7 +35,7 @@ try:
     import requests
 except ImportError as _:
     print(_)
-    sys.exit(3)
+    sys.exit(4)
 libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
