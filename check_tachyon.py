@@ -41,7 +41,7 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, qquit, prog
-    from harisekhon.utils import validate_host, validate_port, isStr, space_prefix
+    from harisekhon.utils import validate_host, validate_port, isStr, isVersion, space_prefix
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print('module import failed: %s' % _, file=sys.stderr)
@@ -95,16 +95,16 @@ class CheckTachyon(NagiosPlugin):
         if req.status_code != 200:
             qquit('CRITICAL', "Non-200 response! %s %s" % (req.status_code, req.reason))
         soup = BeautifulSoup(req.content, 'html.parser')
-        link = soup.find('th', text=re.compile('Uptime:?', re.I))
-        if link is None:
-            qquit('UNKNOWN', 'failed to find Tachyon%(name)s uptime' % self.__dict__)
-        link = link.find_next_sibling()
-        if link is None:
-            qquit('UNKNOWN', 'failed to find Tachyon%(name)s uptime (next sibling tag not found)' % self.__dict__)
-        uptime = link.get_text()
+        try:
+            uptime = soup.find('th', text=re.compile('Uptime:?', re.I)).find_next_sibling().get_text()
+            version = soup.find('th', text=re.compile('Version:?', re.I)).find_next_sibling().get_text()
+        except AttributeError:
+            qquit('UNKNOWN', 'failed to find parse Tachyon%(name)s uptime/version info' % self.__dict__)
         if not uptime or not isStr(uptime) or not re.search(r'\d+\s+second', uptime):
             qquit('UNKNOWN', 'Tachyon{0} uptime format not recognized: {1}'.format(self.name, uptime))
-        self.msg = 'Tachyon{0} uptime: {1}'.format(self.name, uptime)  # pylint: disable=attribute-defined-outside-init
+        if not isVersion(version):
+            qquit('UNKNOWN', 'Tachyon{0} version format not recognized: {1}'.format(self.name, version))
+        self.msg = 'Tachyon{0} version: {1}, uptime: {2}'.format(self.name, version, uptime)  # pylint: disable=attribute-defined-outside-init
         self.ok()
 
 
