@@ -20,6 +20,9 @@ Nagios Plugin to check a Tachyon Master/Worker is online
 
 Queries the WebUI and displays the version and uptime
 
+Optional --warn-on-recent-start raises WARNING if started within the last 30 mins in order to catch crashes that may
+have been restarted by a supervisor process
+
 """
 
 from __future__ import absolute_import
@@ -50,7 +53,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckTachyon(NagiosPlugin):
@@ -75,11 +78,13 @@ class CheckTachyon(NagiosPlugin):
         self.add_hostoption(name='Tachyon%(name)s' % self.__dict__,
                             default_host='localhost',
                             default_port=self.default_port)
+        self.add_opt('--warn-on-recent-start', action='store_true', help='Raise WARNING if started in the last 30 mins')
 
     def run(self):
         self.no_args()
         host = self.get_opt('host')
         port = self.get_opt('port')
+        warn_on_recent_start = self.get_opt('warn_on_recent_start')
         validate_host(host)
         validate_port(port)
 
@@ -106,6 +111,18 @@ class CheckTachyon(NagiosPlugin):
             qquit('UNKNOWN', 'Tachyon{0} version format not recognized: {1}'.format(self.name, version))
         self.msg = 'Tachyon{0} version: {1}, uptime: {2}'.format(self.name, version, uptime)  # pylint: disable=attribute-defined-outside-init
         self.ok()
+        if warn_on_recent_start:
+            match = re.match(r'^(\d+)\s+day[^\d\s]+\s+(\d+)\s+hour[^\d\s]+\s+(\d+)\s+minute', uptime, re.I)
+            if match:
+                days = int(match.group(1))
+                hours = int(match.group(2))
+                mins = int(match.group(3))
+                if days == 0 and hours == 0 and mins < 30:
+                    self.warning()
+                    self.msg += ' (< 30 mins)'
+            else:
+                self.unknown()
+                self.msg += " (couldn't determine if uptime < 30 mins)"
 
 
 if __name__ == '__main__':
