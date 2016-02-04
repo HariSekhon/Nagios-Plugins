@@ -88,11 +88,11 @@ class CheckTachyonLiveWorkers(NagiosPlugin):
         try:
             running_workers = soup.find('th', text=re.compile(r'Running\s+Workers:?', re.I))\
                 .find_next_sibling().get_text()
-        except AttributeError:
+        except (AttributeError, TypeError):
             qquit('UNKNOWN', 'failed to find parse Tachyon Master info for running workers' % self.__dict__)
         try:
             running_workers = int(running_workers)
-        except ValueError:
+        except (ValueError, TypeError):
             qquit('UNKNOWN', 'Tachyon Master live workers parsing returned non-integer: {0}'.format(running_workers))
         self.msg = 'Tachyon running workers = {0}'.format(running_workers)  # pylint: disable=attribute-defined-outside-init
         self.ok()
