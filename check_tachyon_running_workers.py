@@ -41,7 +41,7 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, qquit
-    from harisekhon.utils import validate_host, validate_port, isInt
+    from harisekhon.utils import validate_host, validate_port
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print('module import failed: %s' % _, file=sys.stderr)
