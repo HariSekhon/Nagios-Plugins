@@ -90,11 +90,15 @@ class CheckTachyonLiveWorkers(NagiosPlugin):
                 .find_next_sibling().get_text()
         except AttributeError:
             qquit('UNKNOWN', 'failed to find parse Tachyon Master info for running workers' % self.__dict__)
-        if not isInt(running_workers):
+        try:
+            running_workers = int(running_workers)
+        except ValueError:
             qquit('UNKNOWN', 'Tachyon Master live workers parsing returned non-integer: {0}'.format(running_workers))
         self.msg = 'Tachyon running workers = {0}'.format(running_workers)  # pylint: disable=attribute-defined-outside-init
         self.ok()
         # TODO: thresholds on number of live workers (coming soon)
+        if running_workers < 1:
+            self.critical()
 
 
 if __name__ == '__main__':
