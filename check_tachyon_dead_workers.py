@@ -86,7 +86,7 @@ class CheckTachyonDeadWorkers(NagiosPlugin):
         soup = BeautifulSoup(req.content, 'html.parser')
         dead_workers = 0
         try:
-            dead_workers = len([_ for _ in soup.find(id='data2').find('tbody').findAll('tr') if _])
+            dead_workers = len([_ for _ in soup.find(id='data2').find('tbody').find_all('tr') if _])
         except (AttributeError, TypeError):
             qquit('UNKNOWN', 'failed to find parse Tachyon Master info for dead workers' % self.__dict__)
         try:
