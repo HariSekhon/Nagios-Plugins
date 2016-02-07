@@ -74,3 +74,5 @@ check(){
         exit 1
     fi
 }
+
+. "$srcdir/../bash-tools/docker.sh"
