@@ -103,7 +103,7 @@ class CheckTachyon(NagiosPlugin):
         try:
             uptime = soup.find('th', text=re.compile('Uptime:?', re.I)).find_next_sibling().get_text()
             version = soup.find('th', text=re.compile('Version:?', re.I)).find_next_sibling().get_text()
-        except AttributeError:
+        except (AttributeError, TypeError):
             qquit('UNKNOWN', 'failed to find parse Tachyon%(name)s uptime/version info' % self.__dict__)
         if not uptime or not isStr(uptime) or not re.search(r'\d+\s+second', uptime):
             qquit('UNKNOWN', 'Tachyon{0} uptime format not recognized: {1}'.format(self.name, uptime))
