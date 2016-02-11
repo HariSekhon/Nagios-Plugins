@@ -30,6 +30,7 @@ echo "
 export ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST:-localhost}"
 export ELASTICSEARCH_PORT="${ELASTICSEARCH_PORT:-9200}"
 export ELASTICSEARCH_INDEX="${ELASTICSEARCH_INDEX:-test}"
+
 export DOCKER_CONTAINER="nagios-plugins-elasticsearch"
 
 if ! which docker &>/dev/null; then
