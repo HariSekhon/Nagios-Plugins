@@ -27,8 +27,64 @@ echo "
 # ============================================================================ #
 "
 
+export CASSANDRA_TEST_VERSIONS="${CASSANDRA_TEST_VERSIONS:-22}"
+
 export CASSANDRA_HOST="${CASSANDRA_HOST:-localhost}"
 
+export DOCKER_CONTAINER="nagios-plugins-cassandra"
+export MNTDIR="/nagios-plugins-tmp"
+
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Cassandra checks!!!'
+    exit 0
+fi
+
+docker_run_test(){
+    docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
+}
+
+test_cassandra(){
+    local version="$1"
+    echo "Setting up test Cassandra $version container"
+    if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+        echo "Starting Docker Cassandra test container"
+        docker run -d --name "$DOCKER_CONTAINER" -v "$srcdir/..":"$MNTDIR" -p 7199:7199 -p 9042:9042 harisekhon/cassandra:$version
+        echo "sleeping for 10 secs to allow Cassandra time to start up and gossip protocol to settle"
+        sleep 10
+    else
+        echo "Docker Cassandra test container already running"
+    fi
+
+    docker exec -ti "$DOCKER_CONTAINER" nodetool status
+    hr
+    # TODO: output parsing needs updating :-/
+    #docker_run_test check_cassandra_balance.pl -v
+    hr
+    docker_run_test check_cassandra_heap.pl -w 70 -c 90 -v
+    hr
+    #docker_run_test check_cassandra_netstats.pl -v
+    hr
+    #docker_run_test check_cassandra_tpstats.pl -v
+    hr
+
+    echo
+    echo -n "Deleting container "
+    docker rm -f "$DOCKER_CONTAINER"
+    sleep 1
+    echo
+    hr
+    echo; echo
+}
+
+for version in $CASSANDRA_TEST_VERSIONS; do
+    test_cassandra $version
+done
+
+# ============================================================================ #
+#                                     E N D
+# ============================================================================ #
+exit 0
+# ============================================================================ #
 # Cassandra build in Travis is quite broken, appears due to an incorrect upgrade in the VM image
 
 # workarounds for nodetool "You must set the CASSANDRA_CONF and CLASSPATH vars"
