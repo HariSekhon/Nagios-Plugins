@@ -30,15 +30,41 @@ echo "
 # MYSQL_HOST, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD obtained via .travis.yml
 export MYSQL_HOST="${MYSQL_HOST:-localhost}"
 export MYSQL_DATABASE="${MYSQL_DATABASE:-mysql}"
-export MYSQL_PASSWORD="${MYSQL_PASSWORD:-}"
-export MYSQL_USER="${MYSQL_USER:-travis}"
+export MYSQL_USER="root"
+export MYSQL_PASSWORD="test123"
 
-$perl -T $I_lib ./check_mysql_config.pl --warn-on-missing -v
+export DOCKER_CONTAINER="nagios-plugins-mysql"
+
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping MySQL checks!!!'
+    exit 0
+fi
+
+echo "Setting up test MySQL container"
+if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+    echo "Starting Docker MySQL test container"
+    docker run -d --name "$DOCKER_CONTAINER" -p 3306:3306 -e MYSQL_ROOT_PASSWORD="$MYSQL_PASSWORD" mysql
+    echo "waiting 10 secs for MySQL to start up"
+    sleep 10
+else
+    echo "Docker MySQL test container already running"
+fi
+
+hr
+docker cp "$DOCKER_CONTAINER":/etc/mysql/my.cnf /tmp
+$perl -T $I_lib ./check_mysql_config.pl -c /tmp/my.cnf --warn-on-missing -v
+rm -f /tmp/my.cnf
 hr
 $perl -T $I_lib ./check_mysql_query.pl -q "SHOW TABLES IN information_schema" -o CHARACTER_SETS -v
-# test Unix Socket connection
-$perl -T $I_lib ./check_mysql_query.pl -u root -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
-# test TCP connection
-$perl -T $I_lib ./check_mysql_query.pl -H localhost -u root -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
-
+hr
+#$perl -T $I_lib ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
+hr
+$perl -T $I_lib ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'%'" -v
+# TODO: add socket test - must mount on a compiled system, ie replace the docker image with a custom test one
+unset MYSQL_HOST
+#$perl -T $I_lib ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
+hr
+echo
+echo -n "Deleting container "
+docker rm -f "$DOCKER_CONTAINER"
 echo; echo
