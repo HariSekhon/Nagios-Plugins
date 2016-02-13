@@ -38,6 +38,7 @@ fi
 
 echo "Setting up test Memcached container"
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Memcached test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 11211:11211 memcached
     sleep 1
