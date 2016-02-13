@@ -40,6 +40,7 @@ fi
 
 echo "Setting up test Solr docker container"
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Solr test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 8983:8983 solr
     sleep 5
