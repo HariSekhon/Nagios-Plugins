@@ -38,19 +38,23 @@ fi
 
 echo "Setting up test MongoDB container"
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
+    docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
     echo "Starting Docker MongoDB test container"
-    docker run -d --name "$DOCKER_CONTAINER" -p 27017:27017 mongo
-    sleep 1
+    docker run -d --name "$DOCKER_CONTAINER" -p 27017:27017 -p 28017:28017 mongo --rest
+    echo "sleeping for 5 secs to allow mongod to start up"
+    sleep 5
 else
     echo "Docker MongoDB test container already running"
 fi
 
+# not part of a replica set so this returns CRITICAL
+# TODO: more specific CLI runs to valid critical and output
 hr
-# not part of a replica set so this fails
-#$perl -T $I_lib ./check_mongodb_master.pl
-#hr
-#$perl -T $I_lib ./check_mongodb_master_rest.pl
-#hr
+$perl -T $I_lib ./check_mongodb_master.pl || :
+hr
+$perl -T $I_lib ./check_mongodb_master_rest.pl
+hr
 # Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
 if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
     $perl -T $I_lib ./check_mongodb_write.pl -v
@@ -59,4 +63,54 @@ hr
 echo
 echo -n "Deleting container "
 docker rm -f "$DOCKER_CONTAINER"
+echo
+hr
+
+# ============================================================================ #
+
+# XXX: New for MongoDB 3.0 - done to test API authentication changes in 1.x driver :-(
+
+export MONGODB_USERNAME="nagios"
+export MONGODB_PASSWORD="testpw"
+
+echo "Setting up test MongoDB authenticated container"
+if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER-auth$"; then
+    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
+    docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
+    echo "Starting Docker MongoDB authenticated test container"
+    docker run -d --name "$DOCKER_CONTAINER-auth" -p 27017:27017 -p 28017:28017 mongo mongod --auth --rest
+    echo "sleeping for 5 secs to allow mongod to start up"
+    sleep 5
+    echo "setting up test user"
+    docker exec -i "$DOCKER_CONTAINER-auth" mongo --host localhost <<EOF
+    use admin
+    db.createUser({"user":"$MONGODB_USERNAME", "pwd":"$MONGODB_PASSWORD", "roles":[{role:"root", db:"admin"}]})
+EOF
+    #db.createUser({"user":"$MONGODB_USERNAME", "pwd":"$MONGODB_PASSWORD", "roles":[{role:"userAdminAnyDatabase", db:"admin"},{role:"readWriteAnyDatabase", db:"admin"}]})
+    echo "testing test user authentication works in mongo shell before attempting plugin"
+    # mongo client may not be installed and also make sure we are using the same version client from within the container to minimize incompatibilities
+    docker exec -i "$DOCKER_CONTAINER-auth" mongo -u "$MONGODB_USERNAME" -p "$MONGODB_PASSWORD" --authenticationDatabase admin <<EOF # doesn't work without giving the authenticationDatabase
+    use nagios
+    db.nagioscoll.insert({'test':'test'})
+EOF
+else
+    echo "Docker MongoDB authenticated test container already running"
+fi
+hr
+# not part of a replica set so this returns CRITICAL
+# TODO: more specific CLI runs to valid critical and output
+hr
+$perl -T $I_lib ./check_mongodb_master.pl || :
+hr
+# TODO: Fails - authentication not supported, basic auth doesn't seem to work
+$perl -T $I_lib ./check_mongodb_master_rest.pl -v || :
+hr
+# Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
+if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
+    $perl -T $I_lib ./check_mongodb_write.pl -v
+fi
+hr
+echo
+echo -n "Deleting container "
+docker rm -f "$DOCKER_CONTAINER-auth"
 echo; echo
