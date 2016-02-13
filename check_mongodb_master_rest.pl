@@ -11,7 +11,9 @@
 
 $DESCRIPTION = "Nagios Plugin to check a given MongoD is Master via REST API
 
-Tested on MongoDB 2.6.1";
+Authentication not supported yet, and Rest API is not recommended anyway.
+
+Tested on MongoDB 2.6.1, 3.2.1";
 
 $VERSION = "0.1";
 
@@ -29,12 +31,15 @@ set_port_default(28017);
 
 %options = (
     %hostoptions,
+#    %useroptions,
 );
 
 get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
+#$user = validate_user($user) if defined($user) and defined($password);
+#$password = validate_password($password) if defined($password);
 
 vlog2;
 set_timeout();
