@@ -29,6 +29,23 @@ echo "
 
 export MONGODB_HOST="${MONGODB_HOST:-localhost}"
 
+export DOCKER_CONTAINER="nagios-plugins-mongo"
+
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Memcached checks!!!'
+    exit 0
+fi
+
+echo "Setting up test MongoDB container"
+if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+    echo "Starting Docker MongoDB test container"
+    docker run -d --name "$DOCKER_CONTAINER" -p 27017:27017 mongo
+    sleep 1
+else
+    echo "Docker MongoDB test container already running"
+fi
+
+hr
 # not part of a replica set so this fails
 #$perl -T $I_lib ./check_mongodb_master.pl
 #hr
@@ -38,5 +55,8 @@ export MONGODB_HOST="${MONGODB_HOST:-localhost}"
 if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
     $perl -T $I_lib ./check_mongodb_write.pl -v
 fi
-
+hr
+echo
+echo -n "Deleting container "
+docker rm -f "$DOCKER_CONTAINER"
 echo; echo
