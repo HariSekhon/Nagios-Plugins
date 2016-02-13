@@ -28,6 +28,25 @@ echo "
 "
 
 export REDIS_HOST="${REDIS_HOST:-localhost}"
+#export REDIS_PASSWORD="testpass123"
+unset REDIS_PASSWORD
+unset PASSWORD
+
+export DOCKER_CONTAINER="nagios-plugins-redis"
+
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Redis checks!!!'
+    exit 0
+fi
+
+echo "Setting up test Redis container"
+if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+    echo "Starting Docker Redis test container"
+    docker run -d --name "$DOCKER_CONTAINER" -p 6379:6379 redis ########--requirepass "$REDIS_PASSWORD"
+    sleep 3
+else
+    echo "Docker Redis test container already running"
+fi
 
 echo "creating test Redis key-value"
 echo set myKey hari | redis-cli -h "$REDIS_HOST"
@@ -36,7 +55,14 @@ hr
 # REDIS_HOST obtained via .travis.yml
 $perl -T $I_lib ./check_redis_clients.pl -v
 hr
-$perl -T $I_lib ./check_redis_config.pl --no-warn-extra -v
+# there is no redis.conf in the Docker container :-/
+#docker cp "$DOCKER_CONTAINER":/etc/redis.conf /tmp/redis.conf
+# doesn't match
+#wget -O /tmp/redis.conf https://raw.githubusercontent.com/antirez/redis/3.0/redis.conf
+> /tmp/.check_redis_config.conf
+$perl -T $I_lib ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v | sed 's/.*extra config found on running server://;s/=/ /g' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | egrep -v -e "^requirepass|bind|logfile|masterauth|notify-keyspace-events|slaveof|unixsocket$" | tee /tmp/.check_redis_config.conf
+$perl -T $I_lib ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v
+rm /tmp/.check_redis_config.conf
 hr
 $perl -T $I_lib ./check_redis_key.pl -k myKey -e hari -v
 hr
@@ -52,5 +78,8 @@ $perl -T $I_lib ./check_redis_write.pl -v
 hr
 echo "checking for no code failure masking root cause in catch quit handler"
 $perl -T $I_lib ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v | tee /dev/stderr | grep -v ' line '
-
+hr
+echo
+echo -n "Deleting container "
+docker rm -f "$DOCKER_CONTAINER"
 echo; echo
