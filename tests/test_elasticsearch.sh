@@ -43,6 +43,7 @@ echo "Setting up test Elasticsearch container"
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
 #sleep 1
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Elasticsearch test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 9200:9200 elasticsearch
     sleep 10
