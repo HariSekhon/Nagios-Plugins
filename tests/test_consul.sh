@@ -40,7 +40,7 @@ hr
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
 #sleep 1
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
-    hr
+    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Consul test container"
     docker run -d --name "$DOCKER_CONTAINER" -p $CONSUL_PORT:$CONSUL_PORT harisekhon/consul agent -dev -data-dir /tmp -client 0.0.0.0
     sleep 5
