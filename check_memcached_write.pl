@@ -18,7 +18,10 @@ Checks:
 3. checks the returned value is identical to that written
 4. deletes the unique generated key, checks deleted occurred successfully
 5. records the read/write/delete timings and total time (including tcp connection and close) to a given precision
-6. compares timing of each read/write/delete operation against warning/critical thresholds if given";
+6. compares timing of each read/write/delete operation against warning/critical thresholds if given
+
+Tested on Memcached from around 2010/2011, plus 1.4.4, 1.4.25
+";
 
 $VERSION = "0.10.0";
 
