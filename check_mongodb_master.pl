@@ -11,9 +11,9 @@
 
 $DESCRIPTION = "Nagios Plugin to check a given Mongod is the Master/Primary of a MongoDB Replica Set
 
-Tested on MongoDB 2.4.8 and 2.6.1";
+Tested on MongoDB 2.4.8, 2.6.1, 3.2.1";
 
-$VERSION = "0.2.1";
+$VERSION = "0.3.0";
 
 use strict;
 use warnings;
@@ -23,7 +23,6 @@ BEGIN {
 }
 use HariSekhonUtils;
 use HariSekhon::MongoDB;
-use MongoDB;
 use MongoDB::MongoClient;
 use Data::Dumper;
 
