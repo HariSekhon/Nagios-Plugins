@@ -22,6 +22,12 @@ cd "$srcdir/.."
 
 . "$srcdir/utils.sh"
 
+echo "
+# ============================================================================ #
+#                                  C o n s u l
+# ============================================================================ #
+"
+
 export DOCKER_CONTAINER="nagios-plugins-consul"
 CONSUL_HOST="${CONSUL_HOST:-${DOCKER_HOST:-localhost}}"
 CONSUL_HOST="${CONSUL_HOST#tcp://}"
