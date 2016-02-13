@@ -10,7 +10,7 @@
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  http://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/harisekhon
 #
 
 set -eu
@@ -29,6 +29,22 @@ echo "
 
 export MEMCACHED_HOST="${MEMCACHED_HOST:-localhost}"
 
+export DOCKER_CONTAINER="nagios-plugins-memcached"
+
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Memcached checks!!!'
+    exit 0
+fi
+
+echo "Setting up test Memcached container"
+if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+    echo "Starting Docker Memcached test container"
+    docker run -d --name "$DOCKER_CONTAINER" -p 11211:11211 memcached
+    sleep 1
+else
+    echo "Docker Memcached test container already running"
+fi
+
 echo "creating test Memcached key-value"
 echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc $MEMCACHED_HOST 11211
 echo done
@@ -39,5 +55,8 @@ hr
 $perl -T $I_lib ./check_memcached_key.pl -k myKey -e hari -v
 hr
 $perl -T $I_lib ./check_memcached_stats.pl -w 15 -c 20 -v
-
+hr
+echo
+echo -n "Deleting container "
+docker rm -f "$DOCKER_CONTAINER"
 echo; echo
