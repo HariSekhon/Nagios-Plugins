@@ -43,7 +43,7 @@ echo "Setting up test Redis container"
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     echo "Starting Docker Redis test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 6379:6379 redis ########--requirepass "$REDIS_PASSWORD"
-    sleep 3
+    sleep 1
 else
     echo "Docker Redis test container already running"
 fi
