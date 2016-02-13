@@ -64,6 +64,8 @@ my @config_file_only = (
     "replicate-ignore(?:db|table)",
     "skip-bdb",
     "skip-federated",
+    "skip-host-cache",
+    "symbolic-links",
     "user",
     #"log-bin.*",
     #"myisam-recover",
@@ -171,6 +173,8 @@ sub parse_my_cnf {
         next if /^\s*$/;
         # TODO: add plugin validation code
         next if /^\s*plugin-load\s*=\s*innodb=ha_innodb_plugin\.so\s*;\s*innodb_trx=ha_innodb_plugin\.so\s*;\s*innodb_locks=ha_innodb_plugin\.so\s*;\s*innodb_lock_waits=ha_innodb_plugin\.so\s*;\s*innodb_cmp=ha_innodb_plugin\.so\s*;\s*innodb_cmp_reset=ha_innodb_plugin\.so\s*;\s*innodb_cmpmem=ha_innodb_plugin\.so\s*;\s*innodb_cmpmem_reset=ha_innodb_plugin\.so\s*$/;
+        # TODO: add support for include dir
+        next if /includedir/;
         chomp;
         /^\s*([\w-]+)\s*(?:=\s*([\/\w\:\,\.=-]+)\s*)?$/ or quit "CRITICAL", "unrecognized line in config file '$config_file': '$_' (not in expected format)";
 
