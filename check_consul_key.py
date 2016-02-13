@@ -16,7 +16,11 @@
 
 """
 
-Nagios Plugin to check Consul key-value store via a given key and optionally match the contents against a given regex
+Nagios Plugin to check a given key in a Consul key-value store
+
+Optionally may match the contents against a given regex or numeric thresholds if the key contents are numeric
+
+Tested on Consul 0.6.3
 
 """
 
@@ -33,7 +37,7 @@ import sys
 try:
     import requests
 except ImportError as _:
-    print("failed to import 'requests' module: %s (did you remember to 'make' or at least 'pip install requests'?)" % _)
+    print('ImportError' % _)
     sys.exit(4)
 libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
@@ -47,14 +51,15 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 class ConsulCheckKey(NagiosPlugin):
 
     def add_options(self):
         self.add_hostoption('Consul', default_host='localhost', default_port='8500')
-        self.parser.add_option('-k', '--key', help='Key to query from Consul')
-        self.parser.add_option('-r', '--regex', help="Regex to compare the key's value against (optional)")
+        self.add_opt('-k', '--key', help='Key to query from Consul')
+        self.add_opt('-r', '--regex', help="Regex to compare the key's value against (optional)")
+        self.add_thresholds()
 
     def extract_value(self, content): # pylint: disable=no-self-use
         json_data = None
@@ -82,7 +87,6 @@ class ConsulCheckKey(NagiosPlugin):
                   % locals())
         return value
 
-    # TODO: add thresholds if data is numeric
     def run(self):
         self.no_args()
         host = self.options.host
@@ -97,6 +101,7 @@ class ConsulCheckKey(NagiosPlugin):
         validate_chars(key, 'key', r'\w\/-')
         if regex:
             validate_regex(regex, 'key')
+        self.validate_thresholds(optional=True)
         req = None
         url = 'http://%(host)s:%(port)s/v1/kv/%(key)s' % locals()
         log.debug('GET %s' % url)
@@ -119,8 +124,9 @@ class ConsulCheckKey(NagiosPlugin):
             if not re.search(regex, value):
                 self.critical()
                 self.msg += " (did not match expected regex '%s')" % regex
-            elif self.get_verbose():
-                self.msg += " (matched regex '%s')" % regex
+            #elif self.get_verbose():
+            #    self.msg += " (matched regex '%s')" % regex
+        self.check_thresholds(value)
         if isFloat(value):
             self.msg += " | '%s'=%s" % (key, value)
 
