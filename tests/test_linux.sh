@@ -47,6 +47,7 @@ docker_run_test(){
 
 echo "Setting up test Linux container"
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Linux test container"
     docker run -d --name "$DOCKER_CONTAINER" -v "$srcdir/..":"$MNTDIR" harisekhon/nagios-plugins tail -f /dev/null
     docker exec "$DOCKER_CONTAINER" yum makecache fast
