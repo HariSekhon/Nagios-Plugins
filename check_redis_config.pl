@@ -24,9 +24,9 @@ Detects password in this order of priority (highest first):
 
 Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Collection)
 
-Tested on Redis 2.4.10 and 2.8.19";
+Tested on Redis 2.4.10, 2.8.19, 3.0.7";
 
-$VERSION = "0.8.2";
+$VERSION = "0.8.3";
 
 use strict;
 use warnings;
@@ -70,8 +70,6 @@ my @default_config_locations = qw(
     /etc/redis.conf
 );
 my $conf;
-
-$host = "localhost";
 
 my $no_warn_extra     = 0;
 my $no_warn_missing   = 0;
@@ -297,11 +295,11 @@ foreach my $key (sort keys %config){
             $tmp .= " $tmp2";
         }
         $config_value = trim($tmp);
-        my $regex_prefix = '^normal\s+\d+\s+\d+\s+\d+\s+slave\s+\d+\s+\d+\s+\d+\s+';
+        my $regex_prefix = 'normal\s+\d+\s+\d+\s+\d+\s+slave\s+\d+\s+\d+\s+\d+\s+';
         if($config{$key} ne $config_value){
             vlog2 "translated $key value '$config{$key}' => '$config_value' for comparison and prefixing '$regex_prefix'";
         }
-        unless($running_value =~ /$regex_prefix\Q$config_value\E$/){
+        unless($running_value =~ /^($regex_prefix)?\Q$config_value\E$/){
             push(@mismatched_config, $key);
         }
     } else {
@@ -339,14 +337,16 @@ if((!$no_warn_missing) and @missing_config){
     $msg =~ s/, $//;
     $msg .= ", ";
 }
-if((!$no_warn_extra) and @extra_config){
-    warning;
-    $msg .= "extra config found on running server: ";
-    foreach(sort @extra_config){
-        $msg .= "$_=$running_config{$_}, ";
+if(@extra_config){
+    warning unless $no_warn_extra;
+    if($verbose or not $no_warn_extra){
+        $msg .= "extra config found on running server: ";
+        foreach(sort @extra_config){
+            $msg .= "$_=$running_config{$_}, ";
+        }
+        $msg =~ s/, $//;
+        $msg .= ", ";
     }
-    $msg =~ s/, $//;
-    $msg .= ", ";
 }
 
 $msg = sprintf("%d config values tested from config file '%s', %s", scalar keys %config, $conf, $msg);
