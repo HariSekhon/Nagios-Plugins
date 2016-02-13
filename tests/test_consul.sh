@@ -34,12 +34,11 @@ CONSUL_HOST="${CONSUL_HOST#tcp://}"
 export CONSUL_HOST="${CONSUL_HOST%:*}"
 export CONSUL_PORT="${CONSUL_PORT:-8500}"
 
-if ! which docker &>/dev/null; then
-    echo 'WARNING: Docker not found, skipping Consul checks!!!'
+if ! is_docker_available; then
+    echo 'WARNING: Docker unavailable, skipping Consul checks!!!'
     exit 0
 fi
 
-hr
 echo "Setting up test Consul container"
 hr
 # reuse container it's faster
@@ -62,8 +61,12 @@ curl -X PUT -d "$random_val" "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$testkey"
 echo
 
 hr
-./check_consul_key.py -k /nagios/consul/testkey1 -r "^$random_val$"
-
+./check_consul_key.py -k /nagios/consul/testkey1 -r "^$random_val$" -v
+hr
+echo "writing deterministic test key to check thresholds"
+curl -X PUT -d "5" "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$testkey"
+echo
+./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 5 -c 6 -v
 hr
 echo
 echo -n "Deleting container "
