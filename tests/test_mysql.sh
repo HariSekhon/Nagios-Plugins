@@ -27,10 +27,12 @@ echo "
 # ============================================================================ #
 "
 
-# MYSQL_HOST, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD obtained via .travis.yml
 MYSQL_HOST="${MYSQL_HOST:-${DOCKER_HOST:-${HOST:-localhost}}}"
 MYSQL_HOST="${MYSQL_HOST##*/}"
 MYSQL_HOST="${MYSQL_HOST%%:*}"
+# using 'localhost' causes mysql driver to try to shortcut to using local socket
+# which doesn't work in Dockerized environment
+[ "$MYSQL_HOST" = "localhost" ] && MYSQL_HOST="127.0.0.1"
 export MYSQL_HOST
 echo "using docker address '$MYSQL_HOST'"
 export MYSQL_DATABASE="${MYSQL_DATABASE:-mysql}"
