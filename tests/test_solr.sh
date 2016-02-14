@@ -43,6 +43,7 @@ if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Solr test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 8983:8983 solr
+    echo "waiting 5 seconds for Solr to start up"
     sleep 5
     docker exec -it --user=solr "$DOCKER_CONTAINER" bin/solr create_core -c "$SOLR_CORE"
     docker exec -it --user=solr "$DOCKER_CONTAINER" bin/post -c "$SOLR_CORE" example/exampledocs/money.xml
