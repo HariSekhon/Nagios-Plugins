@@ -57,21 +57,23 @@ script:
 
 services:
   # docker breaks cassandra, mysql, probably everything
-  #- docker
-  - cassandra
-  #- couchdb
-  - elasticsearch
-  - memcached
-  - mongodb
-  - mysql
-  #- postgreql
-  - neo4j
-  #- rabbitmq
-  - redis
-  - riak
+  # => wholesale switch over to dockerized testing instead
+  - docker
+#  - cassandra
+#  #- couchdb
+#  - elasticsearch
+#  - memcached
+#  - mongodb
+#  - mysql
+#  #- postgreql
+#  - neo4j
+#  #- rabbitmq
+#  - redis
+#  - riak
 
-env:
-  global:
-    - MYSQL_DATABASE=mysql
-    - MYSQL_PASSWORD=""
-    - MYSQL_USER=travis
+# env stuff is handled with docker test scripts now
+#env:
+#  global:
+#    - MYSQL_DATABASE=mysql
+#    - MYSQL_PASSWORD=""
+#    - MYSQL_USER=travis
