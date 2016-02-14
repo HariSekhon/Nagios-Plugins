@@ -52,7 +52,7 @@ __version__ = '0.1'
 class OozieStatusCheck(NagiosPlugin):
 
     def add_options(self):
-        self.add_hostoption(name='Oozie', default_port=11000)
+        self.add_hostoption(name='Oozie', default_host='localhost', default_port=11000)
 
     def run(self):
         self.no_args()
