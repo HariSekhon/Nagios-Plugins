@@ -29,7 +29,7 @@ echo "
 
 export DOCKER_IMAGE="harisekhon/riak-dev"
 
-export RIAK_TEST_VERSIONS="${RIAK_TEST_VERSIONS:-1.4.9}"
+export RIAK_TEST_VERSIONS="${RIAK_TEST_VERSIONS:-1.4.9 2.1.3}"
 
 # RIAK_HOST no longer obtained via .travis.yml, some of these require local riak-admin tool so only makes more sense to run all tests locally
 export RIAK_HOST="${RIAK_HOST:-${HOST:-localhost}}"
