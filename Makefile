@@ -137,7 +137,8 @@ build:
 	$(SUDO) easy_install -U setuptools
 	$(SUDO) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
-	$(SUDO) pip install cassandra-driver scales blist lz4 python-snappy
+	# in requirements.txt now
+	#$(SUDO) pip install cassandra-driver scales blist lz4 python-snappy
 	$(SUDO) pip install -r requirements.txt
 	#. tests/utils.sh; $(SUDO) $$perl couchbase-csdk-setup
 	#$(SUDO) pip install couchbase
