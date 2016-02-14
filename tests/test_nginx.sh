@@ -27,7 +27,11 @@ echo "
 # ============================================================================ #
 "
 
-export NGINX_HOST="${NGINX_HOST:-${HOST:-localhost}}"
+NGINX_HOST="${DOCKER_HOST:-${NGINX_HOST:-${HOST:-localhost}}}"
+NGINX_HOST="${NGINX_HOST##*/}"
+NGINX_HOST="${NGINX_HOST%%:*}"
+export NGINX_HOST
+echo "using docker address '$NGINX_HOST'"
 
 export DOCKER_CONTAINER="nagios-plugins-nginx"
 
@@ -36,6 +40,9 @@ if ! is_docker_available; then
     exit 0
 fi
 
+startupwait=1
+[ -n "${TRAVIS:-}" ] && let startupwait+=4
+
 echo "Setting up test Nginx container"
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
@@ -43,8 +50,8 @@ if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker create --name "$DOCKER_CONTAINER" -p 80:80 nginx
     docker cp "$srcdir/conf/nginx/conf.d/default.conf" "$DOCKER_CONTAINER":/etc/nginx/conf.d/default.conf
     docker start "$DOCKER_CONTAINER"
-    echo "waiting 1 second for Nginx to start up"
-    sleep 1
+    echo "waiting $startupwait seconds for Nginx to start up"
+    sleep $startupwait
 else
     echo "Docker Nginx test container already running"
 fi
