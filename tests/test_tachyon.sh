@@ -52,7 +52,8 @@ fi
 hr
 ./check_tachyon_master.py
 hr
-./check_tachyon_worker.py
+docker exec -ti "$DOCKER_CONTAINER" ps -ef
+./check_tachyon_worker.py -vvvD
 hr
 ./check_tachyon_running_workers.py
 hr
