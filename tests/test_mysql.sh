@@ -45,7 +45,7 @@ if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker MySQL test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 3306:3306 -e MYSQL_ROOT_PASSWORD="$MYSQL_PASSWORD" mysql
-    echo "waiting 10 secs for MySQL to start up"
+    echo "waiting 10 seconds for MySQL to start up"
     sleep 10
 else
     echo "Docker MySQL test container already running"
