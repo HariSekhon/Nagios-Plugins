@@ -28,7 +28,11 @@ echo "
 "
 
 # MYSQL_HOST, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD obtained via .travis.yml
-export MYSQL_HOST="${MYSQL_HOST:-${HOST:-localhost}}"
+MYSQL_HOST="${MYSQL_HOST:-${DOCKER_HOST:-${HOST:-localhost}}}"
+MYSQL_HOST="${MYSQL_HOST##*/}"
+MYSQL_HOST="${MYSQL_HOST%%:*}"
+export MYSQL_HOST
+echo "using docker address '$MYSQL_HOST'"
 export MYSQL_DATABASE="${MYSQL_DATABASE:-mysql}"
 export MYSQL_USER="root"
 export MYSQL_PASSWORD="test123"
@@ -40,13 +44,16 @@ if ! is_docker_available; then
     exit 0
 fi
 
+startupwait=10
+[ -n "${TRAVIS:-}" ] && let startupwait+=20
+
 echo "Setting up test MySQL container"
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker MySQL test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 3306:3306 -e MYSQL_ROOT_PASSWORD="$MYSQL_PASSWORD" mysql
-    echo "waiting 10 seconds for MySQL to start up"
-    sleep 10
+    echo "waiting $startupwait seconds for MySQL to start up"
+    sleep $startupwait
 else
     echo "Docker MySQL test container already running"
 fi
