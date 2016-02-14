@@ -27,7 +27,7 @@ echo "
 # ============================================================================ #
 "
 
-export MEMCACHED_HOST="${MEMCACHED_HOST:-localhost}"
+export MEMCACHED_HOST="${MEMCACHED_HOST:-${HOST:-localhost}}"
 
 export DOCKER_CONTAINER="nagios-plugins-memcached"
 

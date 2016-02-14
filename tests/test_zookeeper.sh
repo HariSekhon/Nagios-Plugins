@@ -10,7 +10,7 @@
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  http://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/harisekhon
 #
 
 set -eu
@@ -27,7 +27,7 @@ echo "
 # ============================================================================ #
 "
 
-export ZOOKEEPER_HOST="${ELASTICSEARCH_HOST:-localhost}"
+export ZOOKEEPER_HOST="${ZOOKEEPER_HOST:-${HOST:-localhost}}"
 
 # XXX: make sure to keep this aligned with Makefile to pull down correct zookeeper version
 ZOOKEEPER_VERSION=3.4.6

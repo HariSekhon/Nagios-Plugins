@@ -10,7 +10,7 @@
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
 #
-#  http://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/harisekhon
 #
 
 set -euo pipefail
@@ -27,7 +27,7 @@ echo "
 # ============================================================================ #
 "
 
-export SOLR_HOST="${SOLR_HOST:-localhost}"
+export SOLR_HOST="${SOLR_HOST:-${HOST:-localhost}}"
 export SOLR_PORT="${SOLR_PORT:-8983}"
 export SOLR_COLLECTION="${SOLR_COLLECTION:-test}"
 export SOLR_CORE="${SOLR_COLLECTION:-${SOLR_CORE:-test}}"

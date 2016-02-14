@@ -10,7 +10,7 @@
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
 #
-#  http://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/harisekhon
 #
 
 set -euo pipefail
@@ -29,9 +29,7 @@ echo "
 "
 
 export DOCKER_CONTAINER="nagios-plugins-consul"
-CONSUL_HOST="${CONSUL_HOST:-${DOCKER_HOST:-localhost}}"
-CONSUL_HOST="${CONSUL_HOST#tcp://}"
-export CONSUL_HOST="${CONSUL_HOST%:*}"
+export CONSUL_HOST="${CONSUL_HOST:-${HOST:-localhost}}"
 export CONSUL_PORT="${CONSUL_PORT:-8500}"
 
 if ! is_docker_available; then

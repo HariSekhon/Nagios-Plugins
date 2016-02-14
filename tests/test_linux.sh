@@ -10,7 +10,7 @@
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  http://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/harisekhon
 #
 
 set -eu
@@ -56,6 +56,7 @@ else
         echo "Docker Linux test container already running"
 fi
 
+hr
 docker_run_test check_linux_auth.pl -u root -g root -v
 hr
 docker_run_test check_linux_context_switches.pl || : ; sleep 1; docker_run_test check_linux_context_switches.pl -w 10000 -c 50000
@@ -64,7 +65,8 @@ docker_run_test check_linux_duplicate_IDs.pl
 hr
 #docker_run_test check_linux_interface.pl -i eth0 -v -e -d Full
 hr
-docker_run_test check_linux_load_normalized.pl
+# making this much higher so it doesn't trip just due to test system load
+docker_run_test check_linux_load_normalized.pl -w 99 -c 99
 hr
 docker_run_test check_linux_ram.py -v -w 20% -c 10%
 hr
@@ -72,13 +74,13 @@ docker_run_test check_linux_system_file_descriptors.pl
 hr
 docker_run_test check_linux_timezone.pl -T UTC -Z /usr/share/zoneinfo/UTC -A UTC -v
 hr
-docker_run_test check_yum.pl -C
+docker_run_test check_yum.pl -C -v -t 30
 hr
-docker_run_test check_yum.pl -C --all-updates || :
+docker_run_test check_yum.pl -C --all-updates -v -t 30 || :
 hr
-docker_run_test check_yum.py -C
+docker_run_test check_yum.py -C -v -t 30
 hr
-docker_run_test check_yum.py -C --all-updates || :
+docker_run_test check_yum.py -C --all-updates -v -t 30 || :
 hr
 echo
 echo -n "Deleting container "

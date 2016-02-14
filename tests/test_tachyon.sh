@@ -23,9 +23,7 @@ cd "$srcdir/.."
 . "$srcdir/utils.sh"
 
 export DOCKER_CONTAINER="nagios-plugins-tachyon"
-TACHYON_HOST="${TACHYON_HOST:-${DOCKER_HOST:-localhost}}"
-TACHYON_HOST="${TACHYON_HOST#tcp://}"
-export TACHYON_HOST="${TACHYON_HOST%:*}"
+TACHYON_HOST="${TACHYON_HOST:-${HOST:-localhost}}"
 export TACHYON_MASTER_PORT="${TACHYON_MASTER_PORT:-19999}"
 export TACHYON_WORKER_PORT="${TACHYON_WORKER_PORT:-30000}"
 

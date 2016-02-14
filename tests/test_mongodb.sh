@@ -10,7 +10,7 @@
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  http://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/harisekhon
 #
 
 set -eu
@@ -27,7 +27,7 @@ echo "
 # ============================================================================ #
 "
 
-export MONGODB_HOST="${MONGODB_HOST:-localhost}"
+export MONGODB_HOST="${MONGODB_HOST:-${HOST:-localhost}}"
 
 export DOCKER_CONTAINER="nagios-plugins-mongo"
 
