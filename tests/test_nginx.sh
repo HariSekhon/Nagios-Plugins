@@ -41,7 +41,7 @@ if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Nginx test container"
     docker create --name "$DOCKER_CONTAINER" -p 80:80 nginx
-    docker cp "$srcdir/nginx.conf.d.default.conf" "$DOCKER_CONTAINER":/etc/nginx/conf.d/default.conf
+    docker cp "$srcdir/conf/nginx/conf.d/default.conf" "$DOCKER_CONTAINER":/etc/nginx/conf.d/default.conf
     docker start "$DOCKER_CONTAINER"
     sleep 1
 else
