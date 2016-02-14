@@ -46,7 +46,7 @@ if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Elasticsearch test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 9200:9200 elasticsearch
-    echo "sleeping for 15 secs to give Elasticsearch a chance to start up"
+    echo "waiting 15 secs for Elasticsearch to start up"
     sleep 15
 else
     echo "Docker Elasticsearch test container already running"
