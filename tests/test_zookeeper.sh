@@ -79,7 +79,7 @@ echo "Setting up test nagios-plugins container with zkperl library"
 docker run -d --name "$DOCKER_CONTAINER2" --link "$DOCKER_CONTAINER:zookeeper" -v "$PWD":"$MNTDIR" "$DOCKER_IMAGE2" tail -f /dev/null
 docker cp zoo.cfg "$DOCKER_CONTAINER2":"$MNTDIR/"
 hr
-echo "Sleeping for 5 secs to allow ZooKeeper time to start up"
+echo "waiting 5 seconds for ZooKeeper to start up"
 sleep 5
 hr
 $perl -T $I_lib ./check_zookeeper.pl -s -w 10 -c 20 -v
