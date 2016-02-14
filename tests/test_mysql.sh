@@ -28,7 +28,7 @@ echo "
 "
 
 # MYSQL_HOST, MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD obtained via .travis.yml
-export MYSQL_HOST="${MYSQL_HOST:-localhost}"
+export MYSQL_HOST="${MYSQL_HOST:-${HOST:-localhost}}"
 export MYSQL_DATABASE="${MYSQL_DATABASE:-mysql}"
 export MYSQL_USER="root"
 export MYSQL_PASSWORD="test123"
