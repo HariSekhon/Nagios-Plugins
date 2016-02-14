@@ -242,6 +242,7 @@ zookeeper:
 .PHONY: test
 test:
 	cd lib && make test
+	rm -fr lib/cover_db || :
 	cd pylib && make test
 	tests/all.sh
 
