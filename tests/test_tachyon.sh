@@ -58,14 +58,14 @@ else
 fi
 
 hr
-./check_tachyon_master.py
+./check_tachyon_master.py -v
 hr
-docker exec -ti "$DOCKER_CONTAINER" ps -ef
-./check_tachyon_worker.py -vvvD
+#docker exec -ti "$DOCKER_CONTAINER" ps -ef
+./check_tachyon_worker.py -v
 hr
-./check_tachyon_running_workers.py
+./check_tachyon_running_workers.py -v
 hr
-./check_tachyon_dead_workers.py
+./check_tachyon_dead_workers.py -v
 hr
 echo
 echo -n "Deleting container "
