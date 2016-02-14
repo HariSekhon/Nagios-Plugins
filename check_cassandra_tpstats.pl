@@ -18,9 +18,9 @@ Also returns Active and Dropped operations with perfdata for graphing.
 
 Can specify a remote host and port otherwise it checks the local node's stats (for calling over NRPE on each Cassandra node)
 
-Written and tested against Cassandra 2.0.1 and 2.0.9, DataStax Community Edition";
+Tested on Cassandra 2.0.1, 2.0.9, 2.2.5 - DataStax Community Edition";
 
-$VERSION = "0.6.3";
+$VERSION = "0.7.0";
 
 use strict;
 use warnings;
@@ -68,7 +68,7 @@ $i++;
 my @stats;
 foreach(; $i < scalar @output; $i++){
     $output[$i] =~ /^\s*$/ and $i++ and last;
-    $output[$i] =~ /^(\w+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s*$/ or die_nodetool_unrecognized_output($output[$i]);
+    $output[$i] =~ /^([\w-]+(?:\s[A-Za-z]+)?)\s+(\d+)\s+(\d+)\s+(\d+)(?:\s+(\d+)\s+(\d+))?\s*$/ or die_nodetool_unrecognized_output($output[$i]);
     push(@stats,
         (
             { "$1_Blocked"          => $5, },
