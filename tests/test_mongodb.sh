@@ -27,7 +27,11 @@ echo "
 # ============================================================================ #
 "
 
-export MONGODB_HOST="${MONGODB_HOST:-${HOST:-localhost}}"
+MONGODB_HOST="${DOCKER_HOST:-${MONGODB_HOST:-${HOST:-localhost}}}"
+MONGODB_HOST="${MONGODB_HOST##*/}"
+MONGODB_HOST="${MONGODB_HOST%%:*}"
+export MONGODB_HOST
+echo "using docker address '$MONGODB_HOST'"
 
 export DOCKER_CONTAINER="nagios-plugins-mongo"
 
@@ -36,14 +40,17 @@ if ! is_docker_available; then
     exit 0
 fi
 
+startupwait=5
+[ -n "${TRAVIS:-}" ] && let startupwait+=20
+
 echo "Setting up test MongoDB container"
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
     echo "Starting Docker MongoDB test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 27017:27017 -p 28017:28017 mongo --rest
-    echo "waiting 5 seconds for mongod to start up"
-    sleep 5
+    echo "waiting $startupwait seconds for mongod to start up"
+    sleep $startupwait
 else
     echo "Docker MongoDB test container already running"
 fi
