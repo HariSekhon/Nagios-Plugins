@@ -60,14 +60,15 @@ test_cassandra(){
 
     docker exec -ti "$DOCKER_CONTAINER" nodetool status
     hr
-    # TODO: output parsing needs updating :-/
-    #docker_run_test check_cassandra_balance.pl -v
+    # Dockerized Cassandra doesn't seem able to detect it's own token % - even when container has been running for a long time
+    # TODO: add more specific command testing here to only except that scenario
+    docker_run_test check_cassandra_balance.pl -v || :
     hr
     docker_run_test check_cassandra_heap.pl -w 70 -c 90 -v
     hr
-    #docker_run_test check_cassandra_netstats.pl -v
+    docker_run_test check_cassandra_netstats.pl -v
     hr
-    #docker_run_test check_cassandra_tpstats.pl -v
+    docker_run_test check_cassandra_tpstats.pl -v
     hr
 
     echo
