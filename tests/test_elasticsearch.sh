@@ -27,7 +27,11 @@ echo "
 # ============================================================================ #
 "
 
-export ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST:-${HOST:-localhost}}"
+ELASTICSEARCH_HOST="${DOCKER_HOST:-${ELASTICSEARCH_HOST:-${HOST:-localhost}}}"
+ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST##*/}"
+ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST%%:*}"
+export ELASTICSEARCH_HOST
+echo "using docker address '$ELASTICSEARCH_HOST'"
 export ELASTICSEARCH_PORT="${ELASTICSEARCH_PORT:-9200}"
 export ELASTICSEARCH_INDEX="${ELASTICSEARCH_INDEX:-test}"
 
@@ -38,6 +42,9 @@ if ! is_docker_available; then
     exit 0
 fi
 
+startupwait=15
+[ -n "${TRAVIS:-}" ] && let startupwait+=20
+
 echo "Setting up test Elasticsearch container"
 # reuse container it's faster
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
@@ -46,8 +53,8 @@ if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Elasticsearch test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 9200:9200 elasticsearch
-    echo "waiting 15 secs for Elasticsearch to start up"
-    sleep 15
+    echo "waiting $startupwait secs for Elasticsearch to start up"
+    sleep $startupwait
 else
     echo "Docker Elasticsearch test container already running"
 fi
