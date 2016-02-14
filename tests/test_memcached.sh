@@ -27,7 +27,11 @@ echo "
 # ============================================================================ #
 "
 
-export MEMCACHED_HOST="${MEMCACHED_HOST:-${HOST:-localhost}}"
+MEMCACHED_HOST="${DOCKER_HOST:-${MEMCACHED_HOST:-${HOST:-localhost}}}"
+MEMCACHED_HOST="${MEMCACHED_HOST##*/}"
+MEMCACHED_HOST="${MEMCACHED_HOST%%:*}"
+export MEMCACHED_HOST
+echo "using docker address '$MEMCACHED_HOST'"
 
 export DOCKER_CONTAINER="nagios-plugins-memcached"
 
@@ -36,13 +40,16 @@ if ! is_docker_available; then
     exit 0
 fi
 
+startupwait=1
+[ -n "${TRAVIS:-}" ] && let startupwait+=4
+
 echo "Setting up test Memcached container"
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Memcached test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 11211:11211 memcached
-    echo "waiting 1 second for Memcached to start up"
-    sleep 1
+    echo "waiting $startupwait second for Memcached to start up"
+    sleep $startupwait
 else
     echo "Docker Memcached test container already running"
 fi
