@@ -60,7 +60,7 @@ fi
 
 hr
 docker cp "$DOCKER_CONTAINER":/etc/mysql/my.cnf /tmp
-$perl -T $I_lib ./check_mysql_config.pl -c /tmp/my.cnf --warn-on-missing -v
+$perl -T $I_lib ./check_mysql_config.pl -c /tmp/my.cnf --warn-on-missing -v -vvD
 rm -f /tmp/my.cnf
 hr
 $perl -T $I_lib ./check_mysql_query.pl -q "SHOW TABLES IN information_schema" -o CHARACTER_SETS -v
