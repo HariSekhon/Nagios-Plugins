@@ -23,15 +23,16 @@ echo "
 # ========================== #
 "
 
-cd "$srcdir";
+cd "$srcdir/..";
 
-./syntax.sh
+# would switch this to perl_syntax.sh from bash-tools but need to tie in exclusions first
+tests/syntax.sh
+bash-tools/python_compile.sh
 
-for script in $(find . -name 'test*.sh'); do
-    ./$script
+for script in $(find tests -name 'test*.sh'); do
+    $script
 done
 
-./help.sh
+tests/help.sh
 
-cd "$srcdir/.."
 bash-tools/all.sh
