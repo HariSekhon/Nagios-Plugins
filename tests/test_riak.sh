@@ -53,7 +53,7 @@ test_riak(){
         docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
         echo "Starting Docker Riak test container"
         docker run -d --name "$DOCKER_CONTAINER" -v "$srcdir/..":"$MNTDIR" -p 8098:8098 "$DOCKER_IMAGE":"$version"
-        echo "sleeping for 20 secs to allow Riak time to start up and settle"
+        echo "waiting 20 seconds for Riak to start up and settle"
         sleep 20
         # Riak 2.x
         #echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
