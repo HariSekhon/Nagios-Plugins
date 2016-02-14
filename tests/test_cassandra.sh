@@ -27,6 +27,8 @@ echo "
 # ============================================================================ #
 "
 
+export DOCKER_IMAGE="harisekhon/cassandra-dev"
+
 export CASSANDRA_TEST_VERSIONS="${CASSANDRA_TEST_VERSIONS:-22}"
 
 export CASSANDRA_HOST="${CASSANDRA_HOST:-localhost}"
@@ -49,7 +51,7 @@ test_cassandra(){
     if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
         docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
         echo "Starting Docker Cassandra test container"
-        docker run -d --name "$DOCKER_CONTAINER" -v "$srcdir/..":"$MNTDIR" -p 7199:7199 -p 9042:9042 harisekhon/cassandra:$version
+        docker run -d --name "$DOCKER_CONTAINER" -v "$srcdir/..":"$MNTDIR" -p 7199:7199 -p 9042:9042 "$DOCKER_IMAGE":"$version"
         echo "sleeping for 10 secs to allow Cassandra time to start up and gossip protocol to settle"
         sleep 10
     else
