@@ -52,7 +52,7 @@ test_cassandra(){
         docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
         echo "Starting Docker Cassandra test container"
         docker run -d --name "$DOCKER_CONTAINER" -v "$srcdir/..":"$MNTDIR" -p 7199:7199 -p 9042:9042 "$DOCKER_IMAGE":"$version"
-        echo "sleeping for 10 secs to allow Cassandra time to start up and gossip protocol to settle"
+        echo "waiting 10 secs to allow Cassandra time to start up and gossip protocol to settle"
         sleep 10
     else
         echo "Docker Cassandra test container already running"
