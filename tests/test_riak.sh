@@ -27,8 +27,90 @@ echo "
 # ============================================================================ #
 "
 
+export DOCKER_IMAGE="harisekhon/riak-dev"
+
+export RIAK_TEST_VERSIONS="${RIAK_TEST_VERSIONS:-1.4.9}"
+
 # RIAK_HOST no longer obtained via .travis.yml, some of these require local riak-admin tool so only makes more sense to run all tests locally
-export RIAK_HOST="localhost"
+export RIAK_HOST="${RIAK_HOST:-${HOST:-localhost}}"
+
+export DOCKER_CONTAINER="nagios-plugins-riak"
+export MNTDIR="/nagios-plugins-tmp"
+
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Riak checks!!!'
+    exit 0
+fi
+
+docker_run_test(){
+    docker exec -ti -u riak "$DOCKER_CONTAINER" $MNTDIR/$@
+}
+
+test_riak(){
+    local version="$1"
+    echo "Setting up test Riak $version container"
+    if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+        docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
+        echo "Starting Docker Riak test container"
+        docker run -d --name "$DOCKER_CONTAINER" -v "$srcdir/..":"$MNTDIR" -p 8098:8098 "$DOCKER_IMAGE":"$version"
+        echo "sleeping for 20 secs to allow Riak time to start up and settle"
+        sleep 20
+        # Riak 2.x
+        #echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
+        #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type create myBucket '{"props":{"n_val":1}}' || :
+        #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type activate myBucket
+        #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type update myBucket '{"props":{"n_val":1}}'
+        echo "creating test Riak document"
+        # don't use new bucket types yet
+        #curl -XPUT localhost:8098/types/myType/buckets/myBucket/keys/myKey -d 'hari'
+        curl -XPUT $RIAK_HOST:8098/buckets/myBucket/keys/myKey -d 'hari'
+        echo "done"
+    else
+        echo "Docker Riak test container already running"
+    fi
+
+    hr
+    #docker_run_test check_riak_diag.pl --ignore-warnings -v
+    hr
+    $perl -T $I_lib check_riak_key.pl -b myBucket -k myKey -e hari -v
+    hr
+    docker_run_test check_riak_member_status.pl -v
+    hr
+    docker_run_test check_riak_ringready.pl -v
+    hr
+    $perl -T $I_lib check_riak_stats.pl --all -v
+    hr
+    $perl -T $I_lib check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
+    hr
+    if [ "${version:0:1}" != 1 ]; then
+        $perl -T $I_lib check_riak_stats.pl -s disk.0.size -c 1024: -v
+    fi
+    hr
+    $perl -T $I_lib check_riak_write.pl -v
+    hr
+    docker_run_test check_riak_write_local.pl -v
+    hr
+    $perl -T $I_lib check_riak_version.pl -v
+
+    echo
+    echo -n "Deleting container "
+    docker rm -f "$DOCKER_CONTAINER"
+    sleep 1
+    echo
+    hr
+    echo; echo
+}
+
+for version in $RIAK_TEST_VERSIONS; do
+    test_riak $version
+done
+
+# ============================================================================ #
+#                                     E N D
+# ============================================================================ #
+exit 0
+# ============================================================================ #
+# Old Travis checks not used any more
 
 echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
 $sudo riak-admin bucket-type create myBucket '{"props":{"n_val":1}}' || :
@@ -56,10 +138,10 @@ $perl -T $I_lib ./check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
 hr
 $perl -T $I_lib ./check_riak_stats.pl -s disk.0.size -c 1024: -v
 hr
+$perl -T $I_lib ./check_riak_write.pl -v
+hr
 # needs sudo - riak must be started as root in Travis
 $sudo $perl -T $I_lib ./check_riak_write_local.pl -v
-hr
-$perl -T $I_lib ./check_riak_write.pl -v
 hr
 $perl -T $I_lib ./check_riak_version.pl
 
