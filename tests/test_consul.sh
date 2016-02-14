@@ -28,14 +28,22 @@ echo "
 # ============================================================================ #
 "
 
-export DOCKER_CONTAINER="nagios-plugins-consul"
-export CONSUL_HOST="${CONSUL_HOST:-${HOST:-localhost}}"
+CONSUL_HOST="${DOCKER_HOST:-${CONSUL_HOST:-${HOST:-localhost}}}"
+CONSUL_HOST="${CONSUL_HOST##*/}"
+CONSUL_HOST="${CONSUL_HOST%%:*}"
+export CONSUL_HOST
+echo "using docker address '$CONSUL_HOST'"
 export CONSUL_PORT="${CONSUL_PORT:-8500}"
+
+export DOCKER_CONTAINER="nagios-plugins-consul"
 
 if ! is_docker_available; then
     echo 'WARNING: Docker unavailable, skipping Consul checks!!!'
     exit 0
 fi
+
+startupwait=10
+[ -n "${TRAVIS:-}" ] && let startupwait+=20
 
 echo "Setting up test Consul container"
 hr
@@ -46,8 +54,8 @@ if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Consul test container"
     docker run -d --name "$DOCKER_CONTAINER" -p $CONSUL_PORT:$CONSUL_PORT harisekhon/consul agent -dev -data-dir /tmp -client 0.0.0.0
-    echo "waiting 5 seconds for Consul to start up"
-    sleep 5
+    echo "waiting $startupwait seconds for Consul to start up"
+    sleep $startupwait
 else
     echo "Docker Consul test container already running"
 fi
