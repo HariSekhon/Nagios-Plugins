@@ -32,7 +32,11 @@ export DOCKER_IMAGE="harisekhon/riak-dev"
 export RIAK_TEST_VERSIONS="${RIAK_TEST_VERSIONS:-1.4.9 2.1.3}"
 
 # RIAK_HOST no longer obtained via .travis.yml, some of these require local riak-admin tool so only makes more sense to run all tests locally
-export RIAK_HOST="${RIAK_HOST:-${HOST:-localhost}}"
+RIAK_HOST="${DOCKER_HOST:-${RIAK_HOST:-${HOST:-localhost}}}"
+RIAK_HOST="${RIAK_HOST##*/}"
+RIAK_HOST="${RIAK_HOST%%:*}"
+export RIAK_HOST
+echo "using docker address '$RIAK_HOST'"
 
 export DOCKER_CONTAINER="nagios-plugins-riak"
 export MNTDIR="/nagios-plugins-tmp"
@@ -46,6 +50,9 @@ docker_run_test(){
     docker exec -ti -u riak "$DOCKER_CONTAINER" $MNTDIR/$@
 }
 
+startupwait=20
+[ -n "${TRAVIS:-}" ] && let startupwait+=20
+
 test_riak(){
     local version="$1"
     echo "Setting up test Riak $version container"
@@ -53,8 +60,8 @@ test_riak(){
         docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
         echo "Starting Docker Riak test container"
         docker run -d --name "$DOCKER_CONTAINER" -v "$srcdir/..":"$MNTDIR" -p 8098:8098 "$DOCKER_IMAGE":"$version"
-        echo "waiting 20 seconds for Riak to start up and settle"
-        sleep 20
+        echo "waiting $startupwait seconds for Riak to start up and settle"
+        sleep $startupwait
         # Riak 2.x
         #echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
         #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type create myBucket '{"props":{"n_val":1}}' || :
