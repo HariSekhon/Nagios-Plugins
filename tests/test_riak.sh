@@ -70,7 +70,12 @@ test_riak(){
     fi
 
     hr
+    # riak-admin doesn't work in Dockerized environments, fails trying to stat '/proc/sys/net/core/wmem_default'
     #docker_run_test check_riak_diag.pl --ignore-warnings -v
+    # must attempt to check this locally if available - but may get "CRITICAL: 'riak-admin diag' returned 1 -  Node is not running!"
+    if which riak-admin; then
+        $perl -T $I_lib check_riak_diag.pl --ignore-warnings -v || :
+    fi
     hr
     $perl -T $I_lib check_riak_key.pl -b myBucket -k myKey -e hari -v
     hr
