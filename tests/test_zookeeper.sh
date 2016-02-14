@@ -27,7 +27,11 @@ echo "
 # ============================================================================ #
 "
 
-export ZOOKEEPER_HOST="${ZOOKEEPER_HOST:-${HOST:-localhost}}"
+ZOOKEEPER_HOST="${DOCKER_HOST:-${ZOOKEEPER_HOST:-${HOST:-localhost}}}"
+ZOOKEEPER_HOST="${ZOOKEEPER_HOST##*/}"
+ZOOKEEPER_HOST="${ZOOKEEPER_HOST%%:*}"
+export ZOOKEEPER_HOST
+echo "using docker address '$ZOOKEEPER_HOST'"
 
 # XXX: make sure to keep this aligned with Makefile to pull down correct zookeeper version
 #ZOOKEEPER_VERSION=3.4.6
@@ -68,6 +72,9 @@ docker_run_test(){
     docker exec -ti "$DOCKER_CONTAINER2" $MNTDIR/$@
 }
 
+startupwait=5
+[ -n "${TRAVIS:-}" ] && let startupwait+=20
+
 echo "Setting up test ZooKeeper container"
 docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
 docker rm -f "$DOCKER_CONTAINER2" &>/dev/null || :
@@ -79,8 +86,8 @@ echo "Setting up test nagios-plugins container with zkperl library"
 docker run -d --name "$DOCKER_CONTAINER2" --link "$DOCKER_CONTAINER:zookeeper" -v "$PWD":"$MNTDIR" "$DOCKER_IMAGE2" tail -f /dev/null
 docker cp zoo.cfg "$DOCKER_CONTAINER2":"$MNTDIR/"
 hr
-echo "waiting 5 seconds for ZooKeeper to start up"
-sleep 5
+echo "waiting $startupwait seconds for ZooKeeper to start up"
+sleep $startupwait
 hr
 $perl -T $I_lib ./check_zookeeper.pl -s -w 10 -c 20 -v
 hr
