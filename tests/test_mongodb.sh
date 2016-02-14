@@ -42,7 +42,7 @@ if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
     echo "Starting Docker MongoDB test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 27017:27017 -p 28017:28017 mongo --rest
-    echo "sleeping for 5 secs to allow mongod to start up"
+    echo "waiting 5 seconds for mongod to start up"
     sleep 5
 else
     echo "Docker MongoDB test container already running"
@@ -79,7 +79,7 @@ if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER-auth$";
     docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
     echo "Starting Docker MongoDB authenticated test container"
     docker run -d --name "$DOCKER_CONTAINER-auth" -p 27017:27017 -p 28017:28017 mongo mongod --auth --rest
-    echo "sleeping for 5 secs to allow mongod to start up"
+    echo "waiting 5 seconds for mongod to start up"
     sleep 5
     echo "setting up test user"
     docker exec -i "$DOCKER_CONTAINER-auth" mongo --host localhost <<EOF
