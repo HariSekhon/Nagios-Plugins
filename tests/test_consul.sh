@@ -59,14 +59,16 @@ echo "Writing random value to test key $testkey"
 random_val=$RANDOM
 curl -X PUT -d "$random_val" "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$testkey"
 echo
-
 hr
 ./check_consul_key.py -k /nagios/consul/testkey1 -r "^$random_val$" -v
 hr
 echo "writing deterministic test key to check thresholds"
 curl -X PUT -d "5" "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$testkey"
 echo
-./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 5 -c 6 -v
+hr
+./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 5 -v
+./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -c 5 -v
+./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 5 -c 5 -v
 hr
 echo
 echo -n "Deleting container "
