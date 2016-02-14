@@ -27,11 +27,15 @@ echo "
 # ============================================================================ #
 "
 
+CASSANDRA_HOST="${DOCKER_HOST:-${CASSANDRA_HOST:-${HOST:-localhost}}}"
+CASSANDRA_HOST="${CASSANDRA_HOST##*/}"
+CASSANDRA_HOST="${CASSANDRA_HOST%%:*}"
+export CASSANDRA_HOST
+echo "using docker address '$CASSANDRA_HOST'"
+
 export DOCKER_IMAGE="harisekhon/cassandra-dev"
 
 export CASSANDRA_TEST_VERSIONS="${CASSANDRA_TEST_VERSIONS:-22}"
-
-export CASSANDRA_HOST="${CASSANDRA_HOST:-${HOSTi:-localhost}}"
 
 export DOCKER_CONTAINER="nagios-plugins-cassandra"
 export MNTDIR="/nagios-plugins-tmp"
@@ -45,6 +49,9 @@ docker_run_test(){
     docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
 }
 
+startupwait=10
+[ -n "${TRAVIS:-}" ] && let startupwait+=20
+
 test_cassandra(){
     local version="$1"
     echo "Setting up test Cassandra $version container"
@@ -52,8 +59,8 @@ test_cassandra(){
         docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
         echo "Starting Docker Cassandra test container"
         docker run -d --name "$DOCKER_CONTAINER" -v "$srcdir/..":"$MNTDIR" -p 7199:7199 -p 9042:9042 "$DOCKER_IMAGE":"$version"
-        echo "waiting 10 secs to allow Cassandra time to start up and gossip protocol to settle"
-        sleep 10
+        echo "waiting $startupwait secs to allow Cassandra time to start up and gossip protocol to settle"
+        sleep $startupwait
     else
         echo "Docker Cassandra test container already running"
     fi
