@@ -43,6 +43,7 @@ if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker create --name "$DOCKER_CONTAINER" -p 80:80 nginx
     docker cp "$srcdir/conf/nginx/conf.d/default.conf" "$DOCKER_CONTAINER":/etc/nginx/conf.d/default.conf
     docker start "$DOCKER_CONTAINER"
+    echo "waiting 1 second for Nginx to start up"
     sleep 1
 else
     echo "Docker Nginx test container already running"
