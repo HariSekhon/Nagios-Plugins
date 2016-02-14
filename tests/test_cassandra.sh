@@ -68,6 +68,8 @@ test_cassandra(){
     hr
     docker_run_test check_cassandra_netstats.pl -v
     hr
+    docker_run_test check_cassandra_nodes.pl -v
+    hr
     docker_run_test check_cassandra_tpstats.pl -v
     hr
 
@@ -117,6 +119,8 @@ hr
 $perl -T $I_lib ./check_cassandra_heap.pl     -n /usr/local/cassandra/bin/nodetool -w 70 -c 90 -v
 hr
 $perl -T $I_lib ./check_cassandra_netstats.pl -n /usr/local/cassandra/bin/nodetool -v
+hr
+$perl -T $I_lib ./check_cassandra_nodes.pl -n /usr/local/cassandra/bin/nodetool -v
 hr
 $perl -T $I_lib ./check_cassandra_tpstats.pl  -n /usr/local/cassandra/bin/nodetool -v
 
