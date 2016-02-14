@@ -15,9 +15,9 @@ Checks Pending commands and responses against warning/critical thresholds.
 
 Can specify a remote host and port otherwise it checks the local node's stats (for calling over NRPE on each Cassandra node)
 
-Written and tested against Cassandra 2.0.1 and 2.0.9, DataStax Community Edition";
+Tested on Cassandra 2.0.1, 2.0.9, 2.2.5 - DataStax Community Edition";
 
-$VERSION = "0.6.3";
+$VERSION = "0.7.0";
 
 use strict;
 use warnings;
@@ -67,19 +67,30 @@ $i++;
 my %stats;
 foreach(; $i < scalar @output; $i++){
     $output[$i] =~ /^\s*$/ and $i++ and last;
-    $output[$i] =~ /^(\w+)\s+(n\/a|\d+)\s+(\d+)\s+(\d+)\s*$/ or die_nodetool_unrecognized_output($output[$i]);
-    $stats{$1}{"Active"}    = ( $2 eq "n/a" ? 0 : $2 );
-    $stats{$1}{"Pending"}   = $3;
-    $stats{$1}{"Completed"} = $4;
+    $output[$i] =~ /^(\w+(?:\s[A-Za-z]+)?)\s+(n\/a|\d+)\s+(\d+)\s+(\d+)\s*$/i or die_nodetool_unrecognized_output($output[$i]);
+    my $type = $1;
+    my $active = $2;
+    my $pending = $3;
+    my $completed = $4;
+    $type =~ s/[^A-Za-z0-9]/_/g;
+    $stats{$type}{"Active"}    = ( $active eq "n/a" ? 0 : $active );
+    $stats{$type}{"Pending"}   = $pending;
+    $stats{$type}{"Completed"} = $completed;
 }
 
+%stats or quit "UNKNOWN", "no stats found from cassandra netstats. $nagios_plugins_support_msg";
+
 my $msg2;
-my $msg3;
+my $msg3 = "";
 my ($thresholds_ok, $thresholds_msg);
-foreach my $type (qw/Commands Responses/){
-    defined($stats{$type}) or quit "'$type' not found in netstats output. $nagios_plugins_support_msg";
+#foreach my $type (qw/Commands Responses/){
+foreach my $type (sort keys %stats){
+    # Commands and Responses not available in Cassandra 2.2 in Docker...
+    #defined($stats{$type}) or quit "'$type' not found in netstats output. $nagios_plugins_support_msg";
+    defined($stats{$type}) or next;
     foreach my $type2 (qw/Active Pending Completed/){
-        defined($stats{$type}{$type2}) or quit "'$type' => '$type2' not found in netstats output. $nagios_plugins_support_msg";
+        #defined($stats{$type}{$type2}) or quit "'$type' => '$type2' not found in netstats output. $nagios_plugins_support_msg";
+        defined($stats{$type}{$type2}) or next;
         $msg2 = "${type}_$type2=$stats{$type}{$type2}";
         $msg3 .= $msg2;
         $msg2 .= " ";
@@ -100,6 +111,7 @@ $msg  =~ s/\s$//;
 if($verbose or $status ne "OK"){
     msg_thresholds();
 }
+$msg3 or quit "UNKNOWN", "no stats collected from cassandra netstats. $nagios_plugins_support_msg";
 $msg .= " | $msg3";
 
 vlog2;
