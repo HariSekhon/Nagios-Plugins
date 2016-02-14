@@ -45,6 +45,9 @@ docker_run_test(){
 
 #trap "docker rm -f $DOCKER_CONTAINER &>/dev/null" SIGINT SIGTERM EXIT
 
+#startupwait=10
+#[ -n "${TRAVIS:-}" ] && let startupwait+=20
+
 echo "Setting up test Linux container"
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
