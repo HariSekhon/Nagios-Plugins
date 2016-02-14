@@ -27,7 +27,11 @@ echo "
 # ============================================================================ #
 "
 
-export SOLR_HOST="${SOLR_HOST:-${HOST:-localhost}}"
+SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
+SOLR_HOST="${SOLR_HOST##*/}"
+SOLR_HOST="${SOLR_HOST%%:*}"
+export SOLR_HOST
+echo "using docker address '$SOLR_HOST'"
 export SOLR_PORT="${SOLR_PORT:-8983}"
 export SOLR_COLLECTION="${SOLR_COLLECTION:-test}"
 export SOLR_CORE="${SOLR_COLLECTION:-${SOLR_CORE:-test}}"
@@ -38,13 +42,16 @@ if ! which docker &>/dev/null; then
     exit 0
 fi
 
+startupwait=5
+[ -n "${TRAVIS:-}" ] && let startupwait+=20
+
 echo "Setting up test Solr docker container"
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Solr test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 8983:8983 solr
-    echo "waiting 5 seconds for Solr to start up"
-    sleep 5
+    echo "waiting $startupwait seconds for Solr to start up"
+    sleep $startupwait
     docker exec -it --user=solr "$DOCKER_CONTAINER" bin/solr create_core -c "$SOLR_CORE"
     docker exec -it --user=solr "$DOCKER_CONTAINER" bin/post -c "$SOLR_CORE" example/exampledocs/money.xml
 else
