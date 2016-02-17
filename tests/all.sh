@@ -33,7 +33,7 @@ bash-tools/python_compile.sh
 bash-tools/python_find_quit.sh
 
 for script in $(find tests -name 'test*.sh'); do
-    $script
+    $script || :
 done
 
 tests/help.sh
