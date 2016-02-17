@@ -27,7 +27,10 @@ cd "$srcdir/..";
 
 # would switch this to perl_syntax.sh from bash-tools but need to tie in exclusions first
 tests/syntax.sh
+
 bash-tools/python_compile.sh
+
+bash-tools/python_find_quit.sh
 
 for script in $(find tests -name 'test*.sh'); do
     $script
