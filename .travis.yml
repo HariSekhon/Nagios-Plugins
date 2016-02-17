@@ -58,7 +58,7 @@ script:
 services:
   # docker breaks cassandra, mysql, probably everything
   # => wholesale switch over to dockerized testing instead
-  #- docker
+  - docker
 #  - cassandra
 #  #- couchdb
 #  - elasticsearch
