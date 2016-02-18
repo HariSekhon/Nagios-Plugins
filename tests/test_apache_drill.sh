@@ -88,6 +88,8 @@ else
 fi
 
 hr
+./check_apache_drill.py -v
+hr
 ./check_apache_drill_metrics.pl -v
 hr
 echo
