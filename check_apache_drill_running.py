@@ -15,7 +15,7 @@
 
 """
 
-Nagios Plugin to check Apache Drill is running
+Nagios Plugin to check Apache Drill's status page
 
 """
 
@@ -48,6 +48,7 @@ except ImportError as _:
 
 __author__ = 'Hari Sekhon'
 __version__ = '0.1'
+
 
 class CheckApacheDrillStatus(NagiosPlugin):
 
@@ -89,6 +90,7 @@ class CheckApacheDrillStatus(NagiosPlugin):
             self.ok()
         else:
             self.critical()
+
 
 if __name__ == '__main__':
     CheckApacheDrillStatus().main()
