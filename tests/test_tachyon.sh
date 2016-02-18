@@ -47,7 +47,7 @@ hr
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
 #sleep 1
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
-    hr
+    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker tachyon test container"
     # need tty for sudo which tachyon-start.sh local uses while ssh'ing localhost
     docker run -d -t --name "$DOCKER_CONTAINER" -p $TACHYON_MASTER_PORT:$TACHYON_MASTER_PORT -p $TACHYON_WORKER_PORT:$TACHYON_WORKER_PORT harisekhon/tachyon
