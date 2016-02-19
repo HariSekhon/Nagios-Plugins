@@ -70,7 +70,7 @@ class OozieStatusCheck(NagiosPlugin):
         log.debug("response: %s %s" % (req.status_code, req.reason))
         log.debug("content: '%s'" % req.content)
         if req.status_code != 200:
-            qquit('CRITICAL', "Non-200 response! %s %s" % (req.status_code, req.reason))
+            qquit('CRITICAL', "%s %s" % (req.status_code, req.reason))
         # should == NORMAL
         if not isJson(req.content):
             qquit('UNKNOWN', 'non-JSON returned by Oozie server at {0}:{1}'.format(host, port))
