@@ -16,7 +16,7 @@ Outputs various details such as leader, version and activated/deactivated slaves
 
 Tested on Mesos 0.23 and 0.24";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -53,10 +53,10 @@ my $url = "http://$host:$port/state.json";
 $json = curl_json $url, "Mesos Master state";
 vlog3 Dumper($json);
 
-if(not defined($json->{"cluster"})){
-    quit "UNKNOWN", "cluster field not found, did you query a Mesos slave or some other service instead of the Mesos master?";
-}
-my $cluster             = get_field("cluster");
+#if(not defined($json->{"cluster"})){
+#    quit "UNKNOWN", "cluster field not found, did you query a Mesos slave or some other service instead of the Mesos master?";
+#}
+my $cluster             = get_field("cluster", 1);
 my $leader              = get_field("leader");
 my $version             = get_field("version");
 my $start_time          = get_field_float("start_time");
@@ -66,7 +66,11 @@ my $deactivated_slaves  = get_field_int("deactivated_slaves");
 my $uptime_secs = int(time - $start_time);
 my $human_time  = sec2human($uptime_secs);
 
-$msg = "Mesos cluster '$cluster' leader '$leader', activated_slaves=$activated_slaves, deactivated_slaves=$deactivated_slaves, version '$version'";
+$msg = "Mesos";
+if($cluster){
+    $msg .= " cluster '$cluster'";
+}
+$msg .= " leader '$leader', activated_slaves=$activated_slaves, deactivated_slaves=$deactivated_slaves, version '$version'";
 $msg .= " started $human_time ago ($uptime_secs secs)" if $verbose;
 $msg .= " | activated_slaves=$activated_slaves deactivated_slaves=$deactivated_slaves";
 
