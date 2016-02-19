@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check the number of Mesos activated slaves via 
 
 Tested on Mesos 0.23 and 0.24";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -55,10 +55,14 @@ my $url = "http://$host:$port/state.json";
 $json = curl_json $url, "Mesos Master state";
 vlog3 Dumper($json);
 
-my $cluster = get_field("cluster");
+my $cluster = get_field("cluster", 1);
 my $activated_slaves = get_field_int("activated_slaves");
 
-$msg = "Mesos cluster '$cluster' activated_slaves=$activated_slaves";
+$msg = "Mesos";
+if($cluster){
+    $msg .= " cluster '$cluster'";
+}
+$msg .= " activated_slaves=$activated_slaves";
 check_thresholds($activated_slaves);
 $msg .= " | activated_slaves=$activated_slaves";
 msg_perf_thresholds(0, 'lower');
