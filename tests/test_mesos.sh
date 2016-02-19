@@ -75,6 +75,8 @@ hr
 hr
 ./check_mesos_master_metrics.pl -v
 hr
+./check_mesos_slave.py -v -s "$(./check_mesos_slave.py -l | awk '/=/{print $1}')"
+hr
 ./check_mesos_slave_metrics.pl -v
 hr
 # Not implemented yet
@@ -83,7 +85,7 @@ hr
 # Not implemented yet
 #./check_mesos_slave_container_statistics.pl -v
 hr
-./check_mesos_slave_state.pl
+./check_mesos_slave_state.pl -v
 hr
 echo
 echo -n "Deleting container "
