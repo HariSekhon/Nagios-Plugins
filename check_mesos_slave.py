@@ -18,6 +18,8 @@
 
 Nagios Plugin to check a given Mesos slave is registered with the Mesos Master
 
+Tested on Mesos 0.23 and 0.24
+
 """
 
 from __future__ import absolute_import
