@@ -88,7 +88,7 @@ else
 fi
 
 hr
-./check_apache_drill_running.py -v
+./check_apache_drill_status.py -v
 hr
 ./check_apache_drill_metrics.pl -v
 hr
