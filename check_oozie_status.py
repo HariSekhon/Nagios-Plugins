@@ -47,7 +47,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 class OozieStatusCheck(NagiosPlugin):
 
@@ -56,8 +56,8 @@ class OozieStatusCheck(NagiosPlugin):
 
     def run(self):
         self.no_args()
-        host = self.options.host
-        port = self.options.port
+        host = self.get_opt('host')
+        port = self.get_opt('port')
         validate_host(host)
         validate_port(port)
 
