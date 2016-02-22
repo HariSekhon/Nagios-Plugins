@@ -61,7 +61,7 @@ class CheckMesosSlave(NagiosPlugin):
 
     def add_options(self):
         self.add_hostoption(name='Mesos Master', default_host='localhost', default_port=5050)
-        self.add_opt('-s', '--slave', help='Mesos slave name to check is registered on Mesos Master')
+        self.add_opt('-s', '--slave', help='Mesos slave hostname or IP to check is registered with Mesos Master')
         self.add_opt('-l', '--list-slaves', action='store_true', help='List slaves and exit')
 
     def run(self):
