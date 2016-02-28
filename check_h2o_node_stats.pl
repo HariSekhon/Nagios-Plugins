@@ -32,6 +32,8 @@ Stats collected:
 " . join("\n", @stats) . "
 
 Tested on 0xdata H2O 2.2.1.3, 2.4.3.4, 2.6.1.5
+
+TODO: H2O 3.x API has changed, updates required
 ";
 
 $VERSION = "0.2";
