@@ -22,6 +22,12 @@ cd "$srcdir/.."
 
 . "$srcdir/utils.sh"
 
+echo "
+# ============================================================================ #
+#                            A p a c h e   M e s o s
+# ============================================================================ #
+"
+
 MESOS_HOST="${DOCKER_HOST:-${MESOS_HOST:-${HOST:-localhost}}}"
 MESOS_HOST="${MESOS_HOST##*/}"
 MESOS_HOST="${MESOS_HOST%%:*}"
