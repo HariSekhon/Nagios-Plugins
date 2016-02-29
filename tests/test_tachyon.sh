@@ -22,6 +22,12 @@ cd "$srcdir/.."
 
 . "$srcdir/utils.sh"
 
+echo "
+# ============================================================================ #
+#                               T a c h y o n
+# ============================================================================ #
+"
+
 TACHYON_HOST="${DOCKER_HOST:-${TACHYON_HOST:-${HOST:-localhost}}}"
 TACHYON_HOST="${TACHYON_HOST##*/}"
 TACHYON_HOST="${TACHYON_HOST%%:*}"
