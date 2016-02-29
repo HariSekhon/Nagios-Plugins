@@ -59,33 +59,33 @@ else
 fi
 
 hr
-./check_mesos_activated_slaves.pl -v
+$perl -T $I_lib ./check_mesos_activated_slaves.pl -v
 hr
-#./check_mesos_chronos_jobs.pl -v
+#$perl -T $I_lib ./check_mesos_chronos_jobs.pl -v
 hr
-./check_mesos_deactivated_slaves.pl -v
+$perl -T $I_lib ./check_mesos_deactivated_slaves.pl -v
 hr
-./check_mesos_master_health.pl -v
+$perl -T $I_lib ./check_mesos_master_health.pl -v
 hr
-./check_mesos_master_state.pl -v
+$perl -T $I_lib ./check_mesos_master_state.pl -v
 hr
-./check_mesos_metrics.pl -P 5050 -v
+$perl -T $I_lib ./check_mesos_metrics.pl -P 5050 -v
 hr
-./check_mesos_metrics.pl -P 5051 -v
+$perl -T $I_lib ./check_mesos_metrics.pl -P 5051 -v
 hr
-./check_mesos_master_metrics.pl -v
+$perl -T $I_lib ./check_mesos_master_metrics.pl -v
 hr
-./check_mesos_slave.py -v -s "$(./check_mesos_slave.py -l | awk '/=/{print $1}')"
+$perl -T $I_lib ./check_mesos_slave.py -v -s "$(./check_mesos_slave.py -l | awk '/=/{print $1}')"
 hr
-./check_mesos_slave_metrics.pl -v
-hr
-# Not implemented yet
-#./check_mesos_registered_framework.py -v
+$perl -T $I_lib ./check_mesos_slave_metrics.pl -v
 hr
 # Not implemented yet
-#./check_mesos_slave_container_statistics.pl -v
+#$perl -T $I_lib ./check_mesos_registered_framework.py -v
 hr
-./check_mesos_slave_state.pl -v
+# Not implemented yet
+#$perl -T $I_lib ./check_mesos_slave_container_statistics.pl -v
+hr
+$perl -T $I_lib ./check_mesos_slave_state.pl -v
 hr
 echo
 echo -n "Deleting container "
