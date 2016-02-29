@@ -82,7 +82,7 @@ hr
 $perl -T $I_lib ./check_mesos_master_metrics.pl -v
 hr
 set +e
-slave="$(./check_mesos_slave.py -l | awk '/=/{print \$1; exit}')"
+slave="$(./check_mesos_slave.py -l | awk '/=/{print $1; exit}')"
 set -e
 ./check_mesos_slave.py -v -s "$slave"
 hr
