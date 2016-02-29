@@ -81,7 +81,7 @@ $perl -T $I_lib ./check_mesos_metrics.pl -P 5051 -v
 hr
 $perl -T $I_lib ./check_mesos_master_metrics.pl -v
 hr
-slave="$(./check_mesos_slave.py -l | awk '/=/{print $1; exit}')"
+slave="$(./check_mesos_slave.py -l | awk '/=/{print \$1; exit}')"
 ./check_mesos_slave.py -v -s "$slave"
 hr
 $perl -T $I_lib ./check_mesos_slave_metrics.pl -v
