@@ -67,7 +67,7 @@ else
 fi
 
 hr
-./check_kafka.pl -T "$KAFKA_TOPIC" -v
+$perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v
 hr
 echo
 echo -n "Deleting container "
