@@ -88,7 +88,7 @@ else
 fi
 
 hr
-$perl -T $I_lib ./check_apache_drill_status.py -v
+./check_apache_drill_status.py -v
 hr
 $perl -T $I_lib ./check_apache_drill_metrics.pl -v
 hr
