@@ -71,7 +71,7 @@ $perl -T $I_lib ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-d
 hr
 $perl -T $I_lib ./check_solr_query.pl -n 4 -v
 hr
-$perl -T $I_lib ./check_solr_write.pl -vvv 
+$perl -T $I_lib ./check_solr_write.pl -vvv -w 1000 # because Travis is slow
 # TODO: docker exec this to be a SolrCloud
 #docker exec -it --user=solr "$DOCKER_CONTAINER" bin/solr delete_core -c "$SOLR_CORE"
 hr
