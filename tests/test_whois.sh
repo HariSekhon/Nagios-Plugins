@@ -193,6 +193,7 @@ for domain in $domains; do
         exit 1
     fi
     set -e
+    hr
 done
 
 # check_whois.pl has exception handling to give OK back in it's base code so this isn't needed
@@ -221,6 +222,7 @@ for domain in $domains_no_nameservers; do
         exit 1
     fi
     set -e
+    hr
 done
 
 echo; echo
