@@ -22,6 +22,12 @@ cd "$srcdir/.."
 
 . "$srcdir/utils.sh"
 
+echo "
+# ============================================================================ #
+#                            0 x d a t a   H 2 O
+# ============================================================================ #
+"
+
 H2O_HOST="${DOCKER_HOST:-${H2O_HOST:-${HOST:-localhost}}}"
 H2O_HOST="${H2O_HOST##*/}"
 H2O_HOST="${H2O_HOST%%:*}"
@@ -57,15 +63,15 @@ else
 fi
 
 hr
-./check_h2o_cluster.pl
+$perl -T $I_lib ./check_h2o_cluster.pl
 hr
-./check_h2o_jobs.pl
+$perl -T $I_lib ./check_h2o_jobs.pl
 hr
-./check_h2o_node_health.pl
+$perl -T $I_lib ./check_h2o_node_health.pl
 hr
-./check_h2o_node_stats.pl
+$perl -T $I_lib ./check_h2o_node_stats.pl
 hr
-./check_h2o_nodes_last_contact.pl
+$perl -T $I_lib ./check_h2o_nodes_last_contact.pl
 hr
 echo
 echo -n "Deleting container "
