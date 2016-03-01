@@ -21,7 +21,7 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-[ -n "${DEBUG:-}" -o -n "${TRAVIS:-}" ] && verbose="-vv" || verbose=""
+[ -n "${DEBUG:-}" -o -n "${TRAVIS:-}" ] && verbose="-vvv" || verbose=""
 
 #[ `uname -s` = "Linux" ] || exit 0
 
