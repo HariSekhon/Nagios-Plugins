@@ -84,6 +84,7 @@ hr
 set +e
 slave="$(./check_mesos_slave.py -l | awk '/=/{print $1; exit}')"
 set -e
+echo "checking for mesos slave '$slave'"
 ./check_mesos_slave.py -v -s "$slave"
 hr
 $perl -T $I_lib ./check_mesos_slave_metrics.pl -v
