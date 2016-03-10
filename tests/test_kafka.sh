@@ -54,7 +54,7 @@ hr
 # reuse container it's faster
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
 #sleep 1
-if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Kafka_scala-2.10 test container"
     docker run -d --name "$DOCKER_CONTAINER" -p $KAFKA_PORT:$KAFKA_PORT "$DOCKER_IMAGE"
@@ -70,6 +70,8 @@ hr
 $perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v
 hr
 echo
-echo -n "Deleting container "
-docker rm -f "$DOCKER_CONTAINER"
+if [ -z "${NODELETE:-}" ]; then
+    echo -n "Deleting container "
+    docker rm -f "$DOCKER_CONTAINER"
+fi
 echo; echo
