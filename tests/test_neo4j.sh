@@ -110,6 +110,6 @@ hr
 echo
 if [ -z "${NODELETE:-}" ]; then
     echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
+    docker rm -f "$DOCKER_CONTAINER-auth"
 fi
 echo; echo
