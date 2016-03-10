@@ -32,28 +32,28 @@ from __future__ import print_function
 import base64
 import json
 import os
-import re
 import sys
 import traceback
-try:
-    import requests
-except ImportError as _:
-    print(traceback.format_exc(), end='')
-    sys.exit(4)
+# try:
+#     import requests
+# except ImportError as _:
+#     print(traceback.format_exc(), end='')
+#     sys.exit(4)
 libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import qquit, log, isFloat, isList, isStr, support_msg_api
-    from harisekhon.utils import WarningError, CriticalError, UnknownError
-    from harisekhon.utils import validate_host, validate_port, validate_chars, validate_regex
+    from harisekhon.utils import log, isList, isStr, support_msg_api
+    from harisekhon.utils import CriticalError, UnknownError
     from harisekhon.nagiosplugin import KeyCheckNagiosPlugin
+    from harisekhon import RequestHandler
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.6'
+
 
 class ConsulKeyCheck(KeyCheckNagiosPlugin):
 
@@ -67,44 +67,46 @@ class ConsulKeyCheck(KeyCheckNagiosPlugin):
         try:
             json_data = json.loads(content)
         except ValueError:
-            qquit('UNKNOWN', "non-json data returned by consul: '%s'. %s" % (content, support_msg_api()))
+            raise UnknownError("non-json data returned by consul: '%s'. %s" % (content, support_msg_api()))
         value = None
         if not isList(json_data):
-            qquit('UNKNOWN', "non-list returned by consul: '%s'. %s" % (content, support_msg_api()))
+            raise UnknownError("non-list returned by consul: '%s'. %s" % (content, support_msg_api()))
         if not json_data:
-            qquit('UNKNOWN', "blank list returned by consul! '%s'. %s" % (content, support_msg_api()))
+            raise UnknownError("blank list returned by consul! '%s'. %s" % (content, support_msg_api()))
         if len(json_data) > 1:
-            qquit('UNKNOWN', "more than one key returned by consul! response = '%s'. %s" \
+            raise UnknownError("more than one key returned by consul! response = '%s'. %s" \
                   % (content, support_msg_api()))
         try:
             value = json_data[0]['Value']
         except KeyError:
-            qquit('UNKNOWN', "couldn't find field 'Value' in response from consul: '%s'. %s" \
-                  % (content, support_msg_api()))
+            raise UnknownError("couldn't find field 'Value' in response from consul: '%s'. %s"
+                               % (content, support_msg_api()))
         try:
             value = base64.decodestring(value)
         except TypeError as _:
-            qquit('UNKNOWN', "invalid data returned for key '%(key)s' value = '%(value)s', failed to base64 decode" \
-                  % locals())
+            raise UnknownError("invalid data returned for key '{0}' value = '{1}', failed to base64 decode"
+                               .format(self.key, value))
         return value
+
+    # closure factory
+    @staticmethod
+    def check_response_code(msg):
+        @staticmethod
+        def tmp(req):
+            if req.status_code != 200:
+                err = ''
+                if req.content and isStr(req.content) and len(req.content.split('\n')) < 2:
+                    err += ': ' + req.content
+                raise CriticalError("{0}: '{1}' {2}{3}".format(msg, req.status_code, req.reason, err))
+        return tmp
 
     def read(self):
         req = None
         # could use ?raw to get the value without base64 but leaving base64 encoding as it's safer
         url = 'http://%(host)s:%(port)s/v1/kv/%(key)s' % self.__dict__
-        log.debug('GET %s' % url)
-        try:
-            req = requests.get(url)
-        except requests.exceptions.RequestException as _:
-            raise CriticalError(_)
-        log.debug("response: %s %s" % (req.status_code, req.reason))
-        log.debug("content: '%s'" % req.content)
-        if req.status_code != 200:
-            err = ''
-            if req.content and isStr(req.content) and len(req.content.split('\n')) < 2:
-                err += ': ' + req.content
-            raise CriticalError("failed to retrieve Consul key '{0}': '{1}' {2}{3}".format(
-                                                                            self.key, req.status_code, req.reason, err))
+        RequestHandler.check_response_code = \
+            self.check_response_code("failed to retrieve Consul key '{0}'".format(self.key))
+        req = RequestHandler.get(url)
         value = self.extract_value(req.content)
         log.info("value = '%(value)s'" % locals())
         return value
