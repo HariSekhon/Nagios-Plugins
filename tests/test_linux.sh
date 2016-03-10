@@ -49,7 +49,7 @@ docker_run_test(){
 #[ -n "${TRAVIS:-}" ] && let startupwait+=20
 
 echo "Setting up test Linux container"
-if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Linux test container"
     docker run -d --name "$DOCKER_CONTAINER" -v "$srcdir/..":"$MNTDIR" harisekhon/nagios-plugins tail -f /dev/null
@@ -86,8 +86,10 @@ hr
 docker_run_test check_yum.py -C --all-updates -v -t 30 || :
 hr
 echo
-echo -n "Deleting container "
-docker rm -f "$DOCKER_CONTAINER"
+if [ -z "${NODELETE:-}" ]; then
+    echo -n "Deleting container "
+    docker rm -f "$DOCKER_CONTAINER"
+fi
 echo; echo
 
 # ============================================================================ #
