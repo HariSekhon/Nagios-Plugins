@@ -24,22 +24,21 @@ cd "$srcdir/.."
 
 echo "
 # ============================================================================ #
-#                               T a c h y o n
+#                            0 x d a t a   H 2 O
 # ============================================================================ #
 "
 
-TACHYON_HOST="${DOCKER_HOST:-${TACHYON_HOST:-${HOST:-localhost}}}"
-TACHYON_HOST="${TACHYON_HOST##*/}"
-TACHYON_HOST="${TACHYON_HOST%%:*}"
-export TACHYON_HOST
-echo "using docker address '$TACHYON_HOST'"
-export TACHYON_MASTER_PORT="${TACHYON_MASTER_PORT:-19999}"
-export TACHYON_WORKER_PORT="${TACHYON_WORKER_PORT:-30000}"
+H2O_HOST="${DOCKER_HOST:-${H2O_HOST:-${HOST:-localhost}}}"
+H2O_HOST="${H2O_HOST##*/}"
+H2O_HOST="${H2O_HOST%%:*}"
+export H2O_HOST
+echo "using docker address '$H2O_HOST'"
+export H2O_PORT="${H2O_PORT:-54321}"
 
-export DOCKER_CONTAINER="nagios-plugins-tachyon"
+export DOCKER_CONTAINER="nagios-plugins-h2o"
 
 if ! which docker &>/dev/null; then
-    echo 'WARNING: Docker not found, skipping tachyon checks!!!'
+    echo 'WARNING: Docker not found, skipping h2o checks!!!'
     exit 0
 fi
 
@@ -47,31 +46,32 @@ startupwait=10
 [ -n "${TRAVIS:-}" ] && let startupwait+=20
 
 hr
-echo "Setting up test tachyon container"
+echo "Setting up test H2O container"
 hr
 # reuse container it's faster
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
 #sleep 1
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    echo "Starting Docker tachyon test container"
-    # need tty for sudo which tachyon-start.sh local uses while ssh'ing localhost
-    docker run -d -t --name "$DOCKER_CONTAINER" -p $TACHYON_MASTER_PORT:$TACHYON_MASTER_PORT -p $TACHYON_WORKER_PORT:$TACHYON_WORKER_PORT harisekhon/tachyon
-    echo "waiting $startupwait seconds for Tachyon Master + Worker to become responsive..."
+    echo "Starting Docker H2O test container"
+    # need tty for sudo which h2o-start.sh local uses while ssh'ing localhost
+    docker run -d -t --name "$DOCKER_CONTAINER" -p $H2O_PORT:$H2O_PORT harisekhon/h2o
+    echo "waiting $startupwait seconds for H2O to start up..."
     sleep $startupwait
 else
-    echo "Docker tachyon test container already running"
+    echo "Docker H2O test container already running"
 fi
 
 hr
-./check_tachyon_master.py -v
+$perl -T $I_lib ./check_h2o_cluster.pl
 hr
-#docker exec -ti "$DOCKER_CONTAINER" ps -ef
-./check_tachyon_worker.py -v
+$perl -T $I_lib ./check_h2o_jobs.pl
 hr
-./check_tachyon_running_workers.py -v
+$perl -T $I_lib ./check_h2o_node_health.pl
 hr
-./check_tachyon_dead_workers.py -v
+$perl -T $I_lib ./check_h2o_node_stats.pl
+hr
+$perl -T $I_lib ./check_h2o_nodes_last_contact.pl
 hr
 echo
 echo -n "Deleting container "

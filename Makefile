@@ -145,7 +145,7 @@ build:
 	
 	# install MySQLdb python module for check_logserver.py / check_syslog_mysql.py
 	# fails if MySQL isn't installed locally
-	$(SUDO) pip install MySQL-python
+	$(SUDO2) pip install MySQL-python
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins)"
 

@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check the number of Mesos deactivated slaves vi
 
 Tested on Mesos 0.23 and 0.24";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -38,8 +38,8 @@ env_creds(["Mesos Master", "Mesos"], "Mesos");
 
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
+$host = validate_host($host);
+$port = validate_port($port);
 validate_thresholds(1, 1, { 'simple' => 'upper', 'positive' => 1, 'integer' => 1 } );
 
 vlog2;
@@ -55,10 +55,14 @@ my $url = "http://$host:$port/state.json";
 $json = curl_json $url, "Mesos Master state";
 vlog3 Dumper($json);
 
-my $cluster = get_field("cluster");
+my $cluster = get_field("cluster", 1);
 my $deactivated_slaves = get_field_int("deactivated_slaves");
 
-$msg = "Mesos cluster '$cluster' deactivated_slaves=$deactivated_slaves";
+$msg = "Mesos";
+if($cluster){
+    $msg .= " cluster '$cluster'";
+}
+$msg .= " deactivated_slaves=$deactivated_slaves";
 check_thresholds($deactivated_slaves);
 $msg .= " | deactivated_slaves=$deactivated_slaves";
 msg_perf_thresholds();

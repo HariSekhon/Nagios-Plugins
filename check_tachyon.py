@@ -23,6 +23,8 @@ Queries the WebUI and displays the version and uptime
 Optional --warn-on-recent-start raises WARNING if started within the last 30 mins in order to catch crashes that may
 have been restarted by a supervisor process
 
+Tested on Tachyon 0.8.2
+
 """
 
 from __future__ import absolute_import
@@ -98,7 +100,7 @@ class CheckTachyon(NagiosPlugin):
         log.debug("response: %s %s" % (req.status_code, req.reason))
         log.debug("content:\n{0}\n{1}\n{2}".format('='*80, req.content.strip(), '='*80))
         if req.status_code != 200:
-            qquit('CRITICAL', "Non-200 response! %s %s" % (req.status_code, req.reason))
+            qquit('CRITICAL', "%s %s" % (req.status_code, req.reason))
         soup = BeautifulSoup(req.content, 'html.parser')
         try:
             uptime = soup.find('th', text=re.compile('Uptime:?', re.I)).find_next_sibling().get_text()

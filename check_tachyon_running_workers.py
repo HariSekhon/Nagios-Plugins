@@ -20,6 +20,8 @@ Nagios Plugin to check the number of live Tachyon workers via the Tachyon Master
 
 TODO: thresholds on number of live workers (coming soon)
 
+Tested on Tachyon 0.8.2
+
 """
 
 from __future__ import absolute_import
@@ -83,7 +85,7 @@ class CheckTachyonLiveWorkers(NagiosPlugin):
         log.debug("response: %s %s" % (req.status_code, req.reason))
         log.debug("content:\n{0}\n{1}\n{2}".format('='*80, req.content.strip(), '='*80))
         if req.status_code != 200:
-            qquit('CRITICAL', "Non-200 response! %s %s" % (req.status_code, req.reason))
+            qquit('CRITICAL', "%s %s" % (req.status_code, req.reason))
         soup = BeautifulSoup(req.content, 'html.parser')
         try:
             running_workers = soup.find('th', text=re.compile(r'Running\s+Workers:?', re.I))\

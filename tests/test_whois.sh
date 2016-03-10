@@ -21,6 +21,8 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
+[ -n "${DEBUG:-}" -o -n "${TRAVIS:-}" ] && verbose="-vvv" || verbose=""
+
 #[ `uname -s` = "Linux" ] || exit 0
 
 echo "
@@ -185,7 +187,7 @@ for domain in $domains; do
     printf "%-20s  " "$domain:"
     # don't want people with 25 days left on their domains raising errors here, setting thresholds lower to always pass
     set +eo pipefail
-    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 -t 30 -vvv`
+    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 -t 30 -v $verbose`
     result=$?
     echo "$output"
     if [ $result -ne 0 -a $result -eq 3 ]; then
@@ -193,13 +195,14 @@ for domain in $domains; do
         exit 1
     fi
     set -e
+    hr
 done
 
 # check_whois.pl has exception handling to give OK back in it's base code so this isn't needed
 #echo "Testing Domains excluding expiry:"
 #for domain in $domains_noexpiry; do
 #    set +eo pipefail
-#    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-expiry -t 30 -vvv`
+#    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-expiry -t 30 -v $verbose`
 #    result=$?
 #    echo "$output"
 #    if [ $result -ne 0 -a $result -eq 3 ]; then
@@ -213,7 +216,7 @@ echo "Testing Domains excluding nameservers:"
 for domain in $domains_no_nameservers; do
     [ -z "$ALL" -a "$(($RANDOM % 20))" = 0 ] || continue
     set +eo pipefail
-    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-nameservers -t 30 -vvv`
+    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-nameservers -t 30 -v $verbose`
     result=$?
     echo "$output"
     if [ $result -ne 0 -a $result -eq 3 ]; then
@@ -221,6 +224,7 @@ for domain in $domains_no_nameservers; do
         exit 1
     fi
     set -e
+    hr
 done
 
 echo; echo

@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 class ConsulCheckKey(NagiosPlugin):
 
@@ -89,12 +89,12 @@ class ConsulCheckKey(NagiosPlugin):
 
     def run(self):
         self.no_args()
-        host = self.options.host
-        port = self.options.port
+        host = self.get_opt('host')
+        port = self.get_opt('port')
         validate_host(host)
         validate_port(port)
-        key = self.options.key
-        regex = self.options.regex
+        key = self.get_opt('key')
+        regex = self.get_opt('regex')
         if not key:
             self.usage('--key not defined')
         key = key.lstrip('/')
