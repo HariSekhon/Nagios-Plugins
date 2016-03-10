@@ -68,8 +68,10 @@ if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
 fi
 hr
 echo
-echo -n "Deleting container "
-docker rm -f "$DOCKER_CONTAINER"
+if [ -z "${NODELETE:-}" ]; then
+    echo -n "Deleting container "
+    docker rm -f "$DOCKER_CONTAINER"
+fi
 echo
 hr
 
@@ -120,6 +122,6 @@ hr
 echo
 if [ -z "${NODELETE:-}" ]; then
     echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
+    docker rm -f "$DOCKER_CONTAINER-auth"
 fi
 echo; echo
