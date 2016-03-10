@@ -44,7 +44,7 @@ startupwait=5
 [ -n "${TRAVIS:-}" ] && let startupwait+=20
 
 echo "Setting up test MongoDB container"
-if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
     echo "Starting Docker MongoDB test container"
@@ -118,6 +118,8 @@ if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
 fi
 hr
 echo
-echo -n "Deleting container "
-docker rm -f "$DOCKER_CONTAINER-auth"
+if [ -z "${NODELETE:-}" ]; then
+    echo -n "Deleting container "
+    docker rm -f "$DOCKER_CONTAINER"
+fi
 echo; echo
