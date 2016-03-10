@@ -42,45 +42,29 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, isStr, CriticalError
     from harisekhon.nagiosplugin import KeyWriteNagiosPlugin
+    from harisekhon import RequestHandler
     from check_consul_key import ConsulKeyCheck
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.6'
 
-class ConsulWriteCheck(KeyWriteNagiosPlugin, ConsulKeyCheck):
+
+class ConsulWriteCheck(ConsulKeyCheck, KeyWriteNagiosPlugin):
 
     def write(self):
         url = 'http://%(host)s:%(port)s/v1/kv/%(key)s' % self.__dict__
-        try:
-            req = requests.put(url, self._write_value)
-        except requests.exceptions.RequestException as _:
-            raise CriticalError(_)
-        log.debug("response: %s %s" % (req.status_code, req.reason))
-        log.debug("content: '%s'" % req.content)
-        if req.status_code != 200:
-            err = ''
-            if req.content and isStr(req.content) and len(req.content.split('\n')) < 2:
-                err += ': ' + req.content
-            raise CriticalError("failed to write Consul key '{0}': '{1}' {2}{3}".format(
-                self.key, req.status_code, req.reason, err))
+        RequestHandler.check_response_code = \
+            self.check_response_code("failed to write Consul key '{0}'".format(self.key))
+        req = RequestHandler.put(url, self._write_value)
 
     def delete(self):
         url = 'http://%(host)s:%(port)s/v1/kv/%(key)s' % self.__dict__
-        try:
-            req = requests.delete(url)
-        except requests.exceptions.RequestException as _:
-            raise CriticalError(_)
-        log.debug("response: %s %s" % (req.status_code, req.reason))
-        log.debug("content: '%s'" % req.content)
-        if req.status_code != 200:
-            err = ''
-            if req.content and isStr(req.content) and len(req.content.split('\n')) < 2:
-                err += ': ' + req.content
-            raise CriticalError("failed to delete Consul key '{0}': '{1}' {2}{3}".format(
-                self.key, req.status_code, req.reason, err))
+        RequestHandler.check_response_code = \
+            self.check_response_code("failed to delete Consul key '{0}'".format(self.key))
+        req = RequestHandler.delete(url)
 
 
 if __name__ == '__main__':
