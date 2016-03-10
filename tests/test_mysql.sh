@@ -50,7 +50,7 @@ startupwait=10
 [ -n "${TRAVIS:-}" ] && let startupwait+=20
 
 echo "Setting up test MySQL container"
-if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker MySQL test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 3306:3306 -e MYSQL_ROOT_PASSWORD="$MYSQL_PASSWORD" mysql
@@ -75,6 +75,8 @@ unset MYSQL_HOST
 #$perl -T $I_lib ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
 hr
 echo
-echo -n "Deleting container "
-docker rm -f "$DOCKER_CONTAINER"
+if [ -z "${NODELETE:-}" ]; then
+    echo -n "Deleting container "
+    docker rm -f "$DOCKER_CONTAINER"
+fi
 echo; echo
