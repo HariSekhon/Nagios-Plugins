@@ -44,7 +44,7 @@ startupwait=1
 [ -n "${TRAVIS:-}" ] && let startupwait+=4
 
 echo "Setting up test Nginx container"
-if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Nginx test container"
     docker create --name "$DOCKER_CONTAINER" -p 80:80 nginx
@@ -60,6 +60,8 @@ hr
 $perl -T $I_lib ./check_nginx_stats.pl -H "$NGINX_HOST" -u /status
 hr
 echo
-echo -n "Deleting container "
-docker rm -f "$DOCKER_CONTAINER"
+if [ -z "${NODELETE:-}" ]; then
+    echo -n "Deleting container "
+    docker rm -f "$DOCKER_CONTAINER"
+fi
 echo; echo
