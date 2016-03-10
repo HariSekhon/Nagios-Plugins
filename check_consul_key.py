@@ -108,7 +108,6 @@ class ConsulKeyCheck(KeyCheckNagiosPlugin):
             self.check_response_code("failed to retrieve Consul key '{0}'".format(self.key))
         req = RequestHandler.get(url)
         value = self.extract_value(req.content)
-        log.info("value = '%(value)s'" % locals())
         return value
 
 
