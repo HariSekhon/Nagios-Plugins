@@ -50,7 +50,7 @@ hr
 # reuse container it's faster
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
 #sleep 1
-if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Consul test container"
     docker run -d --name "$DOCKER_CONTAINER" -p $CONSUL_PORT:$CONSUL_PORT harisekhon/consul agent -dev -data-dir /tmp -client 0.0.0.0
@@ -74,10 +74,24 @@ curl -X PUT -d "5" "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$testkey"
 echo
 hr
 ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 5 -v
+hr
 ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -c 5 -v
+hr
 ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 5 -c 5 -v
 hr
+echo "checking threshold failures are caught correctly"
+hr
+set +o pipefail
+./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 5 -v | tee /dev/stderr | grep --color=yes ^WARNING
+hr
+./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 4 -v | tee /dev/stderr | grep --color=yes ^CRITICAL
+set -o pipefail
+hr
+./check_consul_write.py -v
+hr
 echo
-echo -n "Deleting container "
-docker rm -f "$DOCKER_CONTAINER"
+if [ -z "${NODELETE:-}" ]; then
+    echo -n "Deleting container "
+    docker rm -f "$DOCKER_CONTAINER"
+fi
 echo; echo
