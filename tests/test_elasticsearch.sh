@@ -49,7 +49,7 @@ echo "Setting up test Elasticsearch container"
 # reuse container it's faster
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
 #sleep 1
-if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Elasticsearch test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 9200:9200 elasticsearch
@@ -145,6 +145,8 @@ hr
 $perl -T $I_lib ./check_elasticsearch_shards_state_detail.pl -v
 hr
 echo
-echo -n "Deleting container "
-docker rm -f "$DOCKER_CONTAINER"
+if [ -z "${NODELETE:-}" ]; then
+    echo -n "Deleting container "
+    docker rm -f "$DOCKER_CONTAINER"
+fi
 echo; echo
