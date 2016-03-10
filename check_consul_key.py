@@ -34,34 +34,35 @@ import json
 import os
 import re
 import sys
+import traceback
 try:
     import requests
 except ImportError as _:
-    print(_)
+    print(traceback.format_exc(), end='')
     sys.exit(4)
 libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import qquit, log, isFloat, isList, isStr, support_msg_api
+    from harisekhon.utils import WarningError, CriticalError, UnknownError
     from harisekhon.utils import validate_host, validate_port, validate_chars, validate_regex
-    from harisekhon import NagiosPlugin
+    from harisekhon.nagiosplugin import KeyCheckNagiosPlugin
 except ImportError as _:
-    print('module import failed: %s' % _)
+    print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.1'
+__version__ = '0.3'
 
-class ConsulCheckKey(NagiosPlugin):
+class ConsulKeyCheck(KeyCheckNagiosPlugin):
 
-    def add_options(self):
-        self.add_hostoption('Consul', default_host='localhost', default_port='8500')
-        self.add_opt('-k', '--key', help='Key to query from Consul')
-        self.add_opt('-r', '--regex', help="Regex to compare the key's value against (optional)")
-        self.add_thresholds()
+    def __init__(self):
+        super(ConsulKeyCheck, self).__init__()
+        self.name = 'Consul'
+        self.default_port = 8500
 
-    def extract_value(self, content): # pylint: disable=no-self-use
+    def extract_value(self, content):  # pylint: disable=no-self-use
         json_data = None
         try:
             json_data = json.loads(content)
@@ -87,49 +88,27 @@ class ConsulCheckKey(NagiosPlugin):
                   % locals())
         return value
 
-    def run(self):
-        self.no_args()
-        host = self.get_opt('host')
-        port = self.get_opt('port')
-        validate_host(host)
-        validate_port(port)
-        key = self.get_opt('key')
-        regex = self.get_opt('regex')
-        if not key:
-            self.usage('--key not defined')
-        key = key.lstrip('/')
-        validate_chars(key, 'key', r'\w\/-')
-        if regex:
-            validate_regex(regex, 'key')
-        self.validate_thresholds(optional=True)
+    def read(self):
         req = None
-        url = 'http://%(host)s:%(port)s/v1/kv/%(key)s' % locals()
+        # could use ?raw to get the value without base64 but leaving base64 encoding as it's safer
+        url = 'http://%(host)s:%(port)s/v1/kv/%(key)s' % self.__dict__
         log.debug('GET %s' % url)
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
-            qquit('CRITICAL', _)
+            raise CriticalError(_)
         log.debug("response: %s %s" % (req.status_code, req.reason))
         log.debug("content: '%s'" % req.content)
         if req.status_code != 200:
             err = ''
             if req.content and isStr(req.content) and len(req.content.split('\n')) < 2:
                 err += ': ' + req.content
-            qquit('CRITICAL', "failed to retrieve consul key '%s': '%s' %s%s" % (key, req.status_code, req.reason, err))
+            raise CriticalError("failed to retrieve Consul key '{0}': '{1}' {2}{3}".format(
+                                                                            self.key, req.status_code, req.reason, err))
         value = self.extract_value(req.content)
         log.info("value = '%(value)s'" % locals())
-        self.ok()
-        self.msg = "consul key '%s' value = '%s'" % (key, value)
-        if regex:
-            if not re.search(regex, value):
-                self.critical()
-                self.msg += " (did not match expected regex '%s')" % regex
-            #elif self.get_verbose():
-            #    self.msg += " (matched regex '%s')" % regex
-        self.check_thresholds(value)
-        if isFloat(value):
-            self.msg += " | '%s'=%s" % (key, value)
+        return value
 
 
 if __name__ == '__main__':
-    ConsulCheckKey().main()
+    ConsulKeyCheck().main()
