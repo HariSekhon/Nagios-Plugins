@@ -56,7 +56,7 @@ startupwait=20
 test_riak(){
     local version="$1"
     echo "Setting up test Riak $version container"
-    if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+    if ! is_docker_container_running "$DOCKER_CONTAINER"; then
         docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
         echo "Starting Docker Riak test container"
         docker run -d --name "$DOCKER_CONTAINER" -v "$srcdir/..":"$MNTDIR" -p 8098:8098 "$DOCKER_IMAGE":"$version"
