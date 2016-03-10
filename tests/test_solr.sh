@@ -46,7 +46,7 @@ startupwait=5
 [ -n "${TRAVIS:-}" ] && let startupwait+=20
 
 echo "Setting up test Solr docker container"
-if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Solr test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 8983:8983 solr
@@ -76,6 +76,8 @@ $perl -T $I_lib ./check_solr_write.pl -vvv -w 1000 # because Travis is slow
 #docker exec -it --user=solr "$DOCKER_CONTAINER" bin/solr delete_core -c "$SOLR_CORE"
 hr
 echo
-echo -n "Deleting container "
-docker rm -f "$DOCKER_CONTAINER"
+if [ -z "${NODELETE:-}" ]; then
+    echo -n "Deleting container "
+    docker rm -f "$DOCKER_CONTAINER"
+fi
 echo; echo
