@@ -57,7 +57,7 @@ hr
 # reuse container it's faster
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
 #sleep 1
-if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     docker rm -f "$DOCKER_CONTAINER2" &>/dev/null || :
     echo "Starting Docker ZooKeeper test container"
@@ -93,8 +93,10 @@ hr
 $perl -T $I_lib ./check_apache_drill_metrics.pl -v
 hr
 echo
-echo -n "Deleting container "
-docker rm -f "$DOCKER_CONTAINER"
-echo -n "Deleting container "
-docker rm -f "$DOCKER_CONTAINER2"
+if [ -z "${NODELETE:-}" ]; then
+    echo -n "Deleting container "
+    docker rm -f "$DOCKER_CONTAINER"
+    echo -n "Deleting container "
+    docker rm -f "$DOCKER_CONTAINER2"
+fi
 echo; echo
