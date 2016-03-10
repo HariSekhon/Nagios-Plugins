@@ -46,7 +46,7 @@ startupwait=15
 [ -n "${TRAVIS:-}" ] && let startupwait+=20
 
 echo "Setting up test Neo4J container without authentication"
-if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
     echo "Starting Docker Neo4J test container"
     docker run -d --name "$DOCKER_CONTAINER" --env NEO4J_AUTH=none -p 7473:7473 -p 7474:7474 neo4j
@@ -108,6 +108,8 @@ hr
 $perl -T $I_lib ./check_neo4j_version.pl -v
 hr
 echo
-echo -n "Deleting container "
-docker rm -f "$DOCKER_CONTAINER-auth"
+if [ -z "${NODELETE:-}" ]; then
+    echo -n "Deleting container "
+    docker rm -f "$DOCKER_CONTAINER"
+fi
 echo; echo
