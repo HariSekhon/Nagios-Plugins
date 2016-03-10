@@ -47,7 +47,7 @@ startupwait=1
 [ -n "${TRAVIS:-}" ] && let startupwait+=10
 
 echo "Setting up test Redis container"
-if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER$"; then
+if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Redis test container"
     docker run -d --name "$DOCKER_CONTAINER" -p 6379:6379 redis ########--requirepass "$REDIS_PASSWORD"
@@ -89,6 +89,8 @@ echo "checking for no code failure masking root cause in catch quit handler"
 $perl -T $I_lib ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v | tee /dev/stderr | grep -v ' line '
 hr
 echo
-echo -n "Deleting container "
-docker rm -f "$DOCKER_CONTAINER"
+if [ -z "${NODELETE:-}" ]; then
+    echo -n "Deleting container "
+    docker rm -f "$DOCKER_CONTAINER"
+fi
 echo; echo
