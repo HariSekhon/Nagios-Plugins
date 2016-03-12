@@ -79,11 +79,11 @@ hr
 # ============================================================================ #
 
 echo "Setting up test Neo4J container with authentication"
-if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER-auth$"; then
+if ! is_docker_container_running "$DOCKER_CONTAINER-auth"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Neo4J test container with authentication"
     docker run -d --name "$DOCKER_CONTAINER-auth" --env NEO4J_AUTH="$NEO4J_USERNAME/$NEO4J_PASSWORD" -p 7473:7473 -p 7474:7474 neo4j
-    echo "waiting $startupwait seconds for Neo4J to start up"
+    echo "waiting $startupwait seconds for Neo4J to start up with auth"
     sleep $startupwait
     echo "creating test Neo4J node"
     docker exec "$DOCKER_CONTAINER-auth" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" })'
