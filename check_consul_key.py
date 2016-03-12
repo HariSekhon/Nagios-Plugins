@@ -43,7 +43,7 @@ libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, isList, isStr, support_msg_api
+    from harisekhon.utils import isList, isStr, support_msg_api
     from harisekhon.utils import CriticalError, UnknownError
     from harisekhon.nagiosplugin import KeyCheckNagiosPlugin
     from harisekhon import RequestHandler
