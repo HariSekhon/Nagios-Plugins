@@ -19,6 +19,8 @@
 Nagios Plugin to check Consul key-value store end-to-end via API write of a unique generated key => read back + validate
 and finally delete cleanup of the generated key
 
+Thresholds apply to max write / read / delete timings
+
 Tested on Consul 0.6.3
 
 """
