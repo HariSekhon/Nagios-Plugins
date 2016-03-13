@@ -61,6 +61,7 @@ class ConsulKeyCheck(KeyCheckNagiosPlugin):
         super(ConsulKeyCheck, self).__init__()
         self.name = 'Consul'
         self.default_port = 8500
+        self.request_handler = RequestHandler()
 
     def extract_value(self, content):  # pylint: disable=no-self-use
         json_data = None
@@ -91,7 +92,6 @@ class ConsulKeyCheck(KeyCheckNagiosPlugin):
     # closure factory
     @staticmethod
     def check_response_code(msg):
-        @staticmethod
         def tmp(req):
             if req.status_code != 200:
                 err = ''
@@ -104,9 +104,9 @@ class ConsulKeyCheck(KeyCheckNagiosPlugin):
         req = None
         # could use ?raw to get the value without base64 but leaving base64 encoding as it's safer
         url = 'http://%(host)s:%(port)s/v1/kv/%(key)s' % self.__dict__
-        RequestHandler.check_response_code = \
+        self.request_handler.check_response_code = \
             self.check_response_code("failed to retrieve Consul key '{0}'".format(self.key))
-        req = RequestHandler.get(url)
+        req = self.request_handler.get(url)
         value = self.extract_value(req.content)
         return value
 
