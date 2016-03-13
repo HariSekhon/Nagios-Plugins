@@ -18,7 +18,7 @@
 
 Nagios Plugin to check the status of an Oozie server via the HTTP Rest API
 
-Tested on Hortonworks HDP 2.3.2
+Tested on Hortonworks HDP 2.3.2 and 2.4.0
 
 """
 
@@ -30,24 +30,21 @@ from __future__ import print_function
 import json
 import os
 import sys
-try:
-    import requests
-except ImportError as _:
-    print(_)
-    sys.exit(4)
+import traceback
 libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit, support_msg_api
+    from harisekhon.utils import UnknownError, support_msg_api
     from harisekhon.utils import validate_host, validate_port, isJson
+    from harisekhon import RequestHandler
     from harisekhon import NagiosPlugin
 except ImportError as _:
-    print('module import failed: %s' % _, file=sys.stderr)
+    print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 class OozieStatusCheck(NagiosPlugin):
 
@@ -62,24 +59,16 @@ class OozieStatusCheck(NagiosPlugin):
         validate_port(port)
 
         url = 'http://%(host)s:%(port)s/oozie/v1/admin/status' % locals()
-        log.debug('GET %s' % url)
-        try:
-            req = requests.get(url)
-        except requests.exceptions.RequestException as _:
-            qquit('CRITICAL', _)
-        log.debug("response: %s %s" % (req.status_code, req.reason))
-        log.debug("content: '%s'" % req.content)
-        if req.status_code != 200:
-            qquit('CRITICAL', "%s %s" % (req.status_code, req.reason))
+        req = RequestHandler().get(url)
         # should == NORMAL
         if not isJson(req.content):
-            qquit('UNKNOWN', 'non-JSON returned by Oozie server at {0}:{1}'.format(host, port))
+            raise UnknownError('non-JSON returned by Oozie server at {0}:{1}'.format(host, port))
         status = None
         try:
             _ = json.loads(req.content)
             status = _['systemMode']
         except KeyError:
-            qquit('UNKNOWN', 'systemMode key was not returned in output from Oozie. {0}'.format(support_msg_api()))
+            raise UnknownError('systemMode key was not returned in output from Oozie. {0}'.format(support_msg_api()))
         self.msg = 'Oozie status = {0}'.format(status)
         if status == 'NORMAL':
             self.ok()
