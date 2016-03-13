@@ -57,15 +57,15 @@ class ConsulWriteCheck(ConsulKeyCheck, KeyWriteNagiosPlugin):
 
     def write(self):
         url = 'http://%(host)s:%(port)s/v1/kv/%(key)s' % self.__dict__
-        RequestHandler.check_response_code = \
+        self.request_handler.check_response_code = \
             self.check_response_code("failed to write Consul key '{0}'".format(self.key))
-        RequestHandler.put(url, self._write_value)
+        self.request_handler.put(url, self._write_value)
 
     def delete(self):
         url = 'http://%(host)s:%(port)s/v1/kv/%(key)s' % self.__dict__
-        RequestHandler.check_response_code = \
+        self.request_handler.check_response_code = \
             self.check_response_code("failed to delete Consul key '{0}'".format(self.key))
-        RequestHandler.delete(url)
+        self.request_handler.delete(url)
 
 
 if __name__ == '__main__':
