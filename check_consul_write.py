@@ -43,7 +43,6 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.nagiosplugin import KeyWriteNagiosPlugin
-    from harisekhon import RequestHandler
     from check_consul_key import ConsulKeyCheck
 except ImportError as _:
     print(traceback.format_exc(), end='')
