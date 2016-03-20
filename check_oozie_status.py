@@ -36,9 +36,9 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import UnknownError, support_msg_api
-    from harisekhon.utils import validate_host, validate_port, isJson
+    from harisekhon.utils import isJson
     from harisekhon import RequestHandler
-    from harisekhon import NagiosPlugin
+    from harisekhon import StatusNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
@@ -46,34 +46,35 @@ except ImportError as _:
 __author__ = 'Hari Sekhon'
 __version__ = '0.3'
 
-class OozieStatusCheck(NagiosPlugin):
+class OozieStatusCheck(StatusNagiosPlugin):
 
-    def add_options(self):
-        self.add_hostoption(name='Oozie', default_host='localhost', default_port=11000)
+    def __init__(self):
+        # Python 2.x
+        super(OozieStatusCheck, self).__init__()
+        # Python 3.x
+        # super().__init__()
+        self.name = 'Oozie'
+        self.default_port = 11000
 
-    def run(self):
-        self.no_args()
-        host = self.get_opt('host')
-        port = self.get_opt('port')
-        validate_host(host)
-        validate_port(port)
-
-        url = 'http://%(host)s:%(port)s/oozie/v1/admin/status' % locals()
+    def get_status(self):
+        url = 'http://%(host)s:%(port)s/oozie/v1/admin/status' % self.__dict__
         req = RequestHandler().get(url)
-        # should == NORMAL
+        return self.parse(req)
+
+    def parse(self, req):
         if not isJson(req.content):
-            raise UnknownError('non-JSON returned by Oozie server at {0}:{1}'.format(host, port))
+            raise UnknownError('non-JSON returned by Oozie server at {0}:{1}'.format(self.host, self.port))
         status = None
         try:
             _ = json.loads(req.content)
             status = _['systemMode']
         except KeyError:
             raise UnknownError('systemMode key was not returned in output from Oozie. {0}'.format(support_msg_api()))
-        self.msg = 'Oozie status = {0}'.format(status)
         if status == 'NORMAL':
             self.ok()
         else:
             self.critical()
+        return status
 
 
 if __name__ == '__main__':
