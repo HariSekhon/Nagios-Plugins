@@ -72,7 +72,7 @@ get_options();
 $host       = validate_host($host);
 $host       = validate_resolvable($host);
 $port       = validate_port($port);
-$bean  = validate_java_bean($bean) if defined($bean);
+$bean       = validate_java_bean($bean) if defined($bean);
 my $url     = "http://$host:$port/jmx";
 my %stats;
 my @stats;
