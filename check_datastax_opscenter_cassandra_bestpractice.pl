@@ -17,7 +17,7 @@ By default shows the last run status of all rules and raises critical if any of 
 
 Can specify an individual --rule (as displayed by the default mode that shows them all) and then optionally have that rule --run immediately instead of using the last run result. Specifying a rule also provides additional output for that one rule of 'category', 'importance', 'scope' and 'last_run_time' as well as the recommendation of how to correct it if status does not equal 'Passed'.
 
-Requires DataStax Enterprise 5.0.0 and DataStax Enterprise
+Requires DataStax Enterprise 5.0.0 onwards
 
 Tested on DataStax OpsCenter 5.0.0";
 
