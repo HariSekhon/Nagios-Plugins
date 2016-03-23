@@ -15,7 +15,7 @@ Tested on Memcached from around 2010/2011, plus 1.4.4, 1.4.25
 
 Will not work on Couchbase's embedded Memcached as it won't find the expected stats";
 
-$VERSION = "0.9";
+$VERSION = "0.9.1";
 
 use strict;
 use warnings;
@@ -127,7 +127,7 @@ while (<$conn>){
     last if /END/;
     next if /^STAT (?:libevent|stat_reset|memcached_version) /;
     # Couchbase's embedded Memcached non-stats
-    if(not /^STAT \w+ [\d\.]+$/){
+    if(not /^STAT \w+ [\d\.]+/){
         next if /^STAT ep_\w+\b/;
         quit "CRITICAL", "unrecognized line in output: '$_'";
     }
@@ -136,7 +136,7 @@ while (<$conn>){
     $linecount++;
     foreach(sort keys %stats2){
         #vlog3 "checking for stat $_";
-        if($line =~ /^STAT $_ ([\d\.]+)$/){
+        if($line =~ /^STAT $_ ([\d\.]+)/){
             #vlog3 "found $_";
             $stats{$_} = $1;
             next;
