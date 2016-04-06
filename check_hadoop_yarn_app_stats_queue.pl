@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2014-03-05 21:45:08 +0000 (Wed, 05 Mar 2014)
 #
-#  http://github.com/harisekhon
+#  https://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
 #
@@ -33,8 +33,6 @@ use JSON::XS;
 use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
-$ua->requests_redirectable([]);
-
 
 set_port_default(8088);
 
@@ -66,45 +64,12 @@ $status = "OK";
 
 my $url = "http://$host:$port/jmx";
 
-sub error_handler($) {
-        my $response = shift;
-
-        if($response->code eq "307"){
-            my $active = $response->header("Location");
-            quit("OK", "Standby RM, active at $active");
-        }
-
-
-        unless($response->code eq "200"){
-            my $additional_information = "";
-            my $json;
-            if($json = isJson($response->content)){
-                if(defined($json->{"status"})){
-                    $additional_information .= ". Status: " . $json->{"status"};
-                }
-                if(defined($json->{"reason"})){
-                    $additional_information .= ". Reason: " . $json->{"reason"};
-                } elsif(defined($json->{"message"})){
-                    $additional_information .= ". Message: " . $json->{"message"};
-                }
-            }
-            quit("CRITICAL", $response->code . " " . $response->message . $additional_information);
-        }
-        unless($response->content){
-            quit("CRITICAL", "blank content returned from '" . $response->request->uri . "'");
-        }
-}
-
-my $content = curl $url, undef, undef, undef, \&error_handler;
-
-
-#my $content = curl $url;
+my $content = curl_redirect $url;
 
 try{
     $json = decode_json $content;
 };
 catch{
-    if ($content =~ /This is standby RM./) { quit $status, $content;}
     quit "invalid json returned by Yarn Resource Manager at '$url'";
 };
 vlog3(Dumper($json));
