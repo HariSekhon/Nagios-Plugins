@@ -11,9 +11,9 @@
 
 $DESCRIPTION = "Nagios Plugin to check the Neo4j data store sizes using the Neo4j REST API
 
-Tested on Neo4j 1.9.4 and 2.0.3";
+Tested on Neo4j 1.9.4, 2.0.3, 2.3.2";
 
-$VERSION = "0.1.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -37,6 +37,8 @@ my @stores;
 
 %options = (
     %hostoptions,
+    %useroptions,
+    %ssloptions,
     "s|stores=s"        =>  [ \$store,  "Stores to return size information for, comma separated. Specify a single store to check it's size against warning/critical thresholds in bytes. Run without this option to see all available stores" ],
     %thresholdoptions,
 );
@@ -46,6 +48,8 @@ get_options();
 
 $host  = validate_host($host);
 $port  = validate_port($port);
+$user  = validate_user($user) if defined($user);
+$password = validate_password($password) if defined($password);
 if($store){
     @stores = split(/\s*,\s*/, $store);
     for(my $i=0; $i < scalar @stores; $i++){
@@ -54,6 +58,7 @@ if($store){
     @stores = uniq_array(@stores);
 }
 validate_thresholds(0, 0, { "simple" => "upper", "positive" => 1, "integer" => 1}) if (scalar @stores == 1);
+validate_ssl();
 
 vlog2;
 set_timeout();
@@ -63,7 +68,7 @@ $status = "OK";
 my $url_prefix = "http://$host:$port";
 my $url = "$url_prefix/db/manage/server/jmx/domain/org.neo4j/instance%3Dkernel%230%2Cname%3DStore%20file%20sizes";
 
-my $content = curl $url, "Neo4j";
+my $content = curl $url, "Neo4j", $user, $password;
 my $json;
 try {
     $json = decode_json($content);

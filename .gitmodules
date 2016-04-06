@@ -1,3 +1,14 @@
 [submodule "lib"]
 	path = lib
 	url = https://github.com/harisekhon/lib
+[submodule "pylib"]
+	path = pylib
+	url = https://github.com/harisekhon/pylib
+[submodule "Dockerfiles"]
+	path = Dockerfiles
+	url = https://github.com/harisekhon/Dockerfiles
+	branch = master
+[submodule "bash-tools"]
+	path = bash-tools
+	url = https://github.com/harisekhon/bash-tools
+	branch = master

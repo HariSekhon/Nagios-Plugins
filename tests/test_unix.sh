@@ -10,15 +10,16 @@
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  http://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/harisekhon
 #
 
 set -eu
+[ -n "${DEBUG:-}" ] && set -x
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. tests/travis.sh
+. ./tests/utils.sh
 
 echo "
 # ============================================================================ #

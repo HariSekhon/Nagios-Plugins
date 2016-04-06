@@ -51,7 +51,7 @@ my $outstanding_requests = "0,10";
     "c|critical=s"             => [ \$critical,             "Critical threshold or ran:ge (inclusive) for avg latency" ],
     "s|standalone"             => [ \$standalone,           "OK if mode is standalone (by default expects leader/follower mode as part of a proper ZooKeeper cluster with quorum)" ],
 );
-splice @usage_order, 6, 0, qw/outstanding-requests warning critical standalone/;
+splice @usage_order, 7, 0, qw/outstanding-requests standalone warning critical/;
 
 get_options();
 

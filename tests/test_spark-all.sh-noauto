@@ -18,10 +18,12 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/";
 
-. ./travis.sh
+. ./utils.sh
 
-for x in 1.3.1 1.4.1 1.5.2; do
-    export $SPARK_VERSION="$x"
+# TODO: add difference in master url for Spark <= 1.3 and then re-enable
+#for x in 1.3.1 1.4.1 1.5.2; do
+for x in 1.4.1 1.5.2; do
+    export SPARK_VERSION="$x"
     # will auto follow the corresponding spark script name without -all
-    "./${0/-all}"
+    "$srcdir/$(basename "${0/-all}")"
 done

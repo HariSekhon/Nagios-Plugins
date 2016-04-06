@@ -17,11 +17,11 @@ Performs a hard commit by default but if running Solr 4.x you may optionally spe
 
 The default thresholds will need to be increased when testing SolrCloud on Hadoop HDFS as the write latency is massively higher, more than 10x in testing (700-1800ms on Hadoop vs 55-75ms on regular Solr / SolrCloud). Another possibility is to switch to using --soft-commits which brings write times down (warning threshold may still need to be increased)
 
-Test on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x";
+Test on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.x, Solr 5.4.0";
 
 # Originally designed for Solr 4.0 onwards due to using JSON and the standard update handler which only supports JSON from 4.0, later rewritten to support Solr 3 via XML document addition instead
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -110,6 +110,10 @@ my $msg2 = "write_time=${query_time}ms" . msg_perf_thresholds(1) . " write_QTime
 #sleep $sleep / 1000;
 
 vlog2 "\nquerying for unique document";
+# hacky workaround because Solr 5 breaks on this text/xml if there is no xml body :-(
+my $default_header = $ua->default_headers();
+delete $default_header->{'content-type'};
+$ua->default_headers($default_header);
 $json = query_solr($collection, "id:$unique_id");
 
 # reuse specific error from get_field
@@ -133,6 +137,7 @@ unless($no_delete){
     </delete>
     ";
     vlog2 "\ndeleting unique document";
+    $ua->default_header("Content-Type" => "application/xml");
     $json = curl_solr "$http_context/$collection/update", "POST", $xml_delete;
 
     ( $query_status eq 0 ) or quit "CRITICAL", "failed to delete unique document with id '$unique_id'";

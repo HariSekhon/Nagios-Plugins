@@ -17,9 +17,9 @@ Use --verbose mode to also output max & min node % token ownership and rack info
 
 Can specify a remote host and port otherwise assumes to check via localhost
 
-Written and tested against Cassandra 2.0.1 and 2.0.9, DataStax Community Edition";
+Tested on Cassandra 2.0.1, 2.0.9, 2.2.5 - DataStax Community Edition";
 
-$VERSION = "0.4";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -68,11 +68,14 @@ foreach(@output){
     # Only consider up nodes
     next if(/^D[NJLM]\s+/);
     next if($exclude_joining_leaving and /^U[JL]\s+/);
-    if(/^[^\s]+\s+([^\s]+)\s+[^\s]+(?:\s+[A-Za-z][A-Za-z])?\s+[^\s]+\s+(\d+(?:\.\d+)?)\%\s+[^\s]+\s+([^\s]+)/){
+    if(/^[^\s]+\s+([^\s]+)\s+[^\s]+(?:\s+[A-Za-z][A-Za-z])?\s+[^\s]+\s+((?:\d+(?:\.\d+)?)\%|\?)\s+[^\s]+\s+([^\s]+)/){
         $node_count++;
         my $node       = $1;
         my $percentage = $2;
         my $rack       = $3;
+        if($percentage eq "?"){
+            quit "UNKNOWN", "nodetool returned '?' for token percentage ownership, Cassandra can't determine it's own token % we need to calculate the balance";
+        }
         if($percentage > $max_node[1]){
             @max_node = ($node, $percentage, $rack);
         }

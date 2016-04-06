@@ -26,7 +26,7 @@ Limitations (these all currently have tickets open to fix in the underlying API)
 - first run if given a topic that doesn't already exist will cause the error \"Error: There are no known brokers: topic = '<topic>'\"
 ";
 
-$VERSION = "0.2.1";
+$VERSION = "0.2.2";
 
 # Kafka lib requires Perl 5.10
 use 5.010;
@@ -105,7 +105,7 @@ $port = validate_port($port);
 # XXX: currently no way to list topics in Perl's Kafka API
 #unless($list_topics){
     $topic or usage "topic not defined";
-    $topic =~ /^([A-Za-z0-9\.]+)$/ or usage "topic must be alphanumeric and may contain dots";
+    $topic =~ /^([A-Za-z0-9\.-]+)$/ or usage "topic must be alphanumeric and may contain dots and dashes";
     $topic = $1;
 #}
 $partition = validate_int($partition, "partition", 0, 10000);

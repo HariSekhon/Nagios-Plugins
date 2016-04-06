@@ -1,4 +1,4 @@
-Advanced Nagios Plugins Collection [![Build Status](https://travis-ci.org/harisekhon/nagios-plugins.svg?branch=master)](https://travis-ci.org/harisekhon/nagios-plugins)
+Advanced Nagios Plugins Collection [![Build Status](https://travis-ci.org/HariSekhon/nagios-plugins.svg?branch=master)](https://travis-ci.org/HariSekhon/nagios-plugins)
 ==================================
 
 Largest and most advanced collection of unified production-grade Nagios monitoring code in the wild.
@@ -6,6 +6,8 @@ Largest and most advanced collection of unified production-grade Nagios monitori
 Largest collection of Hadoop & NoSQL monitoring code, written by a former Clouderan (Cloudera was the first Hadoop Big Data vendor).
 
 Hadoop and extensive API integration with all major Hadoop vendors (Hortonworks, Cloudera, MapR, IBM).
+
+**Python plugins will be moving to their own repo in the near future as this repo has become too large**
 
 I've been developing this Nagios Plugin Collection since 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
@@ -28,6 +30,42 @@ http://www.linkedin.com/in/harisekhon
 
 ##### Make sure you run ```make update``` if updating and not just ```git pull``` as you will often need the latest library submodule and possibly new upstream libraries. #####
 
+### Quick Start ###
+
+```
+git clone https://github.com/harisekhon/nagios-plugins
+cd nagios-plugins
+make
+```
+
+Don't copy plugins out as most require the co-located libraries I've written so you should copy this directory as a whole after building it - it's simpler than trying to extract bits and pieces.
+
+Be aware this will install yum rpms / apt debs automatically as well as a load of CPAN modules for Perl. If you don't want all that stuff automatically installed you must follow the [Manual Setup](https://github.com/harisekhon/nagios-plugins#manual-setup) section instead. You may need to install the GNU make system package if the ```make``` command isn't found (```yum install make``` / ```apt-get install make```)
+
+Also be aware this has become quite a large project and will take at least 10 minutes to build. Just be glad it's automated and tested on RHEL/CentOS 5/6/7 & Debian/Ubuntu systems. Build will work on Mac OS X too but will not handle system package dependencies.
+<!--
+Make sure /usr/local/bin is in your $PATH when running make as otherwise it'll fail to find ```cpanm```
+-->
+
+This automated build will use 'sudo' to install all required Perl modules from CPAN and then initialize my library git repo as a submodule. If you want to install some of the common Perl CPAN modules such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN then follow the [Manual Setup](https://github.com/harisekhon/nagios-plugins#manual-setup) section instead.
+
+If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.6, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
+
+```
+make zookeeper
+```
+This downloads, builds and installs the ZooKeeper C bindings which Net::ZooKeeper needs. To clean up the working directory afterwards run:
+```
+make clean-zookeeper
+```
+
+### Usage --help ###
+
+All plugins come with --help which lists all options as well as giving a program description, often including a detailed account of what is checked in the code.
+
+Some common options also support optional environment variables for convenience to reduce repeated --switch usage or to hide them from being exposed in the process list. These are indicated in the --help descriptions in brackets next to each option eg. $HOST, $PASSWORD or more specific ones with higher precedence like $ELASTICSEARCH_HOST, $REDIS_PASSWORD etc.
+
+Make sure to install the required Perl CPAN modules first before calling --help.
 
 ### A Sample of cool Nagios Plugins in this collection ###
 
@@ -35,7 +73,7 @@ http://www.linkedin.com/in/harisekhon
 - ```check_whois.pl``` - check domain expiry days left and registration details match expected
 - ```check_mysql_query.pl``` - generic enough it obsoleted a dozen custom MySQL plugins and prevented writing many more
 - ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline
-- ```check_hadoop_*.pl``` - various Apache Hadoop monitoring utilities for HDFS, YARN and MapReduce (both MRv1 & MRv2) including HDFS cluster balance, block replication, space, block count limits per datanode / cluster total, node counts, dead Datanodes/TaskTrackers/NodeManagers, blacklisted TaskTrackers, unhealthy NodeManagers, Namenode & JobTracker / Yarn Resource Manager heap usage, NameNode & JobTracker HA, NameNode safe mode, WebHDFS (with HDFS HA failover support), HttpFS, HDFS writeability, HDFS fsck, HDFS file / directory existence & metadata attributes, gather metrics
+- ```check_hadoop_*.pl``` - various Apache Hadoop monitoring utilities for HDFS, YARN and MapReduce (both MRv1 & MRv2) including HDFS cluster balance, block replication, space, block count limits per datanode / cluster total, node counts, dead Datanodes/TaskTrackers/NodeManagers, blacklisted TaskTrackers, unhealthy NodeManagers, Namenode & JobTracker / Yarn Resource Manager heap usage, NameNode & JobTracker HA, NameNode safe mode, WebHDFS (with HDFS HA failover support), HttpFS, HDFS writeability, HDFS fsck, HDFS file / directory existence & metadata attributes, gather metrics and JMX information
 - ```check_kafka.pl``` - checks Kafka brokers end-to-end via API, acts as both a producer and a consumer and checks that a unique generated message passes through the Kafka broker cluster successfully
 - ```check_hbase_*.pl``` - various HBase monitoring utilities using Thrift + Stargate APIs, checking Masters/Backup Masters, RegionServers, table availability, unassigned regions, gather metrics
 - ```check_cassandra_*.pl / check_datastax_opscenter_*.pl``` - Cassandra and DataStax OpsCenter monitoring, including Cassandra cluster nodes, token balance, space, heap, keyspace replication settings, alerts, backups, best practice rule checks, DSE hadoop analytics service status and both nodetool and DataStax OpsCenter collected metrics
@@ -59,6 +97,10 @@ http://www.linkedin.com/in/harisekhon
 ... and there are many more.
 
 This code base is under active development and there are many more cool plugins pending import.
+
+### Kerberos Security Support ###
+
+For HTTP based plugins Kerberos is implicitly supported by LWP as long as the LWP::Authen::Negotiate CPAN module is installed (part of the automated ```make``` build). This will look for a valid TGT in the environment and if found will use it for SPNego.
 
 ### Quality ###
 
@@ -110,37 +152,6 @@ Some older plugins (especially those written in languages other than Perl) may n
 
 If you're new remember to check out the older/ directory for more plugins that are less current but that you might find useful.
 
-### Quick Setup ###
-
-Building is basically one ```make``` command.
-
-Don't copy plugins out as most require the co-located libraries I've written so you should copy this directory as a whole after building it - it's simpler than trying to extract bits and pieces.
-
-Be aware this will install yum rpms / apt debs automatically as well as a load of CPAN modules for Perl. If you don't want all that stuff automatically installed you must use the manual setup further down. You may need to install the GNU make system package if the ```make``` command isn't found (```yum install make``` / ```apt-get install make```)
-
-Also be aware this has become quite a large project and will take at least 10 minutes to build. Just be glad it's automated and tested on RHEL/CentOS 5/6/7 & Debian/Ubuntu systems. Build will work on Mac OS X too but will not handle system package dependencies.
-<!--
-Make sure /usr/local/bin is in your $PATH when running make as otherwise it'll fail to find ```cpanm```
--->
-
-```
-git clone https://github.com/harisekhon/nagios-plugins
-cd nagios-plugins
-make
-```
-
-This will use 'sudo' to install all required Perl modules from CPAN and then initialize my library git repo as a submodule. If you want to install some of the common Perl CPAN modules such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN then follow the Manual Setup section below.
-
-If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.5, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
-
-```
-make zookeeper
-```
-This downloads, builds and installs the ZooKeeper C bindings which Net::ZooKeeper needs. To clean up the working directory afterwards run:
-```
-make clean
-```
-
 ### Manual Setup ###
 
 Fetch my library repo which is included as a submodule (it's shared between these Nagios Plugins and other programs I've written over the years).
@@ -171,7 +182,7 @@ The above listed programs require the Net::ZooKeeper Perl CPAN module but this i
 
 ```
 # install C client library
-export ZOOKEEPER_VERSION=3.4.5
+export ZOOKEEPER_VERSION=3.4.7
 [ -f zookeeper-$ZOOKEEPER_VERSION.tar.gz ] || wget -O zookeeper-$ZOOKEEPER_VERSION.tar.gz http://www.mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-$ZOOKEEPER_VERSION/zookeeper-$ZOOKEEPER_VERSION.tar.gz
 tar zxvf zookeeper-$ZOOKEEPER_VERSION.tar.gz
 cd zookeeper-$ZOOKEEPER_VERSION/src/c
@@ -207,25 +218,31 @@ sudo easy_install pip
 sudo pip install MySQL-python
 ```
 
-### Usage --help ###
-
-All plugins come with --help which lists all options as well as giving a program description, often including a detailed account of what is checked in the code.
-
-Just make sure to install the Perl CPAN modules listed above first as some plugins won't run until you've installed the required Perl modules.
-
 #### Configuration for Strict Domain / FQDN validation ####
 
 Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via the [Lib](https://github.com/harisekhon/lib) submodule - see there for details on configuring this to permit custom TLDs like ```.local``` or ```.intranet``` (both supported by default).
 
 ### Updating ###
 
-Run ```make update```. This will git pull and then git submodule update which is necessary to pick up corresponding library updates, then try to build again using 'make install' to fetch any new CPAN dependencies.
+Run ```make update```. This will git pull and then git submodule update which is necessary to pick up corresponding library updates.
 
-If you update often and want to just quickly git pull + submodule update but skip rebuilding all those dependencies each time then run ```make update2``` (will miss new library dependencies - do full ```make update``` if you encounter issues).
+If you update often and want to just quickly git pull + submodule update but skip rebuilding all those dependencies each time then run ```make update-no-recompile``` (will miss new library dependencies - do full ```make update``` if you encounter issues).
 
 ##### Bugs & Workarounds #####
 
-###### MongoDB / Readonly library bug ######
+###### Kafka dependency NetAddr/IP/InetBase autoload bug ######
+
+If you encounter the following error when trying to use ```check_kafka.pl```:
+
+```Can't locate auto/NetAddr/IP/InetBase/AF_INET6.al in @INC```
+
+This is an upstream bug related to autoloader, which you can work around by editing ```NetAddr/IP/InetBase.pm``` and adding the following line explicitly near the top just after ```package NetAddr::IP::InetBase;```: 
+
+```use Socket;```
+
+You may also need to install Socket6 from CPAN.
+
+###### MongoDB dependency Readonly library bug ######
 
 The MongoDB Perl driver from CPAN doesn't seem to compile properly on RHEL5 based systems. PyMongo rewrite was considered but the extensive library of functions results in better code quality for the Perl plugins, it's easier to just upgrade your OS to RHEL6.
 
@@ -272,8 +289,10 @@ Contributions are more than welcome with patches accepted in the form of Github 
 * Hadoop HDFS performance debugger, native checksum extractor, file retention policy script, HDFS file stats, XML & running Hadoop cluster config differ
 * ```watch_url.pl``` for debugging load balanced web farms
 * tools for Ambari, Pig, Hive, Spark + IPython Notebook, Solr CLI
-* code reCaser for SQL / Pig / Neo4j / Hive HQL / Cassandra / MySQL / PostgreSQL / Impala / MSSQL / Oracle
+* code reCaser for SQL / Pig / Neo4j / Hive HQL / Cassandra / MySQL / PostgreSQL / Impala / MSSQL / Oracle / Dockerfiles
 * ```scrub.pl``` anonymizes configs / logs for posting online - replaces hostnames/domains/FQDNs, IPs, passwords/keys in Cisco/Juniper configs, custom extensible phrases like your name or your company name
+* ```validate_json/yaml/xml.py``` - validates JSON, XML, YAML including recursive directories, standard input and even multi-record JSON as found in MongoDB and Hadoop / Big Data systems.
+* PySpark JSON => Parquet converter
 
 ### See Also ###
 

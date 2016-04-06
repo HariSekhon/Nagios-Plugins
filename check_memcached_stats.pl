@@ -11,9 +11,11 @@
 
 $DESCRIPTION = "Nagios Plugin to check MemCached statistics
 
-Tested on Memcached from around 2010/2011 and 1.4.4";
+Tested on Memcached from around 2010/2011, plus 1.4.4, 1.4.25
 
-$VERSION = "0.8";
+Will not work on Couchbase's embedded Memcached as it won't find the expected stats";
+
+$VERSION = "0.9.1";
 
 use strict;
 use warnings;
@@ -105,9 +107,11 @@ vlog2 "stats request sent";
 my $line;
 my $linecount = 0;
 my $err_msg;
+vlog3 "\nresponse:\n";
 while (<$conn>){
     chomp;
     s/\r$//;
+    vlog3 $_;
     if(/ERROR/){
         if(/^ERROR$/){
             $err_msg = "unknown command sent to";
@@ -121,14 +125,18 @@ while (<$conn>){
         quit "CRITICAL", "$err_msg memcached '$host:$port': '$_'";
     }
     last if /END/;
-    next if /^STAT libevent /;
-    /^STAT \w+ [\d\.]+$/ or quit "CRITICAL", "unrecognized line in output: '$_'";
+    next if /^STAT (?:libevent|stat_reset|memcached_version) /;
+    # Couchbase's embedded Memcached non-stats
+    if(not /^STAT \w+ [\d\.]+/){
+        next if /^STAT ep_\w+\b/;
+        quit "CRITICAL", "unrecognized line in output: '$_'";
+    }
     #vlog3 "processing line: '$_'";
     $line = $_;
     $linecount++;
     foreach(sort keys %stats2){
         #vlog3 "checking for stat $_";
-        if($line =~ /^STAT $_ ([\d\.]+)$/){
+        if($line =~ /^STAT $_ ([\d\.]+)/){
             #vlog3 "found $_";
             $stats{$_} = $1;
             next;

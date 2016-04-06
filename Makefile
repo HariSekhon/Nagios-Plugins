@@ -5,12 +5,14 @@
 #  https://github.com/harisekhon/nagios-plugins
 #
 
-ifdef TRAVIS
+export PATH := $(PATH):/usr/local/bin
+
+CPANM = cpanm
+
+ifneq ("$(PERLBREW_PERL)$(TRAVIS)", "")
 	SUDO2 =
-	CPANM = cpanm
 else
 	SUDO2 = sudo
-	CPANM = /usr/local/bin/cpanm
 endif
 
 # EUID /  UID not exported in Make
@@ -22,15 +24,16 @@ else
 	SUDO = sudo
 endif
 
-.PHONY: make
-make:
+.PHONY: build
+build:
 	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
 	if [ -x /usr/bin/yum ];     then make yum-packages; fi
 	
 	git submodule init
-	git submodule update
+	git submodule update --recursive
 
 	cd lib && make
+	cd pylib && make
 
 	# There are problems with the tests for this module dependency of Net::Async::CassandraCQL, forcing install works and allows us to use check_cassandra_write.pl
 	#sudo cpan -f IO::Async::Stream
@@ -126,7 +129,7 @@ make:
 		;
 	# newer versions of the Redis module require Perl >= 5.10, this will install the older compatible version for RHEL5/CentOS5 servers still running Perl 5.8 if the latest module fails
 	# the backdated version might not be the perfect version, found by digging around in the git repo
-	$(SUDO2) $(CPANM) Redis || $(SUDO2) $(CPANM) DAMS/Redis-1.976.tar.gz
+	$(SUDO2) $(CPANM) --notest Redis || $(SUDO2) $(CPANM) --notest DAMS/Redis-1.976.tar.gz
 		#Net::Async::CassandraCQL \
 	
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
@@ -134,69 +137,92 @@ make:
 	$(SUDO) easy_install -U setuptools
 	$(SUDO) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
-	$(SUDO) pip install cassandra-driver scales blist lz4 python-snappy
+	# in requirements.txt now
+	#$(SUDO) pip install cassandra-driver scales blist lz4 python-snappy
+	$(SUDO2) pip install -r requirements.txt
+	#. tests/utils.sh; $(SUDO) $$perl couchbase-csdk-setup
+	#$(SUDO) pip install couchbase
 	
 	# install MySQLdb python module for check_logserver.py / check_syslog_mysql.py
 	# fails if MySQL isn't installed locally
-	$(SUDO) pip install MySQL-python
+	$(SUDO2) pip install MySQL-python
 	@echo
-	@echo BUILD SUCCESSFUL
+	@echo "BUILD SUCCESSFUL (nagios-plugins)"
 
 
 .PHONY: apt-packages
 apt-packages:
 	$(SUDO) apt-get update
 	# needed to fetch and build CPAN modules and fetch the library submodule at end of build
-	$(SUDO) apt-get install -y build-essential libwww-perl git
+	$(SUDO) apt-get install -y build-essential
+	$(SUDO) apt-get install -y libwww-perl
+	$(SUDO) apt-get install -y git
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	$(SUDO) apt-get install -y libdbd-mysql-perl libmysqlclient-dev
+	$(SUDO) apt-get install -y libdbd-mysql-perl
+	$(SUDO) apt-get install -y libmysqlclient-dev
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 	$(SUDO) apt-get install -y libssl-dev
+	$(SUDO) apt-get install -y libsasl2-dev
 	# for XML::Simple building
 	$(SUDO) apt-get install -y libexpat1-dev
-	# for check_whois.pl
-	$(SUDO) apt-get install -y jwhois
+	# for check_whois.pl - looks like this has been removed from repos :-/
+	$(SUDO) apt-get install -y jwhois || :
 	# for LWP::Authenticate
 	#apt-get install -y krb5-config # prompts for realm + KDC, use libkrb5-dev instead
 	$(SUDO) apt-get install -y libkrb5-dev
 	# for Cassandra's Python driver
-	$(SUDO) apt-get install -y python-setuptools python-dev libev4 libev-dev libsnappy-dev
-	# HiveServer2
-	$(SUDO) pip install pyhs2
+	$(SUDO) apt-get install -y python-setuptools
+	$(SUDO) apt-get install -y python-pip
+	$(SUDO) apt-get install -y python-dev
+	$(SUDO) apt-get install -y libev4
+	$(SUDO) apt-get install -y libev-dev
+	$(SUDO) apt-get install -y libsnappy-dev
+	$(SUDO) easy_install pip || :
+	$(SUDO) pip install -r requirements.txt
 
 .PHONY: yum-packages
 yum-packages:
-	rpm -q gcc gcc-c++ perl-CPAN perl-libwww-perl wget tar || $(SUDO) yum install -y gcc gcc-c++ perl-CPAN perl-libwww-perl wget tar
+	rpm -q gcc 				|| $(SUDO) yum install -y gcc
+	rpm -q gcc-c++ 			|| $(SUDO) yum install -y gcc-c++
+	rpm -q perl-CPAN 		|| $(SUDO) yum install -y perl-CPAN
+	rpm -q perl-libwww-perl || $(SUDO) yum install -y perl-libwww-perl
+	# to fetch and untar ZooKeeper, plus wget epel rpm
+	rpm -q wget 			|| $(SUDO) yum install -y wget
+	rpm -q tar 				|| $(SUDO) yum install -y tar
+	rpm -q which			|| $(SUDO) yum install -y which
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	rpm -q perl-DBD-MySQL mysql-devel || $(SUDO) yum install -y perl-DBD-MySQL mysql-devel
+	rpm -q mysql-devel 		|| $(SUDO) yum install -y mysql-devel
+	rpm -q perl-DBD-MySQL 	|| $(SUDO) yum install -y perl-DBD-MySQL
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 	rpm -q openssl-devel || $(SUDO) yum install -y openssl-devel
 	# for XML::Simple building
 	rpm -q expat-devel || $(SUDO) yum install -y expat-devel
-	# for check_whois.pl
-	rpm -q jwhois || $(SUDO) yum install -y jwhois
 	# for Cassandra's Python driver
-	# python-pip requires EPEL, so try to get the correct EPEL rpm - for Make must escape the $3
+	# python-pip requires EPEL, so try to get the correct EPEL rpm
 	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
 	# must instead do wget 
-	#$(SUDO) rpm -ivh "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm"
-	rpm -q epel-release || { wget -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`awk '{print substr($$3, 0, 1); exit}' /etc/*release`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm; }
-	rm /tmp/epel.rpm || :
+	rpm -q epel-release || yum install -y epel-release || { wget -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`grep -o '[[:digit:]]' /etc/*release | head -n1`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
+	# for check_whois.pl
+	rpm -q jwhois || $(SUDO) yum install -y jwhois
 	# only available on EPEL in CentOS 5
 	rpm -q git || $(SUDO) yum install -y git
-	rpm -q python-setuptools python-pip python-devel libev libev-devel snappy-devel || $(SUDO) yum install -y python-setuptools python-pip python-devel libev libev-devel snappy-devel
-	# to fetch ZooKeeper
-	rpm -q wget || yum install -y wget
+	rpm -q python-setuptools || $(SUDO) yum install -y python-setuptools
+	rpm -q python-pip 		 || $(SUDO) yum install -y python-pip
+	rpm -q python-devel 	 || $(SUDO) yum install -y python-devel
+	rpm -q libev 			 || $(SUDO) yum install -y libev
+	rpm -q libev-devel 		 || $(SUDO) yum install -y libev-devel
+	rpm -q snappy-devel 	 || $(SUDO) yum install -y snappy-devel
 	# needed to build pyhs2
 	# libgsasl-devel saslwrapper-devel
 	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel
 	# for check_yum.pl / check_yum.py
-	yum install -y yum-security yum-plugin-security
+	rpm -q yum-security yum-plugin-security || yum install -y yum-security yum-plugin-security
 
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
 # doesn't build on Mac < 3.4.7 / 3.5.1 / 3.6.0 but the others are in the public mirrors yet
 # https://issues.apache.org/jira/browse/ZOOKEEPER-2049
+# XXX: if updating this version, make sure to also update tests/zookeeper.sh
 ZOOKEEPER_VERSION = 3.4.6
 .PHONY: zookeeper
 zookeeper:
@@ -216,10 +242,9 @@ zookeeper:
 .PHONY: test
 test:
 	cd lib && make test
-	# doesn't return a non-zero exit code to test
-	# for x in *.pl; do perl -T -c $x; done
-	# TODO: add more functional tests back in here
-	tests/help.sh
+	rm -fr lib/cover_db || :
+	cd pylib && make test
+	tests/all.sh
 
 .PHONY: install
 install:
@@ -227,14 +252,23 @@ install:
 
 .PHONY: update
 update:
-	make update2
-	make
+	@make update2
+	@make
 
 .PHONY: update2
 update2:
+	make update-no-recompile
+
+.PHONY: update-no-recompile
+update-no-recompile:
 	git pull
-	git submodule update --init
+	git submodule update --init --recursive
 
 .PHONY: clean
 clean:
+	@make clean-zookeeper
+	rm -fr tests/spark-*-bin-hadoop*
+
+.PHONY: clean-zookeeper
+clean-zookeeper:
 	rm -fr zookeeper-$(ZOOKEEPER_VERSION).tar.gz zookeeper-$(ZOOKEEPER_VERSION)

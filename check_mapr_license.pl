@@ -43,7 +43,7 @@ my $trial_ok = 0;
     "w|warning=s"  =>  [ \$warning,  "Warning  threshold in days (default: $default_warning)"  ],
     "c|critical=s" =>  [ \$critical, "Critical threshold in days (default: $default_critical)" ],
 );
-splice @usage_order, 16, 0, 'trial-ok';
+splice @usage_order, 10, 0, 'trial-ok';
 
 get_options();
 

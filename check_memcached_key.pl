@@ -18,7 +18,10 @@ Checks:
 3. checks key's returned value against warning/critical range thresholds (optional)
    raises warning/critical if the value is outside thresholds or not a floating point number
 4. records the read timing to a given precision for reporting and graphing
-5. outputs the read timing and optionally the key's value for graphing purposes";
+5. outputs the read timing and optionally the key's value for graphing purposes
+
+Tested on Memcached from around 2010/2011, plus 1.4.4, 1.4.25
+";
 
 $VERSION = "0.10";
 

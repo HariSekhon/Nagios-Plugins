@@ -13,12 +13,12 @@ $DESCRIPTION = "Nagios Plugin to check MySQL config file matches running MySQL s
 
 Primarily written to check that DBAs hadn't changed any running DB from Puppet deployed config without backporting their changes. Can also be used for baseline configuration compliance checking.
 
-A friend and ex-colleague of mine Tom Liakos @ Specificmedia pointed out a long time after I wrote this that Percona independently developed a similar tool called pt-config-diff (part of the Percona toolkit) around the same time.
+A friend and ex-colleague of mine Tom Liakos @ Specific Media pointed out a long time after I wrote this that Percona independently developed a similar tool called pt-config-diff (part of the Percona toolkit) around the same time.
 
-Tested on MySQL 5.0, 5.1 and 5.5
+Tested on MySQL 5.0, 5.1, 5.5, 5.7
 ";
 
-$VERSION = "1.2.3";
+$VERSION = "1.2.4";
 
 use strict;
 use warnings;
@@ -43,7 +43,6 @@ my $mysql_socket;
 
 my $config_file;
 my $mysql_instance  = $default_mysql_instance;
-my $password        = "";
 my %mysql_config;
 my $ensure_skip_name_resolve = 0;
 my $warn_on_missing_variables = 0;
@@ -65,6 +64,8 @@ my @config_file_only = (
     "replicate-ignore(?:db|table)",
     "skip-bdb",
     "skip-federated",
+    "skip-host-cache",
+    "symbolic-links",
     "user",
     #"log-bin.*",
     #"myisam-recover",
@@ -172,6 +173,8 @@ sub parse_my_cnf {
         next if /^\s*$/;
         # TODO: add plugin validation code
         next if /^\s*plugin-load\s*=\s*innodb=ha_innodb_plugin\.so\s*;\s*innodb_trx=ha_innodb_plugin\.so\s*;\s*innodb_locks=ha_innodb_plugin\.so\s*;\s*innodb_lock_waits=ha_innodb_plugin\.so\s*;\s*innodb_cmp=ha_innodb_plugin\.so\s*;\s*innodb_cmp_reset=ha_innodb_plugin\.so\s*;\s*innodb_cmpmem=ha_innodb_plugin\.so\s*;\s*innodb_cmpmem_reset=ha_innodb_plugin\.so\s*$/;
+        # TODO: add support for include dir
+        next if /includedir/;
         chomp;
         /^\s*([\w-]+)\s*(?:=\s*([\/\w\:\,\.=-]+)\s*)?$/ or quit "CRITICAL", "unrecognized line in config file '$config_file': '$_' (not in expected format)";
 

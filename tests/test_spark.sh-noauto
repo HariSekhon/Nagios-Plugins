@@ -18,9 +18,9 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/";
 
-. ./travis.sh
+. ./utils.sh
 
-SPARK_VERSION="$SPARK_VERSION:-1.5.2}"
+SPARK_VERSION="${SPARK_VERSION:-1.5.2}"
 
 echo "
 # ============================================================================ #
@@ -36,7 +36,11 @@ TAR="$SPARK.tgz"
 
 if ! [ -e "$TAR" ]; then
     echo "fetching Spark tarball '$TAR'"
-    wget "http://www.us.apache.org/dist/spark/spark-$SPARK_VERSION/$TAR"
+    if which wget &>/dev/null; then
+        wget "http://www.us.apache.org/dist/spark/spark-$SPARK_VERSION/$TAR"
+    else
+        curl -L "http://www.us.apache.org/dist/spark/spark-$SPARK_VERSION/$TAR" > "$TAR"
+    fi
     echo
 fi
 

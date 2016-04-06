@@ -16,6 +16,8 @@ The node is the same one given to the --host switch (auto-determines H2O's node 
 Technically the cluster should dissolve if a node fails but this is an additional check on node health possibly pre-empting failure
 
 Tested on 0xdata H2O 2.2.1.3, 2.4.3.4, 2.6.1.5
+
+TODO: H2O 3.x API has changed, updates required
 ";
 
 $VERSION = "0.2";

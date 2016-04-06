@@ -16,7 +16,7 @@ $DESCRIPTION = "Nagios Plugin to check the difference in max disk % space used b
 
 Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -136,7 +136,7 @@ $max_disk_imbalance = sprintf("%.2f", $max_disk_imbalance);
 plural $num_nodes;
 $msg  = sprintf("Elasticsearch max disk %% difference = %.2f%%", $max_disk_imbalance);
 check_thresholds($max_disk_imbalance);
-$msg .= sprintf(" between %d node$plural", $num_nodes, $plural);
+$msg .= sprintf(" between %d node%s", $num_nodes, $plural);
 plural $num_hosts;
 $msg .= sprintf(" on %d host%s", $num_hosts, $plural);
 if($verbose){

@@ -10,33 +10,27 @@
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  http://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/harisekhon
 #
 
 set -eu
+[ -n "${DEBUG:-}" ] && set -x
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. tests/travis.sh
+. ./tests/utils.sh
 
 echo "
 # ============================================================================ #
-#                               M e m c a c h e d
+#                                   D N S
 # ============================================================================ #
 "
 
-export MEMCACHED_HOST="${MEMCACHED_HOST:-localhost}"
-
-echo "creating test Memcached key-value"
-echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc $MEMCACHED_HOST 11211
-echo done
+$perl -T $I_lib ./check_dns.pl -s 4.2.2.1,4.2.2.2,4.2.2.3,4.2.2.4 -r google.com -q MX
 hr
-# MEMCACHED_HOST obtained via .travis.yml
-$perl -T $I_lib ./check_memcached_write.pl -v
+$perl -T $I_lib ./check_dns.pl -s a.resolvers.level3.net,b.resolvers.level3.net,c.resolvers.level3.net,d.resolvers.level3.net -r google.com -q MX
 hr
-$perl -T $I_lib ./check_memcached_key.pl -k myKey -e hari -v
-hr
-$perl -T $I_lib ./check_memcached_stats.pl -w 15 -c 20 -v
+$perl -T $I_lib ./check_dns.pl -s a.resolvers.level3.net,b.resolvers.level3.net,c.resolvers.level3.net,d.resolvers.level3.net -r google.com
 
 echo; echo

@@ -13,9 +13,9 @@ $DESCRIPTION = "Nagios Plugin to check the stats of a Solr 4 core on the server 
 
 Optional thresholds on the core's index size, heap size, number of documents and query time
 
-Tested on Solr 3.x and SolrCloud 4.x";
+Tested on Solr 3.x and SolrCloud 4.x, Solr 5.4.0";
 
-our $VERSION = "0.3";
+our $VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -45,8 +45,8 @@ splice @usage_order, 6, 0, qw/core index-size heap-size num-docs query-time list
 
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
+$host = validate_host($host);
+$port = validate_port($port);
 unless($list_cores){
     $core = validate_solr_core($core);
     validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 0 }, "core heap",  $core_heap_threshold);
@@ -86,6 +86,8 @@ my %cores = get_field_hash("status");
 my $name;
 my $found = 0;
 my $core_not_found_msg = "core for '$core' not found, core not loaded or incorrect --core name given. Use --list-cores to see available cores";
+my $core2 = $core;
+$core2 =~ s/\./\\./g;
 foreach(sort keys %cores){
     if(isHash($cores{$_}) and not %{$cores{$_}}){
         # blank collection hash is returned when specifying a core that isn't found
@@ -97,14 +99,14 @@ foreach(sort keys %cores){
     #next unless $name eq $core;
     $found++;
     $msg .= "Solr core '$core' ";
-    $sizeInBytes  = get_field("status.$core.index.sizeInBytes", "noquit"); # not available in Solr 3.x
+    $sizeInBytes  = get_field("status.$core2.index.sizeInBytes", "noquit"); # not available in Solr 3.x
     $sizeInMB     = sprintf("%.2f", $sizeInBytes / (1024*1024)) if defined($sizeInBytes);
-    $maxDoc       = get_field_int("status.$core.index.maxDoc");
-    $numDocs      = get_field_int("status.$core.index.numDocs");
-    $deletedDocs  = get_field_int("status.$core.index.deletedDocs",  "noquit"); # not available in Solr 3.x
-    $segmentCount = get_field_int("status.$core.index.segmentCount", "noquit"); # not available in Solr 3.x
-    # get_field("status.$core.index.size"); # this could be in KB
-    $indexHeapUsageBytes = get_field_int("status.$core.index.indexHeapUsageBytes", "noquit"); # not available in Solr 3.x,
+    $maxDoc       = get_field_int("status.$core2.index.maxDoc");
+    $numDocs      = get_field_int("status.$core2.index.numDocs");
+    $deletedDocs  = get_field_int("status.$core2.index.deletedDocs",  "noquit"); # not available in Solr 3.x
+    $segmentCount = get_field_int("status.$core2.index.segmentCount", "noquit"); # not available in Solr 3.x
+    # get_field("status.$core2.index.size"); # this could be in KB
+    $indexHeapUsageBytes = get_field_int("status.$core2.index.indexHeapUsageBytes", "noquit"); # not available in Solr 3.x,
     $indexHeapUsageMB = sprintf("%.2f", $indexHeapUsageBytes / (1024*1024)) if defined($indexHeapUsageBytes);
     if(defined($sizeInMB)){
         $msg .= "indexSize: ${sizeInMB}MB";
@@ -121,11 +123,11 @@ foreach(sort keys %cores){
     $msg .= ", maxDoc: $maxDoc";
     $msg .= ", deletedDocs: $deletedDocs" if defined($deletedDocs);
     $msg .= ", segmentCount: $segmentCount" if defined($segmentCount);
-    $isDefaultCore = get_field_int("status.$core.isDefaultCore", "noquit"); # not available in Solr 3.x
+    $isDefaultCore = get_field_int("status.$core2.isDefaultCore", "noquit"); # not available in Solr 3.x
     $msg .= ", isDefaultCore: "  . ( $isDefaultCore ? "true" : "false" ) if defined($isDefaultCore);
-    $msg .= ", uptime: "         . sec2human(get_field_int("status.$core.uptime") / 1000);
-    $msg .= ", started: "        . get_field("status.$core.startTime");
-    my $last_modified = get_field("status.$core.index.lastModified", 1);
+    $msg .= ", uptime: "         . sec2human(get_field_int("status.$core2.uptime") / 1000);
+    $msg .= ", started: "        . get_field("status.$core2.startTime");
+    my $last_modified = get_field("status.$core2.index.lastModified", 1);
     $last_modified = "N/A" unless defined($last_modified);
     $msg .= ", last modified: $last_modified";
     $msg .= ", query time ${query_time}ms";

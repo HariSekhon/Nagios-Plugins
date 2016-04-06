@@ -11,9 +11,9 @@
 
 $DESCRIPTION = "Nagios Plugin to check the Neo4j stats of IDs allocated for Nodes, Relationships, Properties etc using the Neo4j REST API
 
-Tested on Neo4j 1.9.4 and 2.0.3";
+Tested on Neo4j 1.9.4, 2.0.3, 2.3.2";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -37,15 +37,19 @@ my @ids;
 
 %options = (
     %hostoptions,
+    %useroptions,
     "s|stats=s"        =>  [ \$id,  "stats to return, comma separated. Specify a single stat to check it against warning/critical thresholds. Run without this option to see all available stats" ],
     %thresholdoptions,
+    %ssloptions,
 );
-@usage_order = qw/host port stats warning critical/;
+splice @usage_order, 6, 0, qw/host port stats warning critical/;
 
 get_options();
 
 $host  = validate_host($host);
 $port  = validate_port($port);
+$user  = validate_user($user) if defined($user);
+$password = validate_password($password) if defined($password);
 if($id){
     @ids = split(/\s*,\s*/, $id);
     for(my $i=0; $i < scalar @ids; $i++){
@@ -54,6 +58,7 @@ if($id){
     @ids = uniq_array(@ids);
 }
 validate_thresholds(0, 0, { "simple" => "upper", "positive" => 1, "integer" => 1}) if (scalar @ids == 1);
+validate_ssl();
 
 vlog2;
 set_timeout();
@@ -63,7 +68,7 @@ $status = "OK";
 my $url_prefix = "http://$host:$port";
 my $url = "$url_prefix/db/manage/server/jmx/domain/org.neo4j/instance%3Dkernel%230%2Cname%3DPrimitive%20count";
 
-my $content = curl $url, "Neo4j";
+my $content = curl $url, "Neo4j", $user, $password;
 my $json;
 try {
     $json = decode_json($content);
