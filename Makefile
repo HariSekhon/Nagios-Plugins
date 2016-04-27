@@ -165,6 +165,8 @@ apt-packages:
 	$(SUDO) apt-get install -y libsasl2-dev
 	# for XML::Simple building
 	$(SUDO) apt-get install -y libexpat1-dev
+	# Class::Accessor pre-packaged
+	#$(SUDO) apt-get install libclass-accessor-perl
 	# for check_whois.pl - looks like this has been removed from repos :-/
 	$(SUDO) apt-get install -y jwhois || :
 	# for LWP::Authenticate
