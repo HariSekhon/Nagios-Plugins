@@ -67,6 +67,8 @@ else
 fi
 
 hr
+$perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-topics || :
+hr
 $perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v
 hr
 echo
