@@ -46,7 +46,7 @@ fi
 startupwait=1
 [ -n "${TRAVIS:-}" ] && let startupwait+=10
 
-echo "Setting up test Redis container"
+echo "Setting up Redis test container"
 if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Redis test container"
