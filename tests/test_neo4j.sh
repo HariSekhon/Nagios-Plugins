@@ -45,7 +45,7 @@ fi
 startupwait=15
 [ -n "${TRAVIS:-}" ] && let startupwait+=20
 
-echo "Setting up test Neo4J container without authentication"
+echo "Setting up Neo4J test container without authentication"
 if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
     echo "Starting Docker Neo4J test container"
@@ -78,7 +78,7 @@ $perl -T $I_lib ./check_neo4j_version.pl -v
 hr
 # ============================================================================ #
 
-echo "Setting up test Neo4J container with authentication"
+echo "Setting up Neo4J test container with authentication"
 if ! is_docker_container_running "$DOCKER_CONTAINER-auth"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Neo4J test container with authentication"
