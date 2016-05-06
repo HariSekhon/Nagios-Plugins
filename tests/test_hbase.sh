@@ -94,10 +94,10 @@ $perl -T $I_lib ./check_hbase_tables_thrift.pl || :
 #hr
 #$perl -T $I_lib 
 hr
-if is_linux; then
+if is_zookeeper_built; then
     $perl -T $I_lib ./check_hbase_unassigned_regions_znode.pl
 else
-    echo "skipping ZooKeeper checks as not on Linux"
+    echo "ZooKeeper not built - skipping ZooKeeper checks"
 fi
 hr
 echo
