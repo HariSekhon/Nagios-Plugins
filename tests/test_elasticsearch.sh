@@ -45,7 +45,7 @@ fi
 startupwait=15
 [ -n "${TRAVIS:-}" ] && let startupwait+=20
 
-echo "Setting up test Elasticsearch container"
+echo "Setting up Elasticsearch test container"
 # reuse container it's faster
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
 #sleep 1
