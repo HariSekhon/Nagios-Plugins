@@ -48,7 +48,7 @@ startupwait=10
 [ -n "${TRAVIS:-}" ] && let startupwait+=20
 
 hr
-echo "Setting up test Mesos container"
+echo "Setting up Mesos test container"
 hr
 # reuse container it's faster
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
