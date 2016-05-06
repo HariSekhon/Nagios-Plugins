@@ -37,7 +37,7 @@ export SOLR_COLLECTION="${SOLR_COLLECTION:-test}"
 export SOLR_CORE="${SOLR_COLLECTION:-${SOLR_CORE:-test}}"
 export DOCKER_CONTAINER="nagios-plugins-solr"
 
-if ! which docker &>/dev/null; then
+if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Solr checks!!!'
     exit 0
 fi
