@@ -44,7 +44,7 @@ if ! is_docker_available; then
 fi
 
 startupwait=1
-[ -n "${TRAVIS:-}" ] && let startupwait+=10
+is_travis && let startupwait+=10
 
 echo "Setting up Redis test container"
 if ! is_docker_container_running "$DOCKER_CONTAINER"; then
