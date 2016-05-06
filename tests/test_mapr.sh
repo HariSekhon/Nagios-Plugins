@@ -33,6 +33,11 @@ if [ -z "$MAPR_HOST" ]; then
     exit 0
 fi
 
+if ! which nc &>/dev/null && nc -iv "$MAPR_HOST" 8083; then
+    echo "WARNING: MapR host 8083 not up, skipping MapR checks"
+    exit 0
+fi
+
 hr
 # TODO: add checks
 #$perl -T $I_lib 
