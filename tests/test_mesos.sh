@@ -39,7 +39,7 @@ export MESOS_MASTER="$MESOS_HOST:$MESOS_MASTER_PORT"
 
 export DOCKER_CONTAINER="nagios-plugins-mesos"
 
-if ! which docker &>/dev/null; then
+if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping mesos checks!!!'
     exit 0
 fi
