@@ -21,6 +21,9 @@ set -eu
 [ -n "${DEBUG:-}" ] && set -x
 
 ${perl:-perl} -e 'use Net::ZooKeeper' &>/dev/null && zookeeper_built="true" || zookeeper_built=""
+is_zookeeper_built(){
+    [ -n "$zookeeper_built" ]
+}
 
 isExcluded(){
     local prog="$1" 
@@ -35,7 +38,7 @@ isExcluded(){
     fi
     grep -q "use[[:space:]]\+utils" "$prog" && { echo "skipping $prog due to use of utils.pm from standard nagios plugins collection which may not be available"; return 0; }
     # ignore zookeeper plugins if Net::ZooKeeper module is not available
-    if grep -q "Net::ZooKeeper" "$prog" && ! [ $zookeeper_built ]; then
+    if grep -q "Net::ZooKeeper" "$prog" && ! is_zookeeper_built; then
         echo "skipping $prog due to Net::ZooKeeper dependency not having been built (do 'make zookeeper' if intending to use this plugin)"
         return 0
     fi
