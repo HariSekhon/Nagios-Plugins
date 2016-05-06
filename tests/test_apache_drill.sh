@@ -52,7 +52,7 @@ fi
 startupwait=30
 [ -n "${TRAVIS:-}" ] && let startupwait+=20
 
-echo "Setting up apache drill test container"
+echo "Setting up Apache Drill test container"
 hr
 # reuse container it's faster
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
