@@ -36,7 +36,7 @@ echo "using docker address '$HBASE_HOST'"
 
 export DOCKER_CONTAINER="nagios-plugins-hbase"
 
-if ! which docker &>/dev/null; then
+if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping HBase checks!!!'
     exit 0
 fi
