@@ -43,7 +43,7 @@ fi
 startupwait=1
 [ -n "${TRAVIS:-}" ] && let startupwait+=4
 
-echo "Setting up test Memcached container"
+echo "Setting up Memcached test container"
 if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Memcached test container"
