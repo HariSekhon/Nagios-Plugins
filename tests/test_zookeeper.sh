@@ -82,7 +82,7 @@ echo "Starting Docker ZooKeeper test container"
 docker run -d --name "$DOCKER_CONTAINER" -p 2181:2181 -p 3181:3181 -p 4181:4181 "$DOCKER_IMAGE"
 docker cp "$DOCKER_CONTAINER":/zookeeper/conf/zoo.cfg .
 hr
-echo "Setting up test nagios-plugins container with zkperl library"
+echo "Setting up nagios-plugins test container with zkperl library"
 docker run -d --name "$DOCKER_CONTAINER2" --link "$DOCKER_CONTAINER:zookeeper" -v "$PWD":"$MNTDIR" "$DOCKER_IMAGE2" tail -f /dev/null
 docker cp zoo.cfg "$DOCKER_CONTAINER2":"$MNTDIR/"
 hr
