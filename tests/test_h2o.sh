@@ -37,7 +37,7 @@ export H2O_PORT="${H2O_PORT:-54321}"
 
 export DOCKER_CONTAINER="nagios-plugins-h2o"
 
-if ! which docker &>/dev/null; then
+if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping h2o checks!!!'
     exit 0
 fi
