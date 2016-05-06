@@ -47,7 +47,7 @@ startupwait=10
 [ -n "${TRAVIS:-}" ] && let startupwait+=20
 
 hr
-echo "Setting up test tachyon container"
+echo "Setting up Tachyon test container"
 hr
 # reuse container it's faster
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
