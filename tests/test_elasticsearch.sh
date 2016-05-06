@@ -43,7 +43,7 @@ if ! is_docker_available; then
 fi
 
 startupwait=15
-[ -n "${TRAVIS:-}" ] && let startupwait+=20
+is_travis && let startupwait+=20
 
 echo "Setting up Elasticsearch test container"
 # reuse container it's faster
