@@ -51,7 +51,7 @@ docker_run_test(){
 }
 
 startupwait=20
-[ -n "${TRAVIS:-}" ] && let startupwait+=20
+is_travis && let startupwait+=20
 
 test_riak(){
     local version="$1"
