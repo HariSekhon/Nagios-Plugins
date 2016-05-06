@@ -45,7 +45,7 @@ fi
 startupwait=10
 [ -n "${TRAVIS:-}" ] && let startupwait+=20
 
-echo "Setting up test Consul container"
+echo "Setting up Consul test container"
 hr
 # reuse container it's faster
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
