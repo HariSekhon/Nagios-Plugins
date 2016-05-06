@@ -41,7 +41,7 @@ if ! is_docker_available; then
 fi
 
 startupwait=1
-[ -n "${TRAVIS:-}" ] && let startupwait+=4
+is_travis && let startupwait+=4
 
 echo "Setting up Nginx test container"
 if ! is_docker_container_running "$DOCKER_CONTAINER"; then
