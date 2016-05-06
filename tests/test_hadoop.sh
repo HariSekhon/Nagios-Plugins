@@ -79,7 +79,8 @@ hr
 #$perl -T $I_lib 
 hr
 if is_zookeeper_built; then
-    $perl -T $I_lib 
+    #$perl -T $I_lib 
+    :
 else
     echo "ZooKeeper not built - skipping ZooKeeper checks"
 fi
