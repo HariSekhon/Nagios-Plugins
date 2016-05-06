@@ -43,7 +43,7 @@ fi
 startupwait=1
 [ -n "${TRAVIS:-}" ] && let startupwait+=4
 
-echo "Setting up test Nginx container"
+echo "Setting up Nginx test container"
 if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Nginx test container"
