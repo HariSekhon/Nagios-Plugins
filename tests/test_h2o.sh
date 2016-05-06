@@ -46,7 +46,7 @@ startupwait=10
 [ -n "${TRAVIS:-}" ] && let startupwait+=20
 
 hr
-echo "Setting up test H2O container"
+echo "Setting up H2O test container"
 hr
 # reuse container it's faster
 #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
