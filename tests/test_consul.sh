@@ -43,7 +43,7 @@ if ! is_docker_available; then
 fi
 
 startupwait=10
-[ -n "${TRAVIS:-}" ] && let startupwait+=20
+is_travis && let startupwait+=20
 
 echo "Setting up Consul test container"
 hr
