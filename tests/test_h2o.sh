@@ -43,7 +43,7 @@ if ! which docker &>/dev/null; then
 fi
 
 startupwait=10
-[ -n "${TRAVIS:-}" ] && let startupwait+=20
+is_travis && let startupwait+=20
 
 hr
 echo "Setting up H2O test container"
