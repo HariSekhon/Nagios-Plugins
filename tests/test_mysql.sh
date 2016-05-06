@@ -49,7 +49,7 @@ fi
 startupwait=10
 [ -n "${TRAVIS:-}" ] && let startupwait+=20
 
-echo "Setting up test MySQL container"
+echo "Setting up MySQL test container"
 if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker MySQL test container"
