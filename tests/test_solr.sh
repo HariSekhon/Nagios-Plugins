@@ -45,7 +45,7 @@ fi
 startupwait=5
 [ -n "${TRAVIS:-}" ] && let startupwait+=20
 
-echo "Setting up test Solr docker container"
+echo "Setting up Solr docker test container"
 if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Solr test container"
