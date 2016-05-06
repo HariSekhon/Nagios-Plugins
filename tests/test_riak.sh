@@ -55,7 +55,7 @@ startupwait=20
 
 test_riak(){
     local version="$1"
-    echo "Setting up test Riak $version container"
+    echo "Setting up Riak $version test container"
     if ! is_docker_container_running "$DOCKER_CONTAINER"; then
         docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
         echo "Starting Docker Riak test container"
