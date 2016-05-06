@@ -64,13 +64,13 @@ else
 fi
 
 hr
-$perl $I_lib ./check_spark_cluster.pl -v
+$perl -T $I_lib ./check_spark_cluster.pl -v
 hr
-$perl $I_lib ./check_spark_cluster_dead_workers.pl -v
+$perl -T $I_lib ./check_spark_cluster_dead_workers.pl -v
 hr
-$perl $I_lib ./check_spark_cluster_memory.pl -v
+$perl -T $I_lib ./check_spark_cluster_memory.pl -v
 hr
-$perl $I_lib ./check_spark_worker.pl -v
+$perl -T $I_lib ./check_spark_worker.pl -v
 hr
 echo
 echo -n "Deleting container "
