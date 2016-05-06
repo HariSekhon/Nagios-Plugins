@@ -48,7 +48,7 @@ docker_run_test(){
 #startupwait=10
 #[ -n "${TRAVIS:-}" ] && let startupwait+=20
 
-echo "Setting up test Linux container"
+echo "Setting up Linux test container"
 if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     echo "Starting Docker Linux test container"
