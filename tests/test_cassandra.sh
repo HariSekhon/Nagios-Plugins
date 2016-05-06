@@ -54,7 +54,7 @@ startupwait=10
 
 test_cassandra(){
     local version="$1"
-    echo "Setting up test Cassandra $version container"
+    echo "Setting up Cassandra $version test container"
     if ! is_docker_container_running "$DOCKER_CONTAINER"; then
         docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
         echo "Starting Docker Cassandra test container"
