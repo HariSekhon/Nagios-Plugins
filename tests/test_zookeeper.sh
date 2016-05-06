@@ -73,7 +73,7 @@ docker_run_test(){
 }
 
 startupwait=5
-[ -n "${TRAVIS:-}" ] && let startupwait+=20
+is_travis && let startupwait+=20
 
 echo "Setting up ZooKeeper test container"
 docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
