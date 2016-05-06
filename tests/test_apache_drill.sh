@@ -50,7 +50,7 @@ fi
 #[ -n "${DEBUG:-1}" ] && DOCKER_DEBUG="-ai" || DOCKER_DEBUG=""
 
 startupwait=30
-[ -n "${TRAVIS:-}" ] && let startupwait+=20
+is_travis && let startupwait+=20
 
 echo "Setting up Apache Drill test container"
 hr
