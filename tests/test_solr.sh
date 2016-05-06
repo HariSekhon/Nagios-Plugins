@@ -43,7 +43,7 @@ if ! which docker &>/dev/null; then
 fi
 
 startupwait=5
-[ -n "${TRAVIS:-}" ] && let startupwait+=20
+is_travis && let startupwait+=20
 
 echo "Setting up Solr docker test container"
 if ! is_docker_container_running "$DOCKER_CONTAINER"; then
