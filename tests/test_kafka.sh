@@ -47,7 +47,7 @@ fi
 
 # needs to be longer than 10 to allow Kafka to settle so topic creation works
 startupwait=20
-[ -n "${TRAVIS:-}" ] && let startupwait+=20
+is_travis && let startupwait+=20
 
 echo "Setting up Apache Kafka test container"
 hr
