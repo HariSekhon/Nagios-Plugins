@@ -43,7 +43,7 @@ fi
 startupwait=5
 [ -n "${TRAVIS:-}" ] && let startupwait+=20
 
-echo "Setting up test MongoDB container"
+echo "Setting up MongoDB test container"
 if ! is_docker_container_running "$DOCKER_CONTAINER"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
