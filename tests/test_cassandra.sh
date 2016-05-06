@@ -50,7 +50,7 @@ docker_run_test(){
 }
 
 startupwait=10
-[ -n "${TRAVIS:-}" ] && let startupwait+=20
+is_travis && let startupwait+=20
 
 test_cassandra(){
     local version="$1"
