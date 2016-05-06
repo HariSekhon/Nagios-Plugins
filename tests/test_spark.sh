@@ -38,7 +38,7 @@ export SPARK_WORKER_PORT="${SPARK_WORKER_PORT:-8081}"
 
 export DOCKER_CONTAINER="nagios-plugins-spark"
 
-if ! which docker &>/dev/null; then
+if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping spark checks!!!'
     exit 0
 fi
