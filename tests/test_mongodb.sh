@@ -82,7 +82,7 @@ hr
 export MONGODB_USERNAME="nagios"
 export MONGODB_PASSWORD="testpw"
 
-echo "Setting up test MongoDB authenticated container"
+echo "Setting up MongoDB authenticated test container"
 if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER-auth$"; then
     docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
     docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
