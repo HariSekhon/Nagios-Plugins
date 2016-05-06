@@ -47,7 +47,7 @@ if ! is_docker_available; then
 fi
 
 startupwait=10
-[ -n "${TRAVIS:-}" ] && let startupwait+=20
+is_travis && let startupwait+=20
 
 echo "Setting up MySQL test container"
 if ! is_docker_container_running "$DOCKER_CONTAINER"; then
