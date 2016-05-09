@@ -36,7 +36,7 @@ NGINX_HOST="${NGINX_HOST%%:*}"
 export NGINX_HOST
 
 export DOCKER_IMAGE="nginx"
-export DOCKER_CONTAINER="nagios-plugins-nginx"
+export DOCKER_CONTAINER="nagios-plugins-nginx-test"
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Nginx checks!!!'
