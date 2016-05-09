@@ -268,6 +268,8 @@ update-no-recompile:
 
 .PHONY: clean
 clean:
+	cd lib && make clean
+	cd pylib && make clean
 	@make clean-zookeeper
 	rm -fr tests/spark-*-bin-hadoop*
 
