@@ -35,32 +35,15 @@ export H2O_HOST
 echo "using docker address '$H2O_HOST'"
 export H2O_PORT="${H2O_PORT:-54321}"
 
-export DOCKER_CONTAINER="nagios-plugins-h2o"
-
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping h2o checks!!!'
-    exit 0
-fi
+export DOCKER_IMAGE="harisekhon/h2o"
+export DOCKER_CONTAINER="nagios-plugins-h2o-test"
 
 startupwait=10
-is_travis && let startupwait+=20
 
 hr
 echo "Setting up H2O test container"
 hr
-# reuse container it's faster
-#docker rm -f "$DOCKER_CONTAINER" &>/dev/null
-#sleep 1
-if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    echo "Starting Docker H2O test container"
-    # need tty for sudo which h2o-start.sh local uses while ssh'ing localhost
-    docker run -d -t --name "$DOCKER_CONTAINER" -p $H2O_PORT:$H2O_PORT harisekhon/h2o
-    echo "waiting $startupwait seconds for H2O to start up..."
-    sleep $startupwait
-else
-    echo "Docker H2O test container already running"
-fi
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $H2O_PORT
 
 hr
 $perl -T $I_lib ./check_h2o_cluster.pl
@@ -73,9 +56,4 @@ $perl -T $I_lib ./check_h2o_node_stats.pl
 hr
 $perl -T $I_lib ./check_h2o_nodes_last_contact.pl
 hr
-echo
-if [ -z "${NODELETE:-}" ]; then
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
-fi
-echo; echo
+delete_container
