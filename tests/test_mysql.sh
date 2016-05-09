@@ -41,7 +41,7 @@ export MYSQL_USER="root"
 export MYSQL_PASSWORD="test123"
 
 export DOCKER_IMAGE="mysql"
-export DOCKER_CONTAINER="nagios-plugins-mysql"
+export DOCKER_CONTAINER="nagios-plugins-mysql-test"
 
 startupwait=10
 
