@@ -33,13 +33,11 @@ APACHE_DRILL_HOST="${APACHE_DRILL_HOST##*/}"
 APACHE_DRILL_HOST="${APACHE_DRILL_HOST%%:*}"
 export APACHE_DRILL_HOST
 
-#export DRILL_HEAP="900M"
-#export DRILL_HOME="/apache-drill"
-
 export DOCKER_IMAGE="harisekhon/zookeeper"
+export DOCKER_CONTAINER="nagios-plugins-zookeeper-test"
+
 export DOCKER_IMAGE2="harisekhon/apache-drill"
-export DOCKER_CONTAINER="nagios-plugins-zookeeper"
-export DOCKER_CONTAINER2="nagios-plugins-drill"
+export DOCKER_CONTAINER2="nagios-plugins-drill-test"
 
 hr
 echo "Setting up Apache Drill test container"
