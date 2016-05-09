@@ -55,7 +55,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.1'
+__version__ = '0.3.0'
 
 
 class CheckTachyon(NagiosPlugin):
@@ -65,6 +65,7 @@ class CheckTachyon(NagiosPlugin):
         super(CheckTachyon, self).__init__()
         # Python 3.x
         # super().__init__()
+        self.software = 'Tachyon'
         name = ''
         default_port = None
         if re.search('master', prog, re.I):
@@ -77,7 +78,7 @@ class CheckTachyon(NagiosPlugin):
         self.default_port = default_port
 
     def add_options(self):
-        self.add_hostoption(name='Tachyon%(name)s' % self.__dict__,
+        self.add_hostoption(name='%(software)s%(name)s' % self.__dict__,
                             default_host='localhost',
                             default_port=self.default_port)
         self.add_opt('--warn-on-recent-start', action='store_true', help='Raise WARNING if started in the last 30 mins')
@@ -90,15 +91,15 @@ class CheckTachyon(NagiosPlugin):
         validate_host(host)
         validate_port(port)
 
-        log.info('querying Tachyon%(name)s' % self.__dict__)
+        log.info('querying %s%s', self.software, self.name)
         url = 'http://%(host)s:%(port)s/home' % locals()
-        log.debug('GET %s' % url)
+        log.debug('GET %s', url)
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
             qquit('CRITICAL', _)
-        log.debug("response: %s %s" % (req.status_code, req.reason))
-        log.debug("content:\n{0}\n{1}\n{2}".format('='*80, req.content.strip(), '='*80))
+        log.debug("response: %s %s", req.status_code, req.reason)
+        log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
         if req.status_code != 200:
             qquit('CRITICAL', "%s %s" % (req.status_code, req.reason))
         soup = BeautifulSoup(req.content, 'html.parser')
@@ -106,12 +107,12 @@ class CheckTachyon(NagiosPlugin):
             uptime = soup.find('th', text=re.compile('Uptime:?', re.I)).find_next_sibling().get_text()
             version = soup.find('th', text=re.compile('Version:?', re.I)).find_next_sibling().get_text()
         except (AttributeError, TypeError):
-            qquit('UNKNOWN', 'failed to find parse Tachyon%(name)s uptime/version info' % self.__dict__)
+            qquit('UNKNOWN', 'failed to find parse %(software)s%(name)s uptime/version info' % self.__dict__)
         if not uptime or not isStr(uptime) or not re.search(r'\d+\s+second', uptime):
-            qquit('UNKNOWN', 'Tachyon{0} uptime format not recognized: {1}'.format(self.name, uptime))
+            qquit('UNKNOWN', '{0}{1} uptime format not recognized: {2}'.format(self.software, self.name, uptime))
         if not isVersion(version):
-            qquit('UNKNOWN', 'Tachyon{0} version format not recognized: {1}'.format(self.name, version))
-        self.msg = 'Tachyon{0} version: {1}, uptime: {2}'.format(self.name, version, uptime)  # pylint: disable=attribute-defined-outside-init
+            qquit('UNKNOWN', '{0}{1} version format not recognized: {2}'.format(self.software, self.name, version))
+        self.msg = '{0}{1} version: {2}, uptime: {3}'.format(self.software, self.name, version, uptime)  # pylint: disable=attribute-defined-outside-init
         self.ok()
         if warn_on_recent_start:
             match = re.match(r'^(\d+)\s+day[^\d\s]+\s+(\d+)\s+hour[^\d\s]+\s+(\d+)\s+minute', uptime, re.I)
