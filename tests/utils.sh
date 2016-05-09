@@ -19,6 +19,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 . "$srcdir/excluded.sh"
 . "$srcdir/../bash-tools/utils.sh"
+. "$srcdir/../bash-tools/docker.sh"
 
 hr(){
     echo "===================="
