@@ -34,7 +34,7 @@ HBASE_HOST="${HBASE_HOST%%:*}"
 export HBASE_HOST
 
 export DOCKER_IMAGE="harisekhon/hbase-dev"
-export DOCKER_CONTAINER="nagios-plugins-hbase"
+export DOCKER_CONTAINER="nagios-plugins-hbase-test"
 
 startupwait=45
 
@@ -74,4 +74,3 @@ else
 fi
 
 delete_container
-hr
