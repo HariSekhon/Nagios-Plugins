@@ -35,35 +35,21 @@ echo "using docker address '$ELASTICSEARCH_HOST'"
 export ELASTICSEARCH_PORT="${ELASTICSEARCH_PORT:-9200}"
 export ELASTICSEARCH_INDEX="${ELASTICSEARCH_INDEX:-test}"
 
-export DOCKER_CONTAINER="nagios-plugins-elasticsearch"
-
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Elasticsearch checks!!!'
-    exit 0
-fi
+export DOCKER_IMAGE="elasticsearch"
+export DOCKER_CONTAINER="nagios-plugins-elasticsearch-test"
 
 startupwait=15
-is_travis && let startupwait+=20
 
 echo "Setting up Elasticsearch test container"
-# reuse container it's faster
-#docker rm -f "$DOCKER_CONTAINER" &>/dev/null
-#sleep 1
-if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    echo "Starting Docker Elasticsearch test container"
-    docker run -d --name "$DOCKER_CONTAINER" -p 9200:9200 elasticsearch
-    echo "waiting $startupwait secs for Elasticsearch to start up"
-    sleep $startupwait
-else
-    echo "Docker Elasticsearch test container already running"
-fi
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 9200
+
 # Travis added this
 #echo "deleting twitter index as 5 unassigned shards are breaking tests"
 #curl -XDELETE "http://localhost:9200/twitter" || :
 #curl -XDELETE "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX" || :
 # always returns 0 and I don't wanna parse the json error
 #if ! curl -s "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX" &>/dev/null; then
+
 if ! $perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices | grep "^[[:space:]]*$ELASTICSEARCH_INDEX[[:space:]]*$"; then
     echo "creating test Elasticsearch index '$ELASTICSEARCH_INDEX'"
     curl -iv -XPUT "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX/" -d '
@@ -144,9 +130,4 @@ $perl -T $I_lib ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
 hr
 $perl -T $I_lib ./check_elasticsearch_shards_state_detail.pl -v
 hr
-echo
-if [ -z "${NODELETE:-}" ]; then
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
-fi
-echo; echo
+delete_container
