@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check whether a Neo4j instance is Read Only using the Neo4j REST API
 
-Tested on Neo4j 1.9.4, 2.0.3, 2.3.2";
+Tested on Neo4j 1.9.4, 2.0.3, 2.3.2, 3.0.0";
 
 $VERSION = "0.2";
 
