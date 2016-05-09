@@ -36,39 +36,41 @@ echo "using docker address '$HBASE_HOST'"
 
 export DOCKER_CONTAINER="nagios-plugins-hbase"
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping HBase checks!!!'
-    exit 0
-fi
+if ! external_docker; then
+    if ! is_docker_available; then
+        echo 'WARNING: Docker not found, skipping HBase checks!!!'
+        exit 0
+    fi
 
-startupwait=30
-is_travis && let startupwait+=20
+    startupwait=30
+    is_travis && let startupwait+=20
 
-hr
-echo "Setting up HBASE test container"
-hr
-# reuse container it's faster
-#docker rm -f "$DOCKER_CONTAINER" &>/dev/null
-#sleep 1
-if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    echo "Starting Docker HBASE test container"
-    # need tty for sudo which hbase-start.sh local uses while ssh'ing localhost
-    docker run -d -t --name "$DOCKER_CONTAINER" \
-        -p 2181:2181 \
-        -p 8080:8080 \
-        -p 8085:8085 \
-        -p 9090:9090 \
-        -p 9095:9095 \
-        -p 16000:16000 \
-        -p 16010:16010 \
-        -p 16201:16201 \
-        -p 16301:16301 \
-        harisekhon/hbase-dev
-    echo "waiting $startupwait seconds for HBASE to start up..."
-    sleep $startupwait
-else
-    echo "Docker HBASE test container already running"
+    hr
+    echo "Setting up HBASE test container"
+    hr
+    # reuse container it's faster
+    #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
+    #sleep 1
+    if ! is_docker_container_running "$DOCKER_CONTAINER"; then
+        docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
+        echo "Starting Docker HBASE test container"
+        # need tty for sudo which hbase-start.sh local uses while ssh'ing localhost
+        docker run -d -t --name "$DOCKER_CONTAINER" \
+            -p 2181:2181 \
+            -p 8080:8080 \
+            -p 8085:8085 \
+            -p 9090:9090 \
+            -p 9095:9095 \
+            -p 16000:16000 \
+            -p 16010:16010 \
+            -p 16201:16201 \
+            -p 16301:16301 \
+            harisekhon/hbase-dev
+        echo "waiting $startupwait seconds for HBASE to start up..."
+        sleep $startupwait
+    else
+        echo "Docker HBASE test container already running"
+    fi
 fi
 
 # set up test table
@@ -101,7 +103,7 @@ else
 fi
 hr
 echo
-if [ -z "${NODELETE:-}" ]; then
+if [ -z "${NODELETE:-}" ] && ! external_docker; then
     echo -n "Deleting container "
     docker rm -f "$DOCKER_CONTAINER"
 fi
