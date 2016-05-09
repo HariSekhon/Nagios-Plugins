@@ -36,7 +36,7 @@ export CONSUL_HOST
 export CONSUL_PORT="${CONSUL_PORT:-8500}"
 
 export DOCKER_IMAGE="harisekhon/consul"
-export DOCKER_CONTAINER="nagios-plugins-consul"
+export DOCKER_CONTAINER="nagios-plugins-consul-test"
 
 startupwait=10
 
