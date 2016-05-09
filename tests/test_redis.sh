@@ -37,7 +37,7 @@ unset REDIS_PASSWORD
 unset PASSWORD
 
 export DOCKER_IMAGE="redis"
-export DOCKER_CONTAINER="nagios-plugins-redis"
+export DOCKER_CONTAINER="nagios-plugins-redis-test"
 
 startupwait=5
 
