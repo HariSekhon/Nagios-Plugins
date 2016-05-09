@@ -34,43 +34,15 @@ HADOOP_HOST="${HADOOP_HOST%%:*}"
 export HADOOP_HOST
 echo "using docker address '$HADOOP_HOST'"
 
-export DOCKER_CONTAINER="nagios-plugins-hadoop"
-
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Hadoop checks!!!'
-    exit 0
-fi
+export DOCKER_IMAGE="harisekhon/hadoop-dev"
+export DOCKER_CONTAINER="nagios-plugins-hadoop-test"
 
 startupwait=30
-is_travis && let startupwait+=20
 
 hr
 echo "Setting up Hadoop test container"
 hr
-# reuse container it's faster
-#docker rm -f "$DOCKER_CONTAINER" &>/dev/null
-#sleep 1
-if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    echo "Starting Docker Hadoop test container"
-    # need tty for sudo which hadoop-start.sh local uses while ssh'ing localhost
-    docker run -d -t --name "$DOCKER_CONTAINER" \
-        -p 8032:8032 \
-        -p 8088:8088 \
-        -p 9000:9000 \
-        -p 10020:10020 \
-        -p 19888:19888 \
-        -p 50010:50010 \
-        -p 50020:50020 \
-        -p 50070:50070 \
-        -p 50075:50075 \
-        -p 50090:50090 \
-        harisekhon/hadoop-dev
-    echo "waiting $startupwait seconds for Hadoop to start up..."
-    sleep $startupwait
-else
-    echo "Docker Hadoop test container already running"
-fi
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 8032 8088 9000 10020 19888 50010 50020 50070 50075 50090
 
 hr
 # TODO: add checks
@@ -84,9 +56,4 @@ else
     echo "ZooKeeper not built - skipping ZooKeeper checks"
 fi
 hr
-echo
-if [ -z "${NODELETE:-}" ]; then
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
-fi
-echo; echo
+delete_container
