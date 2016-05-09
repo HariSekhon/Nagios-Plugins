@@ -32,37 +32,20 @@ MESOS_HOST="${DOCKER_HOST:-${MESOS_HOST:-${HOST:-localhost}}}"
 MESOS_HOST="${MESOS_HOST##*/}"
 MESOS_HOST="${MESOS_HOST%%:*}"
 export MESOS_HOST
-echo "using docker address '$MESOS_HOST'"
+
 export MESOS_MASTER_PORT="${MESOS_MASTER_PORT:-5050}"
 export MESOS_WORKER_PORT="${MESOS_WORKER_PORT:-5051}"
 export MESOS_MASTER="$MESOS_HOST:$MESOS_MASTER_PORT"
 
-export DOCKER_CONTAINER="nagios-plugins-mesos"
-
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping mesos checks!!!'
-    exit 0
-fi
+export DOCKER_IMAGE="harisekhon/mesos"
+export DOCKER_CONTAINER="nagios-plugins-mesos-test"
 
 startupwait=10
-is_travis && let startupwait+=20
 
 hr
 echo "Setting up Mesos test container"
 hr
-# reuse container it's faster
-#docker rm -f "$DOCKER_CONTAINER" &>/dev/null
-#sleep 1
-if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    echo "Starting Docker Mesos test container"
-    # need tty for sudo which mesos-start.sh local uses while ssh'ing localhost
-    docker run -d -t --name "$DOCKER_CONTAINER" -p $MESOS_MASTER_PORT:$MESOS_MASTER_PORT -p $MESOS_WORKER_PORT:$MESOS_WORKER_PORT harisekhon/mesos
-    echo "waiting $startupwait seconds for Mesos Master + Worker to become responsive..."
-    sleep $startupwait
-else
-    echo "Docker Mesos test container already running"
-fi
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $MESOS_MASTER_PORT $MESOS_WORKER_PORT
 
 hr
 $perl -T $I_lib ./check_mesos_activated_slaves.pl -v
@@ -97,9 +80,4 @@ hr
 hr
 $perl -T $I_lib ./check_mesos_slave_state.pl -v
 hr
-echo
-if [ -z "${NODELETE:-}" ]; then
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
-fi
-echo; echo
+delete_container
