@@ -31,31 +31,19 @@ MEMCACHED_HOST="${DOCKER_HOST:-${MEMCACHED_HOST:-${HOST:-localhost}}}"
 MEMCACHED_HOST="${MEMCACHED_HOST##*/}"
 MEMCACHED_HOST="${MEMCACHED_HOST%%:*}"
 export MEMCACHED_HOST
-echo "using docker address '$MEMCACHED_HOST'"
 
-export DOCKER_CONTAINER="nagios-plugins-memcached"
+export MEMCACHED_PORT=11211
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Memcached checks!!!'
-    exit 0
-fi
+export DOCKER_IMAGE="memcached"
+export DOCKER_CONTAINER="nagios-plugins-memcached-test"
 
 startupwait=1
-is_travis && let startupwait+=4
 
 echo "Setting up Memcached test container"
-if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    echo "Starting Docker Memcached test container"
-    docker run -d --name "$DOCKER_CONTAINER" -p 11211:11211 memcached
-    echo "waiting $startupwait seconds for Memcached to start up"
-    sleep $startupwait
-else
-    echo "Docker Memcached test container already running"
-fi
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $MEMCACHED_PORT
 
 echo "creating test Memcached key-value"
-echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc $MEMCACHED_HOST 11211
+echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc $MEMCACHED_HOST $MEMCACHED_PORT
 echo done
 hr
 # MEMCACHED_HOST obtained via .travis.yml
@@ -65,9 +53,4 @@ $perl -T $I_lib ./check_memcached_key.pl -k myKey -e hari -v
 hr
 $perl -T $I_lib ./check_memcached_stats.pl -w 15 -c 20 -v
 hr
-echo
-if [ -z "${NODELETE:-}" ]; then
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
-fi
-echo; echo
+delete_container
