@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3.0'
 
 
 class CheckTachyonDeadWorkers(NagiosPlugin):
@@ -61,9 +61,10 @@ class CheckTachyonDeadWorkers(NagiosPlugin):
         super(CheckTachyonDeadWorkers, self).__init__()
         # Python 3.x
         # super().__init__()
+        self.software = 'Tachyon'
 
     def add_options(self):
-        self.add_hostoption(name='Tachyon Master',
+        self.add_hostoption(name='%s Master' % self.software,
                             default_host='localhost',
                             default_port=19999)
 
@@ -74,15 +75,15 @@ class CheckTachyonDeadWorkers(NagiosPlugin):
         validate_host(host)
         validate_port(port)
 
-        log.info('querying Tachyon Master')
+        log.info('querying %s Master', self.software)
         url = 'http://%(host)s:%(port)s/workers' % locals()
-        log.debug('GET %s' % url)
+        log.debug('GET %s', url)
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
             qquit('CRITICAL', _)
-        log.debug("response: %s %s" % (req.status_code, req.reason))
-        log.debug("content:\n{0}\n{1}\n{2}".format('='*80, req.content.strip(), '='*80))
+        log.debug("response: %s %s", req.status_code, req.reason)
+        log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
         if req.status_code != 200:
             qquit('CRITICAL', "%s %s" % (req.status_code, req.reason))
         soup = BeautifulSoup(req.content, 'html.parser')
@@ -90,12 +91,13 @@ class CheckTachyonDeadWorkers(NagiosPlugin):
         try:
             dead_workers = len([_ for _ in soup.find(id='data2').find('tbody').find_all('tr') if _])
         except (AttributeError, TypeError):
-            qquit('UNKNOWN', 'failed to find parse Tachyon Master info for dead workers' % self.__dict__)
+            qquit('UNKNOWN', 'failed to find parse %s Master info for dead workers' % self.software)
         try:
             dead_workers = int(dead_workers)
         except (ValueError, TypeError):
-            qquit('UNKNOWN', 'Tachyon Master dead workers parsing returned non-integer: {0}'.format(dead_workers))
-        self.msg = 'Tachyon dead workers = {0}'.format(dead_workers)  # pylint: disable=attribute-defined-outside-init
+            qquit('UNKNOWN', '{0} Master dead workers parsing returned non-integer: {1}'.
+                  format(self.software, dead_workers))
+        self.msg = '{0} dead workers = {1}'.format(self.software, dead_workers)  # pylint: disable=attribute-defined-outside-init
         self.ok()
         # TODO: thresholds on number of dead workers (coming soon)
         if dead_workers:
