@@ -32,46 +32,15 @@ HBASE_HOST="${DOCKER_HOST:-${HBASE_HOST:-${HOST:-localhost}}}"
 HBASE_HOST="${HBASE_HOST##*/}"
 HBASE_HOST="${HBASE_HOST%%:*}"
 export HBASE_HOST
-echo "using docker address '$HBASE_HOST'"
 
+export DOCKER_IMAGE="harisekhon/hbase-dev"
 export DOCKER_CONTAINER="nagios-plugins-hbase"
+startupwait=45
 
-if ! external_docker; then
-    if ! is_docker_available; then
-        echo 'WARNING: Docker not found, skipping HBase checks!!!'
-        exit 0
-    fi
-
-    startupwait=30
-    is_travis && let startupwait+=20
-
-    hr
-    echo "Setting up HBASE test container"
-    hr
-    # reuse container it's faster
-    #docker rm -f "$DOCKER_CONTAINER" &>/dev/null
-    #sleep 1
-    if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-        docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-        echo "Starting Docker HBASE test container"
-        # need tty for sudo which hbase-start.sh local uses while ssh'ing localhost
-        docker run -d -t --name "$DOCKER_CONTAINER" \
-            -p 2181:2181 \
-            -p 8080:8080 \
-            -p 8085:8085 \
-            -p 9090:9090 \
-            -p 9095:9095 \
-            -p 16000:16000 \
-            -p 16010:16010 \
-            -p 16201:16201 \
-            -p 16301:16301 \
-            harisekhon/hbase-dev
-        echo "waiting $startupwait seconds for HBASE to start up..."
-        sleep $startupwait
-    else
-        echo "Docker HBASE test container already running"
-    fi
-fi
+hr
+echo "Setting up HBase test container"
+hr
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 8080 8085 9090 9095 16000 16010 16201 16301
 
 # set up test table
 # needs to pick up JAVA_HOME from shell
@@ -98,13 +67,10 @@ $perl -T $I_lib ./check_hbase_tables_thrift.pl || :
 hr
 if is_zookeeper_built; then
     $perl -T $I_lib ./check_hbase_unassigned_regions_znode.pl
+    hr
 else
     echo "ZooKeeper not built - skipping ZooKeeper checks"
 fi
+
+delete_container
 hr
-echo
-if [ -z "${NODELETE:-}" ] && ! external_docker; then
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
-fi
-echo; echo
