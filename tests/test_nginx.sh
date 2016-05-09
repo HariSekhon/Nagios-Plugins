@@ -15,11 +15,14 @@
 
 set -eu
 [ -n "${DEBUG:-}" ] && set -x
-srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+srcdir2="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-cd "$srcdir/..";
+cd "$srcdir2/..";
 
 . ./tests/utils.sh
+
+# because including bash-tools/util.sh resets the srcdir
+srcdir="$srcdir2"
 
 echo "
 # ============================================================================ #
@@ -31,8 +34,8 @@ NGINX_HOST="${DOCKER_HOST:-${NGINX_HOST:-${HOST:-localhost}}}"
 NGINX_HOST="${NGINX_HOST##*/}"
 NGINX_HOST="${NGINX_HOST%%:*}"
 export NGINX_HOST
-echo "using docker address '$NGINX_HOST'"
 
+export DOCKER_IMAGE="nginx"
 export DOCKER_CONTAINER="nagios-plugins-nginx"
 
 if ! is_docker_available; then
@@ -59,9 +62,4 @@ fi
 hr
 $perl -T $I_lib ./check_nginx_stats.pl -H "$NGINX_HOST" -u /status
 hr
-echo
-if [ -z "${NODELETE:-}" ]; then
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
-fi
-echo; echo
+delete_container
