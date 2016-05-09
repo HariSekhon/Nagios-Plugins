@@ -33,14 +33,7 @@ from __future__ import print_function
 #from __future__ import unicode_literals
 
 import os
-import re
 import sys
-try:
-    from bs4 import BeautifulSoup
-    import requests
-except ImportError as _:
-    print(_)
-    sys.exit(4)
 libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
