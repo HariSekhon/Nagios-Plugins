@@ -52,7 +52,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckTachyonLiveWorkers(NagiosPlugin):
@@ -62,9 +62,11 @@ class CheckTachyonLiveWorkers(NagiosPlugin):
         super(CheckTachyonLiveWorkers, self).__init__()
         # Python 3.x
         # super().__init__()
+        self.software = 'Tachyon'
 
     def add_options(self):
-        self.add_hostoption(name='Tachyon Master',
+        self.add_hostoption(name='%s Master' % self.software,
+                            # TODO: ['Tachyon Master', 'Tachyon']. add_hostopt
                             default_host='localhost',
                             default_port=19999)
 
@@ -75,15 +77,15 @@ class CheckTachyonLiveWorkers(NagiosPlugin):
         validate_host(host)
         validate_port(port)
 
-        log.info('querying Tachyon Master')
+        log.info('querying %s Master', self.software)
         url = 'http://%(host)s:%(port)s/home' % locals()
-        log.debug('GET %s' % url)
+        log.debug('GET %s', url)
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
             qquit('CRITICAL', _)
-        log.debug("response: %s %s" % (req.status_code, req.reason))
-        log.debug("content:\n{0}\n{1}\n{2}".format('='*80, req.content.strip(), '='*80))
+        log.debug("response: %s %s", req.status_code, req.reason)
+        log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
         if req.status_code != 200:
             qquit('CRITICAL', "%s %s" % (req.status_code, req.reason))
         soup = BeautifulSoup(req.content, 'html.parser')
@@ -91,12 +93,13 @@ class CheckTachyonLiveWorkers(NagiosPlugin):
             running_workers = soup.find('th', text=re.compile(r'Running\s+Workers:?', re.I))\
                 .find_next_sibling().get_text()
         except (AttributeError, TypeError):
-            qquit('UNKNOWN', 'failed to find parse Tachyon Master info for running workers' % self.__dict__)
+            qquit('UNKNOWN', 'failed to find parse %s Master info for running workers' % self.software)
         try:
             running_workers = int(running_workers)
         except (ValueError, TypeError):
-            qquit('UNKNOWN', 'Tachyon Master live workers parsing returned non-integer: {0}'.format(running_workers))
-        self.msg = 'Tachyon running workers = {0}'.format(running_workers)  # pylint: disable=attribute-defined-outside-init
+            qquit('UNKNOWN', '{0} Master live workers parsing returned non-integer: {1}'.
+                  format(self.software, running_workers))
+        self.msg = '{0} running workers = {1}'.format(self.software, running_workers)  # pylint: disable=attribute-defined-outside-init
         self.ok()
         # TODO: thresholds on number of live workers (coming soon)
         if running_workers < 1:
