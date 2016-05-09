@@ -45,8 +45,10 @@ hr
 echo "Setting up Apache Drill test container"
 hr
 startupwait=1
+echo "launching zookeeper container"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 3181 4181
 
+echo "lauching drill container linked to zookeeper"
 startupwait=10
 DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper"
 DOCKER_CMD="supervisord -n"
