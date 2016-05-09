@@ -32,33 +32,18 @@ CONSUL_HOST="${DOCKER_HOST:-${CONSUL_HOST:-${HOST:-localhost}}}"
 CONSUL_HOST="${CONSUL_HOST##*/}"
 CONSUL_HOST="${CONSUL_HOST%%:*}"
 export CONSUL_HOST
-echo "using docker address '$CONSUL_HOST'"
+
 export CONSUL_PORT="${CONSUL_PORT:-8500}"
 
+export DOCKER_IMAGE="harisekhon/consul"
 export DOCKER_CONTAINER="nagios-plugins-consul"
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker unavailable, skipping Consul checks!!!'
-    exit 0
-fi
-
 startupwait=10
-is_travis && let startupwait+=20
 
 echo "Setting up Consul test container"
 hr
-# reuse container it's faster
-#docker rm -f "$DOCKER_CONTAINER" &>/dev/null
-#sleep 1
-if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    echo "Starting Docker Consul test container"
-    docker run -d --name "$DOCKER_CONTAINER" -p $CONSUL_PORT:$CONSUL_PORT harisekhon/consul agent -dev -data-dir /tmp -client 0.0.0.0
-    echo "waiting $startupwait seconds for Consul to start up"
-    sleep $startupwait
-else
-    echo "Docker Consul test container already running"
-fi
+DOCKER_CMD="agent -dev -data-dir /tmp -client 0.0.0.0"
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $CONSUL_PORT
 
 hr
 testkey="nagios/consul/testkey1"
@@ -89,9 +74,4 @@ set -o pipefail
 hr
 ./check_consul_write.py -v
 hr
-echo
-if [ -z "${NODELETE:-}" ]; then
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
-fi
-echo; echo
+delete_container
