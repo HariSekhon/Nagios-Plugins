@@ -31,31 +31,19 @@ REDIS_HOST="${DOCKER_HOST:-${REDIS_HOST:-${HOST:-localhost}}}"
 REDIS_HOST="${REDIS_HOST##*/}"
 REDIS_HOST="${REDIS_HOST%%:*}"
 export REDIS_HOST
-echo "using docker address '$REDIS_HOST'"
+
 #export REDIS_PASSWORD="testpass123"
 unset REDIS_PASSWORD
 unset PASSWORD
 
+export DOCKER_IMAGE="redis"
 export DOCKER_CONTAINER="nagios-plugins-redis"
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Redis checks!!!'
-    exit 0
-fi
-
-startupwait=1
-is_travis && let startupwait+=10
+startupwait=5
 
 echo "Setting up Redis test container"
-if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    echo "Starting Docker Redis test container"
-    docker run -d --name "$DOCKER_CONTAINER" -p 6379:6379 redis ########--requirepass "$REDIS_PASSWORD"
-    echo "waiting $startupwait seconds for Redis to start up"
-    sleep $startupwait
-else
-    echo "Docker Redis test container already running"
-fi
+#DOCKER_OPTS="--requirepass $REDIS_PASSWORD"
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 6379
 
 echo "creating test Redis key-value"
 echo set myKey hari | redis-cli -h "$REDIS_HOST"
@@ -86,11 +74,6 @@ hr
 $perl -T $I_lib ./check_redis_write.pl -v
 hr
 echo "checking for no code failure masking root cause in catch quit handler"
-$perl -T $I_lib ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v | tee /dev/stderr | grep -v ' line '
+$perl -T $I_lib ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v | tee /dev/stderr | grep -v ' line ' || :
 hr
-echo
-if [ -z "${NODELETE:-}" ]; then
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
-fi
-echo; echo
+delete_container
