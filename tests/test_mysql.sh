@@ -34,31 +34,20 @@ MYSQL_HOST="${MYSQL_HOST%%:*}"
 # which doesn't work in Dockerized environment
 [ "$MYSQL_HOST" = "localhost" ] && MYSQL_HOST="127.0.0.1"
 export MYSQL_HOST
-echo "using docker address '$MYSQL_HOST'"
+
 export MYSQL_DATABASE="${MYSQL_DATABASE:-mysql}"
+export MYSQL_PORT=3306
 export MYSQL_USER="root"
 export MYSQL_PASSWORD="test123"
 
+export DOCKER_IMAGE="mysql"
 export DOCKER_CONTAINER="nagios-plugins-mysql"
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping MySQL checks!!!'
-    exit 0
-fi
-
 startupwait=10
-is_travis && let startupwait+=20
 
 echo "Setting up MySQL test container"
-if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    echo "Starting Docker MySQL test container"
-    docker run -d --name "$DOCKER_CONTAINER" -p 3306:3306 -e MYSQL_ROOT_PASSWORD="$MYSQL_PASSWORD" mysql
-    echo "waiting $startupwait seconds for MySQL to start up"
-    sleep $startupwait
-else
-    echo "Docker MySQL test container already running"
-fi
+DOCKER_OPTS="-e MYSQL_ROOT_PASSWORD=$MYSQL_PASSWORD"
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $MYSQL_PORT
 
 hr
 docker cp "$DOCKER_CONTAINER":/etc/mysql/my.cnf /tmp
@@ -74,9 +63,4 @@ $perl -T $I_lib ./check_mysql_query.pl -d information_schema -q "SELECT * FROM u
 unset MYSQL_HOST
 #$perl -T $I_lib ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
 hr
-echo
-if [ -z "${NODELETE:-}" ]; then
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
-fi
-echo; echo
+delete_container
