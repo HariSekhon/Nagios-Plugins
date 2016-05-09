@@ -31,29 +31,19 @@ MONGODB_HOST="${DOCKER_HOST:-${MONGODB_HOST:-${HOST:-localhost}}}"
 MONGODB_HOST="${MONGODB_HOST##*/}"
 MONGODB_HOST="${MONGODB_HOST%%:*}"
 export MONGODB_HOST
-echo "using docker address '$MONGODB_HOST'"
 
-export DOCKER_CONTAINER="nagios-plugins-mongo"
+export DOCKER_IMAGE="mongo"
+export DOCKER_CONTAINER="nagios-plugins-mongo-test"
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Memcached checks!!!'
-    exit 0
-fi
+export MONGO_PORTS="27017 28017"
+
+docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
 
 startupwait=5
-is_travis && let startupwait+=20
 
 echo "Setting up MongoDB test container"
-if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
-    echo "Starting Docker MongoDB test container"
-    docker run -d --name "$DOCKER_CONTAINER" -p 27017:27017 -p 28017:28017 mongo --rest
-    echo "waiting $startupwait seconds for mongod to start up"
-    sleep $startupwait
-else
-    echo "Docker MongoDB test container already running"
-fi
+DOCKER_CMD="--rest"
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $MONGO_PORTS
 
 # not part of a replica set so this returns CRITICAL
 # TODO: more specific CLI runs to valid critical and output
@@ -67,44 +57,31 @@ if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
     $perl -T $I_lib ./check_mongodb_write.pl -v
 fi
 hr
-echo
-if [ -z "${NODELETE:-}" ]; then
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
-fi
-echo
+delete_container
 hr
 
 # ============================================================================ #
 
-# XXX: New for MongoDB 3.0 - done to test API authentication changes in 1.x driver :-(
+# XXX: New for MongoDB 3.0 - done to test API authentication changes in 1.x driver
 
 export MONGODB_USERNAME="nagios"
 export MONGODB_PASSWORD="testpw"
 
 echo "Setting up MongoDB authenticated test container"
-if ! docker ps | tee /dev/stderr | grep -q "[[:space:]]$DOCKER_CONTAINER-auth$"; then
-    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
-    echo "Starting Docker MongoDB authenticated test container"
-    docker run -d --name "$DOCKER_CONTAINER-auth" -p 27017:27017 -p 28017:28017 mongo mongod --auth --rest
-    echo "waiting 5 seconds for mongod to start up"
-    sleep 5
-    echo "setting up test user"
-    docker exec -i "$DOCKER_CONTAINER-auth" mongo --host localhost <<EOF
-    use admin
-    db.createUser({"user":"$MONGODB_USERNAME", "pwd":"$MONGODB_PASSWORD", "roles":[{role:"root", db:"admin"}]})
+DOCKER_CMD="mongod --auth --rest"
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER-auth" $MONGO_PORTS
+echo "setting up test user"
+docker exec -i "$DOCKER_CONTAINER-auth" mongo --host localhost <<EOF
+use admin
+db.createUser({"user":"$MONGODB_USERNAME", "pwd":"$MONGODB_PASSWORD", "roles":[{role:"root", db:"admin"}]})
 EOF
-    #db.createUser({"user":"$MONGODB_USERNAME", "pwd":"$MONGODB_PASSWORD", "roles":[{role:"userAdminAnyDatabase", db:"admin"},{role:"readWriteAnyDatabase", db:"admin"}]})
-    echo "testing test user authentication works in mongo shell before attempting plugin"
-    # mongo client may not be installed and also make sure we are using the same version client from within the container to minimize incompatibilities
-    docker exec -i "$DOCKER_CONTAINER-auth" mongo -u "$MONGODB_USERNAME" -p "$MONGODB_PASSWORD" --authenticationDatabase admin <<EOF # doesn't work without giving the authenticationDatabase
-    use nagios
-    db.nagioscoll.insert({'test':'test'})
+#db.createUser({"user":"$MONGODB_USERNAME", "pwd":"$MONGODB_PASSWORD", "roles":[{role:"userAdminAnyDatabase", db:"admin"},{role:"readWriteAnyDatabase", db:"admin"}]})
+echo "testing test user authentication works in mongo shell before attempting plugin"
+# mongo client may not be installed and also make sure we are using the same version client from within the container to minimize incompatibilities
+docker exec -i "$DOCKER_CONTAINER-auth" mongo -u "$MONGODB_USERNAME" -p "$MONGODB_PASSWORD" --authenticationDatabase admin <<EOF # doesn't work without giving the authenticationDatabase
+use nagios
+db.nagioscoll.insert({'test':'test'})
 EOF
-else
-    echo "Docker MongoDB authenticated test container already running"
-fi
 hr
 # not part of a replica set so this returns CRITICAL
 # TODO: more specific CLI runs to valid critical and output
@@ -119,9 +96,4 @@ if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
     $perl -T $I_lib ./check_mongodb_write.pl -v
 fi
 hr
-echo
-if [ -z "${NODELETE:-}" ]; then
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER-auth"
-fi
-echo; echo
+delete_container "$DOCKER_CONTAINER-auth"
