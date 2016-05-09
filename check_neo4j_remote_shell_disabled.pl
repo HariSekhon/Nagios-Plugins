@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check whether a Neo4j instance allows a remote shell using the Neo4j REST API
 
-Tested on Neo4j 1.9.4, 2.0.3, 2.3.2";
+Tested on Neo4j 1.9.4, 2.0.3, 2.3.2, 3.0.0";
 
 $VERSION = "0.3";
 
@@ -79,7 +79,7 @@ isArray($json->[0]->{"attributes"}) or quit "UNKNOWN", "attributes field returne
 my $remote_shell_enabled;
 foreach my $item (@{$json->[0]{"attributes"}}){
     defined($item->{"name"}) or quit "UNKNOWN", "'name' field not returned for items in 'attributes' by Neo4j! $nagios_plugins_support_msg_api";
-    next unless $item->{"name"} eq "remote_shell_enabled";
+    next unless $item->{"name"} =~ /^remote_shell_enabled|dbms.shell.enabled$/;
     defined($item->{"value"}) or quit "UNKNOWN", "'value' field not returned for items in 'attributes' by Neo4j! $nagios_plugins_support_msg_api";
     $remote_shell_enabled = $item->{"value"};
     last;
