@@ -53,7 +53,7 @@ class CheckAlluxioDeadWorkers(CheckTachyonDeadWorkers):
         super(CheckAlluxioDeadWorkers, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.software = 'Tachyon'
+        self.software = 'Alluxio'
 
 
 if __name__ == '__main__':
