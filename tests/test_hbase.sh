@@ -35,6 +35,7 @@ export HBASE_HOST
 
 export DOCKER_IMAGE="harisekhon/hbase-dev"
 export DOCKER_CONTAINER="nagios-plugins-hbase"
+
 startupwait=45
 
 hr
