@@ -29,7 +29,8 @@ echo "
 # ============================================================================ #
 "
 
-export DOCKER_CONTAINER="nagios-plugins"
+export DOCKER_IMAGE="harisekhon/nagios-plugins"
+export DOCKER_CONTAINER="nagios-plugins-linux-test"
 
 export MNTDIR="/tmp/nagios-plugins"
 
@@ -45,19 +46,14 @@ docker_run_test(){
 
 #trap "docker rm -f $DOCKER_CONTAINER &>/dev/null" SIGINT SIGTERM EXIT
 
-#startupwait=10
-#is_travis && let startupwait+=20
+startupwait=0
 
 echo "Setting up Linux test container"
-if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    echo "Starting Docker Linux test container"
-    docker run -d --name "$DOCKER_CONTAINER" -v "$srcdir/..":"$MNTDIR" harisekhon/nagios-plugins tail -f /dev/null
-    docker exec "$DOCKER_CONTAINER" yum makecache fast
-    docker exec "$DOCKER_CONTAINER" yum install -y net-tools
-else
-        echo "Docker Linux test container already running"
-fi
+DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
+DOCKER_CMD="tail -f /dev/null"
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
+docker exec "$DOCKER_CONTAINER" yum makecache fast
+docker exec "$DOCKER_CONTAINER" yum install -y net-tools
 
 hr
 docker_run_test check_linux_auth.pl -u root -g root -v
@@ -85,12 +81,7 @@ docker_run_test check_yum.py -C -v -t 30
 hr
 docker_run_test check_yum.py -C --all-updates -v -t 30 || :
 hr
-echo
-if [ -z "${NODELETE:-}" ]; then
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
-fi
-echo; echo
+delete_container
 
 # ============================================================================ #
 #                                     E N D
