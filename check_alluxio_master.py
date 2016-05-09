@@ -1,1 +1,1 @@
-check_alluxio_master.py
+check_alluxio.py
