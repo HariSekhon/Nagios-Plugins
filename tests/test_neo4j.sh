@@ -40,7 +40,7 @@ export NEO4J_PORTS="7473 7474"
 export DOCKER_IMAGE="neo4j"
 export DOCKER_CONTAINER="nagios-plugins-neo4j-test"
 
-startupwait=15
+startupwait=10
 
 echo "Setting up Neo4J test container without authentication"
 delete_container "$DOCKER_CONTAINER-auth" &>/dev/null || :
@@ -67,11 +67,14 @@ hr
 $perl -T $I_lib ./check_neo4j_version.pl -v
 hr
 delete_container
+hr
+echo
 # ============================================================================ #
 
 echo "Setting up Neo4J test container with authentication"
 DOCKER_OPTS="-e NEO4J_AUTH=$NEO4J_USERNAME/$NEO4J_PASSWORD"
 delete_container "$DOCKER_CONTAINER" &>/dev/null || :
+startupwait=20
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER-auth" $NEO4J_PORTS
 echo "creating test Neo4J node"
 docker exec "$DOCKER_CONTAINER-auth" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
