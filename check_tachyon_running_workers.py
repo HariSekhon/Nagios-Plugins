@@ -55,11 +55,11 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.3'
 
 
-class CheckTachyonLiveWorkers(NagiosPlugin):
+class CheckTachyonRunningWorkers(NagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckTachyonLiveWorkers, self).__init__()
+        super(CheckTachyonRunningWorkers, self).__init__()
         # Python 3.x
         # super().__init__()
         self.software = 'Tachyon'
@@ -107,4 +107,4 @@ class CheckTachyonLiveWorkers(NagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckTachyonLiveWorkers().main()
+    CheckTachyonRunningWorkers().main()
