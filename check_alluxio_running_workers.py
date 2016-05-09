@@ -16,7 +16,7 @@
 
 """
 
-Nagios Plugin to check the number of live Tachyon workers via the Tachyon Master UI
+Nagios Plugin to check the number of live Alluxio workers via the Alluxio Master UI
 
 TODO: thresholds on number of live workers (coming soon)
 
