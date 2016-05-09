@@ -32,36 +32,19 @@ TACHYON_HOST="${DOCKER_HOST:-${TACHYON_HOST:-${HOST:-localhost}}}"
 TACHYON_HOST="${TACHYON_HOST##*/}"
 TACHYON_HOST="${TACHYON_HOST%%:*}"
 export TACHYON_HOST
-echo "using docker address '$TACHYON_HOST'"
+
 export TACHYON_MASTER_PORT="${TACHYON_MASTER_PORT:-19999}"
 export TACHYON_WORKER_PORT="${TACHYON_WORKER_PORT:-30000}"
 
-export DOCKER_CONTAINER="nagios-plugins-tachyon"
-
-if ! which docker &>/dev/null; then
-    echo 'WARNING: Docker not found, skipping tachyon checks!!!'
-    exit 0
-fi
+export DOCKER_IMAGE="harisekhon/tachyon"
+export DOCKER_CONTAINER="nagios-plugins-tachyon-test"
 
 startupwait=10
-is_travis && let startupwait+=20
 
 hr
 echo "Setting up Tachyon test container"
 hr
-# reuse container it's faster
-#docker rm -f "$DOCKER_CONTAINER" &>/dev/null
-#sleep 1
-if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    echo "Starting Docker tachyon test container"
-    # need tty for sudo which tachyon-start.sh local uses while ssh'ing localhost
-    docker run -d -t --name "$DOCKER_CONTAINER" -p $TACHYON_MASTER_PORT:$TACHYON_MASTER_PORT -p $TACHYON_WORKER_PORT:$TACHYON_WORKER_PORT harisekhon/tachyon
-    echo "waiting $startupwait seconds for Tachyon Master + Worker to become responsive..."
-    sleep $startupwait
-else
-    echo "Docker tachyon test container already running"
-fi
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $TACHYON_MASTER_PORT $TACHYON_WORKER_PORT
 
 hr
 ./check_tachyon_master.py -v
@@ -73,9 +56,4 @@ hr
 hr
 ./check_tachyon_dead_workers.py -v
 hr
-echo
-if [ -z "${NODELETE:-}" ]; then
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
-fi
-echo; echo
+delete_container
