@@ -31,33 +31,23 @@ NEO4J_HOST="${DOCKER_HOST:-${NEO4J_HOST:-${HOST:-localhost}}}"
 NEO4J_HOST="${NEO4J_HOST##*/}"
 NEO4J_HOST="${NEO4J_HOST%%:*}"
 export NEO4J_HOST
-echo "using docker address '$NEO4J_HOST'"
+
 export NEO4J_USERNAME="${NEO4J_USERNAME:-${NEO4J_USERNAME:-neo4j}}"
 export NEO4J_PASSWORD="${NEO4J_PASSWORD:-${NEO4J_PASSWORD:-testpw}}"
 
-export DOCKER_CONTAINER="nagios-plugins-neo4j"
+export NEO4J_PORTS="7473 7474"
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Neo4J checks!!!'
-    exit 0
-fi
+export DOCKER_IMAGE="neo4j"
+export DOCKER_CONTAINER="nagios-plugins-neo4j-test"
 
 startupwait=15
-is_travis && let startupwait+=20
 
 echo "Setting up Neo4J test container without authentication"
-if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-    docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
-    echo "Starting Docker Neo4J test container"
-    docker run -d --name "$DOCKER_CONTAINER" --env NEO4J_AUTH=none -p 7473:7473 -p 7474:7474 neo4j
-    echo "waiting $startupwait seconds for Neo4J to start up"
-    sleep $startupwait
-    echo "creating test Neo4J node"
-    docker exec "$DOCKER_CONTAINER" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" })'
-    echo done
-else
-    echo "Docker Neo4J test container already running"
-fi
+delete_container "$DOCKER_CONTAINER-auth" &>/dev/null || :
+DOCKER_OPTS="-e NEO4J_AUTH=none"
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $NEO4J_PORTS
+echo "creating test Neo4J node"
+docker exec "$DOCKER_CONTAINER" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
 
 hr
 $perl -T $I_lib ./check_neo4j_readonly.pl -v
@@ -76,21 +66,15 @@ $perl -T $I_lib ./check_neo4j_store_sizes.pl -v
 hr
 $perl -T $I_lib ./check_neo4j_version.pl -v
 hr
+delete_container
 # ============================================================================ #
 
 echo "Setting up Neo4J test container with authentication"
-if ! is_docker_container_running "$DOCKER_CONTAINER-auth"; then
-    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    echo "Starting Docker Neo4J test container with authentication"
-    docker run -d --name "$DOCKER_CONTAINER-auth" --env NEO4J_AUTH="$NEO4J_USERNAME/$NEO4J_PASSWORD" -p 7473:7473 -p 7474:7474 neo4j
-    echo "waiting $startupwait seconds for Neo4J to start up with auth"
-    sleep $startupwait
-    echo "creating test Neo4J node"
-    docker exec "$DOCKER_CONTAINER-auth" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" })'
-    echo done
-else
-    echo "Docker Neo4J test container already running"
-fi
+DOCKER_OPTS="-e NEO4J_AUTH=$NEO4J_USERNAME/$NEO4J_PASSWORD"
+delete_container "$DOCKER_CONTAINER" &>/dev/null || :
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER-auth" $NEO4J_PORTS
+echo "creating test Neo4J node"
+docker exec "$DOCKER_CONTAINER-auth" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
 
 hr
 $perl -T $I_lib ./check_neo4j_readonly.pl -v
@@ -107,9 +91,4 @@ $perl -T $I_lib ./check_neo4j_store_sizes.pl -v
 hr
 $perl -T $I_lib ./check_neo4j_version.pl -v
 hr
-echo
-if [ -z "${NODELETE:-}" ]; then
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER-auth"
-fi
-echo; echo
+delete_container "$DOCKER_CONTAINER-auth"
