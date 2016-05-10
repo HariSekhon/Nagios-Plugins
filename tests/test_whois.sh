@@ -15,11 +15,13 @@
 
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
-srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+srcdir2="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-cd "$srcdir/..";
+cd "$srcdir2/..";
 
 . ./tests/utils.sh
+
+srcdir="$srcdir2"
 
 [ -n "${DEBUG:-}" -o -n "${TRAVIS:-}" ] && verbose="-vvv" || verbose=""
 
@@ -30,6 +32,17 @@ echo "
 #                                   W h o i s
 # ============================================================================ #
 "
+
+export DOCKER_IMAGE="harisekhon/nagios-plugins"
+export DOCKER_CONTAINER="nagios-plugins-whois-test"
+
+export MNTDIR="/pl"
+
+startupwait=1
+DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
+DOCKER_CMD="tail -f /dev/null"
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
+docker exec -ti "$DOCKER_CONTAINER" ls -l /pl
 
 # will do a small subset of random domains unless first arg passed to signify all
 ALL="${1:-}"
@@ -187,7 +200,7 @@ for domain in $domains; do
     printf "%-20s  " "$domain:"
     # don't want people with 25 days left on their domains raising errors here, setting thresholds lower to always pass
     set +eo pipefail
-    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 -t 30 -v $verbose`
+    output=`docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/check_whois.pl -d $domain -w 10 -c 2 -t 30 -v $verbose`
     result=$?
     echo "$output"
     if [ $result -ne 0 -a $result -eq 3 ]; then
@@ -216,7 +229,7 @@ echo "Testing Domains excluding nameservers:"
 for domain in $domains_no_nameservers; do
     [ -z "$ALL" -a "$(($RANDOM % 20))" = 0 ] || continue
     set +eo pipefail
-    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-nameservers -t 30 -v $verbose`
+    output=`docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/check_whois.pl -d $domain -w 10 -c 2 --no-nameservers -t 30 -v $verbose`
     result=$?
     echo "$output"
     if [ $result -ne 0 -a $result -eq 3 ]; then
@@ -227,4 +240,4 @@ for domain in $domains_no_nameservers; do
     hr
 done
 
-echo; echo
+delete_container
