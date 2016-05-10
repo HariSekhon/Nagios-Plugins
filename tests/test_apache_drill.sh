@@ -47,7 +47,7 @@ echo "launching zookeeper container"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 3181 4181
 
 echo "lauching drill container linked to zookeeper"
-startupwait=10
+startupwait=25
 DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper"
 DOCKER_CMD="supervisord -n"
 launch_container "$DOCKER_IMAGE2" "$DOCKER_CONTAINER2" 8047
