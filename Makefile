@@ -270,6 +270,7 @@ update-no-recompile:
 clean:
 	cd lib && make clean
 	cd pylib && make clean
+	@find . -maxdepth 3 -iname '*.py[co]' -o -iname '*.jy[co]' | xargs rm -f || :
 	@make clean-zookeeper
 	rm -fr tests/spark-*-bin-hadoop*
 
