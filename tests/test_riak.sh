@@ -27,8 +27,6 @@ echo "
 # ============================================================================ #
 "
 
-export DOCKER_IMAGE="harisekhon/riak-dev"
-
 export RIAK_TEST_VERSIONS="${RIAK_TEST_VERSIONS:-1.4.9 2.1.3}"
 
 # RIAK_HOST no longer obtained via .travis.yml, some of these require local riak-admin tool so only makes more sense to run all tests locally
@@ -36,15 +34,11 @@ RIAK_HOST="${DOCKER_HOST:-${RIAK_HOST:-${HOST:-localhost}}}"
 RIAK_HOST="${RIAK_HOST##*/}"
 RIAK_HOST="${RIAK_HOST%%:*}"
 export RIAK_HOST
-echo "using docker address '$RIAK_HOST'"
 
-export DOCKER_CONTAINER="nagios-plugins-riak"
+export DOCKER_IMAGE="harisekhon/riak-dev"
+export DOCKER_CONTAINER="nagios-plugins-riak-test"
+
 export MNTDIR="/nagios-plugins-tmp"
-
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Riak checks!!!'
-    exit 0
-fi
 
 docker_run_test(){
     docker exec -ti -u riak "$DOCKER_CONTAINER" $MNTDIR/$@
@@ -56,25 +50,18 @@ is_travis && let startupwait+=20
 test_riak(){
     local version="$1"
     echo "Setting up Riak $version test container"
-    if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-        docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-        echo "Starting Docker Riak test container"
-        docker run -d --name "$DOCKER_CONTAINER" -v "$srcdir/..":"$MNTDIR" -p 8098:8098 "$DOCKER_IMAGE":"$version"
-        echo "waiting $startupwait seconds for Riak to start up and settle"
-        sleep $startupwait
-        # Riak 2.x
-        #echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
-        #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type create myBucket '{"props":{"n_val":1}}' || :
-        #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type activate myBucket
-        #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type update myBucket '{"props":{"n_val":1}}'
-        echo "creating test Riak document"
-        # don't use new bucket types yet
-        #curl -XPUT localhost:8098/types/myType/buckets/myBucket/keys/myKey -d 'hari'
-        curl -XPUT $RIAK_HOST:8098/buckets/myBucket/keys/myKey -d 'hari'
-        echo "done"
-    else
-        echo "Docker Riak test container already running"
-    fi
+    DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8098
+    # Riak 2.x
+    #echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
+    #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type create myBucket '{"props":{"n_val":1}}' || :
+    #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type activate myBucket
+    #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type update myBucket '{"props":{"n_val":1}}'
+    echo "creating test Riak document"
+    # don't use new bucket types yet
+    #curl -XPUT localhost:8098/types/myType/buckets/myBucket/keys/myKey -d 'hari'
+    curl -XPUT $RIAK_HOST:8098/buckets/myBucket/keys/myKey -d 'hari'
+    echo "done"
 
     hr
     # riak-admin doesn't work in Dockerized environments, fails trying to stat '/proc/sys/net/core/wmem_default'
