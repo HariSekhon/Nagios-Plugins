@@ -55,6 +55,9 @@ install:
 script:
   - tests/all.sh
 
+after_success:
+  - curl --data {build:true} -X POST https://registry.hub.docker.com/u/harisekhon/nagios-plugins/trigger/5b0d1a59-8b53-466a-87d7-8e99dfd01f16/
+
 services:
   # docker breaks cassandra, mysql, probably everything
   # => wholesale switch over to dockerized testing instead
