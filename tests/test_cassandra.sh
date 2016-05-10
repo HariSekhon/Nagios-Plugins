@@ -31,14 +31,15 @@ CASSANDRA_HOST="${DOCKER_HOST:-${CASSANDRA_HOST:-${HOST:-localhost}}}"
 CASSANDRA_HOST="${CASSANDRA_HOST##*/}"
 CASSANDRA_HOST="${CASSANDRA_HOST%%:*}"
 export CASSANDRA_HOST
-echo "using docker address '$CASSANDRA_HOST'"
 
 export DOCKER_IMAGE="harisekhon/cassandra-dev"
+export DOCKER_CONTAINER="nagios-plugins-cassandra-test"
 
 export CASSANDRA_TEST_VERSIONS="${CASSANDRA_TEST_VERSIONS:-22}"
 
-export DOCKER_CONTAINER="nagios-plugins-cassandra"
 export MNTDIR="/nagios-plugins-tmp"
+
+startupwait=10
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Cassandra checks!!!'
@@ -49,22 +50,13 @@ docker_run_test(){
     docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
 }
 
-startupwait=10
-is_travis && let startupwait+=20
 
 test_cassandra(){
     local version="$1"
     echo "Setting up Cassandra $version test container"
-    if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-        docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-        echo "Starting Docker Cassandra test container"
-        docker run -d --name "$DOCKER_CONTAINER" -v "$srcdir/..":"$MNTDIR" -p 7199:7199 -p 9042:9042 "$DOCKER_IMAGE":"$version"
-        echo "waiting $startupwait secs to allow Cassandra time to start up and gossip protocol to settle"
-        sleep $startupwait
-    else
-        echo "Docker Cassandra test container already running"
-    fi
-
+    DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 7199 9042
+    hr
     docker exec -ti "$DOCKER_CONTAINER" nodetool status
     hr
     # Dockerized Cassandra doesn't seem able to detect it's own token % - even when container has been running for a long time
@@ -79,12 +71,7 @@ test_cassandra(){
     hr
     docker_run_test check_cassandra_tpstats.pl -v
     hr
-
-    echo
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
-    sleep 1
-    echo
+    delete_container
     hr
     echo; echo
 }
