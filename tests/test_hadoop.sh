@@ -44,6 +44,13 @@ echo "Setting up Hadoop test container"
 hr
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 8032 8088 9000 10020 19888 50010 50020 50070 50075 50090
 
+echo "creating test file in hdfs"
+docker exec -i "$DOCKER_CONTAINER" /bin/bash <<EOF
+export JAVA_HOME=/usr
+hdfs dfsadmin -safemode leave
+echo content | hdfs dfs -put - /tmp/test.txt
+EOF
+
 hr
 # TODO: add checks
 #$perl -T $I_lib 
