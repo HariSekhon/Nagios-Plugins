@@ -228,6 +228,12 @@ Run ```make update```. This will git pull and then git submodule update which is
 
 If you update often and want to just quickly git pull + submodule update but skip rebuilding all those dependencies each time then run ```make update-no-recompile``` (will miss new library dependencies - do full ```make update``` if you encounter issues).
 
+#### Testing
+
+There is a full suite of Dockerized functional tests in the ```tests/``` directory as well as a high coverage percentage of unit tests for the underlying [Perl library](https://github.com/harisekhon/lib) and [Python library](https://githu.com/harisekhon/pylib).
+
+Running ```make test``` will trigger all tests, starting with the underlying libraries and then moving on to the functional test suites.
+
 ##### Bugs & Workarounds #####
 
 ###### Kafka dependency NetAddr/IP/InetBase autoload bug ######
@@ -241,6 +247,8 @@ This is an upstream bug related to autoloader, which you can work around by edit
 ```use Socket;```
 
 You may also need to install Socket6 from CPAN.
+
+Alternatively you can try the Python version ```check_kakfa.py``` which works in similar fashion.
 
 ###### MongoDB dependency Readonly library bug ######
 
