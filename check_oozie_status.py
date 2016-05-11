@@ -44,13 +44,13 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
-class OozieStatusCheck(StatusNagiosPlugin):
+class CheckOozieStatus(StatusNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(OozieStatusCheck, self).__init__()
+        super(CheckOozieStatus, self).__init__()
         # Python 3.x
         # super().__init__()
         self.name = 'Oozie'
@@ -78,4 +78,4 @@ class OozieStatusCheck(StatusNagiosPlugin):
 
 
 if __name__ == '__main__':
-    OozieStatusCheck().main()
+    CheckOozieStatus().main()
