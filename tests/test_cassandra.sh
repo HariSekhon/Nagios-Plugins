@@ -35,7 +35,7 @@ export CASSANDRA_HOST
 export DOCKER_IMAGE="harisekhon/cassandra-dev"
 export DOCKER_CONTAINER="nagios-plugins-cassandra-test"
 
-export CASSANDRA_TEST_VERSIONS="${CASSANDRA_TEST_VERSIONS:-22}"
+export CASSANDRA_TEST_VERSIONS="${CASSANDRA_TEST_VERSIONS:-2.2}"
 
 export MNTDIR="/nagios-plugins-tmp"
 
