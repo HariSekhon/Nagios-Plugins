@@ -63,10 +63,10 @@ hr
 ./check_kafka.py -B $KAFKA_HOST -T "$KAFKA_TOPIC" -v
 hr
 set +e
-$perl -T $I_lib ./check_kafka.pl -v --list-topics || :
+$perl -T $I_lib ./check_kafka.pl -v --list-topics
 [ $? -eq 3 ] || exit 1
 hr
-$perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions || :
+$perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions
 [ $? -eq 3 ] || exit 1
 set -e
 hr
