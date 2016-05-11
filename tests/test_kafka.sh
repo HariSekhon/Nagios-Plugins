@@ -38,7 +38,7 @@ export KAFKA_PORT="${KAFKA_PORT:-9092}"
 export DOCKER_IMAGE="harisekhon/kafka_scala-2.10"
 export DOCKER_CONTAINER="nagios-plugins-kafka-test"
 
-export KAFKA_TOPIC="nagios-plugins-test"
+export KAFKA_TOPIC="nagios-plugins-kafka-test"
 
 # needs to be longer than 10 to allow Kafka to settle so topic creation works
 startupwait=20
@@ -58,6 +58,9 @@ set +e
 hr
 ./check_kafka.py -B $KAFKA_HOST -v -T "$KAFKA_TOPIC" --list-partitions
 [ $? -eq 3 ] || exit 1
+hr
+./check_kafka.py -B $KAFKA_HOST -v --list-partitions
+[ $? -eq 3 ] || exit 1
 set -e
 hr
 ./check_kafka.py -B $KAFKA_HOST -T "$KAFKA_TOPIC" -v
@@ -67,6 +70,9 @@ $perl -T $I_lib ./check_kafka.pl -v --list-topics
 [ $? -eq 3 ] || exit 1
 hr
 $perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions
+[ $? -eq 3 ] || exit 1
+hr
+$perl -T $I_lib ./check_kafka.pl -v --list-partitions
 [ $? -eq 3 ] || exit 1
 set -e
 hr
