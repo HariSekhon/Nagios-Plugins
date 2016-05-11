@@ -20,7 +20,7 @@ Designed to be run on a Riak node via NRPE
 
 See also check_riak_write.pl which runs remotely via API and outputs read/write/delete timing stats
 
-Tested on Riak 2.0.0, 2.1.1";
+Tested on Riak 2.0.0, 2.1.1, 2.1.5";
 
 $VERSION = "0.1";
 
