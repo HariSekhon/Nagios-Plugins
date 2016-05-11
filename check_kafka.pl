@@ -16,7 +16,7 @@ Requires >= Kafka-0.8010 Perl library, several improvements were made to the lib
 
 Written for Kafka 0.8 onwards due to incompatible changes between Kafka 0.7 and 0.8.
 
-Tested on Kafka 0.8.1
+Tested on Kafka 0.8.1, 0.8.2
 
 Limitations (these all currently have tickets open to fix in the underlying API):
 
@@ -26,7 +26,7 @@ Limitations (these all currently have tickets open to fix in the underlying API)
 - first run if given a topic that doesn't already exist will cause the error \"Error: There are no known brokers: topic = '<topic>'\"
 ";
 
-$VERSION = "0.2.2";
+$VERSION = "0.2.3";
 
 # Kafka lib requires Perl 5.10
 use 5.010;
@@ -55,7 +55,8 @@ set_port_default(9092);
 env_creds("Kafka");
 
 my $broker_list = "";
-my $topic = "nagios";
+my $topic;
+#my $topic = "nagios";
 my $list_topics;
 my $list_partitions;
 my $partition = 0;
@@ -78,8 +79,8 @@ my $sleep = 0.5;
     "receive-max-attempts=s"     => [ \$receive_max_attempts, "Max number of receive attempts for Kafka broker (default: 1, min: 1, max: 100)" ],
     "retry-backoff=s"            => [ \$retry_backoff,        "Retry backoff in milliseconds between attempts  (default: 200, min: 1, max: 10000)" ],
     "sleep=s"                    => [ \$sleep,                "Sleep in seconds between producing and consuming from given topic (default: 0.5)" ],
-    "list-topics"                => [ \$list_topics,          "List Kafka topics from broker(s) and exit" ],
-    "list-partitions"            => [ \$list_partitions,      "List Kafka topics + partitions from broker(s) and exit" ],
+    "list-topics"                => [ \$list_topics,          "List Kafka topics discovered from broker, then exit" ],
+    "list-partitions"            => [ \$list_partitions,      "List Kafka partitions for given topic (or all topics discovered from broker if --topic not specified), then exit" ],
 );
 splice @usage_order, 6, 0, qw/broker-list topic partition required-acks ignore-invalid-messages send-max-attempts receive-max-attempts retry-backoff sleep list-topics list-partitions/;
 get_options();
@@ -102,12 +103,12 @@ if($broker_list){
 }
 $host = validate_host($host);
 $port = validate_port($port);
-# XXX: currently no way to list topics in Perl's Kafka API
-#unless($list_topics){
+unless($list_topics or $list_partitions){
     $topic or usage "topic not defined";
     $topic =~ /^([A-Za-z0-9\.-]+)$/ or usage "topic must be alphanumeric and may contain dots and dashes";
     $topic = $1;
-#}
+    vlog_option "topic", $topic;
+}
 $partition = validate_int($partition, "partition", 0, 10000);
 if($RequiredAcks eq "ISR"){
     $RequiredAcks = $BLOCK_UNTIL_IS_COMMITTED;
@@ -150,13 +151,13 @@ my $content = "This is a producer-consumer test message from HariSekhon:$prognam
 
 my ($connection, $consumer, $producer);
 
-# XXX: don't call this until after fetching partition offsets as the API call $connection->is_server_alive() returns undef until that point even when broker is up
+# XXX: API BUG don't call this until after fetching partition offsets as the API call $connection->is_server_alive() returns undef until that point even when broker is up
 # UPDATE: this is now a new method, this old is_server_alive() has been renamed => is_server_connected() from Kafka 0.8009 library onwards
 sub check_server_alive(){
     return;
-    # XXX BUG: trying this results in - Error: Can't call method "is_alive" on an undefined value at /Library/Perl/5.18/Kafka/Connection.pm line 569.
+    # XXX: API BUG: trying this results in - Error: Can't call method "is_alive" on an undefined value at /Library/Perl/5.18/Kafka/Connection.pm line 569.
     #unless($connection->is_server_alive("$host:$port")){
-    # XXX BUG: this always return false :(
+    # XXX: API BUG - always return false :(
     unless($connection->is_server_connected("$host:$port")){
         quit "CRITICAL", "Kafka broker" . ( $verbose ? " at $host:$port": "") . " is not connected!";
     }
@@ -205,21 +206,31 @@ try {
 #        }
 #    }
 
+    sub print_topic_partitions($$){
+        my $metadata = shift;
+        my $topic = shift;
+        print "Kafka topic '$topic' partitions:\n";
+        # escape topics with dots in them for passing to get_field() subs
+        $topic =~ s/\./\\./g;
+        my $topic_metadata = get_field2($metadata, $topic);
+        foreach my $partition (sort keys %$topic_metadata){
+            printf("\t\tPartition: %-8s Replicas: %-10s ISR: %-10s Leader: %s\n", $partition, join(",", get_field2_array($topic_metadata, "$partition.Replicas")), join(",", get_field2_array($topic_metadata, "$partition.Isr")), get_field2($topic_metadata, "$partition.Leader") );
+        }
+        print "\n";
+    }
+
     # XXX: how to check we're connected here if we can't get metadata??
     if($list_topics or $list_partitions or $verbose > 2 or $debug){
         my $metadata = $connection->get_metadata();
         vlog3 "\nMetadata: " . Dumper($metadata) . "\n" if $debug;
         vlog3 "\nMetadata:\n";
         if($list_partitions or $verbose > 2){
-            foreach my $topic (sort keys %$metadata){
-                print "topic $topic:\n";
-                # escape topics with dots in them for passing to get_field() subs
-                $topic =~ s/\./\\./g;
-                my $topic_metadata = get_field2($metadata, $topic);
-                foreach my $partition (sort keys %$topic_metadata){
-                    printf("\t\tPartition: %-8s Replicas: %-10s ISR: %-10s Leader: %s\n", $partition, join(",", get_field2_array($topic_metadata, "$partition.Replicas")), join(",", get_field2_array($topic_metadata, "$partition.Isr")), get_field2($topic_metadata, "$partition.Leader") );
+            if($topic){
+                print_topic_partitions($metadata, $topic)
+            } else {
+                foreach my $topic (sort keys %$metadata){
+                    print_topic_partitions($metadata, $topic)
                 }
-                print "\n";
             }
         }
         exit $ERRORS{"UNKNOWN"} if $list_partitions;
