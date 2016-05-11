@@ -51,7 +51,24 @@ echo "creating Kafka test topic"
 docker exec -ti "$DOCKER_CONTAINER" kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic "$KAFKA_TOPIC"
 
 hr
-$perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-topics || :
+# TODO: use ENV
+set +e
+./check_kafka.py -B $KAFKA_HOST -v --list-topics
+[ $? -eq 3 ] || exit 1
+hr
+./check_kafka.py -B $KAFKA_HOST -v -T "$KAFKA_TOPIC" --list-partitions
+[ $? -eq 3 ] || exit 1
+set -e
+hr
+./check_kafka.py -B $KAFKA_HOST -T "$KAFKA_TOPIC" -v
+hr
+set +e
+$perl -T $I_lib ./check_kafka.pl -v --list-topics || :
+[ $? -eq 3 ] || exit 1
+hr
+$perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions || :
+[ $? -eq 3 ] || exit 1
+set -e
 hr
 $perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v
 hr
