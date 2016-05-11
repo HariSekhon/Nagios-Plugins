@@ -212,6 +212,9 @@ try {
         print "Kafka topic '$topic' partitions:\n";
         # escape topics with dots in them for passing to get_field() subs
         $topic =~ s/\./\\./g;
+        if(not defined($metadata->{$topic})){
+            quit "CRITICAL", "topic '$topic' does not exist on Kafka broker";
+        }
         my $topic_metadata = get_field2($metadata, $topic);
         foreach my $partition (sort keys %$topic_metadata){
             printf("\t\tPartition: %-8s Replicas: %-10s ISR: %-10s Leader: %s\n", $partition, join(",", get_field2_array($topic_metadata, "$partition.Replicas")), join(",", get_field2_array($topic_metadata, "$partition.Isr")), get_field2($topic_metadata, "$partition.Leader") );
