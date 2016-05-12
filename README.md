@@ -19,7 +19,9 @@ This should be the next stop after installing Nagios with it's basic plugins.
 
 I also take suggestions for interesting new plugins or those involving interesting open source technologies.
 
-Github pull requests for patches and features are more than welcome.
+Since there are a lot of programs covering a lot of different technologies, look at the software ersions each program was written / tested against (documented in --help for each program). Newer versions of software seem to change a lot these days especially in the Big Data & NoSQL space so plugins may require updates for newer versions - in which case please raise a [Github issue](https://github.com/harisekhon/nagios-plugins/issues).
+
+[Github pull requests](https://github.com/harisekhon/nagios-plugins/pulls) for patches and features are more than welcome.
 
 Hari Sekhon
 
