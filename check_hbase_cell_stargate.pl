@@ -18,7 +18,7 @@ $DESCRIPTION = "Nagios Plugin to check a specific HBase table cell via the HBase
 4. outputs the query time to a given precision for reporting and graphing
 5. optionally outputs the cell's value for graphing purposes
 
-Tested on CDH 4.3.0, 4.5.0
+Tested on HBase 0.04 on CDH 4.3.0, 4.5.0 and Apache HBase 1.2.1
 
 Limitations:
 
@@ -31,7 +31,7 @@ since this is all the Stargate server gives us for a response.
 Another option is to use check_hbase_cell.pl / check_hbase_cell_thrift.pl which uses the Thrift API and has better error reporting
 ";
 
-$VERSION = "0.3";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -114,43 +114,59 @@ if($content =~ /\A\s*\Z/){
     quit "CRITICAL", "empty body returned from '$url'";
 }
 
-my $xml = XMLin($content, forcearray => 1, keyattr => []);
+# HBase 1.2 returns the key without XML, causing XMLin to assume it's a file instead
+my $value;
+if($content =~ /^\s*</){
+    my $xml;
+    try{
+        $xml = XMLin($content, forcearray => 1, keyattr => []);
+    };
+    catch {
+        if($@ =~ /read error/){
+            $@ = "XML parsing error: " . join(', ', $@);
+        }
+        quit "CRITICAL", strip($@);
+    };
 
-print Dumper($xml) if($debug or $verbose >= 3);
+    print Dumper($xml) if($debug or $verbose >= 3);
 
-# Tested that the latest value (newest timestamp) is indeed returned first in the Row list
-# but now optimized this to only return one version (the latest version)
-unless(defined($xml->{"Row"}[0]->{"key"})){
-    quit "CRITICAL", "row key not defined in returned results";
+    # Tested that the latest value (newest timestamp) is indeed returned first in the Row list
+    # but now optimized this to only return one version (the latest version)
+    unless(defined($xml->{"Row"}[0]->{"key"})){
+        quit "CRITICAL", "row key not defined in returned results";
+    }
+
+    my $rowkey = $xml->{"Row"}[0]->{"key"};
+    $rowkey = decode_base64($rowkey);
+    vlog2 "row key    = $rowkey";
+
+    vlog2 "checking we're got the right row key, column family:qualifier";
+    unless($rowkey eq $row){
+        quit "CRITICAL", "wrong row returned, expected row '$row', got row '$rowkey'";
+    }
+
+    unless(defined($xml->{"Row"}[0]->{"Cell"}[0]->{"column"})){
+        quit "CRITICAL", "column not defined in first returned result";
+    }
+
+    my $column_returned = $xml->{"Row"}[0]->{"Cell"}[0]->{"column"};
+    $column_returned    = decode_base64($column_returned);
+    vlog2 "column     = $column_returned";
+
+    unless($column_returned eq $column){
+        quit "CRITICAL", "wrong column family:qualifier returned, expected column '$column', got column '$column_returned'";
+    }
+
+    unless(defined($xml->{"Row"}[0]->{"Cell"}[0]->{"content"})){
+        quit "CRITICAL", "Cell content not found in XML response from HBase Stargate server";
+    }
+
+    $value = $xml->{"Row"}[0]->{"Cell"}[0]->{"content"};
+    $value = decode_base64($value);
+} else {
+    $value = $content;
 }
-
-my $rowkey = $xml->{"Row"}[0]->{"key"};
-$rowkey    = decode_base64($rowkey);
-vlog2 "row key    = $rowkey";
-
-unless(defined($xml->{"Row"}[0]->{"Cell"}[0]->{"column"})){
-    quit "CRITICAL", "column not defined in first returned result";
-}
-
-my $column_returned = $xml->{"Row"}[0]->{"Cell"}[0]->{"column"};
-$column_returned    = decode_base64($column_returned);
-vlog2 "column     = $column_returned";
-
-unless(defined($xml->{"Row"}[0]->{"Cell"}[0]->{"content"})){
-    quit "CRITICAL", "Cell content not found in XML response from HBase Stargate server";
-}
-
-my $value = $xml->{"Row"}[0]->{"Cell"}[0]->{"content"};
-$value = decode_base64($value);
 vlog2 "cell value = $value\n";
-
-vlog2 "checking we're got the right row key, column family:qualifier";
-unless($rowkey eq $row){
-    quit "CRITICAL", "wrong row returned, expected row '$row', got row '$rowkey'";
-}
-unless($column_returned eq $column){
-    quit "CRITICAL", "wrong column family:qualifier returned, expected column '$column', got column '$column_returned'";
-}
 
 if(defined($expected)){
     vlog2 "checking cell value '$value' against expected regex '$expected'\n";
