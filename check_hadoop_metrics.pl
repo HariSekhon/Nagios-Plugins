@@ -34,7 +34,7 @@ UPDATE: newer /metrics pages are often blank. See check_hadoop_jmx.pl for jmx me
 
 # Tested on MRv1 JobTracker/TaskTracker, HBase 0.94
 
-$VERSION = "0.4";
+$VERSION = "0.4.1";
 
 use strict;
 use warnings;
@@ -49,8 +49,10 @@ use JSON::XS;
 my $metrics;
 my $all_metrics;
 
+env_vars(["HOST"], \$host);
+
 %options = (
-    "H|host=s"         => [ \$host,         "Host to connect to" ],
+    "H|host=s"         => [ \$host,         "Host to connect to (\$HOST)" ],
     "P|port=s"         => [ \$port,         "Port to connect to (eg. JobTracker 50030, TaskTracker 50060, HBase Master 60010, HBase RegionServer 60030)" ],
     "m|metrics=s"      => [ \$metrics,      "Metric(s) to collect, comma separated. Output in the order specified for convenience. Optional thresholds will only be applied when a single metrics is given" ],
     "a|all-metrics"    => [ \$all_metrics,  "Grab all metrics. Useful if you don't know what to monitor yet or just want to graph everything" ],
