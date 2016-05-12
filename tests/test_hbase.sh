@@ -71,10 +71,9 @@ $perl -T $I_lib ./check_hbase_cell_stargate.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_v
 hr
 $perl -T $I_lib ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
 hr
-# TODO: enable no tables CRITICAL check, then create table then re-check
-$perl -T $I_lib ./check_hbase_tables.pl
-$perl -T $I_lib ./check_hbase_tables_thrift.pl
-# XXX: needs updates
+# TODO: need updates
+#$perl -T $I_lib ./check_hbase_tables.pl
+#$perl -T $I_lib ./check_hbase_tables_thrift.pl
 #$perl -T $I_lib ./check_hbase_tables_stargate.pl
 #$perl -T $I_lib ./check_hbase_tables_jsp.pl
 #hr
