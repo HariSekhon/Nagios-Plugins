@@ -89,7 +89,10 @@ hr
 #else
 #    echo "ZooKeeper not built - skipping ZooKeeper checks"
 #fi
-docker exec -ti "$DOCKER_CONTAINER" /pl/check_hbase_table_rowcount.pl -T t1 --hbase-bin /hbase/bin/hbase -w 2 -c 2 -t 60
+docker exec -i "$DOCKER_CONTAINER" /bin/bash <<EOF
+export JAVA_HOME=/usr
+/pl/check_hbase_table_rowcount.pl -T t1 --hbase-bin /hbase/bin/hbase -w 2 -c 2 -t 60
+EOF
 # only there on older versions of HBase
 #docker exec -ti "$DOCKER_CONTAINER" /pl/check_hbase_unassigned_regions_znode.pl -H localhost
 hr
