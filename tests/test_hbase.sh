@@ -45,6 +45,7 @@ startupwait=45
 hr
 echo "Setting up HBase test container"
 hr
+DOCKER_OPTS="-v $srcdir/..:/pl"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 8080 8085 9090 9095 16000 16010 16201 16301
 
 echo "setting up test tables"
@@ -88,7 +89,8 @@ hr
 #else
 #    echo "ZooKeeper not built - skipping ZooKeeper checks"
 #fi
-docker exec -ti "$DOCKER_CONTAINER" -v "$srcdir/..":/pl /pl/check_hbase_unassigned_regions_znode.pl -H localhost
+# only there on older versions of HBase
+#docker exec -ti "$DOCKER_CONTAINER" /pl/check_hbase_unassigned_regions_znode.pl -H localhost
 hr
 
 delete_container
