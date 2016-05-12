@@ -19,8 +19,6 @@ This should be the next stop after installing Nagios with it's basic plugins.
 
 I also take suggestions for interesting new plugins or those involving interesting open source technologies.
 
-Since there are a lot of programs covering a lot of different technologies, look at the software ersions each program was written / tested against (documented in --help for each program). Newer versions of software seem to change a lot these days especially in the Big Data & NoSQL space so plugins may require updates for newer versions - in which case please raise a [Github issue](https://github.com/harisekhon/nagios-plugins/issues).
-
 [Github pull requests](https://github.com/harisekhon/nagios-plugins/pulls) for patches and features are more than welcome.
 
 Hari Sekhon
@@ -280,13 +278,15 @@ Recent version(s) of IO::Socket::SSL (2.020) seem to fail to respect options to 
 touch .use_net_ssl
 ```
 
-### Support for Bugs or Feature Requests ###
+### Support for Updates / Bugs Fixes / Feature Requests ###
 
-Please raise a ticket on Github for any bugs or problems encountered in the use of this code (Issues near the top right).
+Please raise a [Github Issue ticket](https://github.com/harisekhon/nagios-plugins/issues) for if you need updates, bug fixes or new features.
+
+Since there are a lot of programs covering a lot of different technologies, look at the software ersions each program was written / tested against (documented in --help for each program). Newer versions of software seem to change a lot these days especially in the Big Data & NoSQL space so plugins may require updates for newer versions.
 
 Please make sure you have run ```make``` first to pull the latest library submodule and build the necessary CPAN modules, (see [Quick Setup](https://github.com/harisekhon/nagios-plugins#quick-setup) above).
 
-Make sure you run the code by hand on the command line with the ```-vvv``` switch for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` found in my [Tools](https://github.com/harisekhon/tools) repo.
+Make sure you run the code by hand on the command line with ```-v -v -v``` for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` found in my [Tools repo](https://github.com/harisekhon/tools).
 
 ### Contributions ###
 
