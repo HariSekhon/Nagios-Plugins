@@ -72,6 +72,8 @@ $perl -T $I_lib ./check_hbase_cell_stargate.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_v
 hr
 $perl -T $I_lib ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
 hr
+$perl -T $I_lib ./check_hadoop_jmx.pl -H $HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
+hr
 # TODO: need updates
 #$perl -T $I_lib ./check_hbase_tables.pl
 #$perl -T $I_lib ./check_hbase_tables_thrift.pl
