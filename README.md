@@ -286,7 +286,7 @@ Since there are a lot of programs covering a lot of different technologies, look
 
 Please make sure you have run ```make update``` first to pull the latest updates including library sub-modules and build the latest CPAN module dependencies, (see [Quick Setup](https://github.com/harisekhon/nagios-plugins#quick-setup) above).
 
-Make sure you run the code by hand on the command line with ```-v -v -v``` for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` found in my [Tools repo](https://github.com/harisekhon/tools).
+Make sure you run the code by hand on the command line with ```-v -v -v``` for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` tool found in my [Tools repo](https://github.com/harisekhon/tools).
 
 ### Contributions ###
 
