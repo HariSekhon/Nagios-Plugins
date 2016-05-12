@@ -49,7 +49,7 @@ DOCKER_OPTS="-v $srcdir/..:/pl"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 8080 8085 9090 9095 16000 16010 16201 16301
 
 echo "setting up test tables"
-uniq_val=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n1 || :)
+uniq_val=$(< /dev/urandom tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n1 || :)
 docker exec -i "$DOCKER_CONTAINER" /bin/bash <<EOF
 export JAVA_HOME=/usr
 /hbase/bin/hbase shell <<EOF2
