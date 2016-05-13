@@ -40,44 +40,53 @@ export MESOS_MASTER="$MESOS_HOST:$MESOS_MASTER_PORT"
 export DOCKER_IMAGE="harisekhon/mesos"
 export DOCKER_CONTAINER="nagios-plugins-mesos-test"
 
+export MESOS_VERSIONS="0.23 0.24"
+
 startupwait=10
 
-hr
-echo "Setting up Mesos test container"
-hr
-launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $MESOS_MASTER_PORT $MESOS_WORKER_PORT
+test_mesos_version(){
+    local version="${1:-latest}"
+    hr
+    echo "Setting up Mesos test container (version $version)"
+    hr
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MESOS_MASTER_PORT $MESOS_WORKER_PORT
 
-hr
-$perl -T $I_lib ./check_mesos_activated_slaves.pl -v
-hr
-#$perl -T $I_lib ./check_mesos_chronos_jobs.pl -v
-hr
-$perl -T $I_lib ./check_mesos_deactivated_slaves.pl -v
-hr
-$perl -T $I_lib ./check_mesos_master_health.pl -v
-hr
-$perl -T $I_lib ./check_mesos_master_state.pl -v
-hr
-$perl -T $I_lib ./check_mesos_metrics.pl -P 5050 -v
-hr
-$perl -T $I_lib ./check_mesos_metrics.pl -P 5051 -v
-hr
-$perl -T $I_lib ./check_mesos_master_metrics.pl -v
-hr
-set +e
-slave="$(./check_mesos_slave.py -l | awk '/=/{print $1; exit}')"
-set -e
-echo "checking for mesos slave '$slave'"
-./check_mesos_slave.py -v -s "$slave"
-hr
-$perl -T $I_lib ./check_mesos_slave_metrics.pl -v
-hr
-# Not implemented yet
-#$perl -T $I_lib ./check_mesos_registered_framework.py -v
-hr
-# Not implemented yet
-#$perl -T $I_lib ./check_mesos_slave_container_statistics.pl -v
-hr
-$perl -T $I_lib ./check_mesos_slave_state.pl -v
-hr
-delete_container
+    hr
+    $perl -T $I_lib ./check_mesos_activated_slaves.pl -v
+    hr
+    #$perl -T $I_lib ./check_mesos_chronos_jobs.pl -v
+    hr
+    $perl -T $I_lib ./check_mesos_deactivated_slaves.pl -v
+    hr
+    $perl -T $I_lib ./check_mesos_master_health.pl -v
+    hr
+    $perl -T $I_lib ./check_mesos_master_state.pl -v
+    hr
+    $perl -T $I_lib ./check_mesos_metrics.pl -P 5050 -v
+    hr
+    $perl -T $I_lib ./check_mesos_metrics.pl -P 5051 -v
+    hr
+    $perl -T $I_lib ./check_mesos_master_metrics.pl -v
+    hr
+    set +e
+    slave="$(./check_mesos_slave.py -l | awk '/=/{print $1; exit}')"
+    set -e
+    echo "checking for mesos slave '$slave'"
+    ./check_mesos_slave.py -v -s "$slave"
+    hr
+    $perl -T $I_lib ./check_mesos_slave_metrics.pl -v
+    hr
+    # Not implemented yet
+    #$perl -T $I_lib ./check_mesos_registered_framework.py -v
+    hr
+    # Not implemented yet
+    #$perl -T $I_lib ./check_mesos_slave_container_statistics.pl -v
+    hr
+    $perl -T $I_lib ./check_mesos_slave_state.pl -v
+    hr
+    delete_container
+}
+
+for version in $MESOS_VERSIONS; do
+    test_mesos_version "$version"
+done
