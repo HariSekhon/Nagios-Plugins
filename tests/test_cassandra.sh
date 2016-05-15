@@ -46,7 +46,7 @@ if ! is_docker_available; then
     exit 0
 fi
 
-docker_run_test(){
+docker_exec(){
     docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
 }
 
@@ -61,15 +61,15 @@ test_cassandra(){
     hr
     # Dockerized Cassandra doesn't seem able to detect it's own token % - even when container has been running for a long time
     # TODO: add more specific command testing here to only except that scenario
-    docker_run_test check_cassandra_balance.pl -v || :
+    docker_exec check_cassandra_balance.pl -v || :
     hr
-    docker_run_test check_cassandra_heap.pl -w 70 -c 90 -v
+    docker_exec check_cassandra_heap.pl -w 70 -c 90 -v
     hr
-    docker_run_test check_cassandra_netstats.pl -v
+    docker_exec check_cassandra_netstats.pl -v
     hr
-    docker_run_test check_cassandra_nodes.pl -v
+    docker_exec check_cassandra_nodes.pl -v
     hr
-    docker_run_test check_cassandra_tpstats.pl -v
+    docker_exec check_cassandra_tpstats.pl -v
     hr
     delete_container
     hr
