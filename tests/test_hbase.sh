@@ -107,9 +107,9 @@ hr
 #fi
 docker_exec check_hbase_table_rowcount.pl -T t1 --hbase-bin /hbase/bin/hbase -w 2 -c 2 -t 60
 hr
-docker_exec check_zookeeper_child_znodes.pl -H localhost -P 2181 -z /hbase/rs -v -w 1:1 -c 1:1
-hr
 docker_exec check_zookeeper_znode.pl -H localhost -P 2181 -z /hbase -v -n --child-znodes
+hr
+docker_exec check_zookeeper_child_znodes.pl -H localhost -P 2181 -z /hbase/rs -v -w 1:1 -c 1:1
 # only there on older versions of HBase
 #hr
 #docker_exec check_hbase_unassigned_regions_znode.pl -H localhost
