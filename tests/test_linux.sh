@@ -39,7 +39,7 @@ if ! is_docker_available; then
     exit 0
 fi
 
-docker_run_test(){
+docker_exec(){
     local cmd="$@"
     docker exec "$DOCKER_CONTAINER" $MNTDIR/$*
 }
@@ -56,30 +56,30 @@ docker exec "$DOCKER_CONTAINER" yum makecache fast
 docker exec "$DOCKER_CONTAINER" yum install -y net-tools
 
 hr
-docker_run_test check_linux_auth.pl -u root -g root -v
+docker_exec check_linux_auth.pl -u root -g root -v
 hr
-docker_run_test check_linux_context_switches.pl || : ; sleep 1; docker_run_test check_linux_context_switches.pl -w 10000 -c 50000
+docker_exec check_linux_context_switches.pl || : ; sleep 1; docker_exec check_linux_context_switches.pl -w 10000 -c 50000
 hr
-docker_run_test check_linux_duplicate_IDs.pl
+docker_exec check_linux_duplicate_IDs.pl
 hr
-#docker_run_test check_linux_interface.pl -i eth0 -v -e -d Full
+#docker_exec check_linux_interface.pl -i eth0 -v -e -d Full
 hr
 # making this much higher so it doesn't trip just due to test system load
-docker_run_test check_linux_load_normalized.pl -w 99 -c 99
+docker_exec check_linux_load_normalized.pl -w 99 -c 99
 hr
-docker_run_test check_linux_ram.py -v -w 20% -c 10%
+docker_exec check_linux_ram.py -v -w 20% -c 10%
 hr
-docker_run_test check_linux_system_file_descriptors.pl
+docker_exec check_linux_system_file_descriptors.pl
 hr
-docker_run_test check_linux_timezone.pl -T UTC -Z /usr/share/zoneinfo/UTC -A UTC -v
+docker_exec check_linux_timezone.pl -T UTC -Z /usr/share/zoneinfo/UTC -A UTC -v
 hr
-docker_run_test check_yum.pl -C -v -t 30
+docker_exec check_yum.pl -C -v -t 30
 hr
-docker_run_test check_yum.pl -C --all-updates -v -t 30 || :
+docker_exec check_yum.pl -C --all-updates -v -t 30 || :
 hr
-docker_run_test check_yum.py -C -v -t 30
+docker_exec check_yum.py -C -v -t 30
 hr
-docker_run_test check_yum.py -C --all-updates -v -t 30 || :
+docker_exec check_yum.py -C --all-updates -v -t 30 || :
 hr
 delete_container
 
