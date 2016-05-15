@@ -40,12 +40,26 @@ export HBASE_STARGATE_PORT=8080
 export DOCKER_IMAGE="harisekhon/hbase-dev"
 export DOCKER_CONTAINER="nagios-plugins-hbase-test"
 
-startupwait=45
+export MNTDIR="/pl"
+
+if ! is_docker_available; then
+    echo "Docker not available, skipping HBase checks"
+    exit 1
+fi
+
+docker_exec(){
+    docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
+    export JAVA_HOME=/usr
+    $MNTDIR/$@
+EOF
+}
+
+startupwait=50
 
 hr
 echo "Setting up HBase test container"
 hr
-DOCKER_OPTS="-v $srcdir/..:/pl"
+DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 8080 8085 9090 9095 16000 16010 16201 16301
 
 echo "setting up test tables"
@@ -91,12 +105,14 @@ hr
 #else
 #    echo "ZooKeeper not built - skipping ZooKeeper checks"
 #fi
-docker exec -i "$DOCKER_CONTAINER" /bin/bash <<EOF
-export JAVA_HOME=/usr
-/pl/check_hbase_table_rowcount.pl -T t1 --hbase-bin /hbase/bin/hbase -w 2 -c 2 -t 60
-EOF
+docker_exec check_hbase_table_rowcount.pl -T t1 --hbase-bin /hbase/bin/hbase -w 2 -c 2 -t 60
+hr
+docker_exec check_zookeeper_child_znodes.pl -H localhost -P 2181 -z /hbase/rs -v -w 1:1 -c 1:1
+hr
+docker_exec check_zookeeper_znode.pl -H localhost -P 2181 -z /hbase -v -n --child-znodes
 # only there on older versions of HBase
-#docker exec -ti "$DOCKER_CONTAINER" /pl/check_hbase_unassigned_regions_znode.pl -H localhost
+#hr
+#docker_exec check_hbase_unassigned_regions_znode.pl -H localhost
 hr
 
 delete_container
