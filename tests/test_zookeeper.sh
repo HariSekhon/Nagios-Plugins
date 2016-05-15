@@ -38,7 +38,7 @@ export DOCKER_CONTAINER="nagios-plugins-zookeeper"
 export DOCKER_CONTAINER2="nagios-plugins"
 export MNTDIR="/nagios-plugins-tmp"
 
-docker_run_test(){
+docker_exec(){
     docker exec -ti "$DOCKER_CONTAINER2" $MNTDIR/$@
 }
 
@@ -56,11 +56,11 @@ docker cp zoo.cfg "$DOCKER_CONTAINER2":"$MNTDIR/"
 hr
 $perl -T $I_lib ./check_zookeeper.pl -s -w 10 -c 20 -v
 hr
-docker_run_test check_zookeeper_config.pl -H zookeeper -P 2181 -C "$MNTDIR/zoo.cfg" -v
+docker_exec check_zookeeper_config.pl -H zookeeper -P 2181 -C "$MNTDIR/zoo.cfg" -v
 hr
-docker_run_test check_zookeeper_child_znodes.pl -H zookeeper -P 2181 -z / --no-ephemeral-check -v
+docker_exec check_zookeeper_child_znodes.pl -H zookeeper -P 2181 -z / --no-ephemeral-check -v
 hr
-docker_run_test check_zookeeper_znode.pl -H zookeeper -P 2181 -z / -v -n --child-znodes
+docker_exec check_zookeeper_znode.pl -H zookeeper -P 2181 -z / -v -n --child-znodes
 hr
 
 delete_container "$DOCKER_CONTAINER2"
