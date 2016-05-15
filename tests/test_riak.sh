@@ -40,7 +40,7 @@ export DOCKER_CONTAINER="nagios-plugins-riak-test"
 
 export MNTDIR="/nagios-plugins-tmp"
 
-docker_run_test(){
+docker_exec(){
     docker exec -ti -u riak "$DOCKER_CONTAINER" $MNTDIR/$@
 }
 
@@ -65,7 +65,7 @@ test_riak(){
 
     hr
     # riak-admin doesn't work in Dockerized environments, fails trying to stat '/proc/sys/net/core/wmem_default'
-    #docker_run_test check_riak_diag.pl --ignore-warnings -v
+    #docker_exec check_riak_diag.pl --ignore-warnings -v
     # must attempt to check this locally if available - but may get "CRITICAL: 'riak-admin diag' returned 1 -  Node is not running!"
     if which riak-admin; then
         $perl -T $I_lib check_riak_diag.pl --ignore-warnings -v || :
@@ -73,9 +73,9 @@ test_riak(){
     hr
     $perl -T $I_lib check_riak_key.pl -b myBucket -k myKey -e hari -v
     hr
-    docker_run_test check_riak_member_status.pl -v
+    docker_exec check_riak_member_status.pl -v
     hr
-    docker_run_test check_riak_ringready.pl -v
+    docker_exec check_riak_ringready.pl -v
     hr
     $perl -T $I_lib check_riak_stats.pl --all -v
     hr
@@ -87,7 +87,7 @@ test_riak(){
     hr
     $perl -T $I_lib check_riak_write.pl -v
     hr
-    docker_run_test check_riak_write_local.pl -v
+    docker_exec check_riak_write_local.pl -v
     hr
     $perl -T $I_lib check_riak_version.pl -v
 
