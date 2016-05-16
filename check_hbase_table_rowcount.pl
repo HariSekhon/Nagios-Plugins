@@ -17,9 +17,9 @@ On any non-test table with real data, this will take minutes or more, and you wi
 
 Suggest this be run as a passive service check and the result fed back in to NSCA.
 
-Tested on CDH 4.3.0, 4.5.0";
+Tested on HBase 0.94 on CDH 4.3.0, 4.5.0 and Apache HBase 1.2.1";
 
-$VERSION = "0.2.1";
+$VERSION = "0.3.0";
 
 use strict;
 use warnings;
@@ -50,7 +50,7 @@ my $rowcount;
 get_options();
 
 $table     = validate_database_tablename($table, "HBase", "allow_qualified");
-$hbase_bin = validate_file($hbase_bin, "hbase path");
+$hbase_bin = validate_file($hbase_bin, "hbase");
 which($hbase_bin, 1);
 $hbase_bin =~ /(.*\/?)hbase$/ or usage "invalid hbase-bin supplied, must be the path to the hbase command";
 validate_thresholds();
@@ -62,7 +62,7 @@ $status = "OK";
 
 vlog2 "running hbase count against table '$table'\n";
 
-my $cmd = "echo 'count \"$table\", CACHE => 1000' | hbase shell 2>&1";
+my $cmd = "echo 'count \"$table\", CACHE => 1000' | $hbase_bin shell 2>&1";
 vlog3 "cmd: $cmd";
 my $start_time = time;
 open my $fh, "$cmd |";
