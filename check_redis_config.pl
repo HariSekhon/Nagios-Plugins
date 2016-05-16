@@ -26,7 +26,7 @@ Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Coll
 
 Tested on Redis 2.4.10, 2.8.19, 3.0.7";
 
-$VERSION = "0.8.3";
+$VERSION = "0.8.4";
 
 use strict;
 use warnings;
@@ -125,20 +125,26 @@ while(<$fh>){
     s/^\s*//;
     s/\s*$//;
     debug "conf file:  $_";
-    /^\s*([\w\.-]+)\s+["']?([^'"]*)["']?\s*$/ or quit "UNKNOWN", "unrecognized line in config file '$conf': '$_'. $nagios_plugins_support_msg";
+    /^\s*([\w\.-]+)(?:\s+["']?([^'"]*)["']?)?\s*$/ or quit "UNKNOWN", "unrecognized line in config file '$conf': '$_'. $nagios_plugins_support_msg";
     $key   = lc $1;
-    $value = lc $2;
+    if(defined($2)){
+        $value = lc $2;
+    } else {
+        $value = "";
+    }
     if($key eq "dir"){
         # this checks the file system and returns undef when /var/lib/redis isn't found when checking from my remote Mac
         #$value = abs_path($value);
         # Redis live running server displays the dir without trailing slash unlike default config
         $value =~ s/\/+$//;
     } elsif ($key eq "requirepass"){
-        $value = "<omitted>";
         unless($password){
-            vlog2 "detected and using password from config file";
-            $password = $2;
+            if($value and $value ne "<omitted>"){
+                vlog2 "detected and using password from config file";
+                $password = $value;
+            }
         }
+        $value = "<omitted>";
     } elsif ($key eq "rename-command"){
         my @tmp = split(/\s+/, $value);
         # if rename-command config " " this block is never entered
