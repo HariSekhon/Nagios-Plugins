@@ -48,7 +48,7 @@ $status = "OK";
 
 my $url = "http://$host:$port/ws/v1/cluster";
 
-my $content = curl $url;
+my $content = curl_redirect $url;
 
 try{
     $json = decode_json $content;

@@ -60,7 +60,7 @@ $status = "OK";
 
 my $url = "http://$host:$port/ws/v1/cluster/scheduler";
 
-my $content = curl $url;
+my $content = curl_redirect $url;
 
 try{
     $json = decode_json $content;

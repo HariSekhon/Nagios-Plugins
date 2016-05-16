@@ -111,7 +111,7 @@ sub rm_error_handler($){
     }
 }
 
-my $content = curl $url, undef, undef, undef, \&rm_error_handler;
+my $content = curl_redirect $url, undef, undef, undef, \&rm_error_handler;
 
 try{
     $json = decode_json $content;
