@@ -28,7 +28,7 @@ echo "
 # ============================================================================ #
 "
 
-if [ -z "$MAPR_HOST" ]; then
+if [ -z "${MAPR_HOST:-}" ]; then
     echo "WARNING: MapR host not detected, skipping MapR checks"
     exit 0
 fi
