@@ -35,7 +35,7 @@ export KAFKA_HOST
 
 export KAFKA_PORT="${KAFKA_PORT:-9092}"
 
-export DOCKER_IMAGE="harisekhon/kafka_scala-2.10"
+export DOCKER_IMAGE="harisekhon/kafka"
 export DOCKER_CONTAINER="nagios-plugins-kafka-test"
 
 export KAFKA_TOPIC="nagios-plugins-kafka-test"
