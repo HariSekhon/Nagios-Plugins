@@ -48,9 +48,7 @@ get_options();
 
 my @hosts = validate_hosts($host, $port);
 #$znode = validate_filename($base, "base znode") . $znode;
-$znode = validate_znode($base, "base") . "/$znode";
-$znode =~ s/\/+/\//g;
-$znode = validate_filename($znode, "overseer_elect leader znode");
+$znode = validate_znode($base, $znode, "overseer leader");
 
 $user     = validate_user($user)         if defined($user);
 $password = validate_password($password) if defined($password);

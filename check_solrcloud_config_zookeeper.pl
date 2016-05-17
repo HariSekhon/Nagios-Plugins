@@ -33,7 +33,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 3. Since ZooKeeper znodes do not differentiate between files and directories, when checking znodes found in ZooKeeper for missing local files, znodes without children are compared to local files
 ";
 
-$VERSION = "0.3.5";
+$VERSION = "0.3.6";
 
 use strict;
 use warnings;
@@ -73,10 +73,7 @@ my @hosts    = validate_hosts($host, $port);
 $user        = validate_user($user)         if defined($user);
 $password    = validate_password($password) if defined($password);
 $collection  = validate_solr_collection($collection);
-$znode       = validate_filename($base, "base znode") . "$znode/$collection";
-$base        =~ s/\/+/\//g;
-$znode       =~ s/\/+/\//g;
-$znode       = validate_filename($znode, "collection znode");
+$znode       = validate_base_and_znode($base, "$znode/$collection", "collection");
 $config_name = validate_alnum($config_name, "config name") if defined($config_name);
 $conf_dir    = abs_path(validate_dir($conf_dir, "conf-dir"));
 
