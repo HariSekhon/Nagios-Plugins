@@ -38,6 +38,8 @@ echo "using docker address '$HADOOP_HOST'"
 export DOCKER_IMAGE="harisekhon/hadoop-dev"
 export DOCKER_CONTAINER="nagios-plugins-hadoop-test"
 
+export MNTDIR="/pl"
+
 startupwait=30
 
 if ! is_docker_available; then
@@ -52,13 +54,14 @@ docker_exec(){
 hr
 echo "Setting up Hadoop test container"
 hr
-DOCKER_OPTS="-v $srcdir2/..:/pl"
+DOCKER_OPTS="-v $srcdir2/..:$MNTDIR"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 8032 8088 9000 10020 19888 50010 50020 50070 50075 50090
 
 echo "creating test file in hdfs"
 docker exec -i "$DOCKER_CONTAINER" /bin/bash <<EOF
 export JAVA_HOME=/usr
 hdfs dfsadmin -safemode leave
+hdfs dfs -rm -f /tmp/test.txt &>/dev/null
 echo content | hdfs dfs -put - /tmp/test.txt
 hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && tail -n30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
 EOF
@@ -80,29 +83,67 @@ hr
 $perl -T $I_lib ./check_hadoop_datanodes.pl
 hr
 # would be much higher on a real cluster, no defaults as much be configured based on NN heap
-$perl -T $I_lib ./check_hadoop_hdfs_blocks.pl -w 100 -c 200
+# XXX: 404
+#$perl -T $I_lib ./check_hadoop_hdfs_blocks.pl -w 100 -c 200
 hr
-# XXX: fix required
-$perl -T $I_lib ./check_hadoop_hdfs_file_webhdfs.pl -p /tmp/test.txt --owner root --group root --replication 1 --size 10 --last-accessed 600 --last-modified 600 --blockSize 134217728
+# run inside Docker container so it can resolve redirect to DN
+docker_exec check_hadoop_hdfs_file_webhdfs.pl -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728
 hr
 # XXX: fix required
 #docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log -vvv
 # XXX: fix required for very small E number
 #docker_exec check_hadoop_hdfs_space.pl -H localhost -vvv
 hr
-$perl -T $I_lib ./check_hadoop_hdfs_write_webhdfs.pl
+# run inside Docker container so it can resolve redirect to DN
+docker_exec check_hadoop_hdfs_write_webhdfs.pl
 hr
-$perl -T $I_lib ./check_hadoop_jmx.pl -H localhost -P 8088 -a
+$perl -T $I_lib ./check_hadoop_jmx.pl -P 8042 -a
 hr
-$perl -T $I_lib ./check_hadoop_jmx.pl -H localhost -P 50070 -a
+$perl -T $I_lib ./check_hadoop_jmx.pl -P 8088 -a
 hr
-$perl -T $I_lib ./check_hadoop_jmx.pl -H localhost -P 50075 -a
+$perl -T $I_lib ./check_hadoop_jmx.pl -P 50070 -a
 hr
-if is_zookeeper_built; then
-    #$perl -T $I_lib 
-    :
-else
-    echo "ZooKeeper not built - skipping ZooKeeper checks"
-fi
+$perl -T $I_lib ./check_hadoop_jmx.pl -P 50075 -a
+hr
+$perl -T $I_lib ./check_hadoop_namenode_heap.pl
+hr
+# XXX: fix required for non-integer?
+$perl -T $I_lib ./check_hadoop_namenode_heap.pl --non-heap -vvv
+hr
+$perl -T $I_Lib ./check_hadoop_namenode_jmx.pl --all-metrics
+hr
+# all the hadoop namenode checks need updating
+$perl -T $I_lib ./check_hadoop_namenode.pl -b -w 5 -c 10
+hr
+$perl -T $I_lib ./check_hadoop_namenode_safemode.pl
+hr
+$perl -T $I_lib ./check_hadoop_namenode_security_enabled.pl | grep -Fx "CRITICAL: namenode security enabled 'false'"
+hr
+$perl -T $I_lib ./check_hadoop_namenode_state.pl
+hr
+$perl -T $I_lib ./check_hadoop_replication.pl
+hr
+$perl -T $I_lib ./check_hadoop_yarn_app_stats.pl
+hr
+$perl -T $I_lib ./check_hadoop_yarn_app_stats_queue.pl
+hr
+$perl -T $I_lib ./check_hadoop_yarn_metrics.pl
+hr
+$perl -T $I_lib ./check_hadoop_yarn_node_manager.pl
+hr
+$perl -T $I_lib ./check_hadoop_yarn_node_managers.pl -w 1 -c 1
+hr
+$perl -T $I_lib ./check_hadoop_yarn_node_manager_via_rm.pl --node $(hostname -f)
+hr
+$perl -T $I_lib ./check_hadoop_yarn_queue_capacity.pl
+$perl -T $I_lib ./check_hadoop_yarn_queue_capacity.pl --queue default
+hr
+$perl -T $I_lib ./check_hadoop_yarn_queue_state.pl
+$perl -T $I_lib ./check_hadoop_yarn_queue_state.pl --queue default
+hr
+$perl -T $I_lib ./check_hadoop_yarn_resource_manager_heap.pl
+$perl -T $I_lib ./check_hadoop_yarn_resource_manager_heap.pl --non-heap
+hr
+$perl -T $I_lib ./check_hadoop_yarn_resource_manager_state.pl
 hr
 delete_container
