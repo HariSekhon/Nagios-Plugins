@@ -32,7 +32,7 @@ ZOOKEEPER_HOST="${ZOOKEEPER_HOST##*/}"
 ZOOKEEPER_HOST="${ZOOKEEPER_HOST%%:*}"
 export ZOOKEEPER_HOST
 
-export DOCKER_IMAGE="harisekhon/zookeeper"
+export DOCKER_IMAGE="harisekhon/zookeeper-dev"
 export DOCKER_IMAGE2="harisekhon/nagios-plugins"
 export DOCKER_CONTAINER="nagios-plugins-zookeeper"
 export DOCKER_CONTAINER2="nagios-plugins"
