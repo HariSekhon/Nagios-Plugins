@@ -86,7 +86,15 @@ $perl -T $I_lib ./check_hbase_cell_stargate.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_v
 hr
 $perl -T $I_lib ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
 hr
-$perl -T $I_lib ./check_hadoop_jmx.pl -H $HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
+$perl -T $I_lib ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
+hr
+$perl -T $I_lib ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics
+hr
+$perl -T $I_lib ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --all-metrics
+hr
+# XXX: both cause 500 internal server error
+#$perl -T $I_lib ./check_hadoop_metrics.pl -H $HBASE_HOST -P 16301 --all-metrics
+#$perl -T $I_lib ./check_hadoop_metrics.pl -H $HBASE_HOST -P 16301 -m compactionQueueLength
 hr
 # TODO: need updates
 #$perl -T $I_lib ./check_hbase_tables.pl
