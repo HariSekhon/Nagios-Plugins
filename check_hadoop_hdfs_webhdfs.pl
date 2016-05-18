@@ -29,10 +29,10 @@ OR
 
 Supports Kerberos authentication but must have a valid kerberos ticket and must use the FQDN of the server, not an IP address and not a short name, otherwise you will get a \"401 Authentication required\" error.
 
-Tested on CDH 4.5 and HDP 2.2
+Tested on CDH 4.5, HDP 2.2, Apache Hadoop 2.7.2
 ";
 
-$VERSION = "0.5.1";
+$VERSION = "0.5.2";
 
 use strict;
 use warnings;
@@ -80,14 +80,14 @@ my %file_checks = (
     %hostoptions,
     "u|user=s"          => $useroptions{"u|user=s"},
     "w|write"           => [ \$write,                         "Write unique canary file to hdfs:///tmp to check HDFS is writable and not in Safe mode" ],
-    "p|path=s"          => [ \$path,                          "File or directory to check exists in Hadoop HDFS"  ],
+    "p|path=s"          => [ \$path,                          "File or directory to check exists in Hadoop HDFS" ],
     "T|type=s"          => [ \$file_checks{"type"},           "'FILE' or 'DIRECTORY' (default: 'FILE')" ],
     "o|owner=s"         => [ \$file_checks{"owner"},          "Owner name" ],
     "g|group=s"         => [ \$file_checks{"group"},          "Group name" ],
     "e|permission=s"    => [ \$file_checks{"permission"},     "Permission octal mode" ],
-    "Z|zero"            => [ \$file_checks{"zero"},           "Additional check that file is empty"     ],
+    "Z|zero"            => [ \$file_checks{"zero"},           "Additional check that file is empty" ],
     "S|size=s"          => [ \$file_checks{"size"},           "Minimum size of file" ],
-    "B|blockSize=s"     => [ \$file_checks{"blockSize"},      "Blocksize to expect"  ],
+    "B|blockSize=s"     => [ \$file_checks{"blockSize"},      "Blocksize to expect in bytes" ],
     "R|replication=s"   => [ \$file_checks{"replication"},    "Replication factor" ],
     "a|last-accessed=s" => [ \$file_checks{"last accessed"},  "Last-accessed time maximum in seconds" ],
     "m|last-modified=s" => [ \$file_checks{"last modified"},  "Last-modified time maximum in seconds" ],
@@ -114,7 +114,7 @@ if($progname =~ /write/i){
 get_options();
 
 my @hosts;
-if($progname =~ /webhdfs/i and $host =~ /,/){
+if($progname =~ /webhdfs/i and $host and $host =~ /,/){
     @hosts = split(/\s*,\s*/, $host);
     foreach(my $i = 0; $i < scalar @hosts; $i++){
         $hosts[$i] = validate_host($hosts[$i]);
