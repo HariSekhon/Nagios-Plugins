@@ -39,18 +39,12 @@ export SOLR_CORE="${SOLR_COLLECTION:-${SOLR_CORE:-test}}"
 export DOCKER_IMAGE="solr"
 export DOCKER_CONTAINER="nagios-plugins-solr-test"
 
-export MNTDIR="/pl"
-
 startupwait=10
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Hadoop checks!!!'
     exit 0
 fi
-
-docker_exec(){
-    docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
-}
 
 echo "Setting up Solr docker test container"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 8983
