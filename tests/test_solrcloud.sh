@@ -34,12 +34,12 @@ SOLR_HOST="${SOLR_HOST##*/}"
 export SOLR_HOST="${SOLR_HOST%%:*}"
 export ZOOKEEPER_HOST="$SOLR_HOST"
 
-export DOCKER_IMAGE="harisekhon/solrcloud-dev"
+export DOCKER_IMAGE="harisekhon/solrcloud-dev:4.10"
 export DOCKER_CONTAINER="nagios-plugins-solrcloud-test"
 
 export MNTDIR="/pl"
 
-export SOLR_COLLECTION="${SOLR_COLLECTION:-gettingstarted}"
+export SOLR_COLLECTION="collection1"
 
 startupwait=60
 
@@ -60,26 +60,26 @@ hr
 # docker is running slow
 $perl -T $I_lib ./check_solrcloud_cluster_status.pl -v -t 60
 hr
-docker_exec check_solrcloud_cluster_status_zookeeper.pl -H localhost -P 9983 -b /
+docker_exec check_solrcloud_cluster_status_zookeeper.pl -H localhost -P 9983 -b / -v
 hr
 # FIXME: doesn't pick up collection from env
-docker_exec check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C collection1 -d /solr/node1/solr/collection1/conf
+docker_exec check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C collection1 -d /solr/node1/solr/collection1/conf -v
 hr
 # FIXME: why is only 1 node up instead of 2
-#$perl -T $I_lib ./check_solrcloud_live_nodes.pl -w 1 -c 1
+$perl -T $I_lib ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
 hr
-docker_exec check_solrcloud_live_nodes_zookeeper.pl -H localhost -P 9983 -b / -w 1 -c 1
+docker_exec check_solrcloud_live_nodes_zookeeper.pl -H localhost -P 9983 -b / -w 1 -c 1 -v
 hr
 # docker is running slow
-$perl -T $I_lib ./check_solrcloud_overseer.pl -t 60
+$perl -T $I_lib ./check_solrcloud_overseer.pl -t 60 -v
 hr
-docker_exec check_solrcloud_overseer_zookeeper.pl -H localhost -P 9983 -b /
+docker_exec check_solrcloud_overseer_zookeeper.pl -H localhost -P 9983 -b / -v
 hr
-docker_exec check_solrcloud_server_znode.pl -H localhost -P 9983 -z /live_nodes/$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$DOCKER_CONTAINER"):8983_solr
+docker_exec check_solrcloud_server_znode.pl -H localhost -P 9983 -z /live_nodes/$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$DOCKER_CONTAINER"):8983_solr -v
 hr
 # FIXME: second node not up
-#docker_exec check_solrcloud_server_znode.pl -H localhost -P 9983 -z /live_nodes/$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$DOCKER_CONTAINER"):8984_solr
+#docker_exec check_solrcloud_server_znode.pl -H localhost -P 9983 -z /live_nodes/$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$DOCKER_CONTAINER"):8984_solr -v
 hr
-docker_exec check_zookeeper_config.pl -H localhost -P 9983 -C /solr/node1/solr/zoo.cfg --no-warn-extra
+docker_exec check_zookeeper_config.pl -H localhost -P 9983 -C /solr/node1/solr/zoo.cfg --no-warn-extra -v
 hr
 delete_container
