@@ -23,7 +23,7 @@ cd "$srcdir/.."
 
 echo "
 # ============================================================================ #
-#                       S o l r   /   S o l r C l o u d
+#                                    S o l r
 # ============================================================================ #
 "
 
@@ -39,7 +39,18 @@ export SOLR_CORE="${SOLR_COLLECTION:-${SOLR_CORE:-test}}"
 export DOCKER_IMAGE="solr"
 export DOCKER_CONTAINER="nagios-plugins-solr-test"
 
+export MNTDIR="/pl"
+
 startupwait=10
+
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Hadoop checks!!!'
+    exit 0
+fi
+
+docker_exec(){
+    docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
+}
 
 echo "Setting up Solr docker test container"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 8983
@@ -60,7 +71,5 @@ hr
 $perl -T $I_lib ./check_solr_query.pl -n 4 -v
 hr
 $perl -T $I_lib ./check_solr_write.pl -vvv -w 1000 # because Travis is slow
-# TODO: docker exec this to be a SolrCloud
-#docker exec -it --user=solr "$DOCKER_CONTAINER" bin/solr delete_core -c "$SOLR_CORE"
 hr
 delete_container
