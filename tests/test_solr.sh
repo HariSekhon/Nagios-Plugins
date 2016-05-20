@@ -39,6 +39,8 @@ export SOLR_CORE="${SOLR_COLLECTION:-${SOLR_CORE:-test}}"
 export DOCKER_IMAGE="solr"
 export DOCKER_CONTAINER="nagios-plugins-solr-test"
 
+export SOLR_VERSIONS="5 6"
+
 startupwait=10
 
 if ! is_docker_available; then
@@ -46,24 +48,33 @@ if ! is_docker_available; then
     exit 0
 fi
 
-echo "Setting up Solr docker test container"
-launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 8983
-docker exec -it --user=solr "$DOCKER_CONTAINER" bin/solr create_core -c "$SOLR_CORE"
-docker exec -it --user=solr "$DOCKER_CONTAINER" bin/post -c "$SOLR_CORE" example/exampledocs/money.xml
-sleep 1
+test_solr(){
+    local version="$1"
+    echo "Setting up Solr $version docker test container"
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8983
+    docker exec -ti --user=solr "$DOCKER_CONTAINER" bin/solr create_core -c "$SOLR_CORE" || :
+    # this hangs after committing the money.xml, so backgrounding and giving it enough time to post
+    docker exec -i --user=solr "$DOCKER_CONTAINER" bash -x bin/post -c "$SOLR_CORE" example/exampledocs/money.xml &
+    sleep 5
 
-echo
-echo "Setup done, starting checks ..."
+    echo
+    echo "Setup done, starting checks ..."
 
-hr
-$perl -T $I_lib ./check_solr_api_ping.pl -v
-hr
-$perl -T $I_lib ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
-hr
-$perl -T $I_lib ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
-hr
-$perl -T $I_lib ./check_solr_query.pl -n 4 -v
-hr
-$perl -T $I_lib ./check_solr_write.pl -vvv -w 1000 # because Travis is slow
-hr
-delete_container
+    hr
+    $perl -T $I_lib ./check_solr_api_ping.pl -v
+    hr
+    $perl -T $I_lib ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
+    hr
+    $perl -T $I_lib ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
+    hr
+    $perl -T $I_lib ./check_solr_query.pl -n 4 -v
+    hr
+    $perl -T $I_lib ./check_solr_write.pl -vvv -w 1000 # because Travis is slow
+    hr
+    delete_container
+    hr
+}
+
+for version in $SOLR_VERSIONS; do
+    test_solr $version
+done
