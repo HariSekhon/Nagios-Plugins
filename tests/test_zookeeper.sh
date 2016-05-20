@@ -34,9 +34,10 @@ export ZOOKEEPER_HOST
 
 export DOCKER_IMAGE="harisekhon/zookeeper"
 export DOCKER_IMAGE2="harisekhon/nagios-plugins"
-export DOCKER_CONTAINER="nagios-plugins-zookeeper"
-export DOCKER_CONTAINER2="nagios-plugins"
-export MNTDIR="/nagios-plugins-tmp"
+export DOCKER_CONTAINER="nagios-plugins-zookeeper-test"
+export DOCKER_CONTAINER2="nagios-plugins-test"
+
+export MNTDIR="/pl"
 
 docker_exec(){
     docker exec -ti "$DOCKER_CONTAINER2" $MNTDIR/$@
