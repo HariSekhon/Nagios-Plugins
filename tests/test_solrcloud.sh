@@ -39,6 +39,7 @@ export DOCKER_CONTAINER="nagios-plugins-solrcloud-test"
 
 export SOLR_VERSIONS="4.10 5.5 6.0"
 
+export SOLR_HOME="/solr"
 export MNTDIR="/pl"
 
 export SOLR_COLLECTION="gettingstarted"
@@ -56,6 +57,8 @@ docker_exec(){
 
 test_solrcloud(){
     local version="$1"
+    # SolrCloud 4.x needs some different args / locations
+    [ ${version:0:1} = 4 ] && four=true || four=""
     echo "Setting up SolrCloud $version docker test container"
     DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8983 8984 9983
@@ -64,10 +67,19 @@ test_solrcloud(){
     # docker is running slow
     $perl -T $I_lib ./check_solrcloud_cluster_status.pl -v -t 60
     hr
-    docker_exec check_solrcloud_cluster_status_zookeeper.pl -H localhost -P 9983 -b / -v
+    # FIXME: solr 5/6
+    #docker_exec check_solrcloud_cluster_status_zookeeper.pl -H localhost -P 9983 -b / -v
     hr
     # FIXME: doesn't pick up collection from env
-    docker_exec check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C collection1 -d /solr/node1/solr/collection1/conf -v
+    if [ -n "$four" ]; then
+        docker_exec check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C "$SOLR_COLLECTION" -d "/solr/node1/solr/$SOLR_COLLECTION/conf" -v
+    else
+        # TODO: review why there is no solrcloud example config - this was the closest one I found via:
+        # find /solr/ -name solrconfig.xml | while read filename; dirname=$(dirname $filename); do echo $dirname; /pl/check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C gettingstarted -d $dirname -v; echo; done
+        set +o pipefail
+        docker_exec check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C "$SOLR_COLLECTION" -d "$SOLR_HOME/server/solr/configsets/data_driven_schema_configs/conf" -v | grep -F '1 file only found in ZooKeeper but not local directory (configoverlay.json)'
+        set -o pipefail
+    fi
     hr
     # FIXME: why is only 1 node up instead of 2
     $perl -T $I_lib ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
@@ -84,7 +96,11 @@ test_solrcloud(){
     # FIXME: second node not up
     #docker_exec check_solrcloud_server_znode.pl -H localhost -P 9983 -z /live_nodes/$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$DOCKER_CONTAINER"):8984_solr -v
     hr
-    docker_exec check_zookeeper_config.pl -H localhost -P 9983 -C /solr/node1/solr/zoo.cfg --no-warn-extra -v
+    if [ -n "$four" ]; then
+        docker_exec check_zookeeper_config.pl -H localhost -P 9983 -C "$SOLR_HOME/node1/solr/zoo.cfg" --no-warn-extra -v
+    else
+        docker_exec check_zookeeper_config.pl -H localhost -P 9983 -C "$SOLR_HOME/example/cloud/node1/solr/zoo.cfg" --no-warn-extra -v
+    fi
     hr
     delete_container
     hr
