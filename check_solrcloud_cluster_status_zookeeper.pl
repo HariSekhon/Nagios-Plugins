@@ -124,8 +124,11 @@ if(scalar keys %$json){
     foreach(@children){
         check_znode_exists("$collections_znode/$_/state.json");
         my $tmp = get_znode_contents_json("$collections_znode/$_/state.json");
+        if(defined($json->{$_})){
+            quit "UNKNOWN", "duplicate collection key '$_' detected! $nagios_plugins_support_msg_api";
+        }
         $json->{$_} = $tmp->{$_};
-        my $znode_last_updated = get_znode_age($znode);
+        my $znode_last_updated = get_znode_age("$collections_znode/$_/state.json");
         if($znode_last_updated < $znode_age_secs){
             $znode_age_secs = $znode_last_updated;
         }
