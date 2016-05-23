@@ -41,7 +41,7 @@ export SOLR_VERSIONS="4.10 5.5 6.0"
 
 export MNTDIR="/pl"
 
-export SOLR_COLLECTION="collection1"
+export SOLR_COLLECTION="gettingstarted"
 
 startupwait=60
 
