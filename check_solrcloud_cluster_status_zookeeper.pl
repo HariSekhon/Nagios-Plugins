@@ -25,7 +25,7 @@ For a given SolrCloud Collection or all collections found if --collection is not
 
 See also adjacent plugin check_solrcloud_cluster_status.pl which does the same as this plugin but directly via the Solr API on one of the SolrCloud servers instead of ZooKeeper, so doesn't require Net::ZooKeeper to be built.
 
-Tested on ZooKeeper 3.4.5 / 3.4.6 with SolrCloud 4.x
+Tested on ZooKeeper 3.4.5 / 3.4.6 with SolrCloud 4.7.2, 4.10.3, 5.4.0, 5.5.1, 6.0.0
 
 API / BUGS / Limitations:
 
@@ -35,7 +35,7 @@ Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. 
 2. API segfaults if you try to check the contents of a null znode such as those kept by SolrCloud servers eg. /solr/live_nodes/<hostname>:8983_solr - ie this will occur if you supply the incorrect base znode and it happens to be null
 ";
 
-$VERSION = "0.4.2";
+$VERSION = "0.5.0";
 
 use strict;
 use warnings;
@@ -54,6 +54,8 @@ $DATA_READ_LEN = 50000;
 #my $max_age = 600; # secs
 
 my $znode = "/clusterstate.json";
+# for Solr 5/6 this is no longer stored under /clusterstate.json
+my $collections_znode = "/collections";
 my $base = "/solr";
 
 env_vars("SOLR_COLLECTION", \$collection);
@@ -94,23 +96,44 @@ check_znode_exists($znode);
 
 $json = get_znode_contents_json($znode);
 
-unless(scalar keys %$json){
-    quit "CRITICAL", "no collections found in cluster state in zookeeper";
-}
+my $znode_age_secs = get_znode_age($znode);
 
-if($list_collections){
-    print "Solr Collections:\n\n";
-    foreach(sort keys %$json){
-        print "$_\n";
+if(scalar keys %$json){
+    if($list_collections){
+        print "Solr Collections:\n\n";
+        foreach(sort keys %$json){
+            print "$_\n";
+        }
+        exit $ERRORS{"UNKNOWN"};
     }
-    exit $ERRORS{"UNKNOWN"};
+
+    check_collections();
+
+    msg_shard_status();
+
+} else {
+    # Solr 5/6 have changed the location of the ZooKeeper data, try newer location as well
+    #quit "CRITICAL", "no collections found in cluster state in zookeeper";
+    check_znode_exists($collections_znode);
+    #$json = get_znode_contents_json($collections_znode);
+    my @children = $zkh->get_children($collections_znode);
+    unless(@children){
+        quit "CRITICAL", "no collections found in /clusterstate.json or /collections in zookeeper";
+    }
+    # re-merging back to $json the way check_collections() and msg_shard_status() expect as they are also used by check_solrcloud_status.pl which hasn't changed in newer Solr 5/6.x versions
+    foreach(@children){
+        check_znode_exists("$collections_znode/$_/state.json");
+        my $tmp = get_znode_contents_json("$collections_znode/$_/state.json");
+        $json->{$_} = $tmp->{$_};
+        my $znode_last_updated = get_znode_age($znode);
+        if($znode_last_updated < $znode_age_secs){
+            $znode_age_secs = $znode_last_updated;
+        }
+    }
+    check_collections();
+    msg_shard_status();
 }
 
-check_collections();
-
-msg_shard_status();
-
-get_znode_age($znode);
 $msg .= sprintf(". Cluster state last changed %s ago", sec2human($znode_age_secs));
 $msg .= " | cluster_state_last_changed=${znode_age_secs}s";
 
