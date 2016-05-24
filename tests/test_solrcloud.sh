@@ -42,8 +42,6 @@ export SOLR_VERSIONS="4.10 5.5 6.0"
 export SOLR_HOME="/solr"
 export MNTDIR="/pl"
 
-export SOLR_COLLECTION="gettingstarted"
-
 startupwait=60
 
 if ! is_docker_available; then
@@ -58,18 +56,25 @@ docker_exec(){
 test_solrcloud(){
     local version="$1"
     # SolrCloud 4.x needs some different args / locations
-    [ ${version:0:1} = 4 ] && four=true || four=""
+    if [ ${version:0:1} = 4 ]; then
+        four=true
+        export SOLR_COLLECTION="collection1"
+    else
+        four=""
+        export SOLR_COLLECTION="gettingstarted"
+    fi
     echo "Setting up SolrCloud $version docker test container"
     DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8983 8984 9983
 
     hr
     ./check_solr_version.py -e "$version"
+    hr
     # docker is running slow
     $perl -T $I_lib ./check_solrcloud_cluster_status.pl -v -t 60
     hr
     # FIXME: solr 5/6
-    #docker_exec check_solrcloud_cluster_status_zookeeper.pl -H localhost -P 9983 -b / -v
+    docker_exec check_solrcloud_cluster_status_zookeeper.pl -H localhost -P 9983 -b / -v
     hr
     # FIXME: doesn't pick up collection from env
     if [ -n "$four" ]; then
@@ -94,8 +99,8 @@ test_solrcloud(){
     hr
     docker_exec check_solrcloud_server_znode.pl -H localhost -P 9983 -z /live_nodes/$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$DOCKER_CONTAINER"):8983_solr -v
     hr
-    # FIXME: second node not up
-    #docker_exec check_solrcloud_server_znode.pl -H localhost -P 9983 -z /live_nodes/$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$DOCKER_CONTAINER"):8984_solr -v
+    # FIXME: second node does not come/stay up
+    # docker_exec check_solrcloud_server_znode.pl -H localhost -P 9983 -z /live_nodes/$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$DOCKER_CONTAINER"):8984_solr -v
     hr
     if [ -n "$four" ]; then
         docker_exec check_zookeeper_config.pl -H localhost -P 9983 -C "$SOLR_HOME/node1/solr/zoo.cfg" --no-warn-extra -v
