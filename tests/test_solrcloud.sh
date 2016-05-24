@@ -64,6 +64,7 @@ test_solrcloud(){
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8983 8984 9983
 
     hr
+    ./check_solr_version.py -e "$version"
     # docker is running slow
     $perl -T $I_lib ./check_solrcloud_cluster_status.pl -v -t 60
     hr
