@@ -15,8 +15,7 @@ Thresholds apply to the query time.
 
 See also adjacent plugin check_solrcloud_overseer_zookeeper.pl which does the same but via ZooKeeper
 
-Tested on SolrCloud 4.x
-";
+Tested on SolrCloud 4.7.2, 4.10.3, 5.4.0, 5.5.0, 6.0.0";
 
 our $VERSION = "0.2";
 
