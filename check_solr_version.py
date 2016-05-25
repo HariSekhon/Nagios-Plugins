@@ -79,6 +79,7 @@ class CheckSolrVersion(NagiosPlugin):
         expected = self.get_opt('expected')
         if expected is not None:
             validate_regex(expected)
+            log.info('expected version regex: %s', expected)
 
         url = 'http://%(host)s:%(port)s/solr/admin/info/system' % locals()
         log.debug('GET %s' % url)
