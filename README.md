@@ -279,6 +279,17 @@ Recent version(s) of IO::Socket::SSL (2.020) seem to fail to respect options to 
 touch .use_net_ssl
 ```
 
+#### Python SSL certificate verification problems
+
+If you end up with an error like:
+```
+[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:765)
+```
+One quick fix is to do the following:
+```
+pip uninstall -y certifi && pip install certifi==2015.04.28
+```
+
 ### Support for Updates / Bugs Fixes / Feature Requests ###
 
 Please raise a [Github Issue ticket](https://github.com/harisekhon/nagios-plugins/issues) for if you need updates, bug fixes or new features.
