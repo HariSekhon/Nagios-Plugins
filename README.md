@@ -285,7 +285,7 @@ If you end up with an error like:
 ```
 [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:765)
 ```
-One quick fix is to do the following:
+It can be caused by an issue with the underlying Python + libraries due to changes in OpenSSL and certificates. One quick fix is to do the following:
 ```
 pip uninstall -y certifi && pip install certifi==2015.04.28
 ```
