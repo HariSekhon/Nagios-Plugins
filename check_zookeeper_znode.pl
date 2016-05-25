@@ -26,7 +26,7 @@ Checks:
 
 Checks 3-5 and 8 are skipped when specifying --null znodes
 
-Tested on ZooKeeper 3.4.5 and 3.4.6 Apache, Cloudera, Hortonworks and MapR.
+Tested on Apache ZooKeeper 3.3.6, 3.4.5, 3.4.6, 3.4.8 and on Cloudera, Hortonworks and MapR.
 
 ================================================================================
                             Some useful examples:
