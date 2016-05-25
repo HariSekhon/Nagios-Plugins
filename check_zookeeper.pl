@@ -24,9 +24,12 @@ Checks:
 6. stats - full stats breakdown
 7. also reports ZooKeeper version
 
-Tested on ZooKeeper 3.4.5 and 3.4.6 Apache, Cloudera, Hortonworks and MapR. Requires ZooKeeper 3.4 onwards due to isro and mntr 4lw checks";
+Requires ZooKeeper 3.4 onwards due to isro and mntr 4lw checks only being available from 3.4+.
 
-$VERSION = "0.8.1";
+Tested on Apache ZooKeeper 3.4.5, 3.4.6, 3.4.8 and on Cloudera, Hortonworks and MapR.
+";
+
+$VERSION = "0.8.2";
 
 use strict;
 use warnings;
@@ -220,12 +223,14 @@ my %mntr = (
 );
 zoo_cmd "mntr", $timeout / 5;
 vlog3 "\nOutput from 'mntr':";
+my $found_mntr_output = 0;
 while(<$zk_conn>){
     chomp;
     my $line = $_;
     vlog3 "=> $line";
     foreach(keys %mntr){
         if($line =~ /^\s*$_\s+(.+?)\s*$/){
+            $found_mntr_output = 1;
             $mntr{$_} = $1;
             last;
         }
@@ -233,11 +238,26 @@ while(<$zk_conn>){
 }
 vlog3;
 
+unless($found_mntr_output){
+    zoo_cmd "envi", $timeout / 5;
+    while(<$zk_conn>){
+        chomp;
+        my $line = $_;
+        vlog3 "=> $line";
+        if($line =~ /^zookeeper.version=(\d+\.\d+)/){
+            if($1 < 3.4){
+                vlog3;
+                quit "UNKNOWN", "ZooKeeper version < 3.4, 'mntr' information not available. This plugin does not support ZooKeeper < 3.4";
+            }
+        }
+    }
+}
+
 foreach(sort keys %mntr){
     if(defined($mntr{$_})){
         vlog2 "mntr $_ = $mntr{$_}"
     } else {
-        quit "UNKNOWN", "failed to determine $_ from mntr";
+        quit "UNKNOWN", "failed to determine $_ from mntr. $nagios_plugins_support_msg_api";
     }
     next if ($_ eq "zk_version" or $_ eq "zk_server_state");
     # In the ZooKeeper code base these two stats are set to -1 if ZooKeeper is unable to determine these metrics
