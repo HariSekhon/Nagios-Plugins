@@ -32,6 +32,8 @@ ZOOKEEPER_HOST="${ZOOKEEPER_HOST##*/}"
 ZOOKEEPER_HOST="${ZOOKEEPER_HOST%%:*}"
 export ZOOKEEPER_HOST
 
+export ZOOKEEPER_VERSIONS="3.3 3.4"
+
 export DOCKER_IMAGE="harisekhon/zookeeper"
 export DOCKER_IMAGE2="harisekhon/nagios-plugins"
 export DOCKER_CONTAINER="nagios-plugins-zookeeper-test"
@@ -43,26 +45,39 @@ docker_exec(){
     docker exec -ti "$DOCKER_CONTAINER2" $MNTDIR/$@
 }
 
-startupwait=10
+startupwait=5
 
-echo "Setting up ZooKeeper test container"
-launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 3181 4181
-docker cp "$DOCKER_CONTAINER":/zookeeper/conf/zoo.cfg .
-hr
-echo "Setting up nagios-plugins test container with zkperl library"
-DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper -v $PWD:$MNTDIR"
-DOCKER_CMD="tail -f /dev/null"
-launch_container "$DOCKER_IMAGE2" "$DOCKER_CONTAINER2"
-docker cp zoo.cfg "$DOCKER_CONTAINER2":"$MNTDIR/"
-hr
-$perl -T $I_lib ./check_zookeeper.pl -s -w 10 -c 20 -v
-hr
-docker_exec check_zookeeper_config.pl -H zookeeper -P 2181 -C "$MNTDIR/zoo.cfg" -v
-hr
-docker_exec check_zookeeper_child_znodes.pl -H zookeeper -P 2181 -z / --no-ephemeral-check -v
-hr
-docker_exec check_zookeeper_znode.pl -H zookeeper -P 2181 -z / -v -n --child-znodes
-hr
+test_zookeeper(){
+    local version="$1"
+    echo "Setting up ZooKeeper $version test container"
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 2181 3181 4181
+    docker cp "$DOCKER_CONTAINER":/zookeeper/conf/zoo.cfg .
+    hr
+    echo "Setting up nagios-plugins test container with zkperl library"
+    local DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper -v $PWD:$MNTDIR"
+    local DOCKER_CMD="tail -f /dev/null"
+    launch_container "$DOCKER_IMAGE2" "$DOCKER_CONTAINER2"
+    docker cp zoo.cfg "$DOCKER_CONTAINER2":"$MNTDIR/"
+    hr
+    ./check_zookeeper_version.py -e "$version"
+    hr
+    if [ "${version:0:3}" = "3.3" ]; then
+        $perl -T $I_lib ./check_zookeeper.pl -s -w 50 -c 100 -v || :
+    else
+        $perl -T $I_lib ./check_zookeeper.pl -s -w 50 -c 100 -v
+    fi
+    hr
+    docker_exec check_zookeeper_config.pl -H zookeeper -P 2181 -C "$MNTDIR/zoo.cfg" -v
+    hr
+    docker_exec check_zookeeper_child_znodes.pl -H zookeeper -P 2181 -z / --no-ephemeral-check -v
+    hr
+    docker_exec check_zookeeper_znode.pl -H zookeeper -P 2181 -z / -v -n --child-znodes
+    hr
 
-delete_container "$DOCKER_CONTAINER2"
-delete_container "$DOCKER_CONTAINER"
+    delete_container "$DOCKER_CONTAINER2"
+    delete_container "$DOCKER_CONTAINER"
+}
+
+for version in $ZOOKEEPER_VERSIONS; do
+    test_zookeeper $version
+done
