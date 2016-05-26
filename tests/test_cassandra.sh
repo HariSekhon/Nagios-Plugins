@@ -35,9 +35,9 @@ export CASSANDRA_HOST
 export DOCKER_IMAGE="harisekhon/cassandra-dev"
 export DOCKER_CONTAINER="nagios-plugins-cassandra-test"
 
-export CASSANDRA_TEST_VERSIONS="${CASSANDRA_TEST_VERSIONS:-2.2}"
+export CASSANDRA_TEST_VERSIONS="${1:-1.2 2.0 2.1 2.2 3.0 3.5}"
 
-export MNTDIR="/nagios-plugins-tmp"
+export MNTDIR="/pl"
 
 startupwait=10
 
@@ -59,17 +59,29 @@ test_cassandra(){
     hr
     docker exec -ti "$DOCKER_CONTAINER" nodetool status
     hr
+    docker_exec check_cassandra_version_nodetool.py -e "$version"
+    hr
     # Dockerized Cassandra doesn't seem able to detect it's own token % - even when container has been running for a long time
     # TODO: add more specific command testing here to only except that scenario
-    docker_exec check_cassandra_balance.pl -v || :
+    docker_exec check_cassandra_balance.pl -v
+    hr
+    docker_exec check_cassandra_balance.pl --nodetool /cassandra/bin/nodetool -v
     hr
     docker_exec check_cassandra_heap.pl -w 70 -c 90 -v
     hr
+    docker_exec check_cassandra_heap.pl --nodetool /cassandra/bin/nodetool -w 70 -c 90 -v
+    hr
     docker_exec check_cassandra_netstats.pl -v
+    hr
+    docker_exec check_cassandra_netstats.pl --nodetool /cassandra/bin/nodetool -v
     hr
     docker_exec check_cassandra_nodes.pl -v
     hr
+    docker_exec check_cassandra_nodes.pl --nodetool /cassandra/bin/nodetool -v
+    hr
     docker_exec check_cassandra_tpstats.pl -v
+    hr
+    docker_exec check_cassandra_tpstats.pl --nodetool /cassandra/bin/nodetool -v
     hr
     delete_container
     hr
