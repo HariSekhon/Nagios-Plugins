@@ -18,7 +18,7 @@ Also returns Active and Dropped operations with perfdata for graphing.
 
 Can specify a remote host and port otherwise it checks the local node's stats (for calling over NRPE on each Cassandra node)
 
-Tested on Cassandra 2.0.1, 2.0.9, 2.2.5 - DataStax Community Edition";
+Tested on Cassandra 1.2.9, 2.0.1, 2.0.9, 2.2.5";
 
 $VERSION = "0.7.0";
 
