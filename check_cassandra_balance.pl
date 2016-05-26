@@ -17,7 +17,7 @@ Use --verbose mode to also output max & min node % token ownership and rack info
 
 Can specify a remote host and port otherwise assumes to check via localhost
 
-Tested on Apache Cassandra 1.2.9 and 2.0.1, 2.0.9, 2.2.5 DataStax Community Edition";
+Tested on Cassandra 1.2.9, 2.0.1, 2.0.9, 2.2.5";
 
 $VERSION = "0.5.1";
 
