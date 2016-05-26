@@ -20,7 +20,7 @@ Checks number of down nodes against thresholds
 
 Designed to be run on a Riak node over NRPE
 
-Tested on Riak 2.0.0, 2.1.1, 2.1.5";
+Tested on Riak 2.0.0, 2.1.1, 2.1.4";
 
 $VERSION = "0.1";
 
