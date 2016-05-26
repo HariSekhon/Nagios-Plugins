@@ -33,6 +33,10 @@ TACHYON_HOST="${TACHYON_HOST##*/}"
 TACHYON_HOST="${TACHYON_HOST%%:*}"
 export TACHYON_HOST
 
+# Tachyon 0.7 doesn't always start up properly, but has passed all the plugin tests
+#export TACHYON_VERSIONS="${1:-0.7 0.8}"
+export TACHYON_VERSIONS="${1:-0.8}"
+
 export TACHYON_MASTER_PORT="${TACHYON_MASTER_PORT:-19999}"
 export TACHYON_WORKER_PORT="${TACHYON_WORKER_PORT:-30000}"
 
@@ -41,19 +45,27 @@ export DOCKER_CONTAINER="nagios-plugins-tachyon-test"
 
 startupwait=10
 
-hr
-echo "Setting up Tachyon test container"
-hr
-launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $TACHYON_MASTER_PORT $TACHYON_WORKER_PORT
+test_tachyon(){
+    local version="$1"
+    hr
+    echo "Setting up Tachyon $version test container"
+    hr
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $TACHYON_MASTER_PORT $TACHYON_WORKER_PORT
 
-hr
-./check_tachyon_master.py -v
-hr
-#docker exec -ti "$DOCKER_CONTAINER" ps -ef
-./check_tachyon_worker.py -v
-hr
-./check_tachyon_running_workers.py -v
-hr
-./check_tachyon_dead_workers.py -v
-hr
-delete_container
+    hr
+    ./check_tachyon_master.py -v
+    hr
+    #docker exec -ti "$DOCKER_CONTAINER" ps -ef
+    ./check_tachyon_worker.py -v
+    hr
+    ./check_tachyon_running_workers.py -v
+    hr
+    ./check_tachyon_dead_workers.py -v
+    hr
+    delete_container
+    echo
+}
+
+for version in $TACHYON_VERSIONS; do
+    test_tachyon $version
+done
