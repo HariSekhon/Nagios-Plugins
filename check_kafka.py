@@ -17,13 +17,18 @@
 
 """
 
-Nagios Plugin to check a Kafka cluster is working by using the APIs to validate passing a unique message through the brokers
+Nagios Plugin to check a Kafka cluster is working by using the APIs to validate passing a unique message
+through the brokers
 
-This is a port of my other Perl version check_kafka.pl since I didn't like the underlying library as much. The Perl version does have better info for --list-partitions however, including Replicas, ISRs and Leader info per partition.
+This is a port of my Perl check_kafka.pl since one of the underlying Perl library's dependencies
+developed an autoload bug which needs manual fixing before it can run (documented on the Github README page).
 
-Thresholds apply to max time produce / consume message timings which are also output as perfdata for graphing
+The Perl version does have better info for --list-partitions however, including Replicas,
+ISRs and Leader info per partition.
 
-Tested on Kafka 0.8.1, 0.8.2
+Thresholds apply to max produce / consume message timings which are also output as perfdata for graphing
+
+Tested on Kafka 0.8.1, 0.8.2.2
 """
 
 from __future__ import absolute_import
@@ -44,14 +49,15 @@ libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, ERRORS, validate_int, get_topfile, random_alnum, CriticalError, validate_chars, log_option, UnknownError, isSet
+    from harisekhon.utils import log, log_option, ERRORS, CriticalError, UnknownError
+    from harisekhon.utils import validate_int, get_topfile, random_alnum, validate_chars, isSet
     from harisekhon import PubSubNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckKafka(PubSubNagiosPlugin):
@@ -80,7 +86,9 @@ class CheckKafka(PubSubNagiosPlugin):
         # super(CheckKafka, self).add_options()
         # TODO: (host_envs, default_host) = getenvs2('HOST', default_host, name)
         # TODO: env support for Kafka brokers
-        self.add_opt('-B', '--brokers', metavar='broker_list', default='localhost:9092',
+        self.add_opt('-H', '--host', \
+                     '-B', '--brokers', \
+                     dest='brokers', metavar='broker_list', default='localhost:9092',
                      help='Kafka Broker seed list in form host[:port],host2[:port2]... (default: localhost:9092)')
         self.add_opt('-T', '--topic', help='Kafka Topic')
         self.add_opt('-p', '--partition', type=int, help='Kafka Partition (default: 0)', default=0)
@@ -98,8 +106,10 @@ class CheckKafka(PubSubNagiosPlugin):
     def run(self):
         try:
             super(CheckKafka, self).run()
-        except KafkaError as _:
-            raise CriticalError(_)
+        #except KafkaError as _:
+            #raise CriticalError(_)
+        except KafkaError:
+            raise CriticalError(traceback.format_exc().split('\n')[-2])
 
     def get_topics(self):
         self.consumer = KafkaConsumer(
