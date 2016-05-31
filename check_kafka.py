@@ -57,7 +57,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.3.1'
 
 
 class CheckKafka(PubSubNagiosPlugin):
@@ -109,7 +109,11 @@ class CheckKafka(PubSubNagiosPlugin):
         #except KafkaError as _:
             #raise CriticalError(_)
         except KafkaError:
-            raise CriticalError(traceback.format_exc().split('\n')[-2])
+            raise CriticalError(self.exception_msg())
+
+    @staticmethod
+    def exception_msg():
+        return traceback.format_exc().split('\n')[-2]
 
     def get_topics(self):
         self.consumer = KafkaConsumer(
@@ -151,12 +155,15 @@ class CheckKafka(PubSubNagiosPlugin):
         log_option('brokers', self.brokers)
         self.timeout_ms = max(self.timeout * 1000 - 1000, 1000)
 
-        list_topics = self.get_opt('list_topics')
-        list_partitions = self.get_opt('list_partitions')
-        if list_topics:
-            self.print_topics()
-            sys.exit(ERRORS['UNKNOWN'])
-        self.topic = self.get_opt('topic')
+        try:
+            list_topics = self.get_opt('list_topics')
+            list_partitions = self.get_opt('list_partitions')
+            if list_topics:
+                self.print_topics()
+                sys.exit(ERRORS['UNKNOWN'])
+            self.topic = self.get_opt('topic')
+        except KafkaError:
+            raise CriticalError(self.exception_msg())
 
         if self.topic:
             validate_chars(self.topic, 'topic', 'A-Za-z-')
@@ -165,13 +172,16 @@ class CheckKafka(PubSubNagiosPlugin):
         else:
             self.usage('--topic not specified')
 
-        if list_partitions:
-            if self.topic:
-                self.print_topic_partitions(self.topic)
-            else:
-                for topic in self.get_topics():
-                    self.print_topic_partitions(topic)
-            sys.exit(ERRORS['UNKNOWN'])
+        try:
+            if list_partitions:
+                if self.topic:
+                    self.print_topic_partitions(self.topic)
+                else:
+                    for topic in self.get_topics():
+                        self.print_topic_partitions(topic)
+                sys.exit(ERRORS['UNKNOWN'])
+        except KafkaError:
+            raise CriticalError(self.exception_msg())
 
         self.partition = self.get_opt('partition')
         # technically optional, will hash to a random partition, but need to know which partition to get offset
