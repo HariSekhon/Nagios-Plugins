@@ -33,8 +33,8 @@ APACHE_DRILL_HOST="${APACHE_DRILL_HOST##*/}"
 APACHE_DRILL_HOST="${APACHE_DRILL_HOST%%:*}"
 export APACHE_DRILL_HOST
 
-#export APACHE_DRILL_VERSIONS="${1:-0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6}"
-export APACHE_DRILL_VERSIONS="${1:-1.5 1.6}"
+export APACHE_DRILL_VERSIONS="${1:-0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6}"
+#export APACHE_DRILL_VERSIONS="${1:-1.5 1.6}"
 
 export DOCKER_IMAGE="harisekhon/zookeeper"
 export DOCKER_CONTAINER="nagios-plugins-zookeeper-test"
@@ -47,12 +47,8 @@ test_drill(){
     hr
     echo "Setting up Apache Drill $version test container"
     hr
-    startupwait=1
-    echo "launching zookeeper container"
-    launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 3181 4181
-
     echo "lauching drill container linked to zookeeper"
-    startupwait=25
+    local startupwait=25
     local DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper"
     local DOCKER_CMD="supervisord -n"
     launch_container "$DOCKER_IMAGE2" "$DOCKER_CONTAINER2" 8047
@@ -62,10 +58,17 @@ test_drill(){
     hr
     $perl -T $I_lib ./check_apache_drill_metrics.pl -v
     hr
-    delete_container "$DOCKER_CONTAINER"
     delete_container "$DOCKER_CONTAINER2"
+    echo
 }
+
+startupwait=1
+echo "launching zookeeper container"
+launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 3181 4181
 
 for version in $APACHE_DRILL_VERSIONS; do
     test_drill $version
 done
+
+delete_container "$DOCKER_CONTAINER"
+echo
