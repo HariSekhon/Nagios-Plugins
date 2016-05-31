@@ -70,6 +70,10 @@ build:
 	# Module::Build::Tiny and Const::Fast must be built before Kafka, doesn't auto-pull in correct order
 	# Proc::Daemon needed by Kafka::TestInternals
 	# Proc::Daemon fails on tests, force install anyway to appease Travis
+	#
+	# downgrading Net::DNS as a workaround for taint mode bug:
+	# https://rt.cpan.org/Public/Bug/Display.html?id=114819
+	#
 	yes "" | $(SUDO2) cpan App::cpanminus
 	which cpanm || :
 	yes "" | $(SUDO2) $(CPANM) --notest \
@@ -107,8 +111,6 @@ build:
 		Module::Install::Admin \
 		MongoDB \
 		MongoDB::MongoClient \
-		# downgrading Net::DNS as a workaround for taint mode bug:
-		# https://rt.cpan.org/Public/Bug/Display.html?id=114819
 		Net::DNS@1.05 \
 		Net::LDAP \
 		Net::LDAPI \
