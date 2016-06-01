@@ -67,8 +67,8 @@ uniq_val=$(< /dev/urandom tr -dc 'a-zA-Z0-9' | head -c32 || :)
 docker exec -i "$DOCKER_CONTAINER" /bin/bash <<EOF
 export JAVA_HOME=/usr
 /hbase/bin/hbase shell <<EOF2
-create 't1', 'cf1', { REGION_REPLICATION => 1 }
-create 't2', 'cf2', { REGION_REPLICATION => 1 }
+create 't1', 'cf1', { 'REGION_REPLICATION' => 1 }
+create 't2', 'cf2', { 'REGION_REPLICATION' => 1 }
 disable 't2'
 put 't1', 'r1', 'cf1:q1', '$uniq_val'
 put 't1', 'r2', 'cf1:q2', 'test'
