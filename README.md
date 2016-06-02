@@ -251,6 +251,8 @@ On Linux this is often at ```/usr/local/lib64/perl5/NetAddr/IP/InetBase.pm``` an
 
 You may also need to install Socket6 from CPAN.
 
+This fix is now fully automated in the Make build by patching the ```NetAddr/IP/InetBase.pm``` file and always including Socket6 in dependencies.
+
 Alternatively you can try the Python version ```check_kakfa.py``` which works in similar fashion.
 
 ###### MongoDB dependency Readonly library bug ######
