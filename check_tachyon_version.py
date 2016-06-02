@@ -21,7 +21,7 @@ Nagios Plugin to check the deployed version of Tachyon matches what's expected.
 This is also used in the accompanying test suite to ensure we're checking the right version of Tachyon
 for compatibility for all my other Tachyon nagios plugins.
 
-Tested on Tachyon 0.8.2
+Tested on Tachyon 0.7.1, 0.8.2
 
 """
 
