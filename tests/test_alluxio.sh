@@ -50,6 +50,13 @@ test_alluxio(){
     hr
     launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $ALLUXIO_MASTER_PORT $ALLUXIO_WORKER_PORT
 
+    if [ "$version" = "latest" ]; then
+        local version=".*"
+    fi
+    hr
+    ./check_alluxio_master_version.py -v -e "$version"
+    hr
+    ./check_alluxio_worker_version.py -v -e "$version"
     hr
     ./check_alluxio_master.py -v
     hr
