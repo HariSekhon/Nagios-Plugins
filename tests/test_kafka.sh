@@ -35,7 +35,10 @@ export KAFKA_HOST
 
 export KAFKA_PORT="${KAFKA_PORT:-9092}"
 
-export DOCKER_IMAGE="harisekhon/kafka:2.10_0.8"
+# TODO: latest container 2.11_0.10 doesn't work yet, no leader takes hold
+export KAFKA_VERSIONS="2.10_0.8"
+
+export DOCKER_IMAGE="harisekhon/kafka"
 export DOCKER_CONTAINER="nagios-plugins-kafka-test"
 
 export KAFKA_TOPIC="nagios-plugins-kafka-test"
@@ -43,39 +46,47 @@ export KAFKA_TOPIC="nagios-plugins-kafka-test"
 # needs to be longer than 10 to allow Kafka to settle so topic creation works
 startupwait=20
 
-echo "Setting up Apache Kafka test container"
-hr
-launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $KAFKA_PORT
-hr
-echo "creating Kafka test topic"
-docker exec -ti "$DOCKER_CONTAINER" kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic "$KAFKA_TOPIC" || :
+test_kafka(){
+    local version="$1"
+    echo "Setting up Apache Kafka $version test container"
+    hr
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $KAFKA_PORT
+    hr
+    echo "creating Kafka test topic"
+    docker exec -ti "$DOCKER_CONTAINER" kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic "$KAFKA_TOPIC" || :
 
-hr
-# TODO: use ENV
-set +e
-./check_kafka.py -B $KAFKA_HOST -v --list-topics
-[ $? -eq 3 ] || exit 1
-hr
-./check_kafka.py -B $KAFKA_HOST -v -T "$KAFKA_TOPIC" --list-partitions
-[ $? -eq 3 ] || exit 1
-hr
-./check_kafka.py -B $KAFKA_HOST -v --list-partitions
-[ $? -eq 3 ] || exit 1
-set -e
-hr
-./check_kafka.py -B $KAFKA_HOST -T "$KAFKA_TOPIC" -v
-hr
-set +e
-$perl -T $I_lib ./check_kafka.pl -v --list-topics
-[ $? -eq 3 ] || exit 1
-hr
-$perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions
-[ $? -eq 3 ] || exit 1
-hr
-$perl -T $I_lib ./check_kafka.pl -v --list-partitions
-[ $? -eq 3 ] || exit 1
-set -e
-hr
-$perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v
-hr
-delete_container
+    hr
+    # TODO: use ENV
+    set +e
+    ./check_kafka.py -B $KAFKA_HOST -v --list-topics
+    [ $? -eq 3 ] || exit 1
+    hr
+    ./check_kafka.py -B $KAFKA_HOST -v -T "$KAFKA_TOPIC" --list-partitions
+    [ $? -eq 3 ] || exit 1
+    hr
+    ./check_kafka.py -B $KAFKA_HOST -v --list-partitions
+    [ $? -eq 3 ] || exit 1
+    set -e
+    hr
+    ./check_kafka.py -B $KAFKA_HOST -T "$KAFKA_TOPIC" -v
+    hr
+    set +e
+    $perl -T $I_lib ./check_kafka.pl -v --list-topics
+    [ $? -eq 3 ] || exit 1
+    hr
+    $perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions
+    [ $? -eq 3 ] || exit 1
+    hr
+    $perl -T $I_lib ./check_kafka.pl -v --list-partitions
+    [ $? -eq 3 ] || exit 1
+    set -e
+    hr
+    $perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v
+    hr
+    delete_container
+    echo
+}
+
+for version in $KAFKA_VERSIONS; do
+    test_kafka $version
+done
