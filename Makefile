@@ -120,6 +120,7 @@ build:
 		Readonly::XS \
 		Search::Elasticsearch \
 		SMS::AQL \
+		Socket6 \
 		Sub::Exporter::Progressive \
 		Sub::Name \
 		TAP::Harness::Env \
@@ -135,7 +136,10 @@ build:
 	# the backdated version might not be the perfect version, found by digging around in the git repo
 	$(SUDO2) $(CPANM) --notest Redis || $(SUDO2) $(CPANM) --notest DAMS/Redis-1.976.tar.gz
 		#Net::Async::CassandraCQL \
-	
+
+	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
+	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' $$libfilepath || sed -i.bak 's/use strict;/use strict;\nuse Socket;/' $$libfilepath
+
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
 	$(SUDO) easy_install -U setuptools
