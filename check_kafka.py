@@ -21,7 +21,8 @@ Nagios Plugin to check a Kafka cluster is working by using the APIs to validate 
 through the brokers
 
 This is a port of my Perl check_kafka.pl since one of the underlying Perl library's dependencies
-developed an autoload bug which needs manual fixing before it can run (documented on the Github README page).
+developed an autoload bug which needs manual fixing before that Perl version can be run (documented
+at the landing page at https://github.com/harisekhon/nagios-plugins).
 
 The Perl version does have better info for --list-partitions however, including Replicas,
 ISRs and Leader info per partition.
