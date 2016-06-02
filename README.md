@@ -247,6 +247,8 @@ This is an upstream bug related to autoloader, which you can work around by edit
 
 ```use Socket;```
 
+On Linux this is often at ```/usr/local/lib64/perl5/NetAddr/IP/InetBase.pm``` and on Mac ```/System/Library/Perl/Extras/<version>/NetAddr/IP/InetBase.pm```.
+
 You may also need to install Socket6 from CPAN.
 
 Alternatively you can try the Python version ```check_kakfa.py``` which works in similar fashion.
