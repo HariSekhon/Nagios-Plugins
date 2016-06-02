@@ -15,7 +15,7 @@ Can specify a remote host and port otherwise it checks the local node's heap (fo
 
 Tested on Cassandra 1.2.9, 2.0.1, 2.0.9, 2.2.5";
 
-$VERSION = "0.2.1";
+$VERSION = "0.2.2";
 
 use strict;
 use warnings;
