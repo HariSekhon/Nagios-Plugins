@@ -40,7 +40,7 @@ export HBASE_STARGATE_PORT=8080
 #export HBASE_VERSIONS="0.96 0.98 1.0 1.1 1.2"
 # don't work
 #export HBASE_VERSIONS="0.98 0.96"
-export HBASE_VERSIONS="1.0 1.1 1.2"
+export HBASE_VERSIONS="1.0 1.1 1.2 latest"
 
 export DOCKER_IMAGE="harisekhon/hbase-dev"
 export DOCKER_CONTAINER="nagios-plugins-hbase-test"
