@@ -35,7 +35,7 @@ export KAFKA_HOST
 
 export KAFKA_PORT="${KAFKA_PORT:-9092}"
 
-export DOCKER_IMAGE="harisekhon/kafka"
+export DOCKER_IMAGE="harisekhon/kafka:2.10_0.8"
 export DOCKER_CONTAINER="nagios-plugins-kafka-test"
 
 export KAFKA_TOPIC="nagios-plugins-kafka-test"
@@ -48,7 +48,7 @@ hr
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $KAFKA_PORT
 hr
 echo "creating Kafka test topic"
-docker exec -ti "$DOCKER_CONTAINER" kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic "$KAFKA_TOPIC"
+docker exec -ti "$DOCKER_CONTAINER" kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic "$KAFKA_TOPIC" || :
 
 hr
 # TODO: use ENV
