@@ -53,10 +53,12 @@ my @output = cmd($cmd);
 my %heap = ( units => undef, used => undef, total => undef);
 foreach(@output){
     check_nodetool_errors($_);
-    if(/^\s*Heap\s*Memory\s*\((\w+)\)\s*:\s*(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)/){
+    if(/^\s*Heap\s*Memory\s*\((\w+)\)\s*:\s*(\d+(?:[.,]\d+)?)\s*\/\s*(\d+(?:[.,]\d+)?)/){
         $heap{"units"} = $1;
         $heap{"used"}  = $2;
         $heap{"total"} = $3;
+        $heap{"used"} =~ s/,/./;
+        $heap{"total"} =~ s/,/./;
         last;
     }
 }
