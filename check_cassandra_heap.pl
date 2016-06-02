@@ -53,6 +53,7 @@ my @output = cmd($cmd);
 my %heap = ( units => undef, used => undef, total => undef);
 foreach(@output){
     check_nodetool_errors($_);
+    # issue #99 - user had comma separator instead of dot that prevented heap values being found
     if(/^\s*Heap\s*Memory\s*\((\w+)\)\s*:\s*(\d+(?:[.,]\d+)?)\s*\/\s*(\d+(?:[.,]\d+)?)/){
         $heap{"units"} = $1;
         $heap{"used"}  = $2;
