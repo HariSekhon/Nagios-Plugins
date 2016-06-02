@@ -119,7 +119,7 @@ class CheckTachyonVersion(NagiosPlugin):
             raise UnknownError('{0} version unrecognized \'{1}\'. {2}'.
                                format(self.software, version, support_msg_api()))
         self.ok()
-        self.msg = '{0} version = {1}'.format(self.software, version)
+        self.msg = '{0}{1} version = {2}'.format(self.software, self.name, version)
         if expected is not None and not re.search(expected, version):
             self.msg += " (expected '{0}')".format(expected)
             self.critical()
