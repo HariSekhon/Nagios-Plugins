@@ -35,7 +35,7 @@ export TACHYON_HOST
 
 # Tachyon 0.7 doesn't always start up properly, but has passed all the plugin tests
 #export TACHYON_VERSIONS="${1:-0.7 0.8}"
-export TACHYON_VERSIONS="${1:-0.8}"
+export TACHYON_VERSIONS="${1:-0.8 latest}"
 
 export TACHYON_MASTER_PORT="${TACHYON_MASTER_PORT:-19999}"
 export TACHYON_WORKER_PORT="${TACHYON_WORKER_PORT:-30000}"
@@ -52,6 +52,13 @@ test_tachyon(){
     hr
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $TACHYON_MASTER_PORT $TACHYON_WORKER_PORT
 
+    if [ "$version" = "latest" ]; then
+        local version=".*"
+    fi
+    hr
+    ./check_tachyon_master_version.py -v -e "$version"
+    hr
+    ./check_tachyon_worker_version.py -v -e "$version"
     hr
     ./check_tachyon_master.py -v
     hr
