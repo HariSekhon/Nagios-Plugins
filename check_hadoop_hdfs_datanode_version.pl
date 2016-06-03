@@ -36,7 +36,7 @@ my $expected;
 
 %options = (
     %hostoptions,
-    "n|node=s"      => [ \$node,         "Node name to check" ],
+    "N|node=s"      => [ \$node,         "Node name to check" ],
     "e|expected=s"  => [ \$expected,     "Expected version (regex, optional)" ],
 );
 
@@ -90,7 +90,7 @@ if(!$json){
 
 vlog3 Dumper($json);
 
-my @nodes = grep { $_ =~ /^$node:/ } keys %{$json};
+my @nodes = grep { $_ =~ /^$node(?::\d+)?$/ } keys %{$json};
 if(not @nodes){
     quit "CRITICAL", "node '$node' not found in NameNode JMX";
 }
