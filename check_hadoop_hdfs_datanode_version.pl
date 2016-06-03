@@ -92,7 +92,7 @@ vlog3 Dumper($json);
 
 my @nodes = grep { $_ =~ /^$node(?::\d+)?$/ } keys %{$json};
 if(not @nodes){
-    quit "CRITICAL", "node '$node' not found in NameNode JMX";
+    quit "CRITICAL", "datanode '$node' not found in NameNode JMX";
 }
 if(scalar @nodes > 1){
     quit "CRITICAL", "more than one node matched!! $nagios_plugins_support_msg";
