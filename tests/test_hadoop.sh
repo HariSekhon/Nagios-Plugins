@@ -70,6 +70,12 @@ test_hadoop(){
 EOF
 
     hr
+    if [ "$version" = "latest" ]; then
+        local version=".*"
+    fi
+    echo
+    $perl -T $I_lib ./check_hadoop_yarn_resource_manager_version.pl -v -e "$version"
+    hr
     docker_exec check_hadoop_balance.pl -w 5 -c 10 --hadoop-bin /hadoop/bin/hdfs --hadoop-user root -t 60
     hr
     $perl -T $I_lib ./check_hadoop_checkpoint.pl
