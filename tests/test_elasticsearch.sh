@@ -37,96 +37,106 @@ export ELASTICSEARCH_INDEX="${ELASTICSEARCH_INDEX:-test}"
 export DOCKER_IMAGE="elasticsearch"
 export DOCKER_CONTAINER="nagios-plugins-elasticsearch-test"
 
-startupwait=15
+# 5.0 tag doesn't work yet
+export ELASTICSEARCH_VERSIONS="${1:-1.4 1.5 1.6 2.0 2.2}"
 
-echo "Setting up Elasticsearch test container"
-launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 9200
+startupwait=20
 
-# Travis added this
-#echo "deleting twitter index as 5 unassigned shards are breaking tests"
-#curl -XDELETE "http://localhost:9200/twitter" || :
-#curl -XDELETE "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX" || :
-# always returns 0 and I don't wanna parse the json error
-#if ! curl -s "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX" &>/dev/null; then
+test_elasticsearch(){
+    local version="$1"
+    echo "Setting up Elasticsearch $version test container"
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 9200
 
-if ! $perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices | grep "^[[:space:]]*$ELASTICSEARCH_INDEX[[:space:]]*$"; then
-    echo "creating test Elasticsearch index '$ELASTICSEARCH_INDEX'"
-    curl -iv -XPUT "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX/" -d '
-    {
-        "settings": {
-            "index": {
-                "number_of_shards": 1,
-                "number_of_replicas": 0
+    # Travis added this
+    #echo "deleting twitter index as 5 unassigned shards are breaking tests"
+    #curl -XDELETE "http://localhost:9200/twitter" || :
+    #curl -XDELETE "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX" || :
+    # always returns 0 and I don't wanna parse the json error
+    #if ! curl -s "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX" &>/dev/null; then
+
+    if ! $perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices | grep "^[[:space:]]*$ELASTICSEARCH_INDEX[[:space:]]*$"; then
+        echo "creating test Elasticsearch index '$ELASTICSEARCH_INDEX'"
+        curl -iv -XPUT "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX/" -d '
+        {
+            "settings": {
+                "index": {
+                    "number_of_shards": 1,
+                    "number_of_replicas": 0
+                }
             }
         }
-    }
-    '
-fi
-echo
-echo "Setup done, starting checks ..."
-echo
-hr
-$perl -T $I_lib ./check_elasticsearch.pl -v
-hr
-# Listing checks return UNKNOWN
-set +e
-export ELASTICSEARCH_NODE="$($perl -T $I_lib ./check_elasticsearch_fielddata.pl --list-nodes | grep -v -e '^Nodes' -e '^Hostname' -e '^[[:space:]]*$' | head -n1 | awk '{print $1}' )"
-echo "determined Elasticsearch node = $ELASTICSEARCH_NODE"
-#result=$?
-#[ $result = 3 ] || exit $result
-hr
-$perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices
-result=$?
-[ $result = 3 ] || exit $result
-set -e
-hr
-$perl -T $I_lib ./check_elasticsearch_cluster_disk_balance.pl -v
-hr
-$perl -T $I_lib ./check_elasticsearch_cluster_shards.pl -v # --unassigned-shards 5,5 # travis now has 5 unassigned shards for some reason
-hr
-$perl -T $I_lib ./check_elasticsearch_cluster_shard_balance.pl -v
-hr
-$perl -T $I_lib ./check_elasticsearch_cluster_stats.pl -v
-hr
-set +e
-$perl -T $I_lib ./check_elasticsearch_cluster_status.pl -v
-# travis has yellow status
-result=$?
-[ $result = 0 -o $result = 1 ] || exit $result
-set -e
-hr
-$perl -T $I_lib ./check_elasticsearch_cluster_status_nodes_shards.pl -v
-hr
-$perl -T $I_lib ./check_elasticsearch_data_nodes.pl -w 1 -v
-hr
-$perl -T $I_lib ./check_elasticsearch_doc_count.pl -v
-hr
-$perl -T $I_lib ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
-hr
-$perl -T $I_lib ./check_elasticsearch_index_exists.pl -v
-hr
-$perl -T $I_lib ./check_elasticsearch_index_age.pl -v -w 0:1
-#hr
-#perl -T $I_lib ./check_elasticsearch_index_health.pl -v
-hr
-$perl -T $I_lib ./check_elasticsearch_index_replicas.pl -w 0 -v
-hr
-$perl -T $I_lib ./check_elasticsearch_index_settings.pl -v
-hr
-$perl -T $I_lib ./check_elasticsearch_index_shards.pl -v
-hr
-$perl -T $I_lib ./check_elasticsearch_index_stats.pl -v
-hr
-$perl -T $I_lib ./check_elasticsearch_master_node.pl -v
-hr
-$perl -T $I_lib ./check_elasticsearch_nodes.pl -v -w 1
-hr
-$perl -T $I_lib ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 90 -c 95
-hr
-$perl -T $I_lib ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
-hr
-$perl -T $I_lib ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
-hr
-$perl -T $I_lib ./check_elasticsearch_shards_state_detail.pl -v
-hr
-delete_container
+        '
+    fi
+    echo
+    echo "Setup done, starting checks ..."
+    echo
+    hr
+    $perl -T $I_lib ./check_elasticsearch.pl -v
+    hr
+    # Listing checks return UNKNOWN
+    set +e
+    export ELASTICSEARCH_NODE="$($perl -T $I_lib ./check_elasticsearch_fielddata.pl --list-nodes | grep -v -e '^Nodes' -e '^Hostname' -e '^[[:space:]]*$' | head -n1 | awk '{print $1}' )"
+    echo "determined Elasticsearch node = $ELASTICSEARCH_NODE"
+    #result=$?
+    #[ $result = 3 ] || exit $result
+    hr
+    $perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices
+    result=$?
+    [ $result = 3 ] || exit $result
+    set -e
+    hr
+    $perl -T $I_lib ./check_elasticsearch_cluster_disk_balance.pl -v
+    hr
+    $perl -T $I_lib ./check_elasticsearch_cluster_shards.pl -v # --unassigned-shards 5,5 # travis now has 5 unassigned shards for some reason
+    hr
+    $perl -T $I_lib ./check_elasticsearch_cluster_shard_balance.pl -v
+    hr
+    $perl -T $I_lib ./check_elasticsearch_cluster_stats.pl -v
+    hr
+    set +e
+    $perl -T $I_lib ./check_elasticsearch_cluster_status.pl -v
+    # travis has yellow status
+    result=$?
+    [ $result = 0 -o $result = 1 ] || exit $result
+    set -e
+    hr
+    $perl -T $I_lib ./check_elasticsearch_cluster_status_nodes_shards.pl -v
+    hr
+    $perl -T $I_lib ./check_elasticsearch_data_nodes.pl -w 1 -v
+    hr
+    $perl -T $I_lib ./check_elasticsearch_doc_count.pl -v
+    hr
+    $perl -T $I_lib ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
+    hr
+    $perl -T $I_lib ./check_elasticsearch_index_exists.pl -v
+    hr
+    $perl -T $I_lib ./check_elasticsearch_index_age.pl -v -w 0:1
+    #hr
+    #perl -T $I_lib ./check_elasticsearch_index_health.pl -v
+    hr
+    $perl -T $I_lib ./check_elasticsearch_index_replicas.pl -w 0 -v
+    hr
+    $perl -T $I_lib ./check_elasticsearch_index_settings.pl -v
+    hr
+    $perl -T $I_lib ./check_elasticsearch_index_shards.pl -v
+    hr
+    $perl -T $I_lib ./check_elasticsearch_index_stats.pl -v
+    hr
+    $perl -T $I_lib ./check_elasticsearch_master_node.pl -v
+    hr
+    $perl -T $I_lib ./check_elasticsearch_nodes.pl -v -w 1
+    hr
+    $perl -T $I_lib ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 90 -c 95
+    hr
+    $perl -T $I_lib ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
+    hr
+    $perl -T $I_lib ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
+    hr
+    $perl -T $I_lib ./check_elasticsearch_shards_state_detail.pl -v
+    hr
+    delete_container
+}
+
+for version in $ELASTICSEARCH_VERSIONS; do
+    test_elasticsearch $version
+done
