@@ -38,7 +38,7 @@ export HBASE_STARGATE_PORT=8080
 #export HBASE_THRIFT_PORT=9090
 
 #export HBASE_VERSIONS="0.96 0.98 1.0 1.1 1.2"
-# don't work
+# TODO: don't work
 #export HBASE_VERSIONS="0.98 0.96"
 export HBASE_VERSIONS="1.0 1.1 1.2 latest"
 
