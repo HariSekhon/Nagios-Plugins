@@ -37,6 +37,9 @@ export ALLUXIO_MASTER_PORT="${ALLUXIO_MASTER_PORT:-19999}"
 export ALLUXIO_WORKER_PORT="${ALLUXIO_WORKER_PORT:-30000}"
 
 export ALLUXIO_VERSIONS="${1:-1.0 latest}"
+if is_travis; then
+    export ALLUXIO_VERSIONS="${1:-latest}"
+fi
 
 export DOCKER_IMAGE="harisekhon/alluxio"
 export DOCKER_CONTAINER="nagios-plugins-alluxio-test"
