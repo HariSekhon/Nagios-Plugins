@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the state of Elasticsearch shards not in started state, especially for unassigned shards
 
-Tested on Elasticsearch 1.4.0 and 1.4.4";
+Tested on Elasticsearch 1.4.0 and 1.4.4, 1.4.5, 1.5.2, 1.6.2, 2.0.2, 2.2.2";
 
 $VERSION = "0.3.2";
 
