@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check the number of Elasticsearch data nodes av
 
 Thresholds apply by default to minimum number of nodes, but also accepts Nagios range thresholds
 
-Tested on Elasticsearch 0.90.1, 1.2.1, 1.4.0, 1.4.4";
+Tested on Elasticsearch 0.90.1, 1.2.1, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 2.0.2, 2.2.2";
 
 $VERSION = "0.3";
 
