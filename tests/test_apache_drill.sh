@@ -35,7 +35,7 @@ export APACHE_DRILL_HOST
 
 export APACHE_DRILL_VERSIONS="${1:-0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 latest}"
 if is_travis; then
-    export APACHE_DRILL_VERSIONS="${1:-1.6}"
+    export APACHE_DRILL_VERSIONS="${1:-1.6 latest}"
 fi
 
 export DOCKER_IMAGE="harisekhon/zookeeper"
