@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check which is the master node in an Elasticsea
 
 Optional --node may be specified to check it hasn't changed, raises warning if it has as this may signal a failover event has occured
 
-Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4, 2.1.1";
+Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 2.0.2, 2.1.1, 2.2.2";
 
 $VERSION = "0.2.1";
 
