@@ -38,8 +38,8 @@ env_creds(["HADOOP_YARN_RESOURCE_MANAGER", "HADOOP"], "Yarn Resource Manager");
 
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
+$host = validate_host($host);
+$port = validate_port($port);
 
 vlog2;
 set_timeout();
@@ -58,8 +58,8 @@ catch{
 };
 vlog3(Dumper($json));
 
-my $state          = get_field("clusterInfo.state");
-my $started        = get_field("clusterInfo.startedOn");
+my $state      = get_field("clusterInfo.state");
+my $started    = get_field("clusterInfo.startedOn");
 my $rm_version = get_field("clusterInfo.resourceManagerVersion");
 
 $started = localtime($started / 1000);
