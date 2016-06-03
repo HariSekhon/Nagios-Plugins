@@ -34,11 +34,6 @@ import json
 import os
 import sys
 import traceback
-# try:
-#     import requests
-# except ImportError as _:
-#     print(traceback.format_exc(), end='')
-#     sys.exit(4)
 libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
@@ -52,7 +47,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6'
+__version__ = '0.6.1'
 
 
 class ConsulKeyCheck(KeyCheckNagiosPlugin):
@@ -63,7 +58,7 @@ class ConsulKeyCheck(KeyCheckNagiosPlugin):
         self.default_port = 8500
         self.request_handler = RequestHandler()
 
-    def extract_value(self, content):  # pylint: disable=no-self-use
+    def extract_value(self, content):
         json_data = None
         try:
             json_data = json.loads(content)
@@ -84,7 +79,7 @@ class ConsulKeyCheck(KeyCheckNagiosPlugin):
                                % (content, support_msg_api()))
         try:
             value = base64.decodestring(value)
-        except TypeError as _:
+        except TypeError:
             raise UnknownError("invalid data returned for key '{0}' value = '{1}', failed to base64 decode"
                                .format(self.key, value))
         return value
@@ -101,7 +96,6 @@ class ConsulKeyCheck(KeyCheckNagiosPlugin):
         return tmp
 
     def read(self):
-        req = None
         # could use ?raw to get the value without base64 but leaving base64 encoding as it's safer
         url = 'http://%(host)s:%(port)s/v1/kv/%(key)s' % self.__dict__
         self.request_handler.check_response_code = \
