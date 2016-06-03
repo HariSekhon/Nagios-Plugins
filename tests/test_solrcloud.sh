@@ -37,7 +37,10 @@ export ZOOKEEPER_HOST="$SOLR_HOST"
 export DOCKER_IMAGE="harisekhon/solrcloud-dev"
 export DOCKER_CONTAINER="nagios-plugins-solrcloud-test"
 
-export SOLR_VERSIONS="4.10 5.5 6.0"
+export SOLR_VERSIONS="${1:-4.10 5.5 6.0 latest}"
+if is_travis; then
+    export SOLR_VERSIONS="6.0 latest"
+fi
 
 export SOLR_HOME="/solr"
 export MNTDIR="/pl"
