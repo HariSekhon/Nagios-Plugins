@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check Elasticsearch cluster status with explana
 
 Optional check on cluster name is included.
 
-Tested on Elasticsearch 0.90.1, 1.2.1, 1.4.0, 1.4.4";
+Tested on Elasticsearch 0.90.1, 1.2.1, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 2.0.2, 2.2.2";
 
 $VERSION = "0.2";
 
