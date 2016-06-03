@@ -38,7 +38,7 @@ export ALLUXIO_WORKER_PORT="${ALLUXIO_WORKER_PORT:-30000}"
 
 export ALLUXIO_VERSIONS="${1:-1.0 latest}"
 if is_travis; then
-    export ALLUXIO_VERSIONS="${1:-latest}"
+    export ALLUXIO_VERSIONS="${1:-1.0}"
 fi
 
 export DOCKER_IMAGE="harisekhon/alluxio"
