@@ -65,6 +65,6 @@ vlog3(Dumper($json));
 my $rm_version = get_field("clusterInfo.resourceManagerVersion");
 
 $msg = "yarn resource manager version: $rm_version";
-check_regex($rm_version, $expected);
+check_regex($rm_version, $expected) if defined($expected);
 
 quit $status, $msg;
