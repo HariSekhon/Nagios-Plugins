@@ -29,10 +29,10 @@ OR
 
 Supports Kerberos authentication but must have a valid kerberos ticket and must use the FQDN of the server, not an IP address and not a short name, otherwise you will get a \"401 Authentication required\" error.
 
-Tested on CDH 4.5, HDP 2.2, Apache Hadoop 2.7.2
+Tested on CDH 4.5, HDP 2.2, Apache Hadoop 2.5.2, 2.6.2, 2.7.2
 ";
 
-$VERSION = "0.5.2";
+$VERSION = "0.5.3";
 
 use strict;
 use warnings;
@@ -63,7 +63,7 @@ my $write;
 my $path;
 my @valid_types = qw/FILE DIRECTORY/;
 my %file_checks = (
-                    "type"          => undef,
+                    "type"          => "",
                     "zero"          => 0,
                     "non-zero"      => 0,
                     "owner"         => undef,
@@ -148,16 +148,16 @@ if($write){
         usage "--zero and --size are mutually exclusive";
     }
 
-    if(defined($file_checks{"type"}) and $file_checks{"type"}){
+    if($file_checks{"type"}){
         $file_checks{"type"} = uc $file_checks{"type"};
         grep { $file_checks{"type"} eq $_ } @valid_types or usage "invalid type: must be one of " . join(",", @valid_types);
     }
 
-    if(defined($file_checks{"type"}) and $file_checks{"type"} eq "DIRECTORY" and $file_checks{"size"}){
+    if($file_checks{"type"} eq "DIRECTORY" and $file_checks{"size"}){
         usage "cannot specify non-zero for a directory, directory length is always zero";
     }
 
-    if(defined($file_checks{"type"}) and $file_checks{"type"} eq "DIRECTORY" and $file_checks{"replication"}){
+    if($file_checks{"type"} eq "DIRECTORY" and $file_checks{"replication"}){
         usage "directories cannot have replication factor other than zero";
     }
 
@@ -316,7 +316,7 @@ if($write){
     foreach(qw/type owner group permission blockSize replication/){
         defined($json->{"FileStatus"}->{$_}) or quit "UNKNOWN", "field $_ not found for '$path'. $nagios_plugins_support_msg";
         $msg .= " $_=" . $json->{"FileStatus"}->{$_};
-        if(defined($file_checks{$_})){
+        if($file_checks{$_}){
             unless($json->{"FileStatus"}->{$_} eq $file_checks{$_}){
                 critical;
                 $msg .= " (expected: '$file_checks{$_}')";
