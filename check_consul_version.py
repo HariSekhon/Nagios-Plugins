@@ -16,14 +16,14 @@
 
 """
 
-Nagios Plugin to check the deployed version of Cassandra matches what's expected.
+Nagios Plugin to check the deployed version of Consul matches what's expected.
 
-This version uses 'nodetool' which must be in the $PATH
+This version uses the 'consul' command which must be in the $PATH
 
-This is also used in the accompanying test suite to ensure we're checking the right version of Cassandra
-for compatibility for all my other Cassandra nagios plugins.
+This is also used in the accompanying test suite to ensure we're checking the right version of Consul
+for compatibility for all my other Consul nagios plugins.
 
-Tested on Cassandra 1.2.9, 2.0.9, 2.1.14, 2.2.6, 3.0.6, 3.5
+Tested on Consul 0.6.3
 
 """
 
@@ -53,15 +53,15 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
 
-class CheckCassandraVersion(NagiosPlugin):
+class CheckConsulVersion(NagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckCassandraVersion, self).__init__()
+        super(CheckConsulVersion, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.msg = 'Cassandra version unknown - no message defined'
-        self.version_regex = re.compile(r'^\s*ReleaseVersion:\s+(\d+\.\d+\.\d+)')
+        self.msg = 'Consul version unknown - no message defined'
+        self.version_regex = re.compile(r'^\s*Consul\s+v?(\d+\.\d+\.\d+)')
 
     def add_options(self):
         self.add_opt('-e', '--expected', help='Expected version regex (optional)')
@@ -71,7 +71,7 @@ class CheckCassandraVersion(NagiosPlugin):
         if expected is not None:
             validate_regex(expected)
             log.info('expected version regex: %s', expected)
-        cmd = 'nodetool version'
+        cmd = 'consul version'
         log.debug('cmd: ' + cmd)
         proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         (stdout, _) = proc.communicate()
@@ -79,23 +79,23 @@ class CheckCassandraVersion(NagiosPlugin):
         returncode = proc.wait()
         log.debug('returncode: ' + str(returncode))
         if returncode != 0 or (stdout is not None and 'Error' in stdout):
-            raise CriticalError('nodetool returncode: {0}, output: {1}'.format(returncode, stdout))
+            raise CriticalError('consul returncode: {0}, output: {1}'.format(returncode, stdout))
         version = None
         for line in str(stdout).split('\n'):
             match = self.version_regex.match(line)
             if match:
                 version = match.group(1)
         if not version:
-            raise UnknownError('Cassandra version not found in output. Nodetool output may have changed. {0}'.
+            raise UnknownError('Consul version not found in output. Consul output may have changed. {0}'.
                                format(support_msg()))
         if not isVersion(version):
-            raise UnknownError('Cassandra version unrecognized \'{0}\'. {1}'.format(version, support_msg()))
+            raise UnknownError('Consul version unrecognized \'{0}\'. {1}'.format(version, support_msg()))
         self.ok()
-        self.msg = 'Cassandra version = {0}'.format(version)
+        self.msg = 'Consul version = {0}'.format(version)
         if expected is not None and not re.search(expected, version):
             self.msg += " (expected '{0}')".format(expected)
             self.critical()
 
 
 if __name__ == '__main__':
-    CheckCassandraVersion().main()
+    CheckConsulVersion().main()

@@ -33,7 +33,7 @@ APACHE_DRILL_HOST="${APACHE_DRILL_HOST##*/}"
 APACHE_DRILL_HOST="${APACHE_DRILL_HOST%%:*}"
 export APACHE_DRILL_HOST
 
-export APACHE_DRILL_VERSIONS="${1:-0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6}"
+export APACHE_DRILL_VERSIONS="${1:-0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 latest}"
 #export APACHE_DRILL_VERSIONS="${1:-1.5 1.6}"
 
 export DOCKER_IMAGE="harisekhon/zookeeper"
@@ -44,15 +44,30 @@ export DOCKER_CONTAINER2="nagios-plugins-drill-test"
 
 test_drill(){
     local version="$1"
+    local startupwait=30
     hr
     echo "Setting up Apache Drill $version test container"
     hr
     echo "lauching drill container linked to zookeeper"
-    local startupwait=25
     local DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper"
     local DOCKER_CMD="supervisord -n"
-    launch_container "$DOCKER_IMAGE2" "$DOCKER_CONTAINER2" 8047
+    launch_container "$DOCKER_IMAGE2:$version" "$DOCKER_CONTAINER2" 8047
 
+    if [ "$version" = "latest" ]; then
+        local version="*"
+    fi
+    hr
+    set +e
+    found_version=$(docker exec  "$DOCKER_CONTAINER2" ls / | grep apache-drill | tee /dev/stderr | tail -n1 | sed 's/.*-//')
+    set -e
+    if [[ "$found_version" != $version* ]]; then
+        echo "Docker container version does not match expected version! (found '$found_version', expected '$version')"
+        exit 1
+    fi
+    hr
+    echo "Apache Drill version $found_version"
+    hr
+    ./check_apache_drill_version.py -v -e "$version"
     hr
     ./check_apache_drill_status.py -v
     hr

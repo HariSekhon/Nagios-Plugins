@@ -36,24 +36,41 @@ export ALLUXIO_HOST
 export ALLUXIO_MASTER_PORT="${ALLUXIO_MASTER_PORT:-19999}"
 export ALLUXIO_WORKER_PORT="${ALLUXIO_WORKER_PORT:-30000}"
 
+export ALLUXIO_VERSIONS="${1:-1.0 latest}"
+
 export DOCKER_IMAGE="harisekhon/alluxio"
 export DOCKER_CONTAINER="nagios-plugins-alluxio-test"
 
 startupwait=10
 
-hr
-echo "Setting up Alluxio test container"
-hr
-launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $ALLUXIO_MASTER_PORT $ALLUXIO_WORKER_PORT
+test_alluxio(){
+    local version="$1"
+    hr
+    echo "Setting up Alluxio $version test container"
+    hr
+    launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $ALLUXIO_MASTER_PORT $ALLUXIO_WORKER_PORT
 
-hr
-./check_alluxio_master.py -v
-hr
-#docker exec -ti "$DOCKER_CONTAINER" ps -ef
-./check_alluxio_worker.py -v
-hr
-./check_alluxio_running_workers.py -v
-hr
-./check_alluxio_dead_workers.py -v
-hr
-delete_container
+    if [ "$version" = "latest" ]; then
+        local version=".*"
+    fi
+    hr
+    ./check_alluxio_master_version.py -v -e "$version"
+    hr
+    ./check_alluxio_worker_version.py -v -e "$version"
+    hr
+    ./check_alluxio_master.py -v
+    hr
+    #docker exec -ti "$DOCKER_CONTAINER" ps -ef
+    ./check_alluxio_worker.py -v
+    hr
+    ./check_alluxio_running_workers.py -v
+    hr
+    ./check_alluxio_dead_workers.py -v
+    hr
+    delete_container
+    echo
+}
+
+for version in $ALLUXIO_VERSIONS; do
+    test_alluxio $version
+done

@@ -20,7 +20,7 @@ Nagios Plugin to check the number of dead Tachyon workers via the Tachyon Master
 
 TODO: thresholds on number of dead workers (coming soon)
 
-Tested on Tachyon 0.8.2
+Tested on Tachyon 0.7.1, 0.8.2
 
 """
 

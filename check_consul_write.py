@@ -33,11 +33,6 @@ from __future__ import print_function
 import os
 import sys
 import traceback
-# try:
-#     import requests
-# except ImportError as _:
-#     print(traceback.format_exc(), end='')
-#     sys.exit(4)
 libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:

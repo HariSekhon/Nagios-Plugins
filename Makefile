@@ -70,6 +70,10 @@ build:
 	# Module::Build::Tiny and Const::Fast must be built before Kafka, doesn't auto-pull in correct order
 	# Proc::Daemon needed by Kafka::TestInternals
 	# Proc::Daemon fails on tests, force install anyway to appease Travis
+	#
+	# downgrading Net::DNS as a workaround for taint mode bug:
+	# https://rt.cpan.org/Public/Bug/Display.html?id=114819
+	#
 	yes "" | $(SUDO2) cpan App::cpanminus
 	which cpanm || :
 	yes "" | $(SUDO2) $(CPANM) --notest \
@@ -107,7 +111,7 @@ build:
 		Module::Install::Admin \
 		MongoDB \
 		MongoDB::MongoClient \
-		Net::DNS \
+		Net::DNS@1.05 \
 		Net::LDAP \
 		Net::LDAPI \
 		Net::LDAPS \
@@ -116,6 +120,7 @@ build:
 		Readonly::XS \
 		Search::Elasticsearch \
 		SMS::AQL \
+		Socket6 \
 		Sub::Exporter::Progressive \
 		Sub::Name \
 		TAP::Harness::Env \
@@ -131,7 +136,10 @@ build:
 	# the backdated version might not be the perfect version, found by digging around in the git repo
 	$(SUDO2) $(CPANM) --notest Redis || $(SUDO2) $(CPANM) --notest DAMS/Redis-1.976.tar.gz
 		#Net::Async::CassandraCQL \
-	
+
+	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
+	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' $$libfilepath || sed -i.bak 's/use strict;/use strict;\nuse Socket;/' $$libfilepath
+
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
 	$(SUDO) easy_install -U setuptools

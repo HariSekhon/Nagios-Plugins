@@ -16,9 +16,7 @@
 
 """
 
-Nagios Plugin to check a given key in a Consul key-value store
-
-Optionally may match the contents against a given regex or numeric thresholds if the key contents are numeric
+Nagios Plugin to check the number of peers in a Consul cluster
 
 Tested on Consul 0.6.3
 
@@ -29,7 +27,6 @@ from __future__ import division
 from __future__ import print_function
 #from __future__ import unicode_literals
 
-import base64
 import json
 import os
 import sys
@@ -38,51 +35,48 @@ libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import isList, isStr, support_msg_api
-    from harisekhon.utils import CriticalError, UnknownError
-    from harisekhon.nagiosplugin import KeyCheckNagiosPlugin
+    from harisekhon.utils import isList, isStr, support_msg_api, log, uniq_list
+    from harisekhon.utils import CriticalError, UnknownError, validate_host, validate_port
+    from harisekhon.nagiosplugin import NagiosPlugin
     from harisekhon import RequestHandler
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6.1'
+__version__ = '0.6'
 
 
-class ConsulKeyCheck(KeyCheckNagiosPlugin):
+class ConsulKeyCheck(NagiosPlugin):
 
     def __init__(self):
         super(ConsulKeyCheck, self).__init__()
         self.name = 'Consul'
         self.default_port = 8500
+        self.host = None
+        self.port = None
         self.request_handler = RequestHandler()
+        self.msg = 'NO MESSAGE DEFINED'
 
-    def extract_value(self, content):
+    def add_options(self):
+        self.add_hostoption(name=self.name, default_host='localhost', default_port=self.default_port)
+        self.add_thresholds(default_warning=1, default_critical=1)
+
+    @staticmethod
+    def get_peers(content):
         json_data = None
         try:
             json_data = json.loads(content)
         except ValueError:
             raise UnknownError("non-json data returned by consul: '%s'. %s" % (content, support_msg_api()))
-        value = None
         if not isList(json_data):
             raise UnknownError("non-list returned by consul: '%s'. %s" % (content, support_msg_api()))
         if not json_data:
             raise UnknownError("blank list returned by consul! '%s'. %s" % (content, support_msg_api()))
-        if len(json_data) > 1:
-            raise UnknownError("more than one key returned by consul! response = '%s'. %s" \
-                  % (content, support_msg_api()))
-        try:
-            value = json_data[0]['Value']
-        except KeyError:
-            raise UnknownError("couldn't find field 'Value' in response from consul: '%s'. %s"
-                               % (content, support_msg_api()))
-        try:
-            value = base64.decodestring(value)
-        except TypeError:
-            raise UnknownError("invalid data returned for key '{0}' value = '{1}', failed to base64 decode"
-                               .format(self.key, value))
-        return value
+        for peer in json_data:
+            log.debug('peer: {0}'.format(peer))
+        peers = uniq_list(json_data)
+        return peers
 
     # closure factory
     @staticmethod
@@ -95,15 +89,24 @@ class ConsulKeyCheck(KeyCheckNagiosPlugin):
                 raise CriticalError("{0}: '{1}' {2}{3}".format(msg, req.status_code, req.reason, err))
         return tmp
 
-    def read(self):
-        # could use ?raw to get the value without base64 but leaving base64 encoding as it's safer
-        url = 'http://%(host)s:%(port)s/v1/kv/%(key)s' % self.__dict__
-        self.request_handler.check_response_code = \
-            self.check_response_code("failed to retrieve Consul key '{0}'".format(self.key))
+    def run(self):
+        self.host = self.get_opt('host')
+        self.port = self.get_opt('port')
+        validate_host(self.host)
+        validate_port(self.port)
+        self.validate_thresholds(optional=True, simple='lower')
+        url = 'http://%(host)s:%(port)s/v1/status/peers' % self.__dict__
         req = self.request_handler.get(url)
-        value = self.extract_value(req.content)
-        return value
-
+        self.request_handler.check_response_code = \
+            self.check_response_code('failed to retrieve Consul peers')
+        peers = self.get_peers(req.content)
+        peer_count = len(peers)
+        self.ok()
+        self.msg = 'Consul peer count = {0}'.format(peer_count)
+        self.check_thresholds(peer_count)
+        self.msg += ' | consul_peer_count={0}'.format(peer_count)
+        #self.msg += self.get_perf_thresholds(boundary='lower')
+        self.msg += self.get_perf_thresholds(boundary='lower')
 
 if __name__ == '__main__':
     ConsulKeyCheck().main()
