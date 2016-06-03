@@ -17,7 +17,7 @@ $DESCRIPTION = "Nagios Plugin to check Hadoop HDFS last checkpoint lag via NameN
 
 Tests time since last HDFS checkpoint against warning/critical thresholds in seconds
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
 
 $VERSION = "0.1";
 

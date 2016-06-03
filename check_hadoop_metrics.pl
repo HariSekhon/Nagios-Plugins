@@ -30,9 +30,8 @@ HBase Master /
 
 UPDATE: newer /metrics pages are often blank. See check_hadoop_jmx.pl for jmx metrics & info instead
 
+Tested on MRv1 JobTracker/TaskTracker, HBase 0.94
 ";
-
-# Tested on MRv1 JobTracker/TaskTracker, HBase 0.94
 
 $VERSION = "0.4.1";
 

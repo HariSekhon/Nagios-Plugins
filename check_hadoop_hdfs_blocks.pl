@@ -15,7 +15,7 @@ $DESCRIPTION = "Nagios Plugin to check the number of total blocks on the HDFS Na
 
 See also check_hadoop_namenode.pl for heap size and block checks
 
-Tested on Hortonworks 2.2 (Apache 2.6.0)";
+Tested on Hortonworks 2.2 (Apache 2.6.0) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
 
 $VERSION = "0.9.3";
 

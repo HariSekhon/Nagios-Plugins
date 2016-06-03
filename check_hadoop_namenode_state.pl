@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check if a Hadoop NameNode is the Active/Standby one in an HA pair via JMX
 
-Written and tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385). Added legacy support for Cloudera CDH 4.4.0 (Hadoop 2.0.0)";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2. Added legacy support for Cloudera CDH 4.4.0 (Hadoop 2.0.0)";
 
 $VERSION = "0.2";
 

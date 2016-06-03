@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the number of blocks on a Hadoop HDFS Datanode via it's blockScannerReport
 
-Tested on CDH 4.x";
+Tested on CDH 4.x and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
 
 $VERSION = "0.4";
 

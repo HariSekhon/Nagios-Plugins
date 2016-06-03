@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check Hadoop HDFS Space % used via NameNode JMX
 
 See also check_hadoop_dfs.pl for an older implementation that parses dfsadmin output.
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385)";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
 
 $VERSION = "0.1";
 

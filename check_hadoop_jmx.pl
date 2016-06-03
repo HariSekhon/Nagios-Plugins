@@ -15,7 +15,7 @@ Specify ports depending on which daemon you're trying to get JMX from: HDFS Name
 
 Make sure you specify --mbean in prod, leave it out with --all-metrics and -vv only for exploring what is available. Nagios has a char limit and will truncate the output, and the perfdata at the end would be lost.
 
-Tested on Hadoop 2.6 / 2.7 NameNode & DataNode, HBase 0.98 Master & RegionServer on Hortonworks HDP 2.2 & HDP 2.3
+Tested on Hadoop 2.6 / 2.7 NameNode & DataNode, HBase 0.98 Master & RegionServer on Hortonworks HDP 2.2 & HDP 2.3, Apache Hadoop 2.5.2, 2.6.4, 2.7.2
 ";
 
 $VERSION = "0.4";
