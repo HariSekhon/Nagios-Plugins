@@ -36,6 +36,9 @@ export DOCKER_IMAGE="harisekhon/cassandra-dev"
 export DOCKER_CONTAINER="nagios-plugins-cassandra-test"
 
 export CASSANDRA_TEST_VERSIONS="${1:-1.2 2.0 2.1 2.2 3.0 3.5}"
+if is_travis; then
+    export CASSANDRA_TEST_VERSIONS="${1:-1.2 2.0}"
+fi
 
 export MNTDIR="/pl"
 
