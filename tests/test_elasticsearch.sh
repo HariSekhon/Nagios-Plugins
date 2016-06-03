@@ -38,7 +38,7 @@ export DOCKER_IMAGE="elasticsearch"
 export DOCKER_CONTAINER="nagios-plugins-elasticsearch-test"
 
 # 5.0 tag doesn't work yet
-export ELASTICSEARCH_VERSIONS="${1:-1.4 1.5 1.6 2.0 2.2}"
+export ELASTICSEARCH_VERSIONS="${1:-1.4 1.5 1.6 1.7 2.0 2.2}"
 
 startupwait=20
 
