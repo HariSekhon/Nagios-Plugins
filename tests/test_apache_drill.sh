@@ -58,7 +58,7 @@ test_drill(){
     fi
     hr
     set +e
-    found_version=$(docker exec  nagios-plugins-drill-test ls / | grep apache-drill | tee /dev/stderr | tail -n1 | sed 's/.*-//')
+    found_version=$(docker exec  "$DOCKER_CONTAINER2" ls / | grep apache-drill | tee /dev/stderr | tail -n1 | sed 's/.*-//')
     set -e
     if [[ "$found_version" != $version* ]]; then
         echo "Docker container version does not match expected version! (found '$found_version', expected '$version')"
