@@ -71,7 +71,7 @@ test_elasticsearch(){
     echo "Setup done, starting checks ..."
     echo
     hr
-    $perl -T $I_lib ./check_elasticsearch.pl -v
+    $perl -T $I_lib ./check_elasticsearch.pl -v --es-version "$version"
     hr
     # Listing checks return UNKNOWN
     set +e
