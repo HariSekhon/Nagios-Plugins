@@ -148,6 +148,8 @@ build:
 	# in requirements.txt now
 	#$(SUDO) pip install cassandra-driver scales blist lz4 python-snappy
 	$(SUDO2) pip install -r requirements.txt
+	# prevents https://urllib3.readthedocs.io/en/latest/security.html#insecureplatformwarning
+	$(SUDO) sudo pip install --upgrade ndg-httpsclient
 	#. tests/utils.sh; $(SUDO) $$perl couchbase-csdk-setup
 	#$(SUDO) pip install couchbase
 	
