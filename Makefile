@@ -238,7 +238,7 @@ ZOOKEEPER_VERSION = 3.4.6
 zookeeper:
 	[ -x /usr/bin/apt-get ] && make apt-packages || :
 	[ -x /usr/bin/yum ]     && make yum-packages || :
-	[ -f zookeeper-$(ZOOKEEPER_VERSION).tar.gz ] || wget -O zookeeper-$(ZOOKEEPER_VERSION).tar.gz http://www.mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-$(ZOOKEEPER_VERSION)/zookeeper-$(ZOOKEEPER_VERSION).tar.gz
+	[ -f zookeeper-$(ZOOKEEPER_VERSION).tar.gz ] || wget -O zookeeper-$(ZOOKEEPER_VERSION).tar.gz "http://www.apache.org/dyn/closer.lua?filename=zookeeper/zookeeper-${ZOOKEEPER_VERSION}/zookeeper-${ZOOKEEPER_VERSION}.tar.gz&action=download"
 	[ -d zookeeper-$(ZOOKEEPER_VERSION) ] || tar zxf zookeeper-$(ZOOKEEPER_VERSION).tar.gz
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				./configure
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				make
