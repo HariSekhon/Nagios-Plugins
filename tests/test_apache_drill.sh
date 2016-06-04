@@ -47,6 +47,7 @@ export DOCKER_CONTAINER2="nagios-plugins-drill-test"
 test_drill(){
     local version="$1"
     local startupwait=30
+    travis_sample || continue
     hr
     echo "Setting up Apache Drill $version test container"
     hr

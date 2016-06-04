@@ -44,6 +44,7 @@ startupwait=10
 
 test_h2o(){
     local version="$1"
+    travis_sample || continue
     hr
     echo "Setting up H2O $version test container"
     hr

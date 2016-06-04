@@ -45,6 +45,7 @@ startupwait=10
 
 test_alluxio(){
     local version="$1"
+    travis_sample || continue
     hr
     echo "Setting up Alluxio $version test container"
     hr

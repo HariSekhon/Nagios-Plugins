@@ -47,8 +47,9 @@ startupwait=20
 
 test_elasticsearch(){
     local version="$1"
+    travis_sample || continue
     echo "Setting up Elasticsearch $version test container"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 9200
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 9200 2> /dev/null
 
     # Travis added this
     #echo "deleting twitter index as 5 unassigned shards are breaking tests"

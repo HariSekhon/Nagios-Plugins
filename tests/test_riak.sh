@@ -49,6 +49,7 @@ is_travis && let startupwait+=20
 
 test_riak(){
     local version="$1"
+    travis_sample || continue
     echo "Setting up Riak $version test container"
     DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8098

@@ -46,6 +46,7 @@ startupwait=10
 
 test_mesos_version(){
     local version="${1:-latest}"
+    travis_sample || continue
     hr
     echo "Setting up Mesos test container (version $version)"
     hr

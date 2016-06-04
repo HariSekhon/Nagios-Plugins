@@ -49,6 +49,7 @@ startupwait=5
 
 test_zookeeper(){
     local version="$1"
+    #travis_sample || continue
     echo "Setting up ZooKeeper $version test container"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 2181 3181 4181
     docker cp "$DOCKER_CONTAINER":/zookeeper/conf/zoo.cfg .

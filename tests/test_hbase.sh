@@ -66,6 +66,7 @@ startupwait=50
 
 test_hbase(){
     local version="$1"
+    travis_sample || continue
     hr
     echo "Setting up HBase test container"
     hr
