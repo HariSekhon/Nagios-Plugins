@@ -146,7 +146,7 @@ build:
 	$(SUDO) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	# in requirements.txt now
-	#$(SUDO) pip install cassandra-driver scales blist lz4 python-snappy
+	#$(SUDO2) pip install cassandra-driver scales blist lz4 python-snappy
 	$(SUDO2) pip install -r requirements.txt
 	# prevents https://urllib3.readthedocs.io/en/latest/security.html#insecureplatformwarning
 	$(SUDO2) sudo pip install --upgrade ndg-httpsclient
