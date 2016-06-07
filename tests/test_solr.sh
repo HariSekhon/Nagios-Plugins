@@ -43,7 +43,7 @@ export DOCKER_CONTAINER="nagios-plugins-solr-test"
 
 export SOLR_VERSIONS="${1:-3.1 3.6 4.10 5.5 6.0 latest}"
 if is_travis; then
-    export SOLR_VERSIONS="6.0 latest"
+    export SOLR_VERSIONS="${1:-6.0 latest}"
 fi
 
 startupwait=10
