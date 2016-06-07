@@ -40,7 +40,8 @@ export MESOS_MASTER="$MESOS_HOST:$MESOS_MASTER_PORT"
 export DOCKER_IMAGE="harisekhon/mesos"
 export DOCKER_CONTAINER="nagios-plugins-mesos-test"
 
-export MESOS_VERSIONS="0.23 0.24"
+# TODO: update plugins for > 0.24
+export MESOS_VERSIONS="${1:-0.23 0.24}"
 
 startupwait=10
 
