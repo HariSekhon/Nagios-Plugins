@@ -58,7 +58,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 
 
 class CheckKafka(PubSubNagiosPlugin):
@@ -214,8 +214,12 @@ class CheckKafka(PubSubNagiosPlugin):
         self.consumer.assign([self.topic_partition])
         log.debug('partition assignments: {0}'.format(self.consumer.assignment()))
 
+        log.debug('getting current offset')
         self.start_offset = self.consumer.position(self.topic_partition)
         # self.start_offset = 0
+        if self.start_offset is None:
+            self.start_offset = 0
+            #raise UnknownError('Kafka Consumer reported current starting offset = {0}'.format(self.start_offset))
         log.debug('recorded starting offset \'{0}\''.format(self.start_offset))
         # self.consumer.pause()
 
