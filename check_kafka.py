@@ -29,7 +29,7 @@ ISRs and Leader info per partition.
 
 Thresholds apply to max produce / consume message timings which are also output as perfdata for graphing
 
-Tested on Kafka 0.8.1, 0.8.2.2
+Tested on Kafka 0.8.1, 0.8.2.2, 0.9.0.1
 """
 
 from __future__ import absolute_import
