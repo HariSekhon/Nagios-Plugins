@@ -16,7 +16,7 @@ Requires >= Kafka-0.8010 Perl library, several improvements were made to the lib
 
 Written for Kafka 0.8 onwards due to incompatible changes between Kafka 0.7 and 0.8.
 
-Tested on Kafka 0.8.1, 0.8.2
+Tested on Kafka 0.8.1, 0.8.2, 0.9.0.1
 
 Limitations (these all currently have tickets open to fix in the underlying API):
 
