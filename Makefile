@@ -175,6 +175,8 @@ apt-packages:
 	$(SUDO) apt-get install -y libsasl2-dev
 	# for XML::Simple building
 	$(SUDO) apt-get install -y libexpat1-dev
+	# for ndg-httpsclient
+	$(SUDO) apt-get install -y python-pyasn1
 	# Class::Accessor pre-packaged
 	#$(SUDO) apt-get install libclass-accessor-perl
 	# for check_whois.pl - looks like this has been removed from repos :-/
@@ -209,6 +211,8 @@ yum-packages:
 	rpm -q openssl-devel || $(SUDO) yum install -y openssl-devel
 	# for XML::Simple building
 	rpm -q expat-devel || $(SUDO) yum install -y expat-devel
+	# for ndg-httpsclient
+	rpm -q python-pyasn1 || $(SUDO) yum install -y python-pyasn1
 	# for Cassandra's Python driver
 	# python-pip requires EPEL, so try to get the correct EPEL rpm
 	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
