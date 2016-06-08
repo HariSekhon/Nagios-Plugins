@@ -28,9 +28,6 @@ echo "
 "
 
 export SOLR_VERSIONS="${@:-3.1 3.6 4.10 5.5 6.0 latest}"
-if is_travis; then
-    export SOLR_VERSIONS="${@:-6.0 latest}"
-fi
 
 SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
