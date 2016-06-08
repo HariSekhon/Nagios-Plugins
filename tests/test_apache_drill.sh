@@ -55,7 +55,9 @@ test_drill(){
     local DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper"
     local DOCKER_CMD="supervisord -n"
     launch_container "$DOCKER_IMAGE2:$version" "$DOCKER_CONTAINER2" 8047
-
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
     if [ "$version" = "latest" ]; then
         local version="*"
     fi
