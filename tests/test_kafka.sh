@@ -28,19 +28,19 @@ echo "
 # ============================================================================ #
 "
 
+# TODO: latest container 2.11_0.10 doesn't work yet, no leader takes hold
+#export KAFKA_VERSIONS="${@:-2.11_0.10 2.11_0.10 latest}"
+export KAFKA_VERSIONS="${@:-2.10_0.8 2.11_0.8 2.10_0.9 2.11_0.9}"
+if is_travis; then
+    export KAFKA_VERSIONS="${@:-2.10_0.8}"
+fi
+
 KAFKA_HOST="${DOCKER_HOST:-${KAFKA_HOST:-${HOST:-localhost}}}"
 KAFKA_HOST="${KAFKA_HOST##*/}"
 KAFKA_HOST="${KAFKA_HOST%%:*}"
 export KAFKA_HOST
 
 export KAFKA_PORT="${KAFKA_PORT:-9092}"
-
-# TODO: latest container 2.11_0.10 doesn't work yet, no leader takes hold
-#export KAFKA_VERSIONS="${1:-2.11_0.10 2.11_0.10 latest}"
-export KAFKA_VERSIONS="${1:-2.10_0.8 2.11_0.8 2.10_0.9 2.11_0.9}"
-if is_travis; then
-    export KAFKA_VERSIONS="${1:-2.10_0.8}"
-fi
 
 export DOCKER_IMAGE="harisekhon/kafka"
 export DOCKER_CONTAINER="nagios-plugins-kafka-test"
