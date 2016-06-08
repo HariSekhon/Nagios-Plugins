@@ -65,10 +65,10 @@ test_solr(){
         return 0
     fi
     echo "Setup done, starting checks ..."
-    if [ "$version" = "latest" ]; then
-        local version=".*"
-    fi
-    if [ ${version:0:1} -ge 4 ]; then
+    if [ "$version" = "latest" -o ${version:0:1} -ge 4 ]; then
+        if [ "$version" = "latest" ]; then
+            local version=".*"
+        fi
         # 4.x+
         hr
         ./check_solr_version.py -e "$version"
