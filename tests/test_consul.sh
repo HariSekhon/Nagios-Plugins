@@ -55,13 +55,15 @@ test_consul(){
     hr
     local DOCKER_CMD="agent -dev -data-dir /tmp -client 0.0.0.0"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $CONSUL_PORT
-
     hr
     local testkey="nagios/consul/testkey1"
     echo "Writing random value to test key $testkey"
     local random_val=$RANDOM
     curl -X PUT -d "$random_val" "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$testkey"
     echo
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
     hr
     set +e
     found_version=$(docker exec "$DOCKER_CONTAINER" consul version | head -n1 | tee /dev/stderr | sed 's/.*v//')
