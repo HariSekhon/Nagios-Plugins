@@ -54,7 +54,9 @@ DOCKER_CMD="tail -f /dev/null"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
 docker exec "$DOCKER_CONTAINER" yum makecache fast
 docker exec "$DOCKER_CONTAINER" yum install -y net-tools
-
+if [ -n "${NOTESTS:-}" ]; then
+    exit 0
+fi
 hr
 docker_exec check_linux_auth.pl -u root -g root -v
 hr
