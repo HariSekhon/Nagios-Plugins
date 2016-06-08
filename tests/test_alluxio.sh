@@ -49,7 +49,7 @@ test_alluxio(){
     hr
     echo "Setting up Alluxio $version test container"
     hr
-    launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $ALLUXIO_MASTER_PORT $ALLUXIO_WORKER_PORT
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ALLUXIO_MASTER_PORT $ALLUXIO_WORKER_PORT
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
