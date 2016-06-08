@@ -83,7 +83,7 @@ test_neo4j(){
 
 test_neo4j_auth(){
     local version="$1"
-    echo "Setting up Neo4J test container with authentication"
+    echo "Setting up Neo4J $version test container with authentication"
     local DOCKER_OPTS="-e NEO4J_AUTH=$NEO4J_USERNAME/$NEO4J_PASSWORD"
     delete_container "$DOCKER_CONTAINER" &>/dev/null || :
     local startupwait=20
