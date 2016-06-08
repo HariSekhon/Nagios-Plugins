@@ -27,6 +27,8 @@ echo "
 # ============================================================================ #
 "
 
+export MYSQL_VERSIONS="${@:-latest 5.5 5.6 5.7}"
+
 MYSQL_HOST="${MYSQL_HOST:-${DOCKER_HOST:-${HOST:-localhost}}}"
 MYSQL_HOST="${MYSQL_HOST##*/}"
 MYSQL_HOST="${MYSQL_HOST%%:*}"
@@ -34,8 +36,6 @@ MYSQL_HOST="${MYSQL_HOST%%:*}"
 # which doesn't work in Dockerized environment
 [ "$MYSQL_HOST" = "localhost" ] && MYSQL_HOST="127.0.0.1"
 export MYSQL_HOST
-
-export MYSQL_VERSIONS="${@:-latest 5.5 5.6 5.7}"
 
 export MYSQL_DATABASE="${MYSQL_DATABASE:-mysql}"
 export MYSQL_PORT=3306
