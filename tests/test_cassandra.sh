@@ -60,6 +60,9 @@ test_cassandra(){
     echo "Setting up Cassandra $version test container"
     DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 7199 9042
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
     hr
     docker exec -ti "$DOCKER_CONTAINER" nodetool status
     hr
