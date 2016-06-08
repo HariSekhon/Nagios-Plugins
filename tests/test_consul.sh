@@ -28,7 +28,7 @@ echo "
 # ============================================================================ #
 "
 
-export CONSUL_VERSIONS="${@:-0.6 latest}"
+export CONSUL_VERSIONS="${@:-latest 0.6}"
 
 CONSUL_HOST="${DOCKER_HOST:-${CONSUL_HOST:-${HOST:-localhost}}}"
 CONSUL_HOST="${CONSUL_HOST##*/}"
