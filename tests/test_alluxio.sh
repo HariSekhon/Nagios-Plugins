@@ -28,6 +28,8 @@ echo "
 # ============================================================================ #
 "
 
+export ALLUXIO_VERSIONS="${@:-1.0 latest}"
+
 ALLUXIO_HOST="${DOCKER_HOST:-${ALLUXIO_HOST:-${HOST:-localhost}}}"
 ALLUXIO_HOST="${ALLUXIO_HOST##*/}"
 ALLUXIO_HOST="${ALLUXIO_HOST%%:*}"
@@ -35,8 +37,6 @@ export ALLUXIO_HOST
 
 export ALLUXIO_MASTER_PORT="${ALLUXIO_MASTER_PORT:-19999}"
 export ALLUXIO_WORKER_PORT="${ALLUXIO_WORKER_PORT:-30000}"
-
-export ALLUXIO_VERSIONS="${1:-1.0 latest}"
 
 export DOCKER_IMAGE="harisekhon/alluxio"
 export DOCKER_CONTAINER="nagios-plugins-alluxio-test"
