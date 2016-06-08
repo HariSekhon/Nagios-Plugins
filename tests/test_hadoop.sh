@@ -29,10 +29,7 @@ echo "
 # ============================================================================ #
 "
 
-export HADOOP_VERSIONS="${@:-2.5 2.6 2.7 latest}"
-if is_travis; then
-    export HADOOP_VERSIONS="${@:-2.7 latest}"
-fi
+export HADOOP_VERSIONS="${@:-latest 2.5 2.6 2.7}"
 
 HADOOP_HOST="${DOCKER_HOST:-${HADOOP_HOST:-${HOST:-localhost}}}"
 HADOOP_HOST="${HADOOP_HOST##*/}"
