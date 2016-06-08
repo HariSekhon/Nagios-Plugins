@@ -28,14 +28,14 @@ echo "
 # ============================================================================ #
 "
 
+export CONSUL_VERSIONS="${@:-0.6 latest}"
+
 CONSUL_HOST="${DOCKER_HOST:-${CONSUL_HOST:-${HOST:-localhost}}}"
 CONSUL_HOST="${CONSUL_HOST##*/}"
 CONSUL_HOST="${CONSUL_HOST%%:*}"
 export CONSUL_HOST
 
 export CONSUL_PORT="${CONSUL_PORT:-8500}"
-
-export CONSUL_VERSIONS="${1:-0.6 latest}"
 
 export DOCKER_IMAGE="harisekhon/consul"
 export DOCKER_CONTAINER="nagios-plugins-consul-test"
