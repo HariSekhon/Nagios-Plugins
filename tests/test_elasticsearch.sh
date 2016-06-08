@@ -27,6 +27,12 @@ echo "
 # ============================================================================ #
 "
 
+# 5.0 tag doesn't work yet
+export ELASTICSEARCH_VERSIONS="${@:-1.4 1.5 1.6 1.7 2.0 2.2 2.3}"
+if is_travis; then
+    export ELASTICSEARCH_VERSIONS="${@:-1.7 2.3}"
+fi
+
 ELASTICSEARCH_HOST="${DOCKER_HOST:-${ELASTICSEARCH_HOST:-${HOST:-localhost}}}"
 ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST##*/}"
 ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST%%:*}"
@@ -36,12 +42,6 @@ export ELASTICSEARCH_INDEX="${ELASTICSEARCH_INDEX:-test}"
 
 export DOCKER_IMAGE="elasticsearch"
 export DOCKER_CONTAINER="nagios-plugins-elasticsearch-test"
-
-# 5.0 tag doesn't work yet
-export ELASTICSEARCH_VERSIONS="${1:-1.4 1.5 1.6 1.7 2.0 2.2 2.3}"
-if is_travis; then
-    export ELASTICSEARCH_VERSIONS="${1:-1.7 2.3}"
-fi
 
 startupwait=20
 
