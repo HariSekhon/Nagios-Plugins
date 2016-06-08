@@ -30,14 +30,14 @@ echo "
 # ============================================================================ #
 "
 
+export NGINX_VERSIONS="${@:-latest 1.10 1.11.0}"
+
 NGINX_HOST="${DOCKER_HOST:-${NGINX_HOST:-${HOST:-localhost}}}"
 NGINX_HOST="${NGINX_HOST##*/}"
 NGINX_HOST="${NGINX_HOST%%:*}"
 export NGINX_HOST
 
 export NGINX_PORT="80"
-
-export NGINX_VERSIONS="${@:-latest 1.10 1.11.0}"
 
 export DOCKER_IMAGE="nginx"
 export DOCKER_CONTAINER="nagios-plugins-nginx-test"
