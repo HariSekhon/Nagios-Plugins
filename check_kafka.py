@@ -58,7 +58,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.3'
+__version__ = '0.3.4'
 
 
 class CheckKafka(PubSubNagiosPlugin):
@@ -154,7 +154,7 @@ class CheckKafka(PubSubNagiosPlugin):
         # TODO: add broker list validation back in
         # validate_hostport(self.brokers)
         log_option('brokers', self.brokers)
-        self.timeout_ms = max(self.timeout * 1000 - 1000, 1000)
+        self.timeout_ms = max((self.timeout * 1000 - 1000) / 2, 1000)
 
         try:
             list_topics = self.get_opt('list_topics')
