@@ -29,7 +29,7 @@ echo "
 # ============================================================================ #
 "
 
-export SOLR_VERSIONS="${@:-4.10 5.5 6.0 latest}"
+export SOLR_VERSIONS="${@:-latest 4.10 5.5 6.0}"
 
 SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
