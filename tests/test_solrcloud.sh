@@ -67,7 +67,12 @@ test_solrcloud(){
     echo "Setting up SolrCloud $version docker test container"
     DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8983 8984 9983
-
+    if [ -n "${NOTESTS:-1}" ]; then
+        return 0
+    fi
+    if [ "$version" = "latest" ]; then
+        local version=".*"
+    fi
     hr
     ./check_solr_version.py -e "$version"
     hr
