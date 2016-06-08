@@ -49,7 +49,7 @@ test_mesos_version(){
     local version="${1:-latest}"
     travis_sample || continue
     hr
-    echo "Setting up Mesos test container (version $version)"
+    echo "Setting up Mesos $version test container"
     hr
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MESOS_MASTER_PORT $MESOS_WORKER_PORT
     if [ -n "${NOTESTS:-}" ]; then
