@@ -52,7 +52,9 @@ test_mesos_version(){
     echo "Setting up Mesos test container (version $version)"
     hr
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MESOS_MASTER_PORT $MESOS_WORKER_PORT
-
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
     hr
     $perl -T $I_lib ./check_mesos_activated_slaves.pl -v
     hr
