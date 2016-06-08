@@ -27,9 +27,9 @@ echo "
 # ============================================================================ #
 "
 
-export CASSANDRA_TEST_VERSIONS="${@:-1.2 2.0 2.1 2.2 3.0 3.5}"
+export CASSANDRA_TEST_VERSIONS="${@:-latest 1.2 2.0 2.1 2.2 3.0 3.5}"
 if is_travis; then
-    export CASSANDRA_TEST_VERSIONS="${@:-1.2 2.0}"
+    export CASSANDRA_TEST_VERSIONS="${@:-latest 1.2 2.2 3.5}"
 fi
 
 CASSANDRA_HOST="${DOCKER_HOST:-${CASSANDRA_HOST:-${HOST:-localhost}}}"
