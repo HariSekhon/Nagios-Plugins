@@ -29,6 +29,11 @@ echo "
 # ============================================================================ #
 "
 
+export HADOOP_VERSIONS="${@:-2.5 2.6 2.7 latest}"
+if is_travis; then
+    export HADOOP_VERSIONS="${@:-2.7 latest}"
+fi
+
 HADOOP_HOST="${DOCKER_HOST:-${HADOOP_HOST:-${HOST:-localhost}}}"
 HADOOP_HOST="${HADOOP_HOST##*/}"
 HADOOP_HOST="${HADOOP_HOST%%:*}"
@@ -36,11 +41,6 @@ export HADOOP_HOST
 
 export DOCKER_IMAGE="harisekhon/hadoop-dev"
 export DOCKER_CONTAINER="nagios-plugins-hadoop-test"
-
-export HADOOP_VERSIONS="${1:-2.5 2.6 2.7 latest}"
-if is_travis; then
-    export HADOOP_VERSIONS="${1:-2.7 latest}"
-fi
 
 export MNTDIR="/pl"
 
