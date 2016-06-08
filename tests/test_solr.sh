@@ -55,7 +55,7 @@ test_solr(){
     travis_sample || continue
     echo "Setting up Solr $version docker test container"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8983
-    if [ ${version:0:1} -ge 4 ]; then
+    if [[ "$version" = "latest" || ${version:0:1} > 3 ]]; then
         docker exec -ti "$DOCKER_CONTAINER" solr create_core -c "$SOLR_CORE" || :
         # TODO: fix this on Solr 5.x+
         docker exec -ti "$DOCKER_CONTAINER" bin/post -c "$SOLR_CORE" example/exampledocs/money.xml || :
@@ -65,13 +65,16 @@ test_solr(){
         return 0
     fi
     echo "Setup done, starting checks ..."
-    if [ "$version" = "latest" -o ${version:0:1} -ge 4 ]; then
+    if [[ "$version" = "latest" || ${version:0:1} > 3 ]]; then
         if [ "$version" = "latest" ]; then
             local version=".*"
         fi
         # 4.x+
         hr
         ./check_solr_version.py -e "$version"
+    else
+        # TODO: check Solr v3 versions somehow
+        :
     fi
     hr
     $perl -T $I_lib ./check_solr_api_ping.pl -v -w 500
