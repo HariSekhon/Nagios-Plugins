@@ -58,7 +58,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 
 class CheckKafka(PubSubNagiosPlugin):
@@ -215,11 +215,13 @@ class CheckKafka(PubSubNagiosPlugin):
         log.debug('partition assignments: {0}'.format(self.consumer.assignment()))
 
         log.debug('getting current offset')
+        # see also highwater, committed, seek_to_end
         self.start_offset = self.consumer.position(self.topic_partition)
-        # self.start_offset = 0
         if self.start_offset is None:
-            self.start_offset = 0
-            #raise UnknownError('Kafka Consumer reported current starting offset = {0}'.format(self.start_offset))
+            # don't do this, I've seen scenario where None is returned and all messages are read again, better to fail
+            # log.warn('consumer position returned None, resetting to zero')
+            # self.start_offset = 0
+            raise UnknownError('Kafka Consumer reported current starting offset = {0}'.format(self.start_offset))
         log.debug('recorded starting offset \'{0}\''.format(self.start_offset))
         # self.consumer.pause()
 
