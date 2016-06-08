@@ -18,7 +18,7 @@ A friend and ex-colleague of mine Tom Liakos @ Specific Media pointed out a long
 Tested on MySQL 5.0, 5.1, 5.5, 5.6, 5.7
 ";
 
-$VERSION = "1.2.4";
+$VERSION = "1.2.5";
 
 use strict;
 use warnings;
@@ -409,7 +409,7 @@ foreach $mysql_variable_name (sort keys %mysql_config){
         $mysql_variable =~ s/\/$//;
         $mysql_config   =~ s/^(\d+)\.0+$/$1/;
         $mysql_variable =~ s/^(\d+)\.0+$/$1/;
-        if(lc $mysql_variable_name eq "sql-mode"){
+        if(lc $mysql_variable_name =~ "sql[-_]mode"){
             my $sql_mode_tmp = "";
             foreach(sort split(/\s*,\s*/, $mysql_config)){
                 if($mysql_modes{$_}){
