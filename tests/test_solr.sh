@@ -27,6 +27,11 @@ echo "
 # ============================================================================ #
 "
 
+export SOLR_VERSIONS="${@:-3.1 3.6 4.10 5.5 6.0 latest}"
+if is_travis; then
+    export SOLR_VERSIONS="${@:-6.0 latest}"
+fi
+
 SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
 SOLR_HOST="${SOLR_HOST%%:*}"
@@ -40,11 +45,6 @@ export SOLR_CORE="${SOLR_COLLECTION:-${SOLR_CORE:-test}}"
 #export DOCKER_IMAGE="solr"
 export DOCKER_IMAGE="harisekhon/solr"
 export DOCKER_CONTAINER="nagios-plugins-solr-test"
-
-export SOLR_VERSIONS="${1:-3.1 3.6 4.10 5.5 6.0 latest}"
-if is_travis; then
-    export SOLR_VERSIONS="${1:-6.0 latest}"
-fi
 
 startupwait=10
 
