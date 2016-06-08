@@ -49,7 +49,9 @@ test_h2o(){
     echo "Setting up H2O $version test container"
     hr
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $H2O_PORT
-
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
     hr
     $perl -T $I_lib ./check_h2o_cluster.pl
     hr
