@@ -60,10 +60,14 @@ test_solr(){
         # TODO: fix this on Solr 5.x+
         docker exec -ti "$DOCKER_CONTAINER" bin/post -c "$SOLR_CORE" example/exampledocs/money.xml || :
     fi
-
-    echo
+    hr
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
     echo "Setup done, starting checks ..."
-
+    if [ "$version" = "latest" ]; then
+        local version=".*"
+    fi
     if [ ${version:0:1} -ge 4 ]; then
         # 4.x+
         hr
