@@ -63,7 +63,6 @@ test_hadoop(){
     hr
     DOCKER_OPTS="-v $srcdir2/..:$MNTDIR"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8042 8088 9000 10020 19888 50010 50020 50070 50075 50090
-
     echo "creating test file in hdfs"
     docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
         export JAVA_HOME=/usr
@@ -72,7 +71,9 @@ test_hadoop(){
         echo content | hdfs dfs -put - /tmp/test.txt
         hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && tail -n30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
 EOF
-
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
     echo
     hr
     if [ "$version" = "latest" ]; then
