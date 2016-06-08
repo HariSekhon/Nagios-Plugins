@@ -28,7 +28,7 @@ echo "
 # ============================================================================ #
 "
 
-export H2O_VERSIONS="${@:-2.6 latest}"
+export H2O_VERSIONS="${@:-latest 2.6}"
 
 H2O_HOST="${DOCKER_HOST:-${H2O_HOST:-${HOST:-localhost}}}"
 H2O_HOST="${H2O_HOST##*/}"
