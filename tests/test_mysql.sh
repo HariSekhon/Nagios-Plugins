@@ -35,6 +35,8 @@ MYSQL_HOST="${MYSQL_HOST%%:*}"
 [ "$MYSQL_HOST" = "localhost" ] && MYSQL_HOST="127.0.0.1"
 export MYSQL_HOST
 
+export MYSQL_VERSIONS="${@:-latest 5.5 5.6 5.7}"
+
 export MYSQL_DATABASE="${MYSQL_DATABASE:-mysql}"
 export MYSQL_PORT=3306
 export MYSQL_USER="root"
@@ -45,22 +47,33 @@ export DOCKER_CONTAINER="nagios-plugins-mysql-test"
 
 startupwait=10
 
-echo "Setting up MySQL test container"
-DOCKER_OPTS="-e MYSQL_ROOT_PASSWORD=$MYSQL_PASSWORD"
-launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $MYSQL_PORT
+test_mysql(){
+    local version="$1"
+    echo "Setting up MySQL $version test container"
+    local DOCKER_OPTS="-e MYSQL_ROOT_PASSWORD=$MYSQL_PASSWORD"
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MYSQL_PORT
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
+    hr
+    docker cp "$DOCKER_CONTAINER":/etc/mysql/my.cnf /tmp
+    $perl -T $I_lib ./check_mysql_config.pl -c /tmp/my.cnf --warn-on-missing -v
+    rm -f /tmp/my.cnf
+    hr
+    $perl -T $I_lib ./check_mysql_query.pl -q "SHOW TABLES IN information_schema" -o CHARACTER_SETS -v
+    hr
+    #$perl -T $I_lib ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
+    hr
+    $perl -T $I_lib ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'%'" -v
+    # TODO: add socket test - must mount on a compiled system, ie replace the docker image with a custom test one
+    unset MYSQL_HOST
+    #$perl -T $I_lib ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
+    hr
+    delete_container
+    hr
+    echo
+}
 
-hr
-docker cp "$DOCKER_CONTAINER":/etc/mysql/my.cnf /tmp
-$perl -T $I_lib ./check_mysql_config.pl -c /tmp/my.cnf --warn-on-missing -v
-rm -f /tmp/my.cnf
-hr
-$perl -T $I_lib ./check_mysql_query.pl -q "SHOW TABLES IN information_schema" -o CHARACTER_SETS -v
-hr
-#$perl -T $I_lib ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
-hr
-$perl -T $I_lib ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'%'" -v
-# TODO: add socket test - must mount on a compiled system, ie replace the docker image with a custom test one
-unset MYSQL_HOST
-#$perl -T $I_lib ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
-hr
-delete_container
+for version in $MYSQL_VERSIONS; do
+    test_mysql $version
+done
