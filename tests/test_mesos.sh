@@ -28,6 +28,9 @@ echo "
 # ============================================================================ #
 "
 
+# TODO: update plugins for > 0.24
+export MESOS_VERSIONS="${@:-0.23 0.24}"
+
 MESOS_HOST="${DOCKER_HOST:-${MESOS_HOST:-${HOST:-localhost}}}"
 MESOS_HOST="${MESOS_HOST##*/}"
 MESOS_HOST="${MESOS_HOST%%:*}"
@@ -39,9 +42,6 @@ export MESOS_MASTER="$MESOS_HOST:$MESOS_MASTER_PORT"
 
 export DOCKER_IMAGE="harisekhon/mesos"
 export DOCKER_CONTAINER="nagios-plugins-mesos-test"
-
-# TODO: update plugins for > 0.24
-export MESOS_VERSIONS="${1:-0.23 0.24}"
 
 startupwait=10
 
