@@ -50,7 +50,9 @@ test_elasticsearch(){
     travis_sample || continue
     echo "Setting up Elasticsearch $version test container"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 9200 2> /dev/null
-
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
     # Travis added this
     #echo "deleting twitter index as 5 unassigned shards are breaking tests"
     #curl -XDELETE "http://localhost:9200/twitter" || :
