@@ -28,6 +28,8 @@ echo "
 # ============================================================================ #
 "
 
+export H2O_VERSIONS="${@:-2.6 latest}"
+
 H2O_HOST="${DOCKER_HOST:-${H2O_HOST:-${HOST:-localhost}}}"
 H2O_HOST="${H2O_HOST##*/}"
 H2O_HOST="${H2O_HOST%%:*}"
@@ -37,8 +39,6 @@ export H2O_PORT="${H2O_PORT:-54321}"
 
 export DOCKER_IMAGE="harisekhon/h2o"
 export DOCKER_CONTAINER="nagios-plugins-h2o-test"
-
-export H2O_VERSIONS="${1:-2.6 latest}"
 
 startupwait=10
 
