@@ -50,6 +50,8 @@ fi
 startupwait=1
 is_travis && let startupwait+=4
 
+trap_container
+
 test_nginx(){
     local version="$1"
     echo "Setting up Nginx $version test container"
