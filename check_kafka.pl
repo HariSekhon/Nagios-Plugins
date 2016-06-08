@@ -26,7 +26,7 @@ Limitations (these all currently have tickets open to fix in the underlying API)
 - first run if given a topic that doesn't already exist will cause the error \"Error: There are no known brokers: topic = '<topic>'\"
 ";
 
-$VERSION = "0.2.3";
+$VERSION = "0.2.4";
 
 # Kafka lib requires Perl 5.10
 use 5.010;
@@ -228,7 +228,7 @@ try {
         vlog3 "\nMetadata: " . Dumper($metadata) . "\n" if $debug;
         vlog3 "\nMetadata:\n";
         if($list_partitions or $verbose > 2){
-            if($topic){
+            if($list_partitions and $topic){
                 print_topic_partitions($metadata, $topic)
             } else {
                 foreach my $topic (sort keys %$metadata){
