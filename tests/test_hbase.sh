@@ -31,7 +31,7 @@ echo "
 "
 
 #export HBASE_VERSIONS="${1:-0.96 0.98 1.0 1.1 1.2}"
-# TODO: don't work
+# TODO: < 1.0 container versions don't work
 #export HBASE_VERSIONS="${@:-0.98 0.96}"
 export HBASE_VERSIONS="${@:-1.0 1.1 1.2 latest}"
 if is_travis; then
