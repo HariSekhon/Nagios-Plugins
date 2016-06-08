@@ -27,14 +27,14 @@ echo "
 # ============================================================================ #
 "
 
+export MEMCACHED_VERSIONS="${@:-1.4}"
+
 MEMCACHED_HOST="${DOCKER_HOST:-${MEMCACHED_HOST:-${HOST:-localhost}}}"
 MEMCACHED_HOST="${MEMCACHED_HOST##*/}"
 MEMCACHED_HOST="${MEMCACHED_HOST%%:*}"
 export MEMCACHED_HOST
 
 export MEMCACHED_PORT=11211
-
-export MEMCACHED_VERSIONS="${@:-1.4}"
 
 export DOCKER_IMAGE="memcached"
 export DOCKER_CONTAINER="nagios-plugins-memcached-test"
