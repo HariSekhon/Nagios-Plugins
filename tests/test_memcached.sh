@@ -34,23 +34,37 @@ export MEMCACHED_HOST
 
 export MEMCACHED_PORT=11211
 
+export MEMCACHED_VERSIONS="${@:-1.4}"
+
 export DOCKER_IMAGE="memcached"
 export DOCKER_CONTAINER="nagios-plugins-memcached-test"
 
 startupwait=1
 
-echo "Setting up Memcached test container"
-launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $MEMCACHED_PORT
+test_memcached(){
+    local version="$1"
+    echo "Setting up Memcached $version test container"
+    launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $MEMCACHED_PORT
+    hr
+    echo "creating test Memcached key-value"
+    echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc $MEMCACHED_HOST $MEMCACHED_PORT
+    echo done
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
+    hr
+    # MEMCACHED_HOST obtained via .travis.yml
+    $perl -T $I_lib ./check_memcached_write.pl -v
+    hr
+    $perl -T $I_lib ./check_memcached_key.pl -k myKey -e hari -v
+    hr
+    $perl -T $I_lib ./check_memcached_stats.pl -w 15 -c 20 -v
+    hr
+    delete_container
+    hr
+    echo
+}
 
-echo "creating test Memcached key-value"
-echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc $MEMCACHED_HOST $MEMCACHED_PORT
-echo done
-hr
-# MEMCACHED_HOST obtained via .travis.yml
-$perl -T $I_lib ./check_memcached_write.pl -v
-hr
-$perl -T $I_lib ./check_memcached_key.pl -k myKey -e hari -v
-hr
-$perl -T $I_lib ./check_memcached_stats.pl -w 15 -c 20 -v
-hr
-delete_container
+for version in $MEMCACHED_VERSIONS; do
+    test_memcached $version
+done
