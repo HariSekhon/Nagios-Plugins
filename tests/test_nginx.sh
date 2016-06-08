@@ -35,6 +35,10 @@ NGINX_HOST="${NGINX_HOST##*/}"
 NGINX_HOST="${NGINX_HOST%%:*}"
 export NGINX_HOST
 
+export NGINX_PORT="80"
+
+export NGINX_VERSIONS="${@:-latest 1.10 1.11.0}"
+
 export DOCKER_IMAGE="nginx"
 export DOCKER_CONTAINER="nagios-plugins-nginx-test"
 
@@ -46,20 +50,32 @@ fi
 startupwait=1
 is_travis && let startupwait+=4
 
-echo "Setting up Nginx test container"
-if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-    docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-    echo "Starting Docker Nginx test container"
-    docker create --name "$DOCKER_CONTAINER" -p 80:80 nginx
-    docker cp "$srcdir/conf/nginx/conf.d/default.conf" "$DOCKER_CONTAINER":/etc/nginx/conf.d/default.conf
-    docker start "$DOCKER_CONTAINER"
-    echo "waiting $startupwait seconds for Nginx to start up"
-    sleep $startupwait
-else
-    echo "Docker Nginx test container already running"
-fi
+test_nginx(){
+    local version="$1"
+    echo "Setting up Nginx $version test container"
+    if ! is_docker_container_running "$DOCKER_CONTAINER"; then
+        docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
+        echo "Starting Docker Nginx test container"
+        docker create --name "$DOCKER_CONTAINER" -p $NGINX_PORT:$NGINX_PORT "$DOCKER_IMAGE:$version"
+        docker cp "$srcdir/conf/nginx/conf.d/default.conf" "$DOCKER_CONTAINER":/etc/nginx/conf.d/default.conf
+        docker start "$DOCKER_CONTAINER"
+        echo "waiting $startupwait seconds for Nginx to start up"
+        sleep $startupwait
+    else
+        echo "Docker Nginx test container already running"
+    fi
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
+    # TODO: add nginx version check here
+    hr
+    $perl -T $I_lib ./check_nginx_stats.pl -H "$NGINX_HOST" -u /status
+    hr
+    delete_container
+    hr
+    echo
+}
 
-hr
-$perl -T $I_lib ./check_nginx_stats.pl -H "$NGINX_HOST" -u /status
-hr
-delete_container
+for version in $NGINX_VERSIONS; do
+    test_nginx $version
+done
