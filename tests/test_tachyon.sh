@@ -28,14 +28,14 @@ echo "
 # ============================================================================ #
 "
 
+# Tachyon 0.7 doesn't always start up properly, but has passed all the plugin tests
+#export TACHYON_VERSIONS="${1:-latest 0.7 0.8}"
+export TACHYON_VERSIONS="${1:-latest 0.8}"
+
 TACHYON_HOST="${DOCKER_HOST:-${TACHYON_HOST:-${HOST:-localhost}}}"
 TACHYON_HOST="${TACHYON_HOST##*/}"
 TACHYON_HOST="${TACHYON_HOST%%:*}"
 export TACHYON_HOST
-
-# Tachyon 0.7 doesn't always start up properly, but has passed all the plugin tests
-#export TACHYON_VERSIONS="${1:-0.7 0.8}"
-export TACHYON_VERSIONS="${1:-0.8 latest}"
 
 export TACHYON_MASTER_PORT="${TACHYON_MASTER_PORT:-19999}"
 export TACHYON_WORKER_PORT="${TACHYON_WORKER_PORT:-30000}"
