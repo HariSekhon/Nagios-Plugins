@@ -86,7 +86,9 @@ put 't1', 'r2', 'cf1:q2', 'test'
 list
 EOF2
 EOF
-
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
     hr
     # TODO: add $HOST env support
     $perl -T $I_lib ./check_hbase_regionservers.pl -H $HBASE_HOST -P 8080
