@@ -47,6 +47,11 @@ export DOCKER_CONTAINER="nagios-plugins-mysql-test"
 
 startupwait=10
 
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping MySQL checks!!!'
+    exit 0
+fi
+
 test_mysql(){
     local version="$1"
     echo "Setting up MySQL $version test container"
