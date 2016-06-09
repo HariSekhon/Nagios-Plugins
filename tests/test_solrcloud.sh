@@ -45,7 +45,7 @@ export MNTDIR="/pl"
 startupwait=60
 
 if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Hadoop checks!!!'
+    echo 'WARNING: Docker not found, skipping SolrCloud checks!!!'
     exit 0
 fi
 
