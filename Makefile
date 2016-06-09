@@ -145,9 +145,11 @@ build:
 	$(SUDO) easy_install -U setuptools
 	$(SUDO) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
+	# upgrade required to get install to work properly on Debian
+	$(SUDO2) pip install --upgrade pip
+	$(SUDO2) pip install -r requirements.txt
 	# in requirements.txt now
 	#$(SUDO2) pip install cassandra-driver scales blist lz4 python-snappy
-	$(SUDO2) pip install -r requirements.txt
 	# prevents https://urllib3.readthedocs.io/en/latest/security.html#insecureplatformwarning
 	$(SUDO2) pip install --upgrade ndg-httpsclient
 	#. tests/utils.sh; $(SUDO) $$perl couchbase-csdk-setup
