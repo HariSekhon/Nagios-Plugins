@@ -44,6 +44,11 @@ export MNTDIR="/pl"
 
 startupwait=10
 
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Consul checks!!!'
+    exit 0
+fi
+
 dockerexec(){
     docker exec "$DOCKER_CONTAINER-dev" $MNTDIR/$@
 }
