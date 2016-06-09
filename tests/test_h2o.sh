@@ -43,6 +43,11 @@ export DOCKER_CONTAINER="nagios-plugins-h2o-test"
 
 startupwait=10
 
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping H2O checks!!!'
+    exit 0
+fi
+
 test_h2o(){
     local version="$1"
     travis_sample || continue
