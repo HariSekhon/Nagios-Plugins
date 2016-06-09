@@ -37,6 +37,19 @@ http://www.linkedin.com/in/harisekhon
 
 ### Quick Start ###
 
+#### Ready to run Docker image pre-compiled #####
+
+This will list all the nagios-plugins:
+```
+docker run harisekhon/nagios-plugins <plugin> <args>
+```
+Run any given plugin:
+```
+docker run harisekhon/nagios-plugins <check_plugin> <args>
+```
+
+#### Automated Build from source #####
+
 ```
 git clone https://github.com/harisekhon/nagios-plugins
 cd nagios-plugins
@@ -157,7 +170,7 @@ Some older plugins (especially those written in languages other than Perl) may n
 
 If you're new remember to check out the older/ directory for more plugins that are less current but that you might find useful.
 
-### Manual Setup ###
+### Manual Build ###
 
 Fetch my library repo which is included as a submodule (it's shared between these Nagios Plugins and other programs I've written over the years).
 
