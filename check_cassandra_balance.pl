@@ -72,6 +72,7 @@ foreach(@output){
         $node_count++;
         my $node       = $1;
         my $percentage = $2;
+        $percentage =~ tr/%//d;
         my $rack       = $3;
         if($percentage eq "?"){
             quit "UNKNOWN", "nodetool returned '?' for token percentage ownership, Cassandra can't determine it's own token % we need to calculate the balance. Perhaps this node was newly started?";

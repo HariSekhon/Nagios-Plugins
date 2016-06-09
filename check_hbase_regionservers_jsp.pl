@@ -77,7 +77,7 @@ foreach(split("\n", $content)){
         $live_servers_section = 1;
     }
     next unless $live_servers_section;
-    if(/<tr><th>Total: <\/th><td>servers: (\d+)<\/td>/){
+    if(/<tr><td>Total:(\d+)<\/td>/){
         $live_servers = $1;
         last;
     }
