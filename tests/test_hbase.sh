@@ -90,6 +90,8 @@ EOF
     # TODO: add $HOST env support
     $perl -T $I_lib ./check_hbase_regionservers.pl -H $HBASE_HOST -P 8080
     hr
+    $perl -T $I_lib ./check_hbase_regionservers_jsp.pl -H $HBASE_HOST -P 16010
+    hr
     $perl -T $I_lib ./check_hbase_cell.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
     hr
     $perl -T $I_lib ./check_hbase_cell_stargate.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
