@@ -39,9 +39,9 @@ http://www.linkedin.com/in/harisekhon
 
 #### Ready to run Docker image pre-compiled #####
 
-This will list all the nagios-plugins:
+List all plugins:
 ```
-docker run harisekhon/nagios-plugins <plugin> <args>
+docker run harisekhon/nagios-plugins
 ```
 Run any given plugin:
 ```
