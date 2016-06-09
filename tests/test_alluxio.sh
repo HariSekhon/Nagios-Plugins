@@ -43,6 +43,11 @@ export DOCKER_CONTAINER="nagios-plugins-alluxio-test"
 
 startupwait=10
 
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Alluxio checks!!!'
+    exit 0
+fi
+
 test_alluxio(){
     local version="$1"
     travis_sample || continue
