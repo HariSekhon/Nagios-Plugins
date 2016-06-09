@@ -47,6 +47,11 @@ docker_exec(){
 startupwait=20
 is_travis && let startupwait+=20
 
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Riak checks!!!'
+    exit 0
+fi
+
 test_riak(){
     local version="$1"
     travis_sample || continue
