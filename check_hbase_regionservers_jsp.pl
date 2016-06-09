@@ -15,9 +15,9 @@ Checks the number of dead RegionServers against warning/critical thresholds and 
 
 Recommended to use check_hbase_regionservers.pl instead which uses the HBase Stargate Rest API since parsing the JSP is very brittle and could easily break between versions
 
-Written and tested on CDH 4.3 (HBase 0.94.6-cdh4.3.0)";
+Written and tested on CDH 4.3 (HBase 0.94.6-cdh4.3.0), updated and tested on Apache HBase 1.0, 1.1, 1.2";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -48,9 +48,9 @@ $critical = $default_critical;
 @usage_order = qw/host port user password warning critical/;
 get_options();
 
-$host       = validate_host($host);
-$host       = validate_resolvable($host);
-$port       = validate_port($port);
+$host = validate_host($host);
+$host = validate_resolvable($host);
+$port = validate_port($port);
 my $url = "http://$host:$port/master-status";
 vlog_option "url", $url;
 
@@ -77,7 +77,12 @@ foreach(split("\n", $content)){
         $live_servers_section = 1;
     }
     next unless $live_servers_section;
-    if(/<tr><td>Total:(\d+)<\/td>/){
+    # HBase 0.94
+    #if(/<tr><th>Total: <\/th><td>servers: (\d+)<\/td>/){
+    # HBase 1.0
+    #if(/<tr><td>Total:(\d+)<\/td>/){
+    # trying to make backwards compatible with original match
+    if(/<tr><t[dh]>Total:\s*(?:<\/th><td>servers:)?\s*(\d+)<\/td>/){
         $live_servers = $1;
         last;
     }
