@@ -191,8 +191,8 @@ apt-packages:
 	$(SUDO) apt-get install -y libev4
 	$(SUDO) apt-get install -y libev-dev
 	$(SUDO) apt-get install -y libsnappy-dev
-	$(SUDO) easy_install pip || :
-	$(SUDO) pip install -r requirements.txt
+	# needed for ndg-httpsclient upgrade
+	$(SUDO) apt-get install -y libffi-dev
 
 .PHONY: yum-packages
 yum-packages:
@@ -228,6 +228,8 @@ yum-packages:
 	rpm -q libev 			 || $(SUDO) yum install -y libev
 	rpm -q libev-devel 		 || $(SUDO) yum install -y libev-devel
 	rpm -q snappy-devel 	 || $(SUDO) yum install -y snappy-devel
+	# needed for ndg-httpsclient upgrade
+	rpm -q libffi-devel		 || $(SUDO) yum install -y libffi-devel
 	# needed to build pyhs2
 	# libgsasl-devel saslwrapper-devel
 	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel
