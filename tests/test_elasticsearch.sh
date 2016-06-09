@@ -45,6 +45,11 @@ export DOCKER_CONTAINER="nagios-plugins-elasticsearch-test"
 
 startupwait=20
 
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Elasticsearch checks!!!'
+    exit 0
+fi
+
 test_elasticsearch(){
     local version="$1"
     travis_sample || continue
