@@ -44,6 +44,11 @@ export DOCKER_CONTAINER="nagios-plugins-zookeeper-test"
 export DOCKER_IMAGE2="harisekhon/apache-drill"
 export DOCKER_CONTAINER2="nagios-plugins-drill-test"
 
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Apache Drill checks!!!'
+    exit 0
+fi
+
 test_drill(){
     local version="$1"
     local startupwait=30
