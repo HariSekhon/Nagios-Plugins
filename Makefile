@@ -97,6 +97,7 @@ build:
 		ExtUtils::Constant \
 		ExtUtils::Helpers \
 		ExtUtils::InstallPaths \
+		IO::Pty \
 		IO::Socket::IP \
 		IO::Socket::SSL \
 		JSON \
