@@ -37,7 +37,9 @@ http://www.linkedin.com/in/harisekhon
 
 ### Quick Start ###
 
-#### Ready to run Docker image pre-compiled #####
+##### Ready to run Docker image ######
+
+All plugins and their pre-compiled dependencies can be found ready to run on [DockerHub](https://hub.docker.com/r/harisekhon/nagios-plugins/).
 
 List all plugins:
 ```
