@@ -42,6 +42,11 @@ export NEO4J_PORTS="7473 7474"
 export DOCKER_IMAGE="neo4j"
 export DOCKER_CONTAINER="nagios-plugins-neo4j-test"
 
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Neo4j checks!!!'
+    exit 0
+fi
+
 test_neo4j(){
     local version="$1"
     local startupwait=10
