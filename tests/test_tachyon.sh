@@ -45,6 +45,11 @@ export DOCKER_CONTAINER="nagios-plugins-tachyon-test"
 
 startupwait=10
 
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Tachyon checks!!!'
+    exit 0
+fi
+
 test_tachyon(){
     local version="$1"
     travis_sample || continue
