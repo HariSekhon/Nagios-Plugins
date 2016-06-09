@@ -41,6 +41,11 @@ export DOCKER_CONTAINER2="nagios-plugins-test"
 
 export MNTDIR="/pl"
 
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping ZooKeeper checks!!!'
+    exit 0
+fi
+
 docker_exec(){
     docker exec -ti "$DOCKER_CONTAINER2" $MNTDIR/$@
 }
