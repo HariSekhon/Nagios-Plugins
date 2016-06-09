@@ -145,7 +145,7 @@ foreach(sort keys %{$json}){
     #$key =~ s/^\w+\/// if($short);
     defined($metrics{$key}) and quit "UNKNOWN", "duplicate metric '$key' found! $nagios_plugins_support_msg_api";
     $metrics{$key} = $json->{$_};
-    isFloat($metrics{$key}) or quit "UNKNOWN", "metric '$key' = '$metrics{$key}' - is not a float! $nagios_plugins_support_msg_api";
+    isScientific($metrics{$key}) or isFloat($metrics{$key}) or quit "UNKNOWN", "metric '$key' = '$metrics{$key}' - is not a float! $nagios_plugins_support_msg_api";
     $metrics{$key} = sprintf("%.2f", $metrics{$key}) if $metrics{$key} =~ /\./;
     vlog2 "$key => $metrics{$key}";
 }
