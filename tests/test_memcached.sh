@@ -41,6 +41,11 @@ export DOCKER_CONTAINER="nagios-plugins-memcached-test"
 
 startupwait=1
 
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Memcached checks!!!'
+    exit 0
+fi
+
 test_memcached(){
     local version="$1"
     echo "Setting up Memcached $version test container"
