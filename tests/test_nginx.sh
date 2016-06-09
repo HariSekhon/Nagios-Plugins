@@ -50,6 +50,11 @@ fi
 startupwait=1
 is_travis && let startupwait+=4
 
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Nginx checks!!!'
+    exit 0
+fi
+
 trap_container
 
 test_nginx(){
