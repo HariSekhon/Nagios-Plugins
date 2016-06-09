@@ -45,6 +45,11 @@ export DOCKER_CONTAINER="nagios-plugins-redis-test"
 
 startupwait=5
 
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Redis checks!!!'
+    exit 0
+fi
+
 # TODO: redis authenticated container testing
 test_redis(){
     local version="$1"
