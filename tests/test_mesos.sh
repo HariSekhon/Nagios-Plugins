@@ -43,7 +43,12 @@ export MESOS_MASTER="$MESOS_HOST:$MESOS_MASTER_PORT"
 export DOCKER_IMAGE="harisekhon/mesos"
 export DOCKER_CONTAINER="nagios-plugins-mesos-test"
 
-startupwait=10
+startupwait=20
+
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Mesos checks!!!'
+    exit 0
+fi
 
 test_mesos_version(){
     local version="${1:-latest}"
