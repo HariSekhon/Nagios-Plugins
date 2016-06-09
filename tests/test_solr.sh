@@ -46,7 +46,7 @@ export DOCKER_CONTAINER="nagios-plugins-solr-test"
 startupwait=10
 
 if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Hadoop checks!!!'
+    echo 'WARNING: Docker not found, skipping Solr checks!!!'
     exit 0
 fi
 
