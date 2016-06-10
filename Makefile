@@ -170,6 +170,7 @@ apt-packages:
 	$(SUDO) apt-get install -y build-essential
 	$(SUDO) apt-get install -y libwww-perl
 	$(SUDO) apt-get install -y git
+	$(SUDO) apt-get install -y wget
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	$(SUDO) apt-get install -y libdbd-mysql-perl
 	$(SUDO) apt-get install -y libmysqlclient-dev
