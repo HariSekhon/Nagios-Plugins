@@ -41,7 +41,7 @@ export ALLUXIO_WORKER_PORT="${ALLUXIO_WORKER_PORT:-30000}"
 export DOCKER_IMAGE="harisekhon/alluxio"
 export DOCKER_CONTAINER="nagios-plugins-alluxio-test"
 
-startupwait=10
+startupwait=15
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Alluxio checks!!!'
