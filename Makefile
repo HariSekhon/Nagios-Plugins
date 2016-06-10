@@ -160,6 +160,8 @@ build:
 	# fails if MySQL isn't installed locally
 	$(SUDO2) pip install MySQL-python
 	@echo
+	#make jar-plugins
+	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins)"
 
 
@@ -259,6 +261,13 @@ zookeeper:
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	$(SUDO) make install
 	perl -e "use Net::ZooKeeper"
 
+.PHONY: jar-plugins
+jar-plugins:
+	@echo Fetching pre-compiled Java / Scala plugins
+	@echo
+	@echo Fetching Kafka Scala Nagios Plugin
+	wget -c -t 100 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/blob/latest/check_kafka
+	wget -c -t 100 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/releases/download/latest/check_kafka.jar
 
 .PHONY: test
 test:
@@ -284,6 +293,13 @@ update2:
 update-no-recompile:
 	git pull
 	git submodule update --init --recursive
+
+.PHONY: update-submodules
+update-submodules:
+	git submodule update --init --recursive --remote
+.PHONY: updatem
+updatem:
+	make update-submodules
 
 .PHONY: clean
 clean:
