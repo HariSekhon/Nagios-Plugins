@@ -74,7 +74,11 @@ test_nginx(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    # TODO: add nginx version check here
+    if [ "$version" = "latest" ]; then
+        local version=".*"
+    fi
+    hr
+    ./check_nginx_version.py -e "$version"
     hr
     $perl -T $I_lib ./check_nginx_stats.pl -H "$NGINX_HOST" -u /status
     hr
