@@ -20,7 +20,7 @@ Nagios Plugin to check the number of live Alluxio workers via the Alluxio Master
 
 TODO: thresholds on number of live workers (coming soon)
 
-Tested on Alluxio 1.0.1
+Tested on Alluxio 1.0.0, 1.0.1, 1.1.0
 
 """
 

@@ -21,7 +21,7 @@ Nagios Plugin to check the deployed version of Alluxio matches what's expected.
 This is also used in the accompanying test suite to ensure we're checking the right version of Alluxio
 for compatibility for all my other Alluxio nagios plugins.
 
-Tested on Alluxio 1.0.1
+Tested on Alluxio 1.0.0, 1.0.1, 1.1.0
 
 """
 

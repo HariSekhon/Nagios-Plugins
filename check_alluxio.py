@@ -23,7 +23,7 @@ Queries the WebUI and displays the version and uptime
 Optional --warn-on-recent-start raises WARNING if started within the last 30 mins in order to catch crashes that may
 have been restarted by a supervisor process
 
-Tested on Alluxio 1.0.1
+Tested on Alluxio 1.0.0, 1.0.1, 1.1.0
 
 """
 
