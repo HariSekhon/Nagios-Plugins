@@ -86,3 +86,5 @@ test_nginx(){
 for version in $NGINX_VERSIONS; do
     test_nginx $version
 done
+
+untrap
