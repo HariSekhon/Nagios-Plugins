@@ -64,6 +64,18 @@ test_kafka(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
+    if [ "$version" = "latest" ]; then
+        local version="*"
+    fi
+    hr
+    set +e
+    found_version="$(docker exec "$DOCKER_CONTAINER" /bin/sh -c 'ls -d /kafka_*' | tail -n1 | sed 's,^/kafka_,,;s,\.[[:digit:]]*\.[[:digit:]]*$,,')"
+    set -e
+    # TODO: make container and official versions align
+    if [[ "${found_version//-/_}" != ${version//-/_}* ]]; then
+        echo "Docker container version does not match expected version! (found '$found_version', expected '$version')"
+        exit 1
+    fi
     hr
     # TODO: use ENV
     set +e
