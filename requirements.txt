@@ -20,7 +20,7 @@ PyYAML==3.11
 requests==2.8.1
 scales==1.0.7
 six==1.10.0
-snakebite==2.8.2
+snakebite[kerberos]==2.8.2
 traceback2==1.4.0
 unittest2==1.1.0
 wheel==0.24.0
