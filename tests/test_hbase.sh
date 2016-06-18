@@ -63,7 +63,6 @@ startupwait=50
 
 test_hbase(){
     local version="$1"
-    travis_sample || continue
     hr
     echo "Setting up HBase $version test container"
     hr
@@ -137,6 +136,6 @@ EOF
 }
 
 
-for version in $HBASE_VERSIONS; do
+for version in $(travis_sample $HBASE_VERSIONS); do
     test_hbase $version
 done
