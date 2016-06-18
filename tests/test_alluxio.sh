@@ -50,7 +50,6 @@ fi
 
 test_alluxio(){
     local version="$1"
-    travis_sample || continue
     hr
     echo "Setting up Alluxio $version test container"
     hr
@@ -79,6 +78,6 @@ test_alluxio(){
     echo
 }
 
-for version in $ALLUXIO_VERSIONS; do
+for version in $(travis_sample $ALLUXIO_VERSIONS); do
     test_alluxio $version
 done
