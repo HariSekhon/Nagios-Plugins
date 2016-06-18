@@ -79,6 +79,6 @@ test_tachyon(){
     echo
 }
 
-for version in $TACHYON_VERSIONS; do
+for version in $(travis_sample $TACHYON_VERSIONS); do
     test_tachyon $version
 done
