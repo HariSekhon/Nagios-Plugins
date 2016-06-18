@@ -55,7 +55,6 @@ docker_exec(){
 
 test_solrcloud(){
     local version="$1"
-    travis_sample || continue
     # SolrCloud 4.x needs some different args / locations
     if [ ${version:0:1} = 4 ]; then
         four=true
@@ -119,6 +118,6 @@ test_solrcloud(){
     echo
 }
 
-for version in $SOLR_VERSIONS; do
+for version in $(travis_sample $SOLR_VERSIONS); do
     test_solrcloud $version
 done
