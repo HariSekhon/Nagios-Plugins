@@ -52,7 +52,6 @@ fi
 
 test_solr(){
     local version="$1"
-    travis_sample || continue
     echo "Setting up Solr $version docker test container"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8983
     if [[ "$version" = "latest" || ${version:0:1} > 3 ]]; then
@@ -95,6 +94,6 @@ test_solr(){
     echo
 }
 
-for version in $SOLR_VERSIONS; do
+for version in $(travis_sample $SOLR_VERSIONS); do
     test_solr $version
 done
