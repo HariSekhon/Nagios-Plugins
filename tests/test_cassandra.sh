@@ -56,7 +56,6 @@ docker_exec(){
 
 test_cassandra(){
     local version="$1"
-    travis_sample || continue
     echo "Setting up Cassandra $version test container"
     DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 7199 9042
@@ -95,7 +94,7 @@ test_cassandra(){
     echo; echo
 }
 
-for version in $CASSANDRA_TEST_VERSIONS; do
+for version in $(travis_sample $CASSANDRA_TEST_VERSIONS); do
     test_cassandra $version
 done
 
