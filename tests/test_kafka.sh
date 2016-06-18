@@ -54,7 +54,6 @@ fi
 
 test_kafka(){
     local version="$1"
-    travis_sample || continue
     echo "Setting up Apache Kafka $version test container"
     hr
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $KAFKA_PORT
@@ -108,6 +107,6 @@ test_kafka(){
     echo
 }
 
-for version in $KAFKA_VERSIONS; do
+for version in $(travis_sample $KAFKA_VERSIONS); do
     test_kafka $version
 done
