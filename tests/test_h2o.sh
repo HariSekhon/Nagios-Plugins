@@ -50,7 +50,6 @@ fi
 
 test_h2o(){
     local version="$1"
-    travis_sample || continue
     hr
     echo "Setting up H2O $version test container"
     hr
@@ -72,6 +71,6 @@ test_h2o(){
     delete_container
 }
 
-for version in $H2O_VERSIONS; do
+for version in $(travis_sample $H2O_VERSIONS); do
     test_h2o $version
 done
