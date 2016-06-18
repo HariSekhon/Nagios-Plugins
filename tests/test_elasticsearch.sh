@@ -52,7 +52,6 @@ fi
 
 test_elasticsearch(){
     local version="$1"
-    travis_sample || continue
     echo "Setting up Elasticsearch $version test container"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 9200 2> /dev/null
     if [ -n "${NOTESTS:-}" ]; then
@@ -151,6 +150,6 @@ test_elasticsearch(){
     delete_container
 }
 
-for version in $ELASTICSEARCH_VERSIONS; do
+for version in $(travis_sample $ELASTICSEARCH_VERSIONS); do
     test_elasticsearch $version
 done
