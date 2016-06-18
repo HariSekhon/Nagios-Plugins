@@ -70,6 +70,6 @@ test_memcached(){
     echo
 }
 
-for version in $MEMCACHED_VERSIONS; do
+for version in $(travis_sample $MEMCACHED_VERSIONS); do
     test_memcached $version
 done
