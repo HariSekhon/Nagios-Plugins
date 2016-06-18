@@ -52,7 +52,6 @@ fi
 
 test_tachyon(){
     local version="$1"
-    travis_sample || continue
     hr
     echo "Setting up Tachyon $version test container"
     hr
