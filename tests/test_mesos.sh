@@ -52,7 +52,6 @@ fi
 
 test_mesos_version(){
     local version="${1:-latest}"
-    travis_sample || continue
     hr
     echo "Setting up Mesos $version test container"
     hr
@@ -96,6 +95,6 @@ test_mesos_version(){
     delete_container
 }
 
-for version in $MESOS_VERSIONS; do
+for version in $(travis_sample $MESOS_VERSIONS); do
     test_mesos_version "$version"
 done
