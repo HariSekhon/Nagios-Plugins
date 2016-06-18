@@ -54,7 +54,6 @@ fi
 
 test_riak(){
     local version="$1"
-    travis_sample || continue
     echo "Setting up Riak $version test container"
     DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8098
@@ -106,7 +105,7 @@ test_riak(){
     echo; echo
 }
 
-for version in $RIAK_VERSIONS; do
+for version in $(travis_sample $RIAK_VERSIONS); do
     test_riak $version
 done
 
