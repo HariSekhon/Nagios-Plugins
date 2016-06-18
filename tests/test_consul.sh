@@ -55,7 +55,6 @@ dockerexec(){
 
 test_consul(){
     local version="$1"
-    travis_sample || continue
     echo "Setting up Consul $version test container"
     hr
     local DOCKER_CMD="agent -dev -data-dir /tmp -client 0.0.0.0"
@@ -121,6 +120,6 @@ test_consul(){
     echo
 }
 
-for version in $CONSUL_VERSIONS; do
+for version in $(travis_sample $CONSUL_VERSIONS); do
     test_consul $version
 done
