@@ -54,7 +54,6 @@ docker_exec(){
 
 test_hadoop(){
     local version="$1"
-    travis_sample || continue
     hr
     echo "Setting up Hadoop $version test container"
     hr
@@ -165,6 +164,6 @@ EOF
     delete_container
 }
 
-for version in $HADOOP_VERSIONS; do
+for version in $(travis_sample $HADOOP_VERSIONS); do
     test_hadoop $version
 done
