@@ -52,7 +52,6 @@ fi
 test_drill(){
     local version="$1"
     local startupwait=30
-    travis_sample || continue
     hr
     echo "Setting up Apache Drill $version test container"
     hr
@@ -91,7 +90,7 @@ startupwait=1
 echo "launching zookeeper container"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 3181 4181
 
-for version in $APACHE_DRILL_VERSIONS; do
+for version in $(travis_sample $APACHE_DRILL_VERSIONS); do
     test_drill $version
 done
 
