@@ -107,6 +107,6 @@ test_kafka(){
     echo
 }
 
-for version in $(travis_sample $KAFKA_VERSIONS); do
+for version in $(ci_sample $KAFKA_VERSIONS); do
     test_kafka $version
 done
