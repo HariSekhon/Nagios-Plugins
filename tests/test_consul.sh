@@ -120,6 +120,6 @@ test_consul(){
     echo
 }
 
-for version in $(travis_sample $CONSUL_VERSIONS); do
+for version in $(ci_sample $CONSUL_VERSIONS); do
     test_consul $version
 done
