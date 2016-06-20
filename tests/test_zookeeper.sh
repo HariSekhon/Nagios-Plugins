@@ -83,6 +83,6 @@ test_zookeeper(){
     delete_container "$DOCKER_CONTAINER"
 }
 
-for version in $(travis_sample $ZOOKEEPER_VERSIONS); do
+for version in $(ci_sample $ZOOKEEPER_VERSIONS); do
     test_zookeeper $version
 done
