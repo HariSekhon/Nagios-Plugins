@@ -94,6 +94,6 @@ test_solr(){
     echo
 }
 
-for version in $(travis_sample $SOLR_VERSIONS); do
+for version in $(ci_sample $SOLR_VERSIONS); do
     test_solr $version
 done
