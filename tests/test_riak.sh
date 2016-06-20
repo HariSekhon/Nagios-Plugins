@@ -105,7 +105,7 @@ test_riak(){
     echo; echo
 }
 
-for version in $(travis_sample $RIAK_VERSIONS); do
+for version in $(ci_sample $RIAK_VERSIONS); do
     test_riak $version
 done
 
