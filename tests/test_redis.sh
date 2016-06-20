@@ -100,6 +100,6 @@ test_redis(){
     echo
 }
 
-for version in $(travis_sample $REDIS_VERSIONS); do
+for version in $(ci_sample $REDIS_VERSIONS); do
     test_redis $version
 done
