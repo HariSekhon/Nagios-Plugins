@@ -29,9 +29,6 @@ echo "
 "
 
 export APACHE_DRILL_VERSIONS="${2:-latest 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6}"
-if is_travis; then
-    export APACHE_DRILL_VERSIONS="${2:-latest 1.6}"
-fi
 
 APACHE_DRILL_HOST="${DOCKER_HOST:-${APACHE_DRILL_HOST:-${HOST:-localhost}}}"
 APACHE_DRILL_HOST="${APACHE_DRILL_HOST##*/}"
