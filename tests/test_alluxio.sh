@@ -78,6 +78,6 @@ test_alluxio(){
     echo
 }
 
-for version in $(travis_sample $ALLUXIO_VERSIONS); do
+for version in $(ci_sample $ALLUXIO_VERSIONS); do
     test_alluxio $version
 done
