@@ -87,7 +87,7 @@ test_nginx(){
     echo
 }
 
-for version in $(travis_sample $NGINX_VERSIONS); do
+for version in $(ci_sample $NGINX_VERSIONS); do
     test_nginx $version
 done
 
