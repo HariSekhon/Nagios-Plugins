@@ -164,6 +164,6 @@ EOF
     delete_container
 }
 
-for version in $(travis_sample $HADOOP_VERSIONS); do
+for version in $(ci_sample $HADOOP_VERSIONS); do
     test_hadoop $version
 done
