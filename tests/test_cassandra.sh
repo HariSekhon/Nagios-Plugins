@@ -28,9 +28,6 @@ echo "
 "
 
 export CASSANDRA_TEST_VERSIONS="${@:-latest 1.2 2.0 2.1 2.2 3.0 3.5}"
-if is_travis; then
-    export CASSANDRA_TEST_VERSIONS="${@:-latest 1.2 2.2 3.5}"
-fi
 
 CASSANDRA_HOST="${DOCKER_HOST:-${CASSANDRA_HOST:-${HOST:-localhost}}}"
 CASSANDRA_HOST="${CASSANDRA_HOST##*/}"
@@ -108,7 +105,7 @@ exit 0
 # workarounds for nodetool "You must set the CASSANDRA_CONF and CLASSPATH vars"
 # even bare 'nodetool status' has broken environment in Travis, nothing to do with say Taint security
 # Cassandra service on Travis is really broken, some hacks to make it work
-if [ -n "${TRAVIS:-}" ]; then
+if is_travis; then
 #if false; then
     export CASSANDRA_HOME="${CASSANDRA_HOME:-/usr/local/cassandra}"
     # these were only necessary on the debug VM but not in the actual Travis env for some reason
