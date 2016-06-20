@@ -94,7 +94,7 @@ test_cassandra(){
     echo; echo
 }
 
-for version in $(travis_sample $CASSANDRA_TEST_VERSIONS); do
+for version in $(ci_sample $CASSANDRA_TEST_VERSIONS); do
     test_cassandra $version
 done
 
