@@ -90,7 +90,7 @@ startupwait=1
 echo "launching zookeeper container"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 3181 4181
 
-for version in $(travis_sample $APACHE_DRILL_VERSIONS); do
+for version in $(ci_sample $APACHE_DRILL_VERSIONS); do
     test_drill $version
 done
 
