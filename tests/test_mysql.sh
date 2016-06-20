@@ -79,6 +79,6 @@ test_mysql(){
     echo
 }
 
-for version in $(travis_sample $MYSQL_VERSIONS); do
+for version in $(ci_sample $MYSQL_VERSIONS); do
     test_mysql $version
 done
