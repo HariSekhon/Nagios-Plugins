@@ -136,6 +136,6 @@ EOF
 }
 
 
-for version in $(travis_sample $HBASE_VERSIONS); do
+for version in $(ci_sample $HBASE_VERSIONS); do
     test_hbase $version
 done
