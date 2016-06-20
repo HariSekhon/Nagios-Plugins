@@ -95,6 +95,6 @@ test_mesos_version(){
     delete_container
 }
 
-for version in $(travis_sample $MESOS_VERSIONS); do
+for version in $(ci_sample $MESOS_VERSIONS); do
     test_mesos_version "$version"
 done
