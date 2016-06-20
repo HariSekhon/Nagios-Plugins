@@ -121,7 +121,7 @@ test_neo4j_auth(){
     echo
 }
 
-for version in $(travis_sample $NEO4J_VERSIONS); do
+for version in $(ci_sample $NEO4J_VERSIONS); do
     test_neo4j $version
     test_neo4j_auth $version
 done
