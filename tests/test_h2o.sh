@@ -71,6 +71,6 @@ test_h2o(){
     delete_container
 }
 
-for version in $(travis_sample $H2O_VERSIONS); do
+for version in $(ci_sample $H2O_VERSIONS); do
     test_h2o $version
 done
