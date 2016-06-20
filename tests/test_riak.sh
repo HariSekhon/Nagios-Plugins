@@ -45,7 +45,7 @@ docker_exec(){
 }
 
 startupwait=20
-is_travis && let startupwait+=20
+is_CI && let startupwait+=20
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Riak checks!!!'
