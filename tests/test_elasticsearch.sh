@@ -150,6 +150,6 @@ test_elasticsearch(){
     delete_container
 }
 
-for version in $(travis_sample $ELASTICSEARCH_VERSIONS); do
+for version in $(ci_sample $ELASTICSEARCH_VERSIONS); do
     test_elasticsearch $version
 done
