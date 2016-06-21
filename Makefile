@@ -139,7 +139,7 @@ build:
 		#Net::Async::CassandraCQL \
 
 	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
-	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' $$libfilepath || $(SUDO2) sed -i.bak 's/use strict;/use strict;\nuse Socket;/' $$libfilepath
+	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' $$libfilepath || $(SUDO2) sed -i.bak "s/use strict;/use strict; use Socket;/" $$libfilepath
 
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
