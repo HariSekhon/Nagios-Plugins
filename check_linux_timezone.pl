@@ -15,7 +15,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check a Linux Server's timezone is set as expected";
 
-$VERSION = "0.7";
+$VERSION = "0.7.1";
 
 use strict;
 use warnings;
@@ -42,7 +42,8 @@ my $zoneinfo_dir    = "/usr/share/zoneinfo";
 @usage_order = qw/timezone alternate zoneinfo-file no-warn-symlinks/;
 
 get_options();
-linux_only();
+# Only tested on Linux + Mac - you can comment out this next line if you want to test it on another unix variant
+linux_mac_only();
 
 $status = "OK";
 
