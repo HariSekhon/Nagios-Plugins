@@ -23,7 +23,9 @@ Usage it simple, just put 'geneos_wrapper.py' at the front of any nagios plugin 
 the plugin and translate the output for you to CSV format for Geneos, with a STATUS and DETAIL field and
 optionally additional fields for each perfdata metric.
 
-I decided to write this after I worked for a couple of investment banks that were using Geneos instead of a Nagios compatible monitoring system as is more common and I wanted to be able to give production support access to all the code I've previously developed.
+I decided to write this after I worked for a couple of investment banks that were using Geneos instead of a
+Nagios compatible monitoring system as is more common and I wanted to be able to give production support
+access to all the code I've previously developed.
 
 """
 
@@ -50,7 +52,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class GeneosWrapper(CLI):
@@ -69,6 +71,10 @@ class GeneosWrapper(CLI):
         for key in ERRORS:
             self.returncodes[ERRORS[key]] = key
         self.perfdata_regex = re.compile(r'(\d+(?:\.\d+)?)([A-Za-z]{1,2}|%)?')
+        self.status = "UNKNOWN"
+        self.detail = "<None>"
+        self.perfdata = []
+        self.headers = ["STATUS", "DETAIL"]
 
     # @Overrride to prevent injecting the usual default opts
     # update: allowing default opts now as it's handy to have multiple verbosity levels for debugging
@@ -76,14 +82,34 @@ class GeneosWrapper(CLI):
     #    pass
 
     def run(self):
-        cmd = ' '.join(self.args)
-        if not cmd:
+        cmdline = ' '.join(self.args)
+        if not cmdline:
             self.usage()
-        log.info("cmd: %s", cmd)
-        status = "UNKNOWN"
-        detail = "<None>"
+        self.cmd(cmdline)
+        self.clean_detail()
+        self.process_perfdata()
+        self.output()
+
+    #@staticmethod
+    def clean_detail(self):
+        detail = self.detail
+        detail = re.sub(r'\s*(?:[\w\s]+?\s)?(?:OK|WARNING|CRITICAL|UNKNOWN)(?:\s[\w\s]+?)?\s*:\s*', '', detail, 1, re.I)
+        if re.search('^Hari Sekhon', detail):
+            _ = re.search('^usage:', detail, re.M)
+            if _:
+                log.debug('stripping off my extended plugin description header up to usage: options line' +
+                          'to make it more obvious that a usage error has occurred')
+                detail = detail[_.start():]
+        detail = detail.rstrip('\n')
+        detail = re.sub(r'\r', '', detail)
+        detail = re.sub(r'\n', r' \\n ', detail)
+        detail = re.sub(r',+', '... ', detail)
+        self.detail = detail
+
+    def cmd(self, cmdline):
+        log.info("cmd: %s", cmdline)
         try:
-            proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            proc = subprocess.Popen(cmdline.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             (stdout, stderr) = proc.communicate()
             log.debug("stdout: %s", stdout)
             log.debug("stderr: %s", stderr)
@@ -94,30 +120,25 @@ class GeneosWrapper(CLI):
                 returncode = int(returncode % 256)
             if returncode in self.returncodes:
                 log.debug("translating exit code '%s' => '%s'", returncode, self.returncodes[returncode])
-                status = self.returncodes[returncode]
+                self.status = self.returncodes[returncode]
             else:
-                log.warn("non-standard exit code detected, resetting to CRITICAL")
-                status = "CRITICAL"
-            detail = stdout
+                log.info("non-standard exit code detected, resetting to CRITICAL")
+                self.status = "CRITICAL"
+            self.detail = stdout
         except subprocess.CalledProcessError as _:
-            log.warn("subprocess.CalledProcessError, resetting to UNKNOWN")
-            status = "UNKNOWN"
-            detail = str(_)
+            log.info("subprocess.CalledProcessError, resetting to UNKNOWN")
+            self.status = "UNKNOWN"
+            self.detail = str(_)
         except OSError as _:
-            log.warn("OSError, resetting to UNKNOWN")
-            status = "UNKNOWN"
-            detail = "OSError: '{0}' when running '{1}'".format(_, cmd)
-        log.debug("raw detail: %s", detail)
-        detail = re.sub(r'(?:[\w\s]*?\s)?(?:OK|WARNING|CRITICAL|UNKNOWN)(?:\s[\w\s]*?)?:', '', detail, 1, re.I)
-        detail = detail.rstrip('\n')
-        detail = re.sub(r'\r', r'', detail)
-        detail = re.sub(r'\n', r' \\n ', detail)
-        detail = re.sub(r',+', '... ', detail)
+            log.info("OSError, resetting to UNKNOWN")
+            self.status = "UNKNOWN"
+            self.detail = "OSError: '{0}' when running '{1}'".format(_, cmdline)
+        log.debug("raw detail: %s", self.detail)
+
+    def process_perfdata(self):
         perfdata_raw = None
-        perfdata = []
-        headers = [ "STATUS", "DETAIL" ]
-        if '|' in detail:
-            detail, perfdata_raw = detail.split('|', 1)
+        if '|' in self.detail:
+            self.detail, perfdata_raw = self.detail.split('|', 1)
         if perfdata_raw:
             log.debug("raw perfdata: %s", perfdata_raw)
             for item in perfdata_raw.split():
@@ -134,17 +155,19 @@ class GeneosWrapper(CLI):
                             units = match.group(2)
                             log.debug("found units '%s' in item '%s'", units, item)
                             header += " ({0})".format(units)
-                        headers += [header.upper()]
-                        perfdata += [val]
+                        self.headers += [header.upper()]
+                        self.perfdata += [val]
                     else:
                         log.warn("no valid numeric value to extract found in perfdata item '%s'", item)
                 else:
                     log.warn("no key=value format detected in item '%s'", item)
-        detail = detail.strip()
-        output = "{status},{detail}".format(status=status, detail=detail)
-        for p in perfdata:
-            output += ',' + p
-        print(','.join(headers))
+        self.detail = self.detail.strip()
+
+    def output(self):
+        output = "{status},{detail}".format(status=self.status, detail=self.detail)
+        for val in self.perfdata:
+            output += ',' + val
+        print(','.join(self.headers))
         print(output)
 
 
