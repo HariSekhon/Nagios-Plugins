@@ -31,7 +31,7 @@ $perl -T $I_lib ./check_disk_write.pl -d .
 hr
 $perl -T $I_lib ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^*/{print $2}')"
 hr
-echo "testing failure detection of wrong git branch"
+echo "Testing failure detection of wrong git branch"
 set +e
 $perl -t $I_lib ./check_git_branch_checkout.pl -d . -b nonexistentbranch
 [ $? -eq 2 ] || exit 1
