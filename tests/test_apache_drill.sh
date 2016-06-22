@@ -77,7 +77,7 @@ test_drill(){
     hr
     ./check_apache_drill_status.py -v
     hr
-    $perl -T $I_lib ./check_apache_drill_metrics.pl -v
+    $perl -T ./check_apache_drill_metrics.pl -v
     hr
     delete_container "$DOCKER_CONTAINER2"
     echo
