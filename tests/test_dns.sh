@@ -27,10 +27,10 @@ echo "
 # ============================================================================ #
 "
 
-$perl -T $I_lib ./check_dns.pl -s 4.2.2.1,4.2.2.2,4.2.2.3,4.2.2.4 -r google.com -q MX
+$perl -T ./check_dns.pl -s 4.2.2.1,4.2.2.2,4.2.2.3,4.2.2.4 -r google.com -q MX
 hr
-$perl -T $I_lib ./check_dns.pl -s a.resolvers.level3.net,b.resolvers.level3.net,c.resolvers.level3.net,d.resolvers.level3.net -r google.com -q MX
+$perl -T ./check_dns.pl -s a.resolvers.level3.net,b.resolvers.level3.net,c.resolvers.level3.net,d.resolvers.level3.net -r google.com -q MX
 hr
-$perl -T $I_lib ./check_dns.pl -s a.resolvers.level3.net,b.resolvers.level3.net,c.resolvers.level3.net,d.resolvers.level3.net -r google.com
+$perl -T ./check_dns.pl -s a.resolvers.level3.net,b.resolvers.level3.net,c.resolvers.level3.net,d.resolvers.level3.net -r google.com
 
 echo; echo
