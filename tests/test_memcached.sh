@@ -59,11 +59,11 @@ test_memcached(){
     fi
     hr
     # MEMCACHED_HOST obtained via .travis.yml
-    $perl -T $I_lib ./check_memcached_write.pl -v
+    $perl -T ./check_memcached_write.pl -v
     hr
-    $perl -T $I_lib ./check_memcached_key.pl -k myKey -e hari -v
+    $perl -T ./check_memcached_key.pl -k myKey -e hari -v
     hr
-    $perl -T $I_lib ./check_memcached_stats.pl -w 15 -c 20 -v
+    $perl -T ./check_memcached_stats.pl -w 15 -c 20 -v
     hr
     delete_container
     hr
