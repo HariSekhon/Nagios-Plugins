@@ -76,18 +76,18 @@ test_solr(){
         :
     fi
     hr
-    $perl -T $I_lib ./check_solr_api_ping.pl -v -w 500
+    $perl -T ./check_solr_api_ping.pl -v -w 500
     hr
-    $perl -T $I_lib ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
+    $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
     hr
-    $perl -T $I_lib ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
+    $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
     hr
     num_expected_docs=4
     [ ${version:0:1} -lt 4 ] && num_expected_docs=0
     # TODO: fix Solr 5 + 6 doc insertion and then tighten this up
-    $perl -T $I_lib ./check_solr_query.pl -n 0:4 -v
+    $perl -T ./check_solr_query.pl -n 0:4 -v
     hr
-    $perl -T $I_lib ./check_solr_write.pl -vvv -w 1000 # because Travis is slow
+    $perl -T ./check_solr_write.pl -vvv -w 1000 # because Travis is slow
     hr
     delete_container
     hr
