@@ -356,7 +356,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 * Icinga (newer alternative to Nagios): https://www.icinga.org/
 
-* Geneos integration is provided via ```geneos_wrapper.py``` which executes and translates any Nagios Plugin in to the CSV format that Geneos expects (a couple of investment banks I worked for used Geneos instead of more standard Nagios compatible monitoring systems).
+* Geneos (https://www.itrsgroup.com/products/geneos-overview) - Geneos integration is provided via ```geneos_wrapper.py``` which executes and translates any Nagios Plugin in to the CSV format that Geneos expects (a couple of investment banks I worked for used Geneos instead of more standard Nagios compatible monitoring systems)
 
 ###### Datameer ######
 
