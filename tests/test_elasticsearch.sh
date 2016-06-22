@@ -61,7 +61,7 @@ test_elasticsearch(){
     # always returns 0 and I don't wanna parse the json error
     #if ! curl -s "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX" &>/dev/null; then
 
-    if ! $perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices | grep "^[[:space:]]*$ELASTICSEARCH_INDEX[[:space:]]*$"; then
+    if ! $perl -T ./check_elasticsearch_index_exists.pl --list-indices | grep "^[[:space:]]*$ELASTICSEARCH_INDEX[[:space:]]*$"; then
         echo "creating test Elasticsearch index '$ELASTICSEARCH_INDEX'"
         curl -iv -XPUT "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX/" -d '
         {
@@ -81,68 +81,68 @@ test_elasticsearch(){
         local version=".*"
     fi
     echo
-    $perl -T $I_lib ./check_elasticsearch.pl -v --es-version "$version"
+    $perl -T ./check_elasticsearch.pl -v --es-version "$version"
     hr
     # Listing checks return UNKNOWN
     set +e
-    export ELASTICSEARCH_NODE="$($perl -T $I_lib ./check_elasticsearch_fielddata.pl --list-nodes | grep -v -e '^Nodes' -e '^Hostname' -e '^[[:space:]]*$' | head -n1 | awk '{print $1}' )"
+    export ELASTICSEARCH_NODE="$($perl -T ./check_elasticsearch_fielddata.pl --list-nodes | grep -v -e '^Nodes' -e '^Hostname' -e '^[[:space:]]*$' | head -n1 | awk '{print $1}' )"
     echo "determined Elasticsearch node = $ELASTICSEARCH_NODE"
     #result=$?
     #[ $result = 3 ] || exit $result
     hr
-    $perl -T $I_lib ./check_elasticsearch_index_exists.pl --list-indices
+    $perl -T ./check_elasticsearch_index_exists.pl --list-indices
     result=$?
     [ $result = 3 ] || exit $result
     set -e
     hr
-    $perl -T $I_lib ./check_elasticsearch_cluster_disk_balance.pl -v
+    $perl -T ./check_elasticsearch_cluster_disk_balance.pl -v
     hr
-    $perl -T $I_lib ./check_elasticsearch_cluster_shards.pl -v # --unassigned-shards 5,5 # travis now has 5 unassigned shards for some reason
+    $perl -T ./check_elasticsearch_cluster_shards.pl -v # --unassigned-shards 5,5 # travis now has 5 unassigned shards for some reason
     hr
-    $perl -T $I_lib ./check_elasticsearch_cluster_shard_balance.pl -v
+    $perl -T ./check_elasticsearch_cluster_shard_balance.pl -v
     hr
-    $perl -T $I_lib ./check_elasticsearch_cluster_stats.pl -v
+    $perl -T ./check_elasticsearch_cluster_stats.pl -v
     hr
     set +e
-    $perl -T $I_lib ./check_elasticsearch_cluster_status.pl -v
+    $perl -T ./check_elasticsearch_cluster_status.pl -v
     # travis has yellow status
     result=$?
     [ $result = 0 -o $result = 1 ] || exit $result
     set -e
     hr
-    $perl -T $I_lib ./check_elasticsearch_cluster_status_nodes_shards.pl -v
+    $perl -T ./check_elasticsearch_cluster_status_nodes_shards.pl -v
     hr
-    $perl -T $I_lib ./check_elasticsearch_data_nodes.pl -w 1 -v
+    $perl -T ./check_elasticsearch_data_nodes.pl -w 1 -v
     hr
-    $perl -T $I_lib ./check_elasticsearch_doc_count.pl -v
+    $perl -T ./check_elasticsearch_doc_count.pl -v
     hr
-    $perl -T $I_lib ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
+    $perl -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
     hr
-    $perl -T $I_lib ./check_elasticsearch_index_exists.pl -v
+    $perl -T ./check_elasticsearch_index_exists.pl -v
     hr
-    $perl -T $I_lib ./check_elasticsearch_index_age.pl -v -w 0:1
+    $perl -T ./check_elasticsearch_index_age.pl -v -w 0:1
     #hr
-    #perl -T $I_lib ./check_elasticsearch_index_health.pl -v
+    #perl -T ./check_elasticsearch_index_health.pl -v
     hr
-    $perl -T $I_lib ./check_elasticsearch_index_replicas.pl -w 0 -v
+    $perl -T ./check_elasticsearch_index_replicas.pl -w 0 -v
     hr
-    $perl -T $I_lib ./check_elasticsearch_index_settings.pl -v
+    $perl -T ./check_elasticsearch_index_settings.pl -v
     hr
-    $perl -T $I_lib ./check_elasticsearch_index_shards.pl -v
+    $perl -T ./check_elasticsearch_index_shards.pl -v
     hr
-    $perl -T $I_lib ./check_elasticsearch_index_stats.pl -v
+    $perl -T ./check_elasticsearch_index_stats.pl -v
     hr
-    $perl -T $I_lib ./check_elasticsearch_master_node.pl -v
+    $perl -T ./check_elasticsearch_master_node.pl -v
     hr
-    $perl -T $I_lib ./check_elasticsearch_nodes.pl -v -w 1
+    $perl -T ./check_elasticsearch_nodes.pl -v -w 1
     hr
-    $perl -T $I_lib ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 90 -c 95
+    $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 90 -c 95
     hr
-    $perl -T $I_lib ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
+    $perl -T ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
     hr
-    $perl -T $I_lib ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
+    $perl -T ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
     hr
-    $perl -T $I_lib ./check_elasticsearch_shards_state_detail.pl -v
+    $perl -T ./check_elasticsearch_shards_state_detail.pl -v
     hr
     delete_container
 }
