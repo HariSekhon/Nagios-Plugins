@@ -40,8 +40,8 @@ fi
 
 hr
 # TODO: add checks
-#$perl -T $I_lib 
+#$perl -T 
 #hr
-#$perl -T $I_lib 
+#$perl -T 
 hr
 echo; echo
