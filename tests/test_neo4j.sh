@@ -63,21 +63,21 @@ test_neo4j(){
         local version=".*"
     fi
     hr
-    $perl -T $I_lib ./check_neo4j_version.pl -v -e "^$version"
+    $perl -T ./check_neo4j_version.pl -v -e "^$version"
     hr
-    $perl -T $I_lib ./check_neo4j_readonly.pl -v
+    $perl -T ./check_neo4j_readonly.pl -v
     # TODO: SSL checks
-    #$perl -T $I_lib ./check_neo4j_readonly.pl -v -S -P 7473
+    #$perl -T ./check_neo4j_readonly.pl -v -S -P 7473
     hr
-    $perl -T $I_lib ./check_neo4j_remote_shell_enabled.pl -v
+    $perl -T ./check_neo4j_remote_shell_enabled.pl -v
     hr
-    $perl -T $I_lib ./check_neo4j_stats.pl -v
+    $perl -T ./check_neo4j_stats.pl -v
     hr
     # TODO: why is this zero and not one??
-    $perl -T $I_lib ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v
+    $perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v
     hr
     # Neo4J on Travis doesn't seem to return anything resulting in "'attributes' field not returned by Neo4J" error
-    $perl -T $I_lib ./check_neo4j_store_sizes.pl -v
+    $perl -T ./check_neo4j_store_sizes.pl -v
     hr
     delete_container
     hr
@@ -102,19 +102,19 @@ test_neo4j_auth(){
         local version=".*"
     fi
     hr
-    $perl -T $I_lib ./check_neo4j_version.pl -v -e "^$version"
+    $perl -T ./check_neo4j_version.pl -v -e "^$version"
     hr
-    $perl -T $I_lib ./check_neo4j_readonly.pl -v
+    $perl -T ./check_neo4j_readonly.pl -v
     hr
-    $perl -T $I_lib ./check_neo4j_remote_shell_enabled.pl -v
+    $perl -T ./check_neo4j_remote_shell_enabled.pl -v
     hr
-    $perl -T $I_lib ./check_neo4j_stats.pl -v
+    $perl -T ./check_neo4j_stats.pl -v
     hr
     # TODO: why is this zero and not one??
-    $perl -T $I_lib ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v
+    $perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v
     hr
     # Neo4J on Travis doesn't seem to return anything resulting in "'attributes' field not returned by Neo4J" error
-    $perl -T $I_lib ./check_neo4j_store_sizes.pl -v
+    $perl -T ./check_neo4j_store_sizes.pl -v
     hr
     delete_container "$DOCKER_CONTAINER-auth"
     hr
