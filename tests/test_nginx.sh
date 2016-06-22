@@ -13,7 +13,7 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
-set -eu
+set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir2="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
