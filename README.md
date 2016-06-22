@@ -354,7 +354,11 @@ Contributions are more than welcome with patches accepted in the form of Github 
 * Nagios Command Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command
 * Nagios Service Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service
 
-* Icinga (newer alternative to Nagios): https://www.icinga.org/
+* Icinga - a newer alternative to classic Nagios: https://www.icinga.org/
+
+* Sensu - another modern Nagios compatible compatible Nagios alternative: https://sensuapp.org/
+
+* Shinken - a Nagios core reimplementation in Python: http://www.shinken-monitoring.org/
 
 * Geneos (https://www.itrsgroup.com/products/geneos-overview) - Geneos integration is provided via ```geneos_wrapper.py``` which executes and translates any Nagios Plugin in to the CSV format that Geneos expects (a couple of investment banks I worked for used Geneos instead of more standard Nagios compatible monitoring systems)
 
