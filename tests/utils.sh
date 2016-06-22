@@ -58,7 +58,7 @@ if [ -n "${PERLBREW_PERL:-}" ]; then
         # Compilation failed in require at ./check_riak_diag.pl line 25.
         # BEGIN failed--compilation aborted at ./check_riak_diag.pl line 25.
     #perl=perl
-    perl="$PERLBREW_ROOT/perls/$PERLBREW_PERL/bin/perl"
+    perl="$PERLBREW_ROOT/perls/$PERLBREW_PERL/bin/perl $I_lib"
     PERL_MAJOR_VERSION="$($perl -v | $perl -ne '/This is perl (\d+), version (\d+),/ && print "$1.$2"')"
 else
     sudo=""
