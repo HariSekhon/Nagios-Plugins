@@ -13,7 +13,7 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
-set -eu
+set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -30,6 +30,8 @@ echo "
 # Try to make these local tests with no dependencies for simplicity
 
 hr
+./geneos_wrapper.py "echo 'test detail | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'"
+hr
 ./geneos_wrapper.py $perl -T $I_lib ./check_disk_write.pl -d .
 hr
 ./geneos_wrapper.py $perl -T $I_lib ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^*/{print $2}')"
@@ -38,15 +40,25 @@ echo "Testing failure detection of wrong git branch"
 ./geneos_wrapper.py $perl -t $I_lib ./check_git_branch_checkout.pl -d . -b nonexistentbranch
 hr
 echo test > test.txt
-./geneos_wrapper.py $perl -T $I_lib ./check_file_checksum.pl -f test.txt -v -c '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83'
-./geneos_wrapper.py $perl -T $I_lib ./check_file_checksum.pl -f test.txt -vn -a adler32
-./geneos_wrapper.py $perl -T $I_lib ./check_file_adler32.pl  -f test.txt -v -c '062801cb'
-./geneos_wrapper.py $perl -T $I_lib ./check_file_crc.pl      -f test.txt -v -c '3bb935c6'
 ./geneos_wrapper.py $perl -T $I_lib ./check_file_md5.pl      -f test.txt -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
-./geneos_wrapper.py $perl -T $I_lib ./check_file_sha1.pl     -f test.txt -v --checksum '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83'
-./geneos_wrapper.py $perl -T $I_lib ./check_file_sha256.pl   -f test.txt -v -c 'f2ca1bb6c7e907d06dafe4687e579fce76b37e4e93b7605022da52e6ccc26fd2'
-./geneos_wrapper.py $perl -T $I_lib ./check_file_sha512.pl   -f test.txt -v -c '0e3e75234abc68f4378a86b3f4b32a198ba301845b0cd6e50106e874345700cc6663a86c1ea125dc5e92be17c98f9a0f85ca9d5f595db2012f7cc3571945c123'
 hr
 ./geneos_wrapper.py $perl -T $I_lib ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
+hr
+echo "Testing induced failures"
+hr
+# should return zero exit code regardless but raise non-OK statuses in STATUS field
+./geneos_wrapper.py -s exit 0 | tee /dev/stderr | grep -q "^OK"
+hr
+./geneos_wrapper.py -s exit 1 | tee /dev/stderr | grep -q "^WARNING"
+hr
+./geneos_wrapper.py -s exit 2 | tee /dev/stderr | grep -q "^CRITICAL"
+hr
+./geneos_wrapper.py -s exit 3 | tee /dev/stderr | grep -q "^UNKNOWN"
+hr
+./geneos_wrapper.py nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q "^UNKNOWN"
+hr
+./geneos_wrapper.py -s nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q "^UNKNOWN"
+hr
+./geneos_wrapper.py $perl -T $I_lib check_disk_write.pl --help | tee /dev/stderr | grep -q "^UNKNOWN"
 hr
 echo; echo
