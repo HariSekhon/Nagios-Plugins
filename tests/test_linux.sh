@@ -67,7 +67,7 @@ docker_exec check_disk_write.pl -d .
 hr
 docker_exec check_git_branch_checkout.pl -d "$MNTDIR" -b "$(git branch | awk '/^*/{print $2}')"
 hr
-echo "testing failure detection of wrong git branch"
+echo "Testing failure detection of wrong git branch"
 set +e
 docker_exec check_git_branch_checkout.pl -d "$MNTDIR" -b nonexistentbranch
 [ $? -eq 2 ] || exit 1
