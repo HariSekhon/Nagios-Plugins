@@ -106,11 +106,11 @@ delete_container
 # old local checks don't run on Mac
 exit 0
 
-$perl -T $I_lib ./check_linux_timezone.pl -T UTC -Z /usr/share/zoneinfo/UTC -A UTC
+$perl -T ./check_linux_timezone.pl -T UTC -Z /usr/share/zoneinfo/UTC -A UTC
 hr
 if [ -x /usr/bin/yum ]; then
-    $perl -T $I_lib ./check_yum.pl
-    $perl -T $I_lib ./check_yum.pl --all-updates || :
+    $perl -T ./check_yum.pl
+    $perl -T ./check_yum.pl --all-updates || :
     hr
     ./check_yum.py
     ./check_yum.py --all-updates || :
