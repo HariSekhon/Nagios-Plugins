@@ -37,8 +37,6 @@ $perl -t $I_lib ./check_git_branch_checkout.pl -d . -b nonexistentbranch
 [ $? -eq 2 ] || exit 1
 set -e
 hr
-$perl -T $I_lib ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
-hr
 echo test > test.txt
 $perl -T $I_lib ./check_file_checksum.pl -f test.txt -v -c '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83'
 $perl -T $I_lib ./check_file_checksum.pl -f test.txt -vn -a adler32
@@ -57,5 +55,7 @@ set +e
 $perl -T $I_lib ./check_ssh_login.pl -H localhost -u check_ssh_login_nagios_plugin_test -p test
 [ $? -eq 2 ] || exit 1
 set -e
+hr
+$perl -T $I_lib ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
 hr
 echo; echo
