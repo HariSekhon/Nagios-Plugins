@@ -30,7 +30,9 @@ echo "
 # Try to make these local tests with no dependencies for simplicity
 
 hr
-./geneos_wrapper.py "echo 'test detail | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'"
+./geneos_wrapper.py echo 'test detail | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
+hr
+./geneos_wrapper.py --shell "echo 'test detail | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'"
 hr
 ./geneos_wrapper.py $perl -T $I_lib ./check_disk_write.pl -d .
 hr
@@ -47,17 +49,17 @@ hr
 echo "Testing induced failures"
 hr
 # should return zero exit code regardless but raise non-OK statuses in STATUS field
-./geneos_wrapper.py -s exit 0 | tee /dev/stderr | grep -q "^OK"
+./geneos_wrapper.py --shell exit 0 | tee /dev/stderr | grep -q "^OK"
 hr
-./geneos_wrapper.py -s exit 1 | tee /dev/stderr | grep -q "^WARNING"
+./geneos_wrapper.py --shell exit 1 | tee /dev/stderr | grep -q "^WARNING"
 hr
-./geneos_wrapper.py -s exit 2 | tee /dev/stderr | grep -q "^CRITICAL"
+./geneos_wrapper.py --shell exit 2 | tee /dev/stderr | grep -q "^CRITICAL"
 hr
-./geneos_wrapper.py -s exit 3 | tee /dev/stderr | grep -q "^UNKNOWN"
+./geneos_wrapper.py --shell exit 3 | tee /dev/stderr | grep -q "^UNKNOWN"
 hr
 ./geneos_wrapper.py nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q "^UNKNOWN"
 hr
-./geneos_wrapper.py -s nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q "^UNKNOWN"
+./geneos_wrapper.py --shell nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q "^UNKNOWN"
 hr
 ./geneos_wrapper.py $perl -T $I_lib check_disk_write.pl --help | tee /dev/stderr | grep -q "^UNKNOWN"
 hr
