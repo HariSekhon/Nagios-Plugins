@@ -76,7 +76,7 @@ test_solrcloud(){
     ./check_solr_version.py -e "$version"
     hr
     # docker is running slow
-    $perl -T $I_lib ./check_solrcloud_cluster_status.pl -v -t 60
+    $perl -T ./check_solrcloud_cluster_status.pl -v -t 60
     hr
     # FIXME: solr 5/6
     docker_exec check_solrcloud_cluster_status_zookeeper.pl -H localhost -P 9983 -b / -v
@@ -93,12 +93,12 @@ test_solrcloud(){
     fi
     hr
     # FIXME: why is only 1 node up instead of 2
-    $perl -T $I_lib ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
+    $perl -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
     hr
     docker_exec check_solrcloud_live_nodes_zookeeper.pl -H localhost -P 9983 -b / -w 1 -c 1 -v
     hr
     # docker is running slow
-    $perl -T $I_lib ./check_solrcloud_overseer.pl -t 60 -v
+    $perl -T ./check_solrcloud_overseer.pl -t 60 -v
     hr
     docker_exec check_solrcloud_overseer_zookeeper.pl -H localhost -P 9983 -b / -v
     hr
