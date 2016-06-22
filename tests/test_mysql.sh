@@ -62,17 +62,17 @@ test_mysql(){
     fi
     hr
     docker cp "$DOCKER_CONTAINER":/etc/mysql/my.cnf /tmp
-    $perl -T $I_lib ./check_mysql_config.pl -c /tmp/my.cnf --warn-on-missing -v
+    $perl -T ./check_mysql_config.pl -c /tmp/my.cnf --warn-on-missing -v
     rm -f /tmp/my.cnf
     hr
-    $perl -T $I_lib ./check_mysql_query.pl -q "SHOW TABLES IN information_schema" -o CHARACTER_SETS -v
+    $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema" -o CHARACTER_SETS -v
     hr
-    #$perl -T $I_lib ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
+    #$perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
     hr
-    $perl -T $I_lib ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'%'" -v
+    $perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'%'" -v
     # TODO: add socket test - must mount on a compiled system, ie replace the docker image with a custom test one
     unset MYSQL_HOST
-    #$perl -T $I_lib ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
+    #$perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
     hr
     delete_container
     hr
