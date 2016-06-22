@@ -27,7 +27,17 @@ echo "
 # ============================================================================ #
 "
 
-$perl -T $I_lib ./check_ssl_cert.pl -H www.google.com -w 2 -c 1 -v
+$perl -T $I_lib ./check_disk_write.pl -d .
+hr
+$perl -T $I_lib ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^*/{print $2}')"
+hr
+echo "testing failure detection of wrong git branch"
+set +e
+$perl -t $I_lib ./check_git_branch_checkout.pl -d . -b nonexistentbranch
+[ $? -eq 2 ] || exit 1
+set -e
+hr
+$perl -T $I_lib ./check_linux_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
 hr
 echo test > test.txt
 $perl -T $I_lib ./check_file_checksum.pl -f test.txt -v -c '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83'
@@ -38,11 +48,14 @@ $perl -T $I_lib ./check_file_md5.pl      -f test.txt -v -c 'd8e8fca2dc0f896fd7cb
 $perl -T $I_lib ./check_file_sha1.pl     -f test.txt -v --checksum '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83'
 $perl -T $I_lib ./check_file_sha256.pl   -f test.txt -v -c 'f2ca1bb6c7e907d06dafe4687e579fce76b37e4e93b7605022da52e6ccc26fd2'
 $perl -T $I_lib ./check_file_sha512.pl   -f test.txt -v -c '0e3e75234abc68f4378a86b3f4b32a198ba301845b0cd6e50106e874345700cc6663a86c1ea125dc5e92be17c98f9a0f85ca9d5f595db2012f7cc3571945c123'
+rm -f test.txt
+hr
+$perl -T $I_lib ./check_ssl_cert.pl -H www.google.com -w 2 -c 1 -v
+hr
 echo "Testing check_ssh_login.pl correctly fails on non-existent user against localhost"
 set +e
 $perl -T $I_lib ./check_ssh_login.pl -H localhost -u check_ssh_login_nagios_plugin_test -p test
 [ $? -eq 2 ] || exit 1
 set -e
-rm -f test.txt
 hr
 echo; echo
