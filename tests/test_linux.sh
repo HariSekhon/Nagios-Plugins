@@ -63,6 +63,16 @@ if [ -n "${NOTESTS:-}" ]; then
     exit 0
 fi
 hr
+docker_exec check_disk_write.pl -d .
+hr
+docker_exec check_git_branch_checkout.pl -d "$MNTDIR" -b "$(git branch | awk '/^*/{print $2}')"
+hr
+echo "testing failure detection of wrong git branch"
+set +e
+docker_exec check_git_branch_checkout.pl -d "$MNTDIR" -b nonexistentbranch
+[ $? -eq 2 ] || exit 1
+set -e
+hr
 docker_exec check_linux_auth.pl -u root -g root -v
 hr
 docker_exec check_linux_context_switches.pl || : ; sleep 1; docker_exec check_linux_context_switches.pl -w 10000 -c 50000
