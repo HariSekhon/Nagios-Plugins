@@ -80,7 +80,7 @@ test_nginx(){
     hr
     ./check_nginx_version.py -e "$version"
     hr
-    $perl -T $I_lib ./check_nginx_stats.pl -H "$NGINX_HOST" -u /status
+    $perl -T ./check_nginx_stats.pl -H "$NGINX_HOST" -u /status
     hr
     delete_container
     hr
