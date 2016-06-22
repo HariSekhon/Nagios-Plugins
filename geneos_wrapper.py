@@ -107,7 +107,7 @@ class GeneosWrapper(CLI):
         detail = detail.rstrip('\n')
         detail = re.sub(r'\r', '', detail)
         detail = re.sub(r'\n', r' \\n ', detail)
-        detail = re.sub(r',+', '... ', detail)
+        detail = re.sub(r',\s*', '... ', detail)
         self.detail = detail
 
     def cmd(self, cmdline):
