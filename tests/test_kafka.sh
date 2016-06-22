@@ -91,17 +91,17 @@ test_kafka(){
     ./check_kafka.py -B $KAFKA_HOST -T "$KAFKA_TOPIC" -v
     hr
     set +e
-    $perl -T $I_lib ./check_kafka.pl -v --list-topics
+    $perl -T ./check_kafka.pl -v --list-topics
     [ $? -eq 3 ] || exit 1
     hr
-    $perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions
+    $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions
     [ $? -eq 3 ] || exit 1
     hr
-    $perl -T $I_lib ./check_kafka.pl -v --list-partitions
+    $perl -T ./check_kafka.pl -v --list-partitions
     [ $? -eq 3 ] || exit 1
     set -e
     hr
-    $perl -T $I_lib ./check_kafka.pl -T "$KAFKA_TOPIC" -v
+    $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
     hr
     delete_container
     echo
