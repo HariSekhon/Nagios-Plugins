@@ -58,15 +58,15 @@ test_h2o(){
         return 0
     fi
     hr
-    $perl -T $I_lib ./check_h2o_cluster.pl
+    $perl -T ./check_h2o_cluster.pl
     hr
-    $perl -T $I_lib ./check_h2o_jobs.pl
+    $perl -T ./check_h2o_jobs.pl
     hr
-    $perl -T $I_lib ./check_h2o_node_health.pl
+    $perl -T ./check_h2o_node_health.pl
     hr
-    $perl -T $I_lib ./check_h2o_node_stats.pl
+    $perl -T ./check_h2o_node_stats.pl
     hr
-    $perl -T $I_lib ./check_h2o_nodes_last_contact.pl
+    $perl -T ./check_h2o_nodes_last_contact.pl
     hr
     delete_container
 }
