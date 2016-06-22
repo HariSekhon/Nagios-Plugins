@@ -215,7 +215,7 @@ done
 #echo "Testing Domains excluding expiry:"
 #for domain in $domains_noexpiry; do
 #    set +eo pipefail
-#    output=`$perl -T $I_lib ./check_whois.pl -d $domain -w 10 -c 2 --no-expiry -t 30 -v $verbose`
+#    output=`$perl -T ./check_whois.pl -d $domain -w 10 -c 2 --no-expiry -t 30 -v $verbose`
 #    result=$?
 #    echo "$output"
 #    if [ $result -ne 0 -a $result -eq 3 ]; then
