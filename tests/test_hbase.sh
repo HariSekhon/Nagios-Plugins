@@ -87,36 +87,36 @@ EOF
     fi
     hr
     # TODO: add $HOST env support
-    $perl -T $I_lib ./check_hbase_regionservers.pl -H $HBASE_HOST -P 8080
+    $perl -T ./check_hbase_regionservers.pl -H $HBASE_HOST -P 8080
     hr
-    $perl -T $I_lib ./check_hbase_regionservers_jsp.pl -H $HBASE_HOST -P 16010
+    $perl -T ./check_hbase_regionservers_jsp.pl -H $HBASE_HOST -P 16010
     hr
-    $perl -T $I_lib ./check_hbase_cell.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+    $perl -T ./check_hbase_cell.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
     hr
-    $perl -T $I_lib ./check_hbase_cell_stargate.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+    $perl -T ./check_hbase_cell_stargate.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
     hr
-    $perl -T $I_lib ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+    $perl -T ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
     hr
-    $perl -T $I_lib ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
+    $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
     hr
-    $perl -T $I_lib ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics
+    $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics
     hr
-    $perl -T $I_lib ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --all-metrics
+    $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --all-metrics
     hr
     # XXX: both cause 500 internal server error
-    #$perl -T $I_lib ./check_hadoop_metrics.pl -H $HBASE_HOST -P 16301 --all-metrics
-    #$perl -T $I_lib ./check_hadoop_metrics.pl -H $HBASE_HOST -P 16301 -m compactionQueueLength
+    #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P 16301 --all-metrics
+    #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P 16301 -m compactionQueueLength
     hr
     # TODO: need updates
-    #$perl -T $I_lib ./check_hbase_tables.pl
-    #$perl -T $I_lib ./check_hbase_tables_thrift.pl
-    #$perl -T $I_lib ./check_hbase_tables_stargate.pl
-    #$perl -T $I_lib ./check_hbase_tables_jsp.pl
+    #$perl -T ./check_hbase_tables.pl
+    #$perl -T ./check_hbase_tables_thrift.pl
+    #$perl -T ./check_hbase_tables_stargate.pl
+    #$perl -T ./check_hbase_tables_jsp.pl
     #hr
     hr
     # Use Docker hbase-dev, zookeeper will have been built
     #if is_zookeeper_built; then
-    #    $perl -T $I_lib ./check_hbase_unassigned_regions_znode.pl
+    #    $perl -T ./check_hbase_unassigned_regions_znode.pl
     #    hr
     #else
     #    echo "ZooKeeper not built - skipping ZooKeeper checks"
