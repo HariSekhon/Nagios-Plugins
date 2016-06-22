@@ -123,14 +123,14 @@ nodetool status || :
 hr
 # Cassandra checks are broken due to broken nodetool environment
 # must set full path to /usr/local/cassandra/bin/nodetool to bypass /usr/local/bin/nodetool symlink which doesn't source cassandra.in.sh properly and breaks with "You must set the CASSANDRA_CONF and CLASSPATH vars@
-$perl -T $I_lib ./check_cassandra_balance.pl  -n /usr/local/cassandra/bin/nodetool -v
+$perl -T ./check_cassandra_balance.pl  -n /usr/local/cassandra/bin/nodetool -v
 hr
-$perl -T $I_lib ./check_cassandra_heap.pl     -n /usr/local/cassandra/bin/nodetool -w 70 -c 90 -v
+$perl -T ./check_cassandra_heap.pl     -n /usr/local/cassandra/bin/nodetool -w 70 -c 90 -v
 hr
-$perl -T $I_lib ./check_cassandra_netstats.pl -n /usr/local/cassandra/bin/nodetool -v
+$perl -T ./check_cassandra_netstats.pl -n /usr/local/cassandra/bin/nodetool -v
 hr
-$perl -T $I_lib ./check_cassandra_nodes.pl -n /usr/local/cassandra/bin/nodetool -v
+$perl -T ./check_cassandra_nodes.pl -n /usr/local/cassandra/bin/nodetool -v
 hr
-$perl -T $I_lib ./check_cassandra_tpstats.pl  -n /usr/local/cassandra/bin/nodetool -v
+$perl -T ./check_cassandra_tpstats.pl  -n /usr/local/cassandra/bin/nodetool -v
 
 echo; echo
