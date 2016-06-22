@@ -52,7 +52,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class GeneosWrapper(CLI):
@@ -81,6 +81,10 @@ class GeneosWrapper(CLI):
     #def add_default_opts(self):
     #    pass
 
+    def add_options(self):
+        self.add_opt('-s', '--shell', action='store_true',
+                     help='Use Shell to execute args (default: false)')
+
     def run(self):
         cmdline = ' '.join(self.args)
         if not cmdline:
@@ -108,8 +112,13 @@ class GeneosWrapper(CLI):
 
     def cmd(self, cmdline):
         log.info("cmd: %s", cmdline)
+        shell = self.get_opt('shell')
         try:
-            proc = subprocess.Popen(cmdline.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            proc = None
+            if shell:
+                proc = subprocess.Popen(cmdline, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
+            else:
+                proc = subprocess.Popen(cmdline.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             (stdout, stderr) = proc.communicate()
             log.debug("stdout: %s", stdout)
             log.debug("stderr: %s", stderr)
@@ -118,6 +127,11 @@ class GeneosWrapper(CLI):
             if returncode > 255:
                 log.debug("mod 256")
                 returncode = int(returncode % 256)
+            if shell and returncode == 127:
+                #if returncode != ERRORS['UNKNOWN'] and re.match('^/bin/[a-z]{0,2}sh: .*: command not found', stdout):
+                log.debug('detected \'command not found\' when using shell ' +
+                          'with not UNKNOWN exit code, resetting to UNKNOWN')
+                returncode = ERRORS['UNKNOWN']
             if returncode in self.returncodes:
                 log.debug("translating exit code '%s' => '%s'", returncode, self.returncodes[returncode])
                 self.status = self.returncodes[returncode]
