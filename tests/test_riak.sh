@@ -73,28 +73,28 @@ test_riak(){
     #docker_exec check_riak_diag.pl --ignore-warnings -v
     # must attempt to check this locally if available - but may get "CRITICAL: 'riak-admin diag' returned 1 -  Node is not running!"
     if which riak-admin; then
-        $perl -T $I_lib check_riak_diag.pl --ignore-warnings -v || :
+        $perl -T check_riak_diag.pl --ignore-warnings -v || :
     fi
     hr
-    $perl -T $I_lib check_riak_key.pl -b myBucket -k myKey -e hari -v
+    $perl -T check_riak_key.pl -b myBucket -k myKey -e hari -v
     hr
     docker_exec check_riak_member_status.pl -v
     hr
     docker_exec check_riak_ringready.pl -v
     hr
-    $perl -T $I_lib check_riak_stats.pl --all -v
+    $perl -T check_riak_stats.pl --all -v
     hr
-    $perl -T $I_lib check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
+    $perl -T check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
     hr
     if [ "${version:0:1}" != 1 ]; then
-        $perl -T $I_lib check_riak_stats.pl -s disk.0.size -c 1024: -v
+        $perl -T check_riak_stats.pl -s disk.0.size -c 1024: -v
     fi
     hr
-    $perl -T $I_lib check_riak_write.pl -v
+    $perl -T check_riak_write.pl -v
     hr
     docker_exec check_riak_write_local.pl -v
     hr
-    $perl -T $I_lib check_riak_version.pl -v
+    $perl -T check_riak_version.pl -v
 
     echo
     echo -n "Deleting container "
@@ -127,26 +127,26 @@ curl -XPUT $RIAK_HOST:8098/buckets/myBucket/keys/myKey -d 'hari'
 echo "done"
 hr
 # needs sudo - uses wrong version of perl if not explicit path with sudo
-$sudo $perl -T $I_lib ./check_riak_diag.pl --ignore-warnings -v
+$sudo $perl -T ./check_riak_diag.pl --ignore-warnings -v
 hr
-$perl -T $I_lib ./check_riak_key.pl -b myBucket -k myKey -e hari -v
+$perl -T ./check_riak_key.pl -b myBucket -k myKey -e hari -v
 hr
-$sudo $perl -T $I_lib ./check_riak_member_status.pl -v
-hr
-# needs sudo - riak must be started as root in Travis
-$sudo $perl -T $I_lib ./check_riak_ringready.pl -v
-hr
-$perl -T $I_lib ./check_riak_stats.pl --all -v
-hr
-$perl -T $I_lib ./check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
-hr
-$perl -T $I_lib ./check_riak_stats.pl -s disk.0.size -c 1024: -v
-hr
-$perl -T $I_lib ./check_riak_write.pl -v
+$sudo $perl -T ./check_riak_member_status.pl -v
 hr
 # needs sudo - riak must be started as root in Travis
-$sudo $perl -T $I_lib ./check_riak_write_local.pl -v
+$sudo $perl -T ./check_riak_ringready.pl -v
 hr
-$perl -T $I_lib ./check_riak_version.pl
+$perl -T ./check_riak_stats.pl --all -v
+hr
+$perl -T ./check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
+hr
+$perl -T ./check_riak_stats.pl -s disk.0.size -c 1024: -v
+hr
+$perl -T ./check_riak_write.pl -v
+hr
+# needs sudo - riak must be started as root in Travis
+$sudo $perl -T ./check_riak_write_local.pl -v
+hr
+$perl -T ./check_riak_version.pl
 
 echo; echo
