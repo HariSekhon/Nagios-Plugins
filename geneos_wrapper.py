@@ -16,11 +16,14 @@
 
 """
 
-Geneos Wrapper program to convert any Nagios Plugin to Geneos format for immediate re-use to all existing
+Geneos Wrapper program to convert any Nagios Plugin to Geneos CSV format for immediate re-use of all existing
 Nagios Plugins from the Advanced Nagios Plugins Collection or elsewhere.
 
-Usage it simple, just prepend this program to the nagios plugin command line and it will call the plugin and translate
-the output for you to CSV format for Geneos.
+Usage it simple, just put 'geneos_wrapper.py' at the front of any nagios plugin command line and it will call
+the plugin and translate the output for you to CSV format for Geneos, with a STATUS and DETAIL field and
+optionally additional fields for each perfdata metric.
+
+I decided to write this after I worked for a couple of investment banks that were using Geneos instead of a Nagios compatible monitoring system as is more common and I wanted to be able to give production support access to all the code I've previously developed.
 
 """
 
@@ -65,10 +68,10 @@ class GeneosWrapper(CLI):
         self.returncodes = {}
         for key in ERRORS:
             self.returncodes[ERRORS[key]] = key
-        self.perfdata_regex = re.compile(r'(\d+(?:\.\d+))(\w{1,2}|%)')
+        self.perfdata_regex = re.compile(r'(\d+(?:\.\d+)?)([A-Za-z]{1,2}|%)?')
 
     # @Overrride to prevent injecting the usual default opts
-    # update: allowing default opts now as it's handy to have multiple verbosity to see the output being printed
+    # update: allowing default opts now as it's handy to have multiple verbosity levels for debugging
     #def add_default_opts(self):
     #    pass
 
@@ -78,34 +81,45 @@ class GeneosWrapper(CLI):
             self.usage()
         log.info("cmd: %s", cmd)
         status = "UNKNOWN"
-        msg = "<no message defined>"
+        detail = "<None>"
         try:
             proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            (stdout, _) = proc.communicate()
+            (stdout, stderr) = proc.communicate()
+            log.debug("stdout: %s", stdout)
+            log.debug("stderr: %s", stderr)
             returncode = proc.wait()
+            log.debug("returncode: %s", returncode)
             if returncode > 255:
+                log.debug("mod 256")
                 returncode = int(returncode % 256)
             if returncode in self.returncodes:
+                log.debug("translating exit code '%s' => '%s'", returncode, self.returncodes[returncode])
                 status = self.returncodes[returncode]
             else:
                 log.warn("non-standard exit code detected, resetting to CRITICAL")
                 status = "CRITICAL"
-            msg = stdout
+            detail = stdout
         except subprocess.CalledProcessError as _:
+            log.warn("subprocess.CalledProcessError, resetting to UNKNOWN")
             status = "UNKNOWN"
-            msg = str(_)
+            detail = str(_)
         except OSError as _:
+            log.warn("OSError, resetting to UNKNOWN")
             status = "UNKNOWN"
-            msg = "OSError: '{0}' when running '{1}'".format(_, cmd)
-        msg = re.sub(r'\s*(?:OK|WARNING|CRITICAL|UNKNOWN)\s*(?:[\w\s]+)?:', '', msg, 1, re.I)
-        msg = re.sub(r'\n', r' \\n ', msg)
-        msg = re.sub(r',+', '... ', msg)
+            detail = "OSError: '{0}' when running '{1}'".format(_, cmd)
+        log.debug("raw detail: %s", detail)
+        detail = re.sub(r'(?:[\w\s]*?\s)?(?:OK|WARNING|CRITICAL|UNKNOWN)(?:\s[\w\s]*?)?:', '', detail, 1, re.I)
+        detail = detail.rstrip('\n')
+        detail = re.sub(r'\r', r'', detail)
+        detail = re.sub(r'\n', r' \\n ', detail)
+        detail = re.sub(r',+', '... ', detail)
         perfdata_raw = None
         perfdata = []
         headers = [ "STATUS", "DETAIL" ]
-        if '|' in msg:
-            msg, perfdata_raw = msg.split('|', 1)
+        if '|' in detail:
+            detail, perfdata_raw = detail.split('|', 1)
         if perfdata_raw:
+            log.debug("raw perfdata: %s", perfdata_raw)
             for item in perfdata_raw.split():
                 if '=' in item:
                     header, data = item.split('=', 1)
@@ -114,12 +128,20 @@ class GeneosWrapper(CLI):
                     data = data.split(';')[0]
                     match = self.perfdata_regex.search(data)
                     if match:
+                        val = match.group(1)
+                        log.debug("found numeric value '%s' in item '%s'", val, item)
                         if match.group(2):
-                            header += " ({0})".format(match.group(2))
+                            units = match.group(2)
+                            log.debug("found units '%s' in item '%s'", units, item)
+                            header += " ({0})".format(units)
                         headers += [header.upper()]
-                        perfdata += [match.group(1)]
-        msg = msg.strip()
-        output = "{status},{detail}".format(status=status, detail=msg)
+                        perfdata += [val]
+                    else:
+                        log.warn("no valid numeric value to extract found in perfdata item '%s'", item)
+                else:
+                    log.warn("no key=value format detected in item '%s'", item)
+        detail = detail.strip()
+        output = "{status},{detail}".format(status=status, detail=detail)
         for p in perfdata:
             output += ',' + p
         print(','.join(headers))
