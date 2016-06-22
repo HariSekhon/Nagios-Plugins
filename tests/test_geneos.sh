@@ -34,17 +34,17 @@ hr
 hr
 ./geneos_wrapper.py --shell "echo 'test detail | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'"
 hr
-./geneos_wrapper.py $perl -T $I_lib ./check_disk_write.pl -d .
+./geneos_wrapper.py $perl -T ./check_disk_write.pl -d .
 hr
-./geneos_wrapper.py $perl -T $I_lib ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^*/{print $2}')"
+./geneos_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^*/{print $2}')"
 hr
 echo "Testing failure detection of wrong git branch"
-./geneos_wrapper.py $perl -T $I_lib ./check_git_branch_checkout.pl -d . -b nonexistentbranch
+./geneos_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch
 hr
 echo test > test.txt
-./geneos_wrapper.py $perl -T $I_lib ./check_file_md5.pl      -f test.txt -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
+./geneos_wrapper.py $perl -T ./check_file_md5.pl      -f test.txt -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
 hr
-./geneos_wrapper.py $perl -T $I_lib ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
+./geneos_wrapper.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
 hr
 echo "Testing induced failures"
 hr
@@ -61,6 +61,6 @@ hr
 hr
 ./geneos_wrapper.py --shell nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q "^UNKNOWN"
 hr
-./geneos_wrapper.py $perl -T $I_lib check_disk_write.pl --help | tee /dev/stderr | grep -q "^UNKNOWN"
+./geneos_wrapper.py $perl -T check_disk_write.pl --help | tee /dev/stderr | grep -q "^UNKNOWN"
 hr
 echo; echo
