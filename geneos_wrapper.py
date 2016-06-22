@@ -52,7 +52,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.3.1'
 
 
 class GeneosWrapper(CLI):
@@ -147,6 +147,8 @@ class GeneosWrapper(CLI):
             log.info("OSError, resetting to UNKNOWN")
             self.status = "UNKNOWN"
             self.detail = "OSError: '{0}' when running '{1}'".format(_, cmdline)
+        if not self.detail:
+            self.detail = '<no output>'
         log.debug("raw detail: %s", self.detail)
 
     def process_perfdata(self):
