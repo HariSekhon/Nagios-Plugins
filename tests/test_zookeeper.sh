@@ -67,9 +67,9 @@ test_zookeeper(){
     ./check_zookeeper_version.py -e "$version"
     hr
     if [ "${version:0:3}" = "3.3" ]; then
-        $perl -T $I_lib ./check_zookeeper.pl -s -w 50 -c 100 -v || :
+        $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v || :
     else
-        $perl -T $I_lib ./check_zookeeper.pl -s -w 50 -c 100 -v
+        $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
     fi
     hr
     docker_exec check_zookeeper_config.pl -H zookeeper -P 2181 -C "$MNTDIR/zoo.cfg" -v
