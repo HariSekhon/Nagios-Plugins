@@ -21,8 +21,13 @@ set -eu
 [ -n "${DEBUG:-}" ] && set -x
 
 ${perl:-perl} -e 'use Net::ZooKeeper' &>/dev/null && zookeeper_built="true" || zookeeper_built=""
+
 is_zookeeper_built(){
-    [ -n "$zookeeper_built" ]
+    if [ -n "$zookeeper_built" ]; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 isExcluded(){
