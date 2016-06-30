@@ -25,17 +25,15 @@ echo "
 
 cd "$srcdir/..";
 
+. tests/excluded.sh
+
 # would switch this to perl_syntax.sh from bash-tools but need to tie in exclusions first
-tests/syntax.sh
+#tests/syntax.sh
 
-bash-tools/python_compile.sh
-
-bash-tools/python_find_quit.sh
+. bash-tools/all.sh
 
 for script in $(find tests -name 'test*.sh'); do
     $script || :
 done
 
 tests/help.sh
-
-bash-tools/all.sh
