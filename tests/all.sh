@@ -25,6 +25,8 @@ echo "
 
 cd "$srcdir/..";
 
+. tests/utils.sh
+
 . tests/excluded.sh
 
 # would switch this to perl_syntax.sh from bash-tools but need to tie in exclusions first
