@@ -203,6 +203,8 @@ class CheckKafka(PubSubNagiosPlugin):
             )
             #key_serializer
             #value_serializer
+        # this is only a guess as Kafka doesn't expose it's API version
+        #log.debug('kafka api version: %s', self.consumer.config['api_version'])
         log.debug('partition assignments: {0}'.format(self.consumer.assignment()))
 
         # log.debug('subscribing to topic \'{0}\' parition \'{1}\''.format(self.topic, self.partition))
