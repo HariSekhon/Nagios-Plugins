@@ -42,7 +42,7 @@ echo "Testing failure detection of wrong git branch"
 ./geneos_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch
 hr
 echo test > test.txt
-./geneos_wrapper.py $perl -T ./check_file_md5.pl      -f test.txt -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
+./geneos_wrapper.py $perl -T ./check_file_md5.pl -f test.txt -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
 hr
 ./geneos_wrapper.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
 hr
