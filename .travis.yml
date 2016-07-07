@@ -62,7 +62,7 @@ after_success:
   - curl -ivv --data {build:true} -X POST https://registry.hub.docker.com/u/harisekhon/debian-github/trigger/0cfb3fe7-2028-494b-a43b-068435e6a2b3/
 
 after_failure:
-  - for x in /home/travis/.cpanm/work/*/build.log; do echo "uploading $x"; curl -sT "$x" "https://transfer.sh/build.log" || : ; curl -sT "$x" chunk.io || : ; done
+  - for x in /home/travis/.cpanm/work/*/build.log; do echo "uploading $x"; curl -sT "$x" "https://transfer.sh/build.log" || :; curl -sT "$x" chunk.io || :; done
 
 services:
   # docker breaks cassandra, mysql, probably everything
