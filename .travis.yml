@@ -34,9 +34,10 @@ branches:
   only:
     - master
 
-# after_failure doesn't trigger from install failure, must use script section
-#install:
-script:
+# using script section will trigger "after_failure" section but this runs everything regardless of failures
+#script:
+# after_failure doesn't trigger from install failure
+install:
   #- pushd lib
   #- make apt-packages
   #- cpanm --installdeps --notest . || echo CPANM LIB FAILED
@@ -54,7 +55,7 @@ script:
   - make
   - make zookeeper
 
-#script:
+script:
   - tests/all.sh
 
 after_success:
