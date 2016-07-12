@@ -34,7 +34,9 @@ branches:
   only:
     - master
 
-install:
+# after_failure doesn't trigger from install failure, must use script section
+#install:
+script:
   #- pushd lib
   #- make apt-packages
   #- cpanm --installdeps --notest . || echo CPANM LIB FAILED
@@ -52,7 +54,7 @@ install:
   - make
   - make zookeeper
 
-script:
+#script:
   - tests/all.sh
 
 after_success:
