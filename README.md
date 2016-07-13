@@ -250,9 +250,9 @@ If you update often and want to just quickly git pull + submodule update but ski
 
 #### Testing
 
-There is a full suite of Dockerized functional tests in the ```tests/``` directory as well as a high coverage percentage of unit tests for the underlying [Perl library](https://github.com/harisekhon/lib) and [Python library](https://githu.com/harisekhon/pylib).
+There is a full suite of Dockerized functional tests in the ```tests/``` directory as well as a high coverage percentage of unit tests for the underlying [Perl library](https://github.com/harisekhon/lib) and [Python library](https://githu.com/harisekhon/pylib) libraries.
 
-Running ```make test``` will trigger all tests, starting with the underlying libraries and then moving on to the functional test suites.
+Running ```make test``` will trigger all tests, starting with the underlying libraries and then moving on to the Dockerized functional test suites.
 
 ##### Bugs & Workarounds #####
 
@@ -329,7 +329,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 ### Further Utilities ###
 
-[Tools](https://github.com/harisekhon/tools) & [PyTools](https://github.com/harisekhon/pytools) repos - contains 30+ programs including useful tools such as:
+[Tools](https://github.com/harisekhon/tools) & [PyTools](https://github.com/harisekhon/pytools) repos - contains another 50+ programs including useful tools such as:
 * Hive / Pig => Elasticsearch / SolrCloud indexers
 * Hadoop HDFS performance debugger, native checksum extractor, file retention policy script, HDFS file stats, XML & running Hadoop cluster config differ
 * ```watch_url.pl``` for debugging load balanced web farms
@@ -362,7 +362,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 * Geneos (https://www.itrsgroup.com/products/geneos-overview) - Geneos integration is provided via ```geneos_wrapper.py``` which executes and translates any Nagios Plugin in to the CSV format that Geneos expects (a couple of investment banks I worked for used Geneos instead of more standard Nagios compatible monitoring systems)
 
-###### Datameer ######
+##### Datameer
 
 Datameer plugins referenced from Datameer docs in the Weblinks section along with the official Nagios links. See here for more information on Datameer monitoring with Nagios:
 
