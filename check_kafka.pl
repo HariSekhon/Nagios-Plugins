@@ -20,6 +20,8 @@ Tested on Kafka 0.8.1, 0.8.2, 0.9.0.1
 
 See also Python port 'check_kafka.py'
 
+Perfdata is for publishing and consuming the unique test message, total time includes setup, connection and message activities etc.
+
 Limitations (these all currently have tickets open to fix in the underlying API):
 
 - checks only a single topic and partition due to limitation of the underlying API
@@ -287,7 +289,7 @@ try {
     #check_server_alive() unless @broker_list;
 
     vlog2 "sending message to broker" . ( $verbose > 2 ? ":\n\n$content" : "" ) . "\n";
-    my $start_produce = time;
+    my $start_publish = time;
     my $response = $producer->send(
                                     $topic,
                                     $partition,
@@ -295,7 +297,7 @@ try {
                                     # rand(1), # key
                                     $COMPRESSION_NONE,
                                   ) or quit "CRITICAL", "failed to send message to Kafka broker$broker_name: $!";
-    my $produce_time = time - $start_produce;
+    my $publish_time = time - $start_publish;
     vlog3 Dumper($response) if $debug;
     #check_server_alive() unless @broker_list;
 
@@ -331,10 +333,10 @@ try {
     #check_server_alive() unless @broker_list;
 
     my $total_time = time - $start_time;
-    $produce_time  = sprintf("%.4f", $produce_time);
+    $publish_time  = sprintf("%.4f", $publish_time);
     $consume_time  = sprintf("%.4f", $consume_time);
     $total_time    = sprintf("%.4f", $total_time);
-    my $perfdata = ", produce time = $produce_time secs, consume time = $consume_time secs, total time = $total_time secs | produce_time=${produce_time}s consume_time=${consume_time}s total_time=${total_time}s";
+    my $perfdata = ", published in $publish_time secs, consumed in $consume_time secs, total time = $total_time secs | publish_time=${publish_time}s consume_time=${consume_time}s total_time=${total_time}s";
     if($found == 1){
         quit "OK", "message returned successfully by Kafka broker$broker_name$perfdata";
     } elsif($found > 1){
