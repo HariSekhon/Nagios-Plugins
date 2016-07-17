@@ -59,7 +59,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.4'
+__version__ = '0.3.5'
 
 
 class CheckKafka(PubSubNagiosPlugin):
@@ -111,7 +111,10 @@ class CheckKafka(PubSubNagiosPlugin):
         #except KafkaError as _:
             #raise CriticalError(_)
         except KafkaError:
-            raise CriticalError(self.exception_msg())
+            err = self.exception_msg()
+            if 'NoBrokersAvailable' in err:
+                err += ' ({0})'.format(self.brokers)
+            raise CriticalError(err)
 
     @staticmethod
     def exception_msg():
