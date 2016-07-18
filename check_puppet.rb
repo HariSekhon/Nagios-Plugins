@@ -26,8 +26,8 @@
 require "optparse"
 require "puppet"
 require "puppet/defaults"
-#require 'sys/proctable'
-#include Sys
+# require 'sys/proctable'
+# include Sys
 
 PUPPETD     = [ "/usr/sbin/puppetd", "/usr/bin/puppet" ]
 PUPPET_CONF = "/etc/puppet/puppet.conf"
@@ -68,7 +68,7 @@ class CheckPuppet
       o.set_summary_indent('    ')
       o.banner =    "usage: #{script_name} [OPTIONS]"
       o.separator   ""
-      #o.define_head "The check_puppet Nagios plug-in checks that specified " +
+      # o.define_head "The check_puppet Nagios plug-in checks that specified " +
       #              "Puppet process is running and the state file is no " +
       #              "older than specified interval."
       o.separator   "The #{script_name} Nagios plugin checks the following:\n" +
@@ -91,7 +91,7 @@ class CheckPuppet
           "Default: #{OPTIONS[:critical]} minutes")  { |v| OPTIONS[:critical] = v }
       o.on("-l", "--lockfile=lockfile", String, "The lock file",
           "Default: uses puppet config / default") { |v| OPTIONS[:lockfile] = v }
-      #o.on("-p", "--process=processname", String, "The process to check",
+      # o.on("-p", "--process=processname", String, "The process to check",
       #     "Default: #{OPTIONS[:process]}")           { |OPTIONS[:process]| }
       o.on("-s", "--statefile=statefile", String, "The state file",
           "Default: uses puppet config / default") { |v| OPTIONS[:statefile] = v }
@@ -145,20 +145,20 @@ class CheckPuppet
         if OPTIONS[:verbose] > 1
             puts "checking puppet agent processes"
         end
-        #num_procs = 0
-        #ProcTable.ps{ |process|
-        #    if process.cmdline.include? "puppetd" or process.cmdline.include? "puppet agent"
-        #        num_procs += 1
-        #    end
-        #}
+        # num_procs = 0
+        # ProcTable.ps{ |process|
+        #     if process.cmdline.include? "puppetd" or process.cmdline.include? "puppet agent"
+        #         num_procs += 1
+        #     end
+        # }
         procs = `ps -ef | grep -e 'puppet[d]\>' -e 'puppet agen[t]'`
         # On upgrades it has happened before where we have 2 procs running if
         # the old one doesn't exit properly so I check to make sure we have
         # exactly 1 proc running
         num_procs = procs.split("\n").size
-        #if OPTIONS[:verbose] > 2
-        #    puts "#{num_procs} puppet agent processes found"
-        #end
+        # if OPTIONS[:verbose] > 2
+        #     puts "#{num_procs} puppet agent processes found"
+        # end
         if procs.empty?
             @process_status = "CRITICAL"
             @process_msg    = "'puppetd/puppet agent' PROCESS NOT RUNNING"
@@ -197,9 +197,9 @@ class CheckPuppet
 
         @diff = (now - mtime).to_i
 
-        #if OPTIONS[:verbose] > 2
-        #    puts "#{@diff} second lag since last puppet run completed"
-        #end
+        # if OPTIONS[:verbose] > 2
+        #     puts "#{@diff} second lag since last puppet run completed"
+        # end
         if @diff > @critical
             @lastrun_status = "CRITICAL"
             @lastrun_msg    = "STATE FILE " + @diff.to_s + " SECONDS OLD"
@@ -280,13 +280,13 @@ class CheckPuppet
         # Puppet.settings.value(:environment) still returns "production" which is broken
         @puppet_environment = Puppet.settings.value("environment")
         file = File.open("#{OPTIONS[:conf]}", 'r')
-        while (!file.eof?)
+        until (file.eof?)
             f = file.readline.chomp!
             next unless agent_regex.match(f)
             break
         end
         while (!file.eof?)
-           f = file.readline.chomp!
+            f = file.readline.chomp!
             break if section_regex.match(f)
             next unless environment_regex.match(f)
             @puppet_environment = $1
@@ -294,7 +294,7 @@ class CheckPuppet
         file.close
         if facter_environment and not facter_environment.empty?
             facter_environment = facter_environment.gsub(/^environment => /, "")
-            if not facter_environment.empty?
+            unless facter_environment.empty?
                 @puppet_environment = facter_environment
             end
         elsif ENV['FACTER_environment'] and not ENV['FACTER_environment'].empty?
