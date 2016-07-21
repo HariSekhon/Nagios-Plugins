@@ -67,7 +67,9 @@ test_riak(){
     #curl -XPUT localhost:8098/types/myType/buckets/myBucket/keys/myKey -d 'hari'
     curl -XPUT $RIAK_HOST:8098/buckets/myBucket/keys/myKey -d 'hari'
     echo "done"
-
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
     hr
     # riak-admin doesn't work in Dockerized environments, fails trying to stat '/proc/sys/net/core/wmem_default'
     #docker_exec check_riak_diag.pl --ignore-warnings -v
