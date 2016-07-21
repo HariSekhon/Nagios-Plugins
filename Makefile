@@ -269,6 +269,10 @@ jar-plugins:
 	wget -c -t 100 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/blob/latest/check_kafka
 	wget -c -t 100 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/releases/download/latest/check_kafka.jar
 
+.PHONY: sonar
+sonar:
+	sonar-scanner
+
 .PHONY: test
 test:
 	cd lib && make test
