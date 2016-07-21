@@ -59,9 +59,6 @@ DOCKER_CMD="tail -f /dev/null"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
 docker exec "$DOCKER_CONTAINER" yum makecache fast
 docker exec "$DOCKER_CONTAINER" yum install -y net-tools
-if [ -n "${ENTER:-}" ]; then
-    docker exec -ti "$DOCKER_CONTAINER" bash -c "cd $MNTDIR; exec bash"
-fi
 if [ -n "${NOTESTS:-}" ]; then
     exit 0
 fi
