@@ -59,6 +59,9 @@ DOCKER_CMD="tail -f /dev/null"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
 docker exec "$DOCKER_CONTAINER" yum makecache fast
 docker exec "$DOCKER_CONTAINER" yum install -y net-tools
+if [ -n "${ENTER:-}" ]; then
+    docker exec -ti "$DOCKER_CONTAINER" bash -c "cd $MNTDIR; exec bash"
+fi
 if [ -n "${NOTESTS:-}" ]; then
     exit 0
 fi
@@ -83,6 +86,8 @@ hr
 hr
 # making this much higher so it doesn't trip just due to test system load
 docker_exec check_linux_load_normalized.pl -w 99 -c 99
+hr
+docker_exec check_linux_load_normalized.pl -w 99 -c 99 --cpu-cores-perfdata
 hr
 docker_exec check_linux_ram.py -v -w 20% -c 10%
 hr
