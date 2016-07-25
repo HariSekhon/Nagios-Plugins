@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check a Git working copy is in the right branch
 Primarily written for puppetmasters to make sure prod and staging
 environment dirs had the right branches checked out in them";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -23,6 +23,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
+use Cwd 'abs_path';
 
 my $directory;
 my $branch;
@@ -38,6 +39,7 @@ my $git = $git_default;
 
 get_options();
 
+$directory = abs_path($directory);
 $directory = validate_directory($directory);
 $branch or usage "branch name not specified";
 $branch    =~ /^([\w-]+)$/ or usage "Invalid branch name given, must be alpha-numeric";
