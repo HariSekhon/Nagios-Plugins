@@ -78,7 +78,7 @@ class CheckPuppet
                     "4. The puppet version installed\n"    +
                     "5. The puppet environment the system is in\n"
       o.separator   ""
-      #o.separator   "Mandatory arguments to long options are mandatory for " +
+      # o.separator   "Mandatory arguments to long options are mandatory for " +
       #              "short options too."
 
       o.on("-C", "--config=value", String,
@@ -219,13 +219,13 @@ class CheckPuppet
         end
         if FileTest.exist?("#{OPTIONS[:lockfile]}")
             # This used to be the case pre 2.6, not supporting that any more
-            #if File.zero?("#{OPTIONS[:lockfile]}")
+            # if File.zero?("#{OPTIONS[:lockfile]}")
                 @enabled_status = "CRITICAL"
                 @enabled_msg = "PUPPET RUNS DISABLED"
-            #else
+            # else
             #    @enabled_status = "OK"
             #    @enabled_msg = "puppet runs enabled (currently in progress)"
-            #end
+            # end
         else
             @enabled_status = "OK"
             @enabled_msg = "puppet runs enabled"
@@ -285,7 +285,7 @@ class CheckPuppet
             next unless agent_regex.match(f)
             break
         end
-        while (!file.eof?)
+        until (file.eof?)
             f = file.readline.chomp!
             break if section_regex.match(f)
             next unless environment_regex.match(f)
