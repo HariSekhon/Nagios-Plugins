@@ -59,7 +59,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.6'
+__version__ = '0.3.7'
 
 
 class CheckKafka(PubSubNagiosPlugin):
