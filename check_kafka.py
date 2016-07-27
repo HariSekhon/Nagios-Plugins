@@ -59,7 +59,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.5'
+__version__ = '0.3.6'
 
 
 class CheckKafka(PubSubNagiosPlugin):
@@ -94,7 +94,7 @@ class CheckKafka(PubSubNagiosPlugin):
                      help='Kafka Broker seed list in form host[:port],host2[:port2]... (default: localhost:9092)')
         self.add_opt('-T', '--topic', help='Kafka Topic')
         self.add_opt('-p', '--partition', type=int, help='Kafka Partition (default: 0)', default=0)
-        self.add_opt('-a', '--acks', default=1, choices=[1, 'all'],
+        self.add_opt('-a', '--acks', default=1, choices=['1', 'all'],
                      help='Acks to require from Kafka. Valid options are \'1\' for Kafka ' +
                      'partition leader, or \'all\' for all In-Sync Replicas (may block causing ' +
                      'timeout if replicas aren\'t available, default: 1)')
@@ -193,7 +193,7 @@ class CheckKafka(PubSubNagiosPlugin):
         # if self.partition is not None:
         validate_int(self.partition, "partition", 0, 10000)
         self.topic_partition = TopicPartition(self.topic, self.partition)
-        self.acks = self.get_opt('acks')
+        self.acks = int(self.get_opt('acks'))
         log_option('acks', self.acks)
         self.validate_thresholds()
 
