@@ -24,7 +24,7 @@ It's a treasure trove of essentials for every single "DevOp", sysadmin or engine
 [Memcached](https://memcached.org/),
 [Redis](http://redis.io/),
 [Solr / SolrCloud](http://lucene.apache.org/solr/),
-[ElasticSearch](https://www.elastic.co/products/elasticsearch)
+[Elasticsearch](https://www.elastic.co/products/elasticsearch)
 ...) etc.
 
 These programs can also be run standalone on the command line as tools and used in scripts as well as run via Nagios.
