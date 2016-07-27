@@ -46,7 +46,7 @@ Big Data Contractor, United Kingdom
 https://www.linkedin.com/in/harisekhon
 
 
-##### Make sure you run ```make update``` if updating and not just ```git pull``` as you will often need the latest library submodules and probably new upstream libraries too,
+##### Make sure you run ```make update``` if updating and not just ```git pull``` as you will often need the latest library submodules and probably new upstream libraries too.
 
 ### Quick Start ###
 
