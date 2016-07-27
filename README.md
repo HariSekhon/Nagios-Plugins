@@ -364,8 +364,8 @@ Contributions are more than welcome with patches accepted in the form of Github 
 ##### Links #####
 
 * [Nagios](https://www.nagios.org/) - the original widely used open source monitoring system that set the standard
-* [Nagios Command Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command)
-* [Nagios Service Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service)
+  * [Nagios Command Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command)
+  * [Nagios Service Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service)
 
 * [Icinga](https://www.icinga.org/) - a newer alternative to classic Nagios
 
