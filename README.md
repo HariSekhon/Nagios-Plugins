@@ -363,7 +363,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 ##### Links #####
 
-* [Official Nagios Homepage](https://www.nagios.org/)
+* [Nagios](https://www.nagios.org/) - the original widely used open source monitoring system that set the standard
 * [Nagios Command Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command)
 * [Nagios Service Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service)
 
