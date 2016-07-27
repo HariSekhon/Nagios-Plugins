@@ -10,9 +10,9 @@ Advanced Nagios Plugins Collection
 
 Largest and most advanced collection of unified production-grade Nagios monitoring code in the wild.
 
-Largest collection of Hadoop & NoSQL monitoring code, written by a former Clouderan (Cloudera was the first Hadoop Big Data vendor).
+Largest collection of Hadoop & NoSQL monitoring code, written by a former Clouderan ([Cloudera](http://www.cloudera.com) was the first Hadoop Big Data vendor).
 
-Hadoop and extensive API integration with all major Hadoop vendors (Hortonworks, Cloudera, MapR, IBM).
+Hadoop and extensive API integration with all major Hadoop vendors ([Hortonworks](http://www.hortonworks.com), [Cloudera](http://www.cloudera.com), [MapR](http://www.mapr.com), [IBM BigInsights](http://www-03.ibm.com/software/products/en/ibm-biginsights-for-apache-hadoop)).
 
 I've been developing this Nagios Plugin Collection since 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
