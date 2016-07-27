@@ -31,7 +31,7 @@ and NoSQL technologies ([Cassandra](http://cassandra.apache.org/),
 [Elasticsearch](https://www.elastic.co/products/elasticsearch)
 ...) etc.
 
-These programs can also be run standalone on the command line as tools and used in scripts as well as run via Nagios.
+These programs can also be run standalone on the command line as tools and used in scripts as well as run in a variety of [enterprise monitoring systems](https://github.com/harisekhon/nagios-plugins#links).
 
 This should be the next stop after installing Nagios with it's basic plugins.
 
@@ -361,7 +361,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 * [My Python library](https://github.com/harisekhon/pylib) - Python version of the above library
 * [Spark => Elasticsearch](https://github.com/harisekhon/spark-apps) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of my ```pig-text-to-elasticsearch.pig``` from [Tools](https://github.com/harisekhon/tools)
 
-##### Weblinks #####
+##### Links #####
 
 * [Official Nagios Homepage](https://www.nagios.org/)
 * [Nagios Command Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command)
