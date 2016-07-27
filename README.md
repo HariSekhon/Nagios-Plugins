@@ -16,7 +16,7 @@ Hadoop and extensive API integration with all major Hadoop vendors ([Hortonworks
 
 I've been developing this Nagios Plugin Collection since 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
-It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web Infrastructure, [Hadoop](http://hadoop.apache.org/) and NoSQL technologies ([Cassandra](http://cassandra.apache.org/),
+It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web Infrastructure, [Hadoop](http://hadoop.apache.org/), [Mesos](http://mesos.apache.org/) and NoSQL technologies ([Cassandra](http://cassandra.apache.org/),
 [HBase](https://hbase.apache.org/),
 [MongoDB](https://www.mongodb.com/),
 [Riak](http://basho.com/products/),
@@ -25,8 +25,7 @@ It's a treasure trove of essentials for every single "DevOp", sysadmin or engine
 [Redis](http://redis.io/),
 [Solr / SolrCloud](http://lucene.apache.org/solr/),
 [ElasticSearch](https://www.elastic.co/products/elasticsearch)
-...), 
-[Mesos](http://mesos.apache.org/) etc.
+...) etc.
 
 These programs can also be run standalone on the command line as tools and used in scripts as well as run via Nagios.
 
