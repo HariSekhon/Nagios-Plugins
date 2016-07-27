@@ -350,17 +350,17 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 ##### Weblinks #####
 
-* Official Nagios Homepage: https://www.nagios.org/
-* Nagios Command Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command
-* Nagios Service Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service
+* [Official Nagios Homepage](https://www.nagios.org/)
+* [Nagios Command Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command)
+* [Nagios Service Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service)
 
-* Icinga - a newer alternative to classic Nagios: https://www.icinga.org/
+* [Icinga](https://www.icinga.org/) - a newer alternative to classic Nagios
 
-* Sensu - another modern Nagios compatible compatible Nagios alternative: https://sensuapp.org/
+* [Sensu](https://sensuapp.org/) - another modern Nagios compatible compatible Nagios alternative
 
-* Shinken - a Nagios core reimplementation in Python: http://www.shinken-monitoring.org/
+* [Shinken](http://www.shinken-monitoring.org/) - a Nagios core reimplementation in Python
 
-* Geneos (https://www.itrsgroup.com/products/geneos-overview) - Geneos integration is provided via ```geneos_wrapper.py``` which executes and translates any Nagios Plugin in to the CSV format that Geneos expects (a couple of investment banks I worked for used Geneos instead of more standard Nagios compatible monitoring systems)
+* [Geneos](https://www.itrsgroup.com/products/geneos-overview) - Geneos integration is provided via ```geneos_wrapper.py``` which executes and translates any Nagios Plugin in to the CSV format that Geneos expects (a couple of investment banks I worked for used Geneos instead of more standard Nagios compatible monitoring systems)
 
 ##### Datameer
 
