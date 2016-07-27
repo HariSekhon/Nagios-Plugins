@@ -364,7 +364,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 ##### Datameer
 
-Datameer plugins referenced from [Datameer docs](https://www.datameer.com/documentation/current/Home) in the Weblinks section along with the official Nagios links. See here for more information on Datameer monitoring with Nagios:
+Datameer plugins referenced in [Datameer docs](https://www.datameer.com/documentation/current/Home) from version 3 onwards in the Links section along with the official Nagios links. See here for more information on Datameer monitoring with Nagios:
 
 * https://www.datameer.com/documentation/current/Monitoring+Hadoop+and+Datameer+using+Nagios
 
