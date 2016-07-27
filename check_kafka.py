@@ -193,7 +193,11 @@ class CheckKafka(PubSubNagiosPlugin):
         # if self.partition is not None:
         validate_int(self.partition, "partition", 0, 10000)
         self.topic_partition = TopicPartition(self.topic, self.partition)
-        self.acks = int(self.get_opt('acks'))
+        self.acks = self.get_opt('acks')
+        try:
+            self.acks = int(self.acks)
+        except ValueError:
+            pass
         log_option('acks', self.acks)
         self.validate_thresholds()
 
