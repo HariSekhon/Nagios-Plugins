@@ -369,7 +369,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 * [Icinga](https://www.icinga.org/) - a newer alternative to classic Nagios
 
-* [Sensu](https://sensuapp.org/) - another modern Nagios compatible compatible Nagios alternative
+* [Sensu](https://sensuapp.org/) - another modern Nagios compatible alternative
 
 * [Shinken](http://www.shinken-monitoring.org/) - a Nagios core reimplementation in Python
 
