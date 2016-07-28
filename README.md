@@ -373,7 +373,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 * [Shinken](http://www.shinken-monitoring.org/) - a Nagios core reimplementation in Python
 
-* [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios command execution will execute and translate any Nagios Plugin in to the CSV format that Geneos expects.
+* [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can call any Nagios Plugin through this mechanism.
 
 ##### Datameer
 
