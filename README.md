@@ -63,7 +63,7 @@ Run any given plugin:
 docker run harisekhon/nagios-plugins <check_plugin> <args>
 ```
 
-#### Automated Build from source #####
+#### Automated Build from Source
 
 ```
 git clone https://github.com/harisekhon/nagios-plugins
