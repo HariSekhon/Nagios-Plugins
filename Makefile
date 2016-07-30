@@ -26,6 +26,7 @@ endif
 
 .PHONY: build
 build:
+	if [ -x /sbin/apk ];        then make apk-packages; fi
 	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
 	if [ -x /usr/bin/yum ];     then make yum-packages; fi
 	
@@ -165,6 +166,29 @@ build:
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins)"
 
+.PHONY: apk-packages
+apk-packages:
+	$(SUDO) apk update
+	$(SUDO) apk add alpine-sdk
+	$(SUDO) apk add bash
+	$(SUDO) apk add expat-dev
+	$(SUDO) apk add gcc
+	$(SUDO) apk add git
+	$(SUDO) apk add libxml2-dev
+	$(SUDO) apk add make
+	$(SUDO) apk add openssl-dev
+	$(SUDO) apk add perl
+	$(SUDO) apk add perl-dev
+	$(SUDO) apk add wget
+
+.PHONY: apk-packages-remove
+apk-packages-remove:
+	$(SUDO) apk del alpine-sdk
+	$(SUDO) apk del expat-dev
+	$(SUDO) apk del libxml2-dev
+	$(SUDO) apk del openssl-dev
+	$(SUDO) apk del perl-dev
+	$(SUDO) apk del wget
 
 .PHONY: apt-packages
 apt-packages:
@@ -199,6 +223,20 @@ apt-packages:
 	$(SUDO) apt-get install -y libev-dev
 	$(SUDO) apt-get install -y libsnappy-dev
 	# needed for ndg-httpsclient upgrade
+	$(SUDO) apt-get install -y libffi-dev
+
+.PHONY: apt-packages-remove
+apt-packages-remove:
+	$(SUDO) apt-get install -y build-essential
+	$(SUDO) apt-get install -y wget
+	$(SUDO) apt-get install -y libmysqlclient-dev
+	$(SUDO) apt-get install -y libssl-dev
+	$(SUDO) apt-get install -y libsasl2-dev
+	$(SUDO) apt-get install -y libexpat1-dev
+	$(SUDO) apt-get install -y libkrb5-dev
+	$(SUDO) apt-get install -y python-dev
+	$(SUDO) apt-get install -y libev-dev
+	$(SUDO) apt-get install -y libsnappy-dev
 	$(SUDO) apt-get install -y libffi-dev
 
 .PHONY: yum-packages
@@ -243,6 +281,19 @@ yum-packages:
 	# for check_yum.pl / check_yum.py
 	rpm -q yum-security yum-plugin-security || yum install -y yum-security yum-plugin-security
 
+.PHONY: yum-packages-remove
+yum-packages-remove:
+	rpm -q gcc 				&& $(SUDO) yum remove -y gcc
+	rpm -q gcc-c++ 			&& $(SUDO) yum remove -y gcc-c++
+	rpm -q perl-CPAN 		&& $(SUDO) yum remove -y perl-CPAN
+	rpm -q mysql-devel 		&& $(SUDO) yum remove -y mysql-devel
+	rpm -q openssl-devel    && $(SUDO) yum remove -y openssl-devel
+	rpm -q expat-devel 	    && $(SUDO) yum remove -y expat-devel
+	rpm -q python-devel 	&& $(SUDO) yum remove -y python-devel
+	rpm -q libev-devel 		&& $(SUDO) yum remove -y libev-devel
+	rpm -q snappy-devel 	&& $(SUDO) yum remove -y snappy-devel
+	rpm -q libffi-devel		&& $(SUDO) yum remove -y libffi-devel
+	rpm -q cyrus-sasl-devel && $(SUDO) yum remove -y cyrus-sasl-devel
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
 # doesn't build on Mac < 3.4.7 / 3.5.1 / 3.6.0 but the others are in the public mirrors yet
