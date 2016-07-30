@@ -176,6 +176,7 @@ apk-packages:
 	$(SUDO) apk add git
 	$(SUDO) apk add libxml2-dev
 	$(SUDO) apk add make
+	$(SUDO) apk add mariadb-dev
 	$(SUDO) apk add openssl-dev
 	$(SUDO) apk add perl
 	$(SUDO) apk add perl-dev
@@ -188,6 +189,7 @@ apk-packages-remove:
 	$(SUDO) apk del alpine-sdk
 	$(SUDO) apk del expat-dev
 	$(SUDO) apk del libxml2-dev
+	$(SUDO) apk del mariadb-dev
 	$(SUDO) apk del openssl-dev
 	$(SUDO) apk del perl-dev
 	$(SUDO) apk del wget
@@ -251,7 +253,7 @@ yum-packages:
 	rpm -q wget 			|| $(SUDO) yum install -y wget
 	rpm -q tar 				|| $(SUDO) yum install -y tar
 	rpm -q which			|| $(SUDO) yum install -y which
-	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
+	# to build DBD::mysql if building from CPAN
 	rpm -q mysql-devel 		|| $(SUDO) yum install -y mysql-devel
 	rpm -q perl-DBD-MySQL 	|| $(SUDO) yum install -y perl-DBD-MySQL
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
