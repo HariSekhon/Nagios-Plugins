@@ -124,7 +124,7 @@ class SvnTester(NagiosTester):
             cmd += " --password=%s" % self.password
 
         result, output = self.run(cmd)
-        
+
         if result == 0:
             if len(output) == 0:
                 return (WARNING, "Test passed but no output was received " \
@@ -148,7 +148,7 @@ class SvnTester(NagiosTester):
                 output = output.lstrip("svn: ")
                 return (CRITICAL, "Error connecting to svn server - %s " \
                                         % output.replace("\n", " ").rstrip(" "))
- 
+
 
 def main():
     """Parses args and calls func to test svn server"""
@@ -268,7 +268,7 @@ def main():
     if options.timing:
         finish_time = time.time()
         total_time = finish_time - start_time
-        
+
         output += ". Test completed in %.3f seconds" % total_time
 
     end(returncode, output)
