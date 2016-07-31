@@ -17,9 +17,9 @@ Checks:
 
 - File/directory existence 
 - check whether the given path is a file or directory
-    
+
 Directory Checks:
-    
+
 The following additional checks may be applied to directories. Not available for files at this time due to limitation of BigInsights Console API only returning metadata for directories:
 
 - owner/group
@@ -184,18 +184,18 @@ if($json = isJson($content) and defined($json->{"directory"}) and $json->{"direc
     my $last_accessed      = floor(get_field("accessTime") / 1000);
     my $last_accessed_diff = time - $last_accessed;
     $msg .= " accessTime=$last_accessed";
-    
+
     if($file_checks{"last accessed"}){
         unless($last_accessed_diff <= $file_checks{"last accessed"}){
             critical;
             $msg .= " ($last_accessed_diff>" . $file_checks{"last accessed"} . " secs ago)";
         }
     }
-    
+
     my $last_modified      = int(get_field("modified") / 1000);
     my $last_modified_diff = time - $last_modified;
     $msg .= " modifiedTime=$last_modified";
-    
+
     if($file_checks{"last modified"}){
         unless($last_modified_diff <= $file_checks{"last modified"}){
             critical;
