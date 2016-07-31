@@ -182,6 +182,7 @@ apk-packages:
 	$(SUDO) apk add perl-dev
 	$(SUDO) apk add py-mysqldb
 	$(SUDO) apk add py-pip
+	$(SUDO) apk add ruby
 	$(SUDO) apk add wget
 
 .PHONY: apk-packages-remove
