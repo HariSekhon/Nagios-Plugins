@@ -61,7 +61,7 @@ def which(executable):
 def end(status, message):
     """Prints a message and exits. First arg is the status code
     Second Arg is the string message"""
-   
+
     if CHECK_NAME in (None, ""):
         check_name = ""
     else:
@@ -118,7 +118,7 @@ class NagiosTester(object):
            not re_ipaddr.match(self.server):
             end(UNKNOWN, "Server given does not appear to be a valid " \
                        + "hostname or ip address")
-    
+
 
 #    def validate_port(self):
 #        """Exits with an error if the port is not valid"""
@@ -159,7 +159,7 @@ class NagiosTester(object):
         if cmd == "" or cmd == None:
             end(UNKNOWN, "Internal python error - " \
                        + "no cmd supplied for run function")
-        
+
         self.vprint(3, "running command: %s" % cmd)
 
         try:
@@ -186,7 +186,7 @@ class NagiosTester(object):
 
         if stdout == None or stdout == "":
             end(UNKNOWN, "No output from utility '%s'" % cmd.split()[0])
-        
+
         return (returncode, str(stdout))
 
 
