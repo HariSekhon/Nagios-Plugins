@@ -105,7 +105,7 @@ class CheckPuppet
           puts o
           exit EXIT["UNKNOWN"]
       end
-      
+
       begin
           o.parse!(ARGV)
       rescue
