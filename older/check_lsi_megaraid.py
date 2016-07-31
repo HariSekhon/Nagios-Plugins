@@ -36,7 +36,7 @@ MEGADEV  = "/dev/megadev0"
 def end(status, message):
     """exits the plugin with first arg as the return code and the second
     arg as the message to output"""
-        
+
     if status == OK:
         print "RAID OK: %s" % message
         sys.exit(OK)
@@ -125,7 +125,7 @@ def run(args):
         else:
             end(UNKNOWN, "Error using MegaRaid utility - %s" \
                                                     % output.replace("\n", "|"))
-    
+
     return lines
 
 
@@ -151,7 +151,7 @@ def get_controllers(verbosity):
 
     if verbosity >= 2:
         print "Found %s controller(s)" % len(controllers)
-   
+
     return controllers
 
 
@@ -180,7 +180,7 @@ def test_raid(verbosity, no_summary=False):
             if "RaidLevel:" in line:
                 raid_level = line.split()[3]
                 array_details[logical_drive].append(raid_level)
-       
+
         if len(array_details) == 0:
             message += "No arrays found on controller %s. " % controller
             if status == OK:
@@ -233,7 +233,6 @@ def add_status_summary(status, message, non_optimal_arrays):
         else:
             message = "%s arrays not OK - " % non_optimal_arrays \
                     + message
-       
     return message
 
 
@@ -244,14 +243,12 @@ def add_checked_summary(message, number_arrays, number_controllers):
     if number_arrays != 1:
         message += "s"
     message += " checked on %s controller" % number_controllers
-
     if number_controllers == 1:
         message += "]"
     else:
         message += "s]"
-    
     return message
-    
+
 
 def main():
     """parses args and calls func to test raid arrays"""
