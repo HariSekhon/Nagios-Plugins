@@ -48,11 +48,6 @@ docker_exec(){
 
 startupwait=0
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Linux checks!!!'
-    exit 0
-fi
-
 echo "Setting up Linux test container"
 DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
 DOCKER_CMD="tail -f /dev/null"
