@@ -82,7 +82,7 @@ foreach(@beans){
     my $decom       = get_field2_int($_, "NumDecommissioningDataNodes");
     my $decom_live  = get_field2_int($_, "NumDecomLiveDataNodes");
     my $decom_dead  = get_field2_int($_, "NumDecomDeadDataNodes");
-    
+
     $msg =  "datanodes: $live live, $dead dead";
     check_thresholds($dead);
     $msg .= ", $stale stale";
