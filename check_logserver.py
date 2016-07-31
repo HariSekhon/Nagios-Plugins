@@ -110,23 +110,23 @@ class LogServerTester:
     def generate_log(self):
         """Generates and returns a unique timestamped log string to feed the \
         logserver. Log string is not ended by a newline"""
-        
+
         if self.udp == True:
             self.conn_type = "UDP"
-    
+
         program = SCRIPTNAME
-    
+
         # USER facility
         facility = 1
         # DEBUG priority
         priority = 7
         pri = facility * 8 + priority
-    
+
         hostname = socket.gethostname().lower()
-    
+
         timestamp = time.strftime('%b %d %T')
         epoch = time.time()
-       
+
         # format follows syslog standard and is in the form
         # <pri>timestamp hostname program: log message epoch
 
@@ -135,13 +135,13 @@ class LogServerTester:
         # this pure log later on
         log = "<%s>%s %s %s: Nagios Log Server %s Check %s" % \
             (pri, timestamp, hostname, program, self.conn_type, epoch)
-    
+
         return log
 
 
     def send_log(self):
         """send the log to the logserver"""
-    
+
         if self.udp == True:
             self.vprint(2, "creating udp connection to logserver")
             logserver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -169,7 +169,7 @@ class LogServerTester:
                 end(CRITICAL, "failed to send log to logserver - '%s'" \
                                                 % (socket_error[1]))
         self.vprint(2, "log sent")
-   
+
 
     def set_timeout(self):
         """sets an alarm to time out the test"""
@@ -201,37 +201,37 @@ class LogServerTester:
         # This function should exit with an error if any variables fail input
         # validation
         self.validate_variables()
-        
+
         # First let's make sure this test doesn't take more than the
         # timeout threshold to follow nagios standards
         self.set_timeout()
-        
+
         self.log = self.generate_log()
-   
+
         # Should never happen but  it doesn't hurt to be defensive
         if self.log == "":
             end(CRITICAL, "Log generation failed")
 
         self.vprint(3,"log is '%s'" % self.log)
         self.vprint(2,"now sending log...")
-    
+
         self.send_log()
-    
+
         self.vprint(2, "waiting %s seconds before 2nd part of check" \
                                                                 % self.delay)
-    
+
         time.sleep(self.delay)
-    
+
         self.vprint(2, "now testing for log in mysql database")
-    
+
         returncode = self.test_mysql_server()
-    
+
         return returncode
 
 
     def test_mysql_server(self):
         """Connects to the MySQL server and queries for log"""
-    
+
         if self.verbosity >= 3:
             print "creating connection to mysql server"
             print "host = '%s'" % self.mysql_server
@@ -239,7 +239,7 @@ class LogServerTester:
             print "user = '%s'" % self.username
             print "password = '%s'" % self.password
             print "mysql_db = '%s'" % self.mysql_db
-    
+
         try:
             db_connection = MySQLdb.connect(host   = self.mysql_server, \
                                             user   = self.username,     \
@@ -248,27 +248,27 @@ class LogServerTester:
                                             port   = self.mysql_port    )
         except MySQLdb.MySQLError, mysql_error:
             end(CRITICAL, "error connecting to database - %s" % mysql_error[1])
-    
+
         self.vprint(2, "connected to database")
-    
+
         cursor = db_connection.cursor()
-    
+
         log_message = ""
-    
+
         for message_part in self.log.split()[4:]:
             log_message += message_part + " "
-        
+
         log_message = log_message.rstrip(" ")
-        
+
         self.vprint(2, "extracted log message body from log")
         self.vprint(2, "log message is '%s'" % log_message)
-    
+
         # security is maintained by a combinarion of `` and restrictive
         # regex validation the validate functions. MySQLdb must take care of 
         # the log value but this is not an input variable anyway.
         query = "select count(*) from `%s` where `%s`=%%s" \
                                 % (self.mysql_table, self.mysql_column)
-    
+
         # This query will be slow and necessitates the need for a long default 
         # timeout, as this is not suitable for an index and therefore must do a 
         # full table scan
@@ -296,7 +296,7 @@ class LogServerTester:
 
         self.vprint(2, "number of logs matching message body: %s" \
                                                             % number_of_logs)
-    
+
         if number_of_logs == 1:
             end(OK, "log successfully sent and entered into database")
         elif number_of_logs > 1:
@@ -306,7 +306,7 @@ message has been inserted into the database")
             end(CRITICAL, "log failed to appear in the logserver back end")
         else:
             end(CRITICAL, "unknown number of logs detected")
-    
+
         return UNKNOWN
 
 
@@ -318,7 +318,7 @@ message has been inserted into the database")
         # against injection on these variables
         if self.username == None:
             end(HELP, "You must enter a username for the MySQL database")
-    
+
         if self.password == None:
             end(HELP, "You must enter a password for the MySQL database")
 
@@ -344,7 +344,7 @@ message has been inserted into the database")
 
         if self.logserver == None:
             end(HELP, "You must enter a logserver hostname or ip address")
-    
+
         if not self.re_validation.match(self.logserver):
             end(UNKNOWN, "logserver name/ip address supplied contains " \
                        + "unusable characters")
@@ -363,12 +363,12 @@ message has been inserted into the database")
         except ValueError:
             end(UNKNOWN, "logserver port number must a whole number " \
                        + "between 1 and 65535")
- 
+
 
 
     def validate_mysql_column(self):
         """Validates the mysql column name and exits if invalid"""
-        
+
         if self.mysql_column == None:
             self.mysql_column = self.default_mysql_column
 
@@ -448,7 +448,7 @@ message has been inserted into the database")
     def validate_udp(self):
         """Validates the udp switch setting and sets the appropriate 
         connection type"""
-    
+
         if self.udp == False or self.udp == None:
             pass
         elif self.udp == True:
@@ -467,7 +467,7 @@ message has been inserted into the database")
         # username and password is not vulnerable by my testing for cli 
         # injection so they are not tested here.
         self.re_validation = re.compile("^[\w\d\.-]+$")
-    
+
         # validate logserver should be before validate mysql_server
         # see validate_mysql_server for why
         # every input variable except for verbosity which is an 
@@ -519,7 +519,7 @@ def main():
 
     tester = LogServerTester()
     parser = OptionParser()
-     
+
     parser.add_option( "-H",
                        "--logserver",
                        dest="logserver",
@@ -622,9 +622,9 @@ def main():
                        action="store_true",
                        dest="version",
                        help="Print version number and exit" ) 
-                
+
     (options, args) = parser.parse_args()
-    
+
     if args:
         parser.print_help()
         sys.exit(UNKNOWN)
@@ -644,7 +644,7 @@ def main():
     tester.udp            = options.udp
     tester.username       = options.username
     tester.verbosity      = options.verbosity
-        
+
     if options.version:
         print __version__
         sys.exit(UNKNOWN)
@@ -655,7 +655,7 @@ def main():
 
     finish_time = time.time()
     total_time = finish_time - start_time
-    
+
     if output: 
         print "%s. Test completed in %.3f seconds" % (output, total_time)
     else:
