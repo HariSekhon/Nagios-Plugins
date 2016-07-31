@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check authentication mechanisms are working by 
 - certain users/groups are present
 - there are no duplicate UID/GIDs
 - groups.allow contains the expected groups and no others
- 
+
 Useful for checking that AD integrated Linux servers are still able to authenticate AD users
 ";
 # - TODO: system-auth-ac matches the expected checksum
