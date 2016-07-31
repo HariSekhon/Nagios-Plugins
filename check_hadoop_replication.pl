@@ -80,7 +80,7 @@ foreach(@beans){
     my $excess       = get_field2_int($_, "ExcessBlocks");
     my $missing      = get_field2_int($_, "MissingBlocks");
     my $post_misrepl = get_field2_int($_, "PostponedMisreplicatedBlocks");
-    
+
     $msg  = sprintf("hdfs blocks missing: %d, corrupt: %d, under-replicated: %d", $missing, $corrupt, $under_repl);
     critical if $missing;
     critical if $corrupt;
