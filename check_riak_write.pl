@@ -43,7 +43,7 @@ my $header = "Hari Sekhon $progname version $main::VERSION";
 $ua->agent($header);
 
 set_port_default(8098);
- 
+
 env_creds("Riak");
 
 my $default_precision = 4;
