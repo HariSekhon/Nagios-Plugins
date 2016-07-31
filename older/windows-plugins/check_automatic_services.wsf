@@ -30,7 +30,7 @@ Checks that all automatic Windows services are running
 
             <named name="shortname"
                    helpstring="Display the short name of non-running services instead of the full display name" />
-                   
+
             <named name="exclude"
                    helpstring="Services to exclude from check, comma separated"
                    type="string" />
@@ -171,11 +171,11 @@ command[check_all_services]=cmd /c cscript //NOLOGO "c:\Program Files\NSClient++
             ' Clever Hack
             Class cExit
                 Public intErrorLevel
-   
+
                 Private Sub Class_Initialize()
                   intErrorLevel = intUNKNOWN
                 End Sub
-   
+
                 Private Sub Class_Terminate()
                     WScript.Quit intErrorLevel
                 End Sub
@@ -415,7 +415,7 @@ command[check_all_services]=cmd /c cscript //NOLOGO "c:\Program Files\NSClient++
             If Len(strNonRunningServices) > 1 Then
                 strNonRunningServices = Left(strNonRunningServices, InStrRev(strNonRunningServices, ", ")-1)
             End If
-    
+
             ' intServicesChecked should have been set In the variable declaration section to some reasonable number
             ' of services that we expect to have running, not too high and not too low.
             If intServicesChecked < intMinimumServices Then
