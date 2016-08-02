@@ -144,8 +144,8 @@ build:
 
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
-	$(SUDO) easy_install -U setuptools || $(SUDO) easy_install -U setuptools || :
-	$(SUDO) easy_install pip || :
+	$(SUDO2) easy_install -U setuptools || $(SUDO2) easy_install -U setuptools || :
+	$(SUDO2) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	# upgrade required to get install to work properly on Debian
 	$(SUDO2) pip install --upgrade pip
