@@ -20,7 +20,7 @@ Specifying the cluster name shortens the perfdata labels to not have to include 
 
 Tested on MapR 3.1.0 and 4.0.1";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -76,6 +76,9 @@ my $found_service;
 foreach (@data){
     $name = get_field2($_, "cluster.name");
     $msg .= "cluster: '$name' service instances running: ";
+    if(not defined($_->{"services"}) and $cluster){
+        quit "UNKNOWN", "services field not found. Try unsetting \$MAPR_CLUSTER and not using --cluster / -C switch as sometimes services don't show up for the specific cluster";
+    }
     %services = get_field2_hash($_, "services");
     foreach my $service2 (sort keys %services){
         if($service){
