@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check a MapR cluster's memory utilization % via
 
 Checks optional warning/critical thresholds against memory utilization %.
 
-Tested on MapR 3.1.0 and 4.0.1";
+Tested on MapR 3.1.0, 4.0.1, 5.1.0";
 
 $VERSION = "0.1";
 
