@@ -1,24 +1,38 @@
 Advanced Nagios Plugins Collection
 ==================================
 [![Build Status](https://travis-ci.org/HariSekhon/nagios-plugins.svg?branch=master)](https://travis-ci.org/HariSekhon/nagios-plugins)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e6fcf7cb4dcc4905ab0a4cb91567fdda)](https://www.codacy.com/app/harisekhon/nagios-plugins)
 [![GitHub stars](https://img.shields.io/github/stars/harisekhon/nagios-plugins.svg)](https://github.com/harisekhon/nagios-plugins/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/harisekhon/nagios-plugins.svg)](https://github.com/harisekhon/nagios-plugins/network)
-[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20OS%20X-lightgrey.svg)](https://github.com/harisekhon/nagios-plugins#advanced-nagios-plugins-collection)
+[![Dependency Status](https://gemnasium.com/badges/github.com/HariSekhon/nagios-plugins.svg)](https://gemnasium.com/github.com/HariSekhon/nagios-plugins)
+[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20OS%20X-blue.svg)](https://github.com/harisekhon/nagios-plugins#advanced-nagios-plugins-collection)
 [![DockerHub](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/harisekhon/nagios-plugins/)
+[![](https://images.microbadger.com/badges/image/harisekhon/nagios-plugins.svg)](http://microbadger.com/#/images/harisekhon/nagios-plugins)
 
 Largest and most advanced collection of unified production-grade Nagios monitoring code in the wild.
 
-Largest collection of Hadoop & NoSQL monitoring code, written by a former Clouderan (Cloudera was the first Hadoop Big Data vendor).
+Largest collection of Hadoop & NoSQL monitoring code, written by a former Clouderan ([Cloudera](http://www.cloudera.com) was the first Hadoop Big Data vendor).
 
-Hadoop and extensive API integration with all major Hadoop vendors (Hortonworks, Cloudera, MapR, IBM).
-
-**Python plugins will be moving to their own repo in the near future as this repo has become too large**
+Hadoop and extensive API integration with all major Hadoop vendors ([Hortonworks](http://www.hortonworks.com), [Cloudera](http://www.cloudera.com), [MapR](http://www.mapr.com), [IBM BigInsights](http://www-03.ibm.com/software/products/en/ibm-biginsights-for-apache-hadoop)).
 
 I've been developing this Nagios Plugin Collection since 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
-It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web, Hadoop and NoSQL technologies (Cassandra, HBase, MongoDB, Riak, Couchbase, Memcached, Redis, Solr, SolrCloud, ElasticSearch...), Mesos etc.
+It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web Infrastructure,
+[Hadoop](http://hadoop.apache.org/),
+[Kafka](http://kafka.apache.org/),
+[Mesos](http://mesos.apache.org/)
+and NoSQL technologies ([Cassandra](http://cassandra.apache.org/),
+[HBase](https://hbase.apache.org/),
+[MongoDB](https://www.mongodb.com/),
+[Riak](http://basho.com/products/),
+[Couchbase](http://www.couchbase.com/),
+[Memcached](https://memcached.org/),
+[Redis](http://redis.io/),
+[Solr / SolrCloud](http://lucene.apache.org/solr/),
+[Elasticsearch](https://www.elastic.co/products/elasticsearch)
+...) etc.
 
-These programs can also be run standalone on the command line as tools and used in scripts as well as run via Nagios.
+These programs can also be run standalone on the command line as tools and used in scripts as well as run in a variety of [enterprise monitoring systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems).
 
 This should be the next stop after installing Nagios with it's basic plugins.
 
@@ -30,10 +44,10 @@ Hari Sekhon
 
 Big Data Contractor, United Kingdom
 
-http://www.linkedin.com/in/harisekhon
+https://www.linkedin.com/in/harisekhon
 
 
-##### Make sure you run ```make update``` if updating and not just ```git pull``` as you will often need the latest library submodule and possibly new upstream libraries. #####
+##### Make sure you run ```make update``` if updating and not just ```git pull``` as you will often need the latest library submodules and probably new upstream libraries too.
 
 ### Quick Start ###
 
@@ -50,7 +64,7 @@ Run any given plugin:
 docker run harisekhon/nagios-plugins <check_plugin> <args>
 ```
 
-#### Automated Build from source #####
+#### Automated Build from Source
 
 ```
 git clone https://github.com/harisekhon/nagios-plugins
@@ -250,9 +264,9 @@ If you update often and want to just quickly git pull + submodule update but ski
 
 #### Testing
 
-There is a full suite of Dockerized functional tests in the ```tests/``` directory as well as a high coverage percentage of unit tests for the underlying [Perl library](https://github.com/harisekhon/lib) and [Python library](https://githu.com/harisekhon/pylib).
+There is a full suite of Dockerized functional tests in the ```tests/``` directory as well as a high coverage percentage of unit tests for the underlying [Perl library](https://github.com/harisekhon/lib) and [Python library](https://githu.com/harisekhon/pylib) libraries.
 
-Running ```make test``` will trigger all tests, starting with the underlying libraries and then moving on to the functional test suites.
+Running ```make test``` will trigger all tests, starting with the underlying libraries and then moving on to the Dockerized functional test suites.
 
 ##### Bugs & Workarounds #####
 
@@ -329,7 +343,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 ### Further Utilities ###
 
-[Tools](https://github.com/harisekhon/tools) & [PyTools](https://github.com/harisekhon/pytools) repos - contains 30+ programs including useful tools such as:
+[Tools](https://github.com/harisekhon/tools) & [PyTools](https://github.com/harisekhon/pytools) repos - contains another 50+ programs including useful tools such as:
 * Hive / Pig => Elasticsearch / SolrCloud indexers
 * Hadoop HDFS performance debugger, native checksum extractor, file retention policy script, HDFS file stats, XML & running Hadoop cluster config differ
 * ```watch_url.pl``` for debugging load balanced web farms
@@ -348,24 +362,26 @@ Contributions are more than welcome with patches accepted in the form of Github 
 * [My Python library](https://github.com/harisekhon/pylib) - Python version of the above library
 * [Spark => Elasticsearch](https://github.com/harisekhon/spark-apps) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of my ```pig-text-to-elasticsearch.pig``` from [Tools](https://github.com/harisekhon/tools)
 
-##### Weblinks #####
+### Enterprise Monitoring Systems
 
-* Official Nagios Homepage: https://www.nagios.org/
-* Nagios Command Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command
-* Nagios Service Configuration: http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service
+The following enterprise monitoring systems are compatible with this project:
 
-* Icinga - a newer alternative to classic Nagios: https://www.icinga.org/
+* [Nagios](https://www.nagios.org/) - the original widely used open source monitoring system that set the standard
+  * [Nagios Command Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command)
+  * [Nagios Service Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service)
 
-* Sensu - another modern Nagios compatible compatible Nagios alternative: https://sensuapp.org/
+* [Icinga](https://www.icinga.org/) - a newer alternative to classic Nagios
 
-* Shinken - a Nagios core reimplementation in Python: http://www.shinken-monitoring.org/
+* [Sensu](https://sensuapp.org/) - another modern Nagios compatible alternative
 
-* Geneos (https://www.itrsgroup.com/products/geneos-overview) - Geneos integration is provided via ```geneos_wrapper.py``` which executes and translates any Nagios Plugin in to the CSV format that Geneos expects (a couple of investment banks I worked for used Geneos instead of more standard Nagios compatible monitoring systems)
+* [Shinken](http://www.shinken-monitoring.org/) - a Nagios core reimplementation in Python
 
-###### Datameer ######
+* [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program.
 
-Datameer plugins referenced from Datameer docs in the Weblinks section along with the official Nagios links. See here for more information on Datameer monitoring with Nagios:
+##### Datameer
 
-* http://www.datameer.com/documentation/display/DAS30/Monitoring+Hadoop+and+Datameer+using+Nagios
+Datameer plugins referenced in [Datameer docs](https://www.datameer.com/documentation/current/Home) from version 3 onwards in the Links section along with the official Nagios links. See here for more information on Datameer monitoring with Nagios:
+
+* https://www.datameer.com/documentation/current/Monitoring+Hadoop+and+Datameer+using+Nagios
 
 After trying the 1 example plugin there, return to try the 9 plugins in this collection to extend your Datameer monitoring further.

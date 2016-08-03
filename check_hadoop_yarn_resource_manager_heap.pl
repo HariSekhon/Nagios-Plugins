@@ -80,7 +80,7 @@ foreach(@beans){
     my $max     = get_field2_int($_, "${Non}HeapMemoryUsage.max");
     my $used    = get_field2_int($_, "${Non}HeapMemoryUsage.used");
     my $used_pc = sprintf("%.2f", $used / $max * 100);
-    
+
     $msg = sprintf("%s%% ${non}heap used (%s/%s)", $used_pc, human_units($used), human_units($max));
     check_thresholds($used_pc);
     $msg .= sprintf(" | '${non}heap used %%'=%s%%", $used_pc);

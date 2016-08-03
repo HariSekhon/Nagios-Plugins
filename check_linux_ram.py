@@ -33,7 +33,7 @@ def check_ram(warning_threshold, critical_threshold, percent, verbosity, \
     """Takes warning and critical thresholds in KB or percentage if third 
     argument is true, and returns a result depending on whether the amount free
     ram is less than the thresholds"""
-   
+
     if verbosity >= 3:
         print "Opening /proc/meminfo"
     try:
@@ -41,9 +41,9 @@ def check_ram(warning_threshold, critical_threshold, percent, verbosity, \
     except IOError, e:
         print "RAM CRITICAL: Error opening /proc/meminfo - %s" % str(e)
         return CRITICAL
-    
+
     output = f.readlines()
-    
+
     for x in range(len(output)):
         y = output[x].split()
         if y [0] == "MemTotal:":
@@ -52,7 +52,7 @@ def check_ram(warning_threshold, critical_threshold, percent, verbosity, \
             memfree   = int(y[1])
         elif y[0] == "Cached:":
             memcached = int(y[1])
-  
+
     for x in memtotal, memfree, memcached:
         if x == None:
             print "UNKNOWN: failed to get mem stats" 
@@ -62,7 +62,7 @@ def check_ram(warning_threshold, critical_threshold, percent, verbosity, \
         total_free = memfree
     else:
         total_free = memfree + memcached
-    
+
     total_used_megs = ( memtotal - total_free ) / 1024.0
     #total_free_megs = total_free / 1024.0
     memtotal_megs   = memtotal / 1024.0
@@ -113,9 +113,9 @@ def check_ram(warning_threshold, critical_threshold, percent, verbosity, \
 
 def main():
     """main func, parse args, do sanity checks and call check_ram func"""
-    
+
     parser = OptionParser()
-    
+
     parser.add_option("-n", "--no-include-cache",
                         action="store_true", dest="nocache",
                         help="Do not include cache as free ram. Linux tends to "

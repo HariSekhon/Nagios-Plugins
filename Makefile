@@ -26,6 +26,7 @@ endif
 
 .PHONY: build
 build:
+	if [ -x /sbin/apk ];        then make apk-packages; fi
 	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
 	if [ -x /usr/bin/yum ];     then make yum-packages; fi
 	
@@ -143,8 +144,8 @@ build:
 
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
-	$(SUDO) easy_install -U setuptools
-	$(SUDO) easy_install pip || :
+	$(SUDO2) easy_install -U setuptools || $(SUDO2) easy_install -U setuptools || :
+	$(SUDO2) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	# upgrade required to get install to work properly on Debian
 	$(SUDO2) pip install --upgrade pip
@@ -164,6 +165,34 @@ build:
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins)"
 
+.PHONY: apk-packages
+apk-packages:
+	$(SUDO) apk update
+	$(SUDO) apk add alpine-sdk
+	$(SUDO) apk add bash
+	$(SUDO) apk add expat-dev
+	$(SUDO) apk add gcc
+	$(SUDO) apk add git
+	$(SUDO) apk add libxml2-dev
+	$(SUDO) apk add make
+	$(SUDO) apk add mariadb-dev
+	$(SUDO) apk add openssl-dev
+	$(SUDO) apk add perl
+	$(SUDO) apk add perl-dev
+	$(SUDO) apk add py-mysqldb
+	$(SUDO) apk add py-pip
+	$(SUDO) apk add ruby
+	$(SUDO) apk add wget
+
+.PHONY: apk-packages-remove
+apk-packages-remove:
+	$(SUDO) apk del alpine-sdk
+	$(SUDO) apk del expat-dev
+	$(SUDO) apk del libxml2-dev
+	$(SUDO) apk del mariadb-dev
+	$(SUDO) apk del openssl-dev
+	$(SUDO) apk del perl-dev
+	$(SUDO) apk del wget
 
 .PHONY: apt-packages
 apt-packages:
@@ -200,6 +229,20 @@ apt-packages:
 	# needed for ndg-httpsclient upgrade
 	$(SUDO) apt-get install -y libffi-dev
 
+.PHONY: apt-packages-remove
+apt-packages-remove:
+	$(SUDO) apt-get install -y build-essential
+	$(SUDO) apt-get install -y wget
+	$(SUDO) apt-get install -y libmysqlclient-dev
+	$(SUDO) apt-get install -y libssl-dev
+	$(SUDO) apt-get install -y libsasl2-dev
+	$(SUDO) apt-get install -y libexpat1-dev
+	$(SUDO) apt-get install -y libkrb5-dev
+	$(SUDO) apt-get install -y python-dev
+	$(SUDO) apt-get install -y libev-dev
+	$(SUDO) apt-get install -y libsnappy-dev
+	$(SUDO) apt-get install -y libffi-dev
+
 .PHONY: yum-packages
 yum-packages:
 	rpm -q gcc 				|| $(SUDO) yum install -y gcc
@@ -210,7 +253,7 @@ yum-packages:
 	rpm -q wget 			|| $(SUDO) yum install -y wget
 	rpm -q tar 				|| $(SUDO) yum install -y tar
 	rpm -q which			|| $(SUDO) yum install -y which
-	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
+	# to build DBD::mysql if building from CPAN
 	rpm -q mysql-devel 		|| $(SUDO) yum install -y mysql-devel
 	rpm -q perl-DBD-MySQL 	|| $(SUDO) yum install -y perl-DBD-MySQL
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
@@ -242,6 +285,19 @@ yum-packages:
 	# for check_yum.pl / check_yum.py
 	rpm -q yum-security yum-plugin-security || yum install -y yum-security yum-plugin-security
 
+.PHONY: yum-packages-remove
+yum-packages-remove:
+	rpm -q gcc 				&& $(SUDO) yum remove -y gcc
+	rpm -q gcc-c++ 			&& $(SUDO) yum remove -y gcc-c++
+	rpm -q perl-CPAN 		&& $(SUDO) yum remove -y perl-CPAN
+	rpm -q mysql-devel 		&& $(SUDO) yum remove -y mysql-devel
+	rpm -q openssl-devel    && $(SUDO) yum remove -y openssl-devel
+	rpm -q expat-devel 	    && $(SUDO) yum remove -y expat-devel
+	rpm -q python-devel 	&& $(SUDO) yum remove -y python-devel
+	rpm -q libev-devel 		&& $(SUDO) yum remove -y libev-devel
+	rpm -q snappy-devel 	&& $(SUDO) yum remove -y snappy-devel
+	rpm -q libffi-devel		&& $(SUDO) yum remove -y libffi-devel
+	rpm -q cyrus-sasl-devel && $(SUDO) yum remove -y cyrus-sasl-devel
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
 # doesn't build on Mac < 3.4.7 / 3.5.1 / 3.6.0 but the others are in the public mirrors yet
@@ -249,6 +305,7 @@ yum-packages:
 ZOOKEEPER_VERSION = 3.4.8
 .PHONY: zookeeper
 zookeeper:
+	[ -x /sbin/apk ]        && make apk-packages || :
 	[ -x /usr/bin/apt-get ] && make apt-packages || :
 	[ -x /usr/bin/yum ]     && make yum-packages || :
 	[ -f zookeeper-$(ZOOKEEPER_VERSION).tar.gz ] || wget -t 100 --retry-connrefused -O zookeeper-$(ZOOKEEPER_VERSION).tar.gz "http://www.apache.org/dyn/closer.lua?filename=zookeeper/zookeeper-${ZOOKEEPER_VERSION}/zookeeper-${ZOOKEEPER_VERSION}.tar.gz&action=download"
@@ -256,7 +313,7 @@ zookeeper:
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				./configure
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				make
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				$(SUDO) make install
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	perl Makefile.PL --zookeeper-include=/usr/local/include/zookeeper --zookeeper-lib=/usr/local/lib
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	perl Makefile.PL --zookeeper-include=/usr/local/include --zookeeper-lib=/usr/local/lib
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	LD_RUN_PATH=/usr/local/lib make
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	$(SUDO) make install
 	perl -e "use Net::ZooKeeper"
@@ -268,6 +325,10 @@ jar-plugins:
 	@echo Fetching Kafka Scala Nagios Plugin
 	wget -c -t 100 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/blob/latest/check_kafka
 	wget -c -t 100 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/releases/download/latest/check_kafka.jar
+
+.PHONY: sonar
+sonar:
+	sonar-scanner
 
 .PHONY: test
 test:

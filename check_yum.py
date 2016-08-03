@@ -2,7 +2,7 @@
 #
 #  Author: Hari Sekhon
 #  Date: 2008-04-29 17:21:08 +0100 (Tue, 29 Apr 2008)
-# 
+#
 #  https://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
@@ -18,21 +18,12 @@ See also: check_yum.pl (also part of the Advanced Nagios Plugins Collection)
 Tested on CentOS 5 / 6 / 7
 """
 
-__author__  = "Hari Sekhon"
-__title__   = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.7.5"
-
-# Standard Nagios return codes
-OK       = 0
-WARNING  = 1
-CRITICAL = 2
-UNKNOWN  = 3
-
 import os
 import re
 import sys
 import signal
 OLD_PYTHON = False
+# pylint: disable=wrong-import-position
 try:
     from subprocess import Popen, PIPE, STDOUT
 except ImportError:
@@ -40,13 +31,22 @@ except ImportError:
     import commands
 from optparse import OptionParser
 
-DEFAULT_TIMEOUT = 30
+__author__ = "Hari Sekhon"
+__title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
+__version__ = "0.7.6"
 
+# Standard Nagios return codes
+OK = 0
+WARNING = 1
+CRITICAL = 2
+UNKNOWN = 3
+
+DEFAULT_TIMEOUT = 30
 
 def end(status, message):
     """Exits the plugin with first arg as the return code and the second
     arg as the message to output"""
-    
+
     check = "YUM "
     if status == OK:
         print "%sOK: %s" % (check, message)
@@ -60,7 +60,6 @@ def end(status, message):
     else:
         print "UNKNOWN: %s" % message
         sys.exit(UNKNOWN)
-
 
 YUM = "/usr/bin/yum"
 
@@ -76,26 +75,26 @@ def check_yum_usable():
         end(UNKNOWN, "%s is not executable" % YUM)
 
 
-class YumTester:
+class YumTester(object):
     """Class to hold all portage test functions and state"""
 
     def __init__(self):
         """Initialize all object variables"""
 
-        self.all_updates        = False
-        self.no_cache_update    = False
-        self.no_warn_on_lock    = False
-        self.enable_repo        = ""
-        self.disable_repo       = ""
-        self.timeout            = DEFAULT_TIMEOUT
-        self.verbosity          = 0
+        self.all_updates = False
+        self.no_cache_update = False
+        self.no_warn_on_lock = False
+        self.enable_repo = ""
+        self.disable_repo = ""
+        self.timeout = DEFAULT_TIMEOUT
+        self.verbosity = 0
         self.warn_on_any_update = False
 
     def validate_all_variables(self):
-        """Validates all object variables to make sure the 
+        """Validates all object variables to make sure the
         environment is sane"""
 
-        if self.timeout == None:
+        if self.timeout is None:
             self.timeout = DEFAULT_TIMEOUT
         try:
             self.timeout = int(self.timeout)
@@ -106,7 +105,7 @@ class YumTester:
         if self.timeout < 1 or self.timeout > 3600:
             end(UNKNOWN, "Timeout must be a number between 1 and 3600 seconds")
 
-        if self.verbosity == None:
+        if self.verbosity is None:
             self.verbosity = 0
         try:
             self.verbosity = int(self.verbosity)
@@ -118,13 +117,13 @@ class YumTester:
 
 
     def run(self, cmd):
-        """runs a system command and returns 
+        """runs a system command and returns
         an array of lines of the output"""
 
-        if cmd == "" or cmd == None:
+        if cmd == "" or cmd is None:
             end(UNKNOWN, "Internal python error - " \
                        + "no cmd supplied for run function")
-       
+
         if self.no_cache_update:
             cmd += " -C"
 
@@ -145,22 +144,19 @@ class YumTester:
                 returncode = returncode / 256
         else:
             try:
-                process = Popen( cmd.split(), 
-                                 stdin=PIPE, 
-                                 stdout=PIPE, 
-                                 stderr=STDOUT )
+                process = Popen(cmd.split(), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
             except OSError, error:
                 error = str(error)
                 if error == "No such file or directory":
                     end(UNKNOWN, "Cannot find utility '%s'" % cmd.split()[0])
                 end(UNKNOWN, "Error trying to run utility '%s' - %s" \
                                                   % (cmd.split()[0], error))
-        
+
             output = process.communicate()
             returncode = process.returncode
             stdout = output[0]
-        
-        if stdout == None or stdout == "":
+
+        if stdout is None or stdout == "":
             end(UNKNOWN, "No output from utility '%s'" % cmd.split()[0])
 
         self.vprint(3, "Returncode: '%s'\nOutput: '%s'" \
@@ -172,8 +168,8 @@ class YumTester:
 
 
     def check_returncode(self, returncode, output):
-        """Takes the returncode and output (as an array of lines) 
-        of the yum program execution and tests for failures, exits 
+        """Takes the returncode and output (as an array of lines)
+        of the yum program execution and tests for failures, exits
         with an appropriate message if any are found"""
 
         if returncode == 0:
@@ -196,7 +192,8 @@ class YumTester:
             if (not ('Loading "security" plugin' in output or 'Loaded plugins:.*security' in output)) \
                or "Command line error: no such option: --security" in output:
                 end(UNKNOWN, "Security plugin for yum is required. Try to "    \
-                           + "'yum install yum-security' (RHEL5) or 'yum install yum-plugin-security' (RHEL6) and then re-run "     \
+                           + "'yum install yum-security' (RHEL5) or " \
+                           + "'yum install yum-plugin-security' (RHEL6) and then re-run " \
                            + "this plugin. Alternatively, to just alert on "   \
                            + "any update which does not require the security " \
                            + "plugin, try --all-updates")
@@ -206,8 +203,8 @@ class YumTester:
 
 
     def strip_output(self, output):
-        """Cleans up the output from the plugin and returns it. 
-        Takes and returns an array of the lines of output 
+        """Cleans up the output from the plugin and returns it.
+        Takes and returns an array of the lines of output
         and returns a single string"""
 
         self.vprint(3, "stripping output of 'Loading ... plugin' lines")
@@ -257,37 +254,37 @@ class YumTester:
 
         return number_security_updates, number_other_updates
 
-    
+
     def get_all_updates(self):
-        """Gets all updates. Returns a single integer of the 
+        """Gets all updates. Returns a single integer of the
         number of available updates"""
 
         cmd = "%s check-update" % YUM
-        
+
         output = self.run(cmd)
 
         output2 = "\n".join(output).split("\n\n")
-        if self.verbosity >= 4 :
+        if self.verbosity >= 4:
             for section in output2:
                 print "\nSection:\n%s\n" % section
         if len(output2) > 2 or \
-           not ( "Setting up repositories" in output2[0] or \
-                 "Loaded plugins: " in output2[0] or \
-                 re.search('Loading\s+".+"\s+plugin', output2[0]) ):
+           not ("Setting up repositories" in output2[0] or \
+                "Loaded plugins: " in output2[0] or \
+                re.search(r'Loading\s+".+"\s+plugin', output2[0])):
             end(WARNING, "Yum output signature does not match current known "  \
                        + "format. Please make sure you have upgraded to the "  \
                        + "latest version of this plugin. If the problem "      \
                        + "persists, please contact the author for a fix")
         number_packages = 0
         if len(output2) == 1:
-            # There are no updates but we have passed 
+            # There are no updates but we have passed
             # the loading and setting up of repositories
             pass
         else:
-            for x in  output2[1].split("\n"):
-                if len(x.split()) > 1 and x[0:1] != " ":
+            for _ in output2[1].split("\n"):
+                if len(_.split()) > 1 and _[0:1] != " ":
                     number_packages += 1
-        
+
         try:
             number_packages = int(number_packages)
             if number_packages < 0:
@@ -299,12 +296,12 @@ class YumTester:
                        + "this plugin. If the problem persists, then please "  \
                        + "contact the author for a fix")
 
-        # Extra layer of checks. This is a security plugin so it's preferable 
-        # to fail on error rather than pass silently leaving you with an 
+        # Extra layer of checks. This is a security plugin so it's preferable
+        # to fail on error rather than pass silently leaving you with an
         # insecure system
         count = 0
         re_package_format = \
-                re.compile("^.+\.(i[3456]86|x86_64|noarch)\s+.+\s+.+$")
+                re.compile(r'^.+\.(i[3456]86|x86_64|noarch)\s+.+\s+.+$')
         # This is to work around a yum truncation issue effectively changing
         # the package output format. Currently only very long kmod lines
         # are seen to have caused this so we stick to what we know for safety
@@ -324,10 +321,10 @@ class YumTester:
 
         return number_packages
 
-    
+
     def get_security_updates(self):
         """Gets all updates, but differentiates between
-        security and normal updates. Returns a tuple of the number 
+        security and normal updates. Returns a tuple of the number
         of security and normal updates"""
 
         cmd = "%s --security check-update" % YUM
@@ -335,29 +332,29 @@ class YumTester:
         output = self.run(cmd)
 
         re_security_summary = \
-                re.compile("Needed (\d+) of (\d+) packages, for security")
-        re_summary_rhel6 = re.compile('(\d+) package\(s\) needed for security, out of (\d+) available')
-        re_no_security_updates_available = \
-                re.compile("No packages needed,? for security[;,] (\d+) (?:packages )?available")
+                re.compile(r'Needed (\d+) of (\d+) packages, for security')
+        re_summary_rhel6 = re.compile(r'(\d+) package\(s\) needed for security, out of (\d+) available')
+        re_no_sec_updates = \
+                re.compile(r'No packages needed,? for security[;,] (\d+) (?:packages )?available')
         summary_line_found = False
         for line in output:
-            m = re_summary_rhel6.match(line)
-            if m:
+            _ = re_summary_rhel6.match(line)
+            if _:
                 summary_line_found = True
-                number_security_updates = m.group(1)
-                number_total_updates    = m.group(2)
+                number_security_updates = _.group(1)
+                number_total_updates = _.group(2)
                 break
-            m = re_no_security_updates_available.match(line)
-            if m:
+            _ = re_no_sec_updates.match(line)
+            if _:
                 summary_line_found = True
                 number_security_updates = 0
-                number_total_updates    = m.group(1)
+                number_total_updates = _.group(1)
                 break
-            m = re_security_summary.match(line)
-            if m:
+            _ = re_security_summary.match(line)
+            if _:
                 summary_line_found = True
-                number_security_updates = m.group(1)
-                number_total_updates    = m.group(2)
+                number_security_updates = _.group(1)
+                number_total_updates = _.group(2)
                 break
 
         if not summary_line_found:
@@ -377,7 +374,7 @@ class YumTester:
                        + "author for a fix")
 
         number_other_updates = number_total_updates - number_security_updates
-         
+
         if len(output) > number_total_updates + 25:
             end(WARNING, "Yum output signature is larger than current known "  \
                        + "format, please make sure you have upgraded to the "  \
@@ -393,10 +390,10 @@ class YumTester:
         check_yum_usable()
         self.vprint(3, "%s - Version %s\nAuthor: %s\n" \
             % (__title__, __version__, __author__))
-        
+
         self.validate_all_variables()
         self.set_timeout()
-  
+
         if self.all_updates:
             return self.test_all_updates()
         else:
@@ -404,10 +401,10 @@ class YumTester:
 
 
     def test_all_updates(self):
-        """Tests for all updates, and returns a tuple 
+        """Tests for all updates, and returns a tuple
         of the status code and output"""
 
-        status  = UNKNOWN
+        status = UNKNOWN
         message = "code error - please contact author for a fix"
 
         number_updates = self.get_all_updates()
@@ -428,9 +425,9 @@ class YumTester:
         """Tests for security updates and returns a tuple
         of the status code and output"""
 
-        status  = UNKNOWN
+        status = UNKNOWN
         message = "code error - please contact author for a fix"
-        
+
         number_security_updates, number_other_updates = \
                                                     self.get_security_updates()
         if number_security_updates == 0:
@@ -443,16 +440,16 @@ class YumTester:
             elif number_security_updates > 1:
                 message = "%s Security Updates Available" \
                                                     % number_security_updates
-    
+
         if number_other_updates != 0:
-            if self.warn_on_any_update == True and status != CRITICAL:
+            if self.warn_on_any_update and status != CRITICAL:
                 status = WARNING
             if number_other_updates == 1:
                 message += ". 1 Non-Security Update Available"
             else:
                 message += ". %s Non-Security Updates Available" \
                                                         % number_other_updates
-                                
+
         return status, message
 
 
@@ -470,86 +467,86 @@ def main():
     tester = YumTester()
     parser = OptionParser()
 
-    parser.add_option( "-A",
-                       "--all-updates",
-                       action="store_true",
-                       dest="all_updates",
-                       help="Does not distinguish between security and "      \
-                          + "non-security updates, but returns critical for " \
-                          + "any available update. This may be used if the "  \
-                          + "yum security plugin is absent or you want to "   \
-                          + "maintain every single package at the latest "    \
-                          + "version. You may want to use "                   \
-                          + "--warn-on-any-update instead of this option")
+    parser.add_option("-A",
+                      "--all-updates",
+                      action="store_true",
+                      dest="all_updates",
+                      help="Does not distinguish between security and "      \
+                         + "non-security updates, but returns critical for " \
+                         + "any available update. This may be used if the "  \
+                         + "yum security plugin is absent or you want to "   \
+                         + "maintain every single package at the latest "    \
+                         + "version. You may want to use "                   \
+                         + "--warn-on-any-update instead of this option")
 
-    parser.add_option( "-W",
-                       "--warn-on-any-update",
-                       action="store_true",
-                       dest="warn_on_any_update",
-                       help="Warns if there are any (non-security) package "   \
-                          + "updates available. By default only warns when "   \
-                          + "security related updates are available. If "      \
-                          + "--all-updates is used, then this option is "      \
-                          + "redundant as --all-updates will return a "        \
-                          + "critical result on any available update, "        \
-                          + "whereas using this switch still allows you to "   \
-                          + "differentiate between the severity of updates ")
+    parser.add_option("-W",
+                      "--warn-on-any-update",
+                      action="store_true",
+                      dest="warn_on_any_update",
+                      help="Warns if there are any (non-security) package "   \
+                         + "updates available. By default only warns when "   \
+                         + "security related updates are available. If "      \
+                         + "--all-updates is used, then this option is "      \
+                         + "redundant as --all-updates will return a "        \
+                         + "critical result on any available update, "        \
+                         + "whereas using this switch still allows you to "   \
+                         + "differentiate between the severity of updates ")
 
-    parser.add_option( "-C",
-                       "--cache-only",
-                       action="store_true",
-                       dest="no_cache_update",
-                       help="Run entirely from cache and do not update the " \
-                          + "cache when running yum. Useful if you have "    \
-                          + "'yum makecache' cronned so that the nagios "    \
-                          + "check itself doesn't have to do it, possibly "  \
-                          + "speeding up execution (by 1-2 seconds in tests)")
+    parser.add_option("-C",
+                      "--cache-only",
+                      action="store_true",
+                      dest="no_cache_update",
+                      help="Run entirely from cache and do not update the " \
+                         + "cache when running yum. Useful if you have "    \
+                         + "'yum makecache' cronned so that the nagios "    \
+                         + "check itself doesn't have to do it, possibly "  \
+                         + "speeding up execution (by 1-2 seconds in tests)")
 
-    parser.add_option( "-N",
-                       "--no-warn-on-lock",
-                       action="store_true",
-                       dest="no_warn_on_lock",
-                       help="Return OK instead of WARNING when yum is locked " \
-                          + "and fails to check for updates due to another "   \
-                          + "instance running. This is not recommended from "  \
-                          + "the security standpoint, but may be wanted to "   \
-                          + "reduce the number of alerts that may "            \
-                          + "intermittently pop up when someone is running "   \
-                          + "yum for package management")
+    parser.add_option("-N",
+                      "--no-warn-on-lock",
+                      action="store_true",
+                      dest="no_warn_on_lock",
+                      help="Return OK instead of WARNING when yum is locked " \
+                         + "and fails to check for updates due to another "   \
+                         + "instance running. This is not recommended from "  \
+                         + "the security standpoint, but may be wanted to "   \
+                         + "reduce the number of alerts that may "            \
+                         + "intermittently pop up when someone is running "   \
+                         + "yum for package management")
 
-    parser.add_option( "-e",
-                       "--enablerepo",
-                       dest="repository_to_enable",
-                       help="Explicitly enables a reposity when calling yum. "
-                          + "Can take a comma separated list of repositories")
+    parser.add_option("-e",
+                      "--enablerepo",
+                      dest="repository_to_enable",
+                      help="Explicitly enables a reposity when calling yum. " +
+                      "Can take a comma separated list of repositories")
 
-    parser.add_option( "-d",
-                       "--disablerepo",
-                       dest="repository_to_disable",
-                       help="Explicitly disables a repository when calling yum. " \
-                          + "Can take a comma separated list of repositories")
+    parser.add_option("-d",
+                      "--disablerepo",
+                      dest="repository_to_disable",
+                      help="Explicitly disables a repository when calling yum. " \
+                         + "Can take a comma separated list of repositories")
 
-    parser.add_option( "-t",
-                       "--timeout",
-                       dest="timeout",
-                       help="Sets a timeout in seconds after which the "  \
-                           +"plugin will exit (defaults to %s seconds). " \
+    parser.add_option("-t",
+                      "--timeout",
+                      dest="timeout",
+                      help="Sets a timeout in seconds after which the "  \
+                          +"plugin will exit (defaults to %s seconds). " \
                                                       % DEFAULT_TIMEOUT)
 
-    parser.add_option( "-v", 
-                       "--verbose", 
-                       action="count", 
-                       dest="verbosity",
-                       help="Verbose mode. Can be used multiple times to "     \
-                          + "increase output. Use -vvv for debugging output. " \
-                          + "By default only one result line is printed as "   \
-                          + "per Nagios standards")
+    parser.add_option("-v",
+                      "--verbose",
+                      action="count",
+                      dest="verbosity",
+                      help="Verbose mode. Can be used multiple times to "     \
+                         + "increase output. Use -vvv for debugging output. " \
+                         + "By default only one result line is printed as "   \
+                         + "per Nagios standards")
 
-    parser.add_option( "-V",
-                       "--version",
-                       action="store_true",
-                       dest="version",
-                       help="Print version number and exit")
+    parser.add_option("-V",
+                      "--version",
+                      action="store_true",
+                      dest="version",
+                      help="Print version number and exit")
 
     (options, args) = parser.parse_args()
 
@@ -557,20 +554,20 @@ def main():
         parser.print_help()
         sys.exit(UNKNOWN)
 
-    tester.all_updates                 = options.all_updates
-    tester.no_cache_update             = options.no_cache_update
-    tester.no_warn_on_lock             = options.no_warn_on_lock
-    tester.enable_repo                 = options.repository_to_enable
-    tester.disable_repo                = options.repository_to_disable
-    tester.timeout                     = options.timeout
-    tester.verbosity                   = options.verbosity
-    tester.warn_on_any_update          = options.warn_on_any_update
+    tester.all_updates = options.all_updates
+    tester.no_cache_update = options.no_cache_update
+    tester.no_warn_on_lock = options.no_warn_on_lock
+    tester.enable_repo = options.repository_to_enable
+    tester.disable_repo = options.repository_to_disable
+    tester.timeout = options.timeout
+    tester.verbosity = options.verbosity
+    tester.warn_on_any_update = options.warn_on_any_update
 
     if options.version:
         print "%s - Version %s\nAuthor: %s\n" \
             % (__title__, __version__, __author__)
         sys.exit(OK)
-    
+
     result, output = tester.test_yum_updates()
     end(result, output)
 

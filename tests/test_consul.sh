@@ -69,6 +69,9 @@ test_consul(){
         return 0
     fi
     hr
+    if [ "$version" = "latest" ]; then
+        local version="*"
+    fi
     set +e
     found_version=$(docker exec "$DOCKER_CONTAINER" consul version | head -n1 | tee /dev/stderr | sed 's/.*v//')
     set -e

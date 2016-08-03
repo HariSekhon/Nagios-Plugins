@@ -87,7 +87,7 @@ class VncTester(NagiosTester):
         if not os.access(self.passwdfile, os.R_OK):
             end(UNKNOWN, "vnc passwd file '%s' is not " % self.passwdfile \
                        + "readable, please allow read permission on this file")
-        
+
 
     def test_vnc(self):
         """Performs the test of the vnc server"""
@@ -101,7 +101,7 @@ class VncTester(NagiosTester):
               % (BIN, self.passwdfile, self.server)
 
         result, output = self.run(cmd)
-        
+
         if result == 0:
             if len(output) == 0:
                 return (WARNING, "Test passed but no output was received " \
@@ -128,7 +128,7 @@ class VncTester(NagiosTester):
                     output = "Connection refused"
                 return (CRITICAL, "Error connecting to vnc server - %s" \
                                         % output.replace("\n", " ").rstrip(" "))
- 
+
 
 def main():
     """Parses args and calls func to test vnc server"""
@@ -215,7 +215,7 @@ def main():
     if options.timing:
         finish_time = time.time()
         total_time = finish_time - start_time
-        
+
         output += ". Test completed in %.3f seconds" % total_time
 
     end(returncode, output)

@@ -31,7 +31,7 @@ Checks that all McAfee services are running on a Windows system
 
             <named name="shortname"
                    helpstring="Display the short name of services instead of the full display name"/>
-                   
+
             <named name="timeout"
                    helpstring="Seconds after which this plugin will self-terminate (default=10)"
                    type="string"/>
@@ -159,11 +159,11 @@ command[check_mcafee_services]=cmd /c cscript //NOLOGO "c:\Program Files\NSClien
             ' Clever Hack
             Class cExit
                 Public intErrorLevel
-   
+
                 Private Sub Class_Initialize()
                   intErrorLevel = intUNKNOWN
                 End Sub
-   
+
                 Private Sub Class_Terminate()
                     WScript.Quit intErrorLevel
                 End Sub
@@ -359,7 +359,7 @@ command[check_mcafee_services]=cmd /c cscript //NOLOGO "c:\Program Files\NSClien
             If Len(strNonRunningServices) > 1 Then
                 strNonRunningServices = Left(strNonRunningServices, InStrRev(strNonRunningServices, ", ")-1)
             End If
-    
+
             If intNonRunningServices = 0 Then
                 OK "All McAfee Services Running"
             ElseIf intNonRunningServices = 1 Then

@@ -20,14 +20,15 @@
 Nagios Plugin to check a Kafka cluster is working by using the APIs to validate passing a unique message
 through the brokers
 
-This is a port of my Perl check_kafka.pl since one of the underlying Perl library's dependencies
+Thresholds apply to max produce / consume message timings which are also output as perfdata for graphing.
+Total time includes setup, connection and message timings etc.
+
+See also Perl versio check_kafka.pl of which this is a port of since one of the underlying Perl library's dependencies
 developed an autoload bug which needs manual fixing before that Perl version can be run (documented
-at the landing page at https://github.com/harisekhon/nagios-plugins).
+at the landing page at https://github.com/harisekhon/nagios-plugins and automated in the build now).
 
 The Perl version does have better info for --list-partitions however, including Replicas,
-ISRs and Leader info per partition.
-
-Thresholds apply to max produce / consume message timings which are also output as perfdata for graphing
+ISRs and Leader info per partition as the Perl API exposes this additional information.
 
 Tested on Kafka 0.8.1, 0.8.2.2, 0.9.0.1
 """
@@ -58,7 +59,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.4'
+__version__ = '0.3.8'
 
 
 class CheckKafka(PubSubNagiosPlugin):
@@ -93,7 +94,7 @@ class CheckKafka(PubSubNagiosPlugin):
                      help='Kafka Broker seed list in form host[:port],host2[:port2]... (default: localhost:9092)')
         self.add_opt('-T', '--topic', help='Kafka Topic')
         self.add_opt('-p', '--partition', type=int, help='Kafka Partition (default: 0)', default=0)
-        self.add_opt('-a', '--acks', default=1, choices=[1, 'all'],
+        self.add_opt('-a', '--acks', default=1, choices=['1', 'all'],
                      help='Acks to require from Kafka. Valid options are \'1\' for Kafka ' +
                      'partition leader, or \'all\' for all In-Sync Replicas (may block causing ' +
                      'timeout if replicas aren\'t available, default: 1)')
@@ -110,7 +111,10 @@ class CheckKafka(PubSubNagiosPlugin):
         #except KafkaError as _:
             #raise CriticalError(_)
         except KafkaError:
-            raise CriticalError(self.exception_msg())
+            err = self.exception_msg()
+            if 'NoBrokersAvailable' in err:
+                err += ' ({0})'.format(self.brokers)
+            raise CriticalError(err)
 
     @staticmethod
     def exception_msg():
@@ -167,7 +171,7 @@ class CheckKafka(PubSubNagiosPlugin):
             raise CriticalError(self.exception_msg())
 
         if self.topic:
-            validate_chars(self.topic, 'topic', 'A-Za-z-')
+            validate_chars(self.topic, 'topic', '\w\d-')
         elif list_topics or list_partitions:
             pass
         else:
@@ -190,6 +194,10 @@ class CheckKafka(PubSubNagiosPlugin):
         validate_int(self.partition, "partition", 0, 10000)
         self.topic_partition = TopicPartition(self.topic, self.partition)
         self.acks = self.get_opt('acks')
+        try:
+            self.acks = int(self.acks)
+        except ValueError:
+            pass
         log_option('acks', self.acks)
         self.validate_thresholds()
 
@@ -203,6 +211,8 @@ class CheckKafka(PubSubNagiosPlugin):
             )
             #key_serializer
             #value_serializer
+        # this is only a guess as Kafka doesn't expose it's API version
+        #log.debug('kafka api version: %s', self.consumer.config['api_version'])
         log.debug('partition assignments: {0}'.format(self.consumer.assignment()))
 
         # log.debug('subscribing to topic \'{0}\' parition \'{1}\''.format(self.topic, self.partition))

@@ -16,7 +16,7 @@ Makes it easy to check load across all servers with the same check since it calc
 
 Generally you should be concerned if the average normalized load across all cores is approaching 1 for a server which means that all it's CPU cores are busy";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -29,11 +29,13 @@ use HariSekhonUtils;
 set_threshold_defaults(0.7, 1);
 
 my $load;
+my $cpu_perf;
 
 %options = (
+    "C|cpu-cores-perfdata" => [ \$cpu_perf, "Output CPU Cores in perfdata" ],
     %thresholdoptions,
 );
-@usage_order = qw/warning critical/;
+@usage_order = qw/cpu-cores-perfdata warning critical/;
 
 get_options();
 
@@ -82,6 +84,7 @@ $msg .= ", load = $load / CPU cores = $cpu_cores";
 $msg .= " | averaged_load=$load_averaged";
 msg_perf_thresholds();
 $msg .= " load=$load";
+$msg .= " 'CPU cores'=$cpu_cores" if $cpu_perf;
 
 vlog2;
 quit $status, $msg;

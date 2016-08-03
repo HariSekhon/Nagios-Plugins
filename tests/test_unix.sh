@@ -29,11 +29,14 @@ echo "
 
 $perl -T ./check_disk_write.pl -d .
 hr
-$perl -T ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^*/{print $2}')"
+$perl -T ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^\*/ {print $2; exit}')"
+./check_git_branch_checkout.py -d . -b "$(git branch | awk '/^\*/ {print $2; exit}')"
 hr
 echo "Testing failure detection of wrong git branch"
 set +e
 $perl -t ./check_git_branch_checkout.pl -d . -b nonexistentbranch
+[ $? -eq 2 ] || exit 1
+./check_git_branch_checkout.py -d . -b nonexistentbranch
 [ $? -eq 2 ] || exit 1
 set -e
 hr

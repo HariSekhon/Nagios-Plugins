@@ -48,11 +48,6 @@ docker_exec(){
 
 startupwait=0
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Linux checks!!!'
-    exit 0
-fi
-
 echo "Setting up Linux test container"
 DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
 DOCKER_CMD="tail -f /dev/null"
@@ -83,6 +78,8 @@ hr
 hr
 # making this much higher so it doesn't trip just due to test system load
 docker_exec check_linux_load_normalized.pl -w 99 -c 99
+hr
+docker_exec check_linux_load_normalized.pl -w 99 -c 99 --cpu-cores-perfdata
 hr
 docker_exec check_linux_ram.py -v -w 20% -c 10%
 hr

@@ -32,7 +32,7 @@ BIN    = "/sbin/mdadm"
 def end(status, message):
     """exits the plugin with first arg as the return code and the second
     arg as the message to output"""
-        
+
     if status == OK:
         print "RAID OK: %s" % message
         sys.exit(OK)
@@ -60,7 +60,7 @@ if not os.access(BIN, os.X_OK):
 def find_arrays(verbosity):
     """finds all MD arrays on local machine using mdadm and returns a list of 
     them, or exits UNKNOWN if no MD arrays are found"""
-    
+
     if verbosity >= 3:
         print "finding all MD arrays via: %s --detail --scan" % BIN
     devices_output = os.popen("%s --detail --scan" % BIN).readlines()
@@ -71,17 +71,17 @@ def find_arrays(verbosity):
             if verbosity >= 2:
                 print "found array %s" % raid_device
             raid_devices.append(raid_device)
-    
+
     if len(raid_devices) == 0:
         end(UNKNOWN, "no MD raid devices found on this machine")
     else:
         raid_devices.sort()
         return raid_devices
-     
+
 
 def test_raid(verbosity):
     """checks all MD arrays on local machine, returns status code"""
-    
+
     raid_devices = find_arrays(verbosity)
 
     status = OK 
@@ -91,9 +91,9 @@ def test_raid(verbosity):
     for array in raid_devices:
         if verbosity >= 2:
             print 'Now testing raid device "%s"' % array
-       
+
         detailed_output = os.popen("%s --detail %s" % (BIN, array) ).readlines()
-        
+
         if verbosity >= 3:
             for line in detailed_output:
                 print line, 

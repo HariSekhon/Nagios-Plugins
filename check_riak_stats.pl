@@ -36,7 +36,7 @@ use LWP::Simple '$ua';
 use JSON::XS;
 
 set_port_default(8098);
- 
+
 env_creds("Riak");
 
 my $metrics;

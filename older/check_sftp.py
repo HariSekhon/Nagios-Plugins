@@ -59,7 +59,7 @@ def which(executable):
 def end(status, message):
     """exits the plugin with first arg as the return code and the second
     arg as the message to output"""
-        
+
     if status == OK:
         print "SFTP OK: logged in successfully"
         sys.exit(OK)
@@ -83,10 +83,10 @@ def run(cmd, verbosity):
 
     process = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     output  = process.communicate("ls -la")[0]
-  
+
     if verbosity >= 3:
         print "%s" % output
-   
+
     return process.returncode, output
 
 
@@ -131,13 +131,13 @@ def test_sftp(sftp, server, port, user, sshkey, nostricthostkey, \
 
     output2 = output2.lstrip("Connecting to %s..." % server)
     output2 = output2.replace("\r", "")
-    
+
     if verbosity < 2 :
         output2 = output2.replace("\n", ", ")
         output2 = output2.lstrip(", ")
         output2 = output2.rstrip(", ")
 
- 
+
     if result != OK:
         end(CRITICAL, output2)
 
@@ -145,11 +145,11 @@ def test_sftp(sftp, server, port, user, sshkey, nostricthostkey, \
         test_files(output, files, verbosity) 
     if dirs:
         test_dirs(output, dirs, verbosity)
-  
+
     end(result, output2)
 
     return UNKNOWN
-   
+
 
 def test_files(output, files, verbosity):
     """takes the output of the sftp directory listing and a list of files and 
@@ -239,7 +239,7 @@ By default only 1 line of output is printed")
     timeout         = options.timeout
     verbosity       = options.verbosity
     nostricthostkey = options.nostricthostkey
-    
+
     if args:
         parser.print_help()
         sys.exit(UNKNOWN)
@@ -258,7 +258,7 @@ By default only 1 line of output is printed")
 
     signal.signal(signal.SIGALRM, sighandler)
     signal.alarm(timeout)
- 
+
 
     sftp = which("sftp")
 
