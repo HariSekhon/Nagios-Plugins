@@ -16,7 +16,7 @@ Requires MapR 4.0 onwards, will get a '404 Not Found' on MapR 3.1 and earlier wh
 
 Tested on MapR 4.0.1";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -56,7 +56,7 @@ my @data = get_field_array("data");
 foreach(@data){
     my $mode = get_field2($_, "default_mode");
     $msg .= "default mapreduce mode '$mode'";
-    unless($mode eq $expected){
+    if(defined($expected) and $mode ne $expected){
         critical;
         $msg .= " (expected: $expected)";
     }
