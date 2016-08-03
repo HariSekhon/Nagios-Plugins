@@ -20,7 +20,7 @@ Verbose mode prints the alarm descriptions in brackets.
 
 Perfdata is always output for the number of alarms.
 
-Tested on MapR 4.0.1";
+Tested on MapR 4.0.1, 5.1.0";
 
 $VERSION = "0.1";
 
