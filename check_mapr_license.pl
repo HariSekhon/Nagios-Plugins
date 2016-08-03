@@ -16,7 +16,7 @@ Checks time left on license in days against configurable warning/critical thresh
 
 Raises warning on trial license unless setting --trial-ok
 
-Tested on MapR 3.1.0 and 4.0.1";
+Tested on MapR 3.1.0, 4.0.1, 5.1.0";
 
 $VERSION = "0.1.1";
 
