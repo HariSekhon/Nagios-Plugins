@@ -28,20 +28,103 @@ echo "
 # ============================================================================ #
 "
 
+export MAPR_PORT="${MAPR_PORT:-8443}"
+export MAPR_USER="${MAPR_USER:-admin}"
+export MAPR_PASSWORD="${MAPR_USER:-admin}"
+export MAPR_CLUSTER="${MAPR_CLUSER:-demo.mapr.com}"
+export SSL="${SSL-}"
+
+no_ssl=""
+if [ -z "$SSL" ] || [ "$SSL" -eq 0 ]; then
+    no_ssl="--no-ssl"
+fi
+
 if [ -z "${MAPR_HOST:-}" ]; then
-    echo "WARNING: MapR host not detected, skipping MapR checks"
+    echo "WARNING: \$MAPR_HOST not set, skipping MapR Control System checks"
     exit 0
 fi
 
-if ! which nc &>/dev/null && nc -iv "$MAPR_HOST" 8083; then
-    echo "WARNING: MapR host 8083 not up, skipping MapR checks"
+if which nc &>/dev/null && ! echo | nc "$MAPR_HOST" $MAPR_PORT; then
+    echo "WARNING: MapR Control System host $MAPR_HOST:$MAPR_PORT not up, skipping MapR Control System checks"
     exit 0
 fi
 
+if which curl &>/dev/null && ! curl -siL "$MAPR_HOST:$MAPR_PORT/mcs" | grep -qi mapr; then
+    echo "WARNING: MapR Control System host $MAPR_HOST:$MAPR_PORT did not contain mapr in html, may be some other service bound to the port, skipping..."
+    exit 0
+fi
+
+set +o pipefail
+
+# messes up geting these variables right which impacts the runs of the plugins further down
+if [ -n "${DEBUG:-}" ]; then
+    DEBUG2="$DEBUG"
+    export DEBUG=""
+fi
+node="$(check_mapr_node_mapr-fs_disks.pl --list-nodes $no_ssl | tail -n1)"
+
+volumes="$(./check_mapr-fs_volume_mirroring.pl --list-volumes $no_ssl | awk '{print $1}' | tail -n +5)"
+
+set -o pipefail
+
+volume="$(bash-tools/random_select.sh $volumes)"
+if [ -n "${DEBUG2:-}" ]; then
+    export DEBUG="$DEBUG2"
+fi
+
+# Sandbox often has some broken stuff, we're testing the code works, not the cluster
+[ "$MAPR_CLUSTER" = "demo.mapr.com" ] && set +e
 hr
-# TODO: add checks
-#$perl -T 
-#hr
-#$perl -T 
+$perl -T check_mapr-fs_space.pl $no_ssl
+hr
+$perl -T check_mapr-fs_volume.pl $no_ssl
+hr
+$perl -T check_mapr-fs_volume_mirroring.pl $no_ssl -L $volume
+hr
+$perl -T check_mapr-fs_volume_replication.pl $no_ssl -L $volume
+hr
+$perl -T check_mapr-fs_volume_snapshots.pl $no_ssl -L $volume
+hr
+$perl -T check_mapr-fs_volume_space_used.pl $no_ssl -L $volume
+hr
+$perl -T check_mapr_alarms.pl $no_ssl
+hr
+$perl -T check_mapr_cluster_version.pl $no_ssl
+hr
+$perl -T check_mapr_dashboard.pl $no_ssl
+hr
+$perl -T check_mapr_dialhome.pl $no_ssl
+hr
+# must be run locally
+#$perl -T check_mapr_disk_balancer_metrics.pl
+hr
+$perl -T check_mapr_license.pl $no_ssl
+hr
+$perl -T check_mapr_mapreduce_mode.pl $no_ssl
+hr
+$perl -T check_mapr_memory_utilization.pl $no_ssl
+hr
+$perl -T check_mapr_node_alarms.pl $no_ssl
+hr
+$perl -T check_mapr_node_failed_disks.pl $no_ssl
+hr
+$perl -T check_mapr_node_health.pl $no_ssl
+hr
+$perl -T check_mapr_node_heartbeats.pl $no_ssl
+hr
+$perl -T check_mapr_node_mapr-fs_disks.pl $no_ssl -N $node
+hr
+$perl -T check_mapr_node_services.pl $no_ssl -N $node
+hr
+$perl -T check_mapr_nodes.pl $no_ssl
+hr
+# must be run locally
+#$perl -T check_mapr_role_balancer.pl $no_ssl
+hr
+# must be run locally
+#$perl -T check_mapr_role_balancer_metrics.pl $no_ssl
+hr
+# when inheriting $MAPR_CLUSTER=demo.mapr.com it doesn't get back services, only when omitting --cluster / -C
+$perl -T check_mapr_services.pl $no_ssl -C ""
 hr
 echo; echo
