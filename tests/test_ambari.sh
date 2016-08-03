@@ -38,8 +38,13 @@ if [ -z "${AMBARI_HOST:-}" ]; then
     exit 0
 fi
 
-if ! which nc &>/dev/null && ! nc -iv "$AMBARI_HOST" $AMBARI_PORT; then
+if which nc &>/dev/null && ! echo | nc "$AMBARI_HOST" $AMBARI_PORT; then
     echo "WARNING: Ambari host $AMBARI_HOST:$AMBARI_PORT not up, skipping Ambari checks"
+    exit 0
+fi
+
+if which curl &>/dev/null && ! curl -siL "$AMBARI_HOST:$AMBARI_PORT" | grep -qi ambari; then
+    echo "WARNING: Ambari host $AMBARI_HOST:$AMBARI_PORT did not contain ambari in html, may be some other service bound to the port, skipping..."
     exit 0
 fi
 
