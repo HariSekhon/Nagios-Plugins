@@ -40,7 +40,7 @@ if [ -z "${AMBARI_HOST:-}" ]; then
     exit 0
 fi
 
-if which nc &>/dev/null && ! echo | nc "$AMBARI_HOST" $AMBARI_PORT; then
+if which nc &>/dev/null && ! echo | nc -G 1 "$AMBARI_HOST" $AMBARI_PORT; then
     echo "WARNING: Ambari host $AMBARI_HOST:$AMBARI_PORT not up, skipping Ambari checks"
     exit 0
 fi
