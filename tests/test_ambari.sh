@@ -30,10 +30,11 @@ echo "
 # ============================================================================ #
 "
 
+export SANDBOX_CLUSTER="Sandbox"
 export AMBARI_PORT="${AMBARI_PORT:-8080}"
 export AMBARI_USER="${AMBARI_USER:-admin}"
 export AMBARI_PASSWORD="${AMBARI_USER:-admin}"
-export AMBARI_CLUSTER="${AMBARI_CLUSTER:-Sandbox}"
+export AMBARI_CLUSTER="${AMBARI_CLUSTER:-$SANDBOX_CLUSTER}"
 
 if [ -z "${AMBARI_HOST:-}" ]; then
     echo "WARNING: \$AMBARI_HOST not set, skipping Ambari checks"
@@ -51,7 +52,7 @@ if which curl &>/dev/null && ! curl -siL "$AMBARI_HOST:$AMBARI_PORT" | grep -qi 
 fi
 
 # Sandbox often has some broken stuff, we're testing the code works, not the cluster
-[ "$AMBARI_CLUSTER" = "Sandbox" ] && set +e
+[ "$AMBARI_CLUSTER" = "$SANDBOX_CLUSTER" ] && set +e
 hr
 $perl -T check_ambari_cluster_alerts_host_summary.pl
 hr
