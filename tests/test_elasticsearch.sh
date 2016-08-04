@@ -28,7 +28,7 @@ echo "
 "
 
 # 5.0 tag doesn't work yet
-export ELASTICSEARCH_VERSIONS="${@:-latest 1.4 1.5 1.6 1.7 2.0 2.2 2.3}"
+export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-latest 1.4 1.5 1.6 1.7 2.0 2.2 2.3}}"
 
 ELASTICSEARCH_HOST="${DOCKER_HOST:-${ELASTICSEARCH_HOST:-${HOST:-localhost}}}"
 ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST##*/}"
