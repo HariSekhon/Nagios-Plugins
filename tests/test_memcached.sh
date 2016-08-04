@@ -27,7 +27,7 @@ echo "
 # ============================================================================ #
 "
 
-export MEMCACHED_VERSIONS="${@:-latest 1.4}"
+export MEMCACHED_VERSIONS="${@:-${MEMCACHED_VERSIONS:-latest 1.4}}"
 
 MEMCACHED_HOST="${DOCKER_HOST:-${MEMCACHED_HOST:-${HOST:-localhost}}}"
 MEMCACHED_HOST="${MEMCACHED_HOST##*/}"
