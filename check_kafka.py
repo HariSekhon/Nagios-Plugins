@@ -59,7 +59,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.8'
+__version__ = '0.3.9'
 
 
 class CheckKafka(PubSubNagiosPlugin):
@@ -171,7 +171,7 @@ class CheckKafka(PubSubNagiosPlugin):
             raise CriticalError(self.exception_msg())
 
         if self.topic:
-            validate_chars(self.topic, 'topic', '\w\d-')
+            validate_chars(self.topic, 'topic', '\w\.-')
         elif list_topics or list_partitions:
             pass
         else:
