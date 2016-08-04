@@ -19,7 +19,7 @@ You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) 
 
 This is still using v1 of the API for compatability purposes
 
-Tested on Cloudera Manager 5.0.0 with CDH4.6 and CDH 5.0 clusters";
+Tested on Cloudera Manager 5.0.0, 5.7.0 with CDH 4.6 and CDH 5.x clusters";
 
 $VERSION = "0.1";
 
@@ -39,7 +39,7 @@ my $expected;
 %options = (
     %hostoptions,
     %useroptions,
-    "C|cluster=s"       =>  $cm_options{"C|cluster=s"},
+    %cm_option_cluster,
     "list-clusters"     =>  $cm_options_list{"list-clusters"},
     %cm_options_tls,
     "e|expected=s"      =>  [ \$expected,           "Expected cluster version regex (optional)" ],
