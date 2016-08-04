@@ -52,7 +52,7 @@ if which nc &>/dev/null && ! echo | nc -G 1 "$MAPR_HOST" $MAPR_PORT; then
     exit 0
 fi
 
-if which curl &>/dev/null && ! curl -siL "$MAPR_HOST:$MAPR_PORT/mcs" | grep -qi mapr; then
+if which curl &>/dev/null && ! curl -sL "$MAPR_HOST:$MAPR_PORT/mcs" | grep -qi mapr; then
     echo "WARNING: MapR Control System host $MAPR_HOST:$MAPR_PORT did not contain mapr in html, may be some other service bound to the port, skipping..."
     exit 0
 fi
