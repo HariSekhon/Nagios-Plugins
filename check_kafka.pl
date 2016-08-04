@@ -30,7 +30,7 @@ Limitations (these all currently have tickets open to fix in the underlying API)
 - first run if given a topic that doesn't already exist will cause the error \"Error: There are no known brokers: topic = '<topic>'\"
 ";
 
-$VERSION = "0.2.5";
+$VERSION = "0.2.6";
 
 # Kafka lib requires Perl 5.10
 use 5.010;
@@ -109,7 +109,7 @@ $host = validate_host($host);
 $port = validate_port($port);
 unless($list_topics or $list_partitions){
     $topic or usage "topic not defined";
-    $topic =~ /^([A-Za-z0-9\.-]+)$/ or usage "topic must be alphanumeric and may contain dots and dashes";
+    $topic =~ /^([\w\.-]+)$/ or usage "topic must be alphanumeric and may contain dots, dashes and underscores";
     $topic = $1;
     vlog_option "topic", $topic;
 }
