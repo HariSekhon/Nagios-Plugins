@@ -29,7 +29,7 @@ echo "
 "
 
 # TODO: update plugins for > 0.24
-export MESOS_VERSIONS="${@:-latest 0.23 0.24}"
+export MESOS_VERSIONS="${@:-${MESOS_VERSIONS:-latest 0.23 0.24}}"
 
 MESOS_HOST="${DOCKER_HOST:-${MESOS_HOST:-${HOST:-localhost}}}"
 MESOS_HOST="${MESOS_HOST##*/}"
