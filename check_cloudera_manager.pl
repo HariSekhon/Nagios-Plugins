@@ -23,9 +23,9 @@ You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) 
 
 This is still using v1 of the API for compatability purposes
 
-Tested on Cloudera Manager 4.8.2 and 5.0.0";
+Tested on Cloudera Manager 4.8.2, 5.0.0, 5.7.0";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -38,8 +38,8 @@ use HariSekhon::ClouderaManager;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-my $api_ping        = 0;
-my $list_users      = 0;
+my $api_ping   = 0;
+my $list_users = 0;
 
 %options = (
     %hostoptions,
@@ -47,7 +47,8 @@ my $list_users      = 0;
     %thresholdoptions,
     #%cm_options,
     %cm_options_tls,
-    %cm_options_list,
+    %cm_option_cluster,
+    %cm_options_list_basic,
     "api-ping"          =>  [ \$api_ping,           "Test Cloudera Manager API (use this as a base dependency check for all CM based checks)" ],
     "list-users"        =>  [ \$list_users,         "List users in Cloudera Manager (verbose mode shows each user's roles in format user[role] eg admin[ROLE_ADMIN])" ],
 );
@@ -88,7 +89,7 @@ if($list_users){
         }
         $msg .= ", ";
     }
-    $msg =~ s/, //;
+    $msg =~ s/, $//;
     quit $status, $msg;
 } elsif($api_ping){
     my $api_message = random_alnum(20);
