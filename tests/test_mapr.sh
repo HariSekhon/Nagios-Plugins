@@ -45,7 +45,7 @@ if [ -z "${MAPR_HOST:-}" ]; then
     exit 0
 fi
 
-if which nc &>/dev/null && ! echo | nc "$MAPR_HOST" $MAPR_PORT; then
+if which nc &>/dev/null && ! echo | nc -G 1 "$MAPR_HOST" $MAPR_PORT; then
     echo "WARNING: MapR Control System host $MAPR_HOST:$MAPR_PORT not up, skipping MapR Control System checks"
     exit 0
 fi
