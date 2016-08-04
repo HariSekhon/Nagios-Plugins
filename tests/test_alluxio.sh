@@ -28,7 +28,7 @@ echo "
 # ============================================================================ #
 "
 
-export ALLUXIO_VERSIONS="${@:-latest 1.0 1.1}"
+export ALLUXIO_VERSIONS="${@:-${ALLUXIO_VERSIONS:-latest 1.0 1.1}}"
 
 ALLUXIO_HOST="${DOCKER_HOST:-${ALLUXIO_HOST:-${HOST:-localhost}}}"
 ALLUXIO_HOST="${ALLUXIO_HOST##*/}"
