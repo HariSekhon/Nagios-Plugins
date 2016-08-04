@@ -27,7 +27,7 @@ echo "
 # ============================================================================ #
 "
 
-export CASSANDRA_TEST_VERSIONS="${@:-latest 1.2 2.0 2.1 2.2 3.0 3.5}"
+export CASSANDRA_VERSIONS="${@:-${CASANDRA_VERSIONS:-latest 1.2 2.0 2.1 2.2 3.0 3.5}}"
 
 CASSANDRA_HOST="${DOCKER_HOST:-${CASSANDRA_HOST:-${HOST:-localhost}}}"
 CASSANDRA_HOST="${CASSANDRA_HOST##*/}"
@@ -91,7 +91,7 @@ test_cassandra(){
     echo; echo
 }
 
-for version in $(ci_sample $CASSANDRA_TEST_VERSIONS); do
+for version in $(ci_sample $CASSANDRA_VERSIONS); do
     test_cassandra $version
 done
 
