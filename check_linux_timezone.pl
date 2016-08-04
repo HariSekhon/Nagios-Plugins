@@ -15,7 +15,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check a Linux Server's timezone is set as expected";
 
-$VERSION = "0.7.1";
+$VERSION = "0.8.0";
 
 use strict;
 use warnings;
@@ -73,26 +73,32 @@ unless("$server_timezone" eq "$timezone" or "$server_timezone" eq "$alternate_ti
     $timezone_mismatch = 1;
 }
 
+# Alpine Linux doesn't have zoneinfo
 vlog2 "checking $localtime_file against $zoneinfo_file";
 my $fh1 = open_file($localtime_file);
-my $fh2 = open_file($zoneinfo_file);
-my $linecount = 0;
-while(<$fh1>){
-    unless($_ eq <$fh2>){
-        critical;
-        if($verbose and not $timezone_mismatch){
-            $msg = "localtime file '$localtime_file' does not match timezone file '$zoneinfo_file'! $msg";
-            last;
+if(-f $zoneinfo_file){
+    my $fh2 = open_file($zoneinfo_file);
+    my $linecount = 0;
+    while(<$fh1>){
+        unless($_ eq <$fh2>){
+            critical;
+            if($verbose and not $timezone_mismatch){
+                $msg = "localtime file '$localtime_file' does not match timezone file '$zoneinfo_file'! $msg";
+                last;
+            }
+        }
+        $linecount++;
+        if($linecount > 10){
+            warning;
+            $msg = "localtime file '$localtime_file' exceeded 10 lines, aborting check! $msg";
         }
     }
-    $linecount++;
-    if($linecount > 10){
-        warning;
-        $msg = "localtime file '$localtime_file' exceeded 10 lines, aborting check! $msg";
-    }
+    close $fh1;
+    close $fh2;
+} else {
+    warning;
+    $msg .= ". Zoneinfo file '$zoneinfo_file' not found! You may need to specify the path manually using --zoneinfo-file (if you don't have a zoneinfo installation because you're on a minimal docker distribution like Alpine then you can set --zoneinfo-file to /etc/localtime to avoid this error)"
 }
-close $fh1;
-close $fh2;
 
 # let open_file handle the validation
 #unless( -r $sysconfig_clock){
