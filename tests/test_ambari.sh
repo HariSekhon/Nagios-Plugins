@@ -46,7 +46,7 @@ if which nc &>/dev/null && ! echo | nc -G 1 "$AMBARI_HOST" $AMBARI_PORT; then
     exit 0
 fi
 
-if which curl &>/dev/null && ! curl -siL "$AMBARI_HOST:$AMBARI_PORT" | grep -qi ambari; then
+if which curl &>/dev/null && ! curl -sL "$AMBARI_HOST:$AMBARI_PORT" | grep -qi ambari; then
     echo "WARNING: Ambari host $AMBARI_HOST:$AMBARI_PORT did not contain ambari in html, may be some other service bound to the port, skipping..."
     exit 0
 fi
