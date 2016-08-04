@@ -33,7 +33,7 @@ echo "
 export AMBARI_PORT="${AMBARI_PORT:-8080}"
 export AMBARI_USER="${AMBARI_USER:-admin}"
 export AMBARI_PASSWORD="${AMBARI_USER:-admin}"
-export AMBARI_CLUSTER="${AMBARI_CLUSER:-Sandbox}"
+export AMBARI_CLUSTER="${AMBARI_CLUSTER:-Sandbox}"
 
 if [ -z "${AMBARI_HOST:-}" ]; then
     echo "WARNING: \$AMBARI_HOST not set, skipping Ambari checks"
