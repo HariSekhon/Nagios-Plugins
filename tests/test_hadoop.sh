@@ -29,7 +29,7 @@ echo "
 # ============================================================================ #
 "
 
-export HADOOP_VERSIONS="${@:-latest 2.5 2.6 2.7}"
+export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-latest 2.5 2.6 2.7}}"
 
 HADOOP_HOST="${DOCKER_HOST:-${HADOOP_HOST:-${HOST:-localhost}}}"
 HADOOP_HOST="${HADOOP_HOST##*/}"
