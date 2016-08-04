@@ -27,7 +27,7 @@ echo "
 # ============================================================================ #
 "
 
-export REDIS_VERSIONS="${@:-latest 3.2-alpine}"
+export REDIS_VERSIONS="${@:-${REDIS_VERSIONS:-latest 3.2-alpine}}"
 
 REDIS_HOST="${DOCKER_HOST:-${REDIS_HOST:-${HOST:-localhost}}}"
 REDIS_HOST="${REDIS_HOST##*/}"
