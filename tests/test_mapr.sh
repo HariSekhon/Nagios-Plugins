@@ -73,7 +73,14 @@ volumes="$(./check_mapr-fs_volume_mirroring.pl --list-volumes $no_ssl | awk '{pr
 
 set -o pipefail
 
+echo "Volumes:
+
+$volumes
+"
+
 volume="$(bash-tools/random_select.sh $volumes)"
+
+echo "Selected volume for tests: $volume"
 
 if [ -n "${DEBUG2:-}" ]; then
     export DEBUG="$DEBUG2"
