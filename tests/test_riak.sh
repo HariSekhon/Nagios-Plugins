@@ -27,7 +27,7 @@ echo "
 # ============================================================================ #
 "
 
-export RIAK_VERSIONS="${@:-latest 1.4 2.0 2.1}"
+export RIAK_VERSIONS="${@:-${RIAK_VERSIONS:-latest 1.4 2.0 2.1}}"
 
 # RIAK_HOST no longer obtained via .travis.yml, some of these require local riak-admin tool so only makes more sense to run all tests locally
 RIAK_HOST="${DOCKER_HOST:-${RIAK_HOST:-${HOST:-localhost}}}"
