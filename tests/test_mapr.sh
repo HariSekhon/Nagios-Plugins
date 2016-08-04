@@ -33,7 +33,7 @@ export MAPR_PORT="${MAPR_PORT:-8443}"
 export MAPR_USER="${MAPR_USER:-mapr}"
 export MAPR_PASSWORD="${MAPR_USER:-mapr}"
 export MAPR_CLUSTER="${MAPR_CLUSTER:-$SANDBOX_CLUSTER}"
-export SSL="${SSL-}"
+export NO_SSL="${NO_SSL-}"
 
 no_ssl=""
 if [ "$MAPR_CLUSTER" = "$SANDBOX_CLUSTER" -o -n "$NO_SSL" ]; then
