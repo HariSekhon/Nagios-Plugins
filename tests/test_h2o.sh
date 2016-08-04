@@ -29,7 +29,7 @@ echo "
 "
 
 # TODO: updates for H2O 3.x
-export H2O_VERSIONS="${@:-latest 2.6 2}"
+export H2O_VERSIONS="${@:-${H2O_VERSIONS:-latest 2.6 2}}"
 
 H2O_HOST="${DOCKER_HOST:-${H2O_HOST:-${HOST:-localhost}}}"
 H2O_HOST="${H2O_HOST##*/}"
