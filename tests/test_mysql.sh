@@ -27,7 +27,7 @@ echo "
 # ============================================================================ #
 "
 
-export MYSQL_VERSIONS="${@:-latest 5.5 5.6 5.7}"
+export MYSQL_VERSIONS="${@:-${MYSQL_VERSIONS:-latest 5.5 5.6 5.7}}"
 
 MYSQL_HOST="${MYSQL_HOST:-${DOCKER_HOST:-${HOST:-localhost}}}"
 MYSQL_HOST="${MYSQL_HOST##*/}"
