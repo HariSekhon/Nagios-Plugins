@@ -57,6 +57,8 @@ if which curl &>/dev/null && ! curl -sL "$MAPR_HOST:$MAPR_PORT/mcs" | grep -qi m
     exit 0
 fi
 
+# ============================================================================ #
+
 set +o pipefail
 
 # messes up geting these variables right which impacts the runs of the plugins further down
@@ -64,6 +66,7 @@ if [ -n "${DEBUG:-}" ]; then
     DEBUG2="$DEBUG"
     export DEBUG=""
 fi
+
 node="$(check_mapr_node_mapr-fs_disks.pl --list-nodes $no_ssl | tail -n1)"
 
 volumes="$(./check_mapr-fs_volume_mirroring.pl --list-volumes $no_ssl | awk '{print $1}' | tail -n +5)"
@@ -71,12 +74,16 @@ volumes="$(./check_mapr-fs_volume_mirroring.pl --list-volumes $no_ssl | awk '{pr
 set -o pipefail
 
 volume="$(bash-tools/random_select.sh $volumes)"
+
 if [ -n "${DEBUG2:-}" ]; then
     export DEBUG="$DEBUG2"
 fi
 
 # Sandbox often has some broken stuff, we're testing the code works, not the cluster
 [ "$MAPR_CLUSTER" = "$SANDBOX_CLUSTER" ] && set +e
+
+# ============================================================================ #
+
 hr
 $perl -T check_mapr-fs_space.pl $no_ssl
 hr
