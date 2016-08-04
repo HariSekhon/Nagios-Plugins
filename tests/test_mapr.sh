@@ -28,14 +28,15 @@ echo "
 # ============================================================================ #
 "
 
+export SANDBOX_CLUSTER="demo.mapr.com"
 export MAPR_PORT="${MAPR_PORT:-8443}"
 export MAPR_USER="${MAPR_USER:-mapr}"
 export MAPR_PASSWORD="${MAPR_USER:-mapr}"
-export MAPR_CLUSTER="${MAPR_CLUSER:-demo.mapr.com}"
+export MAPR_CLUSTER="${MAPR_CLUSTER:-$SANDBOX_CLUSTER}"
 export SSL="${SSL-}"
 
 no_ssl=""
-if [ -z "$SSL" ] || [ "$SSL" -eq 0 ]; then
+if [ "$MAPR_CLUSTER" = "$SANDBOX_CLUSTER" -o -n "$NO_SSL" ]; then
     no_ssl="--no-ssl"
 fi
 
@@ -73,7 +74,7 @@ if [ -n "${DEBUG2:-}" ]; then
 fi
 
 # Sandbox often has some broken stuff, we're testing the code works, not the cluster
-[ "$MAPR_CLUSTER" = "demo.mapr.com" ] && set +e
+[ "$MAPR_CLUSTER" = "$SANDBOX_CLUSTER" ] && set +e
 hr
 $perl -T check_mapr-fs_space.pl $no_ssl
 hr
