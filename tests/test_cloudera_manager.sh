@@ -68,6 +68,8 @@ $perl -T check_cloudera_manager.pl --list-hosts
 hr
 $perl -T check_cloudera_manager.pl --list-services
 hr
+$perl -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs
+hr
 $perl -T check_cloudera_manager_cluster_version.pl
 hr
 
