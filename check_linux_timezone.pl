@@ -93,12 +93,12 @@ if(-f $zoneinfo_file){
             $msg = "localtime file '$localtime_file' exceeded 10 lines, aborting check! $msg";
         }
     }
-    close $fh1;
     close $fh2;
 } else {
     warning;
     $msg .= ". Zoneinfo file '$zoneinfo_file' not found! You may need to specify the path manually using --zoneinfo-file (if you don't have a zoneinfo installation because you're on a minimal docker distribution like Alpine then you can set --zoneinfo-file to /etc/localtime to avoid this error)"
 }
+close $fh1;
 
 # let open_file handle the validation
 #unless( -r $sysconfig_clock){
