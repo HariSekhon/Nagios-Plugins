@@ -29,8 +29,8 @@ echo "
 "
 
 export MAPR_PORT="${MAPR_PORT:-8443}"
-export MAPR_USER="${MAPR_USER:-admin}"
-export MAPR_PASSWORD="${MAPR_USER:-admin}"
+export MAPR_USER="${MAPR_USER:-mapr}"
+export MAPR_PASSWORD="${MAPR_USER:-mapr}"
 export MAPR_CLUSTER="${MAPR_CLUSER:-demo.mapr.com}"
 export SSL="${SSL-}"
 
