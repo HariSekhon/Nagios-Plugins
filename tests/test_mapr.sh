@@ -35,6 +35,7 @@ export MAPR_PORT="${MAPR_PORT:-8443}"
 export MAPR_USER="${MAPR_USER:-mapr}"
 export MAPR_PASSWORD="${MAPR_USER:-mapr}"
 export MAPR_CLUSTER="${MAPR_CLUSTER:-$SANDBOX_CLUSTER}"
+export MAPR_VERSION="${MAPR_VERSION:-.*}"
 export NO_SSL="${NO_SSL-}"
 
 no_ssl=""
@@ -106,7 +107,7 @@ $perl -T check_mapr-fs_volume_space_used.pl $no_ssl -L $volume
 hr
 $perl -T check_mapr_alarms.pl $no_ssl
 hr
-$perl -T check_mapr_cluster_version.pl $no_ssl
+$perl -T check_mapr_cluster_version.pl $no_ssl -e "$MAPR_VERSION"
 hr
 $perl -T check_mapr_dashboard.pl $no_ssl
 hr
