@@ -27,7 +27,7 @@ echo "
 # ============================================================================ #
 "
 
-export NEO4J_VERSIONS="${@:-latest 2.3 3.0}"
+export NEO4J_VERSIONS="${@:-${NEO4J_VERSIONS:-latest 2.3 3.0}}"
 
 NEO4J_HOST="${DOCKER_HOST:-${NEO4J_HOST:-${HOST:-localhost}}}"
 NEO4J_HOST="${NEO4J_HOST##*/}"
