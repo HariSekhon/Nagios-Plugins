@@ -44,29 +44,19 @@ docker_exec(){
     docker exec "$DOCKER_CONTAINER" $MNTDIR/$*
 }
 
-#trap "docker rm -f $DOCKER_CONTAINER &>/dev/null" SIGINT SIGTERM EXIT
-
 startupwait=0
 
 echo "Setting up Linux test container"
 DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
 DOCKER_CMD="tail -f /dev/null"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
-docker exec "$DOCKER_CONTAINER" yum makecache fast
-docker exec "$DOCKER_CONTAINER" yum install -y net-tools
+#docker exec "$DOCKER_CONTAINER" yum install -y net-tools
 if [ -n "${NOTESTS:-}" ]; then
     exit 0
 fi
 hr
 docker_exec check_disk_write.pl -d .
 hr
-docker_exec check_git_branch_checkout.pl -d "$MNTDIR" -b "$(git branch | awk '/^*/{print $2}')"
-hr
-echo "Testing failure detection of wrong git branch"
-set +e
-docker_exec check_git_branch_checkout.pl -d "$MNTDIR" -b nonexistentbranch
-[ $? -eq 2 ] || exit 1
-set -e
 hr
 docker_exec check_linux_auth.pl -u root -g root -v
 hr
@@ -74,6 +64,7 @@ docker_exec check_linux_context_switches.pl || : ; sleep 1; docker_exec check_li
 hr
 docker_exec check_linux_duplicate_IDs.pl
 hr
+# TODO: requires updates/fixes?
 #docker_exec check_linux_interface.pl -i eth0 -v -e -d Full
 hr
 # making this much higher so it doesn't trip just due to test system load
@@ -85,15 +76,9 @@ docker_exec check_linux_ram.py -v -w 20% -c 10%
 hr
 docker_exec check_linux_system_file_descriptors.pl
 hr
-docker_exec check_linux_timezone.pl -T UTC -Z /usr/share/zoneinfo/UTC -A UTC -v
-hr
-docker_exec check_yum.pl -C -v -t 30
-hr
-docker_exec check_yum.pl -C --all-updates -v -t 30 || :
-hr
-docker_exec check_yum.py -C -v -t 30
-hr
-docker_exec check_yum.py -C --all-updates -v -t 30 || :
+#docker_exec check_linux_timezone.pl -T UTC -Z /usr/share/zoneinfo/UTC -A UTC -v
+# Alpine doesn't have zoneinfo installation
+docker_exec check_linux_timezone.pl -T UTC -Z /etc/localtime -A UTC -v
 hr
 delete_container
 
