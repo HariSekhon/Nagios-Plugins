@@ -33,7 +33,6 @@ SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
 SOLR_HOST="${SOLR_HOST%%:*}"
 export SOLR_HOST
-
 export SOLR_PORT="${SOLR_PORT:-8983}"
 export SOLR_COLLECTION="${SOLR_COLLECTION:-test}"
 export SOLR_CORE="${SOLR_COLLECTION:-${SOLR_CORE:-test}}"
@@ -53,8 +52,8 @@ fi
 test_solr(){
     local version="$1"
     echo "Setting up Solr $version docker test container"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8983
-    when_ports_available $startupwait 8983
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SOLR_PORT
+    when_ports_available $startupwait $SOLR_HOST $SOLR_PORT
     if [[ "$version" = "latest" || ${version:0:1} > 3 ]]; then
         docker exec -ti "$DOCKER_CONTAINER" solr create_core -c "$SOLR_CORE" || :
         # TODO: fix this on Solr 5.x+
