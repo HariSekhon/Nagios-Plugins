@@ -60,7 +60,7 @@ test_mysql(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    when_ports_available $startupwait $MYSQL_PORT
+    when_ports_available $startupwait $MYSQL_HOST $MYSQL_PORT
     hr
     docker cp "$DOCKER_CONTAINER":/etc/mysql/my.cnf /tmp
     $perl -T ./check_mysql_config.pl -c /tmp/my.cnf --warn-on-missing -v
