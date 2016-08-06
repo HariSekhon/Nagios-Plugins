@@ -43,7 +43,7 @@ export SOLR_CORE="${SOLR_COLLECTION:-${SOLR_CORE:-test}}"
 export DOCKER_IMAGE="harisekhon/solr"
 export DOCKER_CONTAINER="nagios-plugins-solr-test"
 
-startupwait=10
+startupwait 10
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Solr checks!!!'
@@ -54,6 +54,7 @@ test_solr(){
     local version="$1"
     echo "Setting up Solr $version docker test container"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8983
+    when_ports_available $startupwait 8983
     if [[ "$version" = "latest" || ${version:0:1} > 3 ]]; then
         docker exec -ti "$DOCKER_CONTAINER" solr create_core -c "$SOLR_CORE" || :
         # TODO: fix this on Solr 5.x+
