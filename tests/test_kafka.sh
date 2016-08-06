@@ -58,7 +58,7 @@ test_kafka(){
     hr
     local DOCKER_OPTS="-e ADVERTISED_HOSTNAME=$HOST"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $KAFKA_PORT
-    when_ports_available $startupwait $KAKFA_PORT
+    when_ports_available $startupwait $KAFKA_HOST $KAKFA_PORT
     hr
     echo "creating Kafka test topic"
     docker exec -ti "$DOCKER_CONTAINER" kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic "$KAFKA_TOPIC" || :
