@@ -42,7 +42,7 @@ export DOCKER_CONTAINER="nagios-plugins-solrcloud-test"
 export SOLR_HOME="/solr"
 export MNTDIR="/pl"
 
-startupwait=60
+startupwait 60
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping SolrCloud checks!!!'
@@ -66,6 +66,7 @@ test_solrcloud(){
     echo "Setting up SolrCloud $version docker test container"
     DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8983 8984 9983
+    when_ports_available $startupwait 8983 8984 9983
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
