@@ -46,9 +46,10 @@ if ! is_docker_available; then
     exit 0
 fi
 
+startupwait 30
+
 test_drill(){
     local version="$1"
-    local startupwait=30
     hr
     echo "Setting up Apache Drill $version test container"
     hr
@@ -56,6 +57,7 @@ test_drill(){
     local DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper"
     local DOCKER_CMD="supervisord -n"
     launch_container "$DOCKER_IMAGE2:$version" "$DOCKER_CONTAINER2" 8047
+    when_ports_available $startupwait 8047
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
