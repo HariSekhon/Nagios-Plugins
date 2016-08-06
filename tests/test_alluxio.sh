@@ -57,7 +57,7 @@ test_alluxio(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    when_ports_available $startupwait $ALLUXIO_MASTER_PORT $ALLUXIO_WORKER_PORT
+    when_ports_available $startupwait $ALLUXIO_HOST $ALLUXIO_MASTER_PORT $ALLUXIO_WORKER_PORT
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
