@@ -55,7 +55,7 @@ test_neo4j(){
     delete_container "$DOCKER_CONTAINER-auth" &>/dev/null || :
     local DOCKER_OPTS="-e NEO4J_AUTH=none"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $NEO4J_PORTS
-    when_ports_available $startupwait $NEO4J_PORTS
+    when_ports_available $startupwait $NEO4J_HOST $NEO4J_PORTS
     echo "creating test Neo4J node"
     docker exec "$DOCKER_CONTAINER" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
     if [ "${NOTESTS:-}" ]; then
