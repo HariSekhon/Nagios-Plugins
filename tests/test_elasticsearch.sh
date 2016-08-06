@@ -50,11 +50,11 @@ fi
 test_elasticsearch(){
     local version="$1"
     echo "Setting up Elasticsearch $version test container"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 9200 2> /dev/null
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ELASTICSEARCH_PORT
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    when_ports_available $startupwait 9200
+    when_ports_available $startupwait $ELASTICSEARCH_HOST $ELASTICSEARCH_PORT
     # Travis added this
     #echo "deleting twitter index as 5 unassigned shards are breaking tests"
     #curl -XDELETE "http://localhost:9200/twitter" || :
