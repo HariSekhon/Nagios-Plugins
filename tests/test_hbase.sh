@@ -40,7 +40,9 @@ HBASE_HOST="${HBASE_HOST##*/}"
 HBASE_HOST="${HBASE_HOST%%:*}"
 export HBASE_HOST
 export HBASE_STARGATE_PORT=8080
-#export HBASE_THRIFT_PORT=9090
+export HBASE_THRIFT_PORT=9090
+export ZOOKEEPER_PORT=2181
+export HBASE_PORTS="$ZOOKEEPER_PORT $HBASE_STARGATE_PORT 8085 $HBASE_THRIFT_PORT 9095 16000 16010 16201 16301"
 
 export DOCKER_IMAGE="harisekhon/hbase-dev"
 export DOCKER_CONTAINER="nagios-plugins-hbase-test"
@@ -67,8 +69,8 @@ test_hbase(){
     echo "Setting up HBase $version test container"
     hr
     local DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 2181 8080 8085 9090 9095 16000 16010 16201 16301
-    when_ports_available $startupwait $HBASE_HOST 2181 8080 8085 9090 9095 16000 16010 16201 16301
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HBASE_PORTS
+    when_ports_available $startupwait $HBASE_HOST $HBASE_PORTS
     echo "setting up test tables"
     local uniq_val=$(< /dev/urandom tr -dc 'a-zA-Z0-9' | head -c32 || :)
     docker exec -i "$DOCKER_CONTAINER" /bin/bash <<EOF
@@ -123,9 +125,9 @@ EOF
     #fi
     docker_exec check_hbase_table_rowcount.pl -T t1 --hbase-bin /hbase/bin/hbase -w 2 -c 2 -t 60
     hr
-    docker_exec check_zookeeper_znode.pl -H localhost -P 2181 -z /hbase -v -n --child-znodes
+    docker_exec check_zookeeper_znode.pl -H localhost -P $ZOOKEEPER_PORT -z /hbase -v -n --child-znodes
     hr
-    docker_exec check_zookeeper_child_znodes.pl -H localhost -P 2181 -z /hbase/rs -v -w 1:1 -c 1:1
+    docker_exec check_zookeeper_child_znodes.pl -H localhost -P $ZOOKEEPER_PORT -z /hbase/rs -v -w 1:1 -c 1:1
     # only there on older versions of HBase
     #hr
     #docker_exec check_hbase_unassigned_regions_znode.pl -H localhost
