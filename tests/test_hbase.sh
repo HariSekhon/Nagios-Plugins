@@ -59,7 +59,7 @@ docker_exec(){
 EOF
 }
 
-startupwait=50
+startupwait 50
 
 test_hbase(){
     local version="$1"
@@ -68,6 +68,8 @@ test_hbase(){
     hr
     local DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 2181 8080 8085 9090 9095 16000 16010 16201 16301
+
+    when_ports_available $startupwait $HBASE_HOST 2181 8080 8085 9090 9095 16000 16010 16201 16301
 
     echo "setting up test tables"
     local uniq_val=$(< /dev/urandom tr -dc 'a-zA-Z0-9' | head -c32 || :)
