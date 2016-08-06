@@ -47,7 +47,7 @@ if ! is_docker_available; then
     exit 0
 fi
 
-startupwait=1
+startupwait 1
 is_CI && let startupwait+=4
 
 if ! is_docker_available; then
@@ -66,8 +66,7 @@ test_nginx(){
         docker create --name "$DOCKER_CONTAINER" -p $NGINX_PORT:$NGINX_PORT "$DOCKER_IMAGE:$version"
         docker cp "$srcdir/conf/nginx/conf.d/default.conf" "$DOCKER_CONTAINER":/etc/nginx/conf.d/default.conf
         docker start "$DOCKER_CONTAINER"
-        echo "waiting $startupwait seconds for Nginx to start up"
-        sleep $startupwait
+        when_ports_available $startupwait $NGINX_PORT
     else
         echo "Docker Nginx test container already running"
     fi
