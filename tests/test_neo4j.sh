@@ -47,13 +47,15 @@ if ! is_docker_available; then
     exit 0
 fi
 
+startupwait 10
+
 test_neo4j(){
     local version="$1"
-    local startupwait=10
     echo "Setting up Neo4J $version test container without authentication"
     delete_container "$DOCKER_CONTAINER-auth" &>/dev/null || :
     local DOCKER_OPTS="-e NEO4J_AUTH=none"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $NEO4J_PORTS
+    when_ports_available $startupwait $NEO4J_PORTS
     echo "creating test Neo4J node"
     docker exec "$DOCKER_CONTAINER" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
     if [ "${NOTESTS:-}" ]; then
