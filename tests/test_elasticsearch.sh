@@ -40,7 +40,7 @@ export ELASTICSEARCH_INDEX="${ELASTICSEARCH_INDEX:-test}"
 export DOCKER_IMAGE="elasticsearch"
 export DOCKER_CONTAINER="nagios-plugins-elasticsearch-test"
 
-startupwait=20
+startupwait 20
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Elasticsearch checks!!!'
@@ -54,6 +54,7 @@ test_elasticsearch(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
+    when_ports_available $startupwait 9200
     # Travis added this
     #echo "deleting twitter index as 5 unassigned shards are breaking tests"
     #curl -XDELETE "http://localhost:9200/twitter" || :
