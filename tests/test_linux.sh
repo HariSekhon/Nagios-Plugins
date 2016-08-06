@@ -44,8 +44,6 @@ docker_exec(){
     docker exec "$DOCKER_CONTAINER" $MNTDIR/$*
 }
 
-startupwait=0
-
 echo "Setting up Linux test container"
 DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
 DOCKER_CMD="tail -f /dev/null"
