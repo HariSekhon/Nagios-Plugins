@@ -33,7 +33,8 @@ ZOOKEEPER_HOST="${DOCKER_HOST:-${ZOOKEEPER_HOST:-${HOST:-localhost}}}"
 ZOOKEEPER_HOST="${ZOOKEEPER_HOST##*/}"
 ZOOKEEPER_HOST="${ZOOKEEPER_HOST%%:*}"
 export ZOOKEEPER_HOST
-export ZOOKEEPER_PORTS="2181 3181 4181"
+export ZOOKEEPER_PORT=2181
+export ZOOKEEPER_PORTS="$ZOOKEEPER_PORT 3181 4181"
 
 export DOCKER_IMAGE="harisekhon/zookeeper"
 export DOCKER_IMAGE2="harisekhon/nagios-plugins"
@@ -74,11 +75,11 @@ test_zookeeper(){
         $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
     fi
     hr
-    docker_exec check_zookeeper_config.pl -H zookeeper -P 2181 -C "$MNTDIR/zoo.cfg" -v
+    docker_exec check_zookeeper_config.pl -H zookeeper -P $ZOOKEEPER_PORT -C "$MNTDIR/zoo.cfg" -v
     hr
-    docker_exec check_zookeeper_child_znodes.pl -H zookeeper -P 2181 -z / --no-ephemeral-check -v
+    docker_exec check_zookeeper_child_znodes.pl -H zookeeper -P $ZOOKEEPER_PORT -z / --no-ephemeral-check -v
     hr
-    docker_exec check_zookeeper_znode.pl -H zookeeper -P 2181 -z / -v -n --child-znodes
+    docker_exec check_zookeeper_znode.pl -H zookeeper -P $ZOOKEEPER_PORT -z / -v -n --child-znodes
     hr
 
     delete_container "$DOCKER_CONTAINER2"
