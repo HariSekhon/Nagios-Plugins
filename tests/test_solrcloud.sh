@@ -34,6 +34,8 @@ export SOLR_VERSIONS="${@:-${SOLR_VERSIONS:-latest 4.10 5.5 6.0 6.1}}"
 SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
 export SOLR_HOST="${SOLR_HOST%%:*}"
+export SOLR_PORT=8983
+export SOLR_PORTS="$SOLR_PORT 8984 9983"
 export ZOOKEEPER_HOST="$SOLR_HOST"
 
 export DOCKER_IMAGE="harisekhon/solrcloud-dev"
@@ -65,8 +67,8 @@ test_solrcloud(){
     fi
     echo "Setting up SolrCloud $version docker test container"
     DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8983 8984 9983
-    when_ports_available $startupwait 8983 8984 9983
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SOLR_PORTS
+    when_ports_available $startupwait $SOLR_HOST $SOLR_PORTS
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
