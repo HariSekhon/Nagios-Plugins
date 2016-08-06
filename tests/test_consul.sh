@@ -42,7 +42,7 @@ export DOCKER_CONTAINER="nagios-plugins-consul-test"
 
 export MNTDIR="/pl"
 
-startupwait=10
+startupwait 10
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Consul checks!!!'
@@ -59,15 +59,16 @@ test_consul(){
     hr
     local DOCKER_CMD="agent -dev -data-dir /tmp -client 0.0.0.0"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $CONSUL_PORT
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
+    when_ports_available $startupwait $CONSUL_PORT
     hr
     local testkey="nagios/consul/testkey1"
     echo "Writing random value to test key $testkey"
     local random_val=$RANDOM
     curl -X PUT -d "$random_val" "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$testkey"
     echo
-    if [ -n "${NOTESTS:-}" ]; then
-        return 0
-    fi
     hr
     if [ "$version" = "latest" ]; then
         local version="*"
