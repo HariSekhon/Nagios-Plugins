@@ -47,8 +47,6 @@ if ! is_docker_available; then
     exit 0
 fi
 
-startupwait 30
-
 test_drill(){
     local version="$1"
     hr
@@ -86,10 +84,11 @@ test_drill(){
     echo
 }
 
-startupwait=1
+startupwait 1
 echo "launching zookeeper container"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 3181 4181
 
+startupwait 30
 for version in $(ci_sample $APACHE_DRILL_VERSIONS); do
     test_drill $version
 done
