@@ -43,7 +43,7 @@ export TACHYON_WORKER_PORT="${TACHYON_WORKER_PORT:-30000}"
 export DOCKER_IMAGE="harisekhon/tachyon"
 export DOCKER_CONTAINER="nagios-plugins-tachyon-test"
 
-startupwait=10
+startupwait 10
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Tachyon checks!!!'
@@ -56,7 +56,7 @@ test_tachyon(){
     echo "Setting up Tachyon $version test container"
     hr
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $TACHYON_MASTER_PORT $TACHYON_WORKER_PORT
-
+    when_ports_available $startupwait $TACHYON_HOST $TACHYON_MASTER_PORT $TACHYON_WORKER_PORT
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
