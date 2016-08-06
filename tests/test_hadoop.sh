@@ -35,6 +35,7 @@ HADOOP_HOST="${DOCKER_HOST:-${HADOOP_HOST:-${HOST:-localhost}}}"
 HADOOP_HOST="${HADOOP_HOST##*/}"
 HADOOP_HOST="${HADOOP_HOST%%:*}"
 export HADOOP_HOST
+export HADOOP_PORTS="8042 8088 9000 10020 19888 50010 50020 50070 50075 50090"
 
 export DOCKER_IMAGE="harisekhon/hadoop-dev"
 export DOCKER_CONTAINER="nagios-plugins-hadoop-test"
@@ -58,11 +59,11 @@ test_hadoop(){
     echo "Setting up Hadoop $version test container"
     hr
     DOCKER_OPTS="-v $srcdir2/..:$MNTDIR"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8042 8088 9000 10020 19888 50010 50020 50070 50075 50090
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HADOOP_PORTS
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    when_ports_available $startupwait 8042 8088 9000 10020 19888 50010 50020 50070 50075 50090
+    when_ports_available $startupwait $HADOOP_HOST $HADOOP_PORTS
     echo "creating test file in hdfs"
     docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
         export JAVA_HOME=/usr
