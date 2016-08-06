@@ -39,12 +39,12 @@ export MONGO_PORTS="27017 28017"
 
 docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
 
-startupwait=5
+startupwait 5
 
 echo "Setting up MongoDB test container"
 DOCKER_CMD="--rest"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $MONGO_PORTS
-
+when_ports_available $startupwait $MONDODB_HOST $MONGO_PORTS
 # not part of a replica set so this returns CRITICAL
 # TODO: more specific CLI runs to valid critical and output
 hr
