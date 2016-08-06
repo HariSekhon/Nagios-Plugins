@@ -41,7 +41,7 @@ export H2O_PORT="${H2O_PORT:-54321}"
 export DOCKER_IMAGE="harisekhon/h2o"
 export DOCKER_CONTAINER="nagios-plugins-h2o-test"
 
-startupwait=10
+startupwait 10
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping H2O checks!!!'
@@ -57,6 +57,7 @@ test_h2o(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
+    when_ports_available $startupwait $H2O_PORT
     hr
     $perl -T ./check_h2o_cluster.pl
     hr
