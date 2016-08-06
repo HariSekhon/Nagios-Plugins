@@ -39,7 +39,7 @@ export MEMCACHED_PORT=11211
 export DOCKER_IMAGE="memcached"
 export DOCKER_CONTAINER="nagios-plugins-memcached-test"
 
-startupwait=1
+startupwait 1
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Memcached checks!!!'
@@ -50,6 +50,7 @@ test_memcached(){
     local version="$1"
     echo "Setting up Memcached $version test container"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MEMCACHED_PORT
+    when_ports_available $startupwait $MEMCACHED_PORT
     hr
     echo "creating test Memcached key-value"
     echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc $MEMCACHED_HOST $MEMCACHED_PORT
