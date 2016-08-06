@@ -33,6 +33,7 @@ ZOOKEEPER_HOST="${DOCKER_HOST:-${ZOOKEEPER_HOST:-${HOST:-localhost}}}"
 ZOOKEEPER_HOST="${ZOOKEEPER_HOST##*/}"
 ZOOKEEPER_HOST="${ZOOKEEPER_HOST%%:*}"
 export ZOOKEEPER_HOST
+export ZOOKEEPER_PORTS="2181 3181 4181"
 
 export DOCKER_IMAGE="harisekhon/zookeeper"
 export DOCKER_IMAGE2="harisekhon/nagios-plugins"
@@ -50,12 +51,12 @@ docker_exec(){
     docker exec -ti "$DOCKER_CONTAINER2" $MNTDIR/$@
 }
 
-startupwait=5
+startupwait 5
 
 test_zookeeper(){
     local version="$1"
     echo "Setting up ZooKeeper $version test container"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 2181 3181 4181
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ZOOKEEPER_PORTS
     docker cp "$DOCKER_CONTAINER":/zookeeper/conf/zoo.cfg .
     hr
     echo "Setting up nagios-plugins test container with zkperl library"
@@ -63,6 +64,7 @@ test_zookeeper(){
     local DOCKER_CMD="tail -f /dev/null"
     launch_container "$DOCKER_IMAGE2" "$DOCKER_CONTAINER2"
     docker cp zoo.cfg "$DOCKER_CONTAINER2":"$MNTDIR/"
+    when_ports_available $startupwait $ZOOKEEPER_HOST $ZOOKEEPER_PORTS
     hr
     ./check_zookeeper_version.py -e "$version"
     hr
