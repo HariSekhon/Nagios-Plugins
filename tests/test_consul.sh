@@ -62,7 +62,7 @@ test_consul(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    when_ports_available $startupwait $CONSUL_PORT
+    when_ports_available $startupwait $CONSUL_HOST $CONSUL_PORT
     hr
     local testkey="nagios/consul/testkey1"
     echo "Writing random value to test key $testkey"
