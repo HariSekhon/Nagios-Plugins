@@ -44,8 +44,7 @@ docker_exec(){
     docker exec -ti -u riak "$DOCKER_CONTAINER" $MNTDIR/$@
 }
 
-startupwait=20
-is_CI && let startupwait+=20
+startupwait 20
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Riak checks!!!'
@@ -57,6 +56,7 @@ test_riak(){
     echo "Setting up Riak $version test container"
     DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8098
+    when_ports_available $startupwait 8098
     # Riak 2.x
     #echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
     #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type create myBucket '{"props":{"n_val":1}}' || :
