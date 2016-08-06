@@ -33,6 +33,7 @@ CASSANDRA_HOST="${DOCKER_HOST:-${CASSANDRA_HOST:-${HOST:-localhost}}}"
 CASSANDRA_HOST="${CASSANDRA_HOST##*/}"
 CASSANDRA_HOST="${CASSANDRA_HOST%%:*}"
 export CASSANDRA_HOST
+export CASSANDRA_PORTS="7199 9042"
 
 export DOCKER_IMAGE="harisekhon/cassandra-dev"
 export DOCKER_CONTAINER="nagios-plugins-cassandra-test"
@@ -55,11 +56,11 @@ test_cassandra(){
     local version="$1"
     echo "Setting up Cassandra $version test container"
     DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 7199 9042
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $CASSANDRA_PORT
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    when_ports_available $startupwait 7199 9042
+    when_ports_available $startupwait $CASSANDRA_HOST $CASSANDRA_PORTS
     hr
     docker exec -ti "$DOCKER_CONTAINER" nodetool status
     hr
