@@ -57,7 +57,7 @@ test_h2o(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    when_ports_available $startupwait $H2O_PORT
+    when_ports_available $startupwait $H2O_HOST $H2O_PORT
     hr
     $perl -T ./check_h2o_cluster.pl
     hr
