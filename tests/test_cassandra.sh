@@ -39,7 +39,7 @@ export DOCKER_CONTAINER="nagios-plugins-cassandra-test"
 
 export MNTDIR="/pl"
 
-startupwait=10
+startupwait 10
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Cassandra checks!!!'
@@ -59,6 +59,7 @@ test_cassandra(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
+    when_ports_available $startupwait 7199 9042
     hr
     docker exec -ti "$DOCKER_CONTAINER" nodetool status
     hr
