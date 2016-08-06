@@ -34,6 +34,7 @@ APACHE_DRILL_HOST="${DOCKER_HOST:-${APACHE_DRILL_HOST:-${HOST:-localhost}}}"
 APACHE_DRILL_HOST="${APACHE_DRILL_HOST##*/}"
 APACHE_DRILL_HOST="${APACHE_DRILL_HOST%%:*}"
 export APACHE_DRILL_HOST
+export APACHE_DRILL_PORT=8047
 
 export DOCKER_IMAGE="harisekhon/zookeeper"
 export DOCKER_CONTAINER="nagios-plugins-zookeeper-test"
@@ -56,11 +57,11 @@ test_drill(){
     echo "lauching drill container linked to zookeeper"
     local DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper"
     local DOCKER_CMD="supervisord -n"
-    launch_container "$DOCKER_IMAGE2:$version" "$DOCKER_CONTAINER2" 8047
+    launch_container "$DOCKER_IMAGE2:$version" "$DOCKER_CONTAINER2" $APACHE_DRILL_PORT
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    when_ports_available $startupwait 8047
+    when_ports_available $startupwait $APACHE_DRILL_HOST $APACHE_DRILL_PORT
     if [ "$version" = "latest" ]; then
         local version="*"
     fi
