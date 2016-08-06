@@ -59,7 +59,7 @@ test_mesos_version(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    when_ports_available $startupwait $MESOS_MASTER_PORT $MESOS_WORKER_PORT
+    when_ports_available $startupwait $MESOS_HOST $MESOS_MASTER_PORT $MESOS_WORKER_PORT
     hr
     $perl -T ./check_mesos_activated_slaves.pl -v
     hr
