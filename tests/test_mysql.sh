@@ -45,7 +45,7 @@ export MYSQL_PASSWORD="test123"
 export DOCKER_IMAGE="mysql"
 export DOCKER_CONTAINER="nagios-plugins-mysql-test"
 
-startupwait=10
+startupwait 10
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping MySQL checks!!!'
@@ -60,6 +60,7 @@ test_mysql(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
+    when_ports_available $startupwait $MYSQL_PORT
     hr
     docker cp "$DOCKER_CONTAINER":/etc/mysql/my.cnf /tmp
     $perl -T ./check_mysql_config.pl -c /tmp/my.cnf --warn-on-missing -v
