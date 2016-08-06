@@ -45,7 +45,7 @@ export DOCKER_CONTAINER="nagios-plugins-kafka-test"
 export KAFKA_TOPIC="nagios-plugins-kafka-test"
 
 # needs to be longer than 10 to allow Kafka to settle so topic creation works
-startupwait=20
+startupwait 20
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Kafka checks!!!'
