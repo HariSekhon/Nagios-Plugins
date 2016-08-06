@@ -34,6 +34,7 @@ RIAK_HOST="${DOCKER_HOST:-${RIAK_HOST:-${HOST:-localhost}}}"
 RIAK_HOST="${RIAK_HOST##*/}"
 RIAK_HOST="${RIAK_HOST%%:*}"
 export RIAK_HOST
+export RIAK_PORT=8098
 
 export DOCKER_IMAGE="harisekhon/riak-dev"
 export DOCKER_CONTAINER="nagios-plugins-riak-test"
@@ -55,8 +56,8 @@ test_riak(){
     local version="$1"
     echo "Setting up Riak $version test container"
     DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" 8098
-    when_ports_available $startupwait 8098
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $RIAK_PORT
+    when_ports_available $startupwait $RIAK_HOST $RIAK_PORT
     # Riak 2.x
     #echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
     #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type create myBucket '{"props":{"n_val":1}}' || :
@@ -65,7 +66,7 @@ test_riak(){
     echo "creating test Riak document"
     # don't use new bucket types yet
     #curl -XPUT localhost:8098/types/myType/buckets/myBucket/keys/myKey -d 'hari'
-    curl -XPUT $RIAK_HOST:8098/buckets/myBucket/keys/myKey -d 'hari'
+    curl -XPUT $RIAK_HOST:$RIAK_PORT/buckets/myBucket/keys/myKey -d 'hari'
     echo "done"
     if [ -n "${NOTESTS:-}" ]; then
         return 0
@@ -124,8 +125,8 @@ $sudo riak-admin bucket-type activate myBucket
 $sudo riak-admin bucket-type update myBucket '{"props":{"n_val":1}}'
 echo "creating test Riak document"
 # don't use new bucket types yet
-#curl -XPUT localhost:8098/types/myType/buckets/myBucket/keys/myKey -d 'hari'
-curl -XPUT $RIAK_HOST:8098/buckets/myBucket/keys/myKey -d 'hari'
+#curl -XPUT localhost:$RIAK_PORT/types/myType/buckets/myBucket/keys/myKey -d 'hari'
+curl -XPUT $RIAK_HOST:$RIAK_PORT/buckets/myBucket/keys/myKey -d 'hari'
 echo "done"
 hr
 # needs sudo - uses wrong version of perl if not explicit path with sudo
