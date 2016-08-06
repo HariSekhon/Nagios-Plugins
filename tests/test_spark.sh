@@ -45,7 +45,7 @@ hr
 echo "Setting up Spark test container"
 hr
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $SPARK_MASTER_PORT $SPARK_WORKER_PORT
-when_ports_available $startupwait $SPARK_MASTER_PORT $SPARK_WORKER_PORT
+when_ports_available $startupwait $SPARK_HOST $SPARK_MASTER_PORT $SPARK_WORKER_PORT
 hr
 $perl -T $I_lib ./check_spark_cluster.pl -c 1: -v
 hr
