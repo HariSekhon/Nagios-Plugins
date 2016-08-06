@@ -56,7 +56,7 @@ test_redis(){
     echo "Setting up Redis $version test container"
     #DOCKER_OPTS="--requirepass $REDIS_PASSWORD"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $REDIS_PORT
-    when_ports_available $startupwait $REDIS_PORT
+    when_ports_available $startupwait $REDIS_HOST $REDIS_PORT
     echo "creating test Redis key-value"
     echo set myKey hari | redis-cli -h "$REDIS_HOST"
     echo done
