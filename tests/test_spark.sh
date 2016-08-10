@@ -28,6 +28,8 @@ echo "
 # ============================================================================ #
 "
 
+export SPARK_VERSIONS="${@:-${SPARK_VERSIONS:-latest 1.4 1.5 1.6}}"
+
 SPARK_HOST="${DOCKER_HOST:-${SPARK_HOST:-${HOST:-localhost}}}"
 SPARK_HOST="${SPARK_HOST##*/}"
 SPARK_HOST="${SPARK_HOST%%:*}"
@@ -41,18 +43,36 @@ export DOCKER_CONTAINER="nagios-plugins-spark-test"
 
 startupwait 15
 
-hr
-echo "Setting up Spark test container"
-hr
-launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $SPARK_MASTER_PORT $SPARK_WORKER_PORT
-when_ports_available $startupwait $SPARK_HOST $SPARK_MASTER_PORT $SPARK_WORKER_PORT
-hr
-$perl -T $I_lib ./check_spark_cluster.pl -c 1: -v
-hr
-$perl -T $I_lib ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v
-hr
-$perl -T $I_lib ./check_spark_cluster_memory.pl -w 80 -c 90 -v
-hr
-$perl -T $I_lib ./check_spark_worker.pl -w 80 -c 90 -v
-hr
-delete_container
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping Spark checks!!!'
+    exit 0
+fi
+
+test_spark(){
+    local version="$1"
+    hr
+    echo "Setting up Spark $version test container"
+    hr
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SPARK_MASTER_PORT $SPARK_WORKER_PORT
+    when_ports_available $startupwait $SPARK_HOST $SPARK_MASTER_PORT $SPARK_WORKER_PORT
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
+    # TODO: add spark version test here
+    hr
+    $perl -T ./check_spark_cluster.pl -c 1: -v
+    hr
+    $perl -T ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v
+    hr
+    $perl -T ./check_spark_cluster_memory.pl -w 80 -c 90 -v
+    hr
+    $perl -T ./check_spark_worker.pl -w 80 -c 90 -v
+    hr
+    delete_container
+    hr
+    echo
+}
+
+for version in $SPARK_VERSIONS; do
+    test_spark $version
+done
