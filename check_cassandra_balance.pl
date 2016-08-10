@@ -19,7 +19,7 @@ Can specify a remote host and port otherwise assumes to check via localhost
 
 Tested on Cassandra 1.2.9, 2.0.1, 2.0.9, 2.2.5";
 
-$VERSION = "0.5.2";
+$VERSION = "0.5.3";
 
 use strict;
 use warnings;
@@ -68,11 +68,14 @@ foreach(@output){
     # Only consider up nodes
     next if(/^D[NJLM]\s+/);
     next if($exclude_joining_leaving and /^U[JL]\s+/);
-    if(/^[^\s]+\s+([^\s]+)\s+[^\s]+(?:\s+[A-Za-z][A-Za-z])?\s+[^\s]+\s+(?:(\d+(?:\.\d+)?\%|\?))\s+[^\s]+\s+([^\s]+)/){
+    if(/^[^\s]+\s+([^\s]+)\s+[^\s]+(?:\s+[A-Za-z][A-Za-z])?\s+[^\s]+\s+(?:\d+\s+)?(?:(\d+(?:\.\d+)?\%|\?))\s+[^\s]+\s+([^\s]+)\s*$/){
         $node_count++;
         my $node       = $1;
         my $percentage = $2;
         my $rack       = $3;
+        vlog3 "node = $node";
+        vlog3 "percentage = $percentage";
+        vlog3 "rack = $rack\n";
         if($percentage eq "?"){
             quit "UNKNOWN", "nodetool returned '?' for token percentage ownership, Cassandra can't determine it's own token % we need to calculate the balance. Perhaps this node was newly started?";
         }
