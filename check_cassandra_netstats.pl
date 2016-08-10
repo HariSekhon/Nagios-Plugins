@@ -15,7 +15,7 @@ Checks Pending commands and responses against warning/critical thresholds.
 
 Can specify a remote host and port otherwise it checks the local node's stats (for calling over NRPE on each Cassandra node)
 
-Tested on Cassandra 1.2.9, 2.0.1, 2.0.9, 2.2.5";
+Tested on Cassandra 1.2.9, 2.0.1, 2.0.9, 2.2.5, 3.7";
 
 $VERSION = "0.7.0";
 
@@ -60,22 +60,35 @@ my $i = 0;
 while(skip_nodetool_output($output[$i])){
     $i++;
 }
-while($i < scalar @output and $output[$i] !~ /Pool\s+Name\s+Active\s+Pending\s+Completed\s*$/i){
+while($i < scalar @output and $output[$i] !~ /Pool\s+Name\s+Active\s+Pending\s+Completed(?:\s+Dropped)?\s*$/i){
     $i++;
 }
 $i++;
+if($i >= scalar @output){
+    quit "UNKNOWN", "failed to find stats header during parsing";
+}
 my %stats;
 foreach(; $i < scalar @output; $i++){
     $output[$i] =~ /^\s*$/ and $i++ and last;
-    $output[$i] =~ /^(\w+(?:\s[A-Za-z]+)?)\s+(n\/a|\d+)\s+(\d+)\s+(\d+)\s*$/i or die_nodetool_unrecognized_output($output[$i]);
+    $output[$i] =~ /^(\w+(?:\s[A-Za-z]+)?)\s+(n\/a|\d+)\s+(\d+)\s+(\d+)(?:\s+(\d+))?\s*$/i or die_nodetool_unrecognized_output($output[$i]);
     my $type = $1;
     my $active = $2;
     my $pending = $3;
     my $completed = $4;
+    my $dropped = undef;
+    if(defined($5)){
+        $dropped = $5;
+    }
+    vlog3 "type = $type";
+    vlog3 "active = $active";
+    vlog3 "pending = $pending";
+    vlog3 "completed = $completed";
+    vlog3 "dropped = $dropped\n" if defined($dropped);
     $type =~ s/[^A-Za-z0-9]/_/g;
     $stats{$type}{"Active"}    = ( $active eq "n/a" ? 0 : $active );
     $stats{$type}{"Pending"}   = $pending;
     $stats{$type}{"Completed"} = $completed;
+    $stats{$type}{"Dropped"}   = $dropped if defined($dropped);
 }
 
 %stats or quit "UNKNOWN", "no stats found from cassandra netstats. $nagios_plugins_support_msg";
@@ -88,7 +101,7 @@ foreach my $type (sort keys %stats){
     # Commands and Responses not available in Cassandra 2.2 in Docker...
     #defined($stats{$type}) or quit "'$type' not found in netstats output. $nagios_plugins_support_msg";
     defined($stats{$type}) or next;
-    foreach my $type2 (qw/Active Pending Completed/){
+    foreach my $type2 (qw/Active Pending Completed Dropped/){
         #defined($stats{$type}{$type2}) or quit "'$type' => '$type2' not found in netstats output. $nagios_plugins_support_msg";
         defined($stats{$type}{$type2}) or next;
         $msg2 = "${type}_$type2=$stats{$type}{$type2}";
@@ -100,7 +113,7 @@ foreach my $type (sort keys %stats){
                 $msg2 = uc $msg2;
             }
             $msg3 .= msg_perf_thresholds(1);
-        } elsif($type2 eq "Completed"){
+        } elsif($type2 eq "Completed" or $type2 eq "Dropped"){
             $msg3 .= "c";
         }
         $msg3 .= " ";
