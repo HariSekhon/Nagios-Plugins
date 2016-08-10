@@ -61,7 +61,10 @@ test_cassandra(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    when_ports_available $startupwait $CASSANDRA_HOST $CASSANDRA_PORTS
+    when_ports_available $startupwait $CASSANDRA_HOST $CASSANDRA_PORT
+    if [ "$version" = "latest" ]; then
+        local version=".*"
+    fi
     hr
     docker exec -ti "$DOCKER_CONTAINER" nodetool status
     hr
