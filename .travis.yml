@@ -36,11 +36,9 @@ branches:
 
 # after_failure doesn't trigger from install failure
 # perlbrew and cpanm are not installed without an install section
-install:
-  - echo
-
 # using script section will trigger "after_failure" section but this runs everything regardless of failures
-script:
+# script:
+install:
   #- pushd lib
   #- make apt-packages
   #- cpanm --installdeps --notest . || echo CPANM LIB FAILED
