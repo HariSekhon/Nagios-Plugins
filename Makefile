@@ -247,43 +247,43 @@ apt-packages-remove:
 
 .PHONY: yum-packages
 yum-packages:
-	rpm -q gcc 				|| $(SUDO) yum install -y gcc
-	rpm -q gcc-c++ 			|| $(SUDO) yum install -y gcc-c++
-	rpm -q perl-CPAN 		|| $(SUDO) yum install -y perl-CPAN
-	rpm -q perl-libwww-perl || $(SUDO) yum install -y perl-libwww-perl
+	rpm -q gcc               || $(SUDO) yum install -y gcc
+	rpm -q gcc-c++           || $(SUDO) yum install -y gcc-c++
+	rpm -q perl-CPAN         || $(SUDO) yum install -y perl-CPAN
+	rpm -q perl-libwww-perl  || $(SUDO) yum install -y perl-libwww-perl
 	# to fetch and untar ZooKeeper, plus wget epel rpm
-	rpm -q wget 			|| $(SUDO) yum install -y wget
-	rpm -q tar 				|| $(SUDO) yum install -y tar
-	rpm -q which			|| $(SUDO) yum install -y which
+	rpm -q wget              || $(SUDO) yum install -y wget
+	rpm -q tar               || $(SUDO) yum install -y tar
+	rpm -q which             || $(SUDO) yum install -y which
 	# to build DBD::mysql if building from CPAN
-	rpm -q mysql-devel 		|| $(SUDO) yum install -y mysql-devel
-	rpm -q perl-DBD-MySQL 	|| $(SUDO) yum install -y perl-DBD-MySQL
+	rpm -q mysql-devel 		 || $(SUDO) yum install -y mysql-devel
+	rpm -q perl-DBD-MySQL    || $(SUDO) yum install -y perl-DBD-MySQL
 	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	rpm -q openssl-devel || $(SUDO) yum install -y openssl-devel
+	rpm -q openssl-devel     || $(SUDO) yum install -y openssl-devel
 	# for XML::Simple building
-	rpm -q expat-devel || $(SUDO) yum install -y expat-devel
+	rpm -q expat-devel       || $(SUDO) yum install -y expat-devel
 	# for ndg-httpsclient
-	rpm -q python-pyasn1 || $(SUDO) yum install -y python-pyasn1
+	rpm -q python-pyasn1     || $(SUDO) yum install -y python-pyasn1
 	# for Cassandra's Python driver
 	# python-pip requires EPEL, so try to get the correct EPEL rpm
 	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
 	# must instead do wget 
-	rpm -q epel-release || yum install -y epel-release || { wget -t 100 --retry-connrefused -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`grep -o '[[:digit:]]' /etc/*release | head -n1`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
+	rpm -q epel-release      || yum install -y epel-release || { wget -t 100 --retry-connrefused -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`grep -o '[[:digit:]]' /etc/*release | head -n1`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
 	# for check_whois.pl
-	rpm -q jwhois || $(SUDO) yum install -y jwhois
+	rpm -q jwhois            || $(SUDO) yum install -y jwhois
 	# only available on EPEL in CentOS 5
-	rpm -q git || $(SUDO) yum install -y git
+	rpm -q git               || $(SUDO) yum install -y git
 	rpm -q python-setuptools || $(SUDO) yum install -y python-setuptools
-	rpm -q python-pip 		 || $(SUDO) yum install -y python-pip
-	rpm -q python-devel 	 || $(SUDO) yum install -y python-devel
-	rpm -q libev 			 || $(SUDO) yum install -y libev
-	rpm -q libev-devel 		 || $(SUDO) yum install -y libev-devel
-	rpm -q snappy-devel 	 || $(SUDO) yum install -y snappy-devel
+	rpm -q python-pip        || $(SUDO) yum install -y python-pip
+	rpm -q python-devel      || $(SUDO) yum install -y python-devel
+	rpm -q libev             || $(SUDO) yum install -y libev
+	rpm -q libev-devel       || $(SUDO) yum install -y libev-devel
+	rpm -q snappy-devel      || $(SUDO) yum install -y snappy-devel
 	# needed for ndg-httpsclient upgrade
-	rpm -q libffi-devel		 || $(SUDO) yum install -y libffi-devel
+	rpm -q libffi-devel	     || $(SUDO) yum install -y libffi-devel
 	# needed to build pyhs2
 	# libgsasl-devel saslwrapper-devel
-	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel
+	rpm -q cyrus-sasl-devel  || $(SUDO) yum install -y cyrus-sasl-devel
 	# for check_yum.pl / check_yum.py
 	rpm -q yum-security yum-plugin-security || yum install -y yum-security yum-plugin-security
 
