@@ -28,13 +28,12 @@ echo "
 # ============================================================================ #
 "
 
-export SPARK_VERSIONS="${@:-${SPARK_VERSIONS:-latest 1.4 1.5 1.6}}"
+export SPARK_VERSIONS="${@:-${SPARK_VERSIONS:-latest 1.3 1.4 1.5 1.6}}"
 
 SPARK_HOST="${DOCKER_HOST:-${SPARK_HOST:-${HOST:-localhost}}}"
 SPARK_HOST="${SPARK_HOST##*/}"
 SPARK_HOST="${SPARK_HOST%%:*}"
 export SPARK_HOST
-echo "using docker address '$SPARK_HOST'"
 export SPARK_MASTER_PORT="${SPARK_MASTER_PORT:-8080}"
 export SPARK_WORKER_PORT="${SPARK_WORKER_PORT:-8081}"
 
@@ -58,7 +57,13 @@ test_spark(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    # TODO: add spark version test here
+    if [ "$version" = "latest" ]; then
+        local version=".*"
+    fi
+    hr
+    ./check_spark_master_version.py -e "$version"
+    hr
+    ./check_spark_worker_version.py -e "$version"
     hr
     $perl -T ./check_spark_cluster.pl -c 1: -v
     hr
