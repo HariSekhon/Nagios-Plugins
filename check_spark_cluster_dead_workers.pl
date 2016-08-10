@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check a Spark cluster for dead workers via the 
 
 Written for Apache Spark 0.8.1 / 0.9.1 standalone (also tested on 0.9.0 on Cloudera CDH 5.0)
 
-Updated for Apache Spark 1.5.0 standalone";
+Updated for Apache Spark 1.5.0 standalone. Tested on Apache Spark standalone 1.3.1, 1.4.1, 1.5.1, 1.6.2";
 
 $VERSION = "0.2";
 
