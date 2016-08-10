@@ -19,7 +19,7 @@ Uses nodetool's status command to determine how many downed nodes there are to c
 
 Can specify a remote host and port otherwise assumes to check via localhost
 
-Tested on Cassandra 1.2.9, 2.0.1, 2.0.9, 2.2.5";
+Tested on Cassandra 1.2.9, 2.0.1, 2.0.9, 2.2.5, 3.7";
 
 $VERSION = "0.4.2";
 
