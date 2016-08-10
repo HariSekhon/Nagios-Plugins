@@ -54,7 +54,7 @@ script:
   #- sudo chmod -R 755 /opt/python /usr/local /usr/lib/python*
   # with 755 perms goes back to "error: could not create '/usr/local/lib/python2.7/dist-packages/markupsafe': Permission denied"
   # chown root still same error... must be because pure python submodules don't sudo in Travis
-  - sudo chown -R travis /opt/python /usr/local /usr/lib/python*
+  - sudo chown -R travis /opt/python /usr/local /usr/lib/python* /usr/lib/perl
   - make && make zookeeper && make test
 
 after_success:
