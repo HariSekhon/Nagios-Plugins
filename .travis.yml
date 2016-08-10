@@ -35,9 +35,9 @@ branches:
     - master
 
 # using script section will trigger "after_failure" section but this runs everything regardless of failures
-#script:
 # after_failure doesn't trigger from install failure
-install:
+#install:
+script:
   #- pushd lib
   #- make apt-packages
   #- cpanm --installdeps --notest . || echo CPANM LIB FAILED
@@ -52,8 +52,7 @@ install:
   # with 755 perms goes back to "error: could not create '/usr/local/lib/python2.7/dist-packages/markupsafe': Permission denied"
   # chown root still same error... must be because pure python submodules don't sudo in Travis
   - sudo chown -R travis /opt/python /usr/local /usr/lib/python*
-  - make
-  - make zookeeper
+  - make && make zookeeper
 
 script:
   - tests/all.sh
