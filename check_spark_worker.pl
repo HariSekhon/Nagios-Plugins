@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check a Spark Worker via HTTP interface
 
 Optionally checks the memory used % of the worker if given thresholds
 
-Written for Apache Spark 0.8.1 / 0.9.0 standalone (also tested on 0.9.0 on Cloudera CDH 5.0)
+Originally written for Apache Spark 0.8.1 / 0.9.0 standalone (also tested on 0.9.0 on Cloudera CDH 5.0), updated for 1.x.
 
 Tested on Apache Spark standalone 1.3.1, 1.4.1, 1.5.1, 1.6.2";
 
