@@ -43,14 +43,14 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, CriticalError, UnknownError, support_msg
-    from harisekhon.utils import validate_regex, isVersion
+    from harisekhon.utils import validate_regex, isVersion, version_regex
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckCassandraVersion(NagiosPlugin):
@@ -61,7 +61,7 @@ class CheckCassandraVersion(NagiosPlugin):
         # Python 3.x
         # super().__init__()
         self.msg = 'Cassandra version unknown - no message defined'
-        self.version_regex = re.compile(r'^\s*ReleaseVersion:\s+(\d+\.\d+\.\d+)')
+        self.version_regex = re.compile(r'^\s*ReleaseVersion:\s+({0})'.format(version_regex))
 
     def add_options(self):
         self.add_opt('-e', '--expected', help='Expected version regex (optional)')
