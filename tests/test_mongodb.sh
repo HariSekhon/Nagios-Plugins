@@ -13,7 +13,7 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
-set -eu
+set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -27,6 +27,9 @@ echo "
 # ============================================================================ #
 "
 
+export MONGO_VERSIONS="${@:-${MONGO_VERSIONS:-latest 2.6 3.0 3.2 3.3}}"
+
+# TODO: add support for shorter MONGO_HOST to mongo plugins
 MONGODB_HOST="${DOCKER_HOST:-${MONGODB_HOST:-${HOST:-localhost}}}"
 MONGODB_HOST="${MONGODB_HOST##*/}"
 MONGODB_HOST="${MONGODB_HOST%%:*}"
@@ -41,24 +44,38 @@ docker rm -f "$DOCKER_CONTAINER-auth" &>/dev/null || :
 
 startupwait 5
 
-echo "Setting up MongoDB test container"
-DOCKER_CMD="--rest"
-launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" $MONGO_PORTS
-when_ports_available $startupwait $MONDODB_HOST $MONGO_PORTS
-# not part of a replica set so this returns CRITICAL
-# TODO: more specific CLI runs to valid critical and output
-hr
-$perl -T $I_lib ./check_mongodb_master.pl || :
-hr
-$perl -T $I_lib ./check_mongodb_master_rest.pl
-hr
-# Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
-if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
-    $perl -T $I_lib ./check_mongodb_write.pl -v
+if ! is_docker_available; then
+    echo 'WARNING: Docker not found, skipping MongoDB checks!!!'
+    exit 0
 fi
-hr
-delete_container
-hr
+
+test_mongo(){
+    local version="$1"
+    echo "Setting up MongoDB $version test container"
+    local DOCKER_CMD="--rest"
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MONGO_PORTS
+    when_ports_available $startupwait $MONGODB_HOST $MONGO_PORTS
+    if [ -n "${ENTER:-}" ]; then
+        docker exec -ti "$DOCKER_CONTAINER" bash
+    fi
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
+    # not part of a replica set so this returns CRITICAL
+    # TODO: more specific CLI runs to valid critical and output
+    hr
+    $perl -T ./check_mongodb_master.pl || :
+    hr
+    $perl -T ./check_mongodb_master_rest.pl
+    hr
+    # Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
+    if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
+        $perl -T ./check_mongodb_write.pl -v
+    fi
+    hr
+    delete_container
+    echo
+}
 
 # ============================================================================ #
 
@@ -67,11 +84,14 @@ hr
 export MONGODB_USERNAME="nagios"
 export MONGODB_PASSWORD="testpw"
 
-echo "Setting up MongoDB authenticated test container"
-DOCKER_CMD="mongod --auth --rest"
-launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER-auth" $MONGO_PORTS
-echo "setting up test user"
-docker exec -i "$DOCKER_CONTAINER-auth" mongo --host localhost <<EOF
+test_mongo_auth(){
+    local version="$1"
+    echo "Setting up MongoDB $version authenticated test container"
+    local DOCKER_CMD="mongod --auth --rest"
+    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER-auth" $MONGO_PORTS
+    when_ports_available $startupwait $MONGODB_HOST $MONGO_PORTS
+    echo "setting up test user"
+    docker exec -i "$DOCKER_CONTAINER-auth" mongo --host localhost <<EOF
 use admin
 db.createUser({"user":"$MONGODB_USERNAME", "pwd":"$MONGODB_PASSWORD", "roles":[{role:"root", db:"admin"}]})
 EOF
@@ -82,18 +102,30 @@ docker exec -i "$DOCKER_CONTAINER-auth" mongo -u "$MONGODB_USERNAME" -p "$MONGOD
 use nagios
 db.nagioscoll.insert({'test':'test'})
 EOF
-hr
-# not part of a replica set so this returns CRITICAL
-# TODO: more specific CLI runs to valid critical and output
-hr
-$perl -T $I_lib ./check_mongodb_master.pl || :
-hr
-# TODO: Fails - authentication not supported, basic auth doesn't seem to work
-$perl -T $I_lib ./check_mongodb_master_rest.pl -v || :
-hr
-# Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
-if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
-    $perl -T $I_lib ./check_mongodb_write.pl -v
-fi
-hr
-delete_container "$DOCKER_CONTAINER-auth"
+    if [ -n "${ENTER:-}" ]; then
+        docker exec -ti "$DOCKER_CONTAINER" bash
+    fi
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
+    hr
+    # not part of a replica set so this returns CRITICAL
+    # TODO: more specific CLI runs to valid critical and output
+    hr
+    $perl -T ./check_mongodb_master.pl || :
+    hr
+    # TODO: Fails - authentication not supported, basic auth doesn't seem to work
+    $perl -T ./check_mongodb_master_rest.pl -v || :
+    hr
+    # Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
+    if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
+        $perl -T ./check_mongodb_write.pl -v
+    fi
+    hr
+    delete_container "$DOCKER_CONTAINER-auth"
+}
+
+for version in $(ci_sample $MONGO_VERSIONS); do
+    test_mongo $version
+    test_mongo_auth $version
+done
