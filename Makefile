@@ -186,6 +186,7 @@ apk-packages:
 
 .PHONY: apk-packages-remove
 apk-packages-remove:
+	cd lib && make apk-packages-remove
 	$(SUDO) apk del alpine-sdk
 	$(SUDO) apk del expat-dev
 	$(SUDO) apk del libxml2-dev
@@ -231,6 +232,7 @@ apt-packages:
 
 .PHONY: apt-packages-remove
 apt-packages-remove:
+	cd lib && make apt-packages-remove
 	$(SUDO) apt-get install -y build-essential
 	$(SUDO) apt-get install -y wget
 	$(SUDO) apt-get install -y libmysqlclient-dev
@@ -287,16 +289,17 @@ yum-packages:
 
 .PHONY: yum-packages-remove
 yum-packages-remove:
-	rpm -q gcc 				&& $(SUDO) yum remove -y gcc
-	rpm -q gcc-c++ 			&& $(SUDO) yum remove -y gcc-c++
-	rpm -q perl-CPAN 		&& $(SUDO) yum remove -y perl-CPAN
-	rpm -q mysql-devel 		&& $(SUDO) yum remove -y mysql-devel
+	cd lib && make yum-packages-remove
+	rpm -q gcc              && $(SUDO) yum remove -y gcc
+	rpm -q gcc-c++          && $(SUDO) yum remove -y gcc-c++
+	rpm -q perl-CPAN        && $(SUDO) yum remove -y perl-CPAN
+	rpm -q mysql-devel      && $(SUDO) yum remove -y mysql-devel
 	rpm -q openssl-devel    && $(SUDO) yum remove -y openssl-devel
-	rpm -q expat-devel 	    && $(SUDO) yum remove -y expat-devel
-	rpm -q python-devel 	&& $(SUDO) yum remove -y python-devel
-	rpm -q libev-devel 		&& $(SUDO) yum remove -y libev-devel
-	rpm -q snappy-devel 	&& $(SUDO) yum remove -y snappy-devel
-	rpm -q libffi-devel		&& $(SUDO) yum remove -y libffi-devel
+	rpm -q expat-devel      && $(SUDO) yum remove -y expat-devel
+	rpm -q python-devel     && $(SUDO) yum remove -y python-devel
+	rpm -q libev-devel      && $(SUDO) yum remove -y libev-devel
+	rpm -q snappy-devel     && $(SUDO) yum remove -y snappy-devel
+	rpm -q libffi-devel     && $(SUDO) yum remove -y libffi-devel
 	rpm -q cyrus-sasl-devel && $(SUDO) yum remove -y cyrus-sasl-devel
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
