@@ -55,12 +55,10 @@ script:
   # with 755 perms goes back to "error: could not create '/usr/local/lib/python2.7/dist-packages/markupsafe': Permission denied"
   # chown root still same error... must be because pure python submodules don't sudo in Travis
   - sudo chown -R travis /opt/python /usr/local /usr/lib/python*
-  - make && make zookeeper
-
-script:
-  - tests/all.sh
+  - make && make zookeeper && make test
 
 after_success:
+  - echo "After Success"
   - curl -ivv --data {build:true} -X POST https://registry.hub.docker.com/u/harisekhon/nagios-plugins/trigger/5b0d1a59-8b53-466a-87d7-8e99dfd01f16/
   - curl -ivv --data {build:true} -X POST https://registry.hub.docker.com/u/harisekhon/alpine-github/trigger/8d9cb826-48df-439c-8c20-1975713064fc/
   - curl -ivv --data {build:true} -X POST https://registry.hub.docker.com/u/harisekhon/centos-github/trigger/316d1158-7ffb-49a4-a7bd-8e5456ba2d15/
