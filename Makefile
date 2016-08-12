@@ -75,8 +75,7 @@ build:
 	# downgrading Net::DNS as a workaround for taint mode bug:
 	# https://rt.cpan.org/Public/Bug/Display.html?id=114819
 	#
-	which cpanm &>/dev/null || { yes "" | $(SUDO2) cpan App::cpanminus; }
-	which cpanm || :
+	which cpanm || { yes "" | $(SUDO2) cpan App::cpanminus; }
 	yes "" | $(SUDO2) $(CPANM) --notest \
 		YAML \
 		Module::Build::Tiny \
