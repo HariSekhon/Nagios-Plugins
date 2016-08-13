@@ -9,7 +9,7 @@ export PATH := $(PATH):/usr/local/bin
 
 CPANM = cpanm
 
-ifneq ("$(PERLBREW_PERL)$(TRAVIS)", "")
+ifneq ("$(PERLBREW_PERL)", "")
 	SUDO2 =
 else
 	SUDO2 = sudo
