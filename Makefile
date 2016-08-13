@@ -324,7 +324,7 @@ zookeeper:
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				make
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				$(SUDO) make install
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	perl Makefile.PL --zookeeper-include=/usr/local/include --zookeeper-lib=/usr/local/lib
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	LD_RUN_PATH=/usr/local/lib make
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	LD_RUN_PATH=/usr/local/lib $(SUDO) make
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	$(SUDO) make install
 	perl -e "use Net::ZooKeeper"
 
