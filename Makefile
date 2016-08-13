@@ -9,12 +9,6 @@ export PATH := $(PATH):/usr/local/bin
 
 CPANM = cpanm
 
-ifneq ("$(PERLBREW_PERL)", "")
-	SUDO2 =
-else
-	SUDO2 = sudo
-endif
-
 # EUID /  UID not exported in Make
 # USER not populated in Docker
 ifeq '$(shell id -u)' '0'
@@ -22,6 +16,18 @@ ifeq '$(shell id -u)' '0'
 	SUDO2 =
 else
 	SUDO = sudo
+endif
+
+ifdef PERLBREW_PERL
+	SUDO2 =
+else
+	SUDO2 = sudo
+endif
+
+ifdef VIRTUAL_ENV
+	SUDO3 =
+else
+	SUDO3 = sudo -H
 endif
 
 .PHONY: build
@@ -145,22 +151,22 @@ build:
 
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
-	$(SUDO2) easy_install -U setuptools || $(SUDO2) easy_install -U setuptools || :
-	$(SUDO2) easy_install pip || :
+	$(SUDO3) easy_install -U setuptools || $(SUDO3) easy_install -U setuptools || :
+	$(SUDO3) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	# upgrade required to get install to work properly on Debian
-	$(SUDO2) pip install --upgrade pip
-	$(SUDO2) pip install -r requirements.txt
+	$(SUDO3) pip install --upgrade pip
+	$(SUDO3) pip install -r requirements.txt
 	# in requirements.txt now
-	#$(SUDO2) pip install cassandra-driver scales blist lz4 python-snappy
+	#$(SUDO3) pip install cassandra-driver scales blist lz4 python-snappy
 	# prevents https://urllib3.readthedocs.io/en/latest/security.html#insecureplatformwarning
-	$(SUDO2) pip install --upgrade ndg-httpsclient
+	$(SUDO3) pip install --upgrade ndg-httpsclient
 	#. tests/utils.sh; $(SUDO) $$perl couchbase-csdk-setup
-	#$(SUDO) pip install couchbase
+	#$(SUDO3) pip install couchbase
 	
 	# install MySQLdb python module for check_logserver.py / check_syslog_mysql.py
 	# fails if MySQL isn't installed locally
-	$(SUDO2) pip install MySQL-python
+	$(SUDO3) pip install MySQL-python
 	@echo
 	#make jar-plugins
 	@echo
