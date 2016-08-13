@@ -115,7 +115,7 @@ build:
 		Module::Install::Admin \
 		MongoDB \
 		MongoDB::MongoClient \
-		Net::DNS \
+		Net::DNS@1.05 \
 		Net::LDAP \
 		Net::LDAPI \
 		Net::LDAPS \
