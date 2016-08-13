@@ -72,9 +72,6 @@ build:
 	# Proc::Daemon needed by Kafka::TestInternals
 	# Proc::Daemon fails on tests, force install anyway to appease Travis
 	#
-	# downgrading Net::DNS as a workaround for taint mode bug:
-	# https://rt.cpan.org/Public/Bug/Display.html?id=114819
-	#
 	which cpanm || { yes "" | $(SUDO2) cpan App::cpanminus; }
 	yes "" | $(SUDO2) $(CPANM) --notest \
 		YAML \
@@ -112,7 +109,7 @@ build:
 		Module::Install::Admin \
 		MongoDB \
 		MongoDB::MongoClient \
-		Net::DNS@1.05 \
+		Net::DNS \
 		Net::LDAP \
 		Net::LDAPI \
 		Net::LDAPS \
@@ -133,9 +130,14 @@ build:
 		XML::SAX \
 		XML::Simple \
 		;
+	# downgrading Net::DNS as a workaround for taint mode bug:
+	# https://rt.cpan.org/Public/Bug/Display.html?id=114819
+	#$(SUDO2) $(CPANM) --notest Net::DNS@1.05 \
+	#
 	# newer versions of the Redis module require Perl >= 5.10, this will install the older compatible version for RHEL5/CentOS5 servers still running Perl 5.8 if the latest module fails
 	# the backdated version might not be the perfect version, found by digging around in the git repo
 	$(SUDO2) $(CPANM) --notest Redis || $(SUDO2) $(CPANM) --notest DAMS/Redis-1.976.tar.gz
+
 		#Net::Async::CassandraCQL \
 
 	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
