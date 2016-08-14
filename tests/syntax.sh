@@ -28,8 +28,8 @@ cd "$srcdir/..";
 for x in *.pl */*.pl; do
     isExcluded "$x" && continue
     #printf "%-50s" "$x:"
-    #$perl -TWc $I_lib ./$x
-    $perl -Tc $I_lib ./$x
+    #$perl -TWc ./$x
+    $perl -Tc ./$x
 done
 echo "================================================================================"
 echo "                  All Perl programs passed syntax check"

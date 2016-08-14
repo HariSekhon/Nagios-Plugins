@@ -9,10 +9,17 @@ export PATH := $(PATH):/usr/local/bin
 
 CPANM = cpanm
 
-ifneq ("$(PERLBREW_PERL)", "")
+ifdef PERLBREW_PERL
 	SUDO2 =
 else
 	SUDO2 = sudo
+endif
+
+# Travis has python install before in $PATH even in Perl builds so need to install PyPI modules here otherwise they're not found, but perms not set correctly on Travis build to do this, better than modifying $PATH to put /usr/bin first which is likely to affect many other things including potentially not find the perlbrew installation first
+ifneq ("$(VIRTUAL_ENV)$(TRAVIS)", "")
+	SUDO3 =
+else
+	SUDO3 = sudo -H
 endif
 
 # EUID /  UID not exported in Make
@@ -20,6 +27,7 @@ endif
 ifeq '$(shell id -u)' '0'
 	SUDO =
 	SUDO2 =
+	SUDO3 =
 else
 	SUDO = sudo
 endif
@@ -71,9 +79,6 @@ build:
 	# Module::Build::Tiny and Const::Fast must be built before Kafka, doesn't auto-pull in correct order
 	# Proc::Daemon needed by Kafka::TestInternals
 	# Proc::Daemon fails on tests, force install anyway to appease Travis
-	#
-	# downgrading Net::DNS as a workaround for taint mode bug:
-	# https://rt.cpan.org/Public/Bug/Display.html?id=114819
 	#
 	which cpanm || { yes "" | $(SUDO2) cpan App::cpanminus; }
 	yes "" | $(SUDO2) $(CPANM) --notest \
@@ -133,9 +138,14 @@ build:
 		XML::SAX \
 		XML::Simple \
 		;
+	# downgrading Net::DNS as a workaround for taint mode bug:
+	# https://rt.cpan.org/Public/Bug/Display.html?id=114819
+	#$(SUDO2) $(CPANM) --notest Net::DNS@1.05 \
+	#
 	# newer versions of the Redis module require Perl >= 5.10, this will install the older compatible version for RHEL5/CentOS5 servers still running Perl 5.8 if the latest module fails
 	# the backdated version might not be the perfect version, found by digging around in the git repo
 	$(SUDO2) $(CPANM) --notest Redis || $(SUDO2) $(CPANM) --notest DAMS/Redis-1.976.tar.gz
+
 		#Net::Async::CassandraCQL \
 
 	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
@@ -143,22 +153,22 @@ build:
 
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
-	$(SUDO2) easy_install -U setuptools || $(SUDO2) easy_install -U setuptools || :
-	$(SUDO2) easy_install pip || :
+	$(SUDO) easy_install -U setuptools || $(SUDO3) easy_install -U setuptools || :
+	$(SUDO) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	# upgrade required to get install to work properly on Debian
-	$(SUDO2) pip install --upgrade pip
-	$(SUDO2) pip install -r requirements.txt
+	$(SUDO) pip install --upgrade pip
+	$(SUDO3) pip install -r requirements.txt
 	# in requirements.txt now
-	#$(SUDO2) pip install cassandra-driver scales blist lz4 python-snappy
+	#$(SUDO3) pip install cassandra-driver scales blist lz4 python-snappy
 	# prevents https://urllib3.readthedocs.io/en/latest/security.html#insecureplatformwarning
-	$(SUDO2) pip install --upgrade ndg-httpsclient
+	$(SUDO3) pip install --upgrade ndg-httpsclient
 	#. tests/utils.sh; $(SUDO) $$perl couchbase-csdk-setup
-	#$(SUDO) pip install couchbase
+	#$(SUDO3) pip install couchbase
 	
 	# install MySQLdb python module for check_logserver.py / check_syslog_mysql.py
 	# fails if MySQL isn't installed locally
-	$(SUDO2) pip install MySQL-python
+	$(SUDO3) pip install MySQL-python
 	@echo
 	#make jar-plugins
 	@echo
@@ -316,7 +326,7 @@ zookeeper:
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				make
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				$(SUDO) make install
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	perl Makefile.PL --zookeeper-include=/usr/local/include --zookeeper-lib=/usr/local/lib
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	LD_RUN_PATH=/usr/local/lib make
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	LD_RUN_PATH=/usr/local/lib $(SUDO) make
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	$(SUDO) make install
 	perl -e "use Net::ZooKeeper"
 
