@@ -53,7 +53,7 @@ install:
   # with 755 perms goes back to "error: could not create '/usr/local/lib/python2.7/dist-packages/markupsafe': Permission denied"
   # chown root still same error... must be because pure python submodules don't sudo in Travis
   #
-  # Travis has python install before in $PATH even in Perl builds so need to install PyPI modules here otherwise they're not found, but perms not set correctly on Travis build to do this, better than modifying \$PATH to put /usr/bin first which is likely to affect many other things including potentially not find the perlbrew installation first
+  # Travis has python install before in $PATH even in Perl builds so need to install PyPI modules here otherwise they're not found, but perms not set correctly on Travis build to do this, better than modifying $PATH to put /usr/bin first which is likely to affect many other things including potentially not find the perlbrew installation first
   - sudo chown -R travis /opt/python /usr/local /usr/lib/python*
   - make && make zookeeper && make test
 
