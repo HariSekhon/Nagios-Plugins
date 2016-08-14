@@ -9,15 +9,6 @@ export PATH := $(PATH):/usr/local/bin
 
 CPANM = cpanm
 
-# EUID /  UID not exported in Make
-# USER not populated in Docker
-ifeq '$(shell id -u)' '0'
-	SUDO =
-	SUDO2 =
-else
-	SUDO = sudo
-endif
-
 ifdef PERLBREW_PERL
 	SUDO2 =
 else
@@ -29,6 +20,16 @@ ifneq ("$(VIRTUAL_ENV)$(TRAVIS)", "")
 	SUDO3 =
 else
 	SUDO3 = sudo -H
+endif
+
+# EUID /  UID not exported in Make
+# USER not populated in Docker
+ifeq '$(shell id -u)' '0'
+	SUDO =
+	SUDO2 =
+	SUDO3 =
+else
+	SUDO = sudo
 endif
 
 .PHONY: build
@@ -152,11 +153,11 @@ build:
 
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
-	$(SUDO3) easy_install -U setuptools || $(SUDO3) easy_install -U setuptools || :
-	$(SUDO3) easy_install pip || :
+	$(SUDO) easy_install -U setuptools || $(SUDO3) easy_install -U setuptools || :
+	$(SUDO) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	# upgrade required to get install to work properly on Debian
-	$(SUDO3) pip install --upgrade pip
+	$(SUDO) pip install --upgrade pip
 	$(SUDO3) pip install -r requirements.txt
 	# in requirements.txt now
 	#$(SUDO3) pip install cassandra-driver scales blist lz4 python-snappy
