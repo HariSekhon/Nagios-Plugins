@@ -26,6 +26,7 @@ else
 	SUDO3 = sudo -H
 endif
 
+# must come after to reset SUDO2/SUDO3 to blank if root
 # EUID /  UID not exported in Make
 # USER not populated in Docker
 ifeq '$(shell id -u)' '0'
