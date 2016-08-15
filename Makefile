@@ -18,7 +18,7 @@ endif
 ifdef VIRTUAL_ENV
 	SUDO3 =
 # Travis has custom python install earlier in $PATH even in Perl builds so need to install PyPI modules locally to non-system python otherwise they're not found by programs.
-# Perms not set correctly on Travis perl build so workaround is chown in .travis.yml
+# Perms not set correctly on custom python install in Travis perl build so workaround is done to chown to travis user in .travis.yml
 # Better than modifying $PATH to put /usr/bin first which is likely to affect many other things including potentially not finding the perlbrew installation first
 else ifdef TRAVIS
 	SUDO3 =
