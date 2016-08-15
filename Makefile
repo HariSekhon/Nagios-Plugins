@@ -35,6 +35,7 @@ else
 endif
 
 .PHONY: build
+# space here prevents weird validation warning from check_makefile.sh => Makefile:40: warning: undefined variable `D'
 build :
 	if [ -x /sbin/apk ];        then make apk-packages; fi
 	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
