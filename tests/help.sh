@@ -13,7 +13,7 @@
 #  http://www.linkedin.com/in/harisekhon
 #
 
-set -eu
+set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -21,25 +21,60 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-for x in $(echo *.pl *.py *.rb */*.pl */*.py */*.rb 2>/dev/null); do
-    isExcluded "$x" && continue
+section "Testing --help for all programs"
+
+test_help(){
+    local prog="$1"
     optional_cmd=""
-    if [[ $x =~ .*\.pl$ ]]; then
+    if [[ $prog =~ .*\.pl$ ]]; then
         optional_cmd="$perl -T"
     fi
-    echo $optional_cmd ./$x --help
+    echo $optional_cmd $prog --help
     set +e
-    $optional_cmd ./$x --help # >/dev/null
+    $optional_cmd $prog --help # >/dev/null
     status=$?
     set -e
-    [[ "$x" = *.py ]] && [ $status = 0 ] && { echo "allowing python program $x to have exit code zero instead of 3"; continue; }
+    [[ "$prog" = *.py ]] && [ $status = 0 ] && { echo "allowing python program $prog to have exit code zero instead of 3"; return 0; }
     # quick hack for older programs
-#    [ "$x" = "check_dhcpd_leases.py" -o \
-#      "$x" = "check_linux_ram.py"    -o \
-#      "$x" = "check_logserver.py"    -o \
-#      "$x" = "check_syslog_mysql.py" -o \
-#      "$x" = "check_yum.py" ] && [ $status = 0 ] && { echo "allowing $x to have zero exit code"; continue; }
-    [ $status = 3 ] || { echo "status code for $x --help was $status not expected 3"; exit 1; }
-    echo "================================================================================"
+#    [ "$prog" = "check_dhcpd_leases.py" -o \
+#      "$prog" = "check_linux_ram.py"    -o \
+#      "$prog" = "check_logserver.py"    -o \
+#      "$prog" = "check_syslog_mysql.py" -o \
+#      "$prog" = "check_yum.py" ] && [ $status = 0 ] && { echo "allowing $prog to have zero exit code"; continue; }
+    [ $status = 3 ] || { echo "status code for $prog --help was $status not expected 3"; exit 1; }
+}
+
+# Capturing and uploading logs when run in Travis CI as jobs to fail once they exceed the 4MB log length limit
+
+log=/dev/stdout
+
+if is_CI; then
+    log=`mktemp /tmp/log.XXXXXX`
+fi
+
+upload_logs(){
+    if is_CI; then
+        echo "uploading logs:"
+        curl -sT "$log" transfer.sh || :
+        curl -sT "$log" chunk.io || :
+    fi
+}
+
+trap upload_logs $TRAP_SIGNALS
+
+for x in $(echo *.pl *.py *.rb */*.pl */*.py */*.rb 2>/dev/null); do
+    isExcluded "$x" && continue
+    echo "$x:"
+    test_help "$x" 2>&1 >> "$log"
+    hr
 done
-echo "All Perl / Python / Ruby programs found exited with expected code 3 for --help"
+
+untrap
+
+upload_logs
+
+if [ $failed -eq 0 ]; then
+    echo "All Perl / Python / Ruby programs found exited with expected code 3 for --help"
+    exit 0
+fi
+exit 1
