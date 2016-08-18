@@ -39,3 +39,5 @@ for script in $(find tests -name 'test*.sh'); do
 done
 
 tests/help.sh
+
+echo "Done"
