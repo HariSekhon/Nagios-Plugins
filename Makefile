@@ -394,4 +394,4 @@ clean-zookeeper:
 
 .PHONY: docker
 docker:
-	docker run -ti -v $$PWD:/pl harisekhon/nagios-plugins bash
+	docker run -ti --rm -v $$PWD:/pl harisekhon/nagios-plugins bash
