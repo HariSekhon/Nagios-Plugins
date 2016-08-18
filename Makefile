@@ -392,5 +392,6 @@ clean:
 clean-zookeeper:
 	rm -fr zookeeper-$(ZOOKEEPER_VERSION).tar.gz zookeeper-$(ZOOKEEPER_VERSION)
 
+.PHONY: docker
 docker:
 	docker run -ti -v $$PWD:/pl harisekhon/nagios-plugins bash
