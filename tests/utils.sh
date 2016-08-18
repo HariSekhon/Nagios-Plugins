@@ -21,10 +21,6 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$srcdir/../bash-tools/utils.sh"
 . "$srcdir/../bash-tools/docker.sh"
 
-hr(){
-    echo "===================="
-}
-
 # Taint code doesn't use PERL5LIB, use -I instead
 I_lib=""
 
