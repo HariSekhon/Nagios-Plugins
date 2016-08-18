@@ -19,7 +19,7 @@ python-jenkins==0.4.13
 python-krbV==1.0.90
 python-snappy==0.5.0
 PyYAML==3.11
-requests==2.11.0
+requests==2.11.1
 scales==1.0.9
 six==1.10.0
 snakebite[kerberos]==2.11.0
