@@ -38,6 +38,6 @@ for script in $(find tests -name 'test*.sh'); do
     is_CI || $script || :
 done
 
-tests/help.sh
+is_CI || tests/help.sh
 
 echo "Done"
