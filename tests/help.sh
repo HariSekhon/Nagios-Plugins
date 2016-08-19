@@ -49,7 +49,9 @@ test_help(){
 log=/dev/stdout
 
 if is_CI; then
-    log=`mktemp /tmp/log.XXXXXX`
+    # running out of space on device on Travis CI
+    #log=`mktemp /tmp/log.XXXXXX`
+    log=/dev/null
 fi
 
 upload_logs(){
