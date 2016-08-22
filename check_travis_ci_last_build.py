@@ -45,14 +45,14 @@ try:
     from harisekhon.utils import log
     from harisekhon.utils import CriticalError, UnknownError
     from harisekhon.utils import validate_chars, jsonpp
-    from harisekhon.utils import isInt, qquit
+    from harisekhon.utils import isInt, qquit, plural
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckTravisCILastBuild(NagiosPlugin):
@@ -64,6 +64,7 @@ class CheckTravisCILastBuild(NagiosPlugin):
         # super().__init__()
         self.repo = None
         self.msg = "No Message Defined"
+        self.builds_in_progress = 0
 
     def add_options(self):
         self.add_opt('-r', '--repo',
@@ -100,8 +101,7 @@ class CheckTravisCILastBuild(NagiosPlugin):
             #raise CriticalError('failed to parse expected json response from Travis CI API: {0}'.format(exception))
             qquit('UNKNOWN', 'failed to parse expected json response from Travis CI API: {0}'.format(exception))
 
-    @staticmethod
-    def get_latest_build(content):
+    def get_latest_build(self, content):
         build = None
         builds = json.loads(content)
         if not builds:
@@ -113,6 +113,7 @@ class CheckTravisCILastBuild(NagiosPlugin):
             if _['state'] == 'finished':
                 build = _
                 break
+            self.builds_in_progress += 1
         if build is None:
             qquit('UNKNOWN', 'no recent builds finished yet')
         if log.isEnabledFor(logging.DEBUG):
@@ -170,13 +171,15 @@ class CheckTravisCILastBuild(NagiosPlugin):
         self.msg += ", started_at='%s'" % started_at
         self.msg += ", finished_at='%s'" % finished_at
 
-        if self.verbose > 0:
+        if self.verbose:
             self.msg += ", message='%s'" % message
             self.msg += ", branch='%s'" % branch
             self.msg += ", commit='%s'" % commit
             self.msg += ", repository_id='%s'" % repository_id
 
-        self.msg += " | build_duration=%ss" % duration
+        if self.verbose or self.builds_in_progress > 0:
+            self.msg += ", %s build%s in progress" % (self.builds_in_progress, plural(self.builds_in_progress))
+        self.msg += " | last_build_duration=%ss builds_in_progress=%s" % (duration, self.builds_in_progress)
 
 
 if __name__ == '__main__':
