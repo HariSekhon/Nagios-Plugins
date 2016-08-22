@@ -24,5 +24,6 @@ scales==1.0.9
 six==1.10.0
 snakebite[kerberos]==2.11.0
 traceback2==1.4.0
+#TravisPy==0.3.5
 unittest2==1.1.0
 wheel==0.29.0
