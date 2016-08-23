@@ -27,24 +27,43 @@ echo "
 # ============================================================================ #
 "
 
-./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins || :
+set +e
+./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins
 hr
-./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v || :
+./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v
 hr
-./check_travis_ci_last_build.py -r HariSekhon/tools || :
+./check_travis_ci_last_build.py -r HariSekhon/tools
 hr
-./check_travis_ci_last_build.py -r HariSekhon/spotify-tools || :
+./check_travis_ci_last_build.py -r HariSekhon/spotify-tools
 hr
-./check_travis_ci_last_build.py -r HariSekhon/pytools || :
+./check_travis_ci_last_build.py -r HariSekhon/pytools
 hr
-./check_travis_ci_last_build.py -r HariSekhon/pylib || :
+./check_travis_ci_last_build.py -r HariSekhon/pylib
 hr
-./check_travis_ci_last_build.py -r HariSekhon/lib || :
+./check_travis_ci_last_build.py -r HariSekhon/lib
 hr
-./check_travis_ci_last_build.py -r HariSekhon/lib-java || :
+./check_travis_ci_last_build.py -r HariSekhon/lib-java
 hr
-./check_travis_ci_last_build.py -r HariSekhon/nagios-plugin-kafka || :
+./check_travis_ci_last_build.py -r HariSekhon/nagios-plugin-kafka
 hr
-./check_travis_ci_last_build.py -r HariSekhon/spark-apps || :
+./check_travis_ci_last_build.py -r HariSekhon/spark-apps
+hr
+echo "checking no builds returned"
+./check_travis_ci_last_build.py -r harisekhon/nagios-plugins -v
+check_exit_code 3
+hr
+echo "checking wrong repo name/format"
+./check_travis_ci_last_build.py -r test -v
+check_exit_code 3
+hr
+./check_travis_ci_last_build.py -r harisekhon/ -v
+check_exit_code 3
+hr
+./check_travis_ci_last_build.py -r /nagios-plugins -v
+check_exit_code 3
+hr
+echo "checking nonexistent repo"
+./check_travis_ci_last_build.py -r nonexistent/repo -v
+check_exit_code 3
 hr
 echo; echo
