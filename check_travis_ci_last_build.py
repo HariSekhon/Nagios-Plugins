@@ -77,7 +77,7 @@ class CheckTravisCILastBuild(NagiosPlugin):
             self.usage('--repo not defined')
         parts = self.repo.split('/')
         if len(parts) != 2 or not parts[0] or not parts[1]:
-            self.usage("--repo format invalid, must be in form of 'user/repo'")
+            self.usage("invalid --repo format, must be in form of 'user/repo'")
         validate_chars(self.repo, 'repo', r'\/\w\.-')
 
     def run(self):
@@ -99,15 +99,20 @@ class CheckTravisCILastBuild(NagiosPlugin):
             exception = traceback.format_exc().split('\n')[-2]
             # this covers up the traceback info and makes it harder to debug
             #raise UnknownError('failed to parse expected json response from Travis CI API: {0}'.format(exception))
-            qquit('UNKNOWN', 'failed to parse expected json response from Travis CI API: {0}. {1}'.format(exception, support_msg_api()))
+            qquit('UNKNOWN', 'failed to parse expected json response from Travis CI API: {0}. {1}'.
+                  format(exception, support_msg_api()))
 
     def get_latest_build(self, content):
         build = None
         builds = json.loads(content)
         if not builds:
-            qquit('UNKNOWN', "no Travis CI builds returned by the Travis API, perhaps no builds have happened yet?" +
-                  " Also remember the repo is case sensitive, for example 'harisekhon/nagios-plugins' returns this" +
-                  " blank build set whereas 'HariSekhon/nagios-plugins' succeeds in returning latest builds information")
+            qquit('UNKNOWN', "no Travis CI builds returned by the Travis API."
+                  + " Either the specified repo '{0}' doesn't exist".format(self.repo)
+                  + " or no builds have happened yet?"
+                  + " Also remember the repo is case sensitive, for example 'harisekhon/nagios-plugins' returns this"
+                  + " blank build set whereas 'HariSekhon/nagios-plugins' succeeds"
+                  + " in returning latest builds information"
+                 )
         # get latest finished build
         for _ in builds:
             if _['state'] == 'finished':
