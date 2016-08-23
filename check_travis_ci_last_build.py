@@ -45,7 +45,7 @@ try:
     from harisekhon.utils import log
     from harisekhon.utils import CriticalError, UnknownError
     from harisekhon.utils import validate_chars, jsonpp
-    from harisekhon.utils import isInt, qquit, plural
+    from harisekhon.utils import isInt, qquit, plural, support_msg_api
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
@@ -98,16 +98,16 @@ class CheckTravisCILastBuild(NagiosPlugin):
         except (KeyError, ValueError) as _:
             exception = traceback.format_exc().split('\n')[-2]
             # this covers up the traceback info and makes it harder to debug
-            #raise CriticalError('failed to parse expected json response from Travis CI API: {0}'.format(exception))
-            qquit('UNKNOWN', 'failed to parse expected json response from Travis CI API: {0}'.format(exception))
+            #raise UnknownError('failed to parse expected json response from Travis CI API: {0}'.format(exception))
+            qquit('UNKNOWN', 'failed to parse expected json response from Travis CI API: {0}. {1}'.format(exception, support_msg_api()))
 
     def get_latest_build(self, content):
         build = None
         builds = json.loads(content)
         if not builds:
             qquit('UNKNOWN', "no Travis CI builds returned by the Travis API, perhaps no builds have happened yet?" +
-                  "Also remember the repo is case sensitive, for example 'harisekhon/nagios-plugins' returns this" +
-                  "blank build set whereas 'HariSekhon/nagios-plugins' succeeds in returning latest builds information")
+                  " Also remember the repo is case sensitive, for example 'harisekhon/nagios-plugins' returns this" +
+                  " blank build set whereas 'HariSekhon/nagios-plugins' succeeds in returning latest builds information")
         # get latest finished build
         for _ in builds:
             if _['state'] == 'finished':
