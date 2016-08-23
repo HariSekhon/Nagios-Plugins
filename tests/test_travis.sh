@@ -29,24 +29,34 @@ echo "
 
 set +e
 ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins
+check_exit_code 0 2
 hr
 ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v
+check_exit_code 0 2
 hr
 ./check_travis_ci_last_build.py -r HariSekhon/tools
+check_exit_code 0 2
 hr
 ./check_travis_ci_last_build.py -r HariSekhon/spotify-tools
+check_exit_code 0 2
 hr
 ./check_travis_ci_last_build.py -r HariSekhon/pytools
+check_exit_code 0 2
 hr
 ./check_travis_ci_last_build.py -r HariSekhon/pylib
+check_exit_code 0 2
 hr
 ./check_travis_ci_last_build.py -r HariSekhon/lib
+check_exit_code 0 2
 hr
 ./check_travis_ci_last_build.py -r HariSekhon/lib-java
+check_exit_code 0 2
 hr
 ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugin-kafka
+check_exit_code 0 2
 hr
 ./check_travis_ci_last_build.py -r HariSekhon/spark-apps
+check_exit_code 0 2
 hr
 echo "checking no builds returned"
 ./check_travis_ci_last_build.py -r harisekhon/nagios-plugins -v
