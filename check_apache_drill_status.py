@@ -17,6 +17,8 @@
 
 Nagios Plugin to check Apache Drill's status page
 
+Tested on Apache Drill 0.7, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8
+
 """
 
 from __future__ import absolute_import
@@ -24,7 +26,6 @@ from __future__ import division
 from __future__ import print_function
 #from __future__ import unicode_literals
 
-import logging
 import os
 import re
 import sys
@@ -38,7 +39,7 @@ libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit
+    from harisekhon.utils import qquit
     from harisekhon.utils import support_msg
     from harisekhon import StatusNagiosPlugin
     from harisekhon import RequestHandler
