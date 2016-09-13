@@ -118,7 +118,12 @@ class CheckHBaseRegionBalance(NagiosPlugin):
             rows = table.findAll('tr')
             headers = rows[0].findAll('th')
             header_server = headers[0].get_text()
-            header_regions = headers[4].get_text()
+            header_regions = headers[3].get_text()
+            wider_table = len(headers) > 4
+            # HBase 1.1 in HDP 2.3: ServerName | Start time | Requests Per Second | Num. Regions
+            # HBase 1.2 (Apache):   ServerName | Start time | Version | Requests per Second | Num. Regions
+            if wider_table:
+                header_regions = headers[4].get_text()
             if header_server != 'ServerName':
                 qquit('UNKNOWN', "Table headers in Master UI have changed" +
                       " (got {0}, expected 'ServerName'). ".format(header_server) + support_msg())
@@ -134,7 +139,9 @@ class CheckHBaseRegionBalance(NagiosPlugin):
                 server = cols[0].get_text()
                 if self.total_regex.match(server):
                     continue
-                num_regions = cols[4].get_text()
+                num_regions = cols[3].get_text()
+                if wider_table:
+                    num_regions = cols[4].get_text()
                 if not isInt(num_regions):
                     qquit('UNKNOWN', "parsing error - got '{0}' for num regions".format(num_regions) +
                           " for server '{1}', was expecting integer.".format(server) +
