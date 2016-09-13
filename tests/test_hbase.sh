@@ -88,6 +88,8 @@ EOF
         return 0
     fi
     hr
+    ./check_hbase_region_balance.py -H $HBASE_HOST -P 16010
+    hr
     # TODO: add $HOST env support
     $perl -T ./check_hbase_regionservers.pl -H $HBASE_HOST -P 8080
     hr
