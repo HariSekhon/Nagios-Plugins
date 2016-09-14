@@ -69,7 +69,7 @@ class CheckHBaseRegionBalance(NagiosPlugin):
         self.total_regex = re.compile(r'^Total:\d+')
 
     def add_options(self):
-        self.add_hostoption(name='HBase Master UI', default_host='localhost', default_port=16010)
+        self.add_hostoption(name='HBase Master', default_host='localhost', default_port=16010)
         self.add_thresholds(default_warning=10, default_critical=20)
 
     def run(self):
