@@ -98,7 +98,7 @@ class CheckHBaseRegionBalance(NagiosPlugin):
         self.check_thresholds(imbalance)
         self.msg += ' between HBase RegionServers hosting the most vs least number of regions'
         self.msg += ' (min = {0}, max = {1})'.format(self.server_min_regions[1], self.server_max_regions[1])
-        self.msg += " | '% imbalance'={0}%".format(imbalance)
+        self.msg += " | '% region imbalance'={0}%".format(imbalance)
         self.msg += self.get_perf_thresholds()
         self.msg += ' min_regions={0} max_regions={1}'.format(self.server_min_regions[1], self.server_max_regions[1])
 
