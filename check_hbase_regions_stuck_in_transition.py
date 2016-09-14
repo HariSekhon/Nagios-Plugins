@@ -49,7 +49,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.1.1'
 
 
 class CheckHbaseRegionsStuckInTransition(NagiosPlugin):
@@ -79,7 +79,7 @@ class CheckHbaseRegionsStuckInTransition(NagiosPlugin):
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
-            quit('CRITICAL', _)
+            qquit('CRITICAL', _)
         log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
         if req.status_code != 200:
