@@ -88,7 +88,10 @@ EOF
         return 0
     fi
     hr
-    ./check_hbase_region_balance.py -H $HBASE_HOST -P 16010
+    # uses env for -H $HBASE_HOST -P 16010
+    ./check_hbase_region_balance.py
+    hr
+    ./check_hbase_regions_stuck_in_transition.py
     hr
     # TODO: add $HOST env support
     $perl -T ./check_hbase_regionservers.pl -H $HBASE_HOST -P 8080
