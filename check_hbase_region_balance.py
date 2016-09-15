@@ -81,7 +81,7 @@ class CheckHBaseRegionBalance(NagiosPlugin):
         self.validate_thresholds(integer=False)
 
         url = 'http://%(host)s:%(port)s/master-status' % locals()
-        log.debug('GET %s' % url)
+        log.debug('GET %s', url)
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:

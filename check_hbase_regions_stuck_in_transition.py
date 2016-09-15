@@ -18,6 +18,8 @@
 
 Nagios Plugin to check for HBase Regions stuck in transition (this will prevent region rebalancing)
 
+Tested on Hortonworks HDP 2.3 (HBase 1.1.6) and Apache HBase 1.0.3, 1.1.6, 1.2.2
+
 """
 
 from __future__ import absolute_import
@@ -76,11 +78,11 @@ class CheckHbaseRegionsStuckInTransition(NagiosPlugin):
         # could get info from flat txt debug page but it doesn't contain the summary count, would have to parse and more likely to miss data due to free form than BeautifulSoup
         #url = 'http://%(host)s:%(port)s/dump' % locals()
         url = 'http://%(host)s:%(port)s/master-status' % locals()
-        log.debug('GET %s' % url)
+        log.debug('GET %s', url)
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
-            quit('CRITICAL', _)
+            qquit('CRITICAL', _)
         log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
         if req.status_code != 200:
