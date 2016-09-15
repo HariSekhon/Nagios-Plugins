@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 class CheckHbaseRegionsStuckInTransition(NagiosPlugin):
@@ -77,7 +77,6 @@ class CheckHbaseRegionsStuckInTransition(NagiosPlugin):
         # [ {"name":"Hadoop:service=HBase,name=Master,sub=AssignmentManger", ..., "ritCountOverThreshold" : 0 }
         #url = 'http://%(host)s:%(port)s/jmx' % locals()
         # could get info from flat txt debug page but it doesn't contain the summary count
-        #  would have to parse and more likely to miss data due to free form than BeautifulSoup
         #url = 'http://%(host)s:%(port)s/dump' % locals()
         url = 'http://%(host)s:%(port)s/master-status' % locals()
         log.debug('GET %s', url)
@@ -132,7 +131,8 @@ class CheckHbaseRegionsStuckInTransition(NagiosPlugin):
         soup = BeautifulSoup(content, 'html.parser')
         #if log.isEnabledFor(logging.DEBUG):
         #    log.debug("BeautifulSoup prettified:\n%s\n%s", soup.prettify(), '='*80)
-        regions_stuck_in_transition = None
+        # looks like HMaster UI doesn't print this section if there are no regions in transition, must assume zero
+        regions_stuck_in_transition = 0
         try:
             headings = soup.findAll('h2')
             for heading in headings:
@@ -148,7 +148,8 @@ class CheckHbaseRegionsStuckInTransition(NagiosPlugin):
                                 next_sibling = col.findNext('td')
                                 regions_stuck_in_transition = next_sibling.get_text().strip()
                                 return regions_stuck_in_transition
-            qquit('UNKNOWN', 'parse error - failed to find table data for regions stuck in transition')
+            return regions_stuck_in_transition
+            #qquit('UNKNOWN', 'parse error - failed to find table data for regions stuck in transition')
         except (AttributeError, TypeError):
             qquit('UNKNOWN', 'failed to parse HBase Master UI status page. %s' % support_msg())
 
