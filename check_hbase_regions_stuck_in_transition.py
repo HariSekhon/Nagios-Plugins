@@ -73,9 +73,11 @@ class CheckHbaseRegionsStuckInTransition(NagiosPlugin):
         validate_host(host)
         validate_port(port)
 
-        # observed bug in HDP 2.3 (HBase 1.1.2) where the JMX metric from HMaster UI /jmx is displaying 0 for beans [ { "name":"Hadoop:service=HBase,name=Master,sub=AssignmentManger", ..., "ritCountOverThreshold" : 0 }
+        # observed bug in HDP 2.3 (HBase 1.1.2) where the JMX metric from HMaster UI /jmx is displaying 0 for beans
+        # [ {"name":"Hadoop:service=HBase,name=Master,sub=AssignmentManger", ..., "ritCountOverThreshold" : 0 }
         #url = 'http://%(host)s:%(port)s/jmx' % locals()
-        # could get info from flat txt debug page but it doesn't contain the summary count, would have to parse and more likely to miss data due to free form than BeautifulSoup
+        # could get info from flat txt debug page but it doesn't contain the summary count
+        #  would have to parse and more likely to miss data due to free form than BeautifulSoup
         #url = 'http://%(host)s:%(port)s/dump' % locals()
         url = 'http://%(host)s:%(port)s/master-status' % locals()
         log.debug('GET %s', url)
