@@ -87,8 +87,20 @@ EOF
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
+    # Python plugins use env for -H $HBASE_HOST -P 16010
     hr
-    # uses env for -H $HBASE_HOST -P 16010
+    check_hbase_table_enabled.py -T t1
+    hr
+    set +e
+    check_hbase_table_enables.py -T t2
+    check_exit_code 2
+    set -e
+    hr
+    set +e
+    check_hbase_table_enables.py -T t3
+    check_exit_code 2
+    set -e
+    hr
     ./check_hbase_region_balance.py
     hr
     ./check_hbase_regions_stuck_in_transition.py
