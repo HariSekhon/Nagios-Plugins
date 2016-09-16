@@ -18,7 +18,7 @@
 
 Nagios Plugin to check for HBase Regions stuck in transition (this will prevent region rebalancing)
 
-Tested on Hortonworks HDP 2.3 (HBase 1.1.6) and Apache HBase 1.0.3, 1.1.6, 1.2.2
+Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 1.0.3, 1.1.6, 1.2.2
 
 """
 
