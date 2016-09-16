@@ -24,6 +24,8 @@ Raises Warning if any compaction is running - use this to check that no major co
 Set your enterprise monitoring alerting schedule to ignore warning status during off-peak scheduled
 compaction time.
 
+See also check_hbase_table_compaction_in_progress.py which checks for compactions on a table by table basis.
+
 Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 1.0.3, 1.1.6, 1.2.2
 
 """
@@ -93,7 +95,7 @@ class CheckHBaseCompactionInProgress(NagiosPlugin):
         compaction_queue_size = self.parse(req.content)
         self.msg = 'HBase RegionServer compaction '
         if compaction_queue_size > 0:
-            self.critical()
+            self.warning()
             self.msg += 'in progress'
         else:
             self.msg += 'not in progress'
