@@ -37,6 +37,7 @@ import happybase
 # weird this is only importable after happybase, must global implicit import
 import Hbase_thrift # pylint: disable=import-error
 # this is what the happybase module is doing:
+# pylint still doesn't understand this if I put it ahead of the Hbase_thrift import
 #import thriftpy as _thriftpy
 #import pkg_resources as _pkg_resources
 #_thriftpy.load(
