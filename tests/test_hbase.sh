@@ -92,18 +92,20 @@ EOF
     check_hbase_table_enabled.py -T t1
     hr
     set +e
-    check_hbase_table_enables.py -T t2
+    check_hbase_table_enabled.py -T t2
     check_exit_code 2
     set -e
     hr
     set +e
-    check_hbase_table_enables.py -T t3
+    check_hbase_table_enabled.py -T t3
     check_exit_code 2
     set -e
     hr
     ./check_hbase_region_balance.py
     hr
     ./check_hbase_regions_stuck_in_transition.py
+    hr
+    ./check_hbase_regionserver_compaction_in_progress.py -P 16301
     hr
     # TODO: add $HOST env support
     $perl -T ./check_hbase_regionservers.pl -H $HBASE_HOST -P 8080
