@@ -116,10 +116,10 @@ class CheckHBaseCompactionInProgress(NagiosPlugin):
                         log.debug(jsonpp(bean))
                     compaction_queue_size = bean['compactionQueueLength']
                     if not isInt(compaction_queue_size):
-                        qquit('UNKNOWN', 'non-integer returned for compactionQueueLength!' + support_msg_api())
+                        qquit('UNKNOWN', 'non-integer returned for compactionQueueLength! ' + support_msg_api())
                     return compaction_queue_size
         except ValueError as _:
-            qquit('UNKNOWN', _ + ': failed to parse HBase Master jmx info' + support_msg_api())
+            qquit('UNKNOWN', _ + ': failed to parse HBase Master jmx info. ' + support_msg_api())
         qquit('UNKNOWN', 'RegionServer mbean not found, double check this is pointing to an HBase RegionServer')
 
 
