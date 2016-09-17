@@ -117,11 +117,11 @@ class CheckHbaseRegionsStuckInTransition(NagiosPlugin):
 #                if section['name'] == 'Hadoop:service=HBase,name=Master,sub=AssignmentManger':
 #                    regions_stuck_in_transition = section['ritCountOverThreshold']
 #                    if not isInt(regions_stuck_in_transition):
-#                        qquit('UNKNOWN', 'non-integer parsed for ritCountOverThreshold' + support_msg_api())
+#                        qquit('UNKNOWN', 'non-integer parsed for ritCountOverThreshold. ' + support_msg_api())
 #                    regions_stuck_in_transition = int(regions_stuck_in_transition)
 #                    return regions_stuck_in_transition
 #        except (KeyError, ValueError) as _:
-#            qquit('UNKNOWN', 'failed to parse JMX data' + support_msg_api())
+#            qquit('UNKNOWN', 'failed to parse JMX data. ' + support_msg_api())
 
     @staticmethod
     def parse(content):
@@ -152,7 +152,7 @@ class CheckHbaseRegionsStuckInTransition(NagiosPlugin):
             return regions_stuck_in_transition
             #qquit('UNKNOWN', 'parse error - failed to find table data for regions stuck in transition')
         except (AttributeError, TypeError):
-            qquit('UNKNOWN', 'failed to parse HBase Master UI status page. %s' % support_msg())
+            qquit('UNKNOWN', 'failed to parse HBase Master UI status page. ' + support_msg())
 
 
 if __name__ == '__main__':
