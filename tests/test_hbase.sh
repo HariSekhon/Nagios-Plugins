@@ -89,15 +89,22 @@ EOF
     fi
     # Python plugins use env for -H $HBASE_HOST -P 16010
     hr
-    check_hbase_table_enabled.py -T t1
+    ./check_hbase_table_enabled.py -T t1
     hr
     set +e
-    check_hbase_table_enabled.py -T t2
+    ./check_hbase_table_enabled.py -T t2
     check_exit_code 2
     set -e
     hr
     set +e
-    check_hbase_table_enabled.py -T t3
+    ./check_hbase_table_enabled.py -T nonexistent_table
+    check_exit_code 2
+    set -e
+    hr
+    ./check_hbase_table_compaction_in_progress.py -T t1
+    hr
+    set +e
+    ./check_hbase_table_compaction_in_progress.py -T nonexistent_table
     check_exit_code 2
     set -e
     hr
