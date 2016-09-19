@@ -26,9 +26,9 @@ and have the plugin check the results separately (the tail stops the log getting
 
 ./check_hadoop_fsck.pl -f /tmp/hdfs-fsck.log
 
-Tested on Hortonworks HDP 2.1 & HDP 2.2 and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
+Tested on Hortonworks HDP 2.1, 2.2, 2.3 and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
 
-$VERSION = "0.3.1";
+$VERSION = "0.3.3";
 
 use strict;
 use warnings;
@@ -163,7 +163,7 @@ if($fsck_time){
 if($verbose or $max_blocks){
     $msg .= ", total blocks=$hdfs{blocks}";
     if($max_blocks){
-        check_thresholds($max_blocks);
+        check_thresholds($hdfs{"blocks"});
     }
 }
 my $msg2;
