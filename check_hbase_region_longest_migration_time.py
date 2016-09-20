@@ -16,8 +16,8 @@
 
 """
 
-Nagios Plugin to check HBase's longest region in transition time (useful to detect regions stuck in transition as well
-as graph the time this takes via the perfdata)
+Nagios Plugin to check HBase's longest current region in transition time (useful to detect regions stuck in transition
+as well as graph the time this takes via the perfdata)
 
 See also check_hbase_regions_stuck_in_transition.py which just focuses on the number of regions that have been in
 transition for more than the defined number of milliseconds which is another angle of monitoring.
@@ -105,10 +105,10 @@ class CheckHBaseLongestRegionMigration(NagiosPlugin):
                   'longest regions in transition time when parsing HMaster UI')
         else:
             longest_rit_time /= 1000.0
-            self.msg = 'longest region in transition = {0:2.f} secs'.format(longest_rit_time)
+            self.msg = 'HBase region longest current transition = {0:.2f} secs'.format(longest_rit_time)
             self.check_thresholds(longest_rit_time)
             self.msg += ' | longest_region_in_transition={0}'.format(longest_rit_time)
-            self.msg_perf_thresholds()
+            self.msg += self.get_perf_thresholds()
 
     # parsing for /jmx
 #    def parse(self, content):
@@ -164,18 +164,26 @@ class CheckHBaseLongestRegionMigration(NagiosPlugin):
         # this will avoid accidentally skipping a row later if the input changes to rows[1:] instead of rows
         #for row in rows[1:]:
         for row in rows:
-            tds = row.findChildren('td')
+            print(row)
+            cols = row.findChildren('td')
             # Regions in Transition rows only have 2 cols
             # <hex> region rows have Region, State, RIT time (ms)
-            if len(tds) < 3:
+            num_cols = len(cols)
+            if num_cols == 0:
+                # header row
                 continue
-            for col in row.findChildren('td'):
-                rit_time = col.get_text().strip()
-                if not isInt(rit_time):
-                    qquit('UNKNOWN', 'parsing failed, got region in transition time of ' +
-                          "'{0}', expected integer".format(rit_time))
-                if rit_time > longest_rit_time:
-                    longest_rit_time = rit_time
+            elif num_cols != 3:
+                qquit('UNKNOWN', 'unexpected number of columns ({0}) '.format(num_cols)
+                      + 'for regions in transition table. ' + support_msg())
+            if 'Regions in Transition' in cols[0].get_text():
+                continue
+            rit_time = cols[2].get_text().strip()
+            if not isInt(rit_time):
+                qquit('UNKNOWN', 'parsing failed, got region in transition time of ' +
+                      "'{0}', expected integer".format(rit_time))
+            rit_time = int(rit_time)
+            if rit_time > longest_rit_time:
+                longest_rit_time = rit_time
         return longest_rit_time
 
     @staticmethod
