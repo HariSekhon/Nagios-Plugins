@@ -3,7 +3,8 @@
 #
 #  Author: Hari Sekhon
 #  Date: 2016-09-16 14:28:25 +0200 (Fri, 16 Sep 2016)
-#  originally started in Perl Date: 2013-11-04 18:22:49 +0000 (Mon, 04 Nov 2013)
+#  (originally started in Perl)
+#  Original Date: 2013-11-04 18:22:49 +0000 (Mon, 04 Nov 2013)
 #
 #  https://github.com/harisekhon/nagios-plugins
 #
@@ -95,16 +96,16 @@ class CheckHBaseHbck(NagiosPlugin):
             with open(filename) as filehandle:
                 log.info('parsing file')
                 for line in filehandle:
-                    match = self.re_status.match(line)
-                    if match:
-                        hbck_status = match.group(1)
-                        log.info('hbck status = %s', hbck_status)
-                        continue
                     match = self.re_inconsistencies.match(line)
                     if match:
                         num_inconsistencies = match.group(1)
                         log.info('num inconsistencies = %s', hbck_status)
                         continue
+                    match = self.re_status.match(line)
+                    if match:
+                        hbck_status = match.group(1)
+                        log.info('hbck status = %s', hbck_status)
+                        break
             if hbck_status is None:
                 self.parse_error('failed to find hbck status result')
             if num_inconsistencies is None:
@@ -121,7 +122,7 @@ class CheckHBaseHbck(NagiosPlugin):
             if num_inconsistencies > 0:
                 self.critical()
                 self.msg += '!'
-            self.msg += ' | num_inconsistencies={0};0;0'.format(num_inconsistencies)
+            self.msg += ' | num_hbase_inconsistencies={0};0;0'.format(num_inconsistencies)
         except IOError as _:
             qquit('UNKNOWN', _)
 
