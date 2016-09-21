@@ -51,14 +51,14 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 
 
-class CheckHbaseRegionsStuckInTransition(NagiosPlugin):
+class CheckHBaseRegionsStuckInTransition(NagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckHbaseRegionsStuckInTransition, self).__init__()
+        super(CheckHBaseRegionsStuckInTransition, self).__init__()
         # Python 3.x
         # super().__init__()
         self.msg = 'msg not defined'
@@ -156,4 +156,4 @@ class CheckHbaseRegionsStuckInTransition(NagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckHbaseRegionsStuckInTransition().main()
+    CheckHBaseRegionsStuckInTransition().main()
