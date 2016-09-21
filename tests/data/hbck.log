@@ -1,0 +1,106 @@
+OpenJDK 64-Bit Server VM warning: ignoring option PermSize=128m; support was removed in 8.0
+OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=128m; support was removed in 8.0
+2016-09-21 22:25:23,550 WARN  [main] util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+HBaseFsck command line options: 
+2016-09-21 22:25:23,781 INFO  [main] util.HBaseFsck: Launching hbck
+2016-09-21 22:25:23,914 INFO  [main] zookeeper.RecoverableZooKeeper: Process identifier=hconnection-0x1460a8c0 connecting to ZooKeeper ensemble=localhost:2181
+2016-09-21 22:25:23,921 INFO  [main] zookeeper.ZooKeeper: Client environment:zookeeper.version=3.4.6-1569965, built on 02/20/2014 09:09 GMT
+2016-09-21 22:25:23,921 INFO  [main] zookeeper.ZooKeeper: Client environment:host.name=41101b0abfa9
+2016-09-21 22:25:23,921 INFO  [main] zookeeper.ZooKeeper: Client environment:java.version=1.8.0_92-internal
+2016-09-21 22:25:23,921 INFO  [main] zookeeper.ZooKeeper: Client environment:java.vendor=Oracle Corporation
+2016-09-21 22:25:23,921 INFO  [main] zookeeper.ZooKeeper: Client environment:java.home=/usr/lib/jvm/java-1.8-openjdk/jre
+2016-09-21 22:25:23,921 INFO  [main] zookeeper.ZooKeeper: Client environment:java.class.path=/hbase/bin/../conf:/usr/lib/tools.jar:/hbase/bin/..:/hbase/bin/../lib/activation-1.1.jar:/hbase/bin/../lib/antisamy-1.5.3.jar:/hbase/bin/../lib/aopalliance-1.0.jar:/hbase/bin/../lib/apacheds-i18n-2.0.0-M15.jar:/hbase/bin/../lib/apacheds-kerberos-codec-2.0.0-M15.jar:/hbase/bin/../lib/api-asn1-api-1.0.0-M20.jar:/hbase/bin/../lib/api-util-1.0.0-M20.jar:/hbase/bin/../lib/asm-3.1.jar:/hbase/bin/../lib/avro-1.7.4.jar:/hbase/bin/../lib/batik-css-1.8.jar:/hbase/bin/../lib/batik-ext-1.8.jar:/hbase/bin/../lib/batik-util-1.8.jar:/hbase/bin/../lib/bsh-core-2.0b4.jar:/hbase/bin/../lib/commons-beanutils-1.7.0.jar:/hbase/bin/../lib/commons-beanutils-core-1.8.3.jar:/hbase/bin/../lib/commons-cli-1.2.jar:/hbase/bin/../lib/commons-codec-1.9.jar:/hbase/bin/../lib/commons-collections-3.2.2.jar:/hbase/bin/../lib/commons-compress-1.4.1.jar:/hbase/bin/../lib/commons-configuration-1.6.jar:/hbase/bin/../lib/commons-daemon-1.0.13.jar:/hbase/bin/../lib/commons-digester-1.8.jar:/hbase/bin/../lib/commons-el-1.0.jar:/hbase/bin/../lib/commons-fileupload-1.3.1.jar:/hbase/bin/../lib/commons-httpclient-3.1.jar:/hbase/bin/../lib/commons-io-2.4.jar:/hbase/bin/../lib/commons-lang-2.6.jar:/hbase/bin/../lib/commons-logging-1.2.jar:/hbase/bin/../lib/commons-math-2.2.jar:/hbase/bin/../lib/commons-math3-3.1.1.jar:/hbase/bin/../lib/commons-net-3.1.jar:/hbase/bin/../lib/disruptor-3.3.0.jar:/hbase/bin/../lib/esapi-2.1.0.1.jar:/hbase/bin/../lib/findbugs-annotations-1.3.9-1.jar:/hbase/bin/../lib/guava-12.0.1.jar:/hbase/bin/../lib/guice-3.0.jar:/hbase/bin/../lib/guice-servlet-3.0.jar:/hbase/bin/../lib/hadoop-annotations-2.5.1.jar:/hbase/bin/../lib/hadoop-auth-2.5.1.jar:/hbase/bin/../lib/hadoop-client-2.5.1.jar:/hbase/bin/../lib/hadoop-common-2.5.1.jar:/hbase/bin/../lib/hadoop-hdfs-2.5.1.jar:/hbase/bin/../lib/hadoop-mapreduce-client-app-2.5.1.jar:/hbase/bin/../lib/hadoop-mapreduce-client-common-2.5.1.jar:/hbase/bin/../lib/hadoop-mapreduce-client-core-2.5.1.jar:/hbase/bin/../lib/hadoop-mapreduce-client-jobclient-2.5.1.jar:/hbase/bin/../lib/hadoop-mapreduce-client-shuffle-2.5.1.jar:/hbase/bin/../lib/hadoop-yarn-api-2.5.1.jar:/hbase/bin/../lib/hadoop-yarn-client-2.5.1.jar:/hbase/bin/../lib/hadoop-yarn-common-2.5.1.jar:/hbase/bin/../lib/hadoop-yarn-server-common-2.5.1.jar:/hbase/bin/../lib/hbase-annotations-1.2.2-tests.jar:/hbase/bin/../lib/hbase-annotations-1.2.2.jar:/hbase/bin/../lib/hbase-client-1.2.2.jar:/hbase/bin/../lib/hbase-common-1.2.2-tests.jar:/hbase/bin/../lib/hbase-common-1.2.2.jar:/hbase/bin/../lib/hbase-examples-1.2.2.jar:/hbase/bin/../lib/hbase-external-blockcache-1.2.2.jar:/hbase/bin/../lib/hbase-hadoop-compat-1.2.2.jar:/hbase/bin/../lib/hbase-hadoop2-compat-1.2.2.jar:/hbase/bin/../lib/hbase-it-1.2.2-tests.jar:/hbase/bin/../lib/hbase-it-1.2.2.jar:/hbase/bin/../lib/hbase-prefix-tree-1.2.2.jar:/hbase/bin/../lib/hbase-procedure-1.2.2.jar:/hbase/bin/../lib/hbase-protocol-1.2.2.jar:/hbase/bin/../lib/hbase-resource-bundle-1.2.2.jar:/hbase/bin/../lib/hbase-rest-1.2.2.jar:/hbase/bin/../lib/hbase-server-1.2.2-tests.jar:/hbase/bin/../lib/hbase-server-1.2.2.jar:/hbase/bin/../lib/hbase-shell-1.2.2.jar:/hbase/bin/../lib/hbase-thrift-1.2.2.jar:/hbase/bin/../lib/htrace-core-3.1.0-incubating.jar:/hbase/bin/../lib/httpclient-4.2.5.jar:/hbase/bin/../lib/httpcore-4.4.1.jar:/hbase/bin/../lib/jackson-core-asl-1.9.13.jar:/hbase/bin/../lib/jackson-jaxrs-1.9.13.jar:/hbase/bin/../lib/jackson-mapper-asl-1.9.13.jar:/hbase/bin/../lib/jackson-xc-1.9.13.jar:/hbase/bin/../lib/jamon-runtime-2.4.1.jar:/hbase/bin/../lib/jasper-compiler-5.5.23.jar:/hbase/bin/../lib/jasper-runtime-5.5.23.jar:/hbase/bin/../lib/java-xmlbuilder-0.4.jar:/hbase/bin/../lib/javax.inject-1.jar:/hbase/bin/../lib/jaxb-api-2.2.2.jar:/hbase/bin/../lib/jaxb-impl-2.2.3-1.jar:/hbase/bin/../lib/jcodings-1.0.8.jar:/hbase/bin/../lib/jersey-client-1.9.jar:/hbase/bin/../lib/jersey-core-1.9.jar:/hbase/bin/../lib/jersey-guice-1.9.jar:/hbase/bin/../lib/jersey-json-1.9.jar:/hbase/bin/../lib/jersey-server-1.9.jar:/hbase/bin/../lib/jets3t-0.9.0.jar:/hbase/bin/../lib/jettison-1.3.3.jar:/hbase/bin/../lib/jetty-6.1.26.jar:/hbase/bin/../lib/jetty-sslengine-6.1.26.jar:/hbase/bin/../lib/jetty-util-6.1.26.jar:/hbase/bin/../lib/joni-2.1.2.jar:/hbase/bin/../lib/jruby-complete-1.6.8.jar:/hbase/bin/../lib/jsch-0.1.42.jar:/hbase/bin/../lib/jsp-2.1-6.1.14.jar:/hbase/bin/../lib/jsp-api-2.1-6.1.14.jar:/hbase/bin/../lib/jsr305-1.3.9.jar:/hbase/bin/../lib/junit-4.12.jar:/hbase/bin/../lib/leveldbjni-all-1.8.jar:/hbase/bin/../lib/libthrift-0.9.3.jar:/hbase/bin/../lib/log4j-1.2.17.jar:/hbase/bin/../lib/metrics-core-2.2.0.jar:/hbase/bin/../lib/nekohtml-1.9.16.jar:/hbase/bin/../lib/netty-all-4.0.23.Final.jar:/hbase/bin/../lib/paranamer-2.3.jar:/hbase/bin/../lib/protobuf-java-2.5.0.jar:/hbase/bin/../lib/servlet-api-2.5-6.1.14.jar:/hbase/bin/../lib/servlet-api-2.5.jar:/hbase/bin/../lib/slf4j-api-1.7.7.jar:/hbase/bin/../lib/slf4j-log4j12-1.7.5.jar:/hbase/bin/../lib/snappy-java-1.0.4.1.jar:/hbase/bin/../lib/spymemcached-2.11.6.jar:/hbase/bin/../lib/xalan-2.7.0.jar:/hbase/bin/../lib/xml-apis-1.3.03.jar:/hbase/bin/../lib/xml-apis-ext-1.3.04.jar:/hbase/bin/../lib/xmlenc-0.52.jar:/hbase/bin/../lib/xom-1.2.5.jar:/hbase/bin/../lib/xz-1.0.jar:/hbase/bin/../lib/zookeeper-3.4.6.jar:
+2016-09-21 22:25:23,923 INFO  [main] zookeeper.ZooKeeper: Client environment:java.library.path=/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64/server:/usr/lib/jvm/java-1.8-openjdk/jre/lib/amd64:/usr/lib/jvm/java-1.8-openjdk/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib
+2016-09-21 22:25:23,923 INFO  [main] zookeeper.ZooKeeper: Client environment:java.io.tmpdir=/tmp
+2016-09-21 22:25:23,923 INFO  [main] zookeeper.ZooKeeper: Client environment:java.compiler=<NA>
+2016-09-21 22:25:23,923 INFO  [main] zookeeper.ZooKeeper: Client environment:os.name=Linux
+2016-09-21 22:25:23,924 INFO  [main] zookeeper.ZooKeeper: Client environment:os.arch=amd64
+2016-09-21 22:25:23,924 INFO  [main] zookeeper.ZooKeeper: Client environment:os.version=4.4.16-boot2docker
+2016-09-21 22:25:23,924 INFO  [main] zookeeper.ZooKeeper: Client environment:user.name=root
+2016-09-21 22:25:23,924 INFO  [main] zookeeper.ZooKeeper: Client environment:user.home=/root
+2016-09-21 22:25:23,924 INFO  [main] zookeeper.ZooKeeper: Client environment:user.dir=/
+2016-09-21 22:25:23,925 INFO  [main] zookeeper.ZooKeeper: Initiating client connection, connectString=localhost:2181 sessionTimeout=90000 watcher=hconnection-0x1460a8c00x0, quorum=localhost:2181, baseZNode=/hbase
+2016-09-21 22:25:23,948 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Opening socket connection to server localhost/0:0:0:0:0:0:0:1:2181. Will not attempt to authenticate using SASL (unknown error)
+2016-09-21 22:25:23,954 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Socket connection established to localhost/0:0:0:0:0:0:0:1:2181, initiating session
+2016-09-21 22:25:23,962 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Session establishment complete on server localhost/0:0:0:0:0:0:0:1:2181, sessionid = 0x1574ed5cebe0008, negotiated timeout = 90000
+Version: 1.2.2
+Number of live region servers: 1
+Number of dead region servers: 0
+Master: 41101b0abfa9,16000,1474496414369
+Number of backup masters: 0
+Average load: 3.0
+Number of requests: 0
+Number of regions: 3
+Number of regions in transition: 0
+2016-09-21 22:25:24,506 INFO  [main] util.HBaseFsck: Loading regionsinfo from the hbase:meta table
+
+Number of empty REGIONINFO_QUALIFIER rows in hbase:meta: 0
+2016-09-21 22:25:24,573 INFO  [main] util.HBaseFsck: getHTableDescriptors == tableNames => [hbase:namespace, t2, t1]
+2016-09-21 22:25:24,577 INFO  [main] zookeeper.RecoverableZooKeeper: Process identifier=hconnection-0x4201c465 connecting to ZooKeeper ensemble=localhost:2181
+2016-09-21 22:25:24,577 INFO  [main] zookeeper.ZooKeeper: Initiating client connection, connectString=localhost:2181 sessionTimeout=90000 watcher=hconnection-0x4201c4650x0, quorum=localhost:2181, baseZNode=/hbase
+2016-09-21 22:25:24,585 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Opening socket connection to server localhost/0:0:0:0:0:0:0:1:2181. Will not attempt to authenticate using SASL (unknown error)
+2016-09-21 22:25:24,587 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Socket connection established to localhost/0:0:0:0:0:0:0:1:2181, initiating session
+2016-09-21 22:25:24,589 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Session establishment complete on server localhost/0:0:0:0:0:0:0:1:2181, sessionid = 0x1574ed5cebe0009, negotiated timeout = 90000
+2016-09-21 22:25:24,602 INFO  [main] client.ConnectionManager$HConnectionImplementation: Closing master protocol: MasterService
+2016-09-21 22:25:24,602 INFO  [main] client.ConnectionManager$HConnectionImplementation: Closing zookeeper sessionid=0x1574ed5cebe0009
+2016-09-21 22:25:24,604 INFO  [main] zookeeper.ZooKeeper: Session: 0x1574ed5cebe0009 closed
+2016-09-21 22:25:24,604 INFO  [main-EventThread] zookeeper.ClientCnxn: EventThread shut down
+Number of Tables: 3
+2016-09-21 22:25:24,615 INFO  [main] util.HBaseFsck: Loading region directories from HDFS
+
+2016-09-21 22:25:24,643 INFO  [main] util.HBaseFsck: Loading region information from HDFS
+
+2016-09-21 22:25:24,686 INFO  [main] zookeeper.RecoverableZooKeeper: Process identifier=hconnection-0x1b919693 connecting to ZooKeeper ensemble=localhost:2181
+2016-09-21 22:25:24,686 INFO  [main] zookeeper.ZooKeeper: Initiating client connection, connectString=localhost:2181 sessionTimeout=90000 watcher=hconnection-0x1b9196930x0, quorum=localhost:2181, baseZNode=/hbase
+2016-09-21 22:25:24,691 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Opening socket connection to server localhost/0:0:0:0:0:0:0:1:2181. Will not attempt to authenticate using SASL (unknown error)
+2016-09-21 22:25:24,691 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Socket connection established to localhost/0:0:0:0:0:0:0:1:2181, initiating session
+2016-09-21 22:25:24,696 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Session establishment complete on server localhost/0:0:0:0:0:0:0:1:2181, sessionid = 0x1574ed5cebe000a, negotiated timeout = 90000
+2016-09-21 22:25:24,701 INFO  [main] zookeeper.RecoverableZooKeeper: Process identifier=hbase Fsck connecting to ZooKeeper ensemble=localhost:2181
+2016-09-21 22:25:24,701 INFO  [main] zookeeper.ZooKeeper: Initiating client connection, connectString=localhost:2181 sessionTimeout=90000 watcher=hbase Fsck0x0, quorum=localhost:2181, baseZNode=/hbase
+2016-09-21 22:25:24,702 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Opening socket connection to server localhost/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
+2016-09-21 22:25:24,702 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Socket connection established to localhost/127.0.0.1:2181, initiating session
+2016-09-21 22:25:24,705 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Session establishment complete on server localhost/127.0.0.1:2181, sessionid = 0x1574ed5cebe000b, negotiated timeout = 90000
+2016-09-21 22:25:24,713 INFO  [main] zookeeper.ZooKeeper: Session: 0x1574ed5cebe000b closed
+2016-09-21 22:25:24,714 INFO  [main] client.ConnectionManager$HConnectionImplementation: Closing zookeeper sessionid=0x1574ed5cebe000a
+2016-09-21 22:25:24,714 INFO  [main-EventThread] zookeeper.ClientCnxn: EventThread shut down
+2016-09-21 22:25:24,716 INFO  [main] zookeeper.ZooKeeper: Session: 0x1574ed5cebe000a closed
+2016-09-21 22:25:24,716 INFO  [main] util.HBaseFsck: Checking and fixing region consistency
+2016-09-21 22:25:24,718 INFO  [main-EventThread] zookeeper.ClientCnxn: EventThread shut down
+2016-09-21 22:25:24,718 INFO  [hbasefsck-pool1-t7] util.HBaseFsck: Region { meta => t2,,1474496431105.33406ad286c4e9fd9d063ea5c614111b., hdfs => file:/tmp/hbase-root/hbase/data/default/t2/33406ad286c4e9fd9d063ea5c614111b, deployed => , replicaId => 0 } is in META, and in a disabled tabled that is not deployed
+2016-09-21 22:25:24,725 INFO  [main] util.HBaseFsck: Handling overlap merges in parallel. set hbasefsck.overlap.merge.parallel to false to run serially.
+2016-09-21 22:25:24,732 INFO  [main] util.HBaseFsck: Computing mapping of all store files
+
+2016-09-21 22:25:24,738 INFO  [main] util.HBaseFsck: Validating mapping using HDFS state
+2016-09-21 22:25:24,738 INFO  [main] zookeeper.RecoverableZooKeeper: Process identifier=hbase Fsck connecting to ZooKeeper ensemble=localhost:2181
+2016-09-21 22:25:24,738 INFO  [main] zookeeper.ZooKeeper: Initiating client connection, connectString=localhost:2181 sessionTimeout=90000 watcher=hbase Fsck0x0, quorum=localhost:2181, baseZNode=/hbase
+2016-09-21 22:25:24,746 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Opening socket connection to server localhost/0:0:0:0:0:0:0:1:2181. Will not attempt to authenticate using SASL (unknown error)
+2016-09-21 22:25:24,747 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Socket connection established to localhost/0:0:0:0:0:0:0:1:2181, initiating session
+2016-09-21 22:25:24,751 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Session establishment complete on server localhost/0:0:0:0:0:0:0:1:2181, sessionid = 0x1574ed5cebe000c, negotiated timeout = 90000
+2016-09-21 22:25:24,761 INFO  [main] zookeeper.ZooKeeper: Session: 0x1574ed5cebe000c closed
+2016-09-21 22:25:24,761 INFO  [main-EventThread] zookeeper.ClientCnxn: EventThread shut down
+2016-09-21 22:25:24,762 INFO  [main] zookeeper.RecoverableZooKeeper: Process identifier=hbase Fsck connecting to ZooKeeper ensemble=localhost:2181
+2016-09-21 22:25:24,764 INFO  [main] zookeeper.ZooKeeper: Initiating client connection, connectString=localhost:2181 sessionTimeout=90000 watcher=hbase Fsck0x0, quorum=localhost:2181, baseZNode=/hbase
+2016-09-21 22:25:24,766 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Opening socket connection to server localhost/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
+2016-09-21 22:25:24,766 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Socket connection established to localhost/127.0.0.1:2181, initiating session
+2016-09-21 22:25:24,768 INFO  [main-SendThread(localhost:2181)] zookeeper.ClientCnxn: Session establishment complete on server localhost/127.0.0.1:2181, sessionid = 0x1574ed5cebe000d, negotiated timeout = 90000
+2016-09-21 22:25:24,773 INFO  [main] zookeeper.ZooKeeper: Session: 0x1574ed5cebe000d closed
+Summary:
+Table hbase:meta is okay.
+    Number of regions: 1
+    Deployed on:  41101b0abfa9,16201,1474496415273
+Table t1 is okay.
+    Number of regions: 1
+    Deployed on:  41101b0abfa9,16201,1474496415273
+Table t2 is okay.
+    Number of regions: 0
+    Deployed on: 
+Table hbase:namespace is okay.
+    Number of regions: 1
+    Deployed on:  41101b0abfa9,16201,1474496415273
+0 inconsistencies detected.
+Status: OK
+2016-09-21 22:25:24,773 INFO  [main-EventThread] zookeeper.ClientCnxn: EventThread shut down
+2016-09-21 22:25:24,777 INFO  [main] client.ConnectionManager$HConnectionImplementation: Closing master protocol: MasterService
+2016-09-21 22:25:24,777 INFO  [main] client.ConnectionManager$HConnectionImplementation: Closing zookeeper sessionid=0x1574ed5cebe0008
+2016-09-21 22:25:24,787 INFO  [main] zookeeper.ZooKeeper: Session: 0x1574ed5cebe0008 closed
+2016-09-21 22:25:24,787 INFO  [main-EventThread] zookeeper.ClientCnxn: EventThread shut down
