@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.3'
+__version__ = '0.2.4'
 
 
 class CheckHBaseRegionsStuckInTransition(NagiosPlugin):
@@ -142,6 +142,10 @@ class CheckHBaseRegionsStuckInTransition(NagiosPlugin):
                     table = heading.find_next('table')
                     log.debug('checking first following table')
                     regions_stuck_in_transition = self.parse_table(table)
+                    if not isInt(regions_stuck_in_transition):
+                        qquit('UNKNOWN', 'parse error - ' +
+                              'got non-integer \'{0}\' for regions stuck in transition when parsing HMaster UI'\
+                              .format(regions_stuck_in_transition))
             return regions_stuck_in_transition
             #qquit('UNKNOWN', 'parse error - failed to find table data for regions stuck in transition')
         except (AttributeError, TypeError):
@@ -155,10 +159,8 @@ class CheckHBaseRegionsStuckInTransition(NagiosPlugin):
                     log.debug('found Regions in Transition for more than ... getting next td')
                     next_sibling = col.findNext('td')
                     regions_stuck_in_transition = next_sibling.get_text().strip()
-                    if not isInt(regions_stuck_in_transition):
-                        qquit('UNKNOWN', 'parse error - ' +
-                              'got non-integer for regions stuck in transition when parsing HMaster UI')
                     return regions_stuck_in_transition
+        return None
 
 
 if __name__ == '__main__':
