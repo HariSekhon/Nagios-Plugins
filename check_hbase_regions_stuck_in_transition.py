@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.2'
+__version__ = '0.2.3'
 
 
 class CheckHBaseRegionsStuckInTransition(NagiosPlugin):
@@ -123,8 +123,7 @@ class CheckHBaseRegionsStuckInTransition(NagiosPlugin):
 #        except (KeyError, ValueError) as _:
 #            qquit('UNKNOWN', 'failed to parse JMX data. ' + support_msg_api())
 
-    @staticmethod
-    def parse(content):
+    def parse(self, content):
         # could also collect lines after 'Regions-in-transition' if parsing /dump
         # sample:
         # hbase:meta,,1.1588230740 state=PENDING_OPEN, \
@@ -142,17 +141,24 @@ class CheckHBaseRegionsStuckInTransition(NagiosPlugin):
                     log.debug('found Regions in Transition section header')
                     table = heading.find_next('table')
                     log.debug('checking first following table')
-                    for row in table.findChildren('tr'):
-                        for col in row.findChildren('td'):
-                            if 'Regions in Transition for more than ' in col.get_text():
-                                log.debug('found Regions in Transition for more than ... getting next td')
-                                next_sibling = col.findNext('td')
-                                regions_stuck_in_transition = next_sibling.get_text().strip()
-                                return regions_stuck_in_transition
+                    regions_stuck_in_transition = self.parse_table(table)
             return regions_stuck_in_transition
             #qquit('UNKNOWN', 'parse error - failed to find table data for regions stuck in transition')
         except (AttributeError, TypeError):
             qquit('UNKNOWN', 'failed to parse HBase Master UI status page. ' + support_msg())
+
+    @staticmethod
+    def parse_table(table):
+        for row in table.findChildren('tr'):
+            for col in row.findChildren('td'):
+                if 'Regions in Transition for more than ' in col.get_text():
+                    log.debug('found Regions in Transition for more than ... getting next td')
+                    next_sibling = col.findNext('td')
+                    regions_stuck_in_transition = next_sibling.get_text().strip()
+                    if not isInt(regions_stuck_in_transition):
+                        qquit('UNKNOWN', 'parse error - ' +
+                              'got non-integer for regions stuck in transition when parsing HMaster UI')
+                    return regions_stuck_in_transition
 
 
 if __name__ == '__main__':
