@@ -112,6 +112,8 @@ EOF
     hr
     ./check_hbase_regions_stuck_in_transition.py
     hr
+    ./check_hbase_num_regions_in_transition.py
+    hr
     ./check_hbase_regionserver_compaction_in_progress.py -P 16301
     hr
     # TODO: add $HOST env support
