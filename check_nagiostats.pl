@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to show the Nagios stats with perfdata for graphing purposes";
 
-$VERSION = "0.4";
+$VERSION = "0.4.1";
 
 use strict;
 use warnings;
@@ -261,8 +261,8 @@ if(defined($vars3{"NUMSVCACTCHK1M"}) and defined($vars3{"NUMSVCPSVCHK1M"})){
 }
 # Covers checklatency group
 if(defined($vars3{"MAXACTSVCLAT"}) and defined($vars3{"MAXPSVSVCLAT"})){
-    if($vars3{"MAXACTSVCLAT"} + $vars3{"MAXPSVSVCLAT"} < 1){
-        quit "UNKNOWN", "sanity checking failed, MAXACTSVCLAT + MAXPSVSVCLAT stats should not be less than 1, this implies that all active and passive checks completed within 0 ms latency! (did you supply the wrong stats file?)";
+    if($vars3{"MAXACTSVCLAT"} + $vars3{"MAXPSVSVCLAT"} < 0){
+        quit "UNKNOWN", "sanity checking failed, MAXACTSVCLAT + MAXPSVSVCLAT stats should not be less than 1, this implies that all active and passive checks completed within negative latency! (did you supply the wrong stats file?)";
     }
 }
 
