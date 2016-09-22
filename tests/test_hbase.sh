@@ -89,10 +89,20 @@ EOF
         return 0
     fi
     hr
-    ./check_hbase_hbck.py -f tests/data/hbck.log
+    ./check_hbase_hbck.py -f tests/data/hbck.log -a 0
     hr
     set +e
-    ./check_hbase_hbck.py -f tests/data/hbck-inconsistencies.log
+    ./check_hbase_hbck.py -f tests/data/hbck.log -a 3
+    check_exit_code 1
+    set -e
+    hr
+    set +e
+    ./check_hbase_hbck.py -f tests/data/hbck-inconsistencies.log -a 0
+    check_exit_code 2
+    set -e
+    hr
+    set +e
+    ./check_hbase_hbck.py -f tests/data/hbck-inconsistencies.log -a 3
     check_exit_code 2
     set -e
     hr
@@ -101,7 +111,12 @@ EOF
     check_exit_code 3
     set -e
     hr
-    docker_exec check_hbase_hbck.py -f /tmp/hbck.log
+    docker_exec check_hbase_hbck.py -f /tmp/hbck.log -a 30
+    hr
+    set +e
+    docker_exec check_hbase_hbck.py -f /tmp/hbck.log -a 1
+    check_exit_code 1
+    set -e
     hr
     # Python plugins use env for -H $HBASE_HOST -P 16010
     ./check_hbase_table_enabled.py -T t1
