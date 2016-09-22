@@ -22,7 +22,7 @@ In order to constrain the runtime of this plugin you must run the Hadoop FSCK se
 
 hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && tail -n30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
 
-and have the plugin check the results separately (the tail stops the log getting too big and slowing the plugin down if there is lots of corruption/missing blocks which will end up enlarging the output - it gives us just the bit we need, which are the stats at the end):
+Then have the plugin check the results separately (the tail stops the log getting too big and slowing the plugin down if there is lots of corruption/missing blocks which will end up enlarging the output - it gives us just the bit we need, which are the stats at the end):
 
 ./check_hadoop_fsck.pl -f /tmp/hdfs-fsck.log
 
