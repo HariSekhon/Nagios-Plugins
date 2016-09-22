@@ -47,6 +47,7 @@ from __future__ import print_function
 import os
 import re
 import sys
+import time
 import traceback
 srcdir = os.path.abspath(os.path.dirname(__file__))
 libdir = os.path.join(srcdir, 'pylib')
@@ -54,13 +55,14 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, qquit, isInt, support_msg
+    from harisekhon.utils import validate_file, validate_int, sec2human
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckHBaseHbck(NagiosPlugin):
@@ -72,20 +74,24 @@ class CheckHBaseHbck(NagiosPlugin):
         # super().__init__()
         self.unknown()
         self.msg = 'msg not defined'
+        self.max_file_age = None
         self.re_status = re.compile(r'^Status:\s*(.+?)\s*$')
         self.re_inconsistencies = re.compile(r'^\s*(\d+)\s+inconsistencies\s+detected\.?\s*$')
 
     def add_options(self):
-        self.add_opt('-f', '--file', dest='file', metavar='<hbck.log>',
+        self.add_opt('-f', '--file', metavar='<hbck.log>',
                      help='HBase HBCK output file')
+        self.add_opt('-a', '--max-file-age', metavar='<secs>', default=87000, # 1 day + 10 mins
+                     help='Max age of the hbck log file in seconds, otherwise raises warning' +
+                     '(default: 87000 ie. 1 day + 10 mins, zero disables age check)')
 
     def run(self):
         self.no_args()
         filename = self.get_opt('file')
-
-        if not filename:
-            self.usage()
-
+        self.max_file_age = self.get_opt('max_file_age')
+        validate_file(filename, 'hbck')
+        validate_int(self.max_file_age, 'max file age', 0, 86400 * 31)
+        self.max_file_age = int(self.max_file_age)
         self.parse(filename)
 
     def parse(self, filename):
@@ -117,14 +123,39 @@ class CheckHBaseHbck(NagiosPlugin):
                 self.ok()
             else:
                 self.critical()
-            self.msg = 'HBase hbck status = \'{0}\''.format(hbck_status)
+            self.msg = 'HBase HBCK status = \'{0}\''.format(hbck_status)
             self.msg += ', {0} inconsistencies detected'.format(num_inconsistencies)
             if num_inconsistencies > 0:
                 self.critical()
                 self.msg += '!'
-            self.msg += ' | num_hbase_inconsistencies={0};0;0'.format(num_inconsistencies)
+            else:
+                self.msg += '.'
+            age = self.check_file_age(filename)
+            self.msg += ' | hbase_num_inconsistencies={0};0;0'.format(num_inconsistencies)
+            self.msg += ' hbck_log_file_age={0};{1};;'.format(age, self.max_file_age)
         except IOError as _:
             qquit('UNKNOWN', _)
+
+    def check_file_age(self, filename):
+        log.info('checking hbck log file age')
+        now = int(time.time())
+        mtime = int(os.stat(filename).st_mtime)
+        age = now - mtime
+        log.info('file age = %s secs', age)
+        self.msg += ' HBCK log file age is '
+        # sec2human doesn't handle negative
+        if age < 0:
+            self.msg += '{0} secs (modified timestamp is in the future!)'.format(age)
+        else:
+            self.msg += sec2human(age)
+        if self.max_file_age == 0:
+            return age
+        elif age < 0:
+            self.unknown()
+        elif age > self.max_file_age:
+            self.warning()
+            self.msg += ' (greater than max age of {0} secs!)'.format(self.max_file_age)
+        return age
 
     @staticmethod
     def parse_error(msg):
