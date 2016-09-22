@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check Hadoop Yarn Resource Manager Heap/Non-Hea
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -77,12 +77,28 @@ if($non_heap){
 foreach(@beans){
     next unless get_field2($_, "name") eq "java.lang:type=Memory";
     $found_mbean = 1;
-    my $max     = get_field2_int($_, "${Non}HeapMemoryUsage.max");
+    # returns -1 for dockerized tests
+    #my $max     = get_field2_int($_, "${Non}HeapMemoryUsage.max");
+    my $max     = get_field2($_, "${Non}HeapMemoryUsage.max");
     my $used    = get_field2_int($_, "${Non}HeapMemoryUsage.used");
-    my $used_pc = sprintf("%.2f", $used / $max * 100);
+    my $used_pc;
+    # human_units doesn't support negative values at this time
+    my $max_human_units;
+    if(isInt($max) and $max > 0){
+        $used_pc = sprintf("%.2f", $used / $max * 100);
+        $max_human_units = human_units($max)
+    } else {
+        $used_pc = "N/A ";
+        $max_human_units = $max;
+    }
 
-    $msg = sprintf("%s%% ${non}heap used (%s/%s)", $used_pc, human_units($used), human_units($max));
-    check_thresholds($used_pc);
+    $msg = sprintf("%s%% ${non}heap used (%s/%s)", $used_pc, human_units($used), $max_human_units);
+    if(! isFloat($used_pc)){
+        unknown();
+        $used_pc = 0;
+    } else {
+        check_thresholds($used_pc);
+    }
     $msg .= sprintf(" | '${non}heap used %%'=%s%%", $used_pc);
     msg_perf_thresholds();
     $msg .= sprintf(" '${non}heap used'=%sb '${non}heap max'=%sb '${non}heap committed'=%sb", $used, $max, get_field2_int($_, "${Non}HeapMemoryUsage.committed"));
