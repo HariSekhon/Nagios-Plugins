@@ -184,8 +184,11 @@ EOF
     $perl -T ./check_hadoop_yarn_queue_state.pl --queue default
     hr
     $perl -T ./check_hadoop_yarn_resource_manager_heap.pl
-    # non integer NonHeapMemoryUsage
-    #$perl -T ./check_hadoop_yarn_resource_manager_heap.pl --non-heap
+    # returns -1 for NonHeapMemoryUsage max
+    set +e
+    $perl -T ./check_hadoop_yarn_resource_manager_heap.pl --non-heap
+    check_exit_code 3
+    set -e
     hr
     $perl -T ./check_hadoop_yarn_resource_manager_state.pl
     hr
