@@ -60,9 +60,6 @@ test_hadoop(){
     hr
     DOCKER_OPTS="-v $srcdir2/..:$MNTDIR"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HADOOP_PORTS
-    if [ -n "${NOTESTS:-}" ]; then
-        return 0
-    fi
     when_ports_available $startupwait $HADOOP_HOST $HADOOP_PORTS
     echo "creating test file in hdfs"
     docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
@@ -73,6 +70,9 @@ test_hadoop(){
         hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && tail -n30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
 EOF
     echo
+    if [ -n "${NOTESTS:-}" ]; then
+        return 0
+    fi
     hr
     if [ "$version" = "latest" ]; then
         local version=".*"
@@ -102,8 +102,34 @@ EOF
     # run inside Docker container so it can resolve redirect to DN
     docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728
     hr
-    # XXX: fix required
-    #docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log -vvv
+    ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log
+    hr
+    ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log --stats
+    set +e
+    ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log --last-fsck -w 10 -c 200000000
+    check_exit_code 1
+    set -e
+    hr
+    set +e
+    ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log --last-fsck -w 10 -c 20
+    check_exit_code 2
+    set -e
+    hr
+    ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log --max-blocks -w 1 -c 2
+    hr
+    set +e
+    ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log --max-blocks -w 0 -c 1
+    check_exit_code 1
+    set -e
+    hr
+    set +e
+    ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log --max-blocks -w 0 -c 0
+    check_exit_code 2
+    set -e
+    docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log
+    hr
+    docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --stats
+    hr
     # XXX: fix required for very small E number
     #docker_exec check_hadoop_hdfs_space.pl -H localhost -vvv
     hr
