@@ -83,7 +83,7 @@ class CheckHBaseHbck(NagiosPlugin):
                      help='HBase HBCK output file')
         self.add_opt('-a', '--max-file-age', metavar='<secs>', default=87000, # 1 day + 10 mins
                      help='Max age of the hbck log file in seconds, otherwise raises warning' +
-                     '(default: 87000 ie. 1 day + 10 mins, zero disables age check)')
+                     ' (default: 87000 ie. 1 day + 10 mins, zero disables age check)')
 
     def run(self):
         self.no_args()
