@@ -18,8 +18,9 @@ Checks:
 2. checks key's returned value against expected regex (optional)
 3. checks key's returned value against warning/critical range thresholds (optional)
    raises warning/critical if the value is outside thresholds or not a floating point number
-4. records the read timing to a given precision for reporting and graphing
-5. outputs the read timing and optionally the key's value for graphing purposes
+4. checks list length against warning/critical thresholds
+5. records the read timing to a given precision for reporting and graphing
+6. outputs the read timing and optionally the key's value for graphing purposes
 
 Tested on Redis 2.4.10, 2.8.19, 3.0.7, 3.2.0";
 
@@ -37,6 +38,7 @@ use Redis;
 use Time::HiRes qw/time sleep/;
 
 my $key;
+my $lkey;
 my $expected;
 my $graph = 0;
 my $units;
@@ -46,13 +48,14 @@ my $units;
     %redis_options_database,
     "k|key=s"          => [ \$key,          "Key to read from Redis" ],
     "e|expected=s"     => [ \$expected,     "Expected regex for the given Redis key's value. Optional" ],
+    "l|list"           => [ \$lkey,         "Key is a list, check its length from Redis" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold ra:nge (inclusive) for the key's value. Optional" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold ra:nge (inclusive) for the key's value. Optional" ],
     "g|graph"          => [ \$graph,        "Graph key's value. Optional, use only if a floating point number is normally returned for it's values, otherwise will print NaN (Not a Number). The reason this is not determined automatically is because keys that change between floats and non-floats will result in variable numbers of perfdata tokens which will break PNP4Nagios" ],
     "u|units=s"        => [ \$units,        "Units to use if graphing key's value. Optional" ],
 );
 
-@usage_order = qw/host port key database password expected warning critical precision/;
+@usage_order = qw/host port key lkey database password expected warning critical precision/;
 get_options();
 
 $host       = validate_host($host);
@@ -91,7 +94,11 @@ vlog2 "reading key back from $hostport";
 my $value;
 my $start_time = time;
 try {
-    $value  = $redis->get($key);
+	if ($lkey) {
+		$value  = $redis->llen($key);
+	} else {
+		$value  = $redis->get($key);
+	}
 };
 catch_quit "failed to get key '$key' from redis host $hostport";
 my $read_time  = time - $start_time;
