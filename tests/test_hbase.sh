@@ -88,6 +88,11 @@ EOF
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
+    if [ "$version" = "latest" ]; then
+        local version=".*"
+    fi
+    hr
+    ./check_hbase_version.py -e "$version" -v
     hr
     ./check_hbase_hbck.py -f tests/data/hbck.log -a 0
     hr
@@ -231,7 +236,7 @@ EOF
     #docker_exec check_hbase_unassigned_regions_znode.pl -H localhost
     hr
 # ============================================================================ #
-    # Forced Failure Scenarios
+    echo "Forced Failure Scenarios:"
     echo "sending kill signal to RegionServer"
     docker exec -ti "$DOCKER_CONTAINER" pkill -f RegionServer
     echo "waiting 10 secs for RegionServer to go down"
