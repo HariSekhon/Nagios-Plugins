@@ -25,7 +25,7 @@ Requires the CPAN Thrift perl module
 
 HBase Thrift bindings were generated using Thrift 0.9.0 on CDH 4.3 (HBase 0.94.6-cdh4.3.0) CentOS 6.4 and placed under lib/Hbase
 
-Also tested on CDH 4.4.0, 4.5.0
+Tested on Cloudera CDH 4.4.0, 4.5.0, see instead Python version check_hbase_table.pl for newer versions of HBase
 
 Known Issues/Limitations:
 
@@ -40,7 +40,7 @@ CRITICAL: failed to get Column descriptors for table '.META.': Thrift::TExceptio
 CRITICAL: failed to get tables from HBase: TApplicationException: Internal error processing getTableNames
 ";
 
-$VERSION = "0.7.1";
+$VERSION = "0.7.2";
 
 use strict;
 use warnings;
@@ -67,10 +67,12 @@ set_port_default(9090);
 env_creds(["HBASE_THRIFT", "HBASE"], "HBase Thrift Server");
 
 my $tables;
+my $list_tables;
 
 %options = (
     %hostoptions,
-    "T|tables=s"       => [ \$tables,   "Table(s) to check. This should be a list of user tables, not -ROOT- or .META. catalog tables which are checked additionally. If no tables are given then only -ROOT- and .META. are checked" ],
+    "T|tables=s" => [ \$tables,      "Table(s) to check. Comma separated list of user tables, not -ROOT- or .META. catalog tables which are checked additionally. If no tables are specified then only -ROOT- and .META. are checked" ],
+    "l|list"     => [ \$list_tables, "List HBase tables and exit" ]
 );
 
 @usage_order = qw/host port tables/;
@@ -116,6 +118,10 @@ if($verbose >= 3){
     hr;
     print "\n";
 }
+if($list_tables){
+    print "HBase Tables:\n\n" . join("\n", @hbase_tables) . "\n";
+    exit $ERRORS{"UNKNOWN"};
+}
 
 my @tables_not_found;
 my @tables_disabled;
@@ -134,7 +140,14 @@ sub check_table_enabled($){
     try {
         $state = $client->isTableEnabled($table);
     };
-    catch_quit "failed to get table state (enabled/disabled) for table '$table'";
+    catch {
+        #if($table eq "-ROOT-" or $table eq ".META."){
+        #    vlog2 "couldn't get table state for table '$table', might be newer version of HBase";
+        #    return 0;
+        #} else {
+            quit "CRITICAL", "failed to get table state (enabled/disabled) for table '$table': $@->{message}";
+        #}
+    };
     if($state){
         vlog2 "table '$table' enabled";
     } else {
