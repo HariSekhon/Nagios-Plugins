@@ -86,7 +86,7 @@ class CheckHBaseTableEnabled(NagiosPlugin):
     def add_options(self):
         self.add_hostoption(name='HBase Thrift Server', default_host='localhost', default_port=9090)
         self.add_opt('-T', '--table', help='Table to check is enabled')
-        self.add_opt('-l', '--list-tables', action='store_true', help='List tables and exit')
+        self.add_opt('-l', '--list', action='store_true', help='List tables and exit')
 
     def get_tables(self):
         try:
@@ -111,7 +111,7 @@ class CheckHBaseTableEnabled(NagiosPlugin):
             qquit('CRITICAL', _)
         except ThriftException as _:
             qquit('CRITICAL', _)
-        if self.get_opt('list_tables'):
+        if self.get_opt('list'):
             tables = self.get_tables()
             print('HBase Tables:\n\n' + '\n'.join(tables))
             sys.exit(ERRORS['UNKNOWN'])
