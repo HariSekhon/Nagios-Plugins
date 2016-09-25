@@ -43,8 +43,6 @@ $critical = $default_critical;
 env_creds(["HBASE_STARGATE", "HBASE_REST", "HBASE"], "HBase Stargate Rest API Server");
 
 %options = (
-    #"H|host=s"         => [ \$host,         "HBase Stargate Rest API server address to connect to" ],
-    #"P|port=s"         => [ \$port,         "HBase Stargate Rest API server port to connect to (defaults to $default_port)" ],
     %hostoptions,
     "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive) for dead regionservers (defaults to $default_warning)" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive) for dead regionservers (defaults to $default_critical)" ],
