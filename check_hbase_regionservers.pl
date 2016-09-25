@@ -31,7 +31,7 @@ use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-#my $default_port = 20550;
+#set_port_default(20550);
 set_port_default(8080);
 
 my $default_warning  = 0;
