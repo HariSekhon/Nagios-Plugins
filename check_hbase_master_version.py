@@ -16,7 +16,7 @@
 
 """
 
-Nagios Plugin to check the deployed version of HBase matches what's expected.
+Nagios Plugin to check the deployed version of an HBase HMaster matches what's expected.
 
 This is also used in the accompanying test suite to ensure we're checking the right version of HBase
 for compatibility for all my other HBase nagios plugins.
@@ -57,17 +57,20 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
 
-class CheckHBaseVersion(NagiosPlugin):
+class CheckHBaseMasterVersion(NagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckHBaseVersion, self).__init__()
+        super(CheckHBaseMasterVersion, self).__init__()
         # Python 3.x
         # super().__init__()
         self.msg = 'HBase version unknown - no message defined'
+        self.role = 'Master'
+        self.port = 16010
+        self.url_path = 'master-status'
 
     def add_options(self):
-        self.add_hostoption(name='HBase Master', default_host='localhost', default_port=16010)
+        self.add_hostoption(name='HBase {0}'.format(self.role), default_host='localhost', default_port=self.port)
         self.add_opt('-e', '--expected', help='Expected version regex (optional)')
 
     def run(self):
@@ -81,7 +84,7 @@ class CheckHBaseVersion(NagiosPlugin):
             validate_regex(expected)
             log.info('expected version regex: %s', expected)
 
-        url = 'http://%(host)s:%(port)s/master-status' % locals()
+        url = 'http://%(host)s:%(port)s/' % locals() + self.url_path
         log.debug('GET %s' % url)
         try:
             req = requests.get(url)
@@ -141,4 +144,4 @@ class CheckHBaseVersion(NagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckHBaseVersion().main()
+    CheckHBaseMasterVersion().main()
