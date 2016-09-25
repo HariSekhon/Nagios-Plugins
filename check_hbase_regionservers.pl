@@ -40,7 +40,7 @@ my $default_critical = 0;
 $warning  = $default_warning;
 $critical = $default_critical;
 
-env_creds(["HBASE_STARGATE", "HBASE_REST"], "HBase Stargate Rest API Server");
+env_creds(["HBASE_STARGATE", "HBASE_REST", "HBASE"], "HBase Stargate Rest API Server");
 
 %options = (
     #"H|host=s"         => [ \$host,         "HBase Stargate Rest API server address to connect to" ],
