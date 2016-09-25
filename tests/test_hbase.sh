@@ -117,6 +117,7 @@ EOF
     docker_exec check_hbase_hbck.py -f /tmp/hbck.log -a 1
     check_exit_code 1
     set -e
+# ============================================================================ #
     hr
     # Python plugins use env for -H $HBASE_HOST -P 16010
     ./check_hbase_table_enabled.py -T t1
@@ -130,6 +131,42 @@ EOF
     ./check_hbase_table_enabled.py -T nonexistent_table
     check_exit_code 2
     set -e
+# ============================================================================ #
+    hr
+    ./check_hbase_table.py -T t1
+    hr
+    set +e
+    ./check_hbase_table.py -T t2
+    check_exit_code 2
+    set -e
+    hr
+    set +e
+    ./check_hbase_table.py -T nonexistent_table
+    check_exit_code 2
+    set -e
+# ============================================================================ #
+    hr
+    ./check_hbase_table_regions.py -T t1
+    hr
+    # even though t2 table is disabled, it still has assigned regions
+    ./check_hbase_table_regions.py -T t2
+    hr
+    # Re-assignment happens too fast, can't catch
+    # forcibly unassign region and re-test
+    #region=$(echo "locate_region 't2', 'key1'" | hbase shell | awk '/ENCODED/{print $4; exit}' | sed 's/,$//')
+    #region=$(echo "locate_region 't2', 'key1'" | hbase shell | grep ENCODED | sed 's/.*ENCODED[[:space:]]*=>[[:space:]]*//; s/[[:space:]]*,.*$//')
+    #echo "Attempting to disable region '$region' to test failure scenario for unassigned region"
+    #docker exec -ti "$DOCKER_CONTAINER" "hbase shell <<< \"unassign '$region'\""
+    #set +e
+    #./check_hbase_table_regions.py -T t2
+    #check_exit_code 2
+    #set -e
+    #hr
+    set +e
+    ./check_hbase_table_regions.py -T nonexistent_table
+    check_exit_code 2
+    set -e
+# ============================================================================ #
     hr
     ./check_hbase_table_compaction_in_progress.py -T t1
     hr
@@ -137,6 +174,7 @@ EOF
     ./check_hbase_table_compaction_in_progress.py -T nonexistent_table
     check_exit_code 2
     set -e
+# ============================================================================ #
     hr
     ./check_hbase_region_balance.py
     hr
@@ -146,16 +184,16 @@ EOF
     hr
     ./check_hbase_regionserver_compaction_in_progress.py -P 16301
     hr
-    # TODO: add $HOST env support
-    $perl -T ./check_hbase_regionservers.pl -H $HBASE_HOST -P 8080
+    $perl -T ./check_hbase_regionservers.pl
     hr
-    $perl -T ./check_hbase_regionservers_jsp.pl -H $HBASE_HOST -P 16010
+    $perl -T ./check_hbase_regionservers_jsp.pl
     hr
     $perl -T ./check_hbase_cell.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
     hr
     $perl -T ./check_hbase_cell_stargate.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
     hr
     $perl -T ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+# ============================================================================ #
     hr
     $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
     hr
@@ -167,7 +205,7 @@ EOF
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P 16301 --all-metrics
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P 16301 -m compactionQueueLength
     hr
-    # TODO: need updates
+    # use newer Python version for newer versions of HBase
     #$perl -T ./check_hbase_tables.pl
     #$perl -T ./check_hbase_tables_thrift.pl
     #$perl -T ./check_hbase_tables_stargate.pl
@@ -175,20 +213,69 @@ EOF
     #hr
     hr
     # Use Docker hbase-dev, zookeeper will have been built
-    #if is_zookeeper_built; then
-    #    $perl -T ./check_hbase_unassigned_regions_znode.pl
-    #    hr
-    #else
-    #    echo "ZooKeeper not built - skipping ZooKeeper checks"
-    #fi
+    if is_zookeeper_built; then
+        # not present in newer versions of HBase
+        #$perl -T ./check_hbase_unassigned_regions_znode.pl
+        :
+    else
+        echo "ZooKeeper not built - skipping ZooKeeper checks"
+    fi
+    hr
     docker_exec check_hbase_table_rowcount.pl -T t1 --hbase-bin /hbase/bin/hbase -w 2 -c 2 -t 60
     hr
     docker_exec check_zookeeper_znode.pl -H localhost -P $ZOOKEEPER_PORT -z /hbase -v -n --child-znodes
     hr
     docker_exec check_zookeeper_child_znodes.pl -H localhost -P $ZOOKEEPER_PORT -z /hbase/rs -v -w 1:1 -c 1:1
     # only there on older versions of HBase
-    #hr
+    hr
     #docker_exec check_hbase_unassigned_regions_znode.pl -H localhost
+    hr
+# ============================================================================ #
+    # Forced Failure Scenarios
+    echo "sending kill signal to RegionServer"
+    docker exec -ti "$DOCKER_CONTAINER" pkill -f RegionServer
+    echo "waiting 10 secs for RegionServer to go down"
+    sleep 10
+    hr
+    set +e
+    $perl -T ./check_hbase_regionservers.pl
+    check_exit_code 2
+    set -e
+    hr
+    set +e
+    # should still exit critical as there are no remaining regionservers live
+    $perl -T ./check_hbase_regionservers.pl -w 2 -c 2
+    check_exit_code 2
+    set -e
+    hr
+# ============================================================================ #
+    set +e
+    $perl -T ./check_hbase_regionservers_jsp.pl
+    check_exit_code 2
+    set -e
+    hr
+    set +e
+    # should still exit critical as there are no remaining regionservers live
+    $perl -T ./check_hbase_regionservers_jsp.pl -w 2 -c 2
+    check_exit_code 2
+    set -e
+    hr
+# ============================================================================ #
+    # Thrift API will hang so these python plugins will self timeout after 10 secs with UNKNOWN when the sole RegionServer is down
+    set +e
+    ./check_hbase_table.py -T t1
+    check_exit_code 3
+    set -e
+    hr
+    set +e
+    ./check_hbase_table_enabled.py -T t1
+    check_exit_code 3
+    set -e
+    hr
+    set +e
+    ./check_hbase_table_regions.py -T t2
+    check_exit_code 3
+    set -e
     hr
 
     delete_container
