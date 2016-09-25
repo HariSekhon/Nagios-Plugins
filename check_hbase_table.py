@@ -154,7 +154,7 @@ class CheckHBaseTable(NagiosPlugin):
             self.msg += 'enabled, '
         else:
             self.critical()
-            self.msg += 'disabled!'
+            self.msg += 'disabled! '
         self.msg += '{0} column '.format(num_families)
         if num_families == 1:
             self.msg += 'family'
