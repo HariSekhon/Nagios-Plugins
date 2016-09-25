@@ -15,9 +15,12 @@ Checks the number of dead RegionServers against warning/critical thresholds and 
 
 Recommended to use check_hbase_regionservers.pl instead which uses the HBase Stargate Rest API since parsing the JSP is very brittle and could easily break between versions
 
-Written and tested on CDH 4.3 (HBase 0.94.6-cdh4.3.0), updated and tested on Apache HBase 1.0, 1.1, 1.2";
+Written and tested on CDH 4.3 (HBase 0.94.6-cdh4.3.0), updated and tested on Apache HBase 1.0, 1.1, 1.2
 
-$VERSION = "0.3";
+Tested on Apache HBase 1.0.3, 1.1.6, 1.2.2
+";
+
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -30,17 +33,18 @@ use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-my $default_port = 60010;
-$port = $default_port;
+#set_port_default(60010);
+set_port_default(16010);
 
 my $default_warning  = 0;
 my $default_critical = 0;
 $warning  = $default_warning;
 $critical = $default_critical;
 
+env_creds(["HBASE_MASTER", "HBASE"], "HBase Master");
+
 %options = (
-    "H|host=s"         => [ \$host,     "HBase Master to connect to" ],
-    "P|port=s"         => [ \$port,     "HBase Master JSP Port to connect to (defaults to $default_port)" ],
+    %hostoptions,
     "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive)" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive)" ],
 );
@@ -82,13 +86,15 @@ foreach(split("\n", $content)){
     # HBase 1.0
     #if(/<tr><td>Total:(\d+)<\/td>/){
     # trying to make backwards compatible with original match
-    if(/<tr><t[dh]>Total:\s*(?:<\/th><td>servers:)?\s*(\d+)<\/td>/){
+    if(/<tr>\s*<t[dh]>Total:\s*(?:<\/th>\s*<td>servers:)?\s*(\d+)<\/td>/){
         $live_servers = $1;
         last;
     }
     last if /<\/table>/;
 }
-quit "UNKNOWN", "failed to find live server count, JSP format may have changed, try re-running with -vvv, plugin may need updating" unless defined($live_servers);
+# This is the best we can do with the JSP unfortunately since it outputs nothing when there are no live regionservers
+defined($live_servers) or $live_servers = 0;
+#quit "UNKNOWN", "failed to find live server count, JSP format may have changed, try re-running with -vvv, plugin may need updating" unless defined($live_servers);
 
 foreach(split("\n", $content)){
     if(/Dead Region Servers/){
@@ -110,9 +116,13 @@ defined($dead_servers) or $dead_servers = 0;
 #quit "UNKNOWN", "failed to find dead server count, JSP format may have changed, try re-running with -vvv, plugin may need updating" unless defined($dead_servers);
 
 plural $live_servers;
-$msg .= "$live_servers live regionserver$plural, ";
+$msg .= "$live_servers live regionserver$plural";
+if($live_servers < 1){
+    critical();
+    $msg .= " ($live_servers < 1)";
+}
 plural $dead_servers;
-$msg .= "$dead_servers dead regionserver$plural";
+$msg .= ", $dead_servers dead regionserver$plural";
 check_thresholds($dead_servers);
 
 if(@dead_servers){
