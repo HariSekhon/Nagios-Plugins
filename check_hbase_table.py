@@ -139,6 +139,7 @@ class CheckHBaseTable(NagiosPlugin):
         families = None
         try:
             is_enabled = self.conn.is_table_enabled(self.table)
+            log.info('enabled: %s', is_enabled)
             table = self.conn.table(self.table)
             families = table.families()
         except Hbase_thrift.IOError as _:
@@ -149,13 +150,14 @@ class CheckHBaseTable(NagiosPlugin):
                 qquit('CRITICAL', _)
         except ThriftException as _:
             qquit('CRITICAL', _)
+        if log.isEnabledFor(logging.DEBUG):
+            log.debug('column families:\n' + jsonpp(families))
         if not families:
             qquit('CRITICAL', 'failed to get column families for table \'{0}\''.format(self.table))
-        if log.isEnabledFor(logging.DEBUG):
-            log.debug(jsonpp(families))
         if not isDict(families):
             qquit('UNKNOWN', 'column family info returned was not a dictionary! ' + support_msg_api())
         num_families = len(families.keys())
+        log.info('num families: %s', num_families)
 
         self.msg = 'HBase table \'{0}\' is '.format(self.table)
         if is_enabled:
