@@ -92,7 +92,7 @@ EOF
         local version=".*"
     fi
     hr
-    ./check_hbase_hbase_version.py        -e "$version"
+    ./check_hbase_master_version.py        -e "$version"
     ./check_hbase_regionserver_version.py -e "$version"
     hr
     ./check_hbase_hbck.py -f tests/data/hbck.log -a 0
