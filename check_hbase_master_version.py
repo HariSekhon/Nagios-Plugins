@@ -99,7 +99,7 @@ class CheckHBaseMasterVersion(NagiosPlugin):
             log.debug("BeautifulSoup prettified:\n{0}\n{1}".format(soup.prettify(), '='*80))
         self.ok()
         version = self.parse_version(soup)
-        self.msg = 'HBase version = {0}'.format(version)
+        self.msg = 'HBase {0} version = {1}'.format(self.role, version)
         if expected is not None and not re.search(expected, version):
             self.msg += " (expected '{0}')".format(expected)
             self.critical()
