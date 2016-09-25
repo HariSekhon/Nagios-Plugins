@@ -78,9 +78,13 @@ if($content =~ /(\d+) live servers, (\d+) dead servers, (\d+(?:\.\d+)?|NaN) aver
 }
 
 plural $live_servers;
-$msg .= "$live_servers live regionserver$plural, ";
+$msg .= "$live_servers live regionserver$plural";
 plural $dead_servers;
-$msg .= "$dead_servers dead regionserver$plural";
+if($live_servers < 1){
+    critical();
+    $msg .= " ($live_servers < 1)";
+}
+$msg .= ", $dead_servers dead regionserver$plural";
 check_thresholds($dead_servers);
 $msg .= ", $average_load average load";
 
