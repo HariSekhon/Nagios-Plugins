@@ -11,6 +11,8 @@
 
 $DESCRIPTION = "Nagios Plugin to check given HBase table(s) via the HBase Thrift Server API
 
+See newer Python version check_hbase_table.py instead which works on newer versions of HBase
+
 Checks:
 
 1. Table exists
@@ -25,7 +27,7 @@ Requires the CPAN Thrift perl module
 
 HBase Thrift bindings were generated using Thrift 0.9.0 on CDH 4.3 (HBase 0.94.6-cdh4.3.0) CentOS 6.4 and placed under lib/Hbase
 
-Tested on Cloudera CDH 4.4.0, 4.5.0, see instead Python version check_hbase_table.pl for newer versions of HBase
+Tested on Cloudera CDH 4.4.0, 4.5.0
 
 Known Issues/Limitations:
 
