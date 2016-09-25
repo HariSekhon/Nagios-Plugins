@@ -123,6 +123,8 @@ class CheckHBaseTableEnabled(NagiosPlugin):
                 qquit('CRITICAL', 'table \'{0}\' does not exist'.format(self.table))
             else:
                 qquit('CRITICAL', _)
+        except ThriftException as _:
+            qquit('CRITICAL', _)
 
         if not is_enabled:
             self.critical()
