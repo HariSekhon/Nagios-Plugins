@@ -16,7 +16,7 @@
 
 """
 
-Nagios Plugin to check a given table is enabled in HBase
+Nagios Plugin to check a given HBase table is enabled
 
 Raises Critical if the table is not enabled or does not exist
 
