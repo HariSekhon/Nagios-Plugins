@@ -150,6 +150,7 @@ class CheckHBaseTable(NagiosPlugin):
                 qquit('CRITICAL', _)
         except ThriftException as _:
             qquit('CRITICAL', _)
+
         if log.isEnabledFor(logging.DEBUG):
             log.debug('column families:\n' + jsonpp(families))
         if not families:
@@ -165,6 +166,7 @@ class CheckHBaseTable(NagiosPlugin):
         else:
             self.critical()
             self.msg += 'disabled! '
+
         self.msg += '{0} column '.format(num_families)
         if num_families == 1:
             self.msg += 'family'
