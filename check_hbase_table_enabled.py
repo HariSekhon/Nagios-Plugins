@@ -33,17 +33,23 @@ import os
 import sys
 import socket
 import traceback
-import happybase
-# weird this is only importable after happybase, must global implicit import
-import Hbase_thrift # pylint: disable=import-error
-# this is what the happybase module is doing:
-# pylint still doesn't understand this if I put it ahead of the Hbase_thrift import
-#import thriftpy as _thriftpy
-#import pkg_resources as _pkg_resources
-#_thriftpy.load(
-#    _pkg_resources.resource_filename('happybase', 'Hbase.thrift'),
-#    'Hbase_thrift')
-from thriftpy.thrift import TException as ThriftException
+try:
+    # pylint: disable=wrong-import-position
+    import happybase
+    # weird this is only importable after happybase, must global implicit import
+    import Hbase_thrift # pylint: disable=import-error
+    # this is what the happybase module is doing:
+    # pylint still doesn't understand this if I put it ahead of the Hbase_thrift import
+    #import thriftpy as _thriftpy
+    #import pkg_resources as _pkg_resources
+    #_thriftpy.load(
+    #    _pkg_resources.resource_filename('happybase', 'Hbase.thrift'),
+    #    'Hbase_thrift')
+    from thriftpy.thrift import TException as ThriftException
+except ImportError as _:
+    print('Happybase / thrift module import error - did you forget to build this project?\n\n'
+          + traceback.format_exc(), end='')
+    sys.exit(4)
 srcdir = os.path.abspath(os.path.dirname(__file__))
 libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
@@ -53,11 +59,12 @@ try:
     from harisekhon.utils import validate_host, validate_port, validate_database_tablename
     from harisekhon import NagiosPlugin
 except ImportError as _:
-    print(traceback.format_exc(), end='')
+    print('harisekhon module import error - did you try copying this program out without the adjacent pylib?\n\n'
+          + traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckHBaseTableEnabled(NagiosPlugin):
