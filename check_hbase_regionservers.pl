@@ -11,9 +11,14 @@
 
 $DESCRIPTION = "Nagios Plugin to check the number of RegionServers that are dead or alive using HBase Stargate Rest API (Thrift API doesn't support this information at time of writing)
 
-Checks the number of dead RegionServers against warning/critical thresholds and lists the dead RegionServers";
+Checks the number of dead RegionServers against warning/critical thresholds and lists the dead RegionServers
 
-$VERSION = "0.2";
+Written for CDH 4.x but version 0.3 onwards has been updated for Apache HBase 1.x
+
+Tested on Apache HBase 1.0.3, 1.1.6, 1.2.2
+";
+
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -26,8 +31,8 @@ use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-my $default_port = 20550;
-$port = $default_port;
+#my $default_port = 20550;
+set_port_default(8080);
 
 my $default_warning  = 0;
 my $default_critical = 0;
@@ -35,9 +40,12 @@ my $default_critical = 0;
 $warning  = $default_warning;
 $critical = $default_critical;
 
+env_creds(["HBASE_STARGATE", "HBASE_REST"], "HBase Stargate Rest API Server");
+
 %options = (
-    "H|host=s"         => [ \$host,         "HBase Stargate Rest API server address to connect to" ],
-    "P|port=s"         => [ \$port,         "HBase Stargate Rest API server port to connect to (defaults to $default_port)" ],
+    #"H|host=s"         => [ \$host,         "HBase Stargate Rest API server address to connect to" ],
+    #"P|port=s"         => [ \$port,         "HBase Stargate Rest API server port to connect to (defaults to $default_port)" ],
+    %hostoptions,
     "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive) for dead regionservers (defaults to $default_warning)" ],
     "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive) for dead regionservers (defaults to $default_critical)" ],
 );
@@ -63,7 +71,7 @@ $status = "OK";
 my $live_servers;
 my $dead_servers;
 my $average_load;
-if($content =~ /(\d+) live servers, (\d+) dead servers, (\d+(?:\.\d+)?) average load/){
+if($content =~ /(\d+) live servers, (\d+) dead servers, (\d+(?:\.\d+)?|NaN) average load/){
     $live_servers = $1;
     $dead_servers = $2;
     $average_load = $3;
@@ -96,6 +104,9 @@ if(@dead_servers){
     @dead_servers = uniq_array @dead_servers;
     plural scalar @dead_servers;
     $msg .= ". Dead regionserver$plural: " . join(",", @dead_servers);
+}
+if($average_load eq "NaN"){
+    $average_load = 0;
 }
 $msg .= " | live_regionservers=$live_servers dead_regionservers=$dead_servers;" . get_upper_thresholds() . ";0 hbase_load_average=$average_load";
 
