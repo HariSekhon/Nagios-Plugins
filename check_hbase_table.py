@@ -35,6 +35,7 @@ from __future__ import division
 from __future__ import print_function
 #from __future__ import unicode_literals
 
+import logging
 import os
 import sys
 import socket
@@ -61,7 +62,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit, ERRORS
+    from harisekhon.utils import log, qquit, ERRORS, jsonpp
     from harisekhon.utils import validate_host, validate_port, validate_database_tablename
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -147,6 +148,8 @@ class CheckHBaseTable(NagiosPlugin):
             qquit('CRITICAL', _)
         if not families:
             qquit('CRITICAL', 'failed to get column families for table \'{0}\''.format(self.table))
+        if log.isEnabledFor(logging.DEBUG):
+            log.debug(jsonpp(families))
         num_families = len(families.keys())
 
         self.msg = 'HBase table \'{0}\' is '.format(self.table)
