@@ -22,7 +22,7 @@ Checks:
 
 1. table exists
 2. table is enabled
-3. minimum number of column families vs thresholds
+3. table has minimum number of column families vs thresholds
 
 Raises Critical if the table is not enabled or does not exist
 
