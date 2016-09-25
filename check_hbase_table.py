@@ -62,7 +62,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit, ERRORS, jsonpp
+    from harisekhon.utils import log, qquit, ERRORS, jsonpp, isDict, isList, support_msg_api
     from harisekhon.utils import validate_host, validate_port, validate_database_tablename
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -124,7 +124,10 @@ class CheckHBaseTable(NagiosPlugin):
 
     def get_tables(self):
         try:
-            return self.conn.tables()
+            tables = self.conn.tables()
+            if not isList(tables):
+                qquit('UNKNOWN', 'table list returned is not a list! ' + support_msg_api())
+            return tables
         except socket.timeout as _:
             qquit('CRITICAL', 'error while trying to get table list: {0}'.format(_))
         except ThriftException as _:
@@ -150,6 +153,8 @@ class CheckHBaseTable(NagiosPlugin):
             qquit('CRITICAL', 'failed to get column families for table \'{0}\''.format(self.table))
         if log.isEnabledFor(logging.DEBUG):
             log.debug(jsonpp(families))
+        if not isDict(families):
+            qquit('UNKNOWN', 'column family info returned was not a dictionary! ' + support_msg_api())
         num_families = len(families.keys())
 
         self.msg = 'HBase table \'{0}\' is '.format(self.table)
