@@ -60,11 +60,11 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
 
-class CheckHbaseTableEnabled(NagiosPlugin):
+class CheckHBaseTableEnabled(NagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckHbaseTableEnabled, self).__init__()
+        super(CheckHBaseTableEnabled, self).__init__()
         # Python 3.x
         # super().__init__()
         self.conn = None
@@ -125,4 +125,4 @@ class CheckHbaseTableEnabled(NagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckHbaseTableEnabled().main()
+    CheckHBaseTableEnabled().main()
