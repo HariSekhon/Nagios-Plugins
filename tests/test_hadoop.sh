@@ -95,7 +95,15 @@ EOF
     hr
     $perl -T ./check_hadoop_datanodes.pl
     hr
-    # would be much higher on a real cluster, no defaults as much be configured based on NN heap
+    docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hadoop --hadoop-user root --hdfs-space -w 80 -c 90
+    hr
+    docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --replication -w 1 -c 1
+    hr
+    docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --balance -w 5 -c 10
+    hr
+    docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --nodes-available -w 1 -c 1
+    hr
+    # would be much higher on a real cluster, no defaults as must be configured based on NN heap
     # XXX: 404
     #$perl -T ./check_hadoop_hdfs_blocks.pl -w 100 -c 200
     hr
