@@ -133,6 +133,14 @@ Make sure to install the required Perl CPAN modules first before calling --help.
 
 This code base is under active development and there are many more cool plugins pending import.
 
+### See Also
+
+- ```find_active_server.py``` - returns the first available healthy server or determines the active master in high availability setups. Configurable tests include socket, http, https, ping, url and/or regex content match, multi-threaded for speed. Useful for pre-determining a server to be passed to tools that only take a single --host argument but for which the technology has later added multi-master support or active-standby masters (eg. Hadoop, HBase) or where you want to query cluster wide information available from any online peer (eg. Elasticsearch). This is downloaded from my [PyTools repo](https://github.com/harisekhon/pytools) as part of the build and placed at the top level. It has the ability to extend any nagios plugin to support multiple hosts in a generic way, eg:
+
+```
+./check_elasticsearch_cluster_status.pl --host $(./find_active_server.py -v --http --port 9200 node1 node2 node3 node4 ...)
+```
+
 ### Kerberos Security Support ###
 
 For HTTP based plugins Kerberos is implicitly supported by LWP as long as the LWP::Authen::Negotiate CPAN module is installed (part of the automated ```make``` build). This will look for a valid TGT in the environment and if found will use it for SPNego.
