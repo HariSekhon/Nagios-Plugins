@@ -177,6 +177,7 @@ build :
 	$(SUDO3) pip install MySQL-python
 	@echo
 	#make jar-plugins
+	wget https://raw.githubusercontent.com/HariSekhon/pytools/master/find_active_server.py
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins)"
 
