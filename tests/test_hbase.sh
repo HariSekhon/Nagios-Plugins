@@ -210,14 +210,31 @@ EOF
     # XXX: both cause 500 internal server error
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P 16301 --all-metrics
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P 16301 -m compactionQueueLength
-    hr
-    # use newer Python version for newer versions of HBase
+    #hr
+
+    # use newer Python version "check_hbase_table.py" for newer versions of HBase
     #$perl -T ./check_hbase_tables.pl
+    #hr
     #$perl -T ./check_hbase_tables_thrift.pl
+    #hr
+
+    # TODO:
     #$perl -T ./check_hbase_tables_stargate.pl
+    #hr
     #$perl -T ./check_hbase_tables_jsp.pl
     #hr
+
+    check_hbase_table_region_balance.py -T t1
     hr
+    # all tables
+    check_hbase_table_region_balance.py
+    hr
+    set +e
+    check_hbase_table_region_balance.py --list-tables
+    check_exit_code 3
+    set -e
+    hr
+
     # Use Docker hbase-dev, zookeeper will have been built
     if is_zookeeper_built; then
         # not present in newer versions of HBase
@@ -236,6 +253,7 @@ EOF
     hr
     #docker_exec check_hbase_unassigned_regions_znode.pl -H localhost
     hr
+
 # ============================================================================ #
     echo "Forced Failure Scenarios:"
     echo "sending kill signal to RegionServer"
