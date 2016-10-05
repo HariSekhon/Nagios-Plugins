@@ -30,7 +30,7 @@ Then have the plugin check the results separately (the tail stops the log gettin
 if there are lots of inconsistencies which will end up enlarging the output - it gives us just the bit we need, which
 is the summary at the end):
 
-./check_hadoop_fsck.pl -f /tmp/hbase-hbck.log
+./check_hbase_hbck.py -f /tmp/hbase-hbck.log
 
 Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 1.0.3, 1.1.6, 1.2.1, 1.2.2
 
