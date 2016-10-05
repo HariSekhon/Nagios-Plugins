@@ -28,7 +28,7 @@ echo "
 "
 
 # 5.0 tag doesn't work yet
-export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-latest 1.4 1.5 1.6 1.7 2.0 2.2 2.3}}"
+export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-latest 1.4 1.5 1.6 1.7 2.0 2.2 2.3 2.4}}"
 
 ELASTICSEARCH_HOST="${DOCKER_HOST:-${ELASTICSEARCH_HOST:-${HOST:-localhost}}}"
 ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST##*/}"
@@ -142,6 +142,8 @@ test_elasticsearch(){
     $perl -T ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
     hr
     $perl -T ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
+    hr
+    $perl -T ./check_elasticsearch_pending_tasks.pl -v
     hr
     $perl -T ./check_elasticsearch_shards_state_detail.pl -v
     hr
