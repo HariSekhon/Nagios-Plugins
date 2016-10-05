@@ -20,9 +20,13 @@ Nagios Plugin to check the balance of HBase regions across Region Servers via th
 
 Checks:
 
-1. if --table is specified checks the balance of regions for a given table (to check for table hotspotting)
-2. if no tables is specified then checks balance of total regions for all tables to check for general region
-   hotspotting (indicative of failure to rebalance)
+1. if --table is specified checks the balance of regions across RegionServers for a given table
+   (to check for table hotspotting)
+2. if no --table is specified then checks the balance of total regions across all RegionServers
+   to check for general region hotspotting (indicative of failure to rebalance)
+
+See also check_hbase_region_balance.py which parses the HMaster UI instead of using the Thrift API
+and checks the balance of total regions across all RegionServers
 
 Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 1.0.3, 1.1.6, 1.2.1, 1.2.2
 
