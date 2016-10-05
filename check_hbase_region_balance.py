@@ -18,6 +18,10 @@
 
 Nagios Plugin to check the balance of HBase regions across Region Servers via the HMaster UI
 
+See also check_hbase_table_region_balance.py which uses the HBase Thrift API and can check
+region balance for a given table to detect table hotspotting, or region balance for global region
+counts like this program.
+
 Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 1.0.3, 1.1.6, 1.2.1, 1.2.2
 
 """
