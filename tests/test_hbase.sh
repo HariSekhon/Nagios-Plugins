@@ -77,8 +77,9 @@ test_hbase(){
 export JAVA_HOME=/usr
 /hbase/bin/hbase shell <<EOF2
 create 't1', 'cf1', { 'REGION_REPLICATION' => 1 }
-create 't2', 'cf2', { 'REGION_REPLICATION' => 1 }
-disable 't2'
+create 'EmptyTable', 'cf2', { 'REGION_REPLICATION' => 1 }
+create 'DisabledTable', 'cf3', { 'REGION_REPLICATION' => 1 }
+disable 'DisabledTable'
 put 't1', 'r1', 'cf1:q1', '$uniq_val'
 put 't1', 'r2', 'cf1:q2', 'test'
 list
@@ -128,8 +129,10 @@ EOF
     # Python plugins use env for -H $HBASE_HOST -P 16010
     ./check_hbase_table_enabled.py -T t1
     hr
+    ./check_hbase_table_enabled.py -T EmptyTable
+    hr
     set +e
-    ./check_hbase_table_enabled.py -T t2
+    ./check_hbase_table_enabled.py -T DisabledTable
     check_exit_code 2
     set -e
     hr
@@ -141,8 +144,10 @@ EOF
     hr
     ./check_hbase_table.py -T t1
     hr
+    ./check_hbase_table.py -T EmptyTable
+    hr
     set +e
-    ./check_hbase_table.py -T t2
+    ./check_hbase_table.py -T DisabledTable
     check_exit_code 2
     set -e
     hr
@@ -154,17 +159,19 @@ EOF
     hr
     ./check_hbase_table_regions.py -T t1
     hr
-    # even though t2 table is disabled, it still has assigned regions
-    ./check_hbase_table_regions.py -T t2
+    ./check_hbase_table_regions.py -T EmptyTable
+    hr
+    # even though DisabledTable table is disabled, it still has assigned regions
+    ./check_hbase_table_regions.py -T DisabledTable
     hr
     # Re-assignment happens too fast, can't catch
     # forcibly unassign region and re-test
-    #region=$(echo "locate_region 't2', 'key1'" | hbase shell | awk '/ENCODED/{print $4; exit}' | sed 's/,$//')
-    #region=$(echo "locate_region 't2', 'key1'" | hbase shell | grep ENCODED | sed 's/.*ENCODED[[:space:]]*=>[[:space:]]*//; s/[[:space:]]*,.*$//')
+    #region=$(echo "locate_region 'DisabledTable', 'key1'" | hbase shell | awk '/ENCODED/{print $4; exit}' | sed 's/,$//')
+    #region=$(echo "locate_region 'DisabledTable', 'key1'" | hbase shell | grep ENCODED | sed 's/.*ENCODED[[:space:]]*=>[[:space:]]*//; s/[[:space:]]*,.*$//')
     #echo "Attempting to disable region '$region' to test failure scenario for unassigned region"
     #docker exec -ti "$DOCKER_CONTAINER" "hbase shell <<< \"unassign '$region'\""
     #set +e
-    #./check_hbase_table_regions.py -T t2
+    #./check_hbase_table_regions.py -T DisabledTable
     #check_exit_code 2
     #set -e
     #hr
@@ -175,6 +182,10 @@ EOF
 # ============================================================================ #
     hr
     ./check_hbase_table_compaction_in_progress.py -T t1
+    hr
+    ./check_hbase_table_compaction_in_progress.py -T EmptyTable
+    hr
+    ./check_hbase_table_compaction_in_progress.py -T DisabledTable
     hr
     set +e
     ./check_hbase_table_compaction_in_progress.py -T nonexistent_table
@@ -206,7 +217,7 @@ EOF
     $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics
     hr
     $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --all-metrics
-    hr
+    #hr
     # XXX: both cause 500 internal server error
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P 16301 --all-metrics
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P 16301 -m compactionQueueLength
@@ -222,9 +233,13 @@ EOF
     #$perl -T ./check_hbase_tables_stargate.pl
     #hr
     #$perl -T ./check_hbase_tables_jsp.pl
-    #hr
 
+    hr
     check_hbase_table_region_balance.py -T t1
+    hr
+    check_hbase_table_region_balance.py -T EmptyTable
+    hr
+    check_hbase_table_region_balance.py -T DisabledTable
     hr
     # all tables
     check_hbase_table_region_balance.py
@@ -297,7 +312,7 @@ EOF
     set -e
     hr
     set +e
-    ./check_hbase_table_regions.py -T t2
+    ./check_hbase_table_regions.py -T DisabledTable
     check_exit_code 3
     set -e
     hr
@@ -310,3 +325,6 @@ EOF
 for version in $(ci_sample $HBASE_VERSIONS); do
     test_hbase $version
 done
+echo
+echo "All HBase Tests Succeeded"
+echo
