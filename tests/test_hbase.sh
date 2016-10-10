@@ -325,6 +325,5 @@ EOF
 for version in $(ci_sample $HBASE_VERSIONS); do
     test_hbase $version
 done
-echo
 echo "All HBase Tests Succeeded"
 echo
