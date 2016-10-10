@@ -58,7 +58,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckHBaseTableCompacting(NagiosPlugin):
@@ -141,7 +141,8 @@ class CheckHBaseTableCompacting(NagiosPlugin):
                                   + support_msg())
                         if cols[0].get_text().strip() == 'Compaction':
                             compaction_state = cols[1].get_text().strip()
-                            if compaction_state == 'NONE':
+                            # NONE when enabled, Unknown when disabled
+                            if compaction_state in ('NONE', 'Unknown'):
                                 return False
                             else:
                                 return True
