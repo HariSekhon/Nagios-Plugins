@@ -164,7 +164,7 @@ build :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	# upgrade required to get install to work properly on Debian
 	$(SUDO) pip install --upgrade pip
-	$(SUDO3) pip install -r requirements.txt
+	$(SUDO3) pip install --upgrade -r requirements.txt
 	# in requirements.txt now
 	#$(SUDO3) pip install cassandra-driver scales blist lz4 python-snappy
 	# prevents https://urllib3.readthedocs.io/en/latest/security.html#insecureplatformwarning
