@@ -58,7 +58,7 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, log_option, qquit, ERRORS #, support_msg_api
-    from harisekhon.utils import validate_host, validate_port, random_alnum
+    from harisekhon.utils import validate_host, validate_port, random_alnum, plural
     from harisekhon.hbase.utils import validate_hbase_table
     from check_hbase_cell import CheckHBaseCell
 except ImportError as _:
@@ -85,6 +85,7 @@ class CheckHBaseWrite(CheckHBaseCell):
         self.row = '{0}#{1}#{2}'.format(random_alnum(10), self._prog, now)
         self.column_qualifier = '{0}#{1}#{2}'.format(self._prog, now, random_alnum(5))
         self.value = '{0}#{1}'.format(now, random_alnum(10))
+        self.num_column_families = None
         self.list_tables = False
         self.msg = 'msg not defined'
         self.ok()
@@ -142,7 +143,8 @@ class CheckHBaseWrite(CheckHBaseCell):
             qquit('CRITICAL', "table '{0}' is disabled!".format(self.table))
         table_conn = self.conn.table(self.table)
         families = table_conn.families()
-        log.info('found %s column families: %s', len(families), families)
+        self.num_column_families = len(families)
+        log.info('found %s column families: %s', self.num_column_families, families)
         for column_family in sorted(families):
             column = '{0}:{1}'.format(column_family, self.column_qualifier)
             self.check_write(table_conn, self.row, column)
@@ -170,7 +172,9 @@ class CheckHBaseWrite(CheckHBaseCell):
         return query_time
 
     def output(self, connect_time, total_time):
-        self.msg = "HBase write test"
+        self.msg = "HBase write test to {0} column {1}".format(self.num_column_families,
+                                                               'families' if plural(self.num_column_families) \
+                                                                          else 'family')
         precision = self.precision
         self.msg += " total_time={0:0.{precision}f}ms".format(total_time, precision=precision)
         self.msg += " connect_time={connect_time:0.{precision}f}ms".format(connect_time=connect_time,
