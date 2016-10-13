@@ -58,7 +58,7 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, log_option, qquit, ERRORS #, support_msg_api
-    from harisekhon.utils import validate_host, validate_port, random_alnum, plural
+    from harisekhon.utils import validate_host, validate_port, validate_int, random_alnum, plural
     from harisekhon.hbase.utils import validate_hbase_table
     from check_hbase_cell import CheckHBaseCell
 except ImportError as _:
@@ -94,8 +94,8 @@ class CheckHBaseWrite(CheckHBaseCell):
         self.add_hostoption(name='HBase Thrift Server', default_host='localhost', default_port=9090)
         self.add_opt('-T', '--table', help='Table to write to')
         self.add_thresholds(default_warning=20, default_critical=1000)
-        self.add_opt('-p', '--precision', default=4, metavar='int',
-                     help='Precision for query timing in decimal places (default: 4)')
+        self.add_opt('-p', '--precision', default=2, metavar='int',
+                     help='Precision for query timing in decimal places (default: 2)')
         self.add_opt('-l', '--list', action='store_true', help='List tables and exit')
 
     def process_options(self):
@@ -104,6 +104,7 @@ class CheckHBaseWrite(CheckHBaseCell):
         self.port = self.get_opt('port')
         validate_host(self.host)
         validate_port(self.port)
+        self.precision = self.get_opt('precision')
         self.list_tables = self.get_opt('list')
         if not self.list_tables:
             self.table = self.get_opt('table')
@@ -112,6 +113,7 @@ class CheckHBaseWrite(CheckHBaseCell):
         log_option('unique row', self.row)
         log_option('unique column qualifier', self.column)
         log_option('unique generated value', self.value)
+        validate_int(self.precision, 'precision', 0, 10)
 
     def run(self):
         initial_start = time.time()
