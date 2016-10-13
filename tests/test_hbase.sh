@@ -82,6 +82,7 @@ create 'DisabledTable', 'cf3', { 'REGION_REPLICATION' => 1 }
 disable 'DisabledTable'
 put 't1', 'r1', 'cf1:q1', '$uniq_val'
 put 't1', 'r2', 'cf1:q2', 'test'
+put 't1', 'r3', 'cf1:q3', '5'
 list
 EOF2
 hbase hbck &>/tmp/hbck.log
@@ -207,6 +208,42 @@ EOF
     hr
     $perl -T ./check_hbase_cell.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
     hr
+    ./check_hbase_cell.py -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+    hr
+    $perl -T ./check_hbase_cell.pl -T t1 -R r2 -C cf1:q2 -e test
+    hr
+    ./check_hbase_cell.py -T t1 -R r2 -C cf1:q2 -e test
+    hr
+    $perl -T ./check_hbase_cell.pl -T t1 -R r3 -C cf1:q3 -e 5 -w 5 -c 10 -g -u ms
+    hr
+    ./check_hbase_cell.py -T t1 -R r3 -C cf1:q3 -e 5 -w 5 -c 10 -g -u ms
+    hr
+    set +e
+    $perl -T ./check_hbase_cell.pl -T t1 -R r3 -C cf1:q3 -e 5 -w 4 -c 10
+    check_exit_code 1
+    hr
+    ./check_hbase_cell.py -T t1 -R r3 -C cf1:q3 -e 5 -w 4 -c 10
+    check_exit_code 1
+    hr
+    $perl -T ./check_hbase_cell.pl -T t1 -R r3 -C cf1:q3 -e 5 -w 4 -c 4
+    check_exit_code 2
+    hr
+    ./check_hbase_cell.py -T t1 -R r3 -C cf1:q3 -e 5 -w 4 -c 4
+    check_exit_code 2
+    hr
+    $perl -T ./check_hbase_cell.pl -T t1 -R r1 -C cf2:q1
+    check_exit_code 2
+    hr
+    ./check_hbase_cell.py -T t1 -R r1 -C cf2:q1
+    check_exit_code 2
+    hr
+    $perl -T ./check_hbase_cell.pl -T t1 -R r1 -C cf1:q100
+    check_exit_code 2
+    hr
+    ./check_hbase_cell.py -T t1 -R r1 -C cf1:q100
+    check_exit_code 2
+    set +e
+    hr
     $perl -T ./check_hbase_cell_stargate.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
     hr
     $perl -T ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
@@ -259,7 +296,7 @@ EOF
         echo "ZooKeeper not built - skipping ZooKeeper checks"
     fi
     hr
-    docker_exec check_hbase_table_rowcount.pl -T t1 --hbase-bin /hbase/bin/hbase -w 2 -c 2 -t 60
+    docker_exec check_hbase_table_rowcount.pl -T t1 --hbase-bin /hbase/bin/hbase -w 3:3 -c 3:3 -t 60
     hr
     docker_exec check_zookeeper_znode.pl -H localhost -P $ZOOKEEPER_PORT -z /hbase -v -n --child-znodes
     hr
