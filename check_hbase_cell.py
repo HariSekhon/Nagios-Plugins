@@ -149,9 +149,7 @@ class CheckHBaseCell(NagiosPlugin):
             self.conn = happybase.Connection(host=self.host, port=self.port, timeout=10 * 1000)  # ms
             connect_time = time.time() - start
             log.info('connected in %s secs', connect_time)
-        except socket.timeout as _:
-            qquit('CRITICAL', _)
-        except ThriftException as _:
+        except (socket.timeout, ThriftException) as _:
             qquit('CRITICAL', _)
         return connect_time
 
@@ -161,9 +159,7 @@ class CheckHBaseCell(NagiosPlugin):
             if not isList(tables):
                 qquit('UNKNOWN', 'table list returned is not a list! ' + support_msg_api())
             return tables
-        except socket.timeout as _:
-            qquit('CRITICAL', 'error while trying to get table list: {0}'.format(_))
-        except ThriftException as _:
+        except (socket.timeout, ThriftException) as _:
             qquit('CRITICAL', 'error while trying to get table list: {0}'.format(_))
 
     def check_cell(self):
@@ -189,7 +185,7 @@ class CheckHBaseCell(NagiosPlugin):
                 qquit('CRITICAL', 'column family \'{0}\' does not exist'.format(self.column))
             else:
                 qquit('CRITICAL', _)
-        except ThriftException as _:
+        except (socket.timeout, ThriftException) as _:
             qquit('CRITICAL', _)
 
         cell_info = "HBase table '{0}' row '{1}' column '{2}'".format(self.table, self.row, self.column)
