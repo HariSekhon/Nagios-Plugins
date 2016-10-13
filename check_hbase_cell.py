@@ -18,6 +18,8 @@
 
 Nagios Plugin to check a specific HBase table's cell value via the Thrift API
 
+Checks:
+
 1. checks HBase table is enabled
 2. reads latest HBase cell value for the given table, row key and column family:qualifier
 3. checks cell's returned value against expected regex (optional)
