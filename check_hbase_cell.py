@@ -25,7 +25,7 @@ Checks:
 3. checks cell's returned value against expected regex (optional)
 4. checks cell's returned value against warning/critical range thresholds (optional)
    raises warning/critical if the value is outside thresholds or not a floating point number
-5. outputs the query time to a given precision for reporting and graphing
+5. outputs the conect and query times to a given precision for reporting and graphing
 6. optionally outputs the cell's value for graphing purposes
 
 Tested on Apache HBase 1.0.3, 1.1.6, 1.2.2
@@ -68,7 +68,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class CheckHBaseCell(NagiosPlugin):
@@ -84,8 +84,10 @@ class CheckHBaseCell(NagiosPlugin):
         self.table = None
         self.row = None
         self.column = None
-        self.expected = None
+        self.value = None
+        self.regex = None
         self.precision = 4
+        self.timings = {}
         self.graph = False
         self.units = None
         self.list_tables = False
@@ -115,7 +117,7 @@ class CheckHBaseCell(NagiosPlugin):
         self.port = self.get_opt('port')
         self.row = self.get_opt('row')
         self.column = self.get_opt('column')
-        self.expected = self.get_opt('expected')
+        self.regex = self.get_opt('expected')
         self.precision = self.get_opt('precision')
         self.graph = self.get_opt('graph')
         self.units = self.get_opt('units')
@@ -127,54 +129,21 @@ class CheckHBaseCell(NagiosPlugin):
             validate_hbase_table(self.table, 'hbase')
             validate_hbase_rowkey(self.row)
             validate_hbase_column_qualifier(self.column)
-        if self.expected is not None:
-            validate_regex('expected value', self.expected)
+        if self.regex is not None:
+            validate_regex('expected value', self.regex)
         if self.units is not None:
             validate_units(self.units)
         self.validate_thresholds(optional=True, positive=False)
 
     def run(self):
-        connect_time = self.connect()
-        if self.list_tables:
-            tables = self.get_tables()
-            print('HBase Tables:\n\n' + '\n'.join(tables))
-            sys.exit(ERRORS['UNKNOWN'])
-        (value, query_time) = self.check_cell()
-        self.output_perfdata(value, connect_time, query_time)
-
-    def connect(self):
-        log.info('connecting to HBase Thrift Server at %s:%s', self.host, self.port)
         try:
-            start = time.time()
-            self.conn = happybase.Connection(host=self.host, port=self.port, timeout=10 * 1000)  # ms
-            connect_time = time.time() - start
-            log.info('connected in %s secs', connect_time)
-        except (socket.timeout, ThriftException) as _:
-            qquit('CRITICAL', _)
-        return connect_time
-
-    def get_tables(self):
-        try:
-            tables = self.conn.tables()
-            if not isList(tables):
-                qquit('UNKNOWN', 'table list returned is not a list! ' + support_msg_api())
-            return tables
-        except (socket.timeout, ThriftException) as _:
-            qquit('CRITICAL', 'error while trying to get table list: {0}'.format(_))
-
-    def check_cell(self):
-        log.info('checking table \'%s\'', self.table)
-        cells = []
-        query_time = None
-        try:
-            if not self.conn.is_table_enabled(self.table):
-                qquit('CRITICAL', "table '{0}' is not enabled!".format(self.table))
-            table = self.conn.table(self.table)
-            log.info('getting cells')
-            start = time.time()
-            cells = table.cells(self.row, self.column, versions=1)
-            query_time = time.time() - start
-            log.info('queried in %s secs', query_time)
+            connect_time = self.connect()
+            if self.list_tables:
+                tables = self.get_tables()
+                print('HBase Tables:\n\n' + '\n'.join(tables))
+                sys.exit(ERRORS['UNKNOWN'])
+            table_conn = self.get_table_conn()
+            self.check_read(table_conn, self.row, self.column)
             log.info('finished, closing connection')
             self.conn.close()
         except HBaseIOError as _:
@@ -187,8 +156,42 @@ class CheckHBaseCell(NagiosPlugin):
                 qquit('CRITICAL', _)
         except (socket.timeout, ThriftException) as _:
             qquit('CRITICAL', _)
+        self.output(connect_time)
 
-        cell_info = "HBase table '{0}' row '{1}' column '{2}'".format(self.table, self.row, self.column)
+    def connect(self):
+        log.info('connecting to HBase Thrift Server at %s:%s', self.host, self.port)
+        start = time.time()
+        self.conn = happybase.Connection(host=self.host, port=self.port, timeout=10 * 1000)  # ms
+        connect_time = (time.time() - start) * 1000
+        log.info('connected in %s ms', connect_time)
+        return connect_time
+
+    def get_tables(self):
+        try:
+            tables = self.conn.tables()
+            if not isList(tables):
+                qquit('UNKNOWN', 'table list returned is not a list! ' + support_msg_api())
+            return tables
+        except (socket.timeout, ThriftException) as _:
+            qquit('CRITICAL', 'error while trying to get table list: {0}'.format(_))
+
+    def get_table_conn(self):
+        log.info('checking table \'%s\'', self.table)
+        if not self.conn.is_table_enabled(self.table):
+            qquit('CRITICAL', "table '{0}' is not enabled!".format(self.table))
+        table_conn = self.conn.table(self.table)
+        return table_conn
+
+    def check_read(self, table_conn, row, column, expected=None):
+        log.info("getting cell for row '%s' column '%s'", row, column)
+        cells = []
+        query_time = None
+        start = time.time()
+        cells = table_conn.cells(row, column, versions=1)
+        query_time = (time.time() - start) * 1000
+        log.info('query read in %s ms', query_time)
+
+        cell_info = "HBase table '{0}' row '{1}' column '{2}'".format(self.table, row, column)
 
         log.debug('cells returned: %s', cells)
         if not isList(cells):
@@ -203,30 +206,40 @@ class CheckHBaseCell(NagiosPlugin):
         value = cells[0]
         log.info('value = %s', value)
 
-        self.msg = "cell value = '{0}' for {1}".format(value, cell_info)
-
-        if self.expected:
-            log.info("checking cell's value '{0}' against expected regex '{1}'".format(value, self.expected))
-            if not re.search(self.expected, value):
-                qquit('CRITICAL', "cell value '{0}' (expected regex '{1}') for {2}".format(value, self.expected,
+        if self.regex:
+            log.info("checking cell's value '{0}' against expected regex '{1}'".format(value, self.regex))
+            if not re.search(self.regex, value):
+                qquit('CRITICAL', "cell value '{0}' (expected regex '{1}') for {2}".format(value, self.regex,
                                                                                            cell_info))
+        if expected:
+            log.info("checking cell's value is exactly expected value '{0}'".format(expected))
+            if value != expected:
+                qquit('CRITICAL', "cell value '{0}' (expected '{1}') for {2}".format(value, expected, cell_info))
+        self.timings[column] = self.timings.get(column, {})
+        self.timings[column]['read'] = max(self.timings[column].get('read', 0), query_time)
+        self.value = value
         return (value, query_time)
 
-    def output_perfdata(self, value, connect_time, query_time):
+    def output(self, connect_time):
+        cell_info = "HBase table '{0}' row '{1}' column '{2}'".format(self.table, self.row, self.column)
+        value = self.value
+        self.msg = "cell value = '{0}'".format(value)
         if isFloat(value):
             log.info('value is float, checking thresholds')
             self.check_thresholds(value)
-        self.msg += ' | '
+        self.msg += " for {0}".format(cell_info)
+        self.msg += ' |'
         if self.graph:
             if isFloat(value):
-                self.msg += 'value={0}'.format(value)
+                self.msg += ' value={0}'.format(value)
                 if self.units:
                     self.msg += str(self.units)
                 self.msg += self.get_perf_thresholds()
             else:
-                self.msg += 'value=NaN'
-        self.msg += ' connect_time={0:0.{2}f}s query_time={1:0.{2}f}s'.format(connect_time,
-                                                                              query_time, self.precision)
+                self.msg += ' value=NaN'
+        query_time = self.timings[self.column]['read']
+        self.msg += ' connect_time={0:0.{precision}f}ms query_time={1:0.{precision}f}ms'\
+                    .format(connect_time, query_time, precision=self.precision)
 
 
 if __name__ == '__main__':
