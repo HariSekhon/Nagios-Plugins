@@ -68,7 +68,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 class CheckHBaseCell(NagiosPlugin):
@@ -136,6 +136,7 @@ class CheckHBaseCell(NagiosPlugin):
         self.validate_thresholds(optional=True, positive=False)
 
     def run(self):
+        initial_start = time.time()
         try:
             connect_time = self.connect()
             if self.list_tables:
@@ -156,7 +157,8 @@ class CheckHBaseCell(NagiosPlugin):
                 qquit('CRITICAL', _)
         except (socket.timeout, ThriftException) as _:
             qquit('CRITICAL', _)
-        self.output(connect_time)
+        total_time = (time.time() - initial_start) * 1000
+        self.output(connect_time, total_time)
 
     def connect(self):
         log.info('connecting to HBase Thrift Server at %s:%s', self.host, self.port)
@@ -220,7 +222,8 @@ class CheckHBaseCell(NagiosPlugin):
         self.value = value
         return (value, query_time)
 
-    def output(self, connect_time):
+    def output(self, connect_time, total_time):
+        precision = self.precision
         cell_info = "HBase table '{0}' row '{1}' column '{2}'".format(self.table, self.row, self.column)
         value = self.value
         self.msg = "cell value = '{0}'".format(value)
@@ -238,8 +241,9 @@ class CheckHBaseCell(NagiosPlugin):
             else:
                 self.msg += ' value=NaN'
         query_time = self.timings[self.column]['read']
-        self.msg += ' connect_time={0:0.{precision}f}ms query_time={1:0.{precision}f}ms'\
-                    .format(connect_time, query_time, precision=self.precision)
+        self.msg += ' total_time={0:0.{precision}f}ms'.format(total_time, precision=precision)
+        self.msg += ' connect_time={0:0.{precision}f}ms'.format(connect_time, precision=precision)
+        self.msg += ' query_time={0:0.{precision}f}ms'.format(query_time, precision=precision)
 
 
 if __name__ == '__main__':
