@@ -157,7 +157,7 @@ class CheckHBaseTable(NagiosPlugin):
             qquit('CRITICAL', 'failed to get column families for table \'{0}\''.format(self.table))
         if not isDict(families):
             qquit('UNKNOWN', 'column family info returned was not a dictionary! ' + support_msg_api())
-        num_families = len(families.keys())
+        num_families = len(families)
         log.info('num families: %s', num_families)
 
         self.msg = 'HBase table \'{0}\' is '.format(self.table)
