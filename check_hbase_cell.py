@@ -172,7 +172,7 @@ class CheckHBaseCell(NagiosPlugin):
         except ThriftException as _:
             qquit('CRITICAL', _)
 
-        cell_info = "table '{0}' row '{1}' column '{2}'".format(self.table, self.row, self.column)
+        cell_info = "HBase table '{0}' row '{1}' column '{2}'".format(self.table, self.row, self.column)
 
         log.debug('cells returned: %s', cells)
         if not isList(cells):
@@ -181,29 +181,32 @@ class CheckHBaseCell(NagiosPlugin):
         if len(cells) < 1:
             qquit('CRITICAL', "no cell value found in {0}, does row / column family combination exist?".
                   format(cell_info))
+        elif len(cells) > 1:
+            qquit('UNKNOWN', "more than one cell returned! " + support_msg_api())
 
         value = cells[0]
+        log.info('value = %s', value)
 
-        self.msg = "HBase {0} = '{1}'".format(cell_info, value)
+        self.msg = "cell value = '{0}' for {1}".format(value, cell_info)
 
         if self.expected:
             log.info("checking cell's value '{0}' against expected regex '{1}'".format(value, self.expected))
             if not re.search(self.expected, value):
                 qquit('CRITICAL', "cell value '{0}' (expected regex '{1}') for {2}".format(value, self.expected,
                                                                                            cell_info))
-
         if isFloat(value):
+            log.info('value is float, checking thresholds')
             self.check_thresholds(value)
         self.msg += ' | '
         if self.graph:
             if isFloat(value):
-                self.msg += 'value={0}'.format(value)
+                self.msg += 'value={0} '.format(value)
                 if self.units:
                     self.msg += str(self.units)
                 self.msg += self.get_perf_thresholds()
             else:
-                self.msg += 'value=NaN'
-        self.msg += ' query_time={0}s'.format(query_time)
+                self.msg += 'value=NaN '
+        self.msg += 'query_time={0}s'.format(query_time)
 
 
 if __name__ == '__main__':
