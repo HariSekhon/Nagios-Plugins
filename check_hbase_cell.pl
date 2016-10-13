@@ -30,7 +30,7 @@ See also:
 Tested on CDH 4.3.0, 4.5.0 and Apache HBase 1.0.3, 1.1.6, 1.2.2
 ";
 
-$VERSION = "0.2.1";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -71,10 +71,11 @@ env_creds(["HBASE_THRIFT", "HBASE"], "HBase Thrift Server");
     "C|column=s"    => [ \$column,      "Column family:qualifier to query" ],
     "e|expected=s"  => [ \$expected,    "Expected regex for the cell's value. Optional" ],
     %thresholdoptions,
+    "p|precision=s" => [ \$precision,   "Precision for query timing in decimal places (default: $default_precision)" ],
     "g|graph"       => [ \$graph,       "Graph the cell's value. Optional, use only if a floating point number is normally returned for it's values, otherwise will print NaN (Not a Number). The reason this is not determined automatically is because keys that change between floats and non-floats will result in variable numbers of perfdata tokens which will break PNP4Nagios" ],
     "u|units=s"     => [ \$units,       "Units to use if graphing cell's value. Optional" ],
 );
-@usage_order = qw/host port table row column expected warning critical graph units/;
+@usage_order = qw/host port table row column expected warning critical precision graph units/;
 
 get_options();
 
