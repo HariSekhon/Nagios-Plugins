@@ -81,8 +81,8 @@ create 'EmptyTable', 'cf2', { 'REGION_REPLICATION' => 1 }
 create 'DisabledTable', 'cf3', { 'REGION_REPLICATION' => 1 }
 disable 'DisabledTable'
 put 't1', 'r1', 'cf1:q1', '$uniq_val'
-put 't1', 'r2', 'cf1:q2', 'test'
-put 't1', 'r3', 'cf1:q3', '5'
+put 't1', 'r2', 'cf1:q1', 'test'
+put 't1', 'r3', 'cf1:q1', '5'
 list
 EOF2
 hbase hbck &>/tmp/hbck.log
@@ -210,25 +210,25 @@ EOF
     hr
     ./check_hbase_cell.py -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
     hr
-    $perl -T ./check_hbase_cell.pl -T t1 -R r2 -C cf1:q2 -e test
+    $perl -T ./check_hbase_cell.pl -T t1 -R r2 -C cf1:q1 --expected test --precision 3
     hr
-    ./check_hbase_cell.py -T t1 -R r2 -C cf1:q2 -e test
+    ./check_hbase_cell.py -T t1 -R r2 -C cf1:q1 --expected test --precision 3
     hr
-    $perl -T ./check_hbase_cell.pl -T t1 -R r3 -C cf1:q3 -e 5 -w 5 -c 10 -g -u ms
+    $perl -T ./check_hbase_cell.pl -T t1 -R r3 -C cf1:q1 -e 5 -w 5 -c 10 -g -u ms
     hr
-    ./check_hbase_cell.py -T t1 -R r3 -C cf1:q3 -e 5 -w 5 -c 10 -g -u ms
+    ./check_hbase_cell.py -T t1 -R r3 -C cf1:q1 -e 5 -w 5 -c 10 -g -u ms
     hr
     set +e
-    $perl -T ./check_hbase_cell.pl -T t1 -R r3 -C cf1:q3 -e 5 -w 4 -c 10
+    $perl -T ./check_hbase_cell.pl -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 10
     check_exit_code 1
     hr
-    ./check_hbase_cell.py -T t1 -R r3 -C cf1:q3 -e 5 -w 4 -c 10
+    ./check_hbase_cell.py -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 10
     check_exit_code 1
     hr
-    $perl -T ./check_hbase_cell.pl -T t1 -R r3 -C cf1:q3 -e 5 -w 4 -c 4
+    $perl -T ./check_hbase_cell.pl -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 4
     check_exit_code 2
     hr
-    ./check_hbase_cell.py -T t1 -R r3 -C cf1:q3 -e 5 -w 4 -c 4
+    ./check_hbase_cell.py -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 4
     check_exit_code 2
     hr
     $perl -T ./check_hbase_cell.pl -T t1 -R r1 -C cf2:q1
@@ -337,22 +337,39 @@ EOF
     set -e
     hr
 # ============================================================================ #
-    # Thrift API will hang so these python plugins will self timeout after 10 secs with UNKNOWN when the sole RegionServer is down
+    echo "Thrift API checks will hang so these python plugins will self timeout after 10 secs with UNKNOWN when the sole RegionServer is down"
     set +e
     ./check_hbase_table.py -T t1
     check_exit_code 3
-    set -e
     hr
-    set +e
     ./check_hbase_table_enabled.py -T t1
     check_exit_code 3
-    set -e
     hr
-    set +e
     ./check_hbase_table_regions.py -T DisabledTable
+    check_exit_code 3
+    hr
+    ./check_hbase_cell.py -T t1 -R r1 -C cf1:q1
     check_exit_code 3
     set -e
     hr
+    echo "sending kill signal to ThriftServer"
+    docker exec -ti "$DOCKER_CONTAINER" pkill -f ThriftServer
+    echo "waiting 5 secs for ThriftServer to go down"
+    sleep 5
+    echo "Thrift API checks should now fail with exit code 2"
+    set +e
+    ./check_hbase_table.py -T t1
+    check_exit_code 2
+    hr
+    ./check_hbase_table_enabled.py -T t1
+    check_exit_code 2
+    hr
+    ./check_hbase_table_regions.py -T DisabledTable
+    check_exit_code 2
+    hr
+    ./check_hbase_cell.py -T t1 -R r1 -C cf1:q1
+    check_exit_code 2
+    set -e
 
     delete_container
     echo
