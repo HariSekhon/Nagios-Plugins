@@ -18,16 +18,19 @@ $DESCRIPTION = "Nagios Plugin to check a specific HBase table cell via the HBase
 4. outputs the connect+query time to a given precision for reporting and graphing
 5. optionally outputs the cell's value for graphing purposes
 
-Performance using the Thrift Server is much faster than trying to leverage the HBase API using JVM languages. Another option is check_hbase_cell_stargate.pl which uses the Stargate REST API
-
 Requires the CPAN Thrift perl module
 
 HBase Thrift bindings were generated using Thrift 0.9.0 on CDH 4.3 (HBase 0.94.6-cdh4.3.0) CentOS 6.4 and placed under lib/Hbase
 
-Tested on CDH 4.3.0, 4.5.0
+See also:
+
+- check_hbase_cell.py -  uses a dedicated Thrift module for configurability.
+- check_hbase_cell_stargate.pl - uses the Stargate REST API
+
+Tested on CDH 4.3.0, 4.5.0 and Apache HBase 1.0.3, 1.1.6, 1.2.2
 ";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -101,7 +104,7 @@ my $start_time = time;
 my $client = connect_hbase_thrift($host, $port, $send_timeout, $recv_timeout);
 
 my $cell;
-my $cell_info = "table '$table' row '$row' column '$column'";
+my $cell_info = "HBase table '$table' row '$row' column '$column'";
 try{
     $cell = $client->get($table, $row, $column);
     unless($cell){
