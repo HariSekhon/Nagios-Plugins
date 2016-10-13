@@ -58,7 +58,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckHBaseCell(NagiosPlugin):
@@ -83,7 +83,7 @@ class CheckHBaseCell(NagiosPlugin):
 
     def add_options(self):
         self.add_hostoption(name='HBase Thrift Server', default_host='localhost', default_port=9090)
-        self.add_opt('-T', '--table', help='Table to check is enabled')
+        self.add_opt('-T', '--table', help='Table to query')
         self.add_opt('-R', '--row', help='Row to query')
         self.add_opt('-C', '--column', help='Column family:qualifier to query')
         self.add_opt('-e', '--expected', help='Expected regex for the cell\'s value. Optional')
@@ -111,8 +111,8 @@ class CheckHBaseCell(NagiosPlugin):
         if not self.list_tables:
             self.table = self.get_opt('table')
             validate_hbase_table(self.table, 'hbase')
-        validate_hbase_rowkey(self.row)
-        validate_hbase_column_qualifier(self.column)
+            validate_hbase_rowkey(self.row)
+            validate_hbase_column_qualifier(self.column)
         if self.expected is not None:
             validate_regex('expected value', self.expected)
         if self.units is not None:
