@@ -59,7 +59,7 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, qquit, ERRORS, isFloat, isList, support_msg_api
-    from harisekhon.utils import validate_host, validate_port, validate_regex, validate_units
+    from harisekhon.utils import validate_host, validate_port, validate_regex, validate_units, validate_int
     from harisekhon.hbase.utils import validate_hbase_table, validate_hbase_rowkey, validate_hbase_column_qualifier
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -86,7 +86,7 @@ class CheckHBaseCell(NagiosPlugin):
         self.column = None
         self.value = None
         self.regex = None
-        self.precision = 4
+        self.precision = None
         self.timings = {}
         self.graph = False
         self.units = None
@@ -101,8 +101,8 @@ class CheckHBaseCell(NagiosPlugin):
         self.add_opt('-C', '--column', help='Column family:qualifier to query')
         self.add_opt('-e', '--expected', help='Expected regex for the cell\'s value. Optional')
         self.add_thresholds()
-        self.add_opt('-p', '--precision', default=4, metavar='int',
-                     help='Precision for query timing in decimal places (default: 4)')
+        self.add_opt('-p', '--precision', default=2, metavar='int',
+                     help='Precision for query timing in decimal places (default: 2)')
         self.add_opt('-g', '--graph', action='store_true', help="Graph the cell's value. Optional, use only if a " +
                      "floating point number is normally returned for it's values, otherwise will print NaN " +
                      "(Not a Number). The reason this is not determined automatically is because keys that change " +
@@ -134,6 +134,7 @@ class CheckHBaseCell(NagiosPlugin):
         if self.units is not None:
             validate_units(self.units)
         self.validate_thresholds(optional=True, positive=False)
+        validate_int(self.precision, 'precision', 0, 10)
 
     def run(self):
         initial_start = time.time()
@@ -231,6 +232,13 @@ class CheckHBaseCell(NagiosPlugin):
             log.info('value is float, checking thresholds')
             self.check_thresholds(value)
         self.msg += " for {0}".format(cell_info)
+        query_time = self.timings[self.column]['read']
+        perfdata = ''
+        perfdata += ' total_time={0:0.{precision}f}ms'.format(total_time, precision=precision)
+        perfdata += ' connect_time={0:0.{precision}f}ms'.format(connect_time, precision=precision)
+        perfdata += ' query_time={0:0.{precision}f}ms'.format(query_time, precision=precision)
+        # show the timings at the end of the user output as well as in the graphing perfdata section
+        self.msg += ',' + perfdata
         self.msg += ' |'
         if self.graph:
             if isFloat(value):
@@ -240,10 +248,7 @@ class CheckHBaseCell(NagiosPlugin):
                 self.msg += self.get_perf_thresholds()
             else:
                 self.msg += ' value=NaN'
-        query_time = self.timings[self.column]['read']
-        self.msg += ' total_time={0:0.{precision}f}ms'.format(total_time, precision=precision)
-        self.msg += ' connect_time={0:0.{precision}f}ms'.format(connect_time, precision=precision)
-        self.msg += ' query_time={0:0.{precision}f}ms'.format(query_time, precision=precision)
+        self.msg += perfdata
 
 
 if __name__ == '__main__':
