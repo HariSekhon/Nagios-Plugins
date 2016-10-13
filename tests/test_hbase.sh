@@ -73,19 +73,21 @@ test_hbase(){
     when_ports_available $startupwait $HBASE_HOST $HBASE_PORTS
     echo "setting up test tables"
     local uniq_val=$(< /dev/urandom tr -dc 'a-zA-Z0-9' | head -c32 || :)
-    docker exec -i "$DOCKER_CONTAINER" /bin/bash <<EOF
-export JAVA_HOME=/usr
-/hbase/bin/hbase shell <<EOF2
-create 't1', 'cf1', { 'REGION_REPLICATION' => 1 }
-create 'EmptyTable', 'cf2', { 'REGION_REPLICATION' => 1 }
-create 'DisabledTable', 'cf3', { 'REGION_REPLICATION' => 1 }
-disable 'DisabledTable'
-put 't1', 'r1', 'cf1:q1', '$uniq_val'
-put 't1', 'r2', 'cf1:q1', 'test'
-put 't1', 'r3', 'cf1:q1', '5'
-list
+    docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
+    export JAVA_HOME=/usr
+    /hbase/bin/hbase shell <<-EOF2
+        create 't1', 'cf1', { 'REGION_REPLICATION' => 1 }
+        create 'EmptyTable', 'cf2', 'cf3', { 'REGION_REPLICATION' => 1 }
+        create 'DisabledTable', 'cf4', { 'REGION_REPLICATION' => 1 }
+        disable 'DisabledTable'
+        put 't1', 'r1', 'cf1:q1', '$uniq_val'
+        put 't1', 'r2', 'cf1:q1', 'test'
+        put 't1', 'r3', 'cf1:q1', '5'
+        list
 EOF2
-hbase hbck &>/tmp/hbck.log
+    hbase org.apache.hadoop.hbase.util.RegionSplitter UniformSplitTable UniformSplit -c 100 -f cf1
+    hbase org.apache.hadoop.hbase.util.RegionSplitter HexStringSplitTable HexStringSplit -c 100 -f cf1
+    hbase hbck &>/tmp/hbck.log
 EOF
     if [ -n "${NOTESTS:-}" ]; then
         return 0
@@ -205,48 +207,76 @@ EOF
     $perl -T ./check_hbase_regionservers.pl
     hr
     $perl -T ./check_hbase_regionservers_jsp.pl
+# ============================================================================ #
+    for x in "$perl -T ./check_hbase_cell.pl" ./check_hbase_cell.py "$perl -T ./check_hbase_cell_stargate.pl"; do
+        hr
+        eval $x -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+        hr
+        eval $x -T t1 -R r2 -C cf1:q1 --expected test --precision 3
+        hr
+        eval $x -T t1 -R r3 -C cf1:q1 -e 5 -w 5 -c 10 -g -u ms
+        hr
+        set +e
+        eval $x -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 10
+        check_exit_code 1
+        hr
+        eval $x -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 4
+        check_exit_code 2
+        hr
+        eval $x -T t1 -R nonExistentRow -C cf1:q1
+        check_exit_code 2
+        hr
+        eval $x -T t1 -R r1 -C nonExistentCF:q1
+        check_exit_code 2
+        hr
+        eval $x -T t1 -R r1 -C cf1:nonExistentQF
+        check_exit_code 2
+        hr
+        eval $x -T NonExistentTable -R r1 -C cf1:q1
+        check_exit_code 2
+        hr
+        eval $x -T DisabledTable -R r1 -C cf1:q1
+        check_exit_code 2
+        hr
+        eval $x -T EmptyTable -R r1 -C cf1:q1
+        check_exit_code 2
+        set +e
+    done
     hr
-    $perl -T ./check_hbase_cell.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
-    hr
-    ./check_hbase_cell.py -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
-    hr
-    $perl -T ./check_hbase_cell.pl -T t1 -R r2 -C cf1:q1 --expected test --precision 3
-    hr
-    ./check_hbase_cell.py -T t1 -R r2 -C cf1:q1 --expected test --precision 3
-    hr
-    $perl -T ./check_hbase_cell.pl -T t1 -R r3 -C cf1:q1 -e 5 -w 5 -c 10 -g -u ms
-    hr
-    ./check_hbase_cell.py -T t1 -R r3 -C cf1:q1 -e 5 -w 5 -c 10 -g -u ms
-    hr
-    set +e
-    $perl -T ./check_hbase_cell.pl -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 10
-    check_exit_code 1
-    hr
-    ./check_hbase_cell.py -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 10
-    check_exit_code 1
-    hr
-    $perl -T ./check_hbase_cell.pl -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 4
-    check_exit_code 2
-    hr
-    ./check_hbase_cell.py -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 4
-    check_exit_code 2
-    hr
-    $perl -T ./check_hbase_cell.pl -T t1 -R r1 -C cf2:q1
-    check_exit_code 2
-    hr
-    ./check_hbase_cell.py -T t1 -R r1 -C cf2:q1
-    check_exit_code 2
-    hr
-    $perl -T ./check_hbase_cell.pl -T t1 -R r1 -C cf1:q100
-    check_exit_code 2
-    hr
-    ./check_hbase_cell.py -T t1 -R r1 -C cf1:q100
-    check_exit_code 2
-    set +e
-    hr
-    $perl -T ./check_hbase_cell_stargate.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
-    hr
+    # this is only a symlink to check_hbase_cell.pl so just check it's still there and working
     $perl -T ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+
+# ============================================================================ #
+    hr
+    ./check_hbase_write.py -T t1 -w 100 --precision 3
+    hr
+    # this will also be checked later by check_hbase_rowcount that it returns to zero rows, ie. delete succeeded
+    ./check_hbase_write.py -T EmptyTable -w 100 --precision 3
+    hr
+    set +e
+    ./check_hbase_write.py -T DisabledTable -t 2
+    check_exit_code 2
+    hr
+    ./check_hbase_write.py -T NonExistentTable
+    check_exit_code 2
+    set -e
+# ============================================================================ #
+    hr
+    ./check_hbase_write_spray.py -T t1 -w 100 --precision 3
+    hr
+    # this will also be checked later by check_hbase_rowcount that it returns to zero rows, ie. delete succeeded
+    ./check_hbase_write_spray.py -T EmptyTable -w 100 --precision 3
+    hr
+    # write to 100 regions...
+    ./check_hbase_write_spray.py -T HexStringSplitTable -w 100 --precision 3
+    hr
+    set +e
+    ./check_hbase_write_spray.py -T DisabledTable -t 2
+    check_exit_code 2
+    hr
+    ./check_hbase_write_spray.py -T NonExistentTable
+    check_exit_code 2
+    set -e
 # ============================================================================ #
     hr
     $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
@@ -298,6 +328,9 @@ EOF
     hr
     docker_exec check_hbase_table_rowcount.pl -T t1 --hbase-bin /hbase/bin/hbase -w 3:3 -c 3:3 -t 60
     hr
+    # This also checks that check_hbase_write.py deleted correctly
+    docker_exec check_hbase_table_rowcount.pl -T EmptyTable --hbase-bin /hbase/bin/hbase -w 0:0 -c 0:0 -t 30
+    hr
     docker_exec check_zookeeper_znode.pl -H localhost -P $ZOOKEEPER_PORT -z /hbase -v -n --child-znodes
     hr
     docker_exec check_zookeeper_child_znodes.pl -H localhost -P $ZOOKEEPER_PORT -z /hbase/rs -v -w 1:1 -c 1:1
@@ -307,6 +340,10 @@ EOF
     hr
 
 # ============================================================================ #
+    if [ -n "${NODELETE:-1}" ]; then
+        echo
+        return
+    fi
     echo "Forced Failure Scenarios:"
     echo "sending kill signal to RegionServer"
     docker exec -ti "$DOCKER_CONTAINER" pkill -f RegionServer
@@ -379,5 +416,8 @@ EOF
 for version in $(ci_sample $HBASE_VERSIONS); do
     test_hbase $version
 done
-echo "All HBase Tests Succeeded"
+
+if [ -z "${NOTESTS:-}" ]; then
+    echo "All HBase Tests Succeeded"
+fi
 echo
