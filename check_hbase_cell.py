@@ -194,16 +194,16 @@ class CheckHBaseCell(NagiosPlugin):
 
         if isFloat(value):
             self.check_thresholds(value)
+        self.msg += ' | '
         if self.graph:
-            self.msg += ' | value='
             if isFloat(value):
-                self.msg += '{0}'.format(value)
+                self.msg += 'value={0}'.format(value)
                 if self.units:
                     self.msg += str(self.units)
                 self.msg += self.get_perf_thresholds()
             else:
-                self.msg += 'NaN'
-            self.msg += ' query_time={0}s'.format(query_time)
+                self.msg += 'value=NaN'
+        self.msg += ' query_time={0}s'.format(query_time)
 
 
 if __name__ == '__main__':
