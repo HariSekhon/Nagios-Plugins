@@ -67,7 +67,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckHBaseWrite(CheckHBaseCell):
@@ -113,6 +113,7 @@ class CheckHBaseWrite(CheckHBaseCell):
         log_option('unique generated value', self.value)
 
     def run(self):
+        initial_start = time.time()
         try:
             connect_time = self.connect()
             if self.list_tables:
@@ -132,7 +133,8 @@ class CheckHBaseWrite(CheckHBaseCell):
                 qquit('CRITICAL', _)
         except (socket.timeout, ThriftException) as _:
             qquit('CRITICAL', _)
-        self.output(connect_time)
+        total_time = (time.time() - initial_start) * 1000
+        self.output(connect_time, total_time)
 
     def check_table(self):
         log.info('checking table \'%s\'', self.table)
@@ -167,20 +169,25 @@ class CheckHBaseWrite(CheckHBaseCell):
         self.timings[column]['delete'] = max(self.timings[column].get('delete', 0), query_time)
         return query_time
 
-    def output(self, connect_time):
-        self.msg = "HBase column "
+    def output(self, connect_time, total_time):
+        self.msg = "HBase write test"
         precision = self.precision
-        perfdata = " | connect_time={0:0.{precision}f}ms".format(connect_time, precision=precision)
+        self.msg += " total_time={0:0.{precision}f}ms".format(total_time, precision=precision)
+        self.msg += " connect_time={connect_time:0.{precision}f}ms".format(connect_time=connect_time,
+                                                                           precision=precision)
+        self.msg += ", column family "
+        perfdata = " | total_time={total_time:0.{precision}f}ms connect_time={connect_time:0.{precision}f}ms"\
+                   .format(total_time=total_time, connect_time=connect_time, precision=precision)
         for cf_qf in self.timings:
             column = cf_qf.split(':', 2)[0]
             self.msg += "'{0}'".format(column)
             for action in ['write', 'read', 'delete']:
                 query_time = self.timings[cf_qf][action]
-                self.msg += " {0}={1:0.{precision}f}ms".format(action,
-                                                               query_time,
-                                                               precision=precision)
+                self.msg += " {0}_time={1:0.{precision}f}ms".format(action,
+                                                                    query_time,
+                                                                    precision=precision)
                 self.check_thresholds(self.timings[cf_qf][action])
-                perfdata += " '{0} {1} time'={2:0.{precision}f}ms".format(column,
+                perfdata += " '{0}_{1}_time'={2:0.{precision}f}ms".format(column,
                                                                           action,
                                                                           query_time,
                                                                           precision=precision)
