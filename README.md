@@ -370,7 +370,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 ### See Also ###
 
 * [My Perl library](https://github.com/harisekhon/lib) - used throughout this code as a submodule to make the programs in this repo short
-* [My Python library](https://github.com/harisekhon/pylib) - Python version of the above library
+* [My Python library](https://github.com/harisekhon/pylib) - Python version of the above library, also heavily leveraged to keep programs in this repo short
 * [Spark => Elasticsearch](https://github.com/harisekhon/spark-apps) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of my ```pig-text-to-elasticsearch.pig``` from [Tools](https://github.com/harisekhon/tools)
 
 ### Enterprise Monitoring Systems
