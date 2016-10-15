@@ -37,16 +37,23 @@ import socket
 import traceback
 try:
     # pylint: disable=wrong-import-position
-    import happybase
-    # weird this is only importable after happybase, must global implicit import
-    import Hbase_thrift # pylint: disable=import-error
-    # this is what the happybase module is doing:
-    # pylint still doesn't understand this if I put it ahead of the Hbase_thrift import
-    #import thriftpy as _thriftpy
-    #import pkg_resources as _pkg_resources
-    #_thriftpy.load(
-    #    _pkg_resources.resource_filename('happybase', 'Hbase.thrift'),
-    #    'Hbase_thrift')
+    import happybase  # pylint: disable=unused-import
+    # happybase.hbase.ttypes.IOError no longer there in Happybase 1.0
+    try:
+        # pylint: disable=import-error
+        # this is only importable after happybase module
+        # this is what the happybase module is doing:
+        # pylint still doesn't understand this if I put it ahead of the Hbase_thrift import
+        #import thriftpy as _thriftpy
+        #import pkg_resources as _pkg_resources
+        #_thriftpy.load(
+        #    _pkg_resources.resource_filename('happybase', 'Hbase.thrift'),
+        #    'Hbase_thrift')
+        from Hbase_thrift import IOError as HBaseIOError
+    except ImportError:
+        # probably Happybase <= 0.9
+        # pylint: disable=import-error,no-name-in-module,ungrouped-imports
+        from happybase.hbase.ttypes import IOError as HBaseIOError
     from thriftpy.thrift import TException as ThriftException
 except ImportError as _:
     print('Happybase / thrift module import error - did you forget to build this project?\n\n'
@@ -66,7 +73,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckHBaseTableEnabled(NagiosPlugin):
@@ -91,9 +98,7 @@ class CheckHBaseTableEnabled(NagiosPlugin):
     def get_tables(self):
         try:
             return self.conn.tables()
-        except socket.timeout as _:
-            qquit('CRITICAL', 'error while trying to get table list: {0}'.format(_))
-        except ThriftException as _:
+        except (socket.timeout, ThriftException, HBaseIOError) as _:
             qquit('CRITICAL', 'error while trying to get table list: {0}'.format(_))
 
     def run(self):
@@ -107,10 +112,8 @@ class CheckHBaseTableEnabled(NagiosPlugin):
         try:
             log.info('connecting to HBase Thrift Server at %s:%s', self.host, self.port)
             self.conn = happybase.Connection(host=self.host, port=self.port, timeout=10 * 1000)  # ms
-        except socket.timeout as _:
-            qquit('CRITICAL', _)
-        except ThriftException as _:
-            qquit('CRITICAL', _)
+        except (socket.timeout, ThriftException, HBaseIOError) as _:
+            qquit('CRITICAL', 'error connecting: {0}'.format(_))
         if self.get_opt('list'):
             tables = self.get_tables()
             print('HBase Tables:\n\n' + '\n'.join(tables))
@@ -119,13 +122,13 @@ class CheckHBaseTableEnabled(NagiosPlugin):
         is_enabled = None
         try:
             is_enabled = self.conn.is_table_enabled(self.table)
-        except Hbase_thrift.IOError as _:
+        except HBaseIOError as _:
             #if 'org.apache.hadoop.hbase.TableNotFoundException' in _.message:
             if 'TableNotFoundException' in _.message:
                 qquit('CRITICAL', 'table \'{0}\' does not exist'.format(self.table))
             else:
                 qquit('CRITICAL', _)
-        except ThriftException as _:
+        except (socket.timeout, ThriftException) as _:
             qquit('CRITICAL', _)
 
         if not is_enabled:
