@@ -29,7 +29,9 @@ use HariSekhonUtils qw/:DEFAULT :regex/;
 use Math::Round;
 
 my $errors = 0;
-my $ethtool  = "/sbin/ethtool";
+#my $ethtool  = "/sbin/ethtool";
+# Alpine puts it in /usr/sbin/ethtool instead of /sbin/ethtool like RHEL/Debian based distros
+my $ethtool  = "ethtool";
 my $expected_duplex;
 my $expected_speed;
 my $expected_mtu;
