@@ -42,10 +42,21 @@ import socket
 import sys
 import traceback
 try:
-    import happybase
+    # pylint: disable=wrong-import-position
+    import happybase  # pylint: disable=unused-import
+    # happybase.hbase.ttypes.IOError no longer there in Happybase 1.0
+    try:
+        # this is only importable after happybase module
+        # pylint: disable=import-error
+        from Hbase_thrift import IOError as HBaseIOError
+    except ImportError:
+        # probably Happybase <= 0.9
+        # pylint: disable=import-error,no-name-in-module,ungrouped-imports
+        from happybase.hbase.ttypes import IOError as HBaseIOError
     from thriftpy.thrift import TException as ThriftException
 except ImportError:
-    print(traceback.format_exc(), end='')
+    print('Happybase / thrift module import error - did you forget to build this project?\n\n'
+          + traceback.format_exc(), end='')
     sys.exit(4)
 srcdir = os.path.abspath(os.path.dirname(__file__))
 libdir = os.path.join(srcdir, 'pylib')
@@ -60,7 +71,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckHBaseTableRegionBalance(NagiosPlugin):
@@ -96,10 +107,8 @@ class CheckHBaseTableRegionBalance(NagiosPlugin):
         try:
             log.info('connecting to HBase Thrift Server at %s:%s', host, port)
             self.conn = happybase.Connection(host=host, port=port, timeout=10 * 1000)  # ms
-        except socket.timeout as _:
-            qquit('CRITICAL', _)
-        except ThriftException as _:
-            qquit('CRITICAL', _)
+        except (socket.timeout, ThriftException, HBaseIOError) as _:
+            qquit('CRITICAL', 'error connecting: {0}'.format(_))
         tables = self.conn.tables()
         if len(tables) < 1:
             qquit('CRITICAL', 'no HBase tables found!')
@@ -141,9 +150,7 @@ class CheckHBaseTableRegionBalance(NagiosPlugin):
                 server = region['server_name']
                 self.server_region_counts[server] = self.server_region_counts.get(server, 0)
                 self.server_region_counts[server] += 1
-        except socket.timeout as _:
-            qquit('CRITICAL', _)
-        except ThriftException as _:
+        except (socket.timeout, ThriftException, HBaseIOError) as _:
             qquit('CRITICAL', _)
         except KeyError as _:
             qquit('UNKNOWN', 'failed to process region information. ' + support_msg_api())
