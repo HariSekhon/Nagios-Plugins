@@ -9,9 +9,13 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to test a Linux Interface for errors, promisc mode etc, designed to be run locally on machine over NRPE or similar";
+$DESCRIPTION = "Nagios Plugin to test a Linux Interface for errors, promisc mode etc, designed to be run locally on machine over NRPE or similar
 
-$VERSION = "0.8.9";
+Written for RHEL / CentOS 6, also tested on Debian Wheezy (7) / Jessie (8) and Ubuntu 14.04, 16.04
+
+Updated for RHEL / CentOS 7";
+
+$VERSION = "0.9.0";
 
 use strict;
 use warnings;
@@ -21,7 +25,7 @@ BEGIN {
     use File::Basename;
     use lib dirname(__FILE__) . "/lib";
 }
-use HariSekhonUtils;
+use HariSekhonUtils qw/:DEFAULT :regex/;
 use Math::Round;
 
 my $errors = 0;
@@ -49,7 +53,9 @@ my $short = 0;
 
 get_options();
 
-$interface = validate_interface($interface);
+# TODO: interface naming rules have changed, see new predictable naming conventions and determine if we can actually cover all cases
+#$interface = validate_interface($interface);
+$interface = validate_alnum($interface, "interface");
 my $bond = $interface =~ /^bond\d+$/;
 
 if(defined($expected_duplex)){
@@ -95,14 +101,26 @@ my $mtu;
 
 vlog2 "cmd: $cmd\n";
 open my $fh, "$ifconfig -a 2>&1 |" or quit "UNKNOWN", "failed to run '$ifconfig': $!";
+
 while(<$fh>){
     chomp;
     vlog3 "$_";
-    next until /^$interface\s+Link encap:(\w+)\s+HWaddr ((?:[A-Fa-f0-9]{2}:){5}(?:[A-Fa-f0-9]{2}))\s*$/;
-    $encap = $1;
-    $mac   = $2;
-    $found_interface = 1;
-    last;
+    # RHEL6
+    #if(/^$interface\s+Link encap:(\w+)\s+HWaddr ((?:[A-Fa-f0-9]{2}:){5}(?:[A-Fa-f0-9]{2}))\s*$/){
+    if(/^$interface\s+Link encap:(\w+)\s+HWaddr ($mac_regex)\s*$/){
+        $encap = $1;
+        $mac   = $2;
+        $found_interface = 1;
+        last;
+    # RHEL7
+    } elsif(/^$interface:\s+.*\smtu\s(\d+)\s*$/){
+        $mtu = $1;
+        $found_interface = 1;
+    } elsif(/\bether\s+($mac_regex)\s+.*\((.+)\)\s*$/){
+        $mac = $1;
+        $encap = $2;
+        last;
+    }
 }
 ( $found_interface eq 1 ) or quit "UNKNOWN", "can't find interface '$interface' in output from '$ifconfig' command";
 defined($mac) or quit "UNKNOWN", "can't find MAC address for interface '$interface' in output from '$ifconfig' command";
@@ -120,6 +138,7 @@ while(<$fh>){
             $promisc = "on";
             warning;
         }
+    # RHEL6
     } elsif(/^\s+RX packets:(\d+) errors:(\d+) dropped:(\d+) overruns:(\d+) frame:(\d+)\s*$/){
         $stats{"RX_packets"}  = $1;
         $stats{"RX_errors"}   = $2;
@@ -140,6 +159,24 @@ while(<$fh>){
         $stats{"TX_bytes"}    = $2;
     } elsif(/^\s+Interrupt:(\d+)\s+/){
         $stats{"interrupts"}  = $1;
+    # RHEL7
+    } elsif(/^\s*RX\s+packets\s+(\d+)\s+bytes\s+(\d+)\s/){
+        $stats{"RX_packets"} = $1;
+        $stats{"RX_bytes"}   = $2;
+    } elsif(/^\s*TX\s+packets\s+(\d+)\s+bytes\s+(\d+)\s/){
+        $stats{"TX_packets"} = $1;
+        $stats{"TX_bytes"}   = $1;
+    } elsif(/^\s*RX\s+errors\s+(\d+)\s+dropped\s+(\d+)\s+overruns\s+(\d+)\s+frame\s+(\d+)\s*$/){
+        $stats{"RX_errors"}   = $1;
+        $stats{"RX_dropped"}  = $2;
+        $stats{"RX_overruns"} = $3;
+        $stats{"RX_frame"}    = $4;
+    } elsif(/^\s*TX\s+errors\s+(\d+)\s+dropped\s+(\d+)\s+overruns\s+(\d+)\s+carrier\s+(\d+)\s*collisions\s+(\d+)\s*$/){
+        $stats{"TX_errors"}   = $1;
+        $stats{"TX_dropped"}  = $2;
+        $stats{"TX_overruns"} = $3;
+        $stats{"TX_carrier"}  = $4;
+        $stats{"collisions"}  = $5;
     }
     last if /^\s*$/;
 }
