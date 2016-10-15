@@ -31,7 +31,7 @@ since this is all the Stargate server gives us for a response.
 Another option is to use check_hbase_cell.pl / check_hbase_cell_thrift.pl which uses the Thrift API and has better error reporting
 ";
 
-$VERSION = "0.5";
+$VERSION = "0.6";
 
 use strict;
 use warnings;
@@ -72,10 +72,11 @@ env_creds(["HBASE_STARGATE", "HBASE"], "HBase Stargate Rest API server");
     "C|column=s"    => [ \$column,      "Column family:qualifier to query" ],
     "e|expected=s"  => [ \$expected,    "Expected regex for the cell's value. Optional" ],
     %thresholdoptions,
+    "p|precision=s" => [ \$precision,   "Precision for query timing in decimal places (default: $default_precision)" ],
     "g|graph"       => [ \$graph,       "Graph the cell's value. Optional, use only if a floating point number is normally returned for it's values, otherwise will print NaN (Not a Number). The reason this is not determined automatically is because keys that change between floats and non-floats will result in variable numbers of perfdata tokens which will break PNP4Nagios" ],
     "u|units=s"     => [ \$units,       "Units to use if graphing cell's value. Optional" ],
 );
-@usage_order = qw/host port table row column expected warning critical graph units/;
+@usage_order = qw/host port table row column expected warning critical precision graph units/;
 
 get_options();
 
