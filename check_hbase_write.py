@@ -46,7 +46,8 @@ try:
     # pylint: disable=wrong-import-position
     import happybase  # pylint: disable=unused-import
     # weird this is only importable after happybase, must global implicit import
-    from Hbase_thrift import IOError as HBaseIOError # pylint: disable=import-error
+    # happybase.hbase.ttypes.IOError no longer there in Happybase 1.0
+    from Hbase_thrift import IOError as HBaseIOError  # pylint: disable=import-error
     from thriftpy.thrift import TException as ThriftException
 except ImportError as _:
     print('Happybase / thrift module import error - did you forget to build this project?\n\n'
