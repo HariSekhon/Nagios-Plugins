@@ -185,6 +185,7 @@ apk-packages:
 	$(SUDO) apk update
 	$(SUDO) apk add alpine-sdk
 	$(SUDO) apk add bash
+	$(SUDO) apk add ethtool # for ./check_linux_interface.pl
 	$(SUDO) apk add expat-dev
 	$(SUDO) apk add gcc
 	$(SUDO) apk add git
@@ -218,6 +219,7 @@ apt-packages:
 	$(SUDO) apt-get install -y libwww-perl
 	$(SUDO) apt-get install -y git
 	$(SUDO) apt-get install -y wget
+	$(SUDO) apt-get install -y ethtool # for ./check_linux_interface.pl
 	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 	$(SUDO) apt-get install -y libdbd-mysql-perl
 	$(SUDO) apt-get install -y libmysqlclient-dev
@@ -270,6 +272,7 @@ yum-packages:
 	rpm -q wget              || $(SUDO) yum install -y wget
 	rpm -q tar               || $(SUDO) yum install -y tar
 	rpm -q which             || $(SUDO) yum install -y which
+	rpm -q ethtool           || $(SUDO) yum install -y ethtool # for ./check_linux_interface.pl
 	# to build DBD::mysql if building from CPAN
 	rpm -q mysql-devel 		 || $(SUDO) yum install -y mysql-devel
 	rpm -q perl-DBD-MySQL    || $(SUDO) yum install -y perl-DBD-MySQL
