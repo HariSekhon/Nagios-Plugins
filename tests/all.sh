@@ -35,7 +35,9 @@ cd "$srcdir/..";
 . bash-tools/all.sh
 
 for script in $(find tests -name 'test*.sh'); do
-    #is_CI || $script || :
+    if is_CI; then
+        [ $(($RANDOM % 2)) = 0 ] || continue
+    fi
     $script || :
 done
 
