@@ -35,9 +35,10 @@ cd "$srcdir/..";
 . bash-tools/all.sh
 
 for script in $(find tests -name 'test*.sh'); do
-    is_CI || $script || :
+    #is_CI || $script || :
+    $script || :
 done
 
-is_CI || tests/help.sh
+tests/help.sh
 
 echo "Done"
