@@ -41,6 +41,6 @@ cd "$srcdir/..";
 #    $script || :
 #done
 
-tests/help.sh
+#tests/help.sh
 
 echo "Done"
