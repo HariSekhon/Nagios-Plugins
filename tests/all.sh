@@ -34,12 +34,12 @@ cd "$srcdir/..";
 
 . bash-tools/all.sh
 
-for script in $(find tests -name 'test*.sh'); do
-    if is_CI; then
-        [ $(($RANDOM % 6)) = 0 ] || continue
-    fi
-    $script || :
-done
+#for script in $(find tests -name 'test*.sh'); do
+#    if is_CI; then
+#        [ $(($RANDOM % 6)) = 0 ] || continue
+#    fi
+#    $script || :
+#done
 
 tests/help.sh
 
