@@ -142,7 +142,7 @@ my $check_no_child_znodes = 0;
     "n|null"            => [ \$null,                  "Do not check znode contents, use on null znodes such as SolrCloud /solr/live_nodes/<hostname>:8983_solr as the API segfaults when trying to retrieve data for these null znodes" ],
     "d|data=s"          => [ \$expected_data,         "Check given znode contains specific data (optional). This is a partial substring match, for more control use --regex with anchors. Careful when specifying non-printing characters which may appear as ?, may need to use regex to work around them with \".+\" to match any character" ],
     "r|regex=s"         => [ \$expected_regex,        "Check given znode contains data matching this case insensitive regex (optional). Checked after --data" ],
-    "j|json-field=s"    => [ \$json_field,            "Require json znode contents and extract specific json field to check against --data and/or --regex (use field1.subfield2 for embedded fields, dot can can be escaped with backslash for fields containing a literal dot)" ],
+    "j|json-field=s"    => [ \$json_field,            "Require json znode contents and extract specific json field to check against --data and/or --regex (use field1.subfield2 for embedded fields, dot can be escaped with backslash for fields containing a literal dot)" ],
     "e|ephemeral"       => [ \$check_ephemeral,       "Check given znode is ephemeral (optional)" ],
     "child-znodes"      => [ \$check_child_znodes,    "Check given znode has child znodes (optional)" ],
     "no-child-znodes"   => [ \$check_no_child_znodes, "Check given znode does not have child znodes (optional)" ],
