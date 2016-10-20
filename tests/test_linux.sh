@@ -106,6 +106,18 @@ EOF
     # Alpine doesn't have zoneinfo installation
     docker_exec check_linux_timezone.pl -T UTC -Z /etc/localtime -A UTC -v
     hr
+    if [ "$distro" = "centos" ]; then
+        docker exec "$DOCKER_CONTAINER" yum makecache fast
+        hr
+        docker_exec check_yum.pl -C -v -t 30
+        hr
+        docker_exec check_yum.pl -C --all-updates -v -t 30 || :
+        hr
+        docker_exec check_yum.py -C -v -t 30
+        hr
+        docker_exec check_yum.py -C --all-updates -v -t 30 || :
+        hr
+    fi
     delete_container
 }
 
