@@ -36,7 +36,7 @@ cd "$srcdir/..";
 
 for script in $(find tests -name 'test*.sh'); do
     if is_CI; then
-        [ $(($RANDOM % 6)) = 0 ] || continue
+        [ $(($RANDOM % 5)) = 0 ] || continue
     fi
     time $script || :
 done
