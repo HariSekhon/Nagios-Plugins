@@ -23,6 +23,10 @@ cd "$srcdir/..";
 
 #[ `uname -s` = "Linux" ] || exit 0
 
+# No longer used, done as part of Linux checks now
+return 0 &>/dev/null || :
+exit 0
+
 echo "
 # ============================================================================ #
 #                                     Y u m
