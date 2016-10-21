@@ -13,9 +13,9 @@ $DESCRIPTION = "Nagios Plugin to test a Linux Interface for errors, promisc mode
 
 Written for RHEL / CentOS 6, also tested on Debian Wheezy (7) / Jessie (8) and Ubuntu 14.04, 16.04
 
-Updated for RHEL / CentOS 7";
+Updated for RHEL / CentOS 7 as well as support for checking special interfaces such as loopback, bond and tunnel interfaces";
 
-$VERSION = "0.9.0";
+$VERSION = "0.9.1";
 
 use strict;
 use warnings;
@@ -41,6 +41,7 @@ my $ifconfig = "/sbin/ifconfig";
 my $interface;
 my $promisc = "off";
 my $short = 0;
+my $exempted_interfaces = qr/^(lo|ip|sit|bond)/;
 
 %options = (
     "i|interface=s" => [ \$interface,           "Interface to check (eg. eth0, eth1, bond0 etc)" ],
@@ -58,7 +59,7 @@ get_options();
 # TODO: interface naming rules have changed, see new predictable naming conventions and determine if we can actually cover all cases
 #$interface = validate_interface($interface);
 $interface = validate_alnum($interface, "interface");
-my $bond = $interface =~ /^bond\d+$/;
+$msg = "interface '$interface' ";
 
 if(defined($expected_duplex)){
     $expected_duplex = ucfirst lc $expected_duplex;
@@ -118,17 +119,29 @@ while(<$fh>){
     } elsif(/^$interface:\s+.*\smtu\s(\d+)\s*$/){
         $mtu = $1;
         $found_interface = 1;
-    } elsif(/\bether\s+($mac_regex)\s+.*\((.+)\)\s*$/){
+    } elsif($found_interface and /\b(?:loop|unspec|sit|bond)\b/){
+        last;
+    } elsif($found_interface and /\bether\s+($mac_regex)\s+.*\((.+)\)\s*$/){
         $mac = $1;
         $encap = $2;
         last;
     }
 }
 ( $found_interface eq 1 ) or quit "UNKNOWN", "can't find interface '$interface' in output from '$ifconfig' command";
-defined($mac) or quit "UNKNOWN", "can't find MAC address for interface '$interface' in output from '$ifconfig' command";
-( $encap eq "Ethernet" ) or $msg .= "Encapsulation is '$encap', not Ethernet! ";
-vlog3 "\n$interface Encapsulation: $encap";
-vlog3 "$interface MAC: $mac\n";
+unless(defined($mac)){
+    if($interface !~ $exempted_interfaces){
+        quit "UNKNOWN", "can't find MAC address for interface '$interface' in output from '$ifconfig' command";
+    }
+}
+if(defined($encap)){
+    ( $encap eq "Ethernet" ) or $msg .= "encapsulation is '$encap', not Ethernet! ";
+} elsif($interface =~ $exempted_interfaces){
+    # pass
+} else {
+    quit "UNKNOWN", "can't find encapsulation type for interface '$interface' in output from '$ifconfig' command";
+}
+vlog3 "\n$interface Encapsulation: $encap" if(defined($encap));
+vlog3 "$interface MAC: $mac\n" if(defined($mac));
 vlog3 "ifconfig output for $interface:\n";
 while(<$fh>){
     chomp;
@@ -181,6 +194,13 @@ while(<$fh>){
         $stats{"collisions"}  = $5;
     }
     last if /^\s*$/;
+}
+if($verbose > 2){
+    vlog3 "rest of ifconfig output:";
+    while(<$fh>){
+        chomp;
+        vlog3 "$_";
+    }
 }
 close $fh;
 
@@ -333,6 +353,7 @@ my ($speed, $duplex, $link);
 set_sudo("root");
 $cmd = "$sudo $ethtool $interface 2>&1";
 
+my $no_data_available = 0;
 my @output = cmd($cmd);
 foreach(@output){
     chomp;
@@ -343,19 +364,22 @@ foreach(@output){
         $duplex = $1;
     } elsif(/^\s*Link\s+detected:\s+(\w+)\s*$/){
         $link = $1;
+    } elsif(/No data available/){
+        $no_data_available = 1;
     }
 }
-close $fh;
 vlog2 "\n";
 
 # Speed / Duplex / Link Detected
 
 if(defined($link)){
     unless ($link eq "yes"){
-        quit "CRITICAL", "Link detected: $link ";
+        quit "CRITICAL", "interface '$interface' link detected: $link";
     }
+} elsif($no_data_available and $interface =~ $exempted_interfaces){
+    # pass
 } else {
-    quit "UNKNOWN", "Link status not found in '$ethtool' output! ";
+    quit "UNKNOWN", "Link status not found in '$ethtool' output for interface '$interface'! ";
 }
 
 if(defined($duplex)){
@@ -364,8 +388,10 @@ if(defined($duplex)){
             push(@mismatch, "Duplex");
         }
     }
+} elsif($interface =~ $exempted_interfaces){
+    # pass
 } else {
-    quit "UNKNOWN", "Duplex not found in '$ethtool' output!" unless $bond;
+    quit "UNKNOWN", "Duplex not found in '$ethtool' output for interface '$interface'!";
 }
 
 if(defined($speed)){
@@ -374,8 +400,10 @@ if(defined($speed)){
             push(@mismatch, "Speed");
         }
     }
+} elsif($interface =~ $exempted_interfaces){
+    # pass
 } else {
-    quit "UNKNOWN", "Speed not found in '$ethtool' output!" unless $bond;
+    quit "UNKNOWN", "Speed not found in '$ethtool' output for interface '$interface'!";
 }
 
 my %interface_errors;
@@ -416,24 +444,26 @@ if (defined($expected_promisc) and $promisc ne $expected_promisc){
     $msg .= "(expected $expected_promisc) " unless $short;
     critical;
 }
-unless($bond){
+if(defined($speed)){
     $msg .= "Speed:${speed}Mb/s ";
     $msg .= "(expected:${expected_speed}Mb/s) " if (not $short and defined($expected_speed) and $speed ne $expected_speed);
+}
+if(defined($duplex)){
     $msg .= "Duplex:$duplex ";
     $msg .= "(expected:${expected_duplex}) " if (not $short and defined($expected_duplex) and $duplex ne $expected_duplex);
 }
 $msg .= "MTU:$mtu ";
 $msg .= "(expected:$expected_mtu) " if (not $short and defined($expected_mtu) and $expected_mtu ne $mtu);
-$msg .= "Mac:$mac";
+$msg .= "Mac:$mac " if defined($mac);
 if(!(defined($expected_promisc) and $promisc ne $expected_promisc)){
-    $msg .= " Promisc:$promisc";
+    $msg .= "Promisc:$promisc ";
 }
 if(not $statefile_found) {
-    $msg .= " (state file not found, first run of plugin? - stats will be available from next run)";
+    $msg .= "(state file not found, first run of plugin? - stats will be available from next run)";
 } elsif ($stats_missing){
-    $msg .= " (stats missing from state file, resetting values, should be available from next run)";
+    $msg .= "(stats missing from state file, resetting values, should be available from next run)";
 } else {
-    $msg .= " |";
+    $msg .= "|";
     foreach(sort keys %stats){
         next if ($_ eq "interrupts" and $stats{$_} eq "N/A");
         if(defined($stats_diff{$_})){
