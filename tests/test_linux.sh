@@ -119,27 +119,34 @@ EOF
         hr
     fi
     delete_container
+    echo
 }
 
-section "CentOS"
-for version in $(ci_sample latest); do
-    test_linux centos "$version"
-done
+if [ $# -gt 1 ]; then
+    test_linux "$1" "$2"
+elif [ $# -gt 0 ]; then
+    test_linux "$1" "latest"
+else
+    section "CentOS"
+    for version in $(ci_sample latest); do
+        test_linux centos "$version"
+    done
 
-section "Ubuntu"
-for version in $(ci_sample latest); do
-    test_linux ubuntu "$version"
-done
+    section "Ubuntu"
+    for version in $(ci_sample latest); do
+        test_linux ubuntu "$version"
+    done
 
-section "Debian"
-for version in $(ci_sample latest); do
-    test_linux debian "$version"
-done
+    section "Debian"
+    for version in $(ci_sample latest); do
+        test_linux debian "$version"
+    done
 
-section "Alpine"
-for version in $(ci_sample latest); do
-    test_linux alpine "$version"
-done
+    section "Alpine"
+    for version in $(ci_sample latest); do
+        test_linux alpine "$version"
+    done
+fi
 
 # ============================================================================ #
 #                                     E N D
