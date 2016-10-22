@@ -20,7 +20,7 @@ Can specify a remote host and port otherwise it checks the local node's stats (f
 
 Tested on Cassandra 1.2.9, 2.0.1, 2.0.9, 2.2.5, 3.0.8, 3.5, 3.6, 3.7";
 
-$VERSION = "0.7.0";
+$VERSION = "0.7.1";
 
 use strict;
 use warnings;
@@ -68,7 +68,7 @@ $i++;
 my @stats;
 foreach(; $i < scalar @output; $i++){
     $output[$i] =~ /^\s*$/ and $i++ and last;
-    $output[$i] =~ /^([\w-]+(?:\s[A-Za-z]+)?)\s+(\d+)\s+(\d+)\s+(\d+)(?:\s+(\d+)\s+(\d+))?\s*$/ or die_nodetool_unrecognized_output($output[$i]);
+    $output[$i] =~ /^(\w[\w\#-]+(?:\s[A-Za-z]+)?)\s+(\d+)\s+(\d+)\s+(\d+)(?:\s+(\d+)\s+(\d+))?\s*$/ or die_nodetool_unrecognized_output($output[$i]);
     push(@stats,
         (
             { "$1_Blocked"          => $5, },
@@ -105,7 +105,7 @@ foreach(my $i = 0; $i < scalar @stats2; $i++){
     foreach my $stat3 ($stats2[$i]){
         foreach my $key (keys %$stat3){
             $msg2 = "$key=$$stat3{$key} ";
-            $msg3 .= $msg2;
+            $msg3 .= "'$key'=$$stat3{$key} ";
             if($key =~ /Pending|Blocked/i){
                 ($thresholds_ok, $thresholds_msg) = check_thresholds($$stat3{$key}, 1);
                 unless($thresholds_ok){
