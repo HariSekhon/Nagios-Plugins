@@ -32,9 +32,7 @@ and NoSQL technologies ([Cassandra](http://cassandra.apache.org/),
 [Elasticsearch](https://www.elastic.co/products/elasticsearch)
 ...) etc.
 
-These programs can also be run standalone on the command line as tools and used in scripts as well as run in a variety of [enterprise monitoring systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems).
-
-This should be the next stop after installing Nagios with it's basic plugins.
+Can be used to extend a variety of [enterprise monitoring systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems) or even standalone on the command line, in scripts etc.
 
 I also take suggestions for interesting new plugins or those involving interesting open source technologies.
 
@@ -388,6 +386,8 @@ The following enterprise monitoring systems are compatible with this project:
 * [Shinken](http://www.shinken-monitoring.org/) - a Nagios core reimplementation in Python
 
 * [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program.
+
+* [Microsoft SCOM](https://www.microsoft.com/en-us/cloud-platform/system-center) - Microsoft Systems Center Operations Manager, can run Nagios Plugins as arbitrary Unix shell scripts with health/warning/error expression checks, see the [doc here](https://technet.microsoft.com/en-us/library/jj126087(v=sc.12).aspx).
 
 ##### Datameer
 
