@@ -15,6 +15,8 @@ Largest collection of Hadoop & NoSQL monitoring code, written by a former Cloude
 
 Hadoop and extensive API integration with all major Hadoop vendors ([Hortonworks](http://www.hortonworks.com), [Cloudera](http://www.cloudera.com), [MapR](http://www.mapr.com), [IBM BigInsights](http://www-03.ibm.com/software/products/en/ibm-biginsights-for-apache-hadoop)).
 
+Extends a variety of [compatible Enterprise Monitoring Systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems), can also be used standalone on the command line, in scripts etc.
+
 I've been developing this Nagios Plugin Collection since 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
 
 It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web Infrastructure,
@@ -31,8 +33,6 @@ and NoSQL technologies ([Cassandra](http://cassandra.apache.org/),
 [Solr / SolrCloud](http://lucene.apache.org/solr/),
 [Elasticsearch](https://www.elastic.co/products/elasticsearch)
 ...) etc.
-
-Can be used to extend a variety of [enterprise monitoring systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems) or even standalone on the command line, in scripts etc.
 
 Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/harisekhon/nagios-plugins/issues) or [pull requests](https://github.com/harisekhon/nagios-plugins/pulls).
 
