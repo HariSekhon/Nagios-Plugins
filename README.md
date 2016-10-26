@@ -34,9 +34,7 @@ and NoSQL technologies ([Cassandra](http://cassandra.apache.org/),
 
 Can be used to extend a variety of [enterprise monitoring systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems) or even standalone on the command line, in scripts etc.
 
-I also take suggestions for interesting new plugins or those involving interesting open source technologies.
-
-[Github pull requests](https://github.com/harisekhon/nagios-plugins/pulls) for patches and features are more than welcome.
+Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/harisekhon/nagios-plugins/issues) or [pull requests](https://github.com/harisekhon/nagios-plugins/pulls).
 
 Hari Sekhon
 
