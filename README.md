@@ -17,7 +17,7 @@ Hadoop and extensive API integration with all major Hadoop vendors ([Hortonworks
 
 Extends a variety of [compatible Enterprise Monitoring Systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems), can also be used standalone on the command line, in scripts etc.
 
-Most enterprise monitoring systems come with very basic checks, so this extends their monitoring capabilities significantly further especially in to the application layer, APIs etc.
+Most enterprise monitoring systems come with basic generic checks, while this project extends their monitoring capabilities significantly further in to advanced infrastructure, application layer, APIs etc.
 
 It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web Infrastructure,
 [Hadoop](http://hadoop.apache.org/),
