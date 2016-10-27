@@ -210,6 +210,7 @@ apk-packages-remove:
 	$(SUDO) apk del openssl-dev
 	$(SUDO) apk del perl-dev
 	$(SUDO) apk del wget
+	$(SUDO) rm -fr /var/cache/apk/*
 
 .PHONY: apt-packages
 apt-packages:
