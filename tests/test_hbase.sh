@@ -281,7 +281,7 @@ EOF
     hr
     $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
     hr
-    $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics
+    $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics | sed 's/|.*$//' # too long exceeds Travis CI max log length due to the 100 region HexStringSplitTable multiplying out the available metrics
     hr
     $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --all-metrics
     #hr
