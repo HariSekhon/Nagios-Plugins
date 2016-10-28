@@ -39,10 +39,13 @@ endif
 .PHONY: build
 # space here prevents weird validation warning from check_makefile.sh => Makefile:40: warning: undefined variable `D'
 build :
-	make submodules
-	make system-packages
+	make common
 	make perl-libs
 	make python-libs
+
+common:
+	make submodules
+	make system-packages
 
 .PHONY: submodules
 submodules:
@@ -57,8 +60,7 @@ system-packages:
 	
 .PHONY: perl
 perl:
-	make submodules
-	make system-packages
+	make common
 	make perl-libs
 
 .PHONY: perl-libs
@@ -175,8 +177,7 @@ perl-libs:
 
 .PHONY: python
 python:
-	make submodules
-	make system-packages
+	make common
 	make python-libs
 
 .PHONY: python-libs
