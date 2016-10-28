@@ -301,7 +301,7 @@ yum-packages:
 	rpm -q libffi-devel	     || $(SUDO) yum install -y libffi-devel
 	# needed to build pyhs2
 	# libgsasl-devel saslwrapper-devel
-	rpm -q cyrus-sasl-devel  || $(SUDO) yum install -y cyrus-sasl-devel
+	rpm -q cyrus-sasl-devel  || $(SUDO) yum install -y cyrus-sasl-devel || : # breaks on CentOS 7.0 on Docker, fakesystemd conflicts with systemd, 7.2 works though
 	# for check_yum.pl / check_yum.py
 	rpm -q yum-security yum-plugin-security || yum install -y yum-security yum-plugin-security
 
