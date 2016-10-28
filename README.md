@@ -89,7 +89,7 @@ Also be aware this has become quite a large project and will take at least 10 mi
 Make sure /usr/local/bin is in your $PATH when running make as otherwise it'll fail to find ```cpanm```
 -->
 
-This automated build will use 'sudo' to install all required Perl & Python libraries from CPAN & PyPI respectively. If you want to install some of the common Perl CPAN or Python PyPI libraries such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN / PyPI then follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead.
+This automated build will use 'sudo' to install all required Perl & Python libraries to the system unless running inside Perlbrew or VirtualEnv. If you want to install some of the common Perl CPAN or Python PyPI libraries such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN / PyPI then follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead.
 
 If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.8, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
 
