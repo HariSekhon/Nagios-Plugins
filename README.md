@@ -68,16 +68,28 @@ cd nagios-plugins
 make
 ```
 
-Don't copy plugins out as most require the co-located libraries I've written so you should ```git clone && make``` each time or use Docker - it's much simpler.
+It's also possible to build for just the Perl or Python part of the project if you're only interested in one or two programs, it'll be quicker to do
 
-Be aware the ```make``` build will install yum rpms / apt debs automatically as well as a load of CPAN modules for Perl. If you don't want all that stuff automatically installed you must follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead. You may need to install the GNU make system package if the ```make``` command isn't found (```yum install make``` / ```apt-get install make```)
+```
+make perl
+```
+
+or
+
+```
+make python
+```
+
+Don't copy plugins out as most require the co-located libraries I've written so you should ```git clone && make``` on each machine you deploy this code to or just use Docker - it's much simpler.
+
+Be aware the ```make``` build will install yum rpms / apt debs automatically as well as a load of Perl CPAN & Python PyPI libraries. If you don't want all that stuff automatically installed you must follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead. You may need to install the GNU make system package if the ```make``` command isn't found (```yum install make``` / ```apt-get install make```)
 
 Also be aware this has become quite a large project and will take at least 10 minutes to build. Just be glad it's automated and tested on RHEL/CentOS 5/6/7 & Debian/Ubuntu systems. Build will work on Mac OS X too but will not handle system package dependencies.
 <!--
 Make sure /usr/local/bin is in your $PATH when running make as otherwise it'll fail to find ```cpanm```
 -->
 
-This automated build will use 'sudo' to install all required Perl modules from CPAN and then initialize my library git repo as a submodule. If you want to install some of the common Perl CPAN modules such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN then follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead.
+This automated build will use 'sudo' to install all required Perl & Python libraries from CPAN & PyPI respectively. If you want to install some of the common Perl CPAN or Python PyPI libraries such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN / PyPI then follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead.
 
 If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.8, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
 
