@@ -93,8 +93,6 @@ build :
 		Class::Accessor \
 		Compress::Snappy \
 		Proc::Daemon \
-		DBD::mysql \
-		DBI \
 		Data::Dumper \
 		Devel::CheckLib \
 		Digest::Adler32 \
@@ -143,6 +141,9 @@ build :
 		XML::SAX \
 		XML::Simple \
 		;
+	# finicky on Alpine and installed via packages on all major distros now
+		#DBD::mysql \
+		#DBI \
 	# downgrading Net::DNS as a workaround for taint mode bug:
 	# https://rt.cpan.org/Public/Bug/Display.html?id=114819
 	#$(SUDO2) $(CPANM) --notest Net::DNS@1.05 \
