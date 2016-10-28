@@ -39,15 +39,31 @@ endif
 .PHONY: build
 # space here prevents weird validation warning from check_makefile.sh => Makefile:40: warning: undefined variable `D'
 build :
+	make submodules
+	make system-packages
+	make perl-libs
+	make python-libs
+
+.PHONY: submodules
+submodules:
+	git submodule init
+	git submodule update --recursive
+
+.PHONY: system-packages
+system-packages:
 	if [ -x /sbin/apk ];        then make apk-packages; fi
 	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
 	if [ -x /usr/bin/yum ];     then make yum-packages; fi
 	
-	git submodule init
-	git submodule update --recursive
+.PHONY: perl
+perl:
+	make submodules
+	make system-packages
+	make perl-libs
 
+.PHONY: perl-libs
+perl-libs:
 	cd lib && make
-	cd pylib && make
 
 	# There are problems with the tests for this module dependency of Net::Async::CassandraCQL, forcing install works and allows us to use check_cassandra_write.pl
 	#sudo cpan -f IO::Async::Stream
@@ -156,6 +172,16 @@ build :
 
 	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
 	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' $$libfilepath || $(SUDO2) sed -i.bak "s/use strict;/use strict; use Socket;/" $$libfilepath
+
+.PHONY: python
+python:
+	make submodules
+	make system-packages
+	make python-libs
+
+.PHONY: python-libs
+python-libs:
+	cd pylib && make
 
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
