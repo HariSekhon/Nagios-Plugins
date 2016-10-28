@@ -211,34 +211,38 @@ python-libs:
 .PHONY: apk-packages
 apk-packages:
 	$(SUDO) apk update
-	$(SUDO) apk add alpine-sdk
-	$(SUDO) apk add bash
-	$(SUDO) apk add ethtool # for ./check_linux_interface.pl
-	$(SUDO) apk add expat-dev
-	$(SUDO) apk add gcc
-	$(SUDO) apk add git
-	$(SUDO) apk add libxml2-dev
-	$(SUDO) apk add make
-	$(SUDO) apk add mariadb-dev
-	$(SUDO) apk add openssl-dev
-	$(SUDO) apk add perl
-	$(SUDO) apk add perl-dev
-	$(SUDO) apk add perl-dbd-mysql
-	$(SUDO) apk add py-mysqldb
-	$(SUDO) apk add py-pip
-	$(SUDO) apk add ruby
-	$(SUDO) apk add wget
+	# ethtool needed for ./check_linux_interface.pl
+	$(SUDO) apk add \
+		alpine-sdk \
+		bash \
+		ethtool \
+		expat-dev \
+		gcc \
+		git \
+		libxml2-dev \
+		make \
+		mariadb-dev \
+		openssl-dev \
+		perl \
+		perl-dev \
+		perl-dbd-mysql \
+		py-mysqldb \
+		py-pip \
+		ruby \
+		wget
 
 .PHONY: apk-packages-remove
 apk-packages-remove:
 	cd lib && make apk-packages-remove
-	$(SUDO) apk del alpine-sdk
-	$(SUDO) apk del expat-dev
-	$(SUDO) apk del libxml2-dev
-	$(SUDO) apk del mariadb-dev
-	$(SUDO) apk del openssl-dev
-	$(SUDO) apk del perl-dev
-	$(SUDO) apk del wget
+	$(SUDO) apk del \
+		alpine-sdk \
+		expat-dev \
+		libxml2-dev \
+		mariadb-dev \
+		openssl-dev \
+		perl-dev \
+		wget \
+		|| :
 	$(SUDO) rm -fr /var/cache/apk/*
 
 .PHONY: apt-packages
