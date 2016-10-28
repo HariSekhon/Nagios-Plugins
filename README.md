@@ -68,17 +68,7 @@ cd nagios-plugins
 make
 ```
 
-It's also possible to build for just the Perl or Python part of the project if you're only interested in one or two programs, it'll be quicker to do
-
-```
-make perl
-```
-
-or
-
-```
-make python
-```
+To build just the Perl or Python dependencies for the project you can do ``` make perl ``` or ``` make python ```.
 
 Don't copy plugins out as most require the co-located libraries I've written so you should ```git clone && make``` on each machine you deploy this code to or just use Docker - it's much simpler.
 
