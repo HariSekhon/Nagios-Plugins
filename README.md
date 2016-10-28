@@ -15,7 +15,9 @@ Largest collection of Hadoop & NoSQL monitoring code, written by a former Cloude
 
 Hadoop and extensive API integration with all major Hadoop vendors ([Hortonworks](http://www.hortonworks.com), [Cloudera](http://www.cloudera.com), [MapR](http://www.mapr.com), [IBM BigInsights](http://www-03.ibm.com/software/products/en/ibm-biginsights-for-apache-hadoop)).
 
-I've been developing this Nagios Plugin Collection since 2006. The basic Nagios plugins collection that you get with Nagios is a great base to start from to cover some of the basics, while this extends Nagios monitoring capabilities significantly further especially in to the application layer, APIs etc.
+Extends a variety of [compatible Enterprise Monitoring Systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems), can also be used standalone on the command line, in scripts etc.
+
+Most enterprise monitoring systems come with basic generic checks, while this project extends their monitoring capabilities significantly further in to advanced infrastructure, application layer, APIs etc.
 
 It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web Infrastructure,
 [Hadoop](http://hadoop.apache.org/),
@@ -32,11 +34,7 @@ and NoSQL technologies ([Cassandra](http://cassandra.apache.org/),
 [Elasticsearch](https://www.elastic.co/products/elasticsearch)
 ...) etc.
 
-Can be used to extend a variety of [enterprise monitoring systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems) or even standalone on the command line, in scripts etc.
-
-I also take suggestions for interesting new plugins or those involving interesting open source technologies.
-
-[Github pull requests](https://github.com/harisekhon/nagios-plugins/pulls) for patches and features are more than welcome.
+Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/harisekhon/nagios-plugins/issues) or [pull requests](https://github.com/harisekhon/nagios-plugins/pulls).
 
 Hari Sekhon
 
@@ -81,7 +79,7 @@ Make sure /usr/local/bin is in your $PATH when running make as otherwise it'll f
 
 This automated build will use 'sudo' to install all required Perl modules from CPAN and then initialize my library git repo as a submodule. If you want to install some of the common Perl CPAN modules such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN then follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead.
 
-If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.6, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
+If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.8, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
 
 ```
 make zookeeper
@@ -225,7 +223,7 @@ The above listed programs require the Net::ZooKeeper Perl CPAN module but this i
 
 ```
 # install C client library
-export ZOOKEEPER_VERSION=3.4.7
+export ZOOKEEPER_VERSION=3.4.8
 [ -f zookeeper-$ZOOKEEPER_VERSION.tar.gz ] || wget -O zookeeper-$ZOOKEEPER_VERSION.tar.gz http://www.mirrorservice.org/sites/ftp.apache.org/zookeeper/zookeeper-$ZOOKEEPER_VERSION/zookeeper-$ZOOKEEPER_VERSION.tar.gz
 tar zxvf zookeeper-$ZOOKEEPER_VERSION.tar.gz
 cd zookeeper-$ZOOKEEPER_VERSION/src/c
@@ -387,7 +385,7 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program.
 
-* [Microsoft SCOM](https://www.microsoft.com/en-us/cloud-platform/system-center) - Microsoft Systems Center Operations Manager, can run Nagios Plugins as arbitrary Unix shell scripts with health/warning/error expression checks, see the [doc here](https://technet.microsoft.com/en-us/library/jj126087(v=sc.12).aspx).
+* [Microsoft SCOM](https://www.microsoft.com/en-us/cloud-platform/system-center) - Microsoft Systems Center Operations Manager, can run Nagios Plugins as arbitrary Unix shell scripts with health/warning/error expression checks, see the [documentation](https://technet.microsoft.com/en-us/library/jj126087(v=sc.12).aspx).
 
 ##### Datameer
 

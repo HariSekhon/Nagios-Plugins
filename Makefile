@@ -93,9 +93,8 @@ build :
 		Class::Accessor \
 		Compress::Snappy \
 		Proc::Daemon \
-		DBD::mysql \
-		DBI \
 		Data::Dumper \
+		DBI \
 		Devel::CheckLib \
 		Digest::Adler32 \
 		Digest::CRC \
@@ -143,6 +142,8 @@ build :
 		XML::SAX \
 		XML::Simple \
 		;
+	# finicky on Alpine and installed via packages on all major distros now
+		#DBD::mysql \
 	# downgrading Net::DNS as a workaround for taint mode bug:
 	# https://rt.cpan.org/Public/Bug/Display.html?id=114819
 	#$(SUDO2) $(CPANM) --notest Net::DNS@1.05 \
@@ -195,6 +196,7 @@ apk-packages:
 	$(SUDO) apk add openssl-dev
 	$(SUDO) apk add perl
 	$(SUDO) apk add perl-dev
+	$(SUDO) apk add perl-dbd-mysql
 	$(SUDO) apk add py-mysqldb
 	$(SUDO) apk add py-pip
 	$(SUDO) apk add ruby
@@ -210,6 +212,7 @@ apk-packages-remove:
 	$(SUDO) apk del openssl-dev
 	$(SUDO) apk del perl-dev
 	$(SUDO) apk del wget
+	$(SUDO) rm -fr /var/cache/apk/*
 
 .PHONY: apt-packages
 apt-packages:
