@@ -43,6 +43,7 @@ build :
 	make perl-libs
 	make python-libs
 
+.PHONY: common
 common:
 	make submodules
 	make system-packages
