@@ -55,6 +55,7 @@ if is_CI; then
 fi
 
 upload_logs(){
+    return 0
     if is_CI; then
         echo "uploading logs:"
         curl -sT "$log" transfer.sh || :
