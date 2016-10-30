@@ -34,8 +34,8 @@ cd "$srcdir/..";
 
 . bash-tools/all.sh
 
-#is_travis || time tests/help.sh
-time tests/help.sh
+is_travis || time tests/help.sh
+#time tests/help.sh
 
 for script in $(find tests -name 'test*.sh'); do
     if is_CI; then
