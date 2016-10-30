@@ -41,6 +41,6 @@ for script in $(find tests -name 'test*.sh'); do
     time $script || :
 done
 
-time tests/help.sh
+is_travis || time tests/help.sh
 
 echo "Done"
