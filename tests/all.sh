@@ -34,13 +34,14 @@ cd "$srcdir/..";
 
 . bash-tools/all.sh
 
+#is_travis || time tests/help.sh
+time tests/help.sh
+
 for script in $(find tests -name 'test*.sh'); do
     if is_CI; then
-        [ $(($RANDOM % 2)) = 0 ] || continue
+        [ $(($RANDOM % 3)) = 0 ] || continue
     fi
     time $script || :
 done
-
-is_travis || time tests/help.sh
 
 echo "Done"
