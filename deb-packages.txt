@@ -1,0 +1,50 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                            Deb Package Requirements
+# ============================================================================ #
+
+# needed to fetch and build CPAN modules and fetch the library submodule at end of build
+build-essential
+libwww-perl
+git
+wget
+# ethtool needed for ./check_linux_interface.pl
+ethtool
+# for LWP::Authenticate - prompts for realm + KDC, use libkrb5-dev instead
+#krb5-config
+libkrb5-dev
+# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
+libdbd-mysql-perl
+libmysqlclient-dev
+# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
+libssl-dev
+libsasl2-dev
+# for XML::Simple building
+libexpat1-dev
+# needed for ndg-httpsclient upgrade
+libffi-dev
+# for ndg-httpsclient
+python-pyasn1
+# Class::Accessor pre-packaged
+#libclass-accessor-perl
+python-setuptools
+python-pip
+python-dev
+# for Cassandra's Python driver
+#libev4
+#libev-dev
+#libsnappy-dev
+
+# for check_whois.pl - looks like this has been removed from repos :-/
+# trying in Makefile with error suppression
+#jwhois
