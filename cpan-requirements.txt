@@ -38,7 +38,6 @@
 # You may need to set this to get the DBD::mysql module to install if you have mysql installed locally to /usr/local/mysql
 #export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/usr/local/mysql/lib/"
 
-# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
 # Redis module required but didn't auto-pull: ExtUtils::Config ExtUtils::Helpers ExtUtils::InstallPaths TAP::Harness::Env Module::Build::Tiny Sub::Name
 # Kafka module required but didn't auto-pull: ExtUtils::Config, ExtUtils::Helpers, ExtUtils::InstallPaths, TAP::Harness::Env, Module::Build::Tiny, Sub::Exporter::Progressive, Const::Fast, Exporter::Tiny, List::MoreUtils, Devel::CheckLib, Compress::Snappy, Sub::Name
 # Module::CPANfile::Result and Module::Install::Admin are needed for Hijk which is auto-pulled by Search::Elasticsearch but doesn't auto-pull Module::CPANfile::Result
@@ -46,12 +45,9 @@
 # Proc::Daemon needed by Kafka::TestInternals
 # Proc::Daemon fails on tests, force install anyway to appease Travis
 
-YAML
-Module::Build::Tiny
-Const::Fast
 Class::Accessor
 Compress::Snappy
-Proc::Daemon
+Const::Fast
 Data::Dumper
 DBI
 # finicky on Alpine and installed via packages on all major distros now
@@ -78,6 +74,7 @@ LWP::Simple
 LWP::UserAgent
 List::MoreUtils
 Math::Round
+Module::Build::Tiny
 Module::CPANfile::Result
 Module::Install::Admin
 MongoDB
@@ -90,6 +87,7 @@ Net::LDAP
 Net::LDAPI
 Net::LDAPS
 Net::SSH::Expect
+Proc::Daemon
 Readonly
 Readonly::XS
 # newer versions of the Redis module require Perl >= 5.10, this will install the older compatible version for RHEL5/CentOS5 servers still running Perl 5.8 if the latest module fails
@@ -108,3 +106,4 @@ Type::Tiny::XS
 URI::Escape
 XML::SAX
 XML::Simple
+YAML
