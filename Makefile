@@ -102,7 +102,7 @@ perl-libs:
 	# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
 	
 	which cpanm || { yes "" | $(SUDO2) cpan App::cpanminus; }
-	yes "" | $(SUDO2) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < cpan-requirements.txt`
+	yes "" | $(SUDO2) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < setup/cpan-requirements.txt`
 	
 	# newer versions of the Redis module require Perl >= 5.10, this will install the older compatible version for RHEL5/CentOS5 servers still running Perl 5.8 if the latest module fails
 	# the backdated version might not be the perfect version, found by digging around in the git repo
@@ -153,25 +153,25 @@ elasticsearch2:
 .PHONY: apk-packages
 apk-packages:
 	$(SUDO) apk update
-	$(SUDO) apk add `sed 's/#.*//; /^[[:space:]]*$$/d' < apk-packages.txt`
+	$(SUDO) apk add `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/apk-packages.txt`
 
 .PHONY: apk-packages-remove
 apk-packages-remove:
 	cd lib && make apk-packages-remove
-	$(SUDO) apk del `sed 's/#.*//; /^[[:space:]]*$$/d' < apk-packages-dev.txt` || :
+	$(SUDO) apk del `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/apk-packages-dev.txt` || :
 	$(SUDO) rm -fr /var/cache/apk/*
 
 .PHONY: apt-packages
 apt-packages:
 	$(SUDO) apt-get update
-	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' < deb-packages.txt`
+	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/deb-packages.txt`
 	# for check_whois.pl - looks like this has been removed from repos :-/
 	$(SUDO) apt-get install -y jwhois || :
 
 .PHONY: apt-packages-remove
 apt-packages-remove:
 	cd lib && make apt-packages-remove
-	$(SUDO) apt-get purge -y `sed 's/#.*//; /^[[:space:]]*$$/d' < deb-packages-dev.txt`
+	$(SUDO) apt-get purge -y `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/deb-packages-dev.txt`
 
 .PHONY: yum-packages
 yum-packages:
@@ -183,7 +183,7 @@ yum-packages:
 	# must instead do wget 
 	rpm -q epel-release      || yum install -y epel-release || { wget -t 100 --retry-connrefused -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`grep -o '[[:digit:]]' /etc/*release | head -n1`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
 
-	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < rpm-packages.txt`; do rpm -q $$x || $(SUDO) yum install -y $$x; done
+	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/rpm-packages.txt`; do rpm -q $$x || $(SUDO) yum install -y $$x; done
 
 	# breaks on CentOS 7.0 on Docker, fakesystemd conflicts with systemd, 7.2 works though
 	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel || :
@@ -194,7 +194,7 @@ yum-packages:
 .PHONY: yum-packages-remove
 yum-packages-remove:
 	cd lib && make yum-packages-remove
-	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < rpm-packages-dev.txt`; do rpm -q $$x && $(SUDO) yum remove -y $$x; done
+	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/rpm-packages-dev.txt`; do rpm -q $$x && $(SUDO) yum remove -y $$x; done
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
 # doesn't build on Mac < 3.4.7 / 3.5.1 / 3.6.0 but the others are in the public mirrors yet
