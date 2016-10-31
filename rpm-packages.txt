@@ -1,0 +1,66 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                            RPM Package Requirements
+# ============================================================================ #
+
+epel-release
+wget
+gcc
+gcc-c++
+perl-CPAN
+perl-libwww-perl
+tar
+which
+
+# ethtool for ./check_linux_interface.pl
+ethtool
+
+# to build DBD::mysql if building from CPAN
+mysql-devel
+perl-DBD-MySQL
+
+# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
+openssl-devel
+
+# for XML::Simple building
+expat-devel
+
+# for ndg-httpsclient
+python-pyasn1
+
+# for check_whois.pl
+jwhois
+
+# only available on EPEL in CentOS 5
+git
+python-setuptools
+python-pip
+python-devel
+
+# for Cassandra's Python driver
+#libev
+#libev-devel
+#snappy-devel
+
+# needed for ndg-httpsclient upgrade
+libffi-devel
+
+# needed to build pyhs2
+# libgsasl-devel saslwrapper-devel
+
+# breaks on CentOS 7.0 on Docker, fakesystemd conflicts with systemd, 7.2 works though
+#cyrus-sasl-devel
+
+# for check_yum.pl / check_yum.py
+#yum-security
+#yum-plugin-security
