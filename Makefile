@@ -209,6 +209,11 @@ python-libs:
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins)"
 
+.PHONY: elasticsearch2
+elasticsearch2:
+	$(SUDO3) pip install --upgrade 'elasticsearch>=2.0.0,<3.0.0'
+	$(SUDO3) pip install --upgrade 'elasticsearch-dsl>=2.0.0,<3.0.0'
+
 .PHONY: apk-packages
 apk-packages:
 	$(SUDO) apk update
