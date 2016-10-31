@@ -153,148 +153,48 @@ elasticsearch2:
 .PHONY: apk-packages
 apk-packages:
 	$(SUDO) apk update
-	# ethtool needed for ./check_linux_interface.pl
-	$(SUDO) apk add \
-		alpine-sdk \
-		bash \
-		ethtool \
-		expat-dev \
-		gcc \
-		git \
-		libxml2-dev \
-		make \
-		mariadb-dev \
-		openssl-dev \
-		perl \
-		perl-dev \
-		perl-dbd-mysql \
-		py-mysqldb \
-		py-pip \
-		ruby \
-		wget
+	$(SUDO) apk add `sed 's/#.*//; /^[[:space:]]*$$/d' < apk-packages.txt`
 
 .PHONY: apk-packages-remove
 apk-packages-remove:
 	cd lib && make apk-packages-remove
-	$(SUDO) apk del \
-		alpine-sdk \
-		expat-dev \
-		libxml2-dev \
-		mariadb-dev \
-		openssl-dev \
-		perl-dev \
-		wget \
-		|| :
+	$(SUDO) apk del `sed 's/#.*//; /^[[:space:]]*$$/d' < apk-packages-dev.txt` || :
 	$(SUDO) rm -fr /var/cache/apk/*
 
 .PHONY: apt-packages
 apt-packages:
 	$(SUDO) apt-get update
-	# needed to fetch and build CPAN modules and fetch the library submodule at end of build
-	$(SUDO) apt-get install -y build-essential
-	$(SUDO) apt-get install -y libwww-perl
-	$(SUDO) apt-get install -y git
-	$(SUDO) apt-get install -y wget
-	$(SUDO) apt-get install -y ethtool # for ./check_linux_interface.pl
-	# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
-	$(SUDO) apt-get install -y libdbd-mysql-perl
-	$(SUDO) apt-get install -y libmysqlclient-dev
-	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	$(SUDO) apt-get install -y libssl-dev
-	$(SUDO) apt-get install -y libsasl2-dev
-	# for XML::Simple building
-	$(SUDO) apt-get install -y libexpat1-dev
-	# for ndg-httpsclient
-	$(SUDO) apt-get install -y python-pyasn1
-	# Class::Accessor pre-packaged
-	#$(SUDO) apt-get install libclass-accessor-perl
+	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' < deb-packages.txt`
 	# for check_whois.pl - looks like this has been removed from repos :-/
 	$(SUDO) apt-get install -y jwhois || :
-	# for LWP::Authenticate
-	#apt-get install -y krb5-config # prompts for realm + KDC, use libkrb5-dev instead
-	$(SUDO) apt-get install -y libkrb5-dev
-	# for Cassandra's Python driver
-	$(SUDO) apt-get install -y python-setuptools
-	$(SUDO) apt-get install -y python-pip
-	$(SUDO) apt-get install -y python-dev
-	$(SUDO) apt-get install -y libev4
-	$(SUDO) apt-get install -y libev-dev
-	$(SUDO) apt-get install -y libsnappy-dev
-	# needed for ndg-httpsclient upgrade
-	$(SUDO) apt-get install -y libffi-dev
 
 .PHONY: apt-packages-remove
 apt-packages-remove:
 	cd lib && make apt-packages-remove
-	$(SUDO) apt-get install -y build-essential
-	$(SUDO) apt-get install -y wget
-	$(SUDO) apt-get install -y libmysqlclient-dev
-	$(SUDO) apt-get install -y libssl-dev
-	$(SUDO) apt-get install -y libsasl2-dev
-	$(SUDO) apt-get install -y libexpat1-dev
-	$(SUDO) apt-get install -y libkrb5-dev
-	$(SUDO) apt-get install -y python-dev
-	$(SUDO) apt-get install -y libev-dev
-	$(SUDO) apt-get install -y libsnappy-dev
-	$(SUDO) apt-get install -y libffi-dev
+	$(SUDO) apt-get purge -y `sed 's/#.*//; /^[[:space:]]*$$/d' < deb-packages-dev.txt`
 
 .PHONY: yum-packages
 yum-packages:
-	rpm -q gcc               || $(SUDO) yum install -y gcc
-	rpm -q gcc-c++           || $(SUDO) yum install -y gcc-c++
-	rpm -q perl-CPAN         || $(SUDO) yum install -y perl-CPAN
-	rpm -q perl-libwww-perl  || $(SUDO) yum install -y perl-libwww-perl
 	# to fetch and untar ZooKeeper, plus wget epel rpm
-	rpm -q wget              || $(SUDO) yum install -y wget
-	rpm -q tar               || $(SUDO) yum install -y tar
-	rpm -q which             || $(SUDO) yum install -y which
-	rpm -q ethtool           || $(SUDO) yum install -y ethtool # for ./check_linux_interface.pl
-	# to build DBD::mysql if building from CPAN
-	rpm -q mysql-devel 		 || $(SUDO) yum install -y mysql-devel
-	rpm -q perl-DBD-MySQL    || $(SUDO) yum install -y perl-DBD-MySQL
-	# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-	rpm -q openssl-devel     || $(SUDO) yum install -y openssl-devel
-	# for XML::Simple building
-	rpm -q expat-devel       || $(SUDO) yum install -y expat-devel
-	# for ndg-httpsclient
-	rpm -q python-pyasn1     || $(SUDO) yum install -y python-pyasn1
-	# for Cassandra's Python driver
+	rpm -q wget || yum install -y wget
+	
 	# python-pip requires EPEL, so try to get the correct EPEL rpm
 	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
 	# must instead do wget 
 	rpm -q epel-release      || yum install -y epel-release || { wget -t 100 --retry-connrefused -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`grep -o '[[:digit:]]' /etc/*release | head -n1`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
-	# for check_whois.pl
-	rpm -q jwhois            || $(SUDO) yum install -y jwhois
-	# only available on EPEL in CentOS 5
-	rpm -q git               || $(SUDO) yum install -y git
-	rpm -q python-setuptools || $(SUDO) yum install -y python-setuptools
-	rpm -q python-pip        || $(SUDO) yum install -y python-pip
-	rpm -q python-devel      || $(SUDO) yum install -y python-devel
-	rpm -q libev             || $(SUDO) yum install -y libev
-	rpm -q libev-devel       || $(SUDO) yum install -y libev-devel
-	rpm -q snappy-devel      || $(SUDO) yum install -y snappy-devel
-	# needed for ndg-httpsclient upgrade
-	rpm -q libffi-devel	     || $(SUDO) yum install -y libffi-devel
-	# needed to build pyhs2
-	# libgsasl-devel saslwrapper-devel
-	rpm -q cyrus-sasl-devel  || $(SUDO) yum install -y cyrus-sasl-devel || : # breaks on CentOS 7.0 on Docker, fakesystemd conflicts with systemd, 7.2 works though
+
+	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < rpm-packages.txt`; do rpm -q $$x || $(SUDO) yum install -y $$x; done
+
+	# breaks on CentOS 7.0 on Docker, fakesystemd conflicts with systemd, 7.2 works though
+	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel || :
+
 	# for check_yum.pl / check_yum.py
 	rpm -q yum-security yum-plugin-security || yum install -y yum-security yum-plugin-security
 
 .PHONY: yum-packages-remove
 yum-packages-remove:
 	cd lib && make yum-packages-remove
-	rpm -q gcc              && $(SUDO) yum remove -y gcc
-	rpm -q gcc-c++          && $(SUDO) yum remove -y gcc-c++
-	rpm -q perl-CPAN        && $(SUDO) yum remove -y perl-CPAN
-	rpm -q mysql-devel      && $(SUDO) yum remove -y mysql-devel
-	rpm -q openssl-devel    && $(SUDO) yum remove -y openssl-devel
-	rpm -q expat-devel      && $(SUDO) yum remove -y expat-devel
-	rpm -q python-devel     && $(SUDO) yum remove -y python-devel
-	rpm -q libev-devel      && $(SUDO) yum remove -y libev-devel
-	rpm -q snappy-devel     && $(SUDO) yum remove -y snappy-devel
-	rpm -q libffi-devel     && $(SUDO) yum remove -y libffi-devel
-	rpm -q cyrus-sasl-devel && $(SUDO) yum remove -y cyrus-sasl-devel
+	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < rpm-packages-dev.txt`; do rpm -q $$x && $(SUDO) yum remove -y $$x; done
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
 # doesn't build on Mac < 3.4.7 / 3.5.1 / 3.6.0 but the others are in the public mirrors yet
