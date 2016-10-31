@@ -14,13 +14,13 @@
 # ============================================================================ #
 
 build-essential
-wget
-libmysqlclient-dev
-libssl-dev
-libsasl2-dev
-libexpat1-dev
-libkrb5-dev
-python-dev
 libev-dev
-libsnappy-dev
+libexpat1-dev
 libffi-dev
+libkrb5-dev
+libmysqlclient-dev
+libsasl2-dev
+libsnappy-dev
+libssl-dev
+python-dev
+wget
