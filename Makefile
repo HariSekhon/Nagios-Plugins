@@ -4,6 +4,13 @@
 #
 #  https://github.com/harisekhon/nagios-plugins
 #
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
+#  to help improve or steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
 
 export PATH := $(PATH):/usr/local/bin
 
@@ -68,9 +75,6 @@ perl:
 perl-libs:
 	cd lib && make
 
-	# There are problems with the tests for this module dependency of Net::Async::CassandraCQL, forcing install works and allows us to use check_cassandra_write.pl
-	#sudo cpan -f IO::Async::Stream
-
 	# XXX: there is a bug in the Readonly module that MongoDB::MongoClient uses. It tries to call Readonly::XS but there is some kind of MAGIC_COOKIE mismatch and Readonly::XS errors out with:
 	#
 	# Readonly::XS is not a standalone module. You should not use it directly. at /usr/local/lib64/perl5/Readonly/XS.pm line 34.
@@ -94,87 +98,19 @@ perl-libs:
 	#export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/usr/local/mysql/lib/"
 
 	@#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
-	@# putting modules one per line just for ease of maintenance
-	#
+	
 	# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
-	# Redis module required but didn't auto-pull: ExtUtils::Config ExtUtils::Helpers ExtUtils::InstallPaths TAP::Harness::Env Module::Build::Tiny Sub::Name
-	# Kafka module required but didn't auto-pull: ExtUtils::Config, ExtUtils::Helpers, ExtUtils::InstallPaths, TAP::Harness::Env, Module::Build::Tiny, Sub::Exporter::Progressive, Const::Fast, Exporter::Tiny, List::MoreUtils, Devel::CheckLib, Compress::Snappy, Sub::Name
-	# Module::CPANfile::Result and Module::Install::Admin are needed for Hijk which is auto-pulled by Search::Elasticsearch but doesn't auto-pull Module::CPANfile::Result
-	# Module::Build::Tiny and Const::Fast must be built before Kafka, doesn't auto-pull in correct order
-	# Proc::Daemon needed by Kafka::TestInternals
-	# Proc::Daemon fails on tests, force install anyway to appease Travis
-	#
+	
 	which cpanm || { yes "" | $(SUDO2) cpan App::cpanminus; }
-	yes "" | $(SUDO2) $(CPANM) --notest \
-		YAML \
-		Module::Build::Tiny \
-		Const::Fast \
-		Class::Accessor \
-		Compress::Snappy \
-		Proc::Daemon \
-		Data::Dumper \
-		DBI \
-		Devel::CheckLib \
-		Digest::Adler32 \
-		Digest::CRC \
-		Digest::MD5 \
-		Digest::SHA \
-		Digest::SHA1 \
-		Exporter::Tiny \
-		ExtUtils::Config \
-		ExtUtils::Constant \
-		ExtUtils::Helpers \
-		ExtUtils::InstallPaths \
-		IO::Pty \
-		IO::Socket::IP \
-		IO::Socket::SSL \
-		JSON \
-		JSON::XS \
-		Kafka \
-		LWP::Authen::Negotiate \
-		LWP::Simple \
-		LWP::UserAgent \
-		List::MoreUtils \
-		Math::Round \
-		Module::CPANfile::Result \
-		Module::Install::Admin \
-		MongoDB \
-		MongoDB::MongoClient \
-		Net::DNS@1.05 \
-		Net::LDAP \
-		Net::LDAPI \
-		Net::LDAPS \
-		Net::SSH::Expect \
-		Readonly \
-		Readonly::XS \
-		Search::Elasticsearch \
-		SMS::AQL \
-		Socket6 \
-		Sub::Exporter::Progressive \
-		Sub::Name \
-		TAP::Harness::Env \
-		Test::SharedFork \
-		Thrift \
-		Time::HiRes \
-		Type::Tiny::XS \
-		URI::Escape \
-		XML::SAX \
-		XML::Simple \
-		;
-	# finicky on Alpine and installed via packages on all major distros now
-		#DBD::mysql \
-	# downgrading Net::DNS as a workaround for taint mode bug:
-	# https://rt.cpan.org/Public/Bug/Display.html?id=114819
-	#$(SUDO2) $(CPANM) --notest Net::DNS@1.05 \
-	#
+	yes "" | $(SUDO2) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < cpan-requirements.txt`
+	
 	# newer versions of the Redis module require Perl >= 5.10, this will install the older compatible version for RHEL5/CentOS5 servers still running Perl 5.8 if the latest module fails
 	# the backdated version might not be the perfect version, found by digging around in the git repo
 	$(SUDO2) $(CPANM) --notest Redis || $(SUDO2) $(CPANM) --notest DAMS/Redis-1.976.tar.gz
 
-		#Net::Async::CassandraCQL \
-
 	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
 	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' $$libfilepath || $(SUDO2) sed -i.bak "s/use strict;/use strict; use Socket;/" $$libfilepath
+
 
 .PHONY: python
 python:
