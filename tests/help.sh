@@ -29,7 +29,7 @@ test_help(){
     if [[ $prog =~ .*\.pl$ ]]; then
         optional_cmd="$perl -T"
     fi
-    echo $optional_cmd $prog --help
+    echo "$optional_cmd $prog --help"
     set +e
     $optional_cmd $prog --help # >/dev/null
     status=$?
@@ -75,8 +75,4 @@ untrap
 
 upload_logs
 
-if [ $failed -eq 0 ]; then
-    echo "All Perl / Python / Ruby programs found exited with expected code 3 for --help"
-    exit 0
-fi
-exit 1
+echo "All Perl / Python / Ruby programs found exited with expected code 3 for --help"
