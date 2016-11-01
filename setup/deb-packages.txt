@@ -15,8 +15,8 @@
 
 # needed to fetch and build CPAN modules and fetch the library submodule at end of build
 build-essential
-libwww-perl
 git
+libwww-perl
 wget
 # ethtool needed for ./check_linux_interface.pl
 ethtool
