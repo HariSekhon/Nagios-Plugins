@@ -56,7 +56,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckZaloniBedrockWorkflow(NagiosPlugin):
@@ -127,9 +127,11 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         self.msg += ' | auth_time={auth_time}s query_time={query_time}s'.format(auth_time=self.auth_time,
                                                                                 query_time=self.query_time)
 
-    def extract_response_message(self, response_dict):
+    @staticmethod
+    def extract_response_message(response_dict):
         try:
-            return'{0}: {1}. '.format( response_dict['status']['responseCode'], response_dict['status']['responseMessage'])
+            return'{0}: {1}. '.format(response_dict['status']['responseCode'],
+                                      response_dict['status']['responseMessage'])
         except KeyError:
             return ''
 
@@ -147,11 +149,11 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             info += " name '{0}'".format(workflow_name)
         if workflow_id:
             info += " id '{0}'".format(workflow_id)
-        
         try:
             json_dict = json.loads(req.content)
             result = json_dict['result']
-            not_found_err = '{0}. {1}Perhaps you specified the wrong name/id? Use --list to see existing workflows'.format(info, self.extract_response_message(json_dict))
+            not_found_err = '{0}. {1}'.format(info, self.extract_response_message(json_dict)) + \
+                            'Perhaps you specified the wrong name/id? Use --list to see existing workflows'
             if result is None:
                 qquit('CRITICAL', "no results found for workflow{0}".format(not_found_err))
             reports = result['jobExecutionReports']
