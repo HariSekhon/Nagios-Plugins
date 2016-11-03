@@ -205,15 +205,15 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             qquit('UNKNOWN', 'error parsing date time format: {0}'.format(_))
         runtime_delta = end_datetime - start_datetime
         self.msg += ' in {0}'.format(sec2human(runtime_delta.seconds))
-        if max_runtime is not None and max_runtime > runtime_delta.seconds / 3600.0:
+        if max_runtime is not None and max_runtime > (runtime_delta.seconds / 3600.0):
             self.warning()
-            self.msg += ' (greater than {0} min{1}!)'.format(max_runtime, plural(max_runtime))
+            self.msg += ' (greater than {0} min{1}!)'.format('{0}'.format(max_runtime).rstrip('.0'), plural(max_runtime))
         age_timedelta = datetime.now() - start_datetime
         if self.verbose:
             self.msg += ", start date = '{startdate}', end date = '{enddate}'".\
                         format(startdate=start_date, enddate=end_date)
             self.msg += ', started {0} ago'.format(sec2human(age_timedelta.seconds))
-        if max_age is not None and age_timedelta.seconds > max_age * 3600.0:
+        if max_age is not None and age_timedelta.seconds > (max_age * 60.0):
             self.warning()
             self.msg += ' (last run started more than {0} mins ago!)'.format(max_age)
         self.msg += ' | auth_time={auth_time}s query_time={query_time}s'.format(auth_time=self.auth_time,
