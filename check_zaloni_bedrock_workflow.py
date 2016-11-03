@@ -122,8 +122,10 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             pass
         else:
             self.usage('must specify either --name or --id or use --list to find them')
-        validate_float(max_age, 'max age', 1)
-        validate_float(max_runtime, 'max runtime', 1)
+        if max_age is not None:
+            validate_float(max_age, 'max age', 1)
+        if max_runtime is not None:
+            validate_float(max_runtime, 'max runtime', 1)
 
         self.url_base = 'http://%(host)s:%(port)s/bedrock-app/services/rest' % locals()
         # auth first, get JSESSIONID cookie
