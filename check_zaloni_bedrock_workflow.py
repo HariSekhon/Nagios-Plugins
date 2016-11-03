@@ -206,7 +206,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         if max_runtime is not None and max_runtime > runtime_delta.seconds / 3600.0:
             self.warning()
             self.msg += ' (greater than {0} mins)'.format(max_runtime)
-        age_timedelta = datetime.now() - start_date
+        age_timedelta = datetime.now() - start_datetime
         if self.verbose:
             self.msg += ", start date = '{startdate}', end date = '{enddate}'".\
                         format(startdate=start_date, enddate=end_date)
