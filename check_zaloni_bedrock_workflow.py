@@ -131,7 +131,8 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         log.info("checking workflow '%s' id '%s'", workflow_name, workflow_id)
         (req, self.query_time) = self.req(url='{url_base}/workflow/publish/getWorkflowExecutionHistory'
                                           .format(url_base=self.url_base),
-                                          body=json.dumps({'chunk_size': 100000,
+                                          # orders by newest first, but seems to return last 10 anyway
+                                          body=json.dumps({'chunk_size': 1,
                                                            'currentPage': 1,
                                                            'wfName': workflow_name,
                                                            'wfId': workflow_id}))
@@ -151,6 +152,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
                 raise ValueError('jobExecutionReports is not a list')
             if not reports:
                 qquit('CRITICAL', "no reports found for workflow{0}".format(not_found_err))
+            # orders by newest first by default, checking last run only
             report = reports[0]
             status = report['status']
             if status == 'SUCCESS':
@@ -170,9 +172,9 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
     def list_workflows(self):
         log.info('listing workflows')
         (req, _) = self.req(url='{url_base}/workflow/getWorkFlows'.format(url_base=self.url_base),
-                            # if you have more than 100000 workflows in Zaloni you're probably bankrupt or
+                            # if you have more than 1M workflows in Zaloni you're probably bankrupt or
                             # have migrated to an open source tool already ;)
-                            body=json.dumps({'chunk_size': 100000, 'currentPage': 1, 'soryBy': 'wfName'}))
+                            body=json.dumps({'chunk_size': 1000000, 'currentPage': 1, 'soryBy': 'wfName'}))
         try:
             json_dict = json.loads(req.content)
             workflows = json_dict['result']['workFlowDetails']
@@ -197,6 +199,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
                 widths[field] = len(fields[field]) + separator_width
             for workflow in workflows:
                 for field in fields:
+                    # pre-created by field headers above now
                     #widths[field] = widths.get(field, 0)
                     field_len = len(str(workflow[field]).strip()) + separator_width
                     if field_len > widths[field]:
