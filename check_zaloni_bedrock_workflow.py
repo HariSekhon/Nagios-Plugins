@@ -79,6 +79,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         # Python 3.x
         # super().__init__()
         self.msg = 'Zaloni '
+        self.protocol = 'http'
         self.url_base = None
         #self.jar = None
         self.jsessionid = None
@@ -88,6 +89,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
     def add_options(self):
         self.add_hostoption(name='Zaloni Bedrock', default_host='localhost', default_port=8080)
         self.add_useroption(name='Zaloni Bedrock', default_user='admin')
+        self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
         self.add_opt('-i', '--id', metavar='<int>',
                      help='Workflow ID to check (see --list or UI to find these)')
         self.add_opt('-n', '--name', metavar='<name>',
@@ -108,6 +110,8 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         workflow_name = self.get_opt('name')
         max_age = self.get_opt('max_age')
         max_runtime = self.get_opt('max_runtime')
+        if self.get_opt('ssl'):
+            self.protocol = 'https'
         validate_host(host)
         validate_port(port)
         validate_user(user)
@@ -129,7 +133,8 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             validate_float(max_runtime, 'max runtime', 1)
             max_runtime = float(max_runtime)
 
-        self.url_base = 'http://%(host)s:%(port)s/bedrock-app/services/rest' % locals()
+        self.url_base = '{protocol}://{host}:{port}/bedrock-app/services/rest'.format(host=host, port=port,
+                                                                                      protocol=self.protocol)
         # auth first, get JSESSIONID cookie
         # cookie jar doesn't work in Python or curl, must extract JSESSIONID to header manually
         #self.jar = cookielib.CookieJar()
