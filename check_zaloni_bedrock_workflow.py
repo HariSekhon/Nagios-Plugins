@@ -140,7 +140,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             info += " name '{0}'".format(workflow_name)
         if workflow_id:
             info += " id '{0}'".format(workflow_id)
-        not_found_err = info + '. Perhaps you specified the wrong name/id, have you tried --list?'
+        not_found_err = info + ". Perhaps you specified the wrong name/id, use --list to see existing workflows"
         try:
             json_dict = json.loads(req.content)
             result = json_dict['result']
