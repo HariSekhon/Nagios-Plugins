@@ -127,6 +127,12 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         self.msg += ' | auth_time={auth_time}s query_time={query_time}s'.format(auth_time=self.auth_time,
                                                                                 query_time=self.query_time)
 
+    def extract_response_message(self, response_dict):
+        try:
+            return'{0}: {1}. '.format( response_dict['status']['responseCode'], response_dict['status']['responseMessage'])
+        except KeyError:
+            return ''
+
     def check_workflow(self, workflow_name, workflow_id):
         log.info("checking workflow '%s' id '%s'", workflow_name, workflow_id)
         (req, self.query_time) = self.req(url='{url_base}/workflow/publish/getWorkflowExecutionHistory'
@@ -141,10 +147,11 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             info += " name '{0}'".format(workflow_name)
         if workflow_id:
             info += " id '{0}'".format(workflow_id)
-        not_found_err = info + ". Perhaps you specified the wrong name/id? Use --list to see existing workflows"
+        
         try:
             json_dict = json.loads(req.content)
             result = json_dict['result']
+            not_found_err = '{0}. {1}Perhaps you specified the wrong name/id? Use --list to see existing workflows'.format(info, self.extract_response_message(json_dict))
             if result is None:
                 qquit('CRITICAL', "no results found for workflow{0}".format(not_found_err))
             reports = result['jobExecutionReports']
