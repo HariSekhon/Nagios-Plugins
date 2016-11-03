@@ -207,7 +207,8 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         self.msg += ' in {0}'.format(sec2human(runtime_delta.seconds))
         if max_runtime is not None and max_runtime > (runtime_delta.seconds / 3600.0):
             self.warning()
-            self.msg += ' (greater than {0} min{1}!)'.format('{0}'.format(max_runtime).rstrip('.0'), plural(max_runtime))
+            self.msg += ' (greater than {0} min{1}!)'.format('{0}'.format(max_runtime).rstrip('.0'),
+                                                             plural(max_runtime))
         age_timedelta = datetime.now() - start_datetime
         if self.verbose:
             self.msg += ", start date = '{startdate}', end date = '{enddate}'".\
@@ -217,10 +218,11 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             self.warning()
             self.msg += ' (last run started more than {0} min{1} ago!)'.format('{0}'.format(max_age).rstrip('.0'),
                                                                                plural(max_age))
-        self.msg += ' | auth_time={auth_time}s query_time={query_time}s'.format(auth_time=self.auth_time,
-                                                                                query_time=self.query_time)
+        self.msg += ' |'
         self.msg += ' runtime={0}s;{1}'.format(runtime_delta.seconds, max_runtime * 3600 if max_runtime else '')
         self.msg += ' age={0}s;{1}'.format(age_timedelta.seconds, max_age * 3600 if max_age else '')
+        self.msg += ' auth_time={auth_time}s query_time={query_time}s'.format(auth_time=self.auth_time,
+                                                                              query_time=self.query_time)
 
     def list_workflows(self):
         log.info('listing workflows')
