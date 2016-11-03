@@ -16,7 +16,17 @@
 
 """
 
-Nagios Plugin to check Zaloni Bedrock workflow last execution status via the REST API
+Nagios Plugin to check Zaloni Bedrock workflow execution via the REST API
+
+Checks the following for the last execution of a given workflow:
+
+1. status
+2. time taken in mins (optional)
+3. age since last run in mins (optional)
+4. outputs start and end times (optional)
+5. perfdata for time taken and age
+
+Can also list all workflows with names, IDs, category, owner and modified by for easy reference
 
 Verbose mode will output the start/end date & time of the last job as well
 
@@ -28,6 +38,7 @@ from __future__ import division
 from __future__ import print_function
 #from __future__ import unicode_literals
 
+from datetime import datetime
 #import cookielib
 import json
 import logging
@@ -49,7 +60,7 @@ try:
     from harisekhon.utils import log, qquit
     #from harisekhon.utils import CriticalError, UnknownError
     from harisekhon.utils import validate_host, validate_port, validate_user, validate_password, \
-                                 validate_chars, validate_int, \
+                                 validate_chars, validate_int, validate_float, \
                                  jsonpp, isList, isStr, ERRORS, support_msg_api
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -57,7 +68,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckZaloniBedrockWorkflow(NagiosPlugin):
@@ -77,10 +88,14 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
     def add_options(self):
         self.add_hostoption(name='Zaloni Bedrock', default_host='localhost', default_port=8080)
         self.add_useroption(name='Zaloni Bedrock', default_user='admin')
-        self.add_opt('-i', '--workflow-id', metavar='<int>',
+        self.add_opt('-i', '--id', metavar='<int>',
                      help='Workflow ID to check (see --list or UI to find these)')
-        self.add_opt('-n', '--workflow-name', metavar='<name>',
+        self.add_opt('-n', '--name', metavar='<name>',
                      help='Workflow Name to check (see --list or UI to find these)')
+        self.add_opt('-a', '--max-age', metavar='<mins>',
+                     help='Workflow max age, time in minutes since start of last workflow run (optional)')
+        self.add_opt('-r', '--max-runtime', metavar='<mins>',
+                     help='Workflow max run time of last run in mins (optional)')
         self.add_opt('-l', '--list', action='store_true', help='List workflows and exit')
 
     def run(self):
@@ -91,20 +106,24 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         password = self.get_opt('password')
         workflow_id = self.get_opt('workflow_id')
         workflow_name = self.get_opt('workflow_name')
+        max_age = self.get_opt('max_age')
+        max_runtime = self.get_opt('max_runtime')
         validate_host(host)
         validate_port(port)
         validate_user(user)
         validate_password(password)
         if workflow_id is not None:
             if workflow_name is not None:
-                self.usage('cannot specify both --workflow-id and --workflow-name simultaneously')
-            validate_int(workflow_id, 'workflow id', 1, 1000000)
+                self.usage('cannot specify both --id and --name simultaneously')
+            validate_int(workflow_id, 'workflow id', 1)
         elif workflow_name is not None:
             validate_chars(workflow_name, 'workflow name', r'\w-')
         elif self.get_opt('list'):
             pass
         else:
-            self.usage('must specify either --workflow-name or --workflow-id or use --list to find them')
+            self.usage('must specify either --name or --id or use --list to find them')
+        validate_float(max_age, 'max age', 1)
+        validate_float(max_runtime, 'max runtime', 1)
 
         self.url_base = 'http://%(host)s:%(port)s/bedrock-app/services/rest' % locals()
         # auth first, get JSESSIONID cookie
@@ -124,9 +143,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         if self.get_opt('list'):
             self.list_workflows()
 
-        self.check_workflow(workflow_name, workflow_id)
-        self.msg += ' | auth_time={auth_time}s query_time={query_time}s'.format(auth_time=self.auth_time,
-                                                                                query_time=self.query_time)
+        self.check_workflow(workflow_name, workflow_id, max_age, max_runtime)
 
     @staticmethod
     def extract_response_message(response_dict):
@@ -136,7 +153,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         except KeyError:
             return ''
 
-    def check_workflow(self, workflow_name, workflow_id):
+    def check_workflow(self, workflow_name, workflow_id, max_age=None, max_runtime=None):
         log.info("checking workflow '%s' id '%s'", workflow_name, workflow_id)
         (req, self.query_time) = self.req(url='{url_base}/workflow/publish/getWorkflowExecutionHistory'
                                           .format(url_base=self.url_base),
@@ -172,12 +189,33 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             self.msg += "workflow '{workflow}' id '{id}' status = '{status}'".format(workflow=report['wfName'],
                                                                                      id=report['wfId'],
                                                                                      status=status)
-            if self.verbose:
-                self.msg += ", start date = '{startdate}', end date = '{enddate}'".\
-                            format(startdate=report['startDate'], enddate=report['endDate'])
+            self.check_times(report['startDate'], report['endDate'], max_age, max_runtime)
         except (KeyError, ValueError) as _:
             qquit('UNKNOWN', 'error parsing workflow execution history: {0}'.format(_))
 
+    def check_times(self, start_date, end_date, max_age, max_runtime):
+        try:
+            start_datetime = datetime.strptime(start_date, '%m/%d/%Y %H:%M:%S')
+            end_datetime = datetime.strptime(end_date, '%m/%d/%Y %H:%M:%S')
+        except ValueError as _:
+            qquit('UNKNOWN', 'error parsing date time format: {0}'.format(_))
+        runtime_delta = end_datetime - start_datetime
+        self.msg += ' in {0}'.format(runtime_delta)
+        if max_runtime is not None and max_runtime > runtime_delta.seconds / 3600.0:
+            self.warning()
+            self.msg += ' (greater than {0} mins)'.format(max_runtime)
+        age_timedelta = datetime.now() - start_date
+        if self.verbose:
+            self.msg += ", start date = '{startdate}', end date = '{enddate}'".\
+                        format(startdate=start_date, enddate=end_date)
+            self.msg += ', started {0} ago'.format(age_timedelta)
+        if max_age is not None and age_timedelta.seconds > max_age * 3600.0:
+            self.warning()
+            self.msg += ' (last run started more than {0} mins ago)'.format(max_age)
+        self.msg += ' | auth_time={auth_time}s query_time={query_time}s'.format(auth_time=self.auth_time,
+                                                                                query_time=self.query_time)
+        self.msg += ' runtime={0}s;{1}'.format(runtime_delta.seconds, max_runtime * 3600)
+        self.msg += ' age={0}s;{1}'.format(age_timedelta.seconds, max_age * 3600)
 
     def list_workflows(self):
         log.info('listing workflows')
