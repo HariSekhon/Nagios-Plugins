@@ -165,6 +165,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
     def check_workflow(self, workflow_name, workflow_id, max_age=None, max_runtime=None):
         log.info("checking workflow '%s' id '%s'", workflow_name, workflow_id)
         # GET /workflow/fetchWorkflowStatus/<instance_id> is also available but only uses wfId, doesn't support wfName
+        # returns ['result']['list'] = [ {}, {}, ... ]
         (req, self.query_time) = self.req(url='{url_base}/workflow/publish/getWorkflowExecutionHistory'
                                           .format(url_base=self.url_base),
                                           # orders by newest first, but seems to return last 10 anyway
