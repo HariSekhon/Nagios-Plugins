@@ -61,7 +61,7 @@ try:
     #from harisekhon.utils import CriticalError, UnknownError
     from harisekhon.utils import validate_host, validate_port, validate_user, validate_password, \
                                  validate_chars, validate_int, validate_float, \
-                                 jsonpp, isList, isStr, ERRORS, support_msg_api, sec2human
+                                 jsonpp, isList, isStr, ERRORS, support_msg_api, sec2human, plural
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
@@ -207,7 +207,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         self.msg += ' in {0}'.format(sec2human(runtime_delta.seconds))
         if max_runtime is not None and max_runtime > runtime_delta.seconds / 3600.0:
             self.warning()
-            self.msg += ' (greater than {0} mins)'.format(max_runtime)
+            self.msg += ' (greater than {0} min{1}!)'.format(max_runtime, plural(max_runtime))
         age_timedelta = datetime.now() - start_datetime
         if self.verbose:
             self.msg += ", start date = '{startdate}', end date = '{enddate}'".\
@@ -215,7 +215,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             self.msg += ', started {0} ago'.format(sec2human(age_timedelta.seconds))
         if max_age is not None and age_timedelta.seconds > max_age * 3600.0:
             self.warning()
-            self.msg += ' (last run started more than {0} mins ago)'.format(max_age)
+            self.msg += ' (last run started more than {0} mins ago!)'.format(max_age)
         self.msg += ' | auth_time={auth_time}s query_time={query_time}s'.format(auth_time=self.auth_time,
                                                                                 query_time=self.query_time)
         self.msg += ' runtime={0}s;{1}'.format(runtime_delta.seconds, max_runtime * 3600 if max_runtime else '')
