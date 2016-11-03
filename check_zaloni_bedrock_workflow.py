@@ -18,8 +18,9 @@
 
 Nagios Plugin to check Zaloni Bedrock workflow last execution status via the REST API
 
-Tested on Zaloni Bedrock 4.1.1 with Hortonworks HDP 2.4.2
+Verbose mode will output the start/end date & time of the last job as well
 
+Tested on Zaloni Bedrock 4.1.1 with Hortonworks HDP 2.4.2
 """
 
 from __future__ import absolute_import
