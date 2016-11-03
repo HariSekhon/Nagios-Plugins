@@ -215,7 +215,8 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             self.msg += ', started {0} ago'.format(sec2human(age_timedelta.seconds))
         if max_age is not None and age_timedelta.seconds > (max_age * 60.0):
             self.warning()
-            self.msg += ' (last run started more than {0} mins ago!)'.format(max_age)
+            self.msg += ' (last run started more than {0} min{1} ago!)'.format('{0}'.format(max_age).rstrip('.0'),
+                                                                               plural(max_age))
         self.msg += ' | auth_time={auth_time}s query_time={query_time}s'.format(auth_time=self.auth_time,
                                                                                 query_time=self.query_time)
         self.msg += ' runtime={0}s;{1}'.format(runtime_delta.seconds, max_runtime * 3600 if max_runtime else '')
