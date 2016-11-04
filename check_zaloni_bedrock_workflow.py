@@ -160,6 +160,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             return'{0}: {1}. '.format(response_dict['status']['responseCode'],
                                       response_dict['status']['responseMessage'])
         except KeyError:
+            log.warn('failed to extract responseCode/responseMessage for additional error information. ' + support_msg_api())
             return ''
 
     def check_workflow(self, workflow_name, workflow_id, max_age=None, max_runtime=None):
