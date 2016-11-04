@@ -68,7 +68,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 
 class CheckZaloniBedrockWorkflow(NagiosPlugin):
@@ -160,7 +160,8 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             return'{0}: {1}. '.format(response_dict['status']['responseCode'],
                                       response_dict['status']['responseMessage'])
         except KeyError:
-            log.warn('failed to extract responseCode/responseMessage for additional error information. ' + support_msg_api())
+            log.warn('failed to extract responseCode/responseMessage for additional error information. ' \
+                     + support_msg_api())
             return ''
 
     def check_workflow(self, workflow_name, workflow_id, max_age=None, max_runtime=None):
@@ -206,31 +207,41 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             qquit('UNKNOWN', 'error parsing workflow execution history: {0}'.format(_))
 
     def check_times(self, start_date, end_date, max_age, max_runtime):
-        try:
-            start_datetime = datetime.strptime(start_date, '%m/%d/%Y %H:%M:%S')
-            end_datetime = datetime.strptime(end_date, '%m/%d/%Y %H:%M:%S')
-        except ValueError as _:
-            qquit('UNKNOWN', 'error parsing date time format: {0}'.format(_))
-        runtime_delta = end_datetime - start_datetime
-        self.msg += ' in {0}'.format(sec2human(runtime_delta.seconds))
-        if max_runtime is not None and max_runtime > (runtime_delta.seconds / 3600.0):
-            self.warning()
-            self.msg += ' (greater than {0} min{1}!)'.format('{0}'.format(max_runtime).rstrip('.0'),
-                                                             plural(max_runtime))
-        age_timedelta = datetime.now() - start_datetime
+        start_date = str(start_date)
+        end_date = str(end_date)
+        invalid_dates = ('', 'null', 'None', None)
+        age_timedelta = None
+        runtime_delta = None
+        if start_date not in invalid_dates and \
+           end_date not in invalid_dates:
+            try:
+                start_datetime = datetime.strptime(start_date, '%m/%d/%Y %H:%M:%S')
+                end_datetime = datetime.strptime(end_date, '%m/%d/%Y %H:%M:%S')
+            except ValueError as _:
+                qquit('UNKNOWN', 'error parsing date time format: {0}'.format(_))
+            runtime_delta = end_datetime - start_datetime
+            self.msg += ' in {0}'.format(sec2human(runtime_delta.seconds))
+            if max_runtime is not None and max_runtime > (runtime_delta.seconds / 3600.0):
+                self.warning()
+                self.msg += ' (greater than {0} min{1}!)'.format('{0}'.format(max_runtime).rstrip('.0'),
+                                                                 plural(max_runtime))
+            age_timedelta = datetime.now() - start_datetime
         if self.verbose:
             self.msg += ", start date = '{startdate}', end date = '{enddate}'".\
                         format(startdate=start_date, enddate=end_date)
-            self.msg += ', started {0} ago'.format(sec2human(age_timedelta.seconds))
-        if max_age is not None and age_timedelta.seconds > (max_age * 60.0):
+            if age_timedelta is not None:
+                self.msg += ', started {0} ago'.format(sec2human(age_timedelta.seconds))
+        if max_age is not None and age_timedelta is not None and age_timedelta.seconds > (max_age * 60.0):
             self.warning()
             self.msg += ' (last run started more than {0} min{1} ago!)'.format('{0}'.format(max_age).rstrip('.0'),
                                                                                plural(max_age))
-        self.msg += ' |'
-        self.msg += ' runtime={0}s;{1}'.format(runtime_delta.seconds, max_runtime * 3600 if max_runtime else '')
-        self.msg += ' age={0}s;{1}'.format(age_timedelta.seconds, max_age * 3600 if max_age else '')
-        self.msg += ' auth_time={auth_time}s query_time={query_time}s'.format(auth_time=self.auth_time,
-                                                                              query_time=self.query_time)
+        # Do not output variable number of fields at all if agedelta is not available as that breaks PNP4Nagios graphing
+        if age_timedelta is not None and runtime_delta:
+            self.msg += ' |'
+            self.msg += ' runtime={0}s;{1}'.format(runtime_delta.seconds, max_runtime * 3600 if max_runtime else '')
+            self.msg += ' age={0}s;{1}'.format(age_timedelta.seconds, max_age * 3600 if max_age else '')
+            self.msg += ' auth_time={auth_time}s query_time={query_time}s'.format(auth_time=self.auth_time,
+                                                                                  query_time=self.query_time)
 
     def list_workflows(self):
         log.info('listing workflows')
