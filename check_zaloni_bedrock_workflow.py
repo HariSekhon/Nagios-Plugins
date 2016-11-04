@@ -254,7 +254,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             json_dict = json.loads(req.content)
             workflows = json_dict['result']['workFlowDetails']
             print('Zaloni Bedrock Workflows:\n')
-            if workflows is None or not workflows:
+            if not workflows:
                 print('<none>')
                 sys.exit(ERRORS['UNKNOWN'])
             if not isList(workflows):
