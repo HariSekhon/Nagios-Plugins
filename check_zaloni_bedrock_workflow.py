@@ -68,7 +68,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.3'
+__version__ = '0.3.4'
 
 
 class CheckZaloniBedrockWorkflow(NagiosPlugin):
@@ -120,6 +120,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             if workflow_name is not None:
                 self.usage('cannot specify both --id and --name simultaneously')
             validate_int(workflow_id, 'workflow id', 1)
+            workflow_id = int(workflow_id)
         elif workflow_name is not None:
             validate_chars(workflow_name, 'workflow name', r'\w-')
         elif self.get_opt('list'):
