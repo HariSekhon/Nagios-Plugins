@@ -208,8 +208,8 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             qquit('UNKNOWN', 'error parsing workflow execution history: {0}'.format(_))
 
     def check_times(self, start_date, end_date, max_age, max_runtime):
-        start_date = str(start_date)
-        end_date = str(end_date)
+        start_date = str(start_date).strip()
+        end_date = str(end_date).strip()
         invalid_dates = ('', 'null', 'None', None)
         age_timedelta = None
         runtime_delta = None
