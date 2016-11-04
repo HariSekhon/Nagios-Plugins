@@ -68,7 +68,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.3.1'
 
 
 class CheckZaloniBedrockWorkflow(NagiosPlugin):
@@ -236,7 +236,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         (req, _) = self.req(url='{url_base}/workflow/getWorkFlows'.format(url_base=self.url_base),
                             # if you have more than 1M workflows in Zaloni you're probably bankrupt or
                             # have migrated to an open source tool already ;)
-                            body=json.dumps({'chunk_size': 1000000, 'currentPage': 1, 'soryBy': 'wfName'}))
+                            body=json.dumps({'chunk_size': 1000000, 'currentPage': 1, 'sortBy': 'wfName'}))
         try:
             json_dict = json.loads(req.content)
             workflows = json_dict['result']['workFlowDetails']
