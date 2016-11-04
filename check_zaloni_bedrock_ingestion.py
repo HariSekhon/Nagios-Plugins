@@ -67,7 +67,7 @@ try:
     from harisekhon.utils import log, qquit
     #from harisekhon.utils import CriticalError, UnknownError
     from harisekhon.utils import validate_host, validate_port, validate_user, validate_password, \
-                                 validate_int, validate_float, \
+                                 validate_chars, validate_int, validate_float, \
                                  jsonpp, isList, isStr, ERRORS, support_msg_api, sec2human, plural
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -127,8 +127,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             validate_int(num, 'num ingestions', 1)
             num = int(num)
         if ingestion_id is not None:
-            validate_int(ingestion_id, 'ingestion id', 1)
-            ingestion_id = int(ingestion_id)
+            validate_chars(ingestion_id, 'ingestion id', r'\w-')
         if max_age is not None:
             validate_float(max_age, 'max age', 1)
             max_age = float(max_age)
@@ -146,13 +145,17 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
         if self.get_opt('list'):
             self.list_ingestions()
 
-        self.check_ingestion(ingestion_id, num, max_age)
+        self.check_ingestion(num=num, ingestion_id=ingestion_id, max_age=max_age)
 
     @staticmethod
     def extract_response_message(response_dict):
         try:
-            return'{0}: {1}. '.format(response_dict['status']['responseCode'],
-                                      response_dict['status']['responseMessage'])
+            status = response_dict['status']['responseCode']
+            if status != 200:
+                return'{0}: {1}. '.format(response_dict['status']['responseCode'],
+                                          response_dict['status']['responseMessage'])
+            else:
+                return ''
         except KeyError:
             log.warn('failed to extract responseCode/responseMessage for additional error information. ' +
                      support_msg_api())
@@ -183,6 +186,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
         return json_dict
 
     def check_ingestion(self, num, ingestion_id=None, max_age=None):
+        log.info('checking ingestion history')
         json_dict = self.get_ingestions(num, ingestion_id)
         info = ''
         if ingestion_id:
@@ -191,7 +195,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             result = json_dict['result']
             not_found_err = '{0}. {1}'.format(info, self.extract_response_message(json_dict)) + \
                             'Perhaps you specified the wrong --id? Use --list to see existing ingestions'
-            if result is None:
+            if not result:
                 qquit('CRITICAL', "no results found for ingestion{0}".format(not_found_err))
             #reports = result['jobExecutionReports']
             #if not isList(reports):
@@ -199,10 +203,9 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             #if not reports:
             #    qquit('CRITICAL', "no reports found for workflow{0}".format(not_found_err))
             # orders by newest first by default, checking last run only
+            log.info('%s ingestion history results returned', len(result))
             self.msg += 'ingestion'
             result_statuses = {}
-            if ingestion_id:
-                self.msg += " id '{id}' "
             if num == 1:
                 item = result[0]
                 status = item['status']
@@ -211,6 +214,10 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
                 self.msg += "status = '{status}'".format(status=status)
                 # effectiveDate is usually null in testing, while ingestionTimeFormatted is usually populated
                 self.check_time(item['ingestionTimeFormatted'], max_age)
+                if ingestion_id:
+                    self.msg += " for id '{id}'".format(id=ingestion_id)
+                self.msg += ' |'
+                self.add_query_perfdata()
             else:
                 self.msg += 's status: '
                 for item in result:
@@ -220,9 +227,13 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
                 for status in result_statuses:
                     if status != 'SUCCESS':
                         self.critical()
-                    self.msg += '{0}={1} '.format(status, result_statuses[status])
-                    self.msg += '| '
-                    self.add_query_perfdata()
+                    self.msg += '{0} = {1} ingest{2}, '.format(status, result_statuses[status],
+                                                               plural(result_statuses[status]))
+                self.msg = self.msg.rstrip(', ')
+                if ingestion_id:
+                    self.msg += " for id '{id}'".format(id=ingestion_id)
+                self.msg += ' |'
+                self.add_query_perfdata()
         except KeyError as _:
             qquit('UNKNOWN', 'error parsing workflow execution history: {0}'.format(_))
 
@@ -252,16 +263,15 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
 
     def list_ingestions(self):
         log.info('listing ingestions')
-        (json_dict, _) = self.req(url='{url_base}/ingestion/publish/getFileIndex'.format(url_base=self.url_base),
-                                  body=json.dumps({'chunk_size': 100000, 'currentPage': 1, 'sortBy': 'wfName'}))
+        json_dict = self.get_ingestions(100000)
         try:
             result = json_dict['result']
-            print('Zaloni Bedrock Ingestions:\n')
             if not result:
                 print('<none>')
                 sys.exit(ERRORS['UNKNOWN'])
             if not isList(result):
                 qquit('UNKNOWN', 'non-list returned for workFlowDetails.' + support_msg_api())
+            log.info('%s ingestion history results returned', len(result))
             fields = {'entity': 'Entity',
                       'sourcePlatform': 'Source Platform',
                       'sourceFile': 'Source File',
@@ -276,6 +286,8 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
                 for field in fields:
                     item_dict[field] = item[field]
                 ingestions[_id] = item_dict
+            log.info('%s unique ingestions found', len(ingestions))
+            print('Zaloni Bedrock Ingestions:\n')
             for _id in sorted(ingestions):
                 print('ID: {0}'.format(_id))
                 item = ingestions[_id]
