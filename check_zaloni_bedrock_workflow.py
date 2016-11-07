@@ -230,7 +230,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             self.msg += ' in {0}'.format(sec2human(runtime_delta.seconds))
             if max_runtime is not None and max_runtime > (runtime_delta.seconds / 3600.0):
                 self.warning()
-                self.msg += ' (greater than {0} min{1}!)'.format('{0}'.format(max_runtime).rstrip('0').rstrip('.'),
+                self.msg += ' (greater than {0} min{1}!)'.format(str(max_runtime).rstrip('0').rstrip('.'),
                                                                  plural(max_runtime))
             age_timedelta = datetime.now() - start_datetime
         if self.verbose:
@@ -240,7 +240,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
                 self.msg += ', started {0} ago'.format(sec2human(age_timedelta.seconds))
         if max_age is not None and age_timedelta is not None and age_timedelta.seconds > (max_age * 60.0):
             self.warning()
-            self.msg += ' (last run started more than {0} min{1} ago!)'.format('{0}'.format(max_age)
+            self.msg += ' (last run started more than {0} min{1} ago!)'.format(str(max_age)
                                                                                .rstrip('0')
                                                                                .rstrip('.'),
                                                                                plural(max_age))
