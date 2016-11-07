@@ -117,9 +117,9 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
         self.add_opt('-s', '--source', metavar='<URI>', help='Source file/directory location filter (optional)')
         self.add_opt('-d', '--dest', metavar='<URI>', help='Destination file/directory location filter (optional)')
         self.add_opt('-a', '--max-age', metavar='<mins>',
-                     help='Max age in mins since start of last triggered ingest run (optional)')
+                     help='Max age in mins since start of last ingest (optional)')
         self.add_opt('-r', '--max-runtime', metavar='<mins>', default=1380,
-                     help='Max runtime time in mins for any incomplete ingest runs ' +
+                     help='Max runtime time in mins for any currently incomplete ingests ' +
                      '(default: 1380 ie. 23 hours)')
         self.add_opt('-l', '--list', action='store_true', help='List ingestions and exit')
 
@@ -164,7 +164,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             validate_float(max_age, 'max age', 1)
             max_age = float(max_age)
         if max_runtime is not None:
-            validate_float(max_runtime, 'max runtime', 1)
+            validate_float(max_runtime, 'max incomplete runtime', 1)
             max_runtime = float(max_runtime)
 
         self.url_base = '{protocol}://{host}:{port}/bedrock-app/services/rest'.format(host=host,
