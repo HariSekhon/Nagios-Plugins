@@ -30,6 +30,9 @@ Can also list all workflows with names, IDs, category, owner and modified by for
 
 Verbose mode will output the start/end date & time of the last job as well
 
+Version 0.4 has added to check a feature to check all workflows, use with caution as it will take O(n) time,
+ie it'll take longer and longer the more workflows you have, which may exceed monitoring server execution timeouts
+
 Tested on Zaloni Bedrock 4.1.1 with Hortonworks HDP 2.4.2
 """
 
@@ -68,7 +71,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.6'
+__version__ = '0.4.0'
 
 
 class CheckZaloniBedrockWorkflow(NagiosPlugin):
@@ -85,12 +88,14 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         self.jsessionid = None
         self.auth_time = None
         self.query_time = None
+        self._all = False
         self.ok()
 
     def add_options(self):
         self.add_hostoption(name='Zaloni Bedrock', default_host='localhost', default_port=8080)
         self.add_useroption(name='Zaloni Bedrock', default_user='admin')
         self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
+        self.add_opt('-a', '--all', action='store_true', help='Find and check all workflows')
         self.add_opt('-i', '--id', metavar='<int>',
                      help='Workflow ID to check (see --list or UI to find these)')
         self.add_opt('-n', '--name', metavar='<name>',
@@ -107,6 +112,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         port = self.get_opt('port')
         user = self.get_opt('user')
         password = self.get_opt('password')
+        self._all = self.get_opt('all')
         workflow_id = self.get_opt('id')
         workflow_name = self.get_opt('name')
         max_age = self.get_opt('max_age')
@@ -127,7 +133,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         elif self.get_opt('list'):
             pass
         else:
-            self.usage('must specify either --name or --id or use --list to find them')
+            self.usage('must specify one of --name / --id / --all or use --list to find workflow names/IDs to specify')
         if max_age is not None:
             validate_float(max_age, 'max age', 1)
             max_age = float(max_age)
@@ -154,7 +160,17 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         if self.get_opt('list'):
             self.list_workflows()
 
-        self.check_workflow(workflow_name, workflow_id, max_age, max_runtime)
+        if self._all:
+            workflows = self.get_workflows()
+            if not workflows:
+                qquit('UNKNOWN', 'no workflows found')
+            try:
+                for workflow in workflows:
+                    self.check_workflow(workflow['wfName'], None)
+            except KeyError as _:
+                qquit('UNKNOWN', 'failed to retrieve wfName from workflow listing: {0}.'.format(_) + support_msg_api())
+        else:
+            self.check_workflow(workflow_name, workflow_id, max_age, max_runtime)
 
     @staticmethod
     def extract_response_message(response_dict):
@@ -252,7 +268,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             self.msg += ' auth_time={auth_time}s query_time={query_time}s'.format(auth_time=self.auth_time,
                                                                                   query_time=self.query_time)
 
-    def list_workflows(self):
+    def get_workflows(self):
         log.info('listing workflows')
         (req, _) = self.req(url='{url_base}/workflow/getWorkFlows'.format(url_base=self.url_base),
                             # if you have more than 1M workflows in Zaloni you're probably bankrupt or
@@ -261,25 +277,33 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         try:
             json_dict = json.loads(req.content)
             workflows = json_dict['result']['workFlowDetails']
-            print('Zaloni Bedrock Workflows:\n')
-            if not workflows:
-                print('<none>')
-                sys.exit(ERRORS['UNKNOWN'])
             if not isList(workflows):
                 qquit('UNKNOWN', 'non-list returned for workFlowDetails.' + support_msg_api())
-            fields = {'wfName': 'Name',
-                      'wfId': 'ID',
-                      'category': 'Category',
-                      'createdBy': 'Created By',
-                      #'createdDate': 'Created Date',
-                      'modifiedBy': 'Modified By',
-                      #'modifiedDate': 'Modified Date'}
-                     }
-            widths = {}
-            total_width = 0
-            separator_width = 4
-            for field in fields:
-                widths[field] = len(fields[field]) + separator_width
+            return workflows
+        except ValueError as _:
+            qquit('UNKNOWN', 'failed to parse response from Zaloni Bedrock when requesting workflow list: {0}'\
+                             .format(_))
+
+    def list_workflows(self):
+        workflows = self.get_workflows()
+        print('Zaloni Bedrock Workflows:\n')
+        if not workflows:
+            print('<none>')
+            sys.exit(ERRORS['UNKNOWN'])
+        fields = {'wfName': 'Name',
+                  'wfId': 'ID',
+                  'category': 'Category',
+                  'createdBy': 'Created By',
+                  #'createdDate': 'Created Date',
+                  'modifiedBy': 'Modified By',
+                  #'modifiedDate': 'Modified Date'}
+                 }
+        widths = {}
+        total_width = 0
+        separator_width = 4
+        for field in fields:
+            widths[field] = len(fields[field]) + separator_width
+        try:
             for workflow in workflows:
                 for field in fields:
                     # pre-created by field headers above now
@@ -299,7 +323,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
                     print('{0:<{1}}'.format(workflow[field], widths[field]), end='')
                 print()
             sys.exit(ERRORS['UNKNOWN'])
-        except (KeyError, ValueError) as _:
+        except KeyError as _:
             qquit('UNKNOWN', 'failed to parse response from Zaloni Bedrock when requesting workflow list: {0}'\
                              .format(_))
 
