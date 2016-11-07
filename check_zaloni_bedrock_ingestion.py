@@ -110,7 +110,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
                      help='How far back to search ingestion history in minutes ' \
                         + '(default: 1440 ie. 24 hours, set to zero to disable time based search)')
         self.add_opt('-N', '--num', help='Number of previous ingestions to check (defaults to last 10 if a filter ' \
-                                    + 'is given, 100 otherwise')
+                                    + 'is given, 100 otherwise)')
         self.add_opt('-i', '--id', metavar='<int>',
                      help='Ingestion ID to check')
         self.add_opt('-s', '--source', metavar='<URI>', help='Source file/directory location filter for ingestions')
