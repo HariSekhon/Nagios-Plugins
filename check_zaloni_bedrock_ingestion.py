@@ -202,7 +202,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             self.check_statuses(result)
             self.msg += ' out of last {0} ingests'.format(num_results)
             if self.history_mins:
-                self.msg += ' within last {0} mins'.format(self.history_mins.rstrip('0').rstrip('.'))
+                self.msg += ' within last {0} mins'.format(str(self.history_mins).rstrip('0').rstrip('.'))
             longest_incomplete_timedelta = self.check_longest_incomplete_ingest(result, max_runtime)
             # newest is first
             # effectiveDate is null in testing (docs says it's a placeholder for future use)
@@ -264,7 +264,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             self.msg += ', longest incomplete ingest runtime = {0} ago! '\
                         .format(sec2human(longest_incomplete_timedelta.seconds)) + \
                         '(greater than expected {0} min{1})'\
-                        .format('{0}'.format(max_runtime).rstrip('0').rstrip('.'), plural(max_runtime))
+                        .format(str(max_runtime).rstrip('0').rstrip('.'), plural(max_runtime))
         return longest_incomplete_timedelta
 
     def check_last_ingest_age(self, ingestion_date, max_age):
@@ -275,7 +275,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             self.msg += ', started {0} ago'.format(sec2human(age_timedelta.seconds))
         if max_age is not None and age_timedelta.seconds > (max_age * 60.0):
             self.warning()
-            self.msg += ' (last run started more than {0} min{1} ago!)'.format('{0}'.format(max_age)
+            self.msg += ' (last run started more than {0} min{1} ago!)'.format(str(max_age)
                                                                                .rstrip('0')
                                                                                .rstrip('.'),
                                                                                plural(max_age))
