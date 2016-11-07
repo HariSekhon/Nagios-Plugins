@@ -144,7 +144,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
         validate_user(user)
         validate_password(password)
         validate_float(history_mins, 'history mins')
-        self.history_mins = float(self.history_mins)
+        self.history_mins = float(history_mins)
         filter_opts = {'history_mins': self.history_mins}
         if self.history_mins:
             now = datetime.now()
