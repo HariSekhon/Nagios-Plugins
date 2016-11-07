@@ -133,7 +133,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             self.protocol = 'https'
         history_mins = self.get_opt('history_mins')
         num = self.get_opt('num')
-        ingestion_id = self.get_opt('id')
+        inventory_id = self.get_opt('id')
         source = self.get_opt('source')
         dest = self.get_opt('dest')
         max_age = self.get_opt('max_age')
@@ -151,9 +151,9 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             filter_opts['dateRangeEnd'] = datetime.strftime(now, '%F %H:%M:%S')
         if num is not None:
             validate_int(num, 'num ingestions', 1)
-        if ingestion_id is not None:
-            validate_chars(ingestion_id, 'ingestion id', r'\w-')
-            filter_opts['ingestionId'] = ingestion_id
+        if inventory_id is not None:
+            validate_chars(inventory_id, 'ingestion id', r'\w-')
+            filter_opts['inventoryId'] = inventory_id
         if source is not None:
             log_option('source', source)
             filter_opts['fileName'] = source
