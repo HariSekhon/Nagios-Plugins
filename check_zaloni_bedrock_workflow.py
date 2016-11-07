@@ -162,13 +162,21 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
 
         if self._all:
             workflows = self.get_workflows()
-            if not workflows:
+            if not workflows or len(workflows) == 0:
                 qquit('UNKNOWN', 'no workflows found')
+            results = {}
             try:
                 for workflow in workflows:
-                    self.check_workflow(workflow['wfName'], None)
+                    result = self.check_workflow(workflow['wfName'], None)
+                    results[result] = results.get(result, 0)
+                    results[result] += 1
+                self.msg = 'Zaloni workflows:'
+                for result in results:
+                    self.msg += " '{0}' = {1}".format(result, results[result])
+                self.msg += ', last workflow ran'
+                self.check_times(workflows[0]['startDate'], workflows[0]['endDate'], max_age, max_runtime)
             except KeyError as _:
-                qquit('UNKNOWN', 'failed to retrieve wfName from workflow listing: {0}.'.format(_) + support_msg_api())
+                qquit('UNKNOWN', 'parsing workflows for --all failed: {0}.'.format(_) + support_msg_api())
         else:
             self.check_workflow(workflow_name, workflow_id, max_age, max_runtime)
 
@@ -202,8 +210,11 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             json_dict = json.loads(req.content)
             result = json_dict['result']
             not_found_err = '{0}. {1}'.format(info, self.extract_response_message(json_dict)) + \
-                            'Perhaps you specified the wrong name/id? Use --list to see existing workflows'
+                            'Perhaps you specified the wrong name/id or the workflow hasn\'t run yet? ' + \
+                            'Use --list to see existing workflows'
             if result is None:
+                if self._all:
+                    return None
                 qquit('CRITICAL', "no results found for workflow{0}".format(not_found_err))
             reports = result['jobExecutionReports']
             if not isList(reports):
@@ -217,15 +228,22 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             while report['status'] == 'INCOMPLETE':
                 index += 1
                 if index >= num_reports:
-                    qquit('WARNING', 'only incomplete workflows detected')
+                    log.warn('only incomplete workflows detected')
+                    report = reports[0]
                 report = reports[index]
             status = report['status']
-            if status != 'SUCCESS':
+            if status == 'SUCCESS':
+                pass
+            elif status == 'INCOMPLETE':
+                self.warning()
+            else:
                 self.critical()
             self.msg += "workflow '{workflow}' id '{id}' status = '{status}'".format(workflow=report['wfName'],
                                                                                      id=report['wfId'],
                                                                                      status=status)
-            self.check_times(report['startDate'], report['endDate'], max_age, max_runtime)
+            if not self._all:
+                self.check_times(report['startDate'], report['endDate'], max_age, max_runtime)
+            return status
         except (KeyError, ValueError) as _:
             qquit('UNKNOWN', 'error parsing workflow execution history: {0}'.format(_))
 
