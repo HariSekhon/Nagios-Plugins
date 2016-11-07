@@ -167,6 +167,10 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             results = {}
             try:
                 for workflow in workflows:
+                    if workflow is None:
+                        results['NoWorkflowRuns'] = results.get('None', 0)
+                        results['NoWorkflowRuns'] += 1
+                        continue
                     result = self.check_workflow(workflow['wfName'], None)
                     results[result] = results.get(result, 0)
                     results[result] += 1
@@ -176,7 +180,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
                 self.msg += ', last workflow ran'
                 self.check_times(workflows[0]['startDate'], workflows[0]['endDate'], max_age, max_runtime)
             except KeyError as _:
-                qquit('UNKNOWN', 'parsing workflows for --all failed: {0}.'.format(_) + support_msg_api())
+                qquit('UNKNOWN', 'parsing workflows for --all failed: {0}. '.format(_) + support_msg_api())
         else:
             self.check_workflow(workflow_name, workflow_id, max_age, max_runtime)
 
