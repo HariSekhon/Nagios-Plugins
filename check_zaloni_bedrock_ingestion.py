@@ -28,7 +28,7 @@ Checks ingest history via a combination of:
 
 Checks applied to each ingestion found:
 
-1. status (SUCCESS)
+1. status (SUCCESS is expected, INCOMPLETE skipped, use max run time to catch overrun / stalled incomplete ingestions)
 2. max run time in mins for any currently incomplete ingestion runs (defaults to 1380 mins for 23 hours)
 3. max age in mins since last ingestion run started to check ingestions are being triggering (optional)
 4. perfdata for time since last ingestion and max incomplete ingestion run time, as well as auth & query timings
@@ -37,7 +37,8 @@ Verbose mode will output the ingestion start date/time of the last ingestion run
 
 Use --list to see previous ingestions with their details you can use for filtering
 
-Caveat: there is no API endpoint to list ingestions, so increasing --num will find more ingestions to filter on
+Caveat: there is no API endpoint to list ingestions, so increase --num along with --list
+to find more ingestions to filter on
 
 Tested on Zaloni Bedrock 4.1.1 with Hortonworks HDP 2.4.2
 """
@@ -120,9 +121,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
         self.add_opt('-r', '--max-runtime', metavar='<mins>', default=1380,
                      help='Max runtime time in mins for any incomplete ingest runs ' +
                      '(default: 1380 ie. 23 hours)')
-        self.add_opt('-l', '--list', action='store_true',
-                     help='List ingestions and exit (increase --num to find more ingestions as ' \
-                        + 'there is no ingestion listing in the API)')
+        self.add_opt('-l', '--list', action='store_true', help='List ingestions and exit')
 
     def run(self):
         self.no_args()
