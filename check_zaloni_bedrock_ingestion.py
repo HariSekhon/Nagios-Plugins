@@ -106,7 +106,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
         #   - If so there is no point in checking an ingestion id
         # - if this is the case then filter by workflow ID - gets workflow instance id, not workflow itself
         #   -  use check_zaloni_bedrock_workflow.py to monitor workflow itself
-        self.add_opt('-M', '--history-mins', default=self.history_mins,
+        self.add_opt('-T', '--history-mins', default=self.history_mins,
                      help='How far back to search ingestion history in minutes ' \
                         + '(default: 1440 ie. 24 hours, set to zero to disable time based search)')
         self.add_opt('-N', '--num', help='Number of previous ingestions to check (defaults to last 10 if a filter ' \
