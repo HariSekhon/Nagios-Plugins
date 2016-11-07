@@ -68,7 +68,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.4'
+__version__ = '0.3.6'
 
 
 class CheckZaloniBedrockWorkflow(NagiosPlugin):
@@ -85,6 +85,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         self.jsessionid = None
         self.auth_time = None
         self.query_time = None
+        self.ok()
 
     def add_options(self):
         self.add_hostoption(name='Zaloni Bedrock', default_host='localhost', default_port=8080)
@@ -95,9 +96,9 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         self.add_opt('-n', '--name', metavar='<name>',
                      help='Workflow Name to check (see --list or UI to find these)')
         self.add_opt('-a', '--max-age', metavar='<mins>',
-                     help='Workflow max age, time in minutes since start of last workflow run (optional)')
+                     help='Max age in minutes since start of last workflow run (optional)')
         self.add_opt('-r', '--max-runtime', metavar='<mins>',
-                     help='Workflow max run time of last run in mins (optional)')
+                     help='Max run time of last workflow in minutes (optional)')
         self.add_opt('-l', '--list', action='store_true', help='List workflows and exit')
 
     def run(self):
@@ -195,10 +196,15 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
                 qquit('CRITICAL', "no reports found for workflow{0}".format(not_found_err))
             # orders by newest first by default, checking last run only
             report = reports[0]
+            num_reports = len(reports)
+            index = 0
+            while report['status'] == 'INCOMPLETE':
+                index += 1
+                if index >= num_reports:
+                    qquit('WARNING', 'only incomplete workflows detected')
+                report = reports[index]
             status = report['status']
-            if status == 'SUCCESS':
-                self.ok()
-            else:
+            if status != 'SUCCESS':
                 self.critical()
             self.msg += "workflow '{workflow}' id '{id}' status = '{status}'".format(workflow=report['wfName'],
                                                                                      id=report['wfId'],
@@ -224,7 +230,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             self.msg += ' in {0}'.format(sec2human(runtime_delta.seconds))
             if max_runtime is not None and max_runtime > (runtime_delta.seconds / 3600.0):
                 self.warning()
-                self.msg += ' (greater than {0} min{1}!)'.format('{0}'.format(max_runtime).rstrip('.0'),
+                self.msg += ' (greater than {0} min{1}!)'.format('{0}'.format(max_runtime).rstrip('0').rstrip('.'),
                                                                  plural(max_runtime))
             age_timedelta = datetime.now() - start_datetime
         if self.verbose:
@@ -234,7 +240,9 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
                 self.msg += ', started {0} ago'.format(sec2human(age_timedelta.seconds))
         if max_age is not None and age_timedelta is not None and age_timedelta.seconds > (max_age * 60.0):
             self.warning()
-            self.msg += ' (last run started more than {0} min{1} ago!)'.format('{0}'.format(max_age).rstrip('.0'),
+            self.msg += ' (last run started more than {0} min{1} ago!)'.format('{0}'.format(max_age)
+                                                                               .rstrip('0')
+                                                                               .rstrip('.'),
                                                                                plural(max_age))
         # Do not output variable number of fields at all if agedelta is not available as that breaks PNP4Nagios graphing
         if age_timedelta is not None and runtime_delta:
@@ -304,10 +312,10 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         log.debug('headers: %s', headers)
         start_time = time.time()
         try:
-            req = getattr(requests, method)(url,
-                                            #cookies=self.jar,
-                                            data=body,
-                                            headers=headers)
+            req = getattr(requests, method.lower())(url,
+                                                    #cookies=self.jar,
+                                                    data=body,
+                                                    headers=headers)
             for cookie_tuple in req.cookies.items():
                 if cookie_tuple[0] == 'JSESSIONID':
                     self.jsessionid = cookie_tuple[1].rstrip('/')
