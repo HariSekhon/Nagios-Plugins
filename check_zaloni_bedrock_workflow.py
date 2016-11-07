@@ -123,7 +123,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             validate_int(workflow_id, 'workflow id', 1)
             workflow_id = int(workflow_id)
         elif workflow_name is not None:
-            validate_chars(workflow_name, 'workflow name', r'\w-')
+            validate_chars(workflow_name, 'workflow name', r'\w\s-')
         elif self.get_opt('list'):
             pass
         else:
