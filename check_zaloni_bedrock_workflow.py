@@ -95,7 +95,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         self.add_hostoption(name='Zaloni Bedrock', default_host='localhost', default_port=8080)
         self.add_useroption(name='Zaloni Bedrock', default_user='admin')
         self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
-        self.add_opt('-a', '--all', action='store_true', help='Find and check all workflows')
+        self.add_opt('-A', '--all', action='store_true', help='Find and check all workflows')
         self.add_opt('-i', '--id', metavar='<int>',
                      help='Workflow ID to check (see --list or UI to find these)')
         self.add_opt('-n', '--name', metavar='<name>',
