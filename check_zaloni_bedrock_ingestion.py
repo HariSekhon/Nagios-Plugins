@@ -200,9 +200,11 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             num_results = len(result)
             log.info('%s ingestion history results returned', num_results)
             self.check_statuses(result)
-            self.msg += ' out of last {0} ingests'.format(num_results)
+            if num:
+                self.msg += ' out of last {0} ingest{1}'.format(num_results, plural(num_results))
             if self.history_mins:
-                self.msg += ' within last {0} mins'.format(str(self.history_mins).rstrip('0').rstrip('.'))
+                self.msg += ' within last {0} min{1}'.format(str(self.history_mins).rstrip('0').rstrip('.'),
+                                                             plural(self.history_mins))
             longest_incomplete_timedelta = self.check_longest_incomplete_ingest(result, max_runtime)
             # newest is first
             # effectiveDate is null in testing (docs says it's a placeholder for future use)
