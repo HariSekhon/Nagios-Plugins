@@ -112,13 +112,13 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
         self.add_opt('-N', '--num', help='Number of previous ingestions to check (defaults to last 10 if a filter ' \
                                     + 'is given, 100 otherwise)')
         self.add_opt('-i', '--id', metavar='<int>',
-                     help='Ingestion ID to check')
-        self.add_opt('-s', '--source', metavar='<URI>', help='Source file/directory location filter for ingestions')
-        self.add_opt('-d', '--dest', metavar='<URI>', help='Destination file/directory location filter for ingestions')
+                     help='Ingestion ID filter (optional)')
+        self.add_opt('-s', '--source', metavar='<URI>', help='Source file/directory location filter (optional)')
+        self.add_opt('-d', '--dest', metavar='<URI>', help='Destination file/directory location filter (optional)')
         self.add_opt('-a', '--max-age', metavar='<mins>',
                      help='Max age in mins since start of last triggered ingest run (optional)')
         self.add_opt('-r', '--max-runtime', metavar='<mins>', default=1380,
-                     help='Max time in minutes since start of any found incomplete ingest runs ' +
+                     help='Max runtime time in mins for any incomplete ingest runs ' +
                      '(default: 1380 ie. 23 hours)')
         self.add_opt('-l', '--list', action='store_true',
                      help='List ingestions and exit (increase --num to find more ingestions as ' \
