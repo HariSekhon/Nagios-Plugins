@@ -202,8 +202,8 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             if num:
                 self.msg += ' out of last {0} ingest{1}'.format(num_results, plural(num_results))
             if self.history_mins:
-                self.msg += ' within last {0} {1} (min{2})'.format(str(self.history_mins).rstrip('0').rstrip('.'),
-                                                                   sec2human(self.history_mins * 60),
+                self.msg += ' within last {0} ({1} min{2})'.format(sec2human(self.history_mins * 60),
+                                                                   str(self.history_mins).rstrip('0').rstrip('.'),
                                                                    plural(self.history_mins))
             longest_incomplete_timedelta = self.check_longest_incomplete_ingest(results, max_runtime)
             age_timedelta = self.check_last_ingest_age(results, max_age=max_age)
