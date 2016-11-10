@@ -79,7 +79,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.1'
+__version__ = '0.3'
 
 
 class CheckZaloniBedrockIngestion(NagiosPlugin):
@@ -191,31 +191,22 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             for key in sorted(filter_opts):
                 info += " {0}='{1}'".format(key, filter_opts[key])
         try:
-            result = json_dict['result']
-            if not result:
+            results = json_dict['result']
+            if not results:
                 qquit('CRITICAL', "no results found for ingestion{0}"\
                       .format('{0}. {1}'.format(info, self.extract_response_message(json_dict)) + \
                       'Perhaps you specified incorrect filters? Use --list to see existing ingestions'))
-            num_results = len(result)
+            num_results = len(results)
             log.info('%s ingestion history results returned', num_results)
-            self.check_statuses(result)
+            self.check_statuses(results)
             if num:
                 self.msg += ' out of last {0} ingest{1}'.format(num_results, plural(num_results))
             if self.history_mins:
                 self.msg += ' within last {0} min{1}'.format(str(self.history_mins).rstrip('0').rstrip('.'),
                                                              plural(self.history_mins))
-            longest_incomplete_timedelta = self.check_longest_incomplete_ingest(result, max_runtime)
-            # newest is first
-            # effectiveDate is null in testing (docs says it's a placeholder for future use)
-            # using ingestionTimeFormatted instead, could also use ingestionTime which is timestamp in millis
-            ingestion_date = result[0]['ingestionTimeFormatted']
-            age_timedelta = self.check_last_ingest_age(ingestion_date=ingestion_date, max_age=max_age)
-            params_reference = [('inventoryId', 'id'), ('fileName', 'source'), ('destinationPath', 'dest')]
-            if self.verbose and [param for (param, _) in params_reference if param in filter_opts]:
-                self.msg += ' for'
-                for (param, name) in params_reference:
-                    if param in filter_opts:
-                        self.msg += " {name}='{value}'".format(name=name, value=filter_opts[param])
+            longest_incomplete_timedelta = self.check_longest_incomplete_ingest(results, max_runtime)
+            age_timedelta = self.check_last_ingest_age(results, max_age=max_age)
+            self.msg_filter_details(filter_opts=filter_opts)
             self.msg += ' |'
             self.msg += ' last_ingest_age={0}s;{1}'.format(age_timedelta.seconds, max_age * 3600 if max_age else '')
             self.msg += ' longest_incomplete_ingest_age={0}s;{1}'.format(longest_incomplete_timedelta.seconds \
@@ -226,12 +217,20 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
         except KeyError as _:
             qquit('UNKNOWN', 'error parsing workflow execution history: {0}'.format(_))
 
-    def check_statuses(self, result):
-        # known statuses from doc: SUCCESS / INGESTION_FAILED / WORKFLOW_FAILED / INCOMPLETE
+    def msg_filter_details(self, filter_opts):
+        params_reference = [('inventoryId', 'id'), ('fileName', 'source'), ('destinationPath', 'dest')]
+        if self.verbose and [param for (param, _) in params_reference if param in filter_opts]:
+            self.msg += ' for'
+            for (param, name) in params_reference:
+                if param in filter_opts:
+                    self.msg += " {name}='{value}'".format(name=name, value=filter_opts[param])
+
+    def check_statuses(self, results):
+        # known statuses from doc: SUCCESS / INGESTION FAILED / WORKFLOW FAILED / INCOMPLETE
         log.info('checking statuses')
         result_statuses = {}
-        num_results = len(result)
-        for item in result:
+        num_results = len(results)
+        for item in results:
             status = item['status']
             result_statuses[status] = result_statuses.get(status, 0)
             result_statuses[status] += 1
@@ -269,8 +268,14 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
                         .format(str(max_runtime).rstrip('0').rstrip('.'), plural(max_runtime))
         return longest_incomplete_timedelta
 
-    def check_last_ingest_age(self, ingestion_date, max_age):
+    def check_last_ingest_age(self, results, max_age):
         log.info('checking last ingest age')
+        if not isList(results):
+            code_error('passed non-list to check_last_ingest_age()')
+        # newest is first
+        # effectiveDate is null in testing (docs says it's a placeholder for future use)
+        # using ingestionTimeFormatted instead, could also use ingestionTime which is timestamp in millis
+        ingestion_date = results[0]['ingestionTimeFormatted']
         age_timedelta = self.get_timedelta(ingestion_date=ingestion_date)
         if self.verbose:
             self.msg += ", last ingest start date = '{ingestion_date}'".format(ingestion_date=ingestion_date)
