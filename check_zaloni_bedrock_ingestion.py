@@ -79,7 +79,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.3.1'
 
 
 class CheckZaloniBedrockIngestion(NagiosPlugin):
@@ -202,8 +202,9 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             if num:
                 self.msg += ' out of last {0} ingest{1}'.format(num_results, plural(num_results))
             if self.history_mins:
-                self.msg += ' within last {0} min{1}'.format(str(self.history_mins).rstrip('0').rstrip('.'),
-                                                             plural(self.history_mins))
+                self.msg += ' within last {0} {1} (min{2})'.format(str(self.history_mins).rstrip('0').rstrip('.'),
+                                                                   sec2human(self.history_mins * 60),
+                                                                   plural(self.history_mins))
             longest_incomplete_timedelta = self.check_longest_incomplete_ingest(results, max_runtime)
             age_timedelta = self.check_last_ingest_age(results, max_age=max_age)
             self.msg_filter_details(filter_opts=filter_opts)
@@ -243,8 +244,8 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
         for status in result_statuses:
             if status not in ('SUCCESS', 'INCOMPLETE'):
                 self.critical()
-            self.msg += '{0} = {1} ingest{2}, '.format(status, result_statuses[status],
-                                                       plural(result_statuses[status]))
+            self.msg += '{0} = {1} time{2}, '.format(status, result_statuses[status],
+                                                     plural(result_statuses[status]))
         self.msg = self.msg.rstrip(', ')
         return result_statuses
 
