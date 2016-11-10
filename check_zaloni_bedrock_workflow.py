@@ -64,14 +64,14 @@ try:
     #from harisekhon.utils import CriticalError, UnknownError
     from harisekhon.utils import validate_host, validate_port, validate_user, validate_password, \
                                  validate_chars, validate_int, validate_float, \
-                                 jsonpp, isList, isStr, ERRORS, support_msg_api, sec2human, plural
+                                 jsonpp, isList, isStr, ERRORS, support_msg_api, code_error, sec2human, plural
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 
 class CheckZaloniBedrockWorkflow(NagiosPlugin):
@@ -161,27 +161,30 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             self.list_workflows()
 
         if self._all:
-            workflows = self.get_workflows()
-            if not workflows or len(workflows) == 0:
-                qquit('UNKNOWN', 'no workflows found')
-            results = {}
-            try:
-                for workflow in workflows:
-                    result = self.check_workflow(workflow['wfName'], None)
-                    if result is None:
-                        results['No Runs'] = results.get('None', 0)
-                        results['No Runs'] += 1
-                        continue
-                    results[result] = results.get(result, 0)
-                    results[result] += 1
-                self.msg = 'Zaloni workflows: '
-                for result in results:
-                    self.msg += "'{0}' = {1}, ".format(result, results[result])
-                self.msg = self.msg.rstrip(', ')
-            except KeyError as _:
-                qquit('UNKNOWN', 'parsing workflows for --all failed: {0}. '.format(_) + support_msg_api())
+            self.check_all_workflows()
         else:
             self.check_workflow(workflow_name, workflow_id, max_age, max_runtime)
+
+    def check_all_workflows(self):
+        workflows = self.get_workflows()
+        if not workflows or len(workflows) == 0:
+            qquit('UNKNOWN', 'no workflows found')
+        results = {}
+        try:
+            for workflow in workflows:
+                result = self.check_workflow(workflow['wfName'], None)
+                if result is None:
+                    results['No Runs'] = results.get('None', 0)
+                    results['No Runs'] += 1
+                    continue
+                results[result] = results.get(result, 0)
+                results[result] += 1
+            self.msg = 'Zaloni workflows: '
+            for result in results:
+                self.msg += "'{0}' = {1}, ".format(result, results[result])
+            self.msg = self.msg.rstrip(', ')
+        except KeyError as _:
+            qquit('UNKNOWN', 'parsing workflows for --all failed: {0}. '.format(_) + support_msg_api())
 
     @staticmethod
     def extract_response_message(response_dict):
@@ -225,15 +228,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             if not reports:
                 qquit('CRITICAL', "no reports found for workflow{0}".format(not_found_err))
             # orders by newest first by default, checking last run only
-            report = reports[0]
-            num_reports = len(reports)
-            index = 0
-            while report['status'] == 'INCOMPLETE':
-                index += 1
-                if index >= num_reports:
-                    log.warn('only incomplete workflows detected')
-                    report = reports[0]
-                report = reports[index]
+            report = self.get_latest_complete_report(reports)
             status = report['status']
             if status == 'SUCCESS':
                 pass
@@ -249,6 +244,24 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             return status
         except (KeyError, ValueError) as _:
             qquit('UNKNOWN', 'error parsing workflow execution history: {0}'.format(_))
+
+    @staticmethod
+    def get_latest_complete_report(reports):
+        if not isList(reports):
+            code_error('non-list passed to get_lastest_complete_report()')
+        if not reports:
+            qquit('UNKNOWN', 'no reports passed to get_latest_complete_report()')
+        num_reports = len(reports)
+        index = 0
+        report = reports[index]
+        while report['status'] == 'INCOMPLETE':
+            index += 1
+            if index < num_reports:
+                report = reports[index]
+            else:
+                log.warn('only incomplete workflows detected, will have to use latest incomplete workflow')
+                report = reports[0]
+        return report
 
     def check_times(self, start_date, end_date, max_age, max_runtime):
         start_date = str(start_date).strip()
