@@ -123,6 +123,8 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         validate_port(port)
         validate_user(user)
         validate_password(password)
+        if self._all and (workflow_name is not None or workflow_id is not None):
+            self.usage('cannot specify both --all and --name/--id simultaneously')
         if workflow_id is not None:
             if workflow_name is not None:
                 self.usage('cannot specify both --id and --name simultaneously')
