@@ -139,6 +139,10 @@ python-libs:
 	# install MySQLdb python module for check_logserver.py / check_syslog_mysql.py
 	# fails if MySQL isn't installed locally
 	$(SUDO3) pip install MySQL-python
+	
+	# must downgrade happybase library to work on Python 2.6
+	if [ "$$(python -c 'import sys; sys.path.append("pylib"); import harisekhon; print(harisekhon.utils.getPythonVersion())')" = "2.6" ]; then $(SUDO2) pip install --upgrade "happybase==0.9"; fi
+
 	@echo
 	#make jar-plugins
 	wget https://raw.githubusercontent.com/HariSekhon/pytools/master/find_active_server.py
