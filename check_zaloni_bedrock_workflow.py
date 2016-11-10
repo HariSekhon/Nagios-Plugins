@@ -26,6 +26,11 @@ Checks the following for the last execution of a given workflow:
 4. outputs start and end times (optional)
 5. perfdata for time taken and age
 
+If specifying -A / --all then will only check the last completed execution status for each workflow as the Bedrock API
+at this time of writing requires specifying a workflow name / id and does not allow a global search of all workflows to
+find the latest workflow to check for runtime and age (the ingestion API does however allow this, see
+check_zaloni_bedrock_ingestion.py).
+
 Can also list all workflows with names, IDs, category, owner and modified by for easy reference
 
 Verbose mode will output the start/end date & time of the last job as well
