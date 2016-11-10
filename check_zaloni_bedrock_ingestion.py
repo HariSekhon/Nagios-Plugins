@@ -227,6 +227,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             qquit('UNKNOWN', 'error parsing workflow execution history: {0}'.format(_))
 
     def check_statuses(self, result):
+        # known statuses from doc: SUCCESS / INGESTION_FAILED / WORKFLOW_FAILED / INCOMPLETE
         log.info('checking statuses')
         result_statuses = {}
         num_results = len(result)
