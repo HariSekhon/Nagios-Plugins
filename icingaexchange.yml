@@ -3,7 +3,7 @@
 #  Date: Fri May 22 09:48:39 UTC 2015
 #
 
-name: Advanced Nagios Plugins Collection (NoSQL, Hadoop, Redis, Cassandra, Elasticsearch, Solr, MySQL, Linux, HBase, MongoDB etc)
+name: Advanced Nagios Plugins Collection (NoSQL, Hadoop, Kafka, Redis, Cassandra, Elasticsearch, Solr, MySQL, Linux, HBase, MongoDB etc)
 description: "file:///README.md"
 url: "https://github.com/harisekhon/nagios-plugins"
 type: Plugin
@@ -20,7 +20,7 @@ vendor: Linux
 #  - RedHat
 #  - Sun
 #  - The MIT Kerberos Consortium
-tags: NoSQL
+tags: Hadoop
 #  - Ambari
 #  - AWS
 #  - Cassandra
@@ -31,7 +31,7 @@ tags: NoSQL
 #  - DataStax
 #  - DHCP
 #  - DNS
-#  - Elasitcsearch
+#  - Elasticsearch
 #  - Git
 #  - Hadoop
 #  - HBase
