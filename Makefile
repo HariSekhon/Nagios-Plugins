@@ -277,4 +277,8 @@ clean-zookeeper:
 
 .PHONY: docker-run
 docker-run:
+	docker run -ti --rm harisekhon/nagios-plugins ${ARGS}
+
+.PHONY: docker-mount
+docker-mount:
 	docker run -ti --rm -v $$PWD:/pl harisekhon/nagios-plugins bash -c "cd /pl; exec bash"
