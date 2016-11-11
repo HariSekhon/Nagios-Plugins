@@ -51,13 +51,13 @@ https://www.linkedin.com/in/harisekhon
 
 All plugins and their pre-compiled dependencies can be found ready to run on [DockerHub](https://hub.docker.com/r/harisekhon/nagios-plugins/).
 
-List all plugins:
+Lists all plugins by default:
 ```
 docker run harisekhon/nagios-plugins
 ```
-Run any given plugin:
+Run any given plugin with it's args by suffixing it to docker run command:
 ```
-docker run harisekhon/nagios-plugins <check_plugin> <args>
+docker run harisekhon/nagios-plugins check_ssl_cert.pl --help
 ```
 
 #### Automated Build from Source
