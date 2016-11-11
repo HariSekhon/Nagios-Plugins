@@ -125,6 +125,7 @@ Make sure to install the required Perl CPAN modules first before calling --help.
 - ```check_puppet.rb``` - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
 - ```check_aws_s3_file.pl``` - check for the existence of any arbitrary file on AWS S3, eg. to check backups have happened or _SUCCESS placeholder files are present for a job
 - ```check_travis_ci_last_build.py``` - checks the last build status of a given Travis CI repo showing build number, duration, start/stop times, if there are currently any builds in progress and perfdata for graphing last build time and number of builds in progress. Verbose mode gives the commit details as well
+- ```check_dns.pl``` - more advanced DNS query checker including NS records for your public domain name, MX records for your mail servers, SOA, SRV, TXT as well as A and PTR records
 - ```check_yum.py / check_yum.pl``` - widely used yum security updates checker for RHEL 5 - 7 systems dating back to 2008. You'll find forks of this around including NagiosExchange but please re-unify on this central updated version. Also has a Perl version which is a newer straight port with nicer more concise code and better library backing as well as configurable self-timeout.
 
 ... and there are many more.
