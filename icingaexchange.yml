@@ -3,7 +3,7 @@
 #  Date: Fri May 22 09:48:39 UTC 2015
 #
 
-name: Advanced Nagios Plugins Collection (NoSQL, Hadoop, Kafka, Redis, Cassandra, Elasticsearch, Solr, MySQL, Linux, HBase, MongoDB etc)
+name: Advanced Nagios Plugins Collection (Hadoop, Kafka, Redis, Cassandra, Elasticsearch, Solr, HBase, ZooKeeper, MongoDB, MySQL, Linux, Memcached, Neo4j, Travis CI, SSL Certs, Security Updates, Whois expiry, Cloudera, Hortonworks, MapR, HDFS, YARN, Impala, Mesos, Riak, advanced DNS queries for A / MX / PTR / SRV / SOA / TXT etc)
 description: "file:///README.md"
 url: "https://github.com/harisekhon/nagios-plugins"
 type: Plugin
