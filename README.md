@@ -51,7 +51,7 @@ https://www.linkedin.com/in/harisekhon
 
 All plugins and their pre-compiled dependencies can be found ready to run on [DockerHub](https://hub.docker.com/r/harisekhon/nagios-plugins/).
 
-Lists all plugins by default:
+List all plugins:
 ```
 docker run harisekhon/nagios-plugins
 ```
