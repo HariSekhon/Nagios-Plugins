@@ -58,7 +58,7 @@ List all plugins:
 ```
 docker run harisekhon/nagios-plugins
 ```
-Run any given plugin with it's args by suffixing it to the ```docker run ...``` command:
+Run any given plugin with it's args by suffixing it to the ```docker run``` command:
 ```
 docker run harisekhon/nagios-plugins check_ssl_cert.pl --help
 ```
