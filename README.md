@@ -52,7 +52,7 @@ https://www.linkedin.com/in/harisekhon
       OR
       
    b) Download pre-built in Docker
-2. Execute each program on the command line with ```--help``` to see it's options
+2. Execute each program on the command line with ```--help``` to see its options
 
 #### Ready-to-run Docker image #####
 
