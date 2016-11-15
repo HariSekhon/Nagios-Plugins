@@ -47,15 +47,18 @@ https://www.linkedin.com/in/harisekhon
 
 ### Quick Start ###
 
+1. Compile dependencies for executing locally by running ```make``` or download pre-built in Docker
+2. Execute each program on the command line with ```--help``` to see it's options
+
 #### Ready to run Docker image #####
 
-All plugins and their pre-compiled dependencies can be found ready to run on [DockerHub](https://hub.docker.com/r/harisekhon/nagios-plugins/).
+All plugins and their pre-compiled dependencies can be found ready-to-run on [DockerHub](https://hub.docker.com/r/harisekhon/nagios-plugins/).
 
 List all plugins:
 ```
 docker run harisekhon/nagios-plugins
 ```
-Run any given plugin with it's args by suffixing it to the ```docker run``` command:
+Run any given plugin with it's args by suffixing it to the ```docker run ...``` command:
 ```
 docker run harisekhon/nagios-plugins check_ssl_cert.pl --help
 ```
