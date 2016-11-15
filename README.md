@@ -147,7 +147,7 @@ This code base is under active development and there are many more cool plugins 
 - ```find_active_server.py``` - returns the first available healthy server or determines the active master in high availability setups. Configurable tests include socket, http, https, ping, url with optional regex content match and is multi-threaded for speed. Useful for pre-determining a server to be passed to tools that only take a single ```--host``` argument but for which the technology has later added multi-master support or active-standby masters (eg. Hadoop, HBase) or where you want to query cluster wide information available from any online peer (eg. Elasticsearch). This is downloaded from my [PyTools repo](https://github.com/harisekhon/pytools#hari-sekhon-pytools) as part of the build and placed at the top level. It has the ability to extend any nagios plugin to support multiple hosts in a generic way, eg:
 
 ```
-./check_elasticsearch_cluster_status.pl --host $(./find_active_server.py -v --http --port 9200 node1 node2 node3)
+./check_elasticsearch_cluster_status.pl --host $(./find_active_server.py --http --port 9200 node1 node2 node3)
 ```
 
 ### Kerberos Security Support ###
