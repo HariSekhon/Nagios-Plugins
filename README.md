@@ -47,11 +47,9 @@ https://www.linkedin.com/in/harisekhon
 
 ### Quick Start ###
 
-1. a) Compile dependencies for executing locally by running ```make```
-
-      OR
-      
-   b) Download pre-built in Docker
+1. a) Compile dependencies for executing locally by running ```make```  
+      OR  
+   b) Download pre-built via Docker
 2. Execute each program on the command line with ```--help``` to see its options
 
 #### Ready-to-run Docker image #####
