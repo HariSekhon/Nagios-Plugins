@@ -18,7 +18,7 @@ $DESCRIPTION = "Nagios Plugin to check the number of shards assigned to a given 
 
 Should specify an Elasticsearch node name rather than a hostname/FQDN/IP (see --list-nodes), as sometimes hosts may have more than once instance or client nodes like logstash-<fqdn>-<\\d+>-<\\d+> which also share the same hostname/FQDN and will result in multiple ambiguous matches, resulting in an UNKNOWN error condition to flag for user to correct this and be more specific.
 
-Elasticsearch 5.0.0 started truncating the node name so you should only supply the first 7 chars to work around this for now - see https://github.com/elastic/elasticsearch/issues/21565
+If using the node name be aware that the Elasticsearch API truncates the node name to 7 characters so you should only supply the first 7 chars to work around this for now - see https://github.com/elastic/elasticsearch/issues/21565
 
 Tested on Elasticsearch 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3, 5.0.0";
 
