@@ -87,7 +87,7 @@ test_elasticsearch(){
     set +e
     # _cat/fielddata API is broken in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
     #export ELASTICSEARCH_NODE="$(DEBUG='' $perl -T ./check_elasticsearch_fielddata.pl --list-nodes | grep -v -e '^Nodes' -e '^Hostname' -e '^[[:space:]]*$' | awk '{print $1; exit}' )"
-    export ELASTICSEARCH_NODE="$(curl -s $HOST:9200/_nodes | python -c 'import json, sys; print json.load(sys.stdin)["nodes"].keys()[0]')"
+    export ELASTICSEARCH_NODE="$(curl -s $HOST:9200/_nodes | python -c 'import json, sys; print json.load(sys.stdin)["nodes"].values()[0]["host"]')"
     [ -n "$ELASTICSEARCH_NODE" ] || die "failed to determine Elasticsearch node name from API!"
     echo "determined Elasticsearch node => $ELASTICSEARCH_NODE"
     #result=$?
@@ -146,9 +146,9 @@ test_elasticsearch(){
     hr
     $perl -T ./check_elasticsearch_nodes.pl -v -w 1
     hr
-    $perl -T ./check_elasticsearch_node_disk_percent.pl -N "${ELASTICSEARCH_NODE:0:7}" -v -w 90 -c 95
+    $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 90 -c 95
     hr
-    $perl -T ./check_elasticsearch_node_shards.pl -N "${ELASTICSEARCH_NODE:0:7}" -v
+    $perl -T ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
     hr
     $perl -T ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
     hr
