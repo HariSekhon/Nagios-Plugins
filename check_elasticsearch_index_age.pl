@@ -12,9 +12,9 @@
 
 $DESCRIPTION = "Nagios Plugin to check a given Elasticsearch index exists and optionally wasn't (re)created less than N days ago. Also prints the index's UUID
 
-Tested on Elasticsearch 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3";
+Tested on Elasticsearch 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3, 5.0.0";
 
-$VERSION = "0.6";
+$VERSION = "0.6.1";
 
 use strict;
 use warnings;
@@ -48,7 +48,9 @@ $status = "OK";
 list_elasticsearch_indices();
 
 #curl_elasticsearch "/$index/_settings?flat_settings&name=index.number_of_days";
-curl_elasticsearch "/$index/_settings?flat_settings&index.uuid&index.creation_date"; # still pulls all index settings
+# breaks in Elasticsearch 5.0
+#curl_elasticsearch "/$index/_settings?flat_settings&index.uuid&index.creation_date"; # still pulls all index settings
+curl_elasticsearch "/$index/_settings?flat_settings";
 
 # escape any dots in index name to not separate
 ( my $index2 = $index ) =~ s/\./\\./g;
