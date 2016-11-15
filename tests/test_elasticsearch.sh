@@ -27,8 +27,7 @@ echo "
 # ============================================================================ #
 "
 
-# 5.0 tag doesn't work yet
-export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-latest 1.4 1.5 1.6 1.7 2.0 2.2 2.3 2.4}}"
+export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-latest 1.4 1.5 1.6 1.7 2.0 2.2 2.3 2.4 5.0}}"
 
 ELASTICSEARCH_HOST="${DOCKER_HOST:-${ELASTICSEARCH_HOST:-${HOST:-localhost}}}"
 ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST##*/}"
@@ -86,8 +85,11 @@ test_elasticsearch(){
     hr
     # Listing checks return UNKNOWN
     set +e
-    export ELASTICSEARCH_NODE="$($perl -T ./check_elasticsearch_fielddata.pl --list-nodes | grep -v -e '^Nodes' -e '^Hostname' -e '^[[:space:]]*$' | head -n1 | awk '{print $1}' )"
-    echo "determined Elasticsearch node = $ELASTICSEARCH_NODE"
+    # _cat/fielddata API is broken in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
+    #export ELASTICSEARCH_NODE="$(DEBUG='' $perl -T ./check_elasticsearch_fielddata.pl --list-nodes | grep -v -e '^Nodes' -e '^Hostname' -e '^[[:space:]]*$' | awk '{print $1; exit}' )"
+    export ELASTICSEARCH_NODE="$(curl -s $HOST:9200/_nodes | python -c 'import json, sys; print json.load(sys.stdin)["nodes"].keys()[0]')"
+    [ -n "$ELASTICSEARCH_NODE" ] || die "failed to determine Elasticsearch node name from API!"
+    echo "determined Elasticsearch node => $ELASTICSEARCH_NODE"
     #result=$?
     #[ $result = 3 ] || exit $result
     hr
@@ -117,7 +119,14 @@ test_elasticsearch(){
     hr
     $perl -T ./check_elasticsearch_doc_count.pl -v
     hr
-    $perl -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
+    # _cat/fielddata API is broken in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
+    if [ "$version"       = ".*" -o \
+         "${version:0:1}" = 5    -o \
+         "$version"       = "latest" ]; then
+        :
+    else
+        $perl -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
+    fi
     hr
     $perl -T ./check_elasticsearch_index_exists.pl -v
     hr
@@ -137,9 +146,9 @@ test_elasticsearch(){
     hr
     $perl -T ./check_elasticsearch_nodes.pl -v -w 1
     hr
-    $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 90 -c 95
+    $perl -T ./check_elasticsearch_node_disk_percent.pl -N "${ELASTICSEARCH_NODE:0:7}" -v -w 90 -c 95
     hr
-    $perl -T ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
+    $perl -T ./check_elasticsearch_node_shards.pl -N "${ELASTICSEARCH_NODE:0:7}" -v
     hr
     $perl -T ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
     hr
