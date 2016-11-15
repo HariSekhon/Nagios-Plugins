@@ -50,7 +50,7 @@ https://www.linkedin.com/in/harisekhon
 1. Compile dependencies for executing locally by running ```make``` or download pre-built in Docker
 2. Execute each program on the command line with ```--help``` to see it's options
 
-#### Ready to run Docker image #####
+#### Ready-to-run Docker image #####
 
 All plugins and their pre-compiled dependencies can be found ready-to-run on [DockerHub](https://hub.docker.com/r/harisekhon/nagios-plugins/).
 
