@@ -87,7 +87,10 @@ test_elasticsearch(){
     set +e
     # _cat/fielddata API is broken in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
     #export ELASTICSEARCH_NODE="$(DEBUG='' $perl -T ./check_elasticsearch_fielddata.pl --list-nodes | grep -v -e '^Nodes' -e '^Hostname' -e '^[[:space:]]*$' | awk '{print $1; exit}' )"
-    export ELASTICSEARCH_NODE="$(curl -s $HOST:9200/_nodes | python -c 'import json, sys; print json.load(sys.stdin)["nodes"].values()[0]["host"]')"
+    # this works too but let's test the --list-nodes from one of the plugins
+    #export ELASTICSEARCH_NODE="$(curl -s $HOST:9200/_nodes | python -c 'import json, sys; print json.load(sys.stdin)["nodes"].values()[0]["node"]')"
+    # taking hostname not node name here, ip is $2, node name is $3
+    export ELASTICSEARCH_NODE="$(DEBUG='' $perl -T ./check_elasticsearch_node_disk_percent.pl --list-nodes | grep -vi -e '^Elasticsearch Nodes' -e '^Hostname' -e '^[[:space:]]*$' | awk '{print $1; exit}' )"
     [ -n "$ELASTICSEARCH_NODE" ] || die "failed to determine Elasticsearch node name from API!"
     echo "determined Elasticsearch node => $ELASTICSEARCH_NODE"
     #result=$?
