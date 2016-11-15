@@ -49,7 +49,9 @@ $status = "OK";
 
 list_elasticsearch_indices();
 
-curl_elasticsearch "/$index/_settings?flat_settings&name=index.number_of_shards";
+# breaks in Elasticsearch 5.0
+#curl_elasticsearch "/$index/_settings?flat_settings&name=index.number_of_shards";
+curl_elasticsearch "/$index/_settings?flat_settings";
 
 # escape any dots in index name to not separate
 ( my $index2 = $index ) =~ s/\./\\./g;
