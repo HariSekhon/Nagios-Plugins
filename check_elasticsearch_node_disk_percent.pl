@@ -20,8 +20,6 @@ For regular deployments with one Elasticsearch instance per server it's perfectl
 
 For convenience --node defaults to same as --host, which may not match if you're specifying a short hostname for --host and elasticsearch is reporting an FQDN, in which case you should specify the node explicitly as shown by the output of --list-nodes.
 
-If using the node name be aware that the Elasticsearch API truncates the node name to 7 characters so you should only supply the first 7 chars to work around this for now - see https://github.com/elastic/elasticsearch/issues/21565
-
 Tested on Elasticsearch 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3, 2.4.1, 5.0.0";
 
 $VERSION = "0.2";
