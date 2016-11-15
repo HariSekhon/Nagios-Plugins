@@ -16,6 +16,8 @@ Optional --warning/--critical threshold ranges may be applied to the volume in b
 
 Also outputs total fielddata on all nodes
 
+Doesn't work on Elasticsearch 5.0.0 at this time due to a bug in the Elasticsearch _cat API - https://github.com/elastic/elasticsearch/issues/21564
+
 Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.1.1, 2.2.2, 2.3.3";
 
 $VERSION = "0.3.2";
