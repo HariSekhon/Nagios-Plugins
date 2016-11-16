@@ -49,18 +49,18 @@ hr
 echo "Testing induced failures"
 hr
 # should return zero exit code regardless but raise non-OK statuses in STATUS field
-./geneos_wrapper.py --shell exit 0 | tee /dev/stderr | grep -q "^OK"
+./geneos_wrapper.py --shell exit 0 | tee /dev/stderr | grep -q "^OK,"
 hr
-./geneos_wrapper.py --shell exit 1 | tee /dev/stderr | grep -q "^WARNING"
+./geneos_wrapper.py --shell exit 1 | tee /dev/stderr | grep -q "^WARNING,"
 hr
-./geneos_wrapper.py --shell exit 2 | tee /dev/stderr | grep -q "^CRITICAL"
+./geneos_wrapper.py --shell exit 2 | tee /dev/stderr | grep -q "^CRITICAL,"
 hr
-./geneos_wrapper.py --shell exit 3 | tee /dev/stderr | grep -q "^UNKNOWN"
+./geneos_wrapper.py --shell exit 3 | tee /dev/stderr | grep -q "^UNKNOWN,"
 hr
-./geneos_wrapper.py nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q "^UNKNOWN"
+./geneos_wrapper.py nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q "^UNKNOWN,"
 hr
-./geneos_wrapper.py --shell nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q "^UNKNOWN"
+./geneos_wrapper.py --shell nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q "^UNKNOWN,"
 hr
-./geneos_wrapper.py $perl -T check_disk_write.pl --help | tee /dev/stderr | grep -q "^UNKNOWN"
+./geneos_wrapper.py $perl -T check_disk_write.pl --help | tee /dev/stderr | grep -q "^UNKNOWN,"
 hr
 echo; echo
