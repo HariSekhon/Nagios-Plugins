@@ -31,8 +31,13 @@ set +e
 ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins
 check_exit_code 0 2
 hr
-./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v
-check_exit_code 0 2
+echo "check warning threshold to induces failure"
+./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v -w 10
+check_exit_code 1 2
+hr
+echo "check critical threshold to induces failure"
+./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v -c 10
+check_exit_code 2
 hr
 ./check_travis_ci_last_build.py -r HariSekhon/tools
 check_exit_code 0 2
