@@ -171,9 +171,9 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - graphing data where appropriate (use PNP4Nagios for automatic graphing)
 - code reuse, especially for more complex input/output validations and error handling
 - support for use of $USERNAME and $PASSWORD environment variables as well as more specific overrides (eg. $MYSQL_USERNAME, $REDIS_PASSWORD) to give administrators the option to avoid leaking ```--password``` credentials in the process list for all users to see
-- continuous integration with tests for success and failure scenarios:
-  - unit tests for the custom supporting libraries
-  - functional tests for the top level programs using Dockerized containers for each technology (eg. Cassandra, Elasticsearch, Hadoop, HBase, ZooKeeper, Memcached, Neo4j, MongoDB, MySQL, Riak, Redis...)
+- [continuous integration](https://travis-ci.org/HariSekhon/nagios-plugins) with tests for success and failure scenarios:
+  - unit tests for the custom supporting [perl](https://github.com/harisekhon/lib) and [python](https://github.com/harisekhon/pylib) libraries
+  - [functional tests](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) for the top level programs using Dockerized containers for each technology (eg. Cassandra, Elasticsearch, Hadoop, HBase, ZooKeeper, Memcached, Neo4j, MongoDB, MySQL, Riak, Redis...)
 - easy rapid development of new high quality robust Nagios plugins with minimal lines of code
 
 Several plugins have been merged together and replaced with symlinks to the unified plugins bookmarking their areas of functionality, similar to some plugins from the standard nagios plugins collection.
