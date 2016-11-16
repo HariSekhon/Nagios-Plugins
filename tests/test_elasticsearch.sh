@@ -85,7 +85,7 @@ test_elasticsearch(){
     hr
     # Listing checks return UNKNOWN
     set +e
-    # _cat/fielddata API is broken in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
+    # _cat/fielddata API is no longer outputs lines for 0b fielddata nodes in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
     #export ELASTICSEARCH_NODE="$(DEBUG='' $perl -T ./check_elasticsearch_fielddata.pl --list-nodes | grep -v -e '^Nodes' -e '^Hostname' -e '^[[:space:]]*$' | awk '{print $1; exit}' )"
     # this works too but let's test the --list-nodes from one of the plugins
     #export ELASTICSEARCH_NODE="$(curl -s $HOST:9200/_nodes | python -c 'import json, sys; print json.load(sys.stdin)["nodes"].values()[0]["node"]')"
@@ -122,14 +122,8 @@ test_elasticsearch(){
     hr
     $perl -T ./check_elasticsearch_doc_count.pl -v
     hr
-    # _cat/fielddata API is broken in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
-    if [ "$version"       = ".*" -o \
-         "${version:0:1}" = 5    -o \
-         "$version"       = "latest" ]; then
-        :
-    else
-        $perl -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
-    fi
+    # _cat/fielddata API is no longer outputs lines for 0b fielddata nodes in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
+    $perl -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
     hr
     $perl -T ./check_elasticsearch_index_exists.pl -v
     hr
