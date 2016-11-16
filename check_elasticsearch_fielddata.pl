@@ -18,9 +18,9 @@ Also outputs total fielddata on all nodes
 
 Doesn't work on Elasticsearch 5.0.0 at this time due to a bug in the Elasticsearch _cat API returning blank output - https://github.com/elastic/elasticsearch/issues/21564
 
-Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.1.1, 2.2.2, 2.3.3, 2.4.1";
+Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.1.1, 2.2.2, 2.3.3, 2.4.1, 5.0.0";
 
-$VERSION = "0.3.2";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -39,7 +39,7 @@ my $list_nodes;
 %options = (
     %hostoptions,
     "N|node=s"    => [ \$node,       "Node hostname or IP address of node for which to check fielddata volume" ],
-    "list-nodes"  => [ \$list_nodes, "List nodes" ],
+    "list-nodes"  => [ \$list_nodes, "List nodes (this API no longer returns nodes without fielddata from 5.0 onwards, use --list from one of the adjacent plugins instead)" ],
     %thresholdoptions,
 );
 push(@usage_order, qw/node list-nodes/);
@@ -99,12 +99,28 @@ foreach(split(/\n/, $content)){
 }
 exit $ERRORS{"UNKNOWN"} if($list_nodes);
 
-((defined($ip) and $node eq $ip) or (defined($node_hostname) and $node eq $node_hostname)) or quit "UNKNOWN", "failed to find node '$node' in result from Elasticsearch";
+# Elasticsearch 5.0 changed the behaviour to no output if there is no perfdata instead of listing 0b :-/
+if(defined($bytes)){
+    if(defined($ip) or defined($node_hostname)) {
+        if (defined($ip) and $node eq $ip) {
+        } elsif (defined($node_hostname) and $node eq $node_hostname) {
+        } else {
+            quit "UNKNOWN", "failed to find matching node '$node' in result from Elasticsearch";
+        }
+    }
+} else {
+    vlog2 "node not found in output, probably Elasticsearch 5.0+ which stopped outputting lines for 0 bytes, inferring 0 bytes";
+    $bytes = 0;
+}
+
+unless(defined($node_hostname)){
+    $node_hostname = $node;
+}
 
 $msg = "elasticsearch ";
 
 $msg .= "fielddata on node '$node_hostname'";
-$msg .= " ($ip)" if $verbose;
+$msg .= " ($ip)" if ($verbose and defined($ip));
 $msg .= " = " . human_units($bytes);
 check_thresholds($bytes);
 $msg .= ", total fielddata on all nodes = " . human_units($total);
