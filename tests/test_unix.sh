@@ -53,6 +53,11 @@ rm -f test.txt
 hr
 $perl -T ./check_ssl_cert.pl -H www.google.com -w 2 -c 1 -v
 hr
+# test real login against HP iLO or similar if local environment is configured for it
+if [ -n "$SSH_HOST" -a -n "$SSH_USER" -a -n "$SSH_PASSWORD" ]; then
+    $perl -T ./check_ssh_login.pl -H "$SSH_HOST" -u "$SSH_USER" -p "$SSH_PASSWORD"
+fi
+hr
 echo "Testing check_ssh_login.pl correctly fails on non-existent user against localhost"
 set +e
 $perl -T ./check_ssh_login.pl -H localhost -u check_ssh_login_nagios_plugin_test -p test
