@@ -52,7 +52,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckTravisCILastBuild(NagiosPlugin):
@@ -116,9 +116,10 @@ class CheckTravisCILastBuild(NagiosPlugin):
         # get latest finished build
         for _ in builds:
             if _['state'] == 'finished':
-                build = _
-                break
-            self.builds_in_progress += 1
+                if build is None:
+                    build = _
+            else:
+                self.builds_in_progress += 1
         if build is None:
             qquit('UNKNOWN', 'no recent builds finished yet')
         if log.isEnabledFor(logging.DEBUG):
