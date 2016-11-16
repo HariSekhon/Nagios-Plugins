@@ -102,7 +102,7 @@ All plugins come with `--help` which lists all options as well as giving a progr
 
 Some common options also support optional environment variables for convenience to reduce repeated switch usage or to hide them from being exposed in the process list. These are indicated in the `--help` descriptions in brackets next to each option eg. `$HOST`, `$PASSWORD` or more specific ones with higher precedence like `$ELASTICSEARCH_HOST`, `$REDIS_PASSWORD` etc.
 
-Make sure to run the [automated build](https://github.com/harisekhon/nagios-plugins#automated-build-from-source) or install the required Perl CPAN / Python PyPI modules first (or use Docker) before calling `--help`.
+Make sure to run the [automated build](https://github.com/harisekhon/nagios-plugins#automated-build-from-source) or install the required Perl CPAN / Python PyPI modules first before calling `--help`.
 
 ### A Sample of cool Nagios Plugins in this collection ###
 
