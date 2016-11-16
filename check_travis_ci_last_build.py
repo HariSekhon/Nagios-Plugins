@@ -16,9 +16,14 @@
 
 """
 
-Nagios Plugin to check the last build status of a given Travis CI repository via the Travis API
+Nagios Plugin to check Travis CI last build status for a given repository via the Travis API
 
-Use --verbose to give extra information about the latest build, -vv for multi-line info, and -vvv or -D for debug output
+Shows status as PASSED/FAILED for last finished build along with build number, duration in seconds
+with optional --warning/--critical thresholds and build start and finished date & time.
+
+Perfdata is output for build time for the last finished build and number of current builds in progress.
+
+Verbose mode gives extra info including commit id, commit message, repository id and number of builds in progress
 
 """
 
@@ -52,7 +57,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class CheckTravisCILastBuild(NagiosPlugin):
@@ -69,6 +74,7 @@ class CheckTravisCILastBuild(NagiosPlugin):
     def add_options(self):
         self.add_opt('-r', '--repo',
                      help="Travis repo (case sensitive, in form of 'user/repo' eg. 'HariSekhon/nagios-plugins')")
+        self.add_thresholds()
 
     def process_args(self):
         self.no_args()
@@ -79,6 +85,7 @@ class CheckTravisCILastBuild(NagiosPlugin):
         if len(parts) != 2 or not parts[0] or not parts[1]:
             self.usage("invalid --repo format, must be in form of 'user/repo'")
         validate_chars(self.repo, 'repo', r'\/\w\.-')
+        self.validate_thresholds(optional=True)
 
     def run(self):
         url = 'https://api.travis-ci.org/repos/{repo}/builds'.format(repo=self.repo)
@@ -172,20 +179,24 @@ class CheckTravisCILastBuild(NagiosPlugin):
             self.critical()
             status = "FAILED"
 
-        self.msg = "Travis CI build #{number} {status} for repo '{repo}' in {duration} secs".format(
-            number=number, status=status, repo=self.repo, duration=duration)
-        self.msg += ", started_at='%s'" % started_at
-        self.msg += ", finished_at='%s'" % finished_at
+        self.msg = "Travis CI build #{number} {status} for repo '{repo}' in {duration} secs".format(\
+                               number=number, status=status, repo=self.repo, duration=duration)
+        self.check_thresholds(duration)
+        self.msg += ", started_at='{0}'".format(started_at)
+        self.msg += ", finished_at='{0}'".format(finished_at)
 
         if self.verbose:
-            self.msg += ", message='%s'" % message
-            self.msg += ", branch='%s'" % branch
-            self.msg += ", commit='%s'" % commit
-            self.msg += ", repository_id='%s'" % repository_id
+            self.msg += ", message='{0}'".format(message)
+            self.msg += ", branch='{0}'".format(branch)
+            self.msg += ", commit='{0}'".format(commit)
+            self.msg += ", repository_id='{0}'".format(repository_id)
 
         if self.verbose or self.builds_in_progress > 0:
-            self.msg += ", %s build%s in progress" % (self.builds_in_progress, plural(self.builds_in_progress))
-        self.msg += " | last_build_duration=%ss builds_in_progress=%s" % (duration, self.builds_in_progress)
+            self.msg += ", {0} build{1} in progress".format(self.builds_in_progress, plural(self.builds_in_progress))
+        self.msg += " | last_build_duration={duration}s{perf_thresholds} num_builds_in_progress={builds_in_progress}"\
+                    .format(duration=duration,
+                            perf_thresholds=self.get_perf_thresholds(),
+                            builds_in_progress=self.builds_in_progress)
 
 
 if __name__ == '__main__':
