@@ -22,7 +22,8 @@ Most enterprise monitoring systems come with basic generic checks, while this pr
 It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web Infrastructure,
 [Hadoop](http://hadoop.apache.org/),
 [Kafka](http://kafka.apache.org/),
-[Mesos](http://mesos.apache.org/)
+[Mesos](http://mesos.apache.org/),
+[Consul](https://www.consul.io/)
 and NoSQL technologies ([Cassandra](http://cassandra.apache.org/),
 [HBase](https://hbase.apache.org/),
 [MongoDB](https://www.mongodb.com/),
@@ -132,6 +133,7 @@ Make sure to run the [automated build](https://github.com/harisekhon/nagios-plug
 - ```check_puppet.rb``` - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
 - ```check_aws_s3_file.pl``` - check for the existence of any arbitrary file on AWS S3, eg. to check backups have happened or _SUCCESS placeholder files are present for a job
 - ```check_dns.pl``` - more advanced DNS query checker supporting NS records for your public domain name, MX records for your mail servers, SOA, SRV, TXT as well as A and PTR records
+- `check_consul_*` - check Consul API write / read back, arbitrary key-value content checks, number of cluster peers & version
 - ```check_mesos_*.pl``` - check Mesos master health API, master & slaves state information including leader and versions, activated & deactivated slaves, number of Chronos jobs, master & slave metrics
 - ```check_mysql_query.pl``` - generic enough it obsoleted a dozen custom MySQL plugins and prevented writing many more
 - ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline
