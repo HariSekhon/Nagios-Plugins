@@ -170,14 +170,14 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - consistent behaviour
 - standardized switches
 - strict input/output validation at all stages, written for security and robustness
-- multiple verbosity levels
+- multiple verbosity levels & debug mode
 - self-timeouts
-- graphing data where appropriate (use [PNP4Nagios](https://docs.pnp4nagios.org/) for automatic graphing)
+- graphing data where appropriate ([PNP4Nagios](https://docs.pnp4nagios.org/) add-on auto-graphs the perfdata from these plugins)
 - code reuse, especially for more complex input/output validations and error handling
 - support for use of $USERNAME and $PASSWORD environment variables as well as more specific overrides (eg. $MYSQL_USERNAME, $REDIS_PASSWORD) to give administrators the option to avoid leaking ```--password``` credentials in the process list for all users to see
 - [continuous integration](https://travis-ci.org/HariSekhon/nagios-plugins) with tests for success and failure scenarios:
   - unit tests for the custom supporting [perl](https://github.com/harisekhon/lib) and [python](https://github.com/harisekhon/pylib) libraries
-  - [functional tests](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) for the top level programs using Dockerized containers for each technology (eg. Cassandra, Elasticsearch, Hadoop, HBase, ZooKeeper, Memcached, Neo4j, MongoDB, MySQL, Riak, Redis...)
+  - [functional tests](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) for the top level programs using [Dockerized containers](https://hub.docker.com/u/harisekhon/) for each technology (eg. Cassandra, Elasticsearch, Hadoop, HBase, ZooKeeper, Memcached, Neo4j, MongoDB, MySQL, Riak, Redis...)
 - easy rapid development of new high quality robust Nagios plugins with minimal lines of code
 
 Several plugins have been merged together and replaced with symlinks to the unified plugins bookmarking their areas of functionality, similar to some plugins from the standard nagios plugins collection.
@@ -194,21 +194,21 @@ Examples of your usage and outputs are also welcome for the Wiki as some of thes
 
 ##### Library #####
 
-Having written a large number of Nagios Plugins in the last several years in a variety of languages (Python, Perl, Ruby, Bash, VBS) I abstracted out common components of a good robust Nagios Plugin program in to a library of reusable components that I leverage very heavily in all my modern plugins and other programs found under my other repos here on GitHub, which are now mostly written in Perl using this library, for reasons of both concise rapid development and speed of execution.
+Having written a large number of Nagios Plugins in the last 10 years in a variety of languages (Python, Perl, Ruby, Bash, VBS) I abstracted out common components of a good robust Nagios Plugin program in to a library of reusable components that I leverage very heavily in all my modern plugins and other programs found under my other repos here on GitHub, which are now mostly written in Perl or Python using these custom libraries, for reasons of both concise rapid development and speed of execution.
 
-This Library enables writing much more thoroughly validated production quality code, to achieve in a quick 200 lines of Perl what might otherwise take 1500-2000 lines (including some of the more complicated supporting code such as robust validation functions with long complex regexs, configurable self-timeouts, warning/critical threshold range logic, common options and generated usage, multiple levels of verbosity, debug mode etc), dramatically reducing the time to write high quality plugins down to mere hours and at the same time vastly improving the quality of the final code through code reuse, as well as benefitting from generic future improvements to the library.
+This Library enables writing much more thoroughly validated production quality code, to achieve in a quick 200 lines of Perl or Python what might otherwise take 2000 lines (including some of the more complicated supporting code such as robust validation functions with long complex regexs, configurable self-timeouts, warning/critical threshold range logic, common options and generated usage, multiple levels of verbosity, debug mode etc), dramatically reducing the time to write high quality plugins down to mere hours and at the same time vastly improving the quality of the final code through code reuse, as well as benefitting from generic future improvements to the underlying libraries.
 
 This gives each plugin the appearance of being very short, because only the core logic of what you're trying to achieve is displayed in the plugin itself, mostly composition of utility functions, and the error handling is often handled in a library too, so it may appear that a simple one line 'curl()' or 'open_file()' utility function call has no error handling at all around it but under the hood the error handling is handled inside the function inside a library, same for HBase Thrift API connection, Redis API connection etc so the client code as seen in the top level plugins knows it succeeded or otherwise the framework would have errored out with a specific error message such as "connection refused" etc... there is a lot of buried error checking code and a lot of utility functions so many operations become one-liners at the top level instead of huge programs that are hard to read and maintain.
 
-I've tried to keep the quality here high so a lot of plugins I've written over the years haven't made it in to this collection, there are a lot still pending import, a couple others ```check_nsca.pl``` and ```check_syslog-ng_stats.pl``` are in the more/ directory until I get round to reintegrating and testing them with my current framework to modernize them, although they should still work with the tiny utils.pm from the standard nagios plugins collection.
+I've tried to keep the quality here high so a lot of plugins I've written over the years haven't made it in to this collection, there are a lot still pending import, a couple others `check_nsca.pl` and `check_syslog-ng_stats.pl` are in the `more/` directory until I get round to reintegrating and testing them with my current framework to modernize them, although they should still work with the tiny utils.pm from the standard nagios plugins collection.
 
-I'm aware of Nagios::Plugin but my library has a lot more utility functions in it and I've written it to be highly convenient for me to develop with.
+I'm aware of Nagios::Plugin but my libraries have a lot more utility functions and I've written them to be highly convenient to develop with.
 
 ###### Older Plugins ######
 
-Some older plugins (especially those written in languages other than Perl) may not adhere to all of the criteria above so most have been filed away under the older/ directory (they were used by people out there in production so I didn't want to remove them entirely). Older plugins also indicate that I haven't run or made updates to them in a few years so those may require tweaks and updates.
+Some older plugins may not adhere to all of the criteria above so most have been filed away under the `older/` directory (they were used by people out there in production so I didn't want to remove them entirely). Older plugins also indicate that I haven't run or made updates to them in a few years so they're in basic maintenance mode and may require minor tweaks or updates.
 
-If you're new remember to check out the older/ directory for more plugins that are less current but that you might find useful.
+If you're new remember to check out the `older/` directory for more plugins that are less current but that you might find useful such as RAID checks for Linux MD Raid, 3ware / LSI MegaRaid / Dell Perc Raid Controllers (which is rebranded LSI MegaRaid), 
 
 ### Manual Build ###
 
