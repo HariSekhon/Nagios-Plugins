@@ -51,6 +51,8 @@ build :
 	make python-libs
 	@echo
 	#make jar-plugins
+	@echo
+	@echo "BUILD SUCCESSFUL (nagios-plugins)"
 
 .PHONY: common
 common:
@@ -112,6 +114,8 @@ perl-libs:
 
 	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
 	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' $$libfilepath || $(SUDO2) sed -i.bak "s/use strict;/use strict; use Socket;/" $$libfilepath
+	@echo
+	@echo "BUILD SUCCESSFUL (nagios-plugins perl)"
 
 
 .PHONY: python
@@ -148,7 +152,7 @@ python-libs:
 	@echo
 	wget https://raw.githubusercontent.com/HariSekhon/pytools/master/find_active_server.py
 	@echo
-	@echo "BUILD SUCCESSFUL (nagios-plugins)"
+	@echo "BUILD SUCCESSFUL (nagios-plugins python)"
 
 .PHONY: elasticsearch2
 elasticsearch2:
