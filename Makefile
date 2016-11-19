@@ -49,6 +49,8 @@ build :
 	make common
 	make perl-libs
 	make python-libs
+	@echo
+	#make jar-plugins
 
 .PHONY: common
 common:
@@ -144,7 +146,6 @@ python-libs:
 	if [ "$$(python -c 'import sys; sys.path.append("pylib"); import harisekhon; print(harisekhon.utils.getPythonVersion())')" = "2.6" ]; then $(SUDO2) pip install --upgrade "happybase==0.9"; fi
 
 	@echo
-	#make jar-plugins
 	wget https://raw.githubusercontent.com/HariSekhon/pytools/master/find_active_server.py
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins)"
@@ -224,8 +225,13 @@ jar-plugins:
 	@echo Fetching pre-compiled Java / Scala plugins
 	@echo
 	@echo Fetching Kafka Scala Nagios Plugin
-	wget -c -t 100 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/blob/latest/check_kafka
-	wget -c -t 100 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/releases/download/latest/check_kafka.jar
+	@echo fetching jar wrapper shell script
+	# if removing and re-uploading latest this would get 404 and exit immediately without the rest of the retries
+	#wget -c -t 100 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/blob/latest/check_kafka
+	for x in {1..6}; do wget -c https://github.com/HariSekhon/nagios-plugin-kafka/blob/latest/check_kafka && break; sleep 10; done
+	@echo fetching jar
+	#wget -c -t 100 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/releases/download/latest/check_kafka.jar
+	for x in {1..6}; do wget -c https://github.com/HariSekhon/nagios-plugin-kafka/releases/download/latest/check_kafka.jar && break; sleep 10; done
 
 .PHONY: sonar
 sonar:
