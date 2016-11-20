@@ -33,7 +33,7 @@ echo "
 export SANDBOX_CLUSTER="Sandbox"
 export AMBARI_PORT="${AMBARI_PORT:-8080}"
 export AMBARI_USER="${AMBARI_USER:-admin}"
-export AMBARI_PASSWORD="${AMBARI_USER:-admin}"
+export AMBARI_PASSWORD="${AMBARI_PASSWORD:-admin}"
 export AMBARI_CLUSTER="${AMBARI_CLUSTER:-$SANDBOX_CLUSTER}"
 
 if [ -z "${AMBARI_HOST:-}" ]; then
