@@ -194,11 +194,11 @@ Patches, improvements and even general feedback are welcome in the form of GitHu
 
 Examples of your usage and outputs are also welcome for the Wiki as some of these plugins allow a great diversity of checks to be created - for example, free form MySQL queries or ZooKeeper contents checks can be used to check pretty much anything that advanced DBAs and applications/operations personnel can think of with a just a few command line --switches.
 
-##### Library #####
+##### Libraries #####
 
-Having written a large number of Nagios Plugins in the last 10 years in a variety of languages (Python, Perl, Ruby, Bash, VBS) I abstracted out common components of a good robust Nagios Plugin program in to a library of reusable components that I leverage very heavily in all my modern plugins and other programs found under my other repos here on GitHub, which are now mostly written in Perl or Python using these custom libraries, for reasons of both concise rapid development and speed of execution.
+Having written a large number of Nagios Plugins in the last 10 years in a variety of languages (Python, Perl, Ruby, Bash, VBS) I abstracted out common components of a good robust Nagios Plugin program in to libraries of reusable components that I leverage very heavily in all my modern plugins and other programs found under my other repos here on GitHub, which are now mostly written in Perl or Python using these custom libraries, for reasons of both concise rapid development and speed of execution.
 
-This Library enables writing much more thoroughly validated production quality code, to achieve in a quick 200 lines of Perl or Python what might otherwise take 2000 lines (including some of the more complicated supporting code such as robust validation functions with long complex regexs, configurable self-timeouts, warning/critical threshold range logic, common options and generated usage, multiple levels of verbosity, debug mode etc), dramatically reducing the time to write high quality plugins down to mere hours and at the same time vastly improving the quality of the final code through code reuse, as well as benefitting from generic future improvements to the underlying libraries.
+These libraries enables writing much more thoroughly validated production quality code, to achieve in a quick 200 lines of Perl or Python what might otherwise take 2000-3000 lines to do properly (including some of the more complicated supporting code such as robust validation functions with long complex regexs with unit tests, configurable self-timeouts, warning/critical threshold range logic, common options and generated usage, multiple levels of verbosity, debug mode etc), dramatically reducing the time to write high quality plugins down to mere hours and at the same time vastly improving the quality of the final code through code reuse, as well as benefitting from generic future improvements to the underlying libraries.
 
 This gives each plugin the appearance of being very short, because only the core logic of what you're trying to achieve is displayed in the plugin itself, mostly composition of utility functions, and the error handling is often handled in a library too, so it may appear that a simple one line 'curl()' or 'open_file()' utility function call has no error handling at all around it but under the hood the error handling is handled inside the function inside a library, same for HBase Thrift API connection, Redis API connection etc so the client code as seen in the top level plugins knows it succeeded or otherwise the framework would have errored out with a specific error message such as "connection refused" etc... there is a lot of buried error checking code and a lot of utility functions so many operations become one-liners at the top level instead of huge programs that are hard to read and maintain.
 
@@ -214,7 +214,7 @@ If you're new remember to check out the `older/` directory for more plugins that
 
 ### Manual Build ###
 
-Fetch my library repo which is included as a submodule (it's shared between these Nagios Plugins and other programs I've written over the years).
+Fetch my library repos which are included as submodules (they're shared between this and other repos containing various programs I've written over the years).
 
 ```
 git clone https://github.com/harisekhon/nagios-plugins
@@ -223,11 +223,11 @@ git submodule init
 git submodule update
 ```
 
-Then install the Perl CPAN and Python modules as listed in the next sections.
+Then install the Perl CPAN and Python PyPI modules as listed in the next sections.
 
 ##### Perl CPAN Modules #####
 
-If installing the Perl CPAN modules via your package manager or by hand instead of running the 'make' command as listed in Quick Setup, then read the 'Makefile' file for the list of Perl CPAN modules that you need to install.
+If installing the Perl CPAN or Python PyPI modules via your package manager or by hand instead of via the [Automated Build From Source](https://github.com/harisekhon/nagios-plugins#automated-build-from-source) section, then read the 'requirements.txt' and 'setup/cpan-requirements.txt' files for the lists of Python PyPI and Perl CPAN modules respectively that you need to install.
 
 ###### Net::ZooKeeper (for various ZooKeeper content checks for Kafka, HBase, SolrCloud etc) ######
 
@@ -280,7 +280,7 @@ sudo pip install MySQL-python
 
 #### Configuration for Strict Domain / FQDN validation ####
 
-Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via the [Lib](https://github.com/harisekhon/lib) submodule - see there for details on configuring this to permit custom TLDs like ```.local``` or ```.intranet``` (both supported by default).
+Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via the [Lib](https://github.com/harisekhon/lib) and [PyLib](https://github.com/harisekhon/pylib) submodules for Perl and Python plugins respectively - see those repos for details on configuring to permit custom TLDs like ```.local``` or ```.intranet``` (both already supported by default as they're quite common customizations).
 
 ### Updating ###
 
@@ -290,7 +290,7 @@ If you update often and want to just quickly git pull + submodule update but ski
 
 #### Testing
 
-There is a full suite of Dockerized functional tests in the ```tests/``` directory as well as a high coverage percentage of unit tests for the underlying [Perl library](https://github.com/harisekhon/lib) and [Python library](https://githu.com/harisekhon/pylib) libraries.
+There is a full suite of Dockerized functional tests in the [tests/](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) directory as well as a high coverage percentage of unit tests for the underlying [Perl library](https://github.com/harisekhon/lib) and [Python library](https://githu.com/harisekhon/pylib).
 
 Running ```make test``` will trigger all tests, starting with the underlying libraries and then moving on to the Dockerized functional test suites.
 
