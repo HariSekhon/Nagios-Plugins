@@ -53,6 +53,7 @@ fi
 
 # Sandbox often has some broken stuff, we're testing the code works, not the cluster
 [ "$AMBARI_CLUSTER" = "$SANDBOX_CLUSTER" ] && set +e
+echo "testing Ambari server $AMBARI_HOST"
 hr
 $perl -T check_ambari_cluster_alerts_host_summary.pl
 hr
