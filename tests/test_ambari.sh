@@ -56,23 +56,33 @@ fi
 echo "testing Ambari server $AMBARI_HOST"
 hr
 $perl -T check_ambari_cluster_alerts_host_summary.pl
+check_exit_code 0 1 2
 hr
 $perl -T check_ambari_cluster_alerts_summary.pl
+check_exit_code 0 1 2
 hr
 $perl -T check_ambari_cluster_health_report.pl
+check_exit_code 0 1 2
 hr
 $perl -T check_ambari_cluster_kerberized.pl
+check_exit_code 0 2
 hr
 $perl -T check_ambari_cluster_service_config_compatible.pl
+check_exit_code 0 1 2
 hr
 $perl -T check_ambari_cluster_total_hosts.pl
+check_exit_code 0 1 2
 hr
 $perl -T check_ambari_cluster_version.pl
+check_exit_code 0 1 2
 hr
 $perl -T check_ambari_config_stale.pl
+check_exit_code 0 1 2
 hr
 $perl -T check_ambari_nodes.pl
+check_exit_code 0 1 2
 hr
 $perl -T check_ambari_services.pl
+check_exit_code 0 1 2
 hr
 echo; echo
