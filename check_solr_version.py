@@ -82,7 +82,7 @@ class CheckSolrVersion(NagiosPlugin):
             log.info('expected version regex: %s', expected)
 
         url = 'http://%(host)s:%(port)s/solr/admin/info/system' % locals()
-        log.debug('GET %s' % url)
+        log.debug('GET %s', url)
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
