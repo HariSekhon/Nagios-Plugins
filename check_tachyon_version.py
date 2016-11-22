@@ -46,83 +46,58 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, CriticalError, UnknownError, support_msg_api, prog, space_prefix
-    from harisekhon.utils import validate_host, validate_port, validate_regex, isVersion
-    from harisekhon import NagiosPlugin
+    from harisekhon.utils import log, qquit, support_msg_api, prog, space_prefix
+    from harisekhon import VersionNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
+
+# pylint: disable=too-few-public-methods
 
 
-class CheckTachyonVersion(NagiosPlugin):
+class CheckTachyonVersion(VersionNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
         super(CheckTachyonVersion, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.software = 'Tachyon'
         name = ''
-        default_port = None
         if re.search('master', prog, re.I):
             name = 'Master'
-            default_port = 19999
+            self.default_port = 19999
         elif re.search('worker|slave', prog, re.I):
             name = 'Worker'
-            default_port = 30000
-        self.name = space_prefix(name)
-        self.default_port = default_port
-        self.msg = '{0} version unknown - no message defined'.format(self.software)
+            self.default_port = 30000
+        else:
+            self.default_port = None
+        name = space_prefix(name)
+        self.software = 'Tachyon{0}'.format(name)
 
-    def add_options(self):
-        self.add_hostoption(name="%(software)s%(name)s" % self.__dict__,
-                            default_host='localhost',
-                            default_port=self.default_port)
-        self.add_opt('-e', '--expected', help='Expected version regex (optional)')
-
-    def run(self):
-        self.no_args()
-        host = self.get_opt('host')
-        port = self.get_opt('port')
-        validate_host(host)
-        validate_port(port)
-        expected = self.get_opt('expected')
-        if expected is not None:
-            validate_regex(expected)
-            log.info('expected version regex: %s', expected)
-
-        log.info('querying %s%s', self.software, self.name)
-        url = 'http://%(host)s:%(port)s/home' % locals()
+    def get_version(self):
+        log.info('querying %s', self.software)
+        url = 'http://{host}:{port}/home'.format(host=self.host, port=self.port)
         log.debug('GET %s', url)
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
-            raise CriticalError(_)
+            qquit('CRITICAL', _)
         log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
         if req.status_code != 200:
-            raise CriticalError("%s %s" % (req.status_code, req.reason))
+            qquit('CRITICAL', "{0} {1}".format(req.status_code, req.reason))
         soup = BeautifulSoup(req.content, 'html.parser')
         if log.isEnabledFor(logging.DEBUG):
             log.debug("BeautifulSoup prettified:\n{0}\n{1}".format(soup.prettify(), '='*80))
         try:
             version = soup.find('th', text='Version:').find_next('th').text
         except (AttributeError, TypeError) as _:
-            raise UnknownError('failed to find parse {0} output. {1}\n{2}'.
-                               format(self.software, support_msg_api(), traceback.format_exc()))
-        if not version:
-            raise UnknownError('{0} version not found in output. {1}'.format(self.software, support_msg_api()))
-        if not isVersion(version):
-            raise UnknownError('{0} version unrecognized \'{1}\'. {2}'.
-                               format(self.software, version, support_msg_api()))
-        self.ok()
-        self.msg = '{0}{1} version = {2}'.format(self.software, self.name, version)
-        if expected is not None and not re.search(expected, version):
-            self.msg += " (expected '{0}')".format(expected)
-            self.critical()
+            qquit('UNKNOWN', 'failed to find parse {0} output. {1}\n{2}'\
+                             .format(self.software, support_msg_api(), traceback.format_exc()))
+        return version
 
 
 if __name__ == '__main__':
