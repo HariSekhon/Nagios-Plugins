@@ -89,7 +89,7 @@ class CheckTravisCILastBuild(NagiosPlugin):
 
     def run(self):
         url = 'https://api.travis-ci.org/repos/{repo}/builds'.format(repo=self.repo)
-        log.debug('GET %s' % url)
+        log.debug('GET %s', url)
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
