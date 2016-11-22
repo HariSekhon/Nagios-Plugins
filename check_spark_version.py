@@ -96,7 +96,7 @@ class CheckSparkVersion(NagiosPlugin):
 
         log.info('querying %s%s', self.software, self.name)
         url = 'http://%(host)s:%(port)s/home' % locals()
-        log.debug('GET %s' % url)
+        log.debug('GET %s', url)
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
