@@ -65,17 +65,17 @@ class CheckTachyonVersion(VersionNagiosPlugin):
         super(CheckTachyonVersion, self).__init__()
         # Python 3.x
         # super().__init__()
-        name = ''
+        self.name = ''
         if re.search('master', prog, re.I):
-            name = 'Master'
+            self.name = 'Master'
             self.default_port = 19999
         elif re.search('worker|slave', prog, re.I):
-            name = 'Worker'
+            self.name = 'Worker'
             self.default_port = 30000
         else:
             self.default_port = None
-        name = space_prefix(name)
-        self.software = 'Tachyon{0}'.format(name)
+        self.name = space_prefix(self.name)
+        self.software = 'Tachyon{0}'.format(self.name)
 
     def get_version(self):
         log.info('querying %s', self.software)
