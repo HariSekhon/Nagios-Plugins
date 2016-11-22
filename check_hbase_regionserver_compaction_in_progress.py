@@ -83,7 +83,7 @@ class CheckHBaseCompactionInProgress(NagiosPlugin):
         validate_port(port)
 
         url = 'http://%(host)s:%(port)s/jmx' % locals()
-        log.debug('GET %s' % url)
+        log.debug('GET %s', url)
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
