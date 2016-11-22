@@ -46,6 +46,8 @@ except ImportError as _:
 __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
+# pylint: disable=too-few-public-methods
+
 
 class CheckAlluxioVersion(CheckTachyonVersion):
 
@@ -54,7 +56,7 @@ class CheckAlluxioVersion(CheckTachyonVersion):
         super(CheckAlluxioVersion, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.software = 'Alluxio'
+        self.software = 'Tachyon{0}'.format(self.name)
 
 if __name__ == '__main__':
     CheckAlluxioVersion().main()
