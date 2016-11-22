@@ -85,7 +85,7 @@ class CheckHBaseMasterVersion(NagiosPlugin):
             log.info('expected version regex: %s', expected)
 
         url = 'http://%(host)s:%(port)s/' % locals() + self.url_path
-        log.debug('GET %s' % url)
+        log.debug('GET %s', url)
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
