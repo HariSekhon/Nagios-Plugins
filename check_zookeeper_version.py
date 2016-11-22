@@ -40,51 +40,39 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, CriticalError, UnknownError, support_msg_api
-    from harisekhon.utils import validate_host, validate_port, validate_regex, isVersion
-    from harisekhon import NagiosPlugin
+    from harisekhon.utils import log, qquit
+    from harisekhon import VersionNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
-class CheckZooKeeperVersion(NagiosPlugin):
+class CheckZooKeeperVersion(VersionNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
         super(CheckZooKeeperVersion, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.msg = 'ZooKeeper version unknown - no message defined'
+        self.software = 'ZooKeeper'
         self.version_line_regex = re.compile(r'^zookeeper.version=(\d+\.\d+\.\d+)')
 
     def add_options(self):
         self.add_hostoption(name='ZooKeeper', default_host='localhost', default_port=2181)
-        self.add_opt('-e', '--expected', help='Expected version regex (optional)')
+        self.add_expected_version_option()
 
-    def run(self):
-        self.no_args()
-        host = self.get_opt('host')
-        port = self.get_opt('port')
-        validate_host(host)
-        validate_port(port)
-        expected = self.get_opt('expected')
-        if expected is not None:
-            validate_regex(expected)
-            log.info('expected version regex: %s', expected)
+    def get_version(self):
         data = None
         try:
-            #conn = socket.create_connection('%(host)s:%(port)s' % locals(), timeout=self.timeout/2)
-            #conn = socket.create_connection('%s:%s' % (host, port), timeout=self.timeout/2)
-            conn = socket.create_connection((host, port), timeout=self.timeout/2)
+            conn = socket.create_connection((self.host, self.port), timeout=self.timeout/2)
             conn.sendall('envi')
             data = conn.recv(1024)
             conn.close()
         except socket.error as _:
-            raise CriticalError('Failed to connect to ZooKeeper: ' + str(_))
+            qquit('CRITICAL', 'Failed to connect to ZooKeeper: ' + str(_))
         version = None
         log.debug(data.strip())
         for line in data.split('\n'):
@@ -92,15 +80,7 @@ class CheckZooKeeperVersion(NagiosPlugin):
             if _:
                 version = _.group(1)
                 break
-        if not version:
-            raise UnknownError('ZooKeeper version not found in output. {0}'.format(support_msg_api()))
-        if not isVersion(version):
-            raise UnknownError('ZooKeeper version unrecognized \'{0}\'. {1}'.format(version, support_msg_api()))
-        self.ok()
-        self.msg = 'ZooKeeper version = {0}'.format(version)
-        if expected is not None and not re.match(expected, version):
-            self.msg += " (expected '{0}')".format(expected)
-            self.critical()
+        return version
 
 
 if __name__ == '__main__':
