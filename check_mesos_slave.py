@@ -81,7 +81,7 @@ class CheckMesosSlave(NagiosPlugin):
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
             qquit('CRITICAL', _)
-        log.debug("response: %s %s" % (req.status_code, req.reason))
+        log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n{0}\n{1}\n{2}".format('='*80, req.content.strip(), '='*80))
         if req.status_code != 200:
             qquit('CRITICAL', "Non-200 response! %s %s" % (req.status_code, req.reason))
