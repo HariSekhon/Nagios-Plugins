@@ -46,7 +46,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, CriticalError, UnknownError, support_msg_api
+    from harisekhon.utils import log, qquit, support_msg_api
     from harisekhon.utils import validate_host, validate_port, validate_regex, isVersion
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -54,7 +54,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckNginxVersion(NagiosPlugin):
@@ -87,31 +87,31 @@ class CheckNginxVersion(NagiosPlugin):
 
         log.info('querying %s', self.software)
         url = 'http://%(host)s:%(port)s/version' % locals()
-        log.debug('GET %s' % url)
+        log.debug('GET %s', url)
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
-            raise CriticalError(_)
+            qquit('CRITICAL', _)
         log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
         # Special handling for Nginx, expecting 404 rather than usual 200
         if req.status_code != 404:
-            raise CriticalError("%s %s (expecting 404)" % (req.status_code, req.reason))
+            qquit('CRITICAL', '%s %s (expecting 404)' % (req.status_code, req.reason))
         soup = BeautifulSoup(req.content, 'html.parser')
         if log.isEnabledFor(logging.DEBUG):
             log.debug("BeautifulSoup prettified:\n{0}\n{1}".format(soup.prettify(), '='*80))
         try:
             version = soup.findAll('center')[1].text
         except (AttributeError, TypeError) as _:
-            raise UnknownError('failed to find parse {0} output. {1}\n{2}'.
-                               format(self.software, support_msg_api(), traceback.format_exc()))
+            qquit('UNKNOWN', 'failed to find parse {0} output. {1}\n{2}'\
+                             .format(self.software, support_msg_api(), traceback.format_exc()))
         if '/' in version:
             version = version.split('/')[1]
         if not version:
-            raise UnknownError('{0} version not found in output. {1}'.format(self.software, support_msg_api()))
+            qquit('UNKNOWN', '{0} version not found in output. {1}'.format(self.software, support_msg_api()))
         if not isVersion(version):
-            raise UnknownError('{0} version unrecognized \'{1}\'. {2}'.
-                               format(self.software, version, support_msg_api()))
+            qquit('UNKNOWN', '{0} version unrecognized \'{1}\'. {2}'\
+                             .format(self.software, version, support_msg_api()))
         self.ok()
         self.msg = '{0} version = {1}'.format(self.software, version)
         if expected is not None and not re.search(expected, version):
