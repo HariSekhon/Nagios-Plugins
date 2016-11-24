@@ -32,7 +32,6 @@ from __future__ import print_function
 
 import logging
 import os
-import re
 import sys
 import traceback
 try:
@@ -46,63 +45,43 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, CriticalError, UnknownError, support_msg, qquit
-    from harisekhon.utils import validate_host, validate_port, validate_regex, isVersion
-    from harisekhon import NagiosPlugin
+    from harisekhon.utils import log, qquit, support_msg
+    from harisekhon import VersionNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
-class CheckHBaseMasterVersion(NagiosPlugin):
+class CheckHBaseMasterVersion(VersionNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
         super(CheckHBaseMasterVersion, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.msg = 'HBase version unknown - no message defined'
-        self.role = 'Master'
-        self.port = 16010
+        self.software = 'HBase Master'
+        self.default_port = 16010
         self.url_path = 'master-status'
 
-    def add_options(self):
-        self.add_hostoption(name='HBase {0}'.format(self.role), default_host='localhost', default_port=self.port)
-        self.add_opt('-e', '--expected', help='Expected version regex (optional)')
-
-    def run(self):
-        self.no_args()
-        host = self.get_opt('host')
-        port = self.get_opt('port')
-        validate_host(host)
-        validate_port(port)
-        expected = self.get_opt('expected')
-        if expected is not None:
-            validate_regex(expected)
-            log.info('expected version regex: %s', expected)
-
-        url = 'http://%(host)s:%(port)s/' % locals() + self.url_path
+    def get_version(self):
+        url = 'http://{host}:{port}/{path}'.format(host=self.host, port=self.port, path=self.url_path)
         log.debug('GET %s', url)
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
-            raise CriticalError(_)
+            qquit('CRITICAL', _)
         log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
         if req.status_code != 200:
-            raise CriticalError("%s %s" % (req.status_code, req.reason))
+            qquit('CRITICAL', '%s %s' % (req.status_code, req.reason))
         soup = BeautifulSoup(req.content, 'html.parser')
         if log.isEnabledFor(logging.DEBUG):
-            log.debug("BeautifulSoup prettified:\n{0}\n{1}".format(soup.prettify(), '='*80))
-        self.ok()
+            log.debug('BeautifulSoup prettified:\n{0}\n{1}'.format(soup.prettify(), '='*80))
         version = self.parse_version(soup)
-        self.msg = 'HBase {0} version = {1}'.format(self.role, version)
-        if expected is not None and not re.search(expected, version):
-            self.msg += " (expected '{0}')".format(expected)
-            self.critical()
+        return version
 
     def parse_version(self, soup):
         version = None
@@ -128,12 +107,8 @@ class CheckHBaseMasterVersion(NagiosPlugin):
                     version = cols[1].text.split(',')[0]
                     break
         except (AttributeError, TypeError):
-            raise UnknownError('failed to find parse HBase output. {0}\n{1}'.
-                               format(support_msg(), traceback.format_exc()))
-        if not version:
-            raise UnknownError('HBase version not found in output. {0}'.format(support_msg()))
-        if not isVersion(version):
-            raise UnknownError('HBase version unrecognized \'{0}\'. {1}'.format(version, support_msg()))
+            qquit('UNKNOWN', 'failed to find parse HBase output. {0}\n{1}'\
+                             .format(support_msg(), traceback.format_exc()))
         return version
 
     @staticmethod
