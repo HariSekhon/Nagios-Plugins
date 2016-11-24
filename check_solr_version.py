@@ -32,7 +32,6 @@ from __future__ import print_function
 
 import logging
 import os
-import re
 import sys
 import traceback
 try:
@@ -46,9 +45,8 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, CriticalError, UnknownError, support_msg_api
-    from harisekhon.utils import validate_host, validate_port, validate_regex, isVersion
-    from harisekhon import NagiosPlugin
+    from harisekhon.utils import log, qquit, support_msg_api
+    from harisekhon import VersionNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
@@ -56,58 +54,39 @@ except ImportError as _:
 __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
+# pylint: disable=too-few-public-methods
 
-class CheckSolrVersion(NagiosPlugin):
+
+class CheckSolrVersion(VersionNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
         super(CheckSolrVersion, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.msg = 'Solr version unknown - no message defined'
+        self.software = 'Solr'
+        self.default_port = 8983
 
-    def add_options(self):
-        self.add_hostoption(name='Solr', default_host='localhost', default_port=8983)
-        self.add_opt('-e', '--expected', help='Expected version regex (optional)')
-
-    def run(self):
-        self.no_args()
-        host = self.get_opt('host')
-        port = self.get_opt('port')
-        validate_host(host)
-        validate_port(port)
-        expected = self.get_opt('expected')
-        if expected is not None:
-            validate_regex(expected)
-            log.info('expected version regex: %s', expected)
-
-        url = 'http://%(host)s:%(port)s/solr/admin/info/system' % locals()
+    def get_version(self):
+        url = 'http://{host}:{port}/solr/admin/info/system'.format(host=self.host, port=self.port)
         log.debug('GET %s', url)
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
-            raise CriticalError(_)
-        log.debug("response: %s %s", req.status_code, req.reason)
-        log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
+            qquit('CRITICAL', _)
+        log.debug('response: %s %s', req.status_code, req.reason)
+        log.debug('content:\n%s\n%s\n%s', '='*80, req.content.strip(), '='*80)
         if req.status_code != 200:
-            raise CriticalError("%s %s" % (req.status_code, req.reason))
+            qquit('CRITICAL', '%s %s' % (req.status_code, req.reason))
         soup = BeautifulSoup(req.content, 'html.parser')
         if log.isEnabledFor(logging.DEBUG):
             log.debug("BeautifulSoup prettified:\n{0}\n{1}".format(soup.prettify(), '='*80))
         try:
             version = soup.find('str', {'name':'solr-spec-version'}).text
         except (AttributeError, TypeError) as _:
-            raise UnknownError('failed to find parse Solr output. {0}\n{1}'.
-                               format(support_msg_api(), traceback.format_exc()))
-        if not version:
-            raise UnknownError('Solr version not found in output. {0}'.format(support_msg_api()))
-        if not isVersion(version):
-            raise UnknownError('Solr version unrecognized \'{0}\'. {1}'.format(version, support_msg_api()))
-        self.ok()
-        self.msg = 'Solr version = {0}'.format(version)
-        if expected is not None and not re.search(expected, version):
-            self.msg += " (expected '{0}')".format(expected)
-            self.critical()
+            qquit('UNKNOWN', 'failed to find parse Solr output. {0}\n{1}'\
+                             .format(support_msg_api(), traceback.format_exc()))
+        return version
 
 
 if __name__ == '__main__':
