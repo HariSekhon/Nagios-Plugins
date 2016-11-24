@@ -44,7 +44,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckHBaseRegionserverVersion(CheckHBaseMasterVersion):
@@ -54,9 +54,9 @@ class CheckHBaseRegionserverVersion(CheckHBaseMasterVersion):
         super(CheckHBaseRegionserverVersion, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.role = 'RegionServer'
+        self.software = 'HBase RegionServer'
         # 16301 on standalone
-        self.port = 16030
+        self.default_port = 16030
         self.url_path = 'rs-status'
 
 
