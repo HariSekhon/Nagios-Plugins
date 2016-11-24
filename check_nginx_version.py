@@ -54,8 +54,8 @@ except ImportError as _:
 __author__ = 'Hari Sekhon'
 __version__ = '0.3'
 
-
 # pylint: disable=too-few-public-methods
+
 
 class CheckNginxVersion(VersionNagiosPlugin):
 
