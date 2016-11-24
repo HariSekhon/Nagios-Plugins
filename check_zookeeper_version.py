@@ -58,11 +58,8 @@ class CheckZooKeeperVersion(VersionNagiosPlugin):
         # Python 3.x
         # super().__init__()
         self.software = 'ZooKeeper'
+        self.default_port = 2181
         self.version_line_regex = re.compile(r'^zookeeper.version=(\d+\.\d+\.\d+)')
-
-    def add_options(self):
-        self.add_hostoption(name='ZooKeeper', default_host='localhost', default_port=2181)
-        self.add_expected_version_option()
 
     def get_version(self):
         data = None
