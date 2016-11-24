@@ -66,6 +66,9 @@ test_zookeeper(){
     launch_container "$DOCKER_IMAGE2" "$DOCKER_CONTAINER2"
     docker cp zoo.cfg "$DOCKER_CONTAINER2":"$MNTDIR/"
     when_ports_available $startupwait $ZOOKEEPER_HOST $ZOOKEEPER_PORTS
+    if [ -n "${NOTESTS:-}" ]; then
+        return
+    fi
     hr
     ./check_zookeeper_version.py -e "$version"
     hr
