@@ -174,6 +174,7 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - standardized switches
 - strict input/output validation at all stages, written for security and robustness
 - multiple verbosity levels & debug mode
+- thresholds with flexible ranges in form of minimum:maximum (`@` prefix inverts to expect value outside of this range)
 - self-timeouts
 - graphing data where appropriate ([PNP4Nagios](https://docs.pnp4nagios.org/) add-on auto-graphs the perfdata from these plugins)
 - code reuse, especially for more complex input/output validations and error handling
