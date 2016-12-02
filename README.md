@@ -19,7 +19,7 @@ Extends a variety of [compatible Enterprise Monitoring Systems](https://github.c
 
 Most enterprise monitoring systems come with basic generic checks, while this project extends their monitoring capabilities significantly further in to advanced infrastructure, application layer, APIs etc.
 
-It's a treasure trove of essentials for every single "DevOp", sysadmin or engineer, with extensive goodies for those running Web Infrastructure,
+It's a treasure trove of essentials for every single "DevOp" / sysadmin / engineer, with extensive goodies for people running Web Infrastructure,
 [Hadoop](http://hadoop.apache.org/),
 [Kafka](http://kafka.apache.org/),
 [Mesos](http://mesos.apache.org/),
@@ -35,7 +35,9 @@ and NoSQL technologies ([Cassandra](http://cassandra.apache.org/),
 [Elasticsearch](https://www.elastic.co/products/elasticsearch)
 ...) etc.
 
-Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/harisekhon/nagios-plugins/issues) or [pull requests](https://github.com/harisekhon/nagios-plugins/pulls).
+Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/harisekhon/nagios-plugins/issues) or [pull requests](https://github.com/harisekhon/nagios-plugins/pulls) (in which case GitHub will give you credit and mark you as a contributor to the project :) ).
+
+This project is freeware (don't sell it) and is intended to always remain a free standard monitoring resource.
 
 Hari Sekhon
 
