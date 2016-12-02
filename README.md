@@ -27,10 +27,10 @@ It's a treasure trove of essentials for every single "DevOp" / sysadmin / engine
 and NoSQL technologies ([Cassandra](http://cassandra.apache.org/),
 [HBase](https://hbase.apache.org/),
 [MongoDB](https://www.mongodb.com/),
-[Riak](http://basho.com/products/),
+[Memcached](https://memcached.org/),
 [Redis](http://redis.io/),
 [Couchbase](http://www.couchbase.com/),
-[Memcached](https://memcached.org/),
+[Riak](http://basho.com/products/),
 [Solr / SolrCloud](http://lucene.apache.org/solr/),
 [Elasticsearch](https://www.elastic.co/products/elasticsearch)
 ...) etc.
