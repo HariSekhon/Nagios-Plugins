@@ -42,7 +42,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit, support_msg_api
+    from harisekhon.utils import log, qquit, support_msg_api, isDict
     from harisekhon.utils import isVersion
     from harisekhon import VersionNagiosPlugin
 except ImportError as _:
@@ -92,6 +92,8 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
         try:
             json_dict = json.loads(req.content)
+            if not isDict(json_dict):
+                raise ValueError
             company_name = json_dict['company_name']
             company_website = json_dict['company_website']
             regex = re.compile(r'Blue\s*Talon', re.I)
