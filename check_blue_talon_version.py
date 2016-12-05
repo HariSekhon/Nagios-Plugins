@@ -16,7 +16,7 @@
 
 """
 
-Nagios Plugin to check the deployed version of Blue Talon security policy via the Policy Management server REST API
+Nagios Plugin to check the deployed version of Blue Talon via the Policy Management server REST API
 
 Tested on Blue Talon 3.1.3
 
