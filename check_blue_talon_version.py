@@ -43,7 +43,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit, support_msg_api, isVersion, isList, isDict
+    from harisekhon.utils import log, log_option, qquit, support_msg_api, isVersion, isList, isDict
     from harisekhon.utils import validate_host, validate_port, validate_user, validate_password
     from harisekhon import VersionNagiosPlugin
 except ImportError as _:
@@ -90,7 +90,9 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
         validate_port(self.port)
         validate_user(self.user)
         validate_password(self.password)
-        if self.get_opt('ssl'):
+        ssl = self.get_opt('ssl')
+        log_option('ssl', ssl)
+        if ssl:
             self.protocol = 'https'
         self.process_expected_version_option()
 
