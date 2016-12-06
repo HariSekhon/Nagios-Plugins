@@ -105,7 +105,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
         self.add_opt('-T', '--history-mins', default=self.history_mins,
                      help='How far back to search ingestion history in minutes ' \
                         + '(default: 1440 ie. 24 hours, set to zero to disable time based search)')
-        self.add_opt('-N', '--num', help='Number of previous ingestions to check (defaults to last 10 if a filter ' \
+        self.add_opt('-n', '--num', help='Number of previous ingestions to check (defaults to last 10 if a filter ' \
                                     + 'is given, 100 otherwise)')
         # ingestion IDs uniquely generated for every ingest so there is no point in checking an ingestion id
         #self.add_opt('-i', '--id', metavar='<int>',
