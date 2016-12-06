@@ -163,7 +163,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             validate_float(self.max_runtime, 'max runtime', 1)
             self.max_runtime = float(self.max_runtime)
         if self.min_runtime is not None:
-            validate_float(self.min_runtime, 'min runtime', 1)
+            validate_float(self.min_runtime, 'min runtime', 0)
             self.min_runtime = float(self.min_runtime)
             if self.max_runtime is not None and self.min_runtime > self.max_runtime:
                 self.usage('--min-runtime cannot be greater than --max-runtime!')
