@@ -104,6 +104,8 @@ class CheckBlueTalonNumEndPoints(NagiosPlugin):
             qquit('CRITICAL', _)
         log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
+        if req.status_code == 404 and req.reason == 'Not Found':
+            qquit('CRITICAL', '{0}: {1} (no end points?)'.format(req.status_code, req.reason))
         if req.status_code != 200:
             qquit('CRITICAL', '{0}: {1}'.format(req.status_code, req.reason))
         try:
