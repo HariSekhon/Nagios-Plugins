@@ -125,7 +125,7 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
         if self.verbose:
             self.msg += " by {userid}, host = '{hostname}', description = '{description}'"\
                         .format(userid=userid, hostname=hostname, description=description)
-        self.msg += ' | mins_since_last_deployment={mins}' + self.get_perf_thresholds()
+        self.msg += ' | mins_since_last_deployment={mins}'.format(mins=mins) + self.get_perf_thresholds()
 
 
 if __name__ == '__main__':
