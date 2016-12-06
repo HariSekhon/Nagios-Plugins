@@ -90,7 +90,8 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
         validate_port(self.port)
         validate_user(self.user)
         validate_password(self.password)
-        self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
+        if self.get_opt('ssl'):
+            self.protocol = 'https'
         self.process_expected_version_option()
 
     def run(self):
