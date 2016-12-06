@@ -306,11 +306,11 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
                 qquit('UNKNOWN', 'error parsing date time format: {0}'.format(_))
             runtime_delta = end_datetime - start_datetime
             self.msg += ' in {0}'.format(sec2human(runtime_delta.seconds))
-            if self.max_runtime is not None and self.max_runtime > (runtime_delta.seconds / 60.0):
+            if self.max_runtime is not None and (runtime_delta.seconds / 60.0) > self.max_runtime:
                 self.warning()
                 self.msg += ' (greater than {0} min{1}!)'.format(str(self.max_runtime).rstrip('0').rstrip('.'),
                                                                  plural(self.max_runtime))
-            if self.min_runtime is not None and self.min_runtime < (runtime_delta.seconds / 60.0):
+            if self.min_runtime is not None and (runtime_delta.seconds / 60.0) < self.min_runtime:
                 self.warning()
                 self.msg += ' (less than {0} min{1}!)'.format(str(self.min_runtime).rstrip('0').rstrip('.'),
                                                               plural(self.min_runtime))
