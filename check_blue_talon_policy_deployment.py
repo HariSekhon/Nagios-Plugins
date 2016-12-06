@@ -104,10 +104,8 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
 
     def run(self):
         log.info('querying %s', self.software)
-        url = '{protocol}://{host}:{port}/PolicyManagement/{api_version}/deployments'.format(host=self.host,
-                                                                                             port=self.port,
-                                                                                             api_version=self.api_version,
-                                                                                             protocol=self.protocol)
+        url = '{protocol}://{host}:{port}/PolicyManagement/{api_version}/deployments'\
+              .format(host=self.host, port=self.port, api_version=self.api_version, protocol=self.protocol)
         log.debug('GET %s', url)
         try:
             req = requests.get(url, auth=HTTPBasicAuth(self.user, self.password))
@@ -116,7 +114,8 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
         log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
         if req.status_code == 400 and req.reason == 'Bad Request':
-            qquit('CRITICAL', '{0}: {1} (possibly new install with no deployments yet?)'.format(req.status_code, req.reason))
+            qquit('CRITICAL', '{0}: {1} (possibly new install with no deployments yet?)'\
+                              .format(req.status_code, req.reason))
         if req.status_code != 200:
             qquit('CRITICAL', '{0}: {1}'.format(req.status_code, req.reason))
         try:
@@ -146,7 +145,8 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
         if self.verbose:
             self.msg += " by user '{userid}', host = '{hostname}', description = '{description}'"\
                         .format(userid=userid, hostname=hostname, description=description)
-        self.msg += ' | mins_since_last_deployment={mins}'.format(mins=mins) + self.get_perf_thresholds(boundary='lower')
+        self.msg += ' | mins_since_last_deployment={mins}{thresholds}'\
+                    .format(mins=mins, thresholds=self.get_perf_thresholds(boundary='lower'))
 
 
 if __name__ == '__main__':
