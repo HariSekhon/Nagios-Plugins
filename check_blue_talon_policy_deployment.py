@@ -18,9 +18,12 @@
 
 Nagios Plugin to check the time since last deployment of Blue Talon policies via the Policy Management server REST API
 
-Optional thresholds may be applied against the age in minutes, defaulting to a lower boundary (can also use
-the min:max threshold format) to raise alerts when fresh policy deployments are done. This enables triggering
-warning/critical alerts in a stable environment when policies shouldn't be changing that much).
+Outputs minutes since last deployment as well as the timestamp returned by the server, and in verbose mode also shows
+the user, host and message from the last deployment
+
+Optional thresholds may be applied against the time since last deployment in minutes, defaulting to a lower boundary
+(can also use the min:max threshold format) to raise alerts when fresh policy deployments are done. This enables
+triggering warning/critical alerts in a stable environment when policies shouldn't be changing that much).
 
 Tested on Blue Talon 3.1.3
 
