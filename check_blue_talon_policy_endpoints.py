@@ -38,6 +38,7 @@ import sys
 import traceback
 try:
     import requests
+    from requests.auth import HTTPBasicAuth
 except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
@@ -47,7 +48,7 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, qquit, support_msg_api, isDict, isList
-    from harisekhon.utils import validate_host, validate_port
+    from harisekhon.utils import validate_host, validate_port, validate_user, validate_password
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
@@ -77,13 +78,18 @@ class CheckBlueTalonNumEndPoints(NagiosPlugin):
         self.add_hostoption(name=self.software,
                             default_host=self.default_host,
                             default_port=self.default_port)
+        self.add_useroption(name=self.software, default_user=self.default_user)
         self.add_thresholds(name='Number of PEPs')
 
     def process_options(self):
         self.host = self.get_opt('host')
         self.port = self.get_opt('port')
+        self.user = self.get_opt('user')
+        self.password = self.get_opt('password')
         validate_host(self.host)
         validate_port(self.port)
+        validate_user(self.user)
+        validate_password(self.password)
         self.validate_thresholds(optional=True)
 
     def run(self):
@@ -92,11 +98,13 @@ class CheckBlueTalonNumEndPoints(NagiosPlugin):
               .format(host=self.host, port=self.port, api_version=self.api_version)
         log.debug('GET %s', url)
         try:
-            req = requests.get(url)
+            req = requests.get(url, auth=HTTPBasicAuth(self.user, self.password))
         except requests.exceptions.RequestException as _:
             qquit('CRITICAL', _)
         log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
+        if req.status_code != 200:
+            qquit('CRITICAL', '{0}: {1}'.format(req.status_code, req.reason))
         try:
             json_dict = json.loads(req.content)
             if not isDict(json_dict):
