@@ -38,6 +38,7 @@ import sys
 import traceback
 try:
     import requests
+    from requests.auth import HTTPBasicAuth
 except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
@@ -47,7 +48,7 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, qquit, support_msg_api, isList
-    from harisekhon.utils import validate_host, validate_port
+    from harisekhon.utils import validate_host, validate_port, validate_user, validate_password
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
@@ -67,8 +68,11 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
         self.software = 'Blue Talon'
         self.default_host = 'localhost'
         self.default_port = 8111
+        self.default_user = 'btadminuser'
         self.host = self.default_host
         self.port = self.default_port
+        self.user = self.default_user
+        self.password = None
         self.api_version = '1.0'
         self.msg = '{0} version unknown - no message defined'.format(self.software)
         self.ok()
@@ -77,6 +81,7 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
         self.add_hostoption(name=self.software,
                             default_host=self.default_host,
                             default_port=self.default_port)
+        self.add_useroption(name=self.software, default_user=self.default_user)
         self.add_thresholds(name='Age')
 
     def process_options(self):
@@ -84,6 +89,10 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
         self.port = self.get_opt('port')
         validate_host(self.host)
         validate_port(self.port)
+        self.user = self.get_opt('user')
+        self.password = self.get_opt('password')
+        validate_user(self.user)
+        validate_password(self.password)
         self.validate_thresholds(optional=True)
 
     def run(self):
@@ -93,11 +102,13 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
                                                                                        api_version=self.api_version)
         log.debug('GET %s', url)
         try:
-            req = requests.get(url)
+            req = requests.get(url, auth=HTTPBasicAuth(self.user, self.password))
         except requests.exceptions.RequestException as _:
             qquit('CRITICAL', _)
         log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
+        if req.status_code != 200:
+            qquit('CRITICAL', '{0}: {1}'.format(req.status_code, req.reason))
         try:
             json_list = json.loads(req.content)
             if not isList(json_list):
@@ -110,7 +121,7 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
             hostname = last_deployment['HostName']
             timestamp = last_deployment['timestamp']
             last_deploy_datetime = datetime.strptime(timestamp, '%b %d, %Y %H:%M:%S AM')
-        except (KeyError, ValueError) as _:
+        except (KeyError, ValueError, NameError, TypeError) as _:
             qquit('UNKNOWN', 'error parsing output from {software}: {exception}: {error}. {support_msg}'\
                              .format(software=self.software,
                                      exception=type(_).__name__,
