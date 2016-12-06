@@ -44,7 +44,7 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, qquit, support_msg_api, isVersion, isList, isDict
-    from harisekhon.utils import validate_host, validate_port, validate_user, validate_password, validate_regex
+    from harisekhon.utils import validate_host, validate_port, validate_user, validate_password
     from harisekhon import VersionNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
@@ -70,6 +70,7 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
         self.user = self.default_user
         self.password = None
         self.expected = None
+        self.protocol = 'http'
         self.api_version = '1.0'
         self.msg = '{0} version unknown - no message defined'.format(self.software)
         self.ok()
@@ -88,6 +89,7 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
         validate_port(self.port)
         validate_user(self.user)
         validate_password(self.password)
+        self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
         self.process_expected_version_option()
 
     def run(self):
@@ -103,9 +105,8 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
 
     def get_version(self):
         log.info('querying %s', self.software)
-        url = 'http://{host}:{port}/PolicyManagement/{api_version}/version'.format(host=self.host,
-                                                                                   port=self.port,
-                                                                                   api_version=self.api_version)
+        url = '{protocol}://{host}:{port}/PolicyManagement/{api_version}/version'\
+              .format(host=self.host, port=self.port, api_version=self.api_version, protocol=self.protocol)
         log.debug('GET %s', url)
         try:
             req = requests.get(url, auth=HTTPBasicAuth(self.user, self.password))
