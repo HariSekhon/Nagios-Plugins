@@ -22,9 +22,8 @@ Checks ingest history via a combination of:
 
 1. Time - between now and M mins prior (defaults to 1440 mins for 24 hours)
 2. N number of last ingestion runs
-3. A specific ingestion ID
-4. Source file/directory path
-5. Destination file/directory path
+3. Source file/directory path
+4. Destination file/directory path
 
 Checks applied to each ingestion found:
 
@@ -70,7 +69,7 @@ try:
     from harisekhon.utils import log, log_option, qquit
     #from harisekhon.utils import CriticalError, UnknownError
     from harisekhon.utils import validate_host, validate_port, validate_user, validate_password, \
-                                 validate_chars, validate_int, validate_float, \
+                                 validate_int, validate_float, \
                                  jsonpp, isList, isDict, isStr, ERRORS, support_msg_api, code_error, \
                                  sec2human, plural, merge_dicts
     from harisekhon import NagiosPlugin
@@ -79,7 +78,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 
 
 class CheckZaloniBedrockIngestion(NagiosPlugin):
@@ -103,17 +102,14 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
         self.add_hostoption(name='Zaloni Bedrock', default_host='localhost', default_port=8080)
         self.add_useroption(name='Zaloni Bedrock', default_user='admin')
         self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
-        # - TODO: check are ingestion IDs uniquely generated for every ingest?
-        #   - If so there is no point in checking an ingestion id
-        # - if this is the case then filter by workflow ID - gets workflow instance id, not workflow itself
-        #   -  use check_zaloni_bedrock_workflow.py to monitor workflow itself
         self.add_opt('-T', '--history-mins', default=self.history_mins,
                      help='How far back to search ingestion history in minutes ' \
                         + '(default: 1440 ie. 24 hours, set to zero to disable time based search)')
         self.add_opt('-N', '--num', help='Number of previous ingestions to check (defaults to last 10 if a filter ' \
                                     + 'is given, 100 otherwise)')
-        self.add_opt('-i', '--id', metavar='<int>',
-                     help='Ingestion ID filter (optional)')
+        # ingestion IDs uniquely generated for every ingest so there is no point in checking an ingestion id
+        #self.add_opt('-i', '--id', metavar='<int>',
+        #             help='Ingestion ID filter (optional)')
         self.add_opt('-s', '--source', metavar='<URI>', help='Source file/directory location filter (optional)')
         self.add_opt('-d', '--dest', metavar='<URI>', help='Destination file/directory location filter (optional)')
         self.add_opt('-a', '--max-age', metavar='<mins>',
@@ -133,7 +129,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             self.protocol = 'https'
         history_mins = self.get_opt('history_mins')
         num = self.get_opt('num')
-        inventory_id = self.get_opt('id')
+        #inventory_id = self.get_opt('id')
         source = self.get_opt('source')
         dest = self.get_opt('dest')
         max_age = self.get_opt('max_age')
@@ -151,9 +147,9 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             filter_opts['dateRangeEnd'] = datetime.strftime(now, '%F %H:%M:%S')
         if num is not None:
             validate_int(num, 'num ingestions', 1)
-        if inventory_id is not None:
-            validate_chars(inventory_id, 'ingestion id', r'\w-')
-            filter_opts['inventoryId'] = inventory_id
+        #if inventory_id is not None:
+        #    validate_chars(inventory_id, 'ingestion id', r'\w-')
+        #    filter_opts['inventoryId'] = inventory_id
         if source is not None:
             log_option('source', source)
             filter_opts['fileName'] = source
