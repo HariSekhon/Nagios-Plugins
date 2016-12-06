@@ -88,10 +88,7 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
         validate_port(self.port)
         validate_user(self.user)
         validate_password(self.password)
-        self.expected = self.get_opt('expected')
-        if self.expected is not None:
-            validate_regex(self.expected)
-            log.info('expected version regex: %s', self.expected)
+        self.process_expected_version_option()
 
     def run(self):
         (build_version, api_version, update_date) = self.get_version()
