@@ -106,6 +106,7 @@ class CheckAttivioAieIngestSessionCount(NagiosPlugin):
             count = req.content.strip()
             if not isInt(count):
                 raise ValueError('non-integer value returned by Attivio AIE')
+            count = int(count)
             self.msg = '{software} ingest session count = {count}'.format(software=self.software, count=count)
             self.check_thresholds(count)
         except (KeyError, ValueError):
