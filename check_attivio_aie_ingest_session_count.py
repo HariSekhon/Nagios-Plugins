@@ -1,0 +1,121 @@
+#!/usr/bin/env python
+#  vim:ts=4:sts=4:sw=4:et
+#
+#  Author: Hari Sekhon
+#  Date: 2016-12-06 17:31:56 +0000 (Tue, 06 Dec 2016)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn
+#  and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+"""
+
+Nagios Plugin to query Attivio AIE ingest session count via the REST API
+
+Optional thresholds may be applied to the session count
+
+"""
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
+import os
+import sys
+import traceback
+try:
+    import requests
+except ImportError:
+    print(traceback.format_exc(), end='')
+    sys.exit(4)
+srcdir = os.path.abspath(os.path.dirname(__file__))
+libdir = os.path.join(srcdir, 'pylib')
+sys.path.append(libdir)
+try:
+    # pylint: disable=wrong-import-position
+    from harisekhon.utils import log, log_option, qquit, support_msg_api
+    #from harisekhon.utils import CriticalError, UnknownError
+    from harisekhon.utils import validate_host, validate_port, isInt
+    from harisekhon import NagiosPlugin
+except ImportError as _:
+    print(traceback.format_exc(), end='')
+    sys.exit(4)
+
+__author__ = 'Hari Sekhon'
+__version__ = '0.1'
+
+
+class CheckAttivioAieIngestSessionCount(NagiosPlugin):
+
+    def __init__(self):
+        # Python 2.x
+        super(CheckAttivioAieIngestSessionCount, self).__init__()
+        # Python 3.x
+        # super().__init__()
+        self.software = 'Attivio AIE'
+        self.default_host = 'localhost'
+        self.default_port = 17000
+        self.host = self.default_host
+        self.port = self.default_port
+        self.protocol = 'http'
+        self.msg = 'message not defined'
+
+    def add_options(self):
+        self.add_hostoption(name=self.software, default_host=self.default_host, default_port=self.default_port)
+        self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
+        self.add_thresholds()
+
+    def process_options(self):
+        self.no_args()
+        host = self.get_opt('host')
+        port = self.get_opt('port')
+        validate_host(host)
+        validate_port(port)
+        ssl = self.get_opt('ssl')
+        log_option('ssl', ssl)
+        if self.get_opt('ssl'):
+            self.protocol = 'https'
+        self.validate_thresholds(optional=True)
+
+    def run(self):
+        url = '{protocol}://{host}:{port}/rest/ingestApi/getSessionCount'.format(host=self.host,
+                                                                                 port=self.port,
+                                                                                 protocol=self.protocol)
+        log.debug('GET %s', url)
+        try:
+            req = requests.get(url)
+        except requests.exceptions.RequestException as _:
+            errhint = ''
+            if 'BadStatusLine' in str(_.message):
+                errhint = ' (possibly connecting to an SSL secured port without using --ssl?)'
+            elif self.protocol == 'https' and 'unknown protocol' in str(_.message):
+                errhint = ' (possibly connecting to a plain HTTP port with the -S / --ssl switch enabled?)'
+            qquit('CRITICAL', str(_) + errhint)
+        log.debug("response: %s %s", req.status_code, req.reason)
+        log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
+        if req.status_code != 200:
+            qquit('CRITICAL', '{0} {1}'.format(req.status_code, req.reason))
+        try:
+            count = req.content.strip()
+            if not isInt(count):
+                raise ValueError('non-integer value returned by Attivio AIE')
+            self.msg = '{software} ingest session count = {count}'.format(software=self.software, count=count)
+            self.check_thresholds(count)
+        except (KeyError, ValueError):
+            qquit('UNKNOWN', 'error parsing output from {software}: {exception}: {error}. {support_msg}'\
+                             .format(software=self.software,
+                                     exception=type(_).__name__,
+                                     error=_,
+                                     support_msg=support_msg_api()))
+        self.msg += ' | ingest_session_count={0:d}s'.format(count)
+
+
+if __name__ == '__main__':
+    CheckAttivioAieIngestSessionCount().main()
