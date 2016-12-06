@@ -115,7 +115,7 @@ class CheckAttivioLicenseExpiry(NagiosPlugin):
         if log.isEnabledFor(logging.DEBUG):
             log.debug("BeautifulSoup prettified:\n{0}\n{1}".format(soup.prettify(), '='*80))
         try:
-            license_tag = soup.find('td', _class='lic-value')
+            license_tag = soup.find('td', {'class': 'lic-value'})
             if not license_tag:
                 qquit('UNKNOWN', 'failed to find license tag while parsing')
             expiry = license_tag.text.strip()
