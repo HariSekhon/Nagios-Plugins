@@ -115,7 +115,7 @@ class CheckAttivioAieIngestSessionCount(NagiosPlugin):
                                      exception=type(_).__name__,
                                      error=_,
                                      support_msg=support_msg_api()))
-        self.msg += ' | ingest_session_count={0:d}{thresholds}'.format(count, self.get_perf_thresholds())
+        self.msg += ' | ingest_session_count={0:d}{thresholds}'.format(count, thresholds=self.get_perf_thresholds())
 
 
 if __name__ == '__main__':
