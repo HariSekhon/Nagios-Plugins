@@ -71,6 +71,9 @@ class CheckBlueTalonNumEndPoints(NagiosPlugin):
         self.default_user = 'btadminuser'
         self.host = self.default_host
         self.port = self.default_port
+        self.user = self.default_user
+        self.password = None
+        self.protocol = 'http'
         self.api_version = '1.0'
         self.msg = '{0} version unknown - no message defined'.format(self.software)
         self.ok()
@@ -79,6 +82,7 @@ class CheckBlueTalonNumEndPoints(NagiosPlugin):
         self.add_hostoption(name=self.software,
                             default_host=self.default_host,
                             default_port=self.default_port)
+        self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
         self.add_useroption(name=self.software, default_user=self.default_user)
         self.add_thresholds()
 
@@ -91,12 +95,14 @@ class CheckBlueTalonNumEndPoints(NagiosPlugin):
         validate_port(self.port)
         validate_user(self.user)
         validate_password(self.password)
+        if self.get_opt('ssl'):
+            self.protocol = 'https'
         self.validate_thresholds(simple='lower', optional=True)
 
     def run(self):
         log.info('querying %s', self.software)
-        url = 'http://{host}:{port}/PolicyManagement/{api_version}/configurations/pdp/end_points'\
-              .format(host=self.host, port=self.port, api_version=self.api_version)
+        url = '{protocol}://{host}:{port}/PolicyManagement/{api_version}/configurations/pdp/end_points'\
+              .format(host=self.host, port=self.port, api_version=self.api_version, protocol=self.protocol)
         log.debug('GET %s', url)
         try:
             req = requests.get(url, auth=HTTPBasicAuth(self.user, self.password))
