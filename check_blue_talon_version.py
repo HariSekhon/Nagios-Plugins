@@ -76,7 +76,7 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
 
     def add_options(self):
         super(CheckBlueTalonVersion, self).__init__()
-        self.add_useroption(name=self.software, user=self.default_user)
+        self.add_useroption(name=self.software, default_user=self.default_user)
 
     def process_options(self):
         self.no_args()
