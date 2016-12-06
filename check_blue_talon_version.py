@@ -18,7 +18,7 @@
 
 Nagios Plugin to check the deployed version of Blue Talon via the Policy Management server REST API
 
-Tested on Blue Talon 3.1.3
+Tested on Blue Talon 2.12.0
 
 """
 
