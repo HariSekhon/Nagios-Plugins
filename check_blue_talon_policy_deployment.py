@@ -95,7 +95,7 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
         self.password = self.get_opt('password')
         validate_user(self.user)
         validate_password(self.password)
-        self.validate_thresholds(optional=True)
+        self.validate_thresholds(simple='lower', optional=True)
 
     def run(self):
         log.info('querying %s', self.software)
