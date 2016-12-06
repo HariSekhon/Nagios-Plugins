@@ -68,6 +68,7 @@ class CheckBlueTalonNumEndPoints(NagiosPlugin):
         self.software = 'Blue Talon'
         self.default_host = 'localhost'
         self.default_port = 8111
+        self.default_user = 'btadminuser'
         self.host = self.default_host
         self.port = self.default_port
         self.api_version = '1.0'
