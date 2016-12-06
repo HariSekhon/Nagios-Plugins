@@ -43,7 +43,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit, support_msg_api, isDict, isVersion
+    from harisekhon.utils import log, qquit, support_msg_api, isVersion
     from harisekhon.utils import validate_host, validate_port, validate_user, validate_password, validate_regex
     from harisekhon import VersionNagiosPlugin
 except ImportError as _:
