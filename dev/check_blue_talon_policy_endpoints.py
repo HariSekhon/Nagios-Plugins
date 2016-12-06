@@ -112,6 +112,8 @@ class CheckBlueTalonNumEndPoints(NagiosPlugin):
             errhint = ''
             if 'BadStatusLine' in str(_.message):
                 errhint = ' (possibly connecting to an SSL secured port without using --ssl?)'
+            elif self.protocol == 'https' and 'unknown protocol' in str(_.message):
+                errhint = ' (possibly connecting to a plain HTTP port with the -S / --ssl switch enabled?)'
             qquit('CRITICAL', str(_) + errhint)
         log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
