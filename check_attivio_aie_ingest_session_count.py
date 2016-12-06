@@ -66,6 +66,7 @@ class CheckAttivioAieIngestSessionCount(NagiosPlugin):
         self.port = self.default_port
         self.protocol = 'http'
         self.msg = 'message not defined'
+        self.ok()
 
     def add_options(self):
         self.add_hostoption(name=self.software, default_host=self.default_host, default_port=self.default_port)
