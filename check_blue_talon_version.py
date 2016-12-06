@@ -82,10 +82,10 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
         self.no_args()
         self.host = self.get_opt('host')
         self.port = self.get_opt('port')
-        validate_host(self.host)
-        validate_port(self.port)
         self.user = self.get_opt('user')
         self.password = self.get_opt('password')
+        validate_host(self.host)
+        validate_port(self.port)
         validate_user(self.user)
         validate_password(self.password)
         self.expected = self.get_opt('expected')
@@ -135,7 +135,7 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
             build_version = json_dict['build_version']
             api_version = json_dict['api_version']
             update_date = json_dict['update_date']
-        except (KeyError, ValueError, NameError, TypeError) as _:
+        except (KeyError, ValueError) as _:
             qquit('UNKNOWN', 'error parsing output from {software}: {exception}: {error}. {support_msg}'\
                              .format(software=self.software,
                                      exception=type(_).__name__,
