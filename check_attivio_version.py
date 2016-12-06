@@ -112,7 +112,7 @@ class CheckAttivioVersion(VersionNagiosPlugin):
                 version = match.group(1)
             else:
                 qquit('UNKNOWN', 'failed to find version within version div tag')
-        except (KeyError, ValueError) as _:
+        except (AttributeError, TypeError) as _:
             qquit('UNKNOWN', 'error parsing output from {software}: {exception}: {error}. {support_msg}'\
                              .format(software=self.software,
                                      exception=type(_).__name__,
