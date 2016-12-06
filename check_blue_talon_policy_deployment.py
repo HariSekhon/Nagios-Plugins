@@ -110,7 +110,10 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
         try:
             req = requests.get(url, auth=HTTPBasicAuth(self.user, self.password))
         except requests.exceptions.RequestException as _:
-            qquit('CRITICAL', _)
+            errhint = ''
+            if 'BadStatusLine' in str(_.message):
+                errhint = ' (possibly connecting to an SSL secured port without using --ssl?)'
+            qquit('CRITICAL', str(_) + errhint)
         log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
         if req.status_code == 400 and req.reason == 'Bad Request':
