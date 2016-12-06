@@ -22,7 +22,7 @@ Optional thresholds may be applied against the number of PEPs, defaulting to a l
 the min:max threshold format) to check we have the expected number of PEPs, for use in a stable environment when
 things shouldn't be changing that much.
 
-UNTESTED
+UNTESTED as the documentated API endpoint seems to not be implemented
 
 """
 
@@ -47,7 +47,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit, support_msg_api, isDict, isList
+    from harisekhon.utils import log, log_option, qquit, support_msg_api, isDict, isList
     from harisekhon.utils import validate_host, validate_port, validate_user, validate_password
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -95,7 +95,9 @@ class CheckBlueTalonNumEndPoints(NagiosPlugin):
         validate_port(self.port)
         validate_user(self.user)
         validate_password(self.password)
-        if self.get_opt('ssl'):
+        ssl = self.get_opt('ssl')
+        log_option('ssl', ssl)
+        if ssl:
             self.protocol = 'https'
         self.validate_thresholds(simple='lower', optional=True)
 
@@ -107,7 +109,10 @@ class CheckBlueTalonNumEndPoints(NagiosPlugin):
         try:
             req = requests.get(url, auth=HTTPBasicAuth(self.user, self.password))
         except requests.exceptions.RequestException as _:
-            qquit('CRITICAL', _)
+            errhint = ''
+            if 'BadStatusLine' in str(_.message):
+                errhint = ' (possibly connecting to an SSL secured port without using --ssl?)'
+            qquit('CRITICAL', str(_) + errhint)
         log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
         if req.status_code == 404 and req.reason == 'Not Found':
