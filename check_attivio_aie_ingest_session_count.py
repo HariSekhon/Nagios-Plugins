@@ -74,10 +74,10 @@ class CheckAttivioAieIngestSessionCount(NagiosPlugin):
 
     def process_options(self):
         self.no_args()
-        host = self.get_opt('host')
-        port = self.get_opt('port')
-        validate_host(host)
-        validate_port(port)
+        self.host = self.get_opt('host')
+        self.port = self.get_opt('port')
+        validate_host(self.host)
+        validate_port(self.port)
         ssl = self.get_opt('ssl')
         log_option('ssl', ssl)
         if self.get_opt('ssl'):
