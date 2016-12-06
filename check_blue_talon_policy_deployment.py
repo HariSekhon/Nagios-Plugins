@@ -101,7 +101,7 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
         try:
             json_list = json.loads(req.content)
             if not isList(json_list):
-                raise ValueError
+                raise ValueError('returned content is not a list')
             if not json_list:
                 qquit('UNKNOWN', 'no deployments found')
             last_deployment = json_list[0]
