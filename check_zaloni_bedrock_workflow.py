@@ -76,7 +76,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4.1'
+__version__ = '0.5'
 
 
 class CheckZaloniBedrockWorkflow(NagiosPlugin):
@@ -88,12 +88,21 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         # super().__init__()
         self.msg = 'Zaloni '
         self.protocol = 'http'
+        self.host = None
+        self.port = None
+        self.user = None
+        self.password = None
         self.url_base = None
         #self.jar = None
         self.jsessionid = None
         self.auth_time = None
         self.query_time = None
         self._all = False
+        self.workflow_id = None
+        self.workflow_name = None
+        self.max_age = None
+        self.max_runtime = None
+        self.min_runtime = None
         self.ok()
 
     def add_options(self):
@@ -101,56 +110,66 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         self.add_useroption(name='Zaloni Bedrock', default_user='admin')
         self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
         self.add_opt('-A', '--all', action='store_true', help='Find and check all workflows')
-        self.add_opt('-i', '--id', metavar='<int>',
+        self.add_opt('-I', '--id', metavar='<int>',
                      help='Workflow ID to check (see --list or UI to find these)')
-        self.add_opt('-n', '--name', metavar='<name>',
+        self.add_opt('-N', '--name', metavar='<name>',
                      help='Workflow Name to check (see --list or UI to find these)')
         self.add_opt('-a', '--max-age', metavar='<mins>',
                      help='Max age in minutes since start of last workflow run (optional)')
-        self.add_opt('-r', '--max-runtime', metavar='<mins>',
+        self.add_opt('-m', '--max-runtime', metavar='<mins>',
                      help='Max run time of last workflow in minutes (optional)')
+        self.add_opt('-n', '--min-runtime', metavar='<mins>', default=0.1,
+                     help='Min run time of last workflow in minutes, raises warning to catch jobs that ' + \
+                     'finish suspiciously quickly (optional, default: 0.1)')
         self.add_opt('-l', '--list', action='store_true', help='List workflows and exit')
 
-    def run(self):
+    def process_options(self):
         self.no_args()
-        host = self.get_opt('host')
-        port = self.get_opt('port')
-        user = self.get_opt('user')
-        password = self.get_opt('password')
+        self.host = self.get_opt('host')
+        self.port = self.get_opt('port')
+        self.user = self.get_opt('user')
+        self.password = self.get_opt('password')
         self._all = self.get_opt('all')
-        workflow_id = self.get_opt('id')
-        workflow_name = self.get_opt('name')
-        max_age = self.get_opt('max_age')
-        max_runtime = self.get_opt('max_runtime')
+        self.workflow_id = self.get_opt('id')
+        self.workflow_name = self.get_opt('name')
+        self.max_age = self.get_opt('max_age')
+        self.max_runtime = self.get_opt('max_runtime')
+        self.min_runtime = self.get_opt('min_runtime')
         if self.get_opt('ssl'):
             self.protocol = 'https'
-        validate_host(host)
-        validate_port(port)
-        validate_user(user)
-        validate_password(password)
-        if self._all and (workflow_name is not None or workflow_id is not None):
+        validate_host(self.host)
+        validate_port(self.port)
+        validate_user(self.user)
+        validate_password(self.password)
+        if self._all and (self.workflow_name is not None or self.workflow_id is not None):
             self.usage('cannot specify both --all and --name/--id simultaneously')
-        if workflow_id is not None:
-            if workflow_name is not None:
+        if self.workflow_id is not None:
+            if self.workflow_name is not None:
                 self.usage('cannot specify both --id and --name simultaneously')
-            validate_int(workflow_id, 'workflow id', 1)
-            workflow_id = int(workflow_id)
-        elif workflow_name is not None:
-            validate_chars(workflow_name, 'workflow name', r'\w\s-')
+            validate_int(self.workflow_id, 'workflow id', 1)
+            self.workflow_id = int(self.workflow_id)
+        elif self.workflow_name is not None:
+            validate_chars(self.workflow_name, 'workflow name', r'\w\s-')
         elif self._all:
             pass
         elif self.get_opt('list'):
             pass
         else:
             self.usage('must specify one of --name / --id / --all or use --list to find workflow names/IDs to specify')
-        if max_age is not None:
-            validate_float(max_age, 'max age', 1)
-            max_age = float(max_age)
-        if max_runtime is not None:
-            validate_float(max_runtime, 'max runtime', 1)
-            max_runtime = float(max_runtime)
+        if self.max_age is not None:
+            validate_float(self.max_age, 'max age', 1)
+            self.max_age = float(self.max_age)
+        if self.max_runtime is not None:
+            validate_float(self.max_runtime, 'max runtime', 1)
+            self.max_runtime = float(self.max_runtime)
+        if self.min_runtime is not None:
+            validate_float(self.min_runtime, 'min runtime', 1)
+            self.min_runtime = float(self.min_runtime)
+            if self.max_runtime is not None and self.min_runtime > self.max_runtime:
+                self.usage('--min-runtime cannot be greater than --max-runtime!')
 
-        self.url_base = '{protocol}://{host}:{port}/bedrock-app/services/rest'.format(host=host, port=port,
+    def run(self):
+        self.url_base = '{protocol}://{host}:{port}/bedrock-app/services/rest'.format(host=self.host, port=self.port,
                                                                                       protocol=self.protocol)
         # auth first, get JSESSIONID cookie
         # cookie jar doesn't work in Python or curl, must extract JSESSIONID to header manually
@@ -159,7 +178,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         (_, self.auth_time) = self.req(url='{url_base}/admin/getUserRole'.format(url_base=self.url_base),
                                        # using json instead of constructing string manually,
                                        # this correctly escapes backslashes in password
-                                       body=json.dumps({"username": user, "password": password}))
+                                       body=json.dumps({"username": self.user, "password": self.password}))
         # alternative method
         #session = requests.Session()
         #req = self.req(session,
@@ -172,7 +191,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         if self._all:
             self.check_all_workflows()
         else:
-            self.check_workflow(workflow_name, workflow_id, max_age, max_runtime)
+            self.check_workflow(self.workflow_name, self.workflow_id)
 
     def check_all_workflows(self):
         workflows = self.get_workflows()
@@ -205,7 +224,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
                      + support_msg_api())
             return ''
 
-    def check_workflow(self, workflow_name, workflow_id, max_age=None, max_runtime=None):
+    def check_workflow(self, workflow_name, workflow_id):
         log.info("checking workflow '%s' id '%s'", workflow_name, workflow_id)
         # GET /workflow/fetchWorkflowStatus/<instance_id> is also available but only uses wfId, doesn't support wfName
         # returns ['result']['list'] = [ {}, {}, ... ]
@@ -249,7 +268,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
                                                                                      id=report['wfId'],
                                                                                      status=status)
             if not self._all:
-                self.check_times(report['startDate'], report['endDate'], max_age, max_runtime)
+                self.check_times(report['startDate'], report['endDate'])
             return status
         except (KeyError, ValueError) as _:
             qquit('UNKNOWN', 'error parsing workflow execution history: {0}'.format(_))
@@ -272,7 +291,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
                 report = reports[0]
         return report
 
-    def check_times(self, start_date, end_date, max_age, max_runtime):
+    def check_times(self, start_date, end_date):
         start_date = str(start_date).strip()
         end_date = str(end_date).strip()
         invalid_dates = ('', 'null', 'None', None)
@@ -287,27 +306,32 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
                 qquit('UNKNOWN', 'error parsing date time format: {0}'.format(_))
             runtime_delta = end_datetime - start_datetime
             self.msg += ' in {0}'.format(sec2human(runtime_delta.seconds))
-            if max_runtime is not None and max_runtime > (runtime_delta.seconds / 3600.0):
+            if self.max_runtime is not None and self.max_runtime > (runtime_delta.seconds / 60.0):
                 self.warning()
-                self.msg += ' (greater than {0} min{1}!)'.format(str(max_runtime).rstrip('0').rstrip('.'),
-                                                                 plural(max_runtime))
+                self.msg += ' (greater than {0} min{1}!)'.format(str(self.max_runtime).rstrip('0').rstrip('.'),
+                                                                 plural(self.max_runtime))
+            if self.min_runtime is not None and self.min_runtime < (runtime_delta.seconds / 60.0):
+                self.warning()
+                self.msg += ' (less than {0} min{1}!)'.format(str(self.min_runtime).rstrip('0').rstrip('.'),
+                                                              plural(self.min_runtime))
             age_timedelta = datetime.now() - start_datetime
         if self.verbose:
             self.msg += ", start date = '{startdate}', end date = '{enddate}'".\
                         format(startdate=start_date, enddate=end_date)
             if age_timedelta is not None:
                 self.msg += ', started {0} ago'.format(sec2human(age_timedelta.seconds))
-        if max_age is not None and age_timedelta is not None and age_timedelta.seconds > (max_age * 60.0):
+        if self.max_age is not None and age_timedelta is not None and age_timedelta.seconds > (self.max_age * 60.0):
             self.warning()
-            self.msg += ' (last run started more than {0} min{1} ago!)'.format(str(max_age)
+            self.msg += ' (last run started more than {0} min{1} ago!)'.format(str(self.max_age)
                                                                                .rstrip('0')
                                                                                .rstrip('.'),
-                                                                               plural(max_age))
+                                                                               plural(self.max_age))
         # Do not output variable number of fields at all if agedelta is not available as that breaks PNP4Nagios graphing
         if age_timedelta is not None and runtime_delta:
             self.msg += ' |'
-            self.msg += ' runtime={0}s;{1}'.format(runtime_delta.seconds, max_runtime * 3600 if max_runtime else '')
-            self.msg += ' age={0}s;{1}'.format(age_timedelta.seconds, max_age * 3600 if max_age else '')
+            self.msg += ' runtime={0}s;{1}'.format(runtime_delta.seconds, self.max_runtime * 60 \
+                                                                            if self.max_runtime else '')
+            self.msg += ' age={0}s;{1}'.format(age_timedelta.seconds, self.max_age * 60 if self.max_age else '')
             self.msg += ' auth_time={auth_time}s query_time={query_time}s'.format(auth_time=self.auth_time,
                                                                                   query_time=self.query_time)
 
