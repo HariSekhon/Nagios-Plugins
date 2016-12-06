@@ -78,6 +78,7 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
     def add_options(self):
         super(CheckBlueTalonVersion, self).add_options()
         self.add_useroption(name=self.software, default_user=self.default_user)
+        self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
 
     def process_options(self):
         self.no_args()
