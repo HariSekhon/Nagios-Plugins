@@ -25,7 +25,7 @@ Optional thresholds may be applied against the time since last deployment in min
 (can also use the min:max threshold format) to raise alerts when fresh policy deployments are done. This enables
 triggering warning/critical alerts in a stable environment when policies shouldn't be changing that much).
 
-Tested on Blue Talon 3.1.3
+Tested on Blue Talon 2.12.0
 
 """
 
