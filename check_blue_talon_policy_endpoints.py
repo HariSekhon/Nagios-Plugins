@@ -80,7 +80,7 @@ class CheckBlueTalonNumEndPoints(NagiosPlugin):
                             default_host=self.default_host,
                             default_port=self.default_port)
         self.add_useroption(name=self.software, default_user=self.default_user)
-        self.add_thresholds(name='Number of PEPs')
+        self.add_thresholds()
 
     def process_options(self):
         self.host = self.get_opt('host')
@@ -91,7 +91,7 @@ class CheckBlueTalonNumEndPoints(NagiosPlugin):
         validate_port(self.port)
         validate_user(self.user)
         validate_password(self.password)
-        self.validate_thresholds(optional=True)
+        self.validate_thresholds(simple='lower', optional=True)
 
     def run(self):
         log.info('querying %s', self.software)
