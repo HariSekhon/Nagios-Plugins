@@ -82,8 +82,6 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
                             default_host=self.default_host,
                             default_port=self.default_port)
         self.add_useroption(name=self.software, default_user=self.default_user)
-        # XXX: bug when name is specified but there are no thresholds
-        #self.add_thresholds(name='Age in minutes')
         self.add_thresholds()
 
     def process_options(self):
