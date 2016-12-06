@@ -120,14 +120,14 @@ class CheckAttivioLicenseExpiry(NagiosPlugin):
                 qquit('UNKNOWN', 'failed to find license tag while parsing')
             expiry = license_tag.text.strip()
             license_datetime = datetime.strptime(expiry, '%Y-%m-%d %H:%M:%S')
-            delta = datetime.now() - license_datetime
-            if delta.seconds < 0:
+            delta = license_datetime - datetime.now()
+            days = delta.days
+            if days < 0:
                 qquit('CRITICAL', "license has already expired on '{0}'".format(expiry))
-            days = int(delta.seconds / 86400)
             self.msg = "{software} license expires in {days} day{plural}"\
                        .format(software=self.software, days=days, plural=plural(days))
             self.check_thresholds(days)
-            self.msg += "('{expiry}') | days_until_expiry={days}{thresholds}"\
+            self.msg += ", expiry date = '{expiry}' | days_until_expiry={days}{thresholds}"\
                         .format(expiry=expiry, days=days, thresholds=self.get_perf_thresholds(boundary='lower'))
         except (AttributeError, TypeError) as _:
             qquit('UNKNOWN', 'error parsing output from {software}: {exception}: {error}. {support_msg}'\
