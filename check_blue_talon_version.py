@@ -34,6 +34,7 @@ import sys
 import traceback
 try:
     import requests
+    from requests.auth import HTTPBasicAuth
 except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
@@ -42,8 +43,8 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit, support_msg_api, isDict
-    from harisekhon.utils import isVersion
+    from harisekhon.utils import log, qquit, support_msg_api, isDict, isVersion
+    from harisekhon.utils import validate_host, validate_port, validate_user, validate_password, validate_regex
     from harisekhon import VersionNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
@@ -63,9 +64,34 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
         self.software = 'Blue Talon'
         self.default_host = 'localhost'
         self.default_port = 8111
+        self.default_user = 'btadminuser'
+        self.host = None
+        self.port = None
+        self.user = None
+        self.password = None
+        self.expected = None
         self.api_version = '1.0'
         self.msg = '{0} version unknown - no message defined'.format(self.software)
         self.ok()
+
+    def add_options(self):
+        super(CheckBlueTalonVersion, self).__init__()
+        self.add_useroption(name=self.software, user=self.default_user)
+
+    def process_options(self):
+        self.no_args()
+        self.host = self.get_opt('host')
+        self.port = self.get_opt('port')
+        validate_host(self.host)
+        validate_port(self.port)
+        self.user = self.get_opt('user')
+        self.password = self.get_opt('password')
+        validate_user(self.user)
+        validate_password(self.password)
+        self.expected = self.get_opt('expected')
+        if self.expected is not None:
+            validate_regex(self.expected)
+            log.info('expected version regex: %s', self.expected)
 
     def run(self):
         (build_version, api_version, update_date) = self.get_version()
@@ -85,7 +111,7 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
                                                                                    api_version=self.api_version)
         log.debug('GET %s', url)
         try:
-            req = requests.get(url)
+            req = requests.get(url, auth=HTTPBasicAuth(self.user, self.password))
         except requests.exceptions.RequestException as _:
             qquit('CRITICAL', _)
         log.debug("response: %s %s", req.status_code, req.reason)
