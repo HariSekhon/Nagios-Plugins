@@ -82,8 +82,8 @@ class CheckBlueTalonNumEndPoints(NagiosPlugin):
         self.add_hostoption(name=self.software,
                             default_host=self.default_host,
                             default_port=self.default_port)
-        self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
         self.add_useroption(name=self.software, default_user=self.default_user)
+        self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
         self.add_thresholds()
 
     def process_options(self):
