@@ -134,9 +134,9 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
                                      support_msg=support_msg_api()))
         timedelta = datetime.now() - last_deploy_datetime
         mins = int(int(timedelta.seconds) / 60)
-        self.msg = "{software} last deployment was {mins} mins ago at '{timestamp}'".format(software=self.software,
-                                                                                            timestamp=timestamp,
-                                                                                            mins=mins)
+        self.msg = "{software} last deployment was at '{timestamp}', {mins} mins ago".format(software=self.software,
+                                                                                             timestamp=timestamp,
+                                                                                             mins=mins)
         self.check_thresholds(mins)
         if self.verbose:
             self.msg += " by user '{userid}', host = '{hostname}', description = '{description}'"\
