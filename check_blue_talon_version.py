@@ -116,6 +116,8 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
             qquit('CRITICAL', _)
         log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
+        if req.status_code != 200:
+            qquit('CRITICAL', '{0}: {1}'.format(req.status_code, req.reason))
         try:
             json_dict = json.loads(req.content)
             if not isDict(json_dict):
