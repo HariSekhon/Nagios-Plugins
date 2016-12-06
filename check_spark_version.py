@@ -27,7 +27,7 @@ Tested on Spark 1.3, 1.4, 1.5, 1.6
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
-#from __future__ import unicode_literals
+from __future__ import unicode_literals
 
 import logging
 import os
