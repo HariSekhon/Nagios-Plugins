@@ -22,7 +22,7 @@ Optional thresholds may be applied against the number of PEPs, defaulting to a l
 the min:max threshold format) to check we have the expected number of PEPs, for use in a stable environment when
 things shouldn't be changing that much.
 
-Tested on Blue Talon 3.1.3
+UNTESTED
 
 """
 
