@@ -82,7 +82,9 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
                             default_host=self.default_host,
                             default_port=self.default_port)
         self.add_useroption(name=self.software, default_user=self.default_user)
-        self.add_thresholds(name='Age')
+        # XXX: bug when name is specified but there are no thresholds
+        #self.add_thresholds(name='Age in minutes')
+        self.add_thresholds()
 
     def process_options(self):
         self.host = self.get_opt('host')
@@ -107,6 +109,8 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
             qquit('CRITICAL', _)
         log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
+        if req.status_code == 400 and req.reason == 'Bad Request':
+            qquit('CRITICAL', '{0}: {1} (possibly new install with no deployments yet?)'.format(req.status_code, req.reason))
         if req.status_code != 200:
             qquit('CRITICAL', '{0}: {1}'.format(req.status_code, req.reason))
         try:
@@ -120,7 +124,7 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
             description = last_deployment['Description']
             hostname = last_deployment['HostName']
             timestamp = last_deployment['timestamp']
-            last_deploy_datetime = datetime.strptime(timestamp, '%b %d, %Y %H:%M:%S AM')
+            last_deploy_datetime = datetime.strptime(timestamp, '%b %d, %Y %H:%M:%S %p')
         except (KeyError, ValueError, NameError, TypeError) as _:
             qquit('UNKNOWN', 'error parsing output from {software}: {exception}: {error}. {support_msg}'\
                              .format(software=self.software,
