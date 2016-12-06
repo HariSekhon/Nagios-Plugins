@@ -108,6 +108,7 @@ class CheckAttivioSystemHealth(NagiosPlugin):
         if log.isEnabledFor(logging.DEBUG):
             log.debug("BeautifulSoup prettified:\n{0}\n{1}".format(soup.prettify(), '='*80))
         try:
+            # looks like syshealthok child div is only there in browser, but give syshealthspin in code
             if soup.find('div', id='syshealthstatus').find('div', id='syshealthok'):
                 qquit('OK', 'system health = OK')
             qquit('CRITICAL', 'system health != OK')
