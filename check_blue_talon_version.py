@@ -119,9 +119,8 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
         if req.status_code != 200:
             qquit('CRITICAL', '{0}: {1}'.format(req.status_code, req.reason))
         try:
-            json_dict = json.loads(req.content)
-            if not isDict(json_dict):
-                raise ValueError
+            json_list = json.loads(req.content)
+            json_dict = json_list[0]
             company_name = json_dict['company_name']
             company_website = json_dict['company_website']
             regex = re.compile(r'Blue\s*Talon', re.I)
@@ -132,7 +131,7 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
             build_version = json_dict['build_version']
             api_version = json_dict['api_version']
             update_date = json_dict['update_date']
-        except (KeyError, ValueError) as _:
+        except (KeyError, ValueError, NameError, TypeError) as _:
             qquit('UNKNOWN', 'error parsing output from {software}: {exception}: {error}. {support_msg}'\
                              .format(software=self.software,
                                      exception=type(_).__name__,
