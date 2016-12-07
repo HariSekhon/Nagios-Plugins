@@ -72,6 +72,7 @@ class CheckAttivioSystemHealth(NagiosPlugin):
         self.port = self.default_port
         self.protocol = 'http'
         self.msg = '{0} version unknown - no message defined'.format(self.software)
+        self.ok()
 
     def add_options(self):
         self.add_hostoption(name=self.software, default_host=self.default_host, default_port=self.default_port)
