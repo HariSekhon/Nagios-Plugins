@@ -218,7 +218,7 @@ class CheckAttivioMetrics(NagiosPlugin):
         if not isList(json_struct):
             raise ValueError("non-list returned by Attivio Perfmon host for metric names (got type '{0}'"\
                              .format(type(json_struct)))
-        print('Attivio metrics:\n\n')
+        print('Attivio metrics:\n')
         for metric in sorted(json_struct):
             print(metric)
         sys.exit(ERRORS['UNKNOWN'])
