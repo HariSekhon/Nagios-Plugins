@@ -71,7 +71,7 @@ class CheckAttivioSystemHealth(NagiosPlugin):
         self.host = self.default_host
         self.port = self.default_port
         self.protocol = 'http'
-        self.msg = '{0} version unknown - no message defined'.format(self.software)
+        self.msg = '{0} system health: '.format(self.software)
         self.ok()
 
     def add_options(self):
@@ -119,7 +119,6 @@ class CheckAttivioSystemHealth(NagiosPlugin):
             if not isDict(json_dict):
                 raise ValueError("non-dict returned by Attivio AIE server response (type was '{0}')"\
                                  .format(type(json_dict)))
-            self.msg = ''
             # if this is true from warnings would ruin the more appropriate warnings check
             #if json_dict['haserrors']:
             #    self.critical()
