@@ -158,7 +158,7 @@ class CheckAttivioMetrics(NagiosPlugin):
 
     def get(self, url_suffix):
         log.info('querying %s', self.software)
-        url = '{protocol}://{host}:{port}/admin/rest/metrics/{url_suffix}'\
+        url = '{protocol}://{host}:{port}/rest/metrics/{url_suffix}'\
               .format(host=self.host, port=self.port, protocol=self.protocol, url_suffix=url_suffix)
         log.debug('GET %s', url)
         try:
