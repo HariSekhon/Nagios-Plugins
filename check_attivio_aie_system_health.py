@@ -32,6 +32,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import logging
 import json
 import os
 import sys
@@ -47,7 +48,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, log_option, qquit, support_msg_api, isDict, isInt
+    from harisekhon.utils import log, log_option, qquit, support_msg_api, isDict, isInt, jsonpp
     from harisekhon.utils import validate_host, validate_port
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -114,6 +115,9 @@ class CheckAttivioSystemHealth(NagiosPlugin):
     def parse_results(self, content):
         try:
             json_dict = json.loads(content)
+            if log.isEnabledFor(logging.DEBUG):
+                print(jsonpp(content))
+                print('='*80)
             # looks like syshealthok child div is only there in browser, but give syshealthspin in code
             #if soup.find('div', id='syshealthstatus').find('div', id='syshealthok'):
             if not isDict(json_dict):
