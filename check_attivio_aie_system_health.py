@@ -139,7 +139,7 @@ class CheckAttivioSystemHealth(NagiosPlugin):
             warnings = int(warnings)
             fatals = int(fatals)
             acknowledged = int(acknowledged)
-            if nodes_down > 0 or self.fatals > 0:
+            if nodes_down > 0 or fatals > 0:
                 self.critical()
             elif warnings > 0:
                 self.warning()
