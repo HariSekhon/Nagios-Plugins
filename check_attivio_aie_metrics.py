@@ -82,9 +82,9 @@ class CheckAttivioMetrics(NagiosPlugin):
         # no authentication is required to access Attivio's AIE system status page
         #self.add_useroption(name=self.software, default_user=self.default_user)
         self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
-        self.add_opt('-m', '--metrics', help='Metrics to retrieve')
+        self.add_opt('-m', '--metrics', help='Metrics to retrieve, comma separated')
         self.add_opt('-W', '--workflow', help='Workflow name if using a workflow.* metric')
-        self.add_opt('-C', '--component', hlep='Component name if using a component.* metric')
+        self.add_opt('-C', '--component', help='Component name if using a component.* metric')
         self.add_opt('-l', '--list-metrics', action='store_true', help='List all metrics and exit')
         self.add_thresholds()
 
@@ -98,6 +98,8 @@ class CheckAttivioMetrics(NagiosPlugin):
         if ssl:
             self.protocol = 'https'
         self.metrics = self.get_opt('metrics')
+        if not self.metrics and not self.get_opt('list_metrics'):
+            self.usage("--metrics not specified, use --list-metrics to see what's available in Attivio's API")
         self.workflow = self.get_opt('workflow')
         self.component = self.get_opt('component')
         self.validate_thresholds(optional=True)
@@ -106,7 +108,7 @@ class CheckAttivioMetrics(NagiosPlugin):
         try:
             if self.get_opt('list_metrics'):
                 self.list_metrics()
-            json_struct = self.get_opt('lastdata?metrics={metrics}'.format(metrics=self.metrics))
+            json_struct = self.get('lastdata?metrics={metrics}'.format(metrics=self.metrics))
             if not isList(json_struct):
                 raise ValueError("non-list returned by Attivio AIE Perfmon metrics API (got type '{0}')"\
                                  .format(type(json_struct)))
