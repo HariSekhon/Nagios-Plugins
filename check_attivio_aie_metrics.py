@@ -159,7 +159,7 @@ class CheckAttivioMetrics(NagiosPlugin):
 
     def msg_metrics(self, metrics):
         if not metrics:
-            qquit('UNKNOWN', "no matching metrics found, check your filters: --" + ", --".join(self.filter_types))
+            qquit('UNKNOWN', "no matching metrics found, check your filters: --" + "/ --".join(self.filter_types))
         for metric in sorted(metrics):
             self.msg += ' {metric}={value}'.format(metric=metric, value=metrics[metric])
         if len(metrics) == 1:
