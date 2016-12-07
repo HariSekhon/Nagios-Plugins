@@ -35,6 +35,7 @@ from __future__ import print_function
 #from __future__ import unicode_literals
 
 from datetime import datetime
+import logging
 import json
 import os
 import sys
@@ -50,7 +51,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, log_option, qquit, support_msg_api, isList
+    from harisekhon.utils import log, log_option, qquit, support_msg_api, isList, jsonpp
     from harisekhon.utils import validate_host, validate_port, validate_user, validate_password
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -127,6 +128,9 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
             qquit('CRITICAL', '{0}: {1}'.format(req.status_code, req.reason))
         try:
             json_list = json.loads(req.content)
+            if log.isEnabledFor(logging.DEBUG):
+                print(jsonpp(json_list))
+                print('='*80)
             if not isList(json_list):
                 raise ValueError('returned content is not a list')
             if not json_list:
