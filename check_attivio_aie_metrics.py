@@ -144,7 +144,8 @@ class CheckAttivioMetrics(NagiosPlugin):
                     metric += '.{0}'.format(item[key])
                 value = item['values'][0]
                 if self.precision and isFloat(value):
-                    value = '{value:.{precision}f}'.format(value=value, precision=self.precision)
+                    # leaving as string will result in lots of trailing zeros
+                    value = float('{value:.{precision}f}'.format(value=value, precision=self.precision))
                 metrics[metric] = value
         return metrics
 
