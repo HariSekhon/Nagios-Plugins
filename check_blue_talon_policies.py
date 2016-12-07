@@ -34,6 +34,7 @@ from __future__ import division
 from __future__ import print_function
 #from __future__ import unicode_literals
 
+import logging
 import json
 import os
 import sys
@@ -49,7 +50,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, log_option, qquit, support_msg_api, isList, isDict
+    from harisekhon.utils import log, log_option, qquit, support_msg_api, isList, isDict, jsonpp
     from harisekhon.utils import validate_host, validate_port, validate_user, validate_password
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -124,6 +125,9 @@ class CheckBlueTalonPolicies(NagiosPlugin):
             qquit('CRITICAL', '{0}: {1}'.format(req.status_code, req.reason))
         try:
             json_dict = json.loads(req.content)
+            if log.isEnabledFor(logging.DEBUG):
+                print(jsonpp(json_dict))
+                print('='*80)
             if not isDict(json_dict):
                 raise ValueError("non-dict returned by Blue Talon API (got type '{0}')".format(type(json_dict)))
             policies_list = json_dict['policies']
