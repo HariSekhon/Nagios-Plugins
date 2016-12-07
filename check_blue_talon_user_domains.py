@@ -21,9 +21,9 @@ Nagios Plugin to check Blue Talon user domains via the Policy Management server 
 Currently only determines the number of user domains, also outputs perfdata.
 
 Warning: the API doesn't expose a count so this program must fetch and count all user domains
-which is an O(n) operation and as such the performance get worse the more users you have.
+which is an O(n) operation and as such the performance get worse the more user domains you have.
 
-Optional thresholds may be applied to the number of users
+Optional thresholds may be applied to the number of user domains
 
 Tested on Blue Talon 2.12.0
 
