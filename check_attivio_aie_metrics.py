@@ -71,10 +71,11 @@ class CheckAttivioMetrics(NagiosPlugin):
         self.host = self.default_host
         self.port = self.default_port
         self.protocol = 'http'
-        self.msg = '{0} metrics: '.format(self.software)
+        self.msg = '{0} metrics:'.format(self.software)
         self.metrics = None
         self.workflow = None
         self.component = None
+        self.precision = None
         self.ok()
 
     def add_options(self):
@@ -85,6 +86,8 @@ class CheckAttivioMetrics(NagiosPlugin):
         self.add_opt('-m', '--metrics', help='Metrics to retrieve, comma separated')
         self.add_opt('-W', '--workflow', help='Workflow name if using a workflow.* metric')
         self.add_opt('-C', '--component', help='Component name if using a component.* metric')
+        self.add_opt('-p', '--precision', default=4,
+                     help='Decimal place precision for floating point numbers (default: 4)')
         self.add_opt('-l', '--list-metrics', action='store_true', help='List all metrics and exit')
         self.add_thresholds()
 
@@ -102,6 +105,7 @@ class CheckAttivioMetrics(NagiosPlugin):
             self.usage("--metrics not specified, use --list-metrics to see what's available in Attivio's API")
         self.workflow = self.get_opt('workflow')
         self.component = self.get_opt('component')
+        self.precision = self.get_opt('precision')
         self.validate_thresholds(optional=True)
 
     def run(self):
@@ -138,7 +142,10 @@ class CheckAttivioMetrics(NagiosPlugin):
             for key in ('nodeset', 'hostname', 'workflowType', 'workflow', 'component'):
                 if key in item:
                     metric += '.{0}'.format(item[key])
-                metrics[metric] = item['values'][0]
+                value = item['values'][0]
+                if self.precision and isFloat(value):
+                    value = '{value:.{precision}f}'.format(value=value, precision=self.precision)
+                metrics[metric] = value
         return metrics
 
     def msg_metrics(self, metrics):
