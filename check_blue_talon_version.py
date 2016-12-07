@@ -18,6 +18,12 @@
 
 Nagios Plugin to check the deployed version of Blue Talon via the Policy Management server REST API
 
+Outputs the version and update date.
+
+Optional --expected regex may be used to check the version is as expected.
+
+Verbose mode additionally outputs revision, build, schema revision and api version
+
 Tested on Blue Talon 2.12.0
 
 """
@@ -51,7 +57,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckBlueTalonVersion(VersionNagiosPlugin):
@@ -97,15 +103,9 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
         self.process_expected_version_option()
 
     def run(self):
-        (build_version, api_version, update_date) = self.get_version()
+        (build_version, extra_info) = self.get_version()
         self.check_version(build_version)
-        if not isVersion(api_version):
-            qquit('UNKNOWN', '{0} api version unrecognized \'{1}\'. {2}'\
-                             .format(self.software, api_version, support_msg_api()))
-        if api_version != self.api_version:
-            qquit('UNKNOWN', "unexpected API version '{0}' returned (expected '{1}')"\
-                             .format(api_version, self.api_version))
-        self.msg += ', api version = {0}, update date = {1}'.format(api_version, update_date)
+        self.msg += extra_info
 
     def get_version(self):
         log.info('querying %s', self.software)
@@ -140,15 +140,30 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
                 qquit('UNKNOWN', 'Blue Talon name was not found in either company_name or company_website fields' \
                                + ', are you definitely querying a Blue Talon server?')
             build_version = json_dict['build_version']
-            api_version = json_dict['api_version']
             update_date = json_dict['update_date']
+            api_version = json_dict['api_version']
+            if not isVersion(api_version):
+                qquit('UNKNOWN', '{0} api version unrecognized \'{1}\'. {2}'\
+                                 .format(self.software, api_version, support_msg_api()))
+            if api_version != self.api_version:
+                qquit('UNKNOWN', "unexpected API version '{0}' returned (expected '{1}')"\
+                                 .format(api_version, self.api_version))
+            if self.verbose:
+                extra_info = ' revision {revision} build {build}, schema revision = {schema_revision}'\
+                              .format(revision=json_dict['revision_no'],
+                                      build=json_dict['build_no'],
+                                      schema_revision=json_dict['schema_revision'])
+                extra_info += ', api version = {api_version}, update date = {update_date}'\
+                              .format(api_version=api_version, update_date=update_date)
+            else:
+                extra_info = ', update date = {update_date}'.format(update_date=update_date)
         except (KeyError, ValueError) as _:
             qquit('UNKNOWN', 'error parsing output from {software}: {exception}: {error}. {support_msg}'\
                              .format(software=self.software,
                                      exception=type(_).__name__,
                                      error=_,
                                      support_msg=support_msg_api()))
-        return (build_version, api_version, update_date)
+        return (build_version, extra_info)
 
 
 if __name__ == '__main__':
