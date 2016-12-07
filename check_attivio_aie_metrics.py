@@ -147,7 +147,9 @@ class CheckAttivioMetrics(NagiosPlugin):
                 raise ValueError("non-list returned for metric value by Attivio AIE Perfmon API (got type '{0}')"\
                                  .format(type(item['values'])))
             metric = item['metric']
+            log.info('metric = %s', metric)
             if self.skip_metric(item):
+                log.info('skipping metric %s due to filters', metric)
                 continue
             for key in ('nodeset', 'hostname', 'workflowType', 'workflow', 'component'):
                 if key in item:
