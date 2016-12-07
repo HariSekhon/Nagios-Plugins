@@ -33,6 +33,7 @@ from __future__ import division
 from __future__ import print_function
 #from __future__ import unicode_literals
 
+import logging
 import json
 import os
 import re
@@ -49,7 +50,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, log_option, qquit, support_msg_api, isVersion, isList, isDict
+    from harisekhon.utils import log, log_option, qquit, support_msg_api, isVersion, isList, isDict, jsonpp
     from harisekhon.utils import validate_host, validate_port, validate_user, validate_password
     from harisekhon import VersionNagiosPlugin
 except ImportError as _:
@@ -107,7 +108,7 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
         self.check_version(build_version)
         self.msg += extra_info
 
-    def get_version(self):
+    def get(self):
         log.info('querying %s', self.software)
         url = '{protocol}://{host}:{port}/PolicyManagement/{api_version}/version'\
               .format(host=self.host, port=self.port, api_version=self.api_version, protocol=self.protocol)
@@ -125,8 +126,15 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
         if req.status_code != 200:
             qquit('CRITICAL', '{0}: {1}'.format(req.status_code, req.reason))
+        return req.content
+
+    def get_version(self):
+        content = self.get()
         try:
-            json_list = json.loads(req.content)
+            json_list = json.loads(content)
+            if log.isEnabledFor(logging.DEBUG):
+                print(jsonpp(json_list))
+                print('='*80)
             if not isList(json_list):
                 raise ValueError("non-list returned by API (is type '{0}')".format(type(json_list)))
             json_dict = json_list[0]
