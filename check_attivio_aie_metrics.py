@@ -109,26 +109,7 @@ class CheckAttivioMetrics(NagiosPlugin):
             if self.get_opt('list_metrics'):
                 self.list_metrics()
             json_struct = self.get('lastdata?metrics={metrics}'.format(metrics=self.metrics))
-            if not isList(json_struct):
-                raise ValueError("non-list returned by Attivio AIE Perfmon metrics API (got type '{0}')"\
-                                 .format(type(json_struct)))
-            metrics = {}
-            for item in json_struct:
-                if not isDict(item):
-                    raise ValueError("non-dict item found in list returned by Attivio AIE Perfmon API (got type '{0}')"\
-                                     .format(type(item)))
-                if not isList(item['values']):
-                    raise ValueError("non-list returned for metric value by Attivio AIE Perfmon API (got type '{0}')"\
-                                     .format(type(item['values'])))
-                metric = item['metric']
-                if self.workflow and 'workflow' in item and self.workflow != item['workflow']:
-                    continue
-                if self.component and 'component' in item and self.component != item['component']:
-                    continue
-                for key in ('nodeset', 'hostname', 'workflowType', 'workflow', 'component'):
-                    if key in item:
-                        metric += '.{0}'.format(item['nodeset'])
-                metrics[metric] = item['values'][0]
+            metrics = self.parse_metrics(json_struct)
             self.msg_metrics(metrics)
         except (KeyError, ValueError) as _:
             qquit('UNKNOWN', 'error parsing output from {software}: {exception}: {error}. {support_msg}'\
@@ -136,6 +117,29 @@ class CheckAttivioMetrics(NagiosPlugin):
                                      exception=type(_).__name__,
                                      error=_,
                                      support_msg=support_msg_api()))
+
+    def parse_metrics(self, json_struct):
+        if not isList(json_struct):
+            raise ValueError("non-list returned by Attivio AIE Perfmon metrics API (got type '{0}')"\
+                             .format(type(json_struct)))
+        metrics = {}
+        for item in json_struct:
+            if not isDict(item):
+                raise ValueError("non-dict item found in list returned by Attivio AIE Perfmon API (got type '{0}')"\
+                                 .format(type(item)))
+            if not isList(item['values']):
+                raise ValueError("non-list returned for metric value by Attivio AIE Perfmon API (got type '{0}')"\
+                                 .format(type(item['values'])))
+            metric = item['metric']
+            if self.workflow and 'workflow' in item and self.workflow != item['workflow']:
+                continue
+            if self.component and 'component' in item and self.component != item['component']:
+                continue
+            for key in ('nodeset', 'hostname', 'workflowType', 'workflow', 'component'):
+                if key in item:
+                    metric += '.{0}'.format(item[key])
+                metrics[metric] = item['values'][0]
+        return metrics
 
     def msg_metrics(self, metrics):
         if not metrics:
