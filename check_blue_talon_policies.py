@@ -20,7 +20,7 @@ Nagios Plugin to check Blue Talon policies via the Policy Management server REST
 
 Currently only determines the number of policies, also outputs perfdata.
 
-Warning: the API doesn't expose a rule count so this program must fetch and count all policies
+Warning: the API doesn't expose a count so this program must fetch and count all policies
 which is an O(n) operation and as such the performance get worse the more policies you have.
 
 Optional thresholds may be applied to the number of policies
