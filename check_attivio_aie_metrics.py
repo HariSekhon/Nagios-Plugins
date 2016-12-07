@@ -143,11 +143,11 @@ class CheckAttivioMetrics(NagiosPlugin):
             for key in ('nodeset', 'hostname', 'workflowType', 'workflow', 'component'):
                 if key in item:
                     metric += '.{0}'.format(item[key])
-                value = item['values'][0]
-                if self.precision and isFloat(value):
-                    # leaving as string will result in lots of trailing zeros
-                    value = float('{value:.{precision}f}'.format(value=value, precision=self.precision))
-                metrics[metric] = value
+            value = item['values'][0]
+            if self.precision and isFloat(value):
+                # leaving as string will result in lots of trailing zeros
+                value = float('{value:.{precision}f}'.format(value=value, precision=self.precision))
+            metrics[metric] = value
         return metrics
 
     def msg_metrics(self, metrics):
