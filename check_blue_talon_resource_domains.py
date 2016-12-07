@@ -21,9 +21,9 @@ Nagios Plugin to check Blue Talon resource domains via the Policy Management ser
 Currently only determines the number of resource domains, also outputs perfdata.
 
 Warning: the API doesn't expose a count so this program must fetch and count all resource domains
-which is an O(n) operation and as such the performance get worse the more resources you have.
+which is an O(n) operation and as such the performance get worse the more resources domains you have.
 
-Optional thresholds may be applied to the number of resources
+Optional thresholds may be applied to the number of resources domains
 
 Tested on Blue Talon 2.12.0
 
