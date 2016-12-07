@@ -16,7 +16,12 @@
 
 """
 
-Nagios Plugin to check Attivio AIE system health by parsing its system status page
+Nagios Plugin to check Attivio AIE system health including any nodes down, performance monitoring down,
+warning and fatal error counts as well as acknowledged counts
+
+Nodes Down and Fatal errors result in CRITICAL status
+
+Warnings or performance monitoring down result in WARNING status
 
 Tested on Attivio 5.1.8
 
@@ -27,14 +32,13 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import logging
+import json
 import os
 import sys
 import traceback
 try:
     import requests
     #from requests.auth import HTTPBasicAuth
-    from bs4 import BeautifulSoup
 except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
@@ -43,7 +47,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, log_option, qquit, support_msg_api
+    from harisekhon.utils import log, log_option, qquit, support_msg_api, isDict, isInt
     from harisekhon.utils import validate_host, validate_port
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -51,7 +55,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckAttivioSystemHealth(NagiosPlugin):
@@ -87,7 +91,7 @@ class CheckAttivioSystemHealth(NagiosPlugin):
 
     def run(self):
         log.info('querying %s', self.software)
-        url = '{protocol}://{host}:{port}/admin/systemstatus'\
+        url = '{protocol}://{host}:{port}/admin/systemHealth?cmd=systemhealth&format=json&cache=false'\
               .format(host=self.host, port=self.port, protocol=self.protocol)
         log.debug('GET %s', url)
         try:
@@ -104,15 +108,49 @@ class CheckAttivioSystemHealth(NagiosPlugin):
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
         if req.status_code != 200:
             qquit('CRITICAL', '{0}: {1}'.format(req.status_code, req.reason))
-        soup = BeautifulSoup(req.content, 'html.parser')
-        if log.isEnabledFor(logging.DEBUG):
-            log.debug("BeautifulSoup prettified:\n{0}\n{1}".format(soup.prettify(), '='*80))
+        self.parse_results(req.content)
+
+    def parse_results(self, content):
         try:
+            json_dict = json.loads(content)
             # looks like syshealthok child div is only there in browser, but give syshealthspin in code
-            if soup.find('div', id='syshealthstatus').find('div', id='syshealthok'):
-                qquit('OK', 'system health = OK')
-            qquit('CRITICAL', 'system health != OK')
-        except (AttributeError, TypeError) as _:
+            #if soup.find('div', id='syshealthstatus').find('div', id='syshealthok'):
+            if not isDict(json_dict):
+                raise ValueError("non-dict returned by Attivio AIE server response (type was '{0}')"\
+                                 .format(type(json_dict)))
+            self.msg = ''
+            # if this is true from warnings would ruin the more appropriate warnings check
+            #if json_dict['haserrors']:
+            #    self.critical()
+            #    self.msg += 'errors detected, '
+            nodes_down = json_dict['nodesdown']
+            warnings = json_dict['warnings']
+            fatals = json_dict['fatals']
+            acknowledged = json_dict['acknowledged']
+            if not isInt(nodes_down):
+                raise ValueError('non-integer returned for nodes down count by Attivio AIE')
+            if not isInt(warnings):
+                raise ValueError('non-integer returned for warnings count by Attivio AIE')
+            if not isInt(fatals):
+                raise ValueError('non-integer returned for fatals count by Attivio AIE')
+            if not isInt(acknowledged):
+                raise ValueError('non-integer returned for acknowledged count by Attivio AIE')
+            nodes_down = int(nodes_down)
+            warnings = int(warnings)
+            fatals = int(fatals)
+            acknowledged = int(acknowledged)
+            if nodes_down > 0 or self.fatals > 0:
+                self.critical()
+            elif warnings > 0:
+                self.warning()
+            self.msg += '{nodes_down} nodes down, {fatals} fatals, {warnings} warnings, {acknowledged} acknowledged'\
+                        .format(nodes_down=nodes_down, fatals=fatals, warnings=warnings, acknowledged=acknowledged)
+            if json_dict['perfmondown']:
+                self.warning()
+                self.msg += ', warning: performance monitoring down'
+            self.msg += ' | nodes_down={nodes_down} fatals={fatals} warnings={warnings} acknowledged={acknowledged}'\
+                        .format(nodes_down=nodes_down, fatals=fatals, warnings=warnings, acknowledged=acknowledged)
+        except (KeyError, ValueError) as _:
             qquit('UNKNOWN', 'error parsing output from {software}: {exception}: {error}. {support_msg}'\
                              .format(software=self.software,
                                      exception=type(_).__name__,
