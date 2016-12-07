@@ -22,6 +22,14 @@ Can list all metric names for convenience
 
 Optional thresholds may be supplied for given metric
 
+As there are quite a lot of metric subcomponents, allows several filters to be applied and
+also makes each metric name specifically distinguishable via a explicit naming scheme:
+
+<metric>.<nodeset>.<hostname>.<workflowType>.<workflow>.<component>=<value>
+
+Each component of the naming scheme is only output if there is a corresponding distinguishing attribute
+returned by the API. To more clearly see the sub-components that you can filter on, run in -vv mode
+
 Tested on Attivio 5.1.8
 
 """
@@ -143,8 +151,10 @@ class CheckAttivioMetrics(NagiosPlugin):
                 continue
             for key in ('nodeset', 'hostname', 'workflowType', 'workflow', 'component'):
                 if key in item:
+                    log.info('%s = %s', key, item[key])
                     metric += '.{0}'.format(item[key])
             value = item['values'][0]
+            log.info('value = %s\n', value)
             if self.precision and isFloat(value):
                 # leaving as string will result in lots of trailing zeros
                 value = float('{value:.{precision}f}'.format(value=value, precision=self.precision))
