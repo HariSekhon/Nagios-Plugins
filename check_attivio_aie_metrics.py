@@ -55,7 +55,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckAttivioMetrics(NagiosPlugin):
@@ -73,8 +73,8 @@ class CheckAttivioMetrics(NagiosPlugin):
         self.protocol = 'http'
         self.msg = '{0} metrics:'.format(self.software)
         self.metrics = None
-        self.workflow = None
-        self.component = None
+        self.filter_types = ('nodeset', 'hostname', 'workflow', 'component')
+        self.filters = {}
         self.precision = None
         self.ok()
 
@@ -84,8 +84,10 @@ class CheckAttivioMetrics(NagiosPlugin):
         #self.add_useroption(name=self.software, default_user=self.default_user)
         self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
         self.add_opt('-m', '--metrics', help='Metrics to retrieve, comma separated')
-        self.add_opt('-W', '--workflow', help='Workflow name if using a workflow.* metric')
-        self.add_opt('-C', '--component', help='Component name if using a component.* metric')
+        self.add_opt('-N', '--nodeset', help='Nodeset to restrict metrics to')
+        self.add_opt('-O', '--hostname', help='Hostname to restrict metrics to')
+        self.add_opt('-W', '--workflow', help='Workflow name to restrict metrics to')
+        self.add_opt('-C', '--component', help='Component name to restrict metrics to')
         self.add_opt('-p', '--precision', default=4,
                      help='Decimal place precision for floating point numbers (default: 4)')
         self.add_opt('-l', '--list-metrics', action='store_true', help='List all metrics and exit')
@@ -103,8 +105,8 @@ class CheckAttivioMetrics(NagiosPlugin):
         self.metrics = self.get_opt('metrics')
         if not self.metrics and not self.get_opt('list_metrics'):
             self.usage("--metrics not specified, use --list-metrics to see what's available in Attivio's API")
-        self.workflow = self.get_opt('workflow')
-        self.component = self.get_opt('component')
+        for key in self.filter_types:
+            self.filters[key] = self.get_opt(key)
         self.precision = self.get_opt('precision')
         self.validate_thresholds(optional=True)
 
@@ -135,10 +137,9 @@ class CheckAttivioMetrics(NagiosPlugin):
                 raise ValueError("non-list returned for metric value by Attivio AIE Perfmon API (got type '{0}')"\
                                  .format(type(item['values'])))
             metric = item['metric']
-            if self.workflow and 'workflow' in item and self.workflow != item['workflow']:
-                continue
-            if self.component and 'component' in item and self.component != item['component']:
-                continue
+            for key in self.filter_types:
+                if self.filters[key] and key in item and self.filters[key] != item[key]:
+                    continue
             for key in ('nodeset', 'hostname', 'workflowType', 'workflow', 'component'):
                 if key in item:
                     metric += '.{0}'.format(item[key])
