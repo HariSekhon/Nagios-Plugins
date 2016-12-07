@@ -45,14 +45,14 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit, support_msg_api, version_regex
+    from harisekhon.utils import log, log_option, qquit, support_msg_api, version_regex
     from harisekhon import VersionNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckAttivioVersion(VersionNagiosPlugin):
@@ -78,6 +78,8 @@ class CheckAttivioVersion(VersionNagiosPlugin):
 
     def process_options(self):
         super(CheckAttivioVersion, self).process_options()
+        ssl = self.get_opt('ssl')
+        log_option('ssl', ssl)
         if self.get_opt('ssl'):
             self.protocol = 'https'
 
