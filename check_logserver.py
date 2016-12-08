@@ -35,6 +35,7 @@ import signal
 import socket
 try:
     import MySQLdb
+    from MySQLdb import MySQLError
 except ImportError:
     print "You must have the MySQLdb python library",
     print "installed to run this plugin"
@@ -246,7 +247,7 @@ class LogServerTester:
                                             passwd = self.password,     \
                                             db     = self.mysql_db,     \
                                             port   = self.mysql_port    )
-        except MySQLdb.MySQLError, mysql_error:
+        except MySQLError, mysql_error:
             end(CRITICAL, "error connecting to database - %s" % mysql_error[1])
 
         self.vprint(2, "connected to database")
@@ -281,7 +282,7 @@ class LogServerTester:
             # AS NOTED ABOVE, SECURITY IS HANDLED BY RESTRICTIVE REGEX OF
             # SAFE PARAMETERS IN MAIN FUNCTION -h
             cursor.execute(query, (log_message,))
-        except MySQLdb.MySQLError, mysql_error:
+        except MySQLError, mysql_error:
             end(CRITICAL, "error querying mysql server for log - %s" \
                                                         % mysql_error[1])
         result = cursor.fetchall()
@@ -651,15 +652,16 @@ def main():
 
     start_time = time.time()
 
-    returncode, output = tester.test_logserver()
+    #returncode, output = tester.test_logserver()
+    returncode = tester.test_logserver()
 
     finish_time = time.time()
     total_time = finish_time - start_time
 
-    if output: 
-        print "%s. Test completed in %.3f seconds" % (output, total_time)
-    else:
-        print "No output returned by logserver test! Test took %.3f seconds" \
+    #if output:
+    #    print "%s. Test completed in %.3f seconds" % (output, total_time)
+    #else:
+    print "No output returned by logserver test! Test took %.3f seconds" \
                                                                     % total_time
     sys.exit(returncode)
 
