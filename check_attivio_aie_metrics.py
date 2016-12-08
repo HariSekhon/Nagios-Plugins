@@ -26,7 +26,7 @@ in the perfdata (can become too long for Nagios to handle so off by default).
 As there are quite a lot of metric subcomponents, allows several filters to be applied and
 also makes each metric name specifically distinguishable via a explicit naming scheme:
 
-<metric>.<nodeset>.<hostname>.<workflowType>.<workflow>.<component>=<value>
+<metric>.<nodeset>.<hostname>.<workflowType>.<workflow>.<component>.<path>=<value>
 
 Each component of the naming scheme is only output if there is a corresponding distinguishing attribute
 returned by the API. To more clearly see the sub-components that you can filter on, run in -vv mode
@@ -64,7 +64,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 class CheckAttivioMetrics(NagiosPlugin):
@@ -82,7 +82,7 @@ class CheckAttivioMetrics(NagiosPlugin):
         self.protocol = 'http'
         self.msg = '{0} metrics:'.format(self.software)
         self.metrics = None
-        self.filter_types = ('nodeset', 'hostname', 'workflow', 'component')
+        self.filter_types = ('nodeset', 'hostname', 'workflow', 'component', 'path')
         self.filters = {}
         self.precision = None
         self.ok()
@@ -97,6 +97,7 @@ class CheckAttivioMetrics(NagiosPlugin):
         self.add_opt('-O', '--hostname', help='Hostname to restrict metrics to')
         self.add_opt('-W', '--workflow', help='Workflow name to restrict metrics to')
         self.add_opt('-C', '--component', help='Component name to restrict metrics to')
+        self.add_opt('-A', '--path', help='OS Path to restrict metrics to (eg. /boot, / etc)')
         self.add_opt('-p', '--precision', default=4,
                      help='Decimal place precision for floating point numbers (default: 4)')
         self.add_opt('-l', '--list-metrics', action='store_true', help='List all metrics and exit')
@@ -153,7 +154,7 @@ class CheckAttivioMetrics(NagiosPlugin):
             if self.skip_metric(item):
                 log.info('skipping metric %s due to filters', metric)
                 continue
-            for key in ('nodeset', 'hostname', 'workflowType', 'workflow', 'component'):
+            for key in ('nodeset', 'hostname', 'workflowType', 'workflow', 'component', 'path'):
                 if key in item:
                     log.info('%s = %s', key, item[key])
                     metric += '.{0}'.format(item[key])
@@ -162,6 +163,9 @@ class CheckAttivioMetrics(NagiosPlugin):
             if self.precision and isFloat(value):
                 # leaving as string will result in lots of trailing zeros
                 value = float('{value:.{precision}f}'.format(value=value, precision=self.precision))
+            if metric in metrics:
+                qquit('UNKNOWN', "duplicate metric '{metric}' discovered! {support_msg}"\
+                                 .format(metric=metric, support_msg=support_msg_api()))
             metrics[metric] = value
         return metrics
 
