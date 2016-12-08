@@ -36,7 +36,10 @@ if [ -n "${ZALONI_BEDROCK_HOST:-}" ]; then
     if which nc &>/dev/null && ! echo | nc -w 1 "$ZALONI_BEDROCK_HOST" "$ZALONI_BEDROCK_PORT"; then
         echo "WARNING: Zaloni Bedrock host $ZALONI_BEDROCK_HOST:$ZALONI_BEDROCK_PORT not up, skipping Zaloni checks"
     else
+        set +e
         ./check_zaloni_bedrock_ingestion.py -l
+        check_exit_code 3
+        set -e
         hr
         ./check_zaloni_bedrock_ingestion.py -v -r 600 -a 1440
         hr
