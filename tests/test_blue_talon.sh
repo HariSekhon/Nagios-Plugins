@@ -32,7 +32,7 @@ export BLUE_TALON_PORT="${BLUE_TALON_PORT:-443}"
 export BLUE_TALON_USER="${BLUE_TALON_USER:-btadminuser}"
 export BLUE_TALON_PASSWORD="${BLUE_TALON_PASSWORD:-P@ssw0rd}"
 export BLUE_TALON_SSL="-S"
-if [ -n "$BLUE_TALON_NO_SSL" ]; then
+if [ -n "${BLUE_TALON_NO_SSL:-}" ]; then
     export BLUE_TALON_SSL=""
 fi
 
