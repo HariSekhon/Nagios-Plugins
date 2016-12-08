@@ -76,7 +76,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5'
+__version__ = '0.5.1'
 
 
 class CheckZaloniBedrockWorkflow(NagiosPlugin):
@@ -305,12 +305,12 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             except ValueError as _:
                 qquit('UNKNOWN', 'error parsing date time format: {0}'.format(_))
             runtime_delta = end_datetime - start_datetime
-            self.msg += ' in {0}'.format(sec2human(runtime_delta.seconds))
-            if self.max_runtime is not None and (runtime_delta.seconds / 60.0) > self.max_runtime:
+            self.msg += ' in {0}'.format(sec2human(runtime_delta.total_seconds()))
+            if self.max_runtime is not None and (runtime_delta.total_seconds() / 60.0) > self.max_runtime:
                 self.warning()
                 self.msg += ' (greater than {0} min{1}!)'.format(str(self.max_runtime).rstrip('0').rstrip('.'),
                                                                  plural(self.max_runtime))
-            if self.min_runtime is not None and (runtime_delta.seconds / 60.0) < self.min_runtime:
+            if self.min_runtime is not None and (runtime_delta.total_seconds() / 60.0) < self.min_runtime:
                 self.warning()
                 self.msg += ' (less than {0} min{1}!)'.format(str(self.min_runtime).rstrip('0').rstrip('.'),
                                                               plural(self.min_runtime))
@@ -319,8 +319,9 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
             self.msg += ", start date = '{startdate}', end date = '{enddate}'".\
                         format(startdate=start_date, enddate=end_date)
             if age_timedelta is not None:
-                self.msg += ', started {0} ago'.format(sec2human(age_timedelta.seconds))
-        if self.max_age is not None and age_timedelta is not None and age_timedelta.seconds > (self.max_age * 60.0):
+                self.msg += ', started {0} ago'.format(sec2human(age_timedelta.total_seconds()))
+        if self.max_age is not None and age_timedelta is not None \
+           and age_timedelta.total_seconds() > (self.max_age * 60.0):
             self.warning()
             self.msg += ' (last run started more than {0} min{1} ago!)'.format(str(self.max_age)
                                                                                .rstrip('0')
@@ -329,9 +330,9 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
         # Do not output variable number of fields at all if agedelta is not available as that breaks PNP4Nagios graphing
         if age_timedelta is not None and runtime_delta:
             self.msg += ' |'
-            self.msg += ' runtime={0}s;{1}'.format(runtime_delta.seconds, self.max_runtime * 60 \
+            self.msg += ' runtime={0}s;{1}'.format(runtime_delta.total_seconds(), self.max_runtime * 60 \
                                                                             if self.max_runtime else '')
-            self.msg += ' age={0}s;{1}'.format(age_timedelta.seconds, self.max_age * 60 if self.max_age else '')
+            self.msg += ' age={0}s;{1}'.format(age_timedelta.total_seconds(), self.max_age * 60 if self.max_age else '')
             self.msg += ' auth_time={auth_time}s query_time={query_time}s'.format(auth_time=self.auth_time,
                                                                                   query_time=self.query_time)
 
