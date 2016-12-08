@@ -26,7 +26,7 @@ in the perfdata (can become too long for Nagios to handle so off by default).
 As there are quite a lot of metric subcomponents, allows several filters to be applied and
 also makes each metric name specifically distinguishable via a explicit naming scheme:
 
-<metric>.<nodeset>.<hostname>.<workflowType>.<workflow>.<component>.<path>=<value>
+<metric>.<nodeset>.<hostname>.<workflowType>.<workflow>.<component>.<path>.<networkInterface>=<value>
 
 Each component of the naming scheme is only output if there is a corresponding distinguishing attribute
 returned by the API. To more clearly see the sub-components that you can filter on, run in -vv mode
@@ -82,7 +82,7 @@ class CheckAttivioMetrics(NagiosPlugin):
         self.protocol = 'http'
         self.msg = '{0} metrics:'.format(self.software)
         self.metrics = None
-        self.filter_types = ('nodeset', 'hostname', 'workflow', 'component', 'path')
+        self.filter_types = ('nodeset', 'hostname', 'workflow', 'component', 'path', 'networkInterface')
         self.filters = {}
         self.precision = None
         self.ok()
@@ -98,6 +98,7 @@ class CheckAttivioMetrics(NagiosPlugin):
         self.add_opt('-W', '--workflow', help='Workflow name to restrict metrics to')
         self.add_opt('-C', '--component', help='Component name to restrict metrics to')
         self.add_opt('-A', '--path', help='OS Path to restrict metrics to (eg. /boot, / etc)')
+        self.add_opt('-I', '--networkInterface', help='Network interface to restrict metrics to (eg. eno... - <ip>)')
         self.add_opt('-p', '--precision', default=4,
                      help='Decimal place precision for floating point numbers (default: 4)')
         self.add_opt('-l', '--list-metrics', action='store_true', help='List all metrics and exit')
@@ -154,7 +155,7 @@ class CheckAttivioMetrics(NagiosPlugin):
             if self.skip_metric(item):
                 log.info('skipping metric %s due to filters', metric)
                 continue
-            for key in ('nodeset', 'hostname', 'workflowType', 'workflow', 'component', 'path'):
+            for key in ('nodeset', 'hostname', 'workflowType', 'workflow', 'component', 'path', 'networkInterface'):
                 if key in item:
                     log.info('%s = %s', key, item[key])
                     metric += '.{0}'.format(item[key])
