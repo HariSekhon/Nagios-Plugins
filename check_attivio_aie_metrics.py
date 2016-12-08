@@ -175,8 +175,13 @@ class CheckAttivioMetrics(NagiosPlugin):
 
     def skip_metric(self, item):
         for key in self.filter_types:
-            if self.filters[key] and key in item and self.filters[key] != item[key]:
-                return True
+            if self.filters[key] and key in item:
+                if key == 'networkInterface':
+                    if self.filters[key] != item[key].split()[0]:
+                        return True
+                else:
+                    if self.filters[key] != item[key]:
+                        return True
         return False
 
     def msg_metrics(self, metrics):
