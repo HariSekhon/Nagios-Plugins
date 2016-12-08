@@ -20,7 +20,8 @@ Nagios Plugin to check Attivio AIE metrics via the Performance Monitor host's RE
 
 Can list all metric names for convenience
 
-Optional thresholds may be supplied, which will apply to any retrieved metrics
+Optional thresholds may be supplied, which will apply to any retrieved metrics. Verbose mode will output the thresholds
+in the perfdata (can become too long for Nagios to handle so off by default).
 
 As there are quite a lot of metric subcomponents, allows several filters to be applied and
 also makes each metric name specifically distinguishable via a explicit naming scheme:
@@ -190,8 +191,8 @@ class CheckAttivioMetrics(NagiosPlugin):
             if not isFloat(value):
                 value = 0
             self.msg += " '{metric}'={value}".format(metric=metric, value=value)
-        if len(metrics) == 1:
-            self.msg += self.get_perf_thresholds()
+            if self.verbose:
+                self.msg += self.get_perf_thresholds()
 
     def get(self, url_suffix, params=None):
         log.info('querying %s', self.software)
