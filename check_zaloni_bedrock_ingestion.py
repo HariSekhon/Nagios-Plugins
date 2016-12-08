@@ -78,7 +78,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.3'
+__version__ = '0.4'
 
 
 class CheckZaloniBedrockIngestion(NagiosPlugin):
@@ -205,11 +205,12 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             age_timedelta = self.check_last_ingest_age(results, max_age=max_age)
             self.msg_filter_details(filter_opts=filter_opts)
             self.msg += ' |'
-            self.msg += ' last_ingest_age={0}s;{1}'.format(age_timedelta.total_seconds(),
+            self.msg += ' last_ingest_age={0}s;{1}'.format(self.timedelta_seconds(age_timedelta),
                                                            max_age * 3600 if max_age else '')
-            self.msg += ' longest_incomplete_ingest_age={0}s;{1}'.format(longest_incomplete_timedelta.total_seconds() \
-                                                                         if longest_incomplete_timedelta else 0,
-                                                                         max_age * 3600 if max_age else '')
+            self.msg += ' longest_incomplete_ingest_age={0}s;{1}'\
+                        .format(self.timedelta_seconds(longest_incomplete_timedelta)
+                                if longest_incomplete_timedelta else 0,
+                                max_age * 3600 if max_age else '')
             self.msg += ' auth_time={auth_time}s query_time={query_time}s'.format(auth_time=self.auth_time,
                                                                                   query_time=self.query_time)
         except KeyError as _:
@@ -254,14 +255,14 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             if status == 'INCOMPLETE' and max_runtime is not None:
                 runtime_delta = self.get_timedelta(item['ingestionTimeFormatted'])
                 if longest_incomplete_timedelta is None or \
-                   runtime_delta.total_seconds() > longest_incomplete_timedelta.total_seconds():
+                   self.timedelta_seconds(runtime_delta) > self.timedelta_seconds(longest_incomplete_timedelta):
                     longest_incomplete_timedelta = runtime_delta
         if max_runtime is not None and \
            longest_incomplete_timedelta is not None and \
-           longest_incomplete_timedelta.total_seconds() > max_runtime * 60.0:
+           self.timedelta(longest_incomplete_timedelta) > max_runtime * 60.0:
             self.warning()
             self.msg += ', longest incomplete ingest runtime = {0} ago! '\
-                        .format(sec2human(longest_incomplete_timedelta.total_seconds())) + \
+                        .format(sec2human(self.timedelta_seconds(longest_incomplete_timedelta))) + \
                         '(greater than expected {0} min{1})'\
                         .format(str(max_runtime).rstrip('0').rstrip('.'), plural(max_runtime))
         return longest_incomplete_timedelta
@@ -277,8 +278,8 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
         age_timedelta = self.get_timedelta(ingestion_date=ingestion_date)
         if self.verbose:
             self.msg += ", last ingest start date = '{ingestion_date}'".format(ingestion_date=ingestion_date)
-            self.msg += ', started {0} ago'.format(sec2human(age_timedelta.total_seconds()))
-        if max_age is not None and age_timedelta.total_seconds() > (max_age * 60.0):
+            self.msg += ', started {0} ago'.format(sec2human(self.timedelta_seconds(age_timedelta)))
+        if max_age is not None and self.timedelta_seconds(age_timedelta) > (max_age * 60.0):
             self.warning()
             self.msg += ' (last run started more than {0} min{1} ago!)'.format(str(max_age)
                                                                                .rstrip('0')
@@ -344,6 +345,11 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
                 qquit('UNKNOWN', 'error parsing ingestion date time format: {0}'.format(_))
         time_delta = datetime.now() - ingestion_datetime
         return time_delta
+
+    # because timedelta.total_seconds() >= Python 2.7+
+    @staticmethod
+    def timedelta_seconds(timedelta_arg):
+        return timedelta_arg.seconds + timedelta_arg.days * 24 * 3600
 
     def list_ingestions(self, num=None):
         log.info('listing ingestions')
