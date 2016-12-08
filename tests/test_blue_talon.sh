@@ -31,7 +31,10 @@ export BLUE_TALON_HOST="${BLUE_TALON_HOST:-trial.bluetalon.com}"
 export BLUE_TALON_PORT="${BLUE_TALON_PORT:-443}"
 export BLUE_TALON_USER="${BLUE_TALON_USER:-btadminuser}"
 export BLUE_TALON_PASSWORD="${BLUE_TALON_PASSWORD:-P@ssw0rd}"
-export BLUE_TALON_SSL="${BLUE_TALON_SSL:--S}"
+export BLUE_TALON_SSL="-S"
+if [ -n "$BLUE_TALON_NO_SSL" ]; then
+    export BLUE_TALON_SSL=""
+fi
 
 ./check_blue_talon_masking_functions.py $BLUE_TALON_SSL -v -w 400 -c 1000
 hr
