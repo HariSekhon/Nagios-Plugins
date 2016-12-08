@@ -78,7 +78,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.4.1'
 
 
 class CheckZaloniBedrockIngestion(NagiosPlugin):
@@ -202,7 +202,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
                                                                    str(self.history_mins).rstrip('0').rstrip('.'),
                                                                    plural(self.history_mins))
             longest_incomplete_timedelta = self.check_longest_incomplete_ingest(results, max_runtime)
-            (age_timedelta, age_timedelta_secs) = self.check_last_ingest_age(results, max_age=max_age)
+            age_timedelta_secs = self.check_last_ingest_age(results, max_age=max_age)
             self.msg_filter_details(filter_opts=filter_opts)
             self.msg += ' |'
             self.msg += ' last_ingest_age={0}s;{1}'.format(age_timedelta_secs,
@@ -286,7 +286,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
                                                                                .rstrip('0')
                                                                                .rstrip('.'),
                                                                                plural(max_age))
-        return (age_timedelta, age_timedelta_secs)
+        return age_timedelta_secs
 
     @staticmethod
     def extract_response_message(response_dict):
