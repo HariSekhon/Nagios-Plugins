@@ -63,7 +63,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.3.1'
 
 
 class CheckAttivioMetrics(NagiosPlugin):
@@ -177,7 +177,10 @@ class CheckAttivioMetrics(NagiosPlugin):
         if len(metrics) == 1:
             #self.check_thresholds(metrics.itervalues().next())
             # safer for python 3 without having to use six.next(six.itervalues(metrics))
-            self.check_thresholds(metrics[metrics.keys()[0]])
+            metric = metrics.keys()[0]
+            value = metrics[metric]
+            if isFloat(value):
+                self.check_thresholds(value)
         self.msg += ' |'
         for metric in sorted(metrics):
             value = metrics[metric]
