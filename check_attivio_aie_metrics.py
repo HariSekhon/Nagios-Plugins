@@ -138,7 +138,8 @@ class CheckAttivioMetrics(NagiosPlugin):
                              .format(type(json_struct)))
         metrics = {}
         if not json_struct:
-            qquit('UNKNOWN', "no matching metrics found, use --list-metrics to check you've specified a correct metric")
+            qquit('UNKNOWN', "no matching metrics found for '{0}'".format(self.metrics) + \
+                             ", use --list-metrics to check you've specified a correct metric")
         for item in json_struct:
             if not isDict(item):
                 raise ValueError("non-dict item found in list returned by Attivio AIE Perfmon API (got type '{0}')"\
