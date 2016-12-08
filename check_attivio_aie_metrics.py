@@ -157,8 +157,11 @@ class CheckAttivioMetrics(NagiosPlugin):
                 continue
             for key in ('nodeset', 'hostname', 'workflowType', 'workflow', 'component', 'path', 'networkInterface'):
                 if key in item:
-                    log.info('%s = %s', key, item[key])
-                    metric += '.{0}'.format(item[key])
+                    val = item[key]
+                    log.info('%s = %s', key, val)
+                    if key == 'networkInterface':
+                        val = val.split()[0]
+                    metric += '.{0}'.format(val)
             value = item['values'][0]
             log.info('value = %s\n', value)
             if self.precision and isFloat(value):
