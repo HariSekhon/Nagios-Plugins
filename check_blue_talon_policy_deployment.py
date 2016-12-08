@@ -59,7 +59,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
@@ -148,7 +148,7 @@ class CheckBlueTalonPolicyDeploymentAge(NagiosPlugin):
                                      error=_,
                                      support_msg=support_msg_api()))
         timedelta = datetime.now() - last_deploy_datetime
-        mins = int(int(timedelta.seconds) / 60)
+        mins = int(int(timedelta.total_seconds()) / 60)
         self.msg = "{software} last deployment was at '{timestamp}', {mins} mins ago".format(software=self.software,
                                                                                              timestamp=timestamp,
                                                                                              mins=mins)
