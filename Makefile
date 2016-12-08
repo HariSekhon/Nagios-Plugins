@@ -152,6 +152,8 @@ python-libs:
 	@echo
 	wget https://raw.githubusercontent.com/HariSekhon/pytools/master/find_active_server.py
 	@echo
+	bash-tools/python_compile.sh
+	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins python)"
 
 .PHONY: elasticsearch2
