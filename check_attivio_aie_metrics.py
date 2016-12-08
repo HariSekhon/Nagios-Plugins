@@ -159,6 +159,7 @@ class CheckAttivioMetrics(NagiosPlugin):
                 if key in item:
                     val = item[key]
                     log.info('%s = %s', key, val)
+                    # Attivio returns network interfaces in form "lo - 127.0.0.1"
                     if key == 'networkInterface':
                         val = val.split()[0]
                     metric += '.{0}'.format(val)
@@ -176,6 +177,7 @@ class CheckAttivioMetrics(NagiosPlugin):
     def skip_metric(self, item):
         for key in self.filter_types:
             if self.filters[key] and key in item:
+                # Attivio returns network interfaces in form "lo - 127.0.0.1"
                 if key == 'networkInterface':
                     if self.filters[key] != item[key].split()[0]:
                         return True
