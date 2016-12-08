@@ -20,7 +20,7 @@ Nagios Plugin to check Attivio AIE metrics via the Performance Monitor host's RE
 
 Can list all metric names for convenience
 
-Optional thresholds may be supplied for given metric
+Optional thresholds may be supplied, which will apply to any retrieved metrics
 
 As there are quite a lot of metric subcomponents, allows several filters to be applied and
 also makes each metric name specifically distinguishable via a explicit naming scheme:
@@ -63,7 +63,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.1'
+__version__ = '0.4'
 
 
 class CheckAttivioMetrics(NagiosPlugin):
@@ -173,12 +173,13 @@ class CheckAttivioMetrics(NagiosPlugin):
         if not metrics:
             qquit('UNKNOWN', "no matching metrics found, check your filters: --" + "/ --".join(self.filter_types))
         for metric in sorted(metrics):
-            self.msg += ' {metric}={value}'.format(metric=metric, value=metrics[metric])
-        if len(metrics) == 1:
+            value = metrics[metric]
+            self.msg += ' {metric}={value}'.format(metric=metric, value=value)
+        #if len(metrics) == 1:
             #self.check_thresholds(metrics.itervalues().next())
             # safer for python 3 without having to use six.next(six.itervalues(metrics))
-            metric = metrics.keys()[0]
-            value = metrics[metric]
+            #metric = metrics.keys()[0]
+            #value = metrics[metric]
             if isFloat(value):
                 self.check_thresholds(value)
         self.msg += ' |'
