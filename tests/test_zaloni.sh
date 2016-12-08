@@ -50,7 +50,7 @@ if [ -n "${ZALONI_BEDROCK_HOST:-}" ]; then
         sed 's/.*[[:space:]]\{4\}\([[:digit:]]\+\)[[:space:]]\{4\}.*/\1/' |
         while read workflow_id; do
             set +e
-            ./check_zaloni_bedrock_workflow.py -I "$workflow_id" -v -w 0
+            ./check_zaloni_bedrock_workflow.py -I "$workflow_id" -v --min-runtime 0
             check_exit_code 0 2
             set -e
             hr
@@ -61,13 +61,13 @@ if [ -n "${ZALONI_BEDROCK_HOST:-}" ]; then
         sed 's/[[:space:]]\{4\}[[:digit:]]\+[[:space:]]\{4\}.*//' |
         while read workflow_name; do
             set +e
-            ./check_zaloni_bedrock_workflow.py -N "$workflow_name" -v -w 0
+            ./check_zaloni_bedrock_workflow.py -N "$workflow_name" -v --min-runtime 0
             check_exit_code 0 2
             set -e
             hr
         done
         set +e
-        ./check_zaloni_bedrock_workflow.py --all -v -w 0
+        ./check_zaloni_bedrock_workflow.py --all -v --min-runtime 0
         check_exit_code 0 2
         set -e
     fi
