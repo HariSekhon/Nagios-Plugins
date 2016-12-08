@@ -122,7 +122,7 @@ class CheckAttivioMetrics(NagiosPlugin):
         try:
             if self.get_opt('list_metrics'):
                 self.list_metrics()
-            json_struct = self.get('lastdata?metrics={metrics}'.format(metrics=self.metrics))
+            json_struct = self.get('lastdata', params={'metrics': self.metrics})
             metrics = self.parse_metrics(json_struct)
             self.msg_metrics(metrics)
         except (KeyError, ValueError) as _:
@@ -193,13 +193,13 @@ class CheckAttivioMetrics(NagiosPlugin):
         if len(metrics) == 1:
             self.msg += self.get_perf_thresholds()
 
-    def get(self, url_suffix):
+    def get(self, url_suffix, params=None):
         log.info('querying %s', self.software)
         url = '{protocol}://{host}:{port}/rest/metrics/{url_suffix}'\
               .format(host=self.host, port=self.port, protocol=self.protocol, url_suffix=url_suffix)
         log.debug('GET %s', url)
         try:
-            req = requests.get(url)
+            req = requests.get(url, params=params)
             #req = requests.get(url, auth=HTTPBasicAuth(self.user, self.password))
         except requests.exceptions.RequestException as _:
             errhint = ''
