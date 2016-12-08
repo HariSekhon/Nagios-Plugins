@@ -23,10 +23,12 @@ cd "$srcdir/.."
 
 section "Docker Image"
 
+export DOCKER_IMAGE="harisekhon/nagios-plugins"
+
 if is_docker_available; then
-    docker pull harisekhon/nagios-plugins
+    docker pull "$DOCKER_IMAGE"
     set +e
-    docker run harisekhon/nagios-plugins check_ssl_cert.pl --help
+    docker run "$DOCKER_IMAGE" check_ssl_cert.pl --help
     check_exit_code 3
     set -e
 fi
