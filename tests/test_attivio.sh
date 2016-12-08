@@ -38,9 +38,13 @@ if [ -n "${ATTIVIO_AIE_HOST:-}" ]; then
         echo "WARNING: Attivio AIE host $ATTIVIO_AIE_HOST:$ATTIVIO_AIE_PORT not up, skipping Attivio AIE checks"
     else
         ./check_attivio_aie_ingest_session_count.py -v
+        hr
         ./check_attivio_aie_license_expiry.py -v
+        hr
         ./check_attivio_aie_system_health.py -v
+        hr
         ./check_attivio_aie_version.py -v
+        hr
     fi
 else
     echo "WARNING: \$ATTIVIO_AIE_HOST not set, skipping Attivio AIE checks"
@@ -54,6 +58,7 @@ if [ -n "${ATTIVIO_AIE_PERFMON_HOST:-}" ]; then
         tail -n +3 |
         while read metric; do
             ./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -P "$ATTIVIO_AIE_PERFMON_PORT" -m "$metric" -v
+            hr
         done
     fi
 else
