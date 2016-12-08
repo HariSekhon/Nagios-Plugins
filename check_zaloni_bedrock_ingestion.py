@@ -202,10 +202,10 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
                                                                    str(self.history_mins).rstrip('0').rstrip('.'),
                                                                    plural(self.history_mins))
             longest_incomplete_timedelta = self.check_longest_incomplete_ingest(results, max_runtime)
-            age_timedelta = self.check_last_ingest_age(results, max_age=max_age)
+            (age_timedelta, age_timedelta_secs) = self.check_last_ingest_age(results, max_age=max_age)
             self.msg_filter_details(filter_opts=filter_opts)
             self.msg += ' |'
-            self.msg += ' last_ingest_age={0}s;{1}'.format(self.timedelta_seconds(age_timedelta),
+            self.msg += ' last_ingest_age={0}s;{1}'.format(age_timedelta_secs,
                                                            max_age * 3600 if max_age else '')
             self.msg += ' longest_incomplete_ingest_age={0}s;{1}'\
                         .format(self.timedelta_seconds(longest_incomplete_timedelta)
@@ -276,16 +276,17 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
         # using ingestionTimeFormatted instead, could also use ingestionTime which is timestamp in millis
         ingestion_date = results[0]['ingestionTimeFormatted']
         age_timedelta = self.get_timedelta(ingestion_date=ingestion_date)
+        age_timedelta_secs = self.timedelta_seconds(age_timedelta)
         if self.verbose:
             self.msg += ", last ingest start date = '{ingestion_date}'".format(ingestion_date=ingestion_date)
-            self.msg += ', started {0} ago'.format(sec2human(self.timedelta_seconds(age_timedelta)))
-        if max_age is not None and self.timedelta_seconds(age_timedelta) > (max_age * 60.0):
+            self.msg += ', started {0} ago'.format(sec2human(age_timedelta_secs))
+        if max_age is not None and age_timedelta_secs > (max_age * 60.0):
             self.warning()
             self.msg += ' (last run started more than {0} min{1} ago!)'.format(str(max_age)
                                                                                .rstrip('0')
                                                                                .rstrip('.'),
                                                                                plural(max_age))
-        return age_timedelta
+        return (age_timedelta, age_timedelta_secs)
 
     @staticmethod
     def extract_response_message(response_dict):
