@@ -50,9 +50,10 @@ if [ -n "${ATTIVIO_AIE_PERFMON_HOST:-}" ]; then
     if which nc &>/dev/null && ! echo | nc -w 1 "$ATTIVIO_AIE_PERFMON_HOST" "$ATTIVIO_AIE_PERFMON_PORT"; then
         echo "WARNING: Attivio AIE PerfMon host $ATTIVIO_AIE_PERFMON_HOST:$ATTIVIO_AIE_PERFMON_PORT not up, skipping Attivio AIE PerfMon checks"
     else
-        ./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -l |
+        ./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -P "$ATTIVIO_AIE_PERFMON_PORT" -l |
+        tail -n +3 |
         while read metric; do
-            ./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -m "$metric" -v
+            ./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -P "$ATTIVIO_AIE_PERFMON_PORT" -m "$metric" -v
         done
     fi
 else
