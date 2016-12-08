@@ -34,7 +34,7 @@ export ATTIVIO_AIE_PORT="${ATTIVIO_AIE_PORT:-17000}"
 export ATTIVIO_AIE_PERFMON_PORT="${ATTIVIO_AIE_PORT:-16960}"
 
 if [ -n "${ATTIVIO_AIE_HOST:-}" ]; then
-    if which nc &>/dev/null && ! echo | nc -G 1 "$ATTIVIO_AIE_HOST" "$ATTIVIO_AIE_PORT"; then
+    if which nc &>/dev/null && ! echo | nc -w 1 "$ATTIVIO_AIE_HOST" "$ATTIVIO_AIE_PORT"; then
         ./check_attivio_aie_ingest_session_count.py -v
         ./check_attivio_aie_license_expiry.py -v
         ./check_attivio_aie_system_health.py -v
@@ -47,7 +47,7 @@ else
 fi
 
 if [ -n "${ATTIVIO_AIE_PERFMON_HOST:-}" ]; then
-    if which nc &>/dev/null && ! echo | nc -G 1 "$ATTIVIO_AIE_PERFMON_HOST" "$ATTIVIO_AIE_PERFMON_PORT"; then
+    if which nc &>/dev/null && ! echo | nc -w 1 "$ATTIVIO_AIE_PERFMON_HOST" "$ATTIVIO_AIE_PERFMON_PORT"; then
         ./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -l |
         while read metric; do
             ./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -m "$metric" -v
