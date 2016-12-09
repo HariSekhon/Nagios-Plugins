@@ -71,7 +71,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 class CheckHBaseTableRegionBalance(NagiosPlugin):
@@ -106,7 +106,8 @@ class CheckHBaseTableRegionBalance(NagiosPlugin):
 
         try:
             log.info('connecting to HBase Thrift Server at %s:%s', host, port)
-            self.conn = happybase.Connection(host=host, port=port, timeout=10 * 1000)  # ms
+            # cast port to int to avoid low level socket module TypeError for ports > 32000
+            self.conn = happybase.Connection(host=host, port=int(port), timeout=10 * 1000)  # ms
         except (socket.timeout, ThriftException, HBaseIOError) as _:
             qquit('CRITICAL', 'error connecting: {0}'.format(_))
         tables = self.conn.tables()

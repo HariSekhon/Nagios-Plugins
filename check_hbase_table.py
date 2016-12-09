@@ -78,7 +78,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 class CheckHBaseTable(NagiosPlugin):
@@ -123,7 +123,8 @@ class CheckHBaseTable(NagiosPlugin):
     def connect(self):
         log.info('connecting to HBase Thrift Server at %s:%s', self.host, self.port)
         try:
-            self.conn = happybase.Connection(host=self.host, port=self.port, timeout=10 * 1000)  # ms
+            # cast port to int to avoid low level socket module TypeError for ports > 32000
+            self.conn = happybase.Connection(host=self.host, port=int(self.port), timeout=10 * 1000)  # ms
         except (socket.timeout, ThriftException, HBaseIOError) as _:
             qquit('CRITICAL', 'error connecting: {0}'.format(_))
 

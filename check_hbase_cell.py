@@ -75,7 +75,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 
 
 class CheckHBaseCell(NagiosPlugin):
@@ -171,7 +171,8 @@ class CheckHBaseCell(NagiosPlugin):
     def connect(self):
         log.info('connecting to HBase Thrift Server at %s:%s', self.host, self.port)
         start = time.time()
-        self.conn = happybase.Connection(host=self.host, port=self.port, timeout=10 * 1000)  # ms
+        # cast port to int to avoid low level socket module TypeError for ports > 32000
+        self.conn = happybase.Connection(host=self.host, port=int(self.port), timeout=10 * 1000)  # ms
         connect_time = (time.time() - start) * 1000
         log.info('connected in %s ms', connect_time)
         return connect_time
