@@ -21,5 +21,3 @@ services:
     image: harisekhon/h2o:${VERSION:-latest}
     ports:
       - 54321
-    volumes:
-      - ../..:/pl
