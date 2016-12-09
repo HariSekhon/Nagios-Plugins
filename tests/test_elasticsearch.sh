@@ -36,8 +36,6 @@ export ELASTICSEARCH_HOST
 export ELASTICSEARCH_PORT="${ELASTICSEARCH_PORT:-9200}"
 export ELASTICSEARCH_INDEX="${ELASTICSEARCH_INDEX:-test}"
 
-export DOCKER_IMAGE="elasticsearch"
-
 export SERVICE="${0#*test_}"
 export SERVICE="${SERVICE%.sh}"
 export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
