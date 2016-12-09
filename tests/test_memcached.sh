@@ -53,22 +53,22 @@ test_memcached(){
     echo "Setting up Memcached $version test container"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MEMCACHED_PORT
     VERSION="$version" docker-compose up -d
-    port="`docker-compose port "$SERVICE" "$MEMCACHED_PORT" | sed 's/.*://'`"
-    when_ports_available $startupwait $MEMCACHED_HOST $port
+    memcached_port="`docker-compose port "$SERVICE" "$MEMCACHED_PORT" | sed 's/.*://'`"
+    when_ports_available "$startupwait" "$MEMCACHED_HOST" "$memcached_port"
     hr
     echo "creating test Memcached key-value"
-    echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc $MEMCACHED_HOST $port
+    echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc "$MEMCACHED_HOST" "$memcached_port"
     echo done
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
     hr
     # MEMCACHED_HOST obtained via .travis.yml
-    $perl -T ./check_memcached_write.pl -P $port -v
+    $perl -T ./check_memcached_write.pl -P "$memcached_port" -v
     hr
-    $perl -T ./check_memcached_key.pl -P $port -k myKey -e hari -v
+    $perl -T ./check_memcached_key.pl -P "$memcached_port" -k myKey -e hari -v
     hr
-    $perl -T ./check_memcached_stats.pl -P $port -w 15 -c 20 -v
+    $perl -T ./check_memcached_stats.pl -P "$memcached_port" -w 15 -c 20 -v
     hr
     #delete_container
     docker-compose down
