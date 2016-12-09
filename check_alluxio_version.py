@@ -56,7 +56,7 @@ class CheckAlluxioVersion(CheckTachyonVersion):
         super(CheckAlluxioVersion, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.software = 'Tachyon{0}'.format(self.name)
+        self.software = 'Alluxio{0}'.format(self.name)
 
 if __name__ == '__main__':
     CheckAlluxioVersion().main()
