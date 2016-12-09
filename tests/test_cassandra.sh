@@ -37,36 +37,42 @@ export CASSANDRA_PORT=9042
 export CASSANDRA_PORTS="7199 $CASSANDRA_PORT"
 
 export DOCKER_IMAGE="harisekhon/cassandra-dev"
-export DOCKER_CONTAINER="nagios-plugins-cassandra-test"
+
+export SERVICE="${0#*test_}"
+export SERVICE="${SERVICE%.sh}"
+export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
+export COMPOSE_PROJECT_NAME="$DOCKER_CONTAINER"
+export COMPOSE_FILE="$srcdir/docker/$SERVICE-docker-compose.yml"
 
 export MNTDIR="/pl"
 
 startupwait 10
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Cassandra checks!!!'
-    exit 0
-fi
+check_docker_available
 
 docker_exec(){
-    docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
+    #docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
+    docker-compose exec "$SERVICE" $MNTDIR/$@
 }
 
 
 test_cassandra(){
     local version="$1"
     echo "Setting up Cassandra $version test container"
-    DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $CASSANDRA_PORT
+    #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $CASSANDRA_PORT
+    VERSION="$version" docker-compose up -d
+    cassandra_port="`docker-compose port "$SERVICE" "$CASSANDRA_PORT" | sed 's/.*://'`"
+    cassandra_ports=`{ for x in $CASSANDRA_PORTS; do  docker-compose port "$SERVICE" "$x"; done; } | sed 's/.*://'`
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    when_ports_available $startupwait $CASSANDRA_HOST $CASSANDRA_PORT
+    when_ports_available "$startupwait" "$CASSANDRA_HOST" $cassandra_ports
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
     hr
-    docker exec -ti "$DOCKER_CONTAINER" nodetool status
+    docker-compose exec "$SERVICE" nodetool status
     hr
     docker_exec check_cassandra_version_nodetool.py -e "$version"
     hr
@@ -92,7 +98,8 @@ test_cassandra(){
     hr
     docker_exec check_cassandra_tpstats.pl --nodetool /cassandra/bin/nodetool -v
     hr
-    delete_container
+    #delete_container
+    docker-compose down
     hr
     echo; echo
 }
