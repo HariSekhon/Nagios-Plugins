@@ -39,23 +39,27 @@ HBASE_HOST="${DOCKER_HOST:-${HBASE_HOST:-${HOST:-localhost}}}"
 HBASE_HOST="${HBASE_HOST##*/}"
 HBASE_HOST="${HBASE_HOST%%:*}"
 export HBASE_HOST
+export HBASE_MASTER_PORT=16010
+export HBASE_REGIONSERVER_PORT=16301
 export HBASE_STARGATE_PORT=8080
 export HBASE_THRIFT_PORT=9090
 export ZOOKEEPER_PORT=2181
-export HBASE_PORTS="$ZOOKEEPER_PORT $HBASE_STARGATE_PORT 8085 $HBASE_THRIFT_PORT 9095 16000 16010 16201 16301"
+export HBASE_PORTS="$ZOOKEEPER_PORT $HBASE_STARGATE_PORT 8085 $HBASE_THRIFT_PORT 9095 16000 $HBASE_MASTER_PORT 16201 $HBASE_REGIONSERVER_PORT"
 
-export DOCKER_IMAGE="harisekhon/hbase-dev"
-export DOCKER_CONTAINER="nagios-plugins-hbase-test"
+export SERVICE="${0#*test_}"
+export SERVICE="${SERVICE%.sh}"
+export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
+export COMPOSE_PROJECT_NAME="$DOCKER_CONTAINER"
+export COMPOSE_FILE="$srcdir/docker/$SERVICE-docker-compose.yml"
+
+check_docker_available
 
 export MNTDIR="/pl"
 
-if ! is_docker_available; then
-    echo "Docker not available, skipping HBase checks"
-    exit 1
-fi
-
 docker_exec(){
-    docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
+    # this doesn't allocate TTY properly, blessing module bails out
+    #docker-compose exec "$SERVICE" /bin/bash <<-EOF
+    docker exec -i nagiospluginshbasetest_hbase_1 /bin/bash <<-EOF
     export JAVA_HOME=/usr
     $MNTDIR/$@
 EOF
@@ -69,11 +73,19 @@ test_hbase(){
     echo "Setting up HBase $version test container"
     hr
     local DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HBASE_PORTS
-    when_ports_available $startupwait $HBASE_HOST $HBASE_PORTS
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HBASE_PORTS
+    VERSION="$version" docker-compose up -d
+    hbase_master_port="`docker-compose port "$SERVICE" "$HBASE_MASTER_PORT" | sed 's/.*://'`"
+    hbase_regionserver_port="`docker-compose port "$SERVICE" "$HBASE_REGIONSERVER_PORT" | sed 's/.*://'`"
+    hbase_stargate_port="`docker-compose port "$SERVICE" "$HBASE_STARGATE_PORT" | sed 's/.*://'`"
+    hbase_thrift_port="`docker-compose port "$SERVICE" "$HBASE_THRIFT_PORT" | sed 's/.*://'`"
+    zookeeper_port="`docker-compose port "$SERVICE" "$ZOOKEEPER_PORT" | sed 's/.*://'`"
+    hbase_ports=`{ for x in $HBASE_PORTS; do docker-compose port "$SERVICE" "$x"; done; } | sed 's/.*://'`
+    when_ports_available "$startupwait" "$HBASE_HOST" $hbase_ports
     echo "setting up test tables"
-    local uniq_val=$(< /dev/urandom tr -dc 'a-zA-Z0-9' | head -c32 || :)
-    docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
+    # tr occasionally errors out due to weird input chars, base64 for safety, but still remove chars liek '+' which will ruin --expected regex
+    local uniq_val=$(< /dev/urandom base64 | tr -dc 'a-zA-Z0-9' | head -c32 || :)
+    docker-compose exec "$SERVICE" /bin/bash <<-EOF
     export JAVA_HOME=/usr
     /hbase/bin/hbase shell <<-EOF2
         create 't1', 'cf1', { 'REGION_REPLICATION' => 1 }
@@ -88,6 +100,7 @@ EOF2
     hbase org.apache.hadoop.hbase.util.RegionSplitter UniformSplitTable UniformSplit -c 100 -f cf1
     hbase org.apache.hadoop.hbase.util.RegionSplitter HexStringSplitTable HexStringSplit -c 100 -f cf1
     hbase hbck &>/tmp/hbck.log
+    exit
 EOF
     if [ -n "${NOTESTS:-}" ]; then
         return 0
@@ -96,8 +109,9 @@ EOF
         local version=".*"
     fi
     hr
-    ./check_hbase_master_version.py       -e "$version"
-    ./check_hbase_regionserver_version.py -e "$version" -P 16301
+    ./check_hbase_master_version.py       -P "$hbase_master_port"       -e "$version"
+    hr
+    ./check_hbase_regionserver_version.py -P "$hbase_regionserver_port" -e "$version"
     hr
     ./check_hbase_hbck.py -f tests/data/hbck.log -a 0
     hr
@@ -129,43 +143,43 @@ EOF
     set -e
 # ============================================================================ #
     hr
-    # Python plugins use env for -H $HBASE_HOST -P 16010
-    ./check_hbase_table_enabled.py -T t1
+    # Python plugins use env for -H $HBASE_HOST
+    ./check_hbase_table_enabled.py -P "$hbase_thrift_port" -T t1
     hr
-    ./check_hbase_table_enabled.py -T EmptyTable
+    ./check_hbase_table_enabled.py -P "$hbase_thrift_port" -T EmptyTable
     hr
     set +e
-    ./check_hbase_table_enabled.py -T DisabledTable
+    ./check_hbase_table_enabled.py -P "$hbase_thrift_port" -T DisabledTable
     check_exit_code 2
     set -e
     hr
     set +e
-    ./check_hbase_table_enabled.py -T nonexistent_table
-    check_exit_code 2
-    set -e
-# ============================================================================ #
-    hr
-    ./check_hbase_table.py -T t1
-    hr
-    ./check_hbase_table.py -T EmptyTable
-    hr
-    set +e
-    ./check_hbase_table.py -T DisabledTable
-    check_exit_code 2
-    set -e
-    hr
-    set +e
-    ./check_hbase_table.py -T nonexistent_table
+    ./check_hbase_table_enabled.py -P "$hbase_thrift_port" -T nonexistent_table
     check_exit_code 2
     set -e
 # ============================================================================ #
     hr
-    ./check_hbase_table_regions.py -T t1
+    ./check_hbase_table.py -P "$hbase_thrift_port" -T t1
     hr
-    ./check_hbase_table_regions.py -T EmptyTable
+    ./check_hbase_table.py -P "$hbase_thrift_port" -T EmptyTable
+    hr
+    set +e
+    ./check_hbase_table.py -P "$hbase_thrift_port" -T DisabledTable
+    check_exit_code 2
+    set -e
+    hr
+    set +e
+    ./check_hbase_table.py -P "$hbase_thrift_port" -T nonexistent_table
+    check_exit_code 2
+    set -e
+# ============================================================================ #
+    hr
+    ./check_hbase_table_regions.py -P "$hbase_thrift_port" -T t1
+    hr
+    ./check_hbase_table_regions.py -P "$hbase_thrift_port" -T EmptyTable
     hr
     # even though DisabledTable table is disabled, it still has assigned regions
-    ./check_hbase_table_regions.py -T DisabledTable
+    ./check_hbase_table_regions.py -P "$hbase_thrift_port" -T DisabledTable
     hr
     # Re-assignment happens too fast, can't catch
     # forcibly unassign region and re-test
@@ -174,41 +188,41 @@ EOF
     #echo "Attempting to disable region '$region' to test failure scenario for unassigned region"
     #docker exec -ti "$DOCKER_CONTAINER" "hbase shell <<< \"unassign '$region'\""
     #set +e
-    #./check_hbase_table_regions.py -T DisabledTable
+    #./check_hbase_table_regions.py -P "$hbase_thrift_port" -T DisabledTable
     #check_exit_code 2
     #set -e
     #hr
     set +e
-    ./check_hbase_table_regions.py -T nonexistent_table
+    ./check_hbase_table_regions.py -P "$hbase_thrift_port" -T nonexistent_table
     check_exit_code 2
     set -e
 # ============================================================================ #
     hr
-    ./check_hbase_table_compaction_in_progress.py -T t1
+    ./check_hbase_table_compaction_in_progress.py -P "$hbase_master_port" -T t1
     hr
-    ./check_hbase_table_compaction_in_progress.py -T EmptyTable
+    ./check_hbase_table_compaction_in_progress.py -P "$hbase_master_port" -T EmptyTable
     hr
-    ./check_hbase_table_compaction_in_progress.py -T DisabledTable
+    ./check_hbase_table_compaction_in_progress.py -P "$hbase_master_port" -T DisabledTable
     hr
     set +e
-    ./check_hbase_table_compaction_in_progress.py -T nonexistent_table
+    ./check_hbase_table_compaction_in_progress.py -P "$hbase_master_port" -T nonexistent_table
     check_exit_code 2
     set -e
 # ============================================================================ #
     hr
-    ./check_hbase_region_balance.py
+    ./check_hbase_region_balance.py -P "$hbase_master_port"
     hr
-    ./check_hbase_regions_stuck_in_transition.py
+    ./check_hbase_regions_stuck_in_transition.py -P "$hbase_master_port"
     hr
-    ./check_hbase_num_regions_in_transition.py
+    ./check_hbase_num_regions_in_transition.py -P "$hbase_master_port"
     hr
-    ./check_hbase_regionserver_compaction_in_progress.py -P 16301
+    ./check_hbase_regionserver_compaction_in_progress.py -P "$hbase_regionserver_port"
     hr
-    $perl -T ./check_hbase_regionservers.pl
+    $perl -T ./check_hbase_regionservers.pl -P "$hbase_stargate_port"
     hr
-    $perl -T ./check_hbase_regionservers_jsp.pl
+    $perl -T ./check_hbase_regionservers_jsp.pl -P "$hbase_master_port"
 # ============================================================================ #
-    for x in "$perl -T ./check_hbase_cell.pl" ./check_hbase_cell.py "$perl -T ./check_hbase_cell_stargate.pl"; do
+    for x in "$perl -T ./check_hbase_cell.pl -P $hbase_thrift_port" "./check_hbase_cell.py -P $hbase_thrift_port" "$perl -T ./check_hbase_cell_stargate.pl -P $hbase_stargate_port"; do
         hr
         eval $x -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
         hr
@@ -244,75 +258,75 @@ EOF
     done
     hr
     # this is only a symlink to check_hbase_cell.pl so just check it's still there and working
-    $perl -T ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+    $perl -T ./check_hbase_cell_thrift.pl -P "$hbase_thrift_port" -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
 
 # ============================================================================ #
     hr
-    ./check_hbase_write.py -T t1 -w 100 --precision 3
+    ./check_hbase_write.py -P "$hbase_thrift_port" -T t1 -w 100 --precision 3
     hr
     # this will also be checked later by check_hbase_rowcount that it returns to zero rows, ie. delete succeeded
-    ./check_hbase_write.py -T EmptyTable -w 100 --precision 3
+    ./check_hbase_write.py -P "$hbase_thrift_port" -T EmptyTable -w 100 --precision 3
     hr
     set +e
-    ./check_hbase_write.py -T DisabledTable -t 2
+    ./check_hbase_write.py -P "$hbase_thrift_port" -T DisabledTable -t 2
     check_exit_code 2
     hr
-    ./check_hbase_write.py -T NonExistentTable
+    ./check_hbase_write.py -P "$hbase_thrift_port" -T NonExistentTable
     check_exit_code 2
     set -e
 # ============================================================================ #
     hr
-    ./check_hbase_write_spray.py -T t1 -w 100 --precision 3
+    ./check_hbase_write_spray.py -P "$hbase_thrift_port" -T t1 -w 100 --precision 3
     hr
     # this will also be checked later by check_hbase_rowcount that it returns to zero rows, ie. delete succeeded
-    ./check_hbase_write_spray.py -T EmptyTable -w 100 --precision 3
+    ./check_hbase_write_spray.py -P "$hbase_thrift_port" -T EmptyTable -w 100 --precision 3
     hr
     # write to 100 regions...
-    ./check_hbase_write_spray.py -T HexStringSplitTable -w 100 --precision 3
+    ./check_hbase_write_spray.py -P "$hbase_thrift_port" -T HexStringSplitTable -w 100 --precision 3
     hr
     set +e
-    ./check_hbase_write_spray.py -T DisabledTable -t 2
+    ./check_hbase_write_spray.py -P "$hbase_thrift_port" -T DisabledTable -t 2
     check_exit_code 2
     hr
-    ./check_hbase_write_spray.py -T NonExistentTable
+    ./check_hbase_write_spray.py -P "$hbase_thrift_port" -T NonExistentTable
     check_exit_code 2
     set -e
 # ============================================================================ #
     hr
-    $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
+    $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$hbase_regionserver_port" --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
     hr
-    $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics | sed 's/|.*$//' # too long exceeds Travis CI max log length due to the 100 region HexStringSplitTable multiplying out the available metrics
+    $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$hbase_regionserver_port" --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics | sed 's/|.*$//' # too long exceeds Travis CI max log length due to the 100 region HexStringSplitTable multiplying out the available metrics
     hr
-    $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P 16301 --all-metrics
+    $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$hbase_regionserver_port" --all-metrics
     #hr
     # XXX: both cause 500 internal server error
-    #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P 16301 --all-metrics
-    #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P 16301 -m compactionQueueLength
+    #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$hbase_regionserver_port" --all-metrics
+    #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$hbase_regionserver_port" -m compactionQueueLength
     #hr
 
     # use newer Python version "check_hbase_table.py" for newer versions of HBase
-    #$perl -T ./check_hbase_tables.pl
+    #$perl -T ./check_hbase_tables.pl -P "$hbase_thrift_port"
     #hr
-    #$perl -T ./check_hbase_tables_thrift.pl
+    #$perl -T ./check_hbase_tables_thrift.pl -P "$hbase_thrift_port"
     #hr
 
     # TODO:
-    #$perl -T ./check_hbase_tables_stargate.pl
+    #$perl -T ./check_hbase_tables_stargate.pl -P "$hbase_stargate_port"
     #hr
-    #$perl -T ./check_hbase_tables_jsp.pl
+    #$perl -T ./check_hbase_tables_jsp.pl -P "$hbase_master_port"
 
     hr
-    check_hbase_table_region_balance.py -T t1
+    check_hbase_table_region_balance.py -P "$hbase_thrift_port" -T t1
     hr
-    check_hbase_table_region_balance.py -T EmptyTable
+    check_hbase_table_region_balance.py -P "$hbase_thrift_port" -T EmptyTable
     hr
-    check_hbase_table_region_balance.py -T DisabledTable
+    check_hbase_table_region_balance.py -P "$hbase_thrift_port" -T DisabledTable
     hr
     # all tables
-    check_hbase_table_region_balance.py
+    check_hbase_table_region_balance.py -P "$hbase_thrift_port"
     hr
     set +e
-    check_hbase_table_region_balance.py --list-tables
+    check_hbase_table_region_balance.py -P "$hbase_thrift_port" --list-tables
     check_exit_code 3
     set -e
     hr
@@ -320,7 +334,7 @@ EOF
     # Use Docker hbase-dev, zookeeper will have been built
     if is_zookeeper_built; then
         # not present in newer versions of HBase
-        #$perl -T ./check_hbase_unassigned_regions_znode.pl
+        #$perl -T ./check_hbase_unassigned_regions_znode.pl -P "$zookeeper_port"
         :
     else
         echo "ZooKeeper not built - skipping ZooKeeper checks"
@@ -351,64 +365,65 @@ EOF
     sleep 10
     hr
     set +e
-    $perl -T ./check_hbase_regionservers.pl
+    $perl -T ./check_hbase_regionservers.pl -P "$hbase_stargate_port"
     check_exit_code 2
     set -e
     hr
     set +e
     # should still exit critical as there are no remaining regionservers live
-    $perl -T ./check_hbase_regionservers.pl -w 2 -c 2
+    $perl -T ./check_hbase_regionservers.pl -P "$hbase_stargate_port" -w 2 -c 2
     check_exit_code 2
     set -e
     hr
 # ============================================================================ #
     set +e
-    $perl -T ./check_hbase_regionservers_jsp.pl
+    $perl -T ./check_hbase_regionservers_jsp.pl -P "$hbase_master_port"
     check_exit_code 2
     set -e
     hr
     set +e
     # should still exit critical as there are no remaining regionservers live
-    $perl -T ./check_hbase_regionservers_jsp.pl -w 2 -c 2
+    $perl -T ./check_hbase_regionservers_jsp.pl -P "$hbase_master_port" -w 2 -c 2
     check_exit_code 2
     set -e
     hr
 # ============================================================================ #
     echo "Thrift API checks will hang so these python plugins will self timeout after 10 secs with UNKNOWN when the sole RegionServer is down"
     set +e
-    ./check_hbase_table.py -T t1
+    ./check_hbase_table.py -P "$hbase_thrift_port" -T t1
     check_exit_code 3
     hr
-    ./check_hbase_table_enabled.py -T t1
+    ./check_hbase_table_enabled.py -P "$hbase_thrift_port" -T t1
     check_exit_code 3
     hr
-    ./check_hbase_table_regions.py -T DisabledTable
+    ./check_hbase_table_regions.py -P "$hbase_thrift_port" -T DisabledTable
     check_exit_code 3
     hr
-    ./check_hbase_cell.py -T t1 -R r1 -C cf1:q1
+    ./check_hbase_cell.py -P "$hbase_thrift_port" -T t1 -R r1 -C cf1:q1
     check_exit_code 3
     set -e
     hr
     echo "sending kill signal to ThriftServer"
-    docker exec -ti "$DOCKER_CONTAINER" pkill -f ThriftServer
+    docker-compose exec "$SERVICE" pkill -f ThriftServer
     echo "waiting 5 secs for ThriftServer to go down"
     sleep 5
     echo "Thrift API checks should now fail with exit code 2"
     set +e
-    ./check_hbase_table.py -T t1
+    ./check_hbase_table.py -P "$hbase_thift_port" -T t1
     check_exit_code 2
     hr
-    ./check_hbase_table_enabled.py -T t1
+    ./check_hbase_table_enabled.py -P "$hbase_thift_port" -T t1
     check_exit_code 2
     hr
-    ./check_hbase_table_regions.py -T DisabledTable
+    ./check_hbase_table_regions.py -P "$hbase_thift_port" -T DisabledTable
     check_exit_code 2
     hr
-    ./check_hbase_cell.py -T t1 -R r1 -C cf1:q1
+    ./check_hbase_cell.py -P "$hbase_thift_port" -T t1 -R r1 -C cf1:q1
     check_exit_code 2
     set -e
 
-    delete_container
+    #delete_container
+    docker-compose down
     echo
 }
 
