@@ -44,13 +44,13 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6'
+__version__ = '0.6.1'
 
 
-class ConsulKeyCheck(NagiosPlugin):
+class ConsulPeerCount(NagiosPlugin):
 
     def __init__(self):
-        super(ConsulKeyCheck, self).__init__()
+        super(ConsulPeerCount, self).__init__()
         self.name = 'Consul'
         self.default_port = 8500
         self.host = None
@@ -69,10 +69,12 @@ class ConsulKeyCheck(NagiosPlugin):
             json_data = json.loads(content)
         except ValueError:
             raise UnknownError("non-json data returned by consul: '%s'. %s" % (content, support_msg_api()))
+        if not json_data:
+            raise CriticalError('no peers found, recently started?')
+        #if not json_data:
+        #    raise UnknownError("blank list returned by consul! '%s'. %s" % (content, support_msg_api()))
         if not isList(json_data):
             raise UnknownError("non-list returned by consul: '%s'. %s" % (content, support_msg_api()))
-        if not json_data:
-            raise UnknownError("blank list returned by consul! '%s'. %s" % (content, support_msg_api()))
         for peer in json_data:
             log.debug('peer: {0}'.format(peer))
         peers = uniq_list(json_data)
@@ -109,4 +111,4 @@ class ConsulKeyCheck(NagiosPlugin):
         self.msg += self.get_perf_thresholds(boundary='lower')
 
 if __name__ == '__main__':
-    ConsulKeyCheck().main()
+    ConsulPeerCount().main()
