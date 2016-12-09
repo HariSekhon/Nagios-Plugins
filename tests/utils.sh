@@ -15,7 +15,7 @@
 
 set -eu
 [ -n "${DEBUG:-}" ] && set -x
-srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 . "$srcdir/excluded.sh"
 . "$srcdir/../bash-tools/utils.sh"
@@ -70,5 +70,16 @@ check(){
     else
         echo "FAILED: $msg"
         exit 1
+    fi
+}
+
+check_docker_available(){
+    if ! is_docker_available; then
+        echo 'WARNING: Docker not found, skipping checks!!!'
+        exit 0
+    fi
+    if ! is_docker_compose_available; then
+        echo 'WARNING: Docker Compose not found in $PATH, skipping checks!!!'
+        exit 0
     fi
 }
