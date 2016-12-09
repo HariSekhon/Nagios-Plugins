@@ -38,8 +38,6 @@ export H2O_HOST
 echo "using docker address '$H2O_HOST'"
 export H2O_PORT="${H2O_PORT:-54321}"
 
-export DOCKER_IMAGE="harisekhon/h2o"
-
 export SERVICE="${0#*test_}"
 export SERVICE="${SERVICE%.sh}"
 export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
