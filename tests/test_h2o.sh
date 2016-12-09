@@ -39,37 +39,42 @@ echo "using docker address '$H2O_HOST'"
 export H2O_PORT="${H2O_PORT:-54321}"
 
 export DOCKER_IMAGE="harisekhon/h2o"
-export DOCKER_CONTAINER="nagios-plugins-h2o-test"
+
+export SERVICE="${0#*test_}"
+export SERVICE="${SERVICE%.sh}"
+export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
+export COMPOSE_PROJECT_NAME="$DOCKER_CONTAINER"
+export COMPOSE_FILE="$srcdir/docker/$SERVICE-docker-compose.yml"
+
+check_docker_available
 
 startupwait 10
-
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping H2O checks!!!'
-    exit 0
-fi
 
 test_h2o(){
     local version="$1"
     hr
     echo "Setting up H2O $version test container"
     hr
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $H2O_PORT
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $H2O_PORT
+    VERSION="$version" docker-compose up -d
+    h2o_port="`docker-compose port "$SERVICE" "$H2O_PORT" | sed 's/.*://'`"
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
     when_ports_available $startupwait $H2O_HOST $H2O_PORT
     hr
-    $perl -T ./check_h2o_cluster.pl
+    $perl -T ./check_h2o_cluster.pl -P "$h2o_port"
     hr
-    $perl -T ./check_h2o_jobs.pl
+    $perl -T ./check_h2o_jobs.pl -P "$h2o_port"
     hr
-    $perl -T ./check_h2o_node_health.pl
+    $perl -T ./check_h2o_node_health.pl -P "$h2o_port"
     hr
-    $perl -T ./check_h2o_node_stats.pl
+    $perl -T ./check_h2o_node_stats.pl -P "$h2o_port"
     hr
-    $perl -T ./check_h2o_nodes_last_contact.pl
+    $perl -T ./check_h2o_nodes_last_contact.pl -P "$h2o_port"
     hr
-    delete_container
+    #delete_container
+    docker-compose down
 }
 
 for version in $(ci_sample $H2O_VERSIONS); do
