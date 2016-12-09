@@ -36,8 +36,6 @@ export MEMCACHED_HOST
 
 export MEMCACHED_PORT=11211
 
-export DOCKER_IMAGE="memcached"
-
 export SERVICE="${0#*test_}"
 export SERVICE="${SERVICE%.sh}"
 export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
