@@ -15,7 +15,7 @@
 
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
-srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "$srcdir/..";
 
@@ -37,36 +37,41 @@ export MEMCACHED_HOST
 export MEMCACHED_PORT=11211
 
 export DOCKER_IMAGE="memcached"
-export DOCKER_CONTAINER="nagios-plugins-memcached-test"
+
+export SERVICE="${0#*test_}"
+export SERVICE="${SERVICE%.sh}"
+export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
+export COMPOSE_PROJECT_NAME="$DOCKER_CONTAINER"
+export COMPOSE_FILE="$srcdir/docker/$SERVICE-docker-compose.yml"
+
+check_docker_available
 
 startupwait 1
-
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Memcached checks!!!'
-    exit 0
-fi
 
 test_memcached(){
     local version="$1"
     echo "Setting up Memcached $version test container"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MEMCACHED_PORT
-    when_ports_available $startupwait $MEMCACHED_HOST $MEMCACHED_PORT
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MEMCACHED_PORT
+    VERSION="$version" docker-compose up -d
+    port="`docker-compose port "$SERVICE" "$MEMCACHED_PORT" | sed 's/.*://'`"
+    when_ports_available $startupwait $MEMCACHED_HOST $port
     hr
     echo "creating test Memcached key-value"
-    echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc $MEMCACHED_HOST $MEMCACHED_PORT
+    echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc $MEMCACHED_HOST $port
     echo done
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
     hr
     # MEMCACHED_HOST obtained via .travis.yml
-    $perl -T ./check_memcached_write.pl -v
+    $perl -T ./check_memcached_write.pl -P $port -v
     hr
-    $perl -T ./check_memcached_key.pl -k myKey -e hari -v
+    $perl -T ./check_memcached_key.pl -P $port -k myKey -e hari -v
     hr
-    $perl -T ./check_memcached_stats.pl -w 15 -c 20 -v
+    $perl -T ./check_memcached_stats.pl -P $port -w 15 -c 20 -v
     hr
-    delete_container
+    #delete_container
+    docker-compose down
     hr
     echo
 }
