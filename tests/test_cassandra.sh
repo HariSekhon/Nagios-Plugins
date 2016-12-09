@@ -36,8 +36,6 @@ export CASSANDRA_HOST
 export CASSANDRA_PORT=9042
 export CASSANDRA_PORTS="7199 $CASSANDRA_PORT"
 
-export DOCKER_IMAGE="harisekhon/cassandra-dev"
-
 export SERVICE="${0#*test_}"
 export SERVICE="${SERVICE%.sh}"
 export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
