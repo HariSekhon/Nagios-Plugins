@@ -41,12 +41,6 @@ export HADOOP_PORTS="8042 8088 50010 50020 50070 50075 50090"
 
 export DOCKER_IMAGE="harisekhon/hadoop-dev"
 
-export SERVICE="${0#*test_}"
-export SERVICE="${SERVICE%.sh}"
-export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
-export COMPOSE_PROJECT_NAME="$DOCKER_CONTAINER"
-export COMPOSE_FILE="$srcdir/docker/$SERVICE-docker-compose.yml"
-
 export MNTDIR="/pl"
 
 startupwait 80
@@ -54,7 +48,7 @@ startupwait 80
 check_docker_available
 
 docker_exec(){
-    docker-compose exec "$SERVICE" $MNTDIR/$@
+    docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
 }
 
 test_hadoop(){
@@ -65,14 +59,14 @@ test_hadoop(){
     #DOCKER_OPTS="-v $srcdir2/..:$MNTDIR"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HADOOP_PORTS
     VERSION="$version" docker-compose up -d
-    hadoop_namenode_port="`docker-compose port "$SERVICE" "$HADOOP_NAMENODE_PORT" | sed 's/.*://'`"
-    hadoop_datanode_port="`docker-compose port "$SERVICE" "$HADOOP_DATANODE_PORT" | sed 's/.*://'`"
-    hadoop_yarn_resource_manager_port="`docker-compose port "$SERVICE" "$HADOOP_YARN_RESOURCE_MANAGER_PORT" | sed 's/.*://'`"
-    hadoop_yarn_node_manager_port="`docker-compose port "$SERVICE" "$HADOOP_YARN_NODE_MANAGER_PORT" | sed 's/.*://'`"
-    hadoop_ports=`{ for x in $HADOOP_PORTS; do docker-compose port "$SERVICE" "$x"; done; } | sed 's/.*://'`
+    hadoop_namenode_port="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_NAMENODE_PORT" | sed 's/.*://'`"
+    hadoop_datanode_port="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_DATANODE_PORT" | sed 's/.*://'`"
+    hadoop_yarn_resource_manager_port="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_YARN_RESOURCE_MANAGER_PORT" | sed 's/.*://'`"
+    hadoop_yarn_node_manager_port="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_YARN_NODE_MANAGER_PORT" | sed 's/.*://'`"
+    hadoop_ports=`{ for x in $HADOOP_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
     when_ports_available "$startupwait" "$HADOOP_HOST" $hadoop_ports
     echo "creating test file in hdfs"
-    docker-compose exec "$SERVICE" /bin/bash <<-EOF
+    docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
         export JAVA_HOME=/usr
         hdfs dfsadmin -safemode leave
         hdfs dfs -rm -f /tmp/test.txt &>/dev/null
@@ -91,7 +85,7 @@ EOF
     $perl -T ./check_hadoop_yarn_resource_manager_version.pl -P "$hadoop_yarn_resource_manager_port" -v -e "$version"
     hr
     # docker-compose exec returns $'hostname\r' but not in shell
-    hostname="$(docker-compose exec "$SERVICE" hostname | tr -d '$\r')"
+    hostname="$(docker-compose exec "$DOCKER_SERVICE" hostname | tr -d '$\r')"
     if [ -z "$hostname" ]; then
         echo 'Failed to determine hostname of container via docker-compose exec, cannot continue with tests!'
         exit 1
