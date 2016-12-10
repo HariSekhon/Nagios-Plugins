@@ -29,43 +29,25 @@ echo "
 # ============================================================================ #
 "
 
-#export DOCKER_IMAGE="harisekhon/nagios-plugins"
-export DOCKER_CONTAINER_BASE="nagios-plugins-linux-test"
+check_docker_available
 
-export MNTDIR="/tmp/nagios-plugins"
-
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Linux checks!!!'
-    exit 0
-fi
+export MNTDIR="/pl"
 
 docker_exec(){
-    local cmd="$@"
-    docker exec "$DOCKER_CONTAINER" $MNTDIR/$*
+    docker-compose exec "$SERVICE" $MNTDIR/$*
 }
 
 # TODO: build specific versions to test for CentOS 6 + 7, Ubuntu 14.04 + 16.04, Debian Wheezy + Jessie, Alpine builds
 test_linux(){
     local distro="$1"
     local version="$2"
-    local DOCKER_IMAGE
-    local DOCKER_CONTAINER
-    if [[ "$distro" = *centos* ]]; then
-        DOCKER_IMAGE="harisekhon/$distro-github:$version"
-    elif [[ "$distro" = *ubuntu* ]]; then
-        DOCKER_IMAGE="harisekhon/$distro-github:$version"
-    elif [[ "$distro" = *debian* ]]; then
-        DOCKER_IMAGE="harisekhon/$distro-github:$version"
-    elif [[ "$distro" = *alpine* ]]; then
-        DOCKER_IMAGE="harisekhon/$distro-github:$version"
-    else
-        die "unrecognized distro supplied: '$distro'"
-    fi
-    DOCKER_CONTAINER="$DOCKER_CONTAINER_BASE-$distro-$version"
     echo "Setting up Linux $distro $version test container"
-    DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
-    DOCKER_CMD="tail -f /dev/null"
-    launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
+    #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
+    #DOCKER_CMD="tail -f /dev/null"
+    #launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
+    export SERVICE="$distro-github"
+    export COMPOSE_FILE="$srcdir/docker/$distro-github-docker-compose.yml"
+    VERSION="$version" docker-compose up -d
     #docker exec "$DOCKER_CONTAINER" yum install -y net-tools
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
@@ -81,7 +63,7 @@ test_linux(){
     docker_exec check_linux_duplicate_IDs.pl
     hr
     # temporary fix until slow DockerHub automated builds trickle through ethtool in docker images
-    docker exec -i "$DOCKER_CONTAINER" sh <<EOF
+    docker-compose exec "$SERVICE" sh <<EOF
 which yum && yum install -y ethtool && exit
 which apt-get && apt-get update && apt-get install -y ethtool && exit
 which apk && apk add ethtool && exit
@@ -107,7 +89,7 @@ EOF
     docker_exec check_linux_timezone.pl -T UTC -Z /etc/localtime -A UTC -v
     hr
     if [ "$distro" = "centos" ]; then
-        docker exec "$DOCKER_CONTAINER" yum makecache fast
+        docker-compose exec "centos-github" yum makecache fast
         hr
         docker_exec check_yum.pl -C -v -t 30
         hr
@@ -118,7 +100,8 @@ EOF
         docker_exec check_yum.py -C --all-updates -v -t 30 || :
         hr
     fi
-    delete_container
+    #delete_container
+    docker-compose down
     echo
 }
 
