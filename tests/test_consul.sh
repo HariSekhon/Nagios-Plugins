@@ -38,12 +38,6 @@ export CONSUL_PORT="${CONSUL_PORT:-8500}"
 
 export DOCKER_IMAGE="harisekhon/consul"
 
-export SERVICE="${0#*test_}"
-export SERVICE="${SERVICE%.sh}"
-export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
-export COMPOSE_PROJECT_NAME="$DOCKER_CONTAINER"
-export COMPOSE_FILE="$srcdir/docker/$SERVICE-docker-compose.yml"
-
 export MNTDIR="/pl"
 
 startupwait 10
@@ -51,7 +45,7 @@ startupwait 10
 check_docker_available
 
 docker_exec(){
-    docker-compose exec "$SERVICE" $MNTDIR/$@
+    docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
 }
 
 test_consul(){
@@ -61,7 +55,7 @@ test_consul(){
     #local DOCKER_CMD="agent -dev -data-dir /tmp -client 0.0.0.0"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $CONSUL_PORT
     VERSION="$version" docker-compose up -d
-    consul_port="`docker-compose port "$SERVICE" "$CONSUL_PORT" | sed 's/.*://'`"
+    consul_port="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT" | sed 's/.*://'`"
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
@@ -80,7 +74,7 @@ test_consul(){
         local expected_version="*"
     fi
     set +e
-    found_version=$(docker-compose exec "$SERVICE" consul version | head -n1 | tee /dev/stderr | sed 's/.*v//')
+    found_version=$(docker-compose exec "$DOCKER_SERVICE" consul version | head -n1 | tee /dev/stderr | sed 's/.*v//')
     set -e
     if [[ "$found_version" != $expected_version* ]]; then
         echo "Docker container version does not match expected version! (found '$found_version', expected '$version')"
