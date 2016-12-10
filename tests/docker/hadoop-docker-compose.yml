@@ -18,12 +18,13 @@ services:
     extends:
       file: common-docker-compose.yml
       service: common
-    image: harisekhon/hadoop:${VERSION:-latest}
+    image: harisekhon/hadoop-dev:${VERSION:-latest}
     ports:
+      #- 8020
       - 8042
       - 8088
-      - 9000
-      - 10020
+      #- 9000
+      #- 10020
       - 19888
       - 50010
       - 50020
