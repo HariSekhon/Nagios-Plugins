@@ -46,19 +46,13 @@ export HBASE_THRIFT_PORT=9090
 export ZOOKEEPER_PORT=2181
 export HBASE_PORTS="$ZOOKEEPER_PORT $HBASE_STARGATE_PORT 8085 $HBASE_THRIFT_PORT 9095 16000 $HBASE_MASTER_PORT 16201 $HBASE_REGIONSERVER_PORT"
 
-export SERVICE="${0#*test_}"
-export SERVICE="${SERVICE%.sh}"
-export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
-export COMPOSE_PROJECT_NAME="$DOCKER_CONTAINER"
-export COMPOSE_FILE="$srcdir/docker/$SERVICE-docker-compose.yml"
-
 check_docker_available
 
 export MNTDIR="/pl"
 
 docker_exec(){
     # this doesn't allocate TTY properly, blessing module bails out
-    #docker-compose exec "$SERVICE" /bin/bash <<-EOF
+    #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
     docker exec -i nagiospluginshbasetest_hbase_1 /bin/bash <<-EOF
     export JAVA_HOME=/usr
     $MNTDIR/$@
@@ -75,17 +69,17 @@ test_hbase(){
     local DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HBASE_PORTS
     VERSION="$version" docker-compose up -d
-    hbase_master_port="`docker-compose port "$SERVICE" "$HBASE_MASTER_PORT" | sed 's/.*://'`"
-    hbase_regionserver_port="`docker-compose port "$SERVICE" "$HBASE_REGIONSERVER_PORT" | sed 's/.*://'`"
-    hbase_stargate_port="`docker-compose port "$SERVICE" "$HBASE_STARGATE_PORT" | sed 's/.*://'`"
-    hbase_thrift_port="`docker-compose port "$SERVICE" "$HBASE_THRIFT_PORT" | sed 's/.*://'`"
-    zookeeper_port="`docker-compose port "$SERVICE" "$ZOOKEEPER_PORT" | sed 's/.*://'`"
-    hbase_ports=`{ for x in $HBASE_PORTS; do docker-compose port "$SERVICE" "$x"; done; } | sed 's/.*://'`
+    hbase_master_port="`docker-compose port "$DOCKER_SERVICE" "$HBASE_MASTER_PORT" | sed 's/.*://'`"
+    hbase_regionserver_port="`docker-compose port "$DOCKER_SERVICE" "$HBASE_REGIONSERVER_PORT" | sed 's/.*://'`"
+    hbase_stargate_port="`docker-compose port "$DOCKER_SERVICE" "$HBASE_STARGATE_PORT" | sed 's/.*://'`"
+    hbase_thrift_port="`docker-compose port "$DOCKER_SERVICE" "$HBASE_THRIFT_PORT" | sed 's/.*://'`"
+    zookeeper_port="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT" | sed 's/.*://'`"
+    hbase_ports=`{ for x in $HBASE_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
     when_ports_available "$startupwait" "$HBASE_HOST" $hbase_ports
     echo "setting up test tables"
     # tr occasionally errors out due to weird input chars, base64 for safety, but still remove chars liek '+' which will ruin --expected regex
     local uniq_val=$(< /dev/urandom base64 | tr -dc 'a-zA-Z0-9' | head -c32 || :)
-    docker-compose exec "$SERVICE" /bin/bash <<-EOF
+    docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
     export JAVA_HOME=/usr
     /hbase/bin/hbase shell <<-EOF2
         create 't1', 'cf1', { 'REGION_REPLICATION' => 1 }
@@ -404,7 +398,7 @@ EOF
     set -e
     hr
     echo "sending kill signal to ThriftServer"
-    docker-compose exec "$SERVICE" pkill -f ThriftServer
+    docker-compose exec "$DOCKER_SERVICE" pkill -f ThriftServer
     echo "waiting 5 secs for ThriftServer to go down"
     sleep 5
     echo "Thrift API checks should now fail with exit code 2"
