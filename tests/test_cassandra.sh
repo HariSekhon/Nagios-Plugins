@@ -36,12 +36,6 @@ export CASSANDRA_HOST
 export CASSANDRA_PORT=9042
 export CASSANDRA_PORTS="7199 $CASSANDRA_PORT"
 
-export SERVICE="${0#*test_}"
-export SERVICE="${SERVICE%.sh}"
-export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
-export COMPOSE_PROJECT_NAME="$DOCKER_CONTAINER"
-export COMPOSE_FILE="$srcdir/docker/$SERVICE-docker-compose.yml"
-
 export MNTDIR="/pl"
 
 startupwait 10
@@ -50,7 +44,7 @@ check_docker_available
 
 docker_exec(){
     #docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
-    docker-compose exec "$SERVICE" $MNTDIR/$@
+    docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
 }
 
 
@@ -60,8 +54,8 @@ test_cassandra(){
     #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $CASSANDRA_PORT
     VERSION="$version" docker-compose up -d
-    cassandra_port="`docker-compose port "$SERVICE" "$CASSANDRA_PORT" | sed 's/.*://'`"
-    cassandra_ports=`{ for x in $CASSANDRA_PORTS; do  docker-compose port "$SERVICE" "$x"; done; } | sed 's/.*://'`
+    cassandra_port="`docker-compose port "$DOCKER_SERVICE" "$CASSANDRA_PORT" | sed 's/.*://'`"
+    cassandra_ports=`{ for x in $CASSANDRA_PORTS; do  docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
@@ -70,7 +64,7 @@ test_cassandra(){
         local version=".*"
     fi
     hr
-    docker-compose exec "$SERVICE" nodetool status
+    docker-compose exec "$DOCKER_SERVICE" nodetool status
     hr
     docker_exec check_cassandra_version_nodetool.py -e "$version"
     hr
