@@ -15,13 +15,11 @@
 
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
-srcdir2="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-cd "$srcdir2/.."
+cd "$srcdir/.."
 
-. "$srcdir2/utils.sh"
-
-srcdir="$srcdir2/.."
+. "$srcdir/utils.sh"
 
 echo "
 # ============================================================================ #
@@ -35,22 +33,28 @@ HADOOP_HOST="${DOCKER_HOST:-${HADOOP_HOST:-${HOST:-localhost}}}"
 HADOOP_HOST="${HADOOP_HOST##*/}"
 HADOOP_HOST="${HADOOP_HOST%%:*}"
 export HADOOP_HOST
-export HADOOP_PORTS="8042 8088 9000 10020 19888 50010 50020 50070 50075 50090"
+export HADOOP_NAMENODE_PORT="50070"
+export HADOOP_DATANODE_PORT="50075"
+export HADOOP_YARN_RESOURCE_MANAGER_PORT="8088"
+export HADOOP_YARN_NODE_MANAGER_PORT="8042"
+export HADOOP_PORTS="8042 8088 50010 50020 50070 50075 50090"
 
 export DOCKER_IMAGE="harisekhon/hadoop-dev"
-export DOCKER_CONTAINER="nagios-plugins-hadoop-test"
+
+export SERVICE="${0#*test_}"
+export SERVICE="${SERVICE%.sh}"
+export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
+export COMPOSE_PROJECT_NAME="$DOCKER_CONTAINER"
+export COMPOSE_FILE="$srcdir/docker/$SERVICE-docker-compose.yml"
 
 export MNTDIR="/pl"
 
-startupwait 30
+startupwait 80
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Hadoop checks!!!'
-    exit 0
-fi
+check_docker_available
 
 docker_exec(){
-    docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
+    docker-compose exec "$SERVICE" $MNTDIR/$@
 }
 
 test_hadoop(){
@@ -58,16 +62,23 @@ test_hadoop(){
     hr
     echo "Setting up Hadoop $version test container"
     hr
-    DOCKER_OPTS="-v $srcdir2/..:$MNTDIR"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HADOOP_PORTS
-    when_ports_available $startupwait $HADOOP_HOST $HADOOP_PORTS
+    #DOCKER_OPTS="-v $srcdir2/..:$MNTDIR"
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HADOOP_PORTS
+    VERSION="$version" docker-compose up -d
+    hadoop_namenode_port="`docker-compose port "$SERVICE" "$HADOOP_NAMENODE_PORT" | sed 's/.*://'`"
+    hadoop_datanode_port="`docker-compose port "$SERVICE" "$HADOOP_DATANODE_PORT" | sed 's/.*://'`"
+    hadoop_yarn_resource_manager_port="`docker-compose port "$SERVICE" "$HADOOP_YARN_RESOURCE_MANAGER_PORT" | sed 's/.*://'`"
+    hadoop_yarn_node_manager_port="`docker-compose port "$SERVICE" "$HADOOP_YARN_NODE_MANAGER_PORT" | sed 's/.*://'`"
+    hadoop_ports=`{ for x in $HADOOP_PORTS; do docker-compose port "$SERVICE" "$x"; done; } | sed 's/.*://'`
+    when_ports_available "$startupwait" "$HADOOP_HOST" $hadoop_ports
     echo "creating test file in hdfs"
-    docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
+    docker-compose exec "$SERVICE" /bin/bash <<-EOF
         export JAVA_HOME=/usr
         hdfs dfsadmin -safemode leave
         hdfs dfs -rm -f /tmp/test.txt &>/dev/null
         echo content | hdfs dfs -put - /tmp/test.txt
         hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && tail -n30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
+        exit
 EOF
     echo
     if [ -n "${NOTESTS:-}" ]; then
@@ -77,23 +88,30 @@ EOF
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
-    $perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "$version"
-    $perl -T ./check_hadoop_hdfs_datanode_version.pl -N $(docker exec "$DOCKER_CONTAINER" hostname) -v -e "$version"
+    $perl -T ./check_hadoop_yarn_resource_manager_version.pl -P "$hadoop_yarn_resource_manager_port" -v -e "$version"
+    hr
+    # docker-compose exec returns $'hostname\r' but not in shell
+    hostname="$(docker-compose exec "$SERVICE" hostname | tr -d '$\r')"
+    if [ -z "$hostname" ]; then
+        echo 'Failed to determine hostname of container via docker-compose exec, cannot continue with tests!'
+        exit 1
+    fi
+    $perl -T ./check_hadoop_hdfs_datanode_version.pl -P "$hadoop_namenode_port" -N "$hostname" -v -e "$version"
     hr
     docker_exec check_hadoop_balance.pl -w 5 -c 10 --hadoop-bin /hadoop/bin/hdfs --hadoop-user root -t 60
     hr
-    $perl -T ./check_hadoop_checkpoint.pl
+    $perl -T ./check_hadoop_checkpoint.pl -P "$hadoop_namenode_port"
     hr
     # XXX: requires updates for 2.7
-    #$perl -T ./check_hadoop_datanode_blockcount.pl -H $HADOOP_HOST
+    #$perl -T ./check_hadoop_datanode_blockcount.pl -H $HADOOP_HOST -P "$hadoop_datanode_port"
     hr
-    $perl -T ./check_hadoop_datanode_jmx.pl --all-metrics
+    $perl -T ./check_hadoop_datanode_jmx.pl -P "$hadoop_datanode_port" --all-metrics
     hr
     # XXX: requires updates for 2.7
-    #$perl -T ./check_hadoop_datanodes_block_balance.pl -H $HADOOP_HOST -w 5 -c 10 -vvv
-    #$perl -T ./check_hadoop_datanodes_blockcounts.pl -H $HADOOP_HOST -vvv
+    #$perl -T ./check_hadoop_datanodes_block_balance.pl -H $HADOOP_HOST -P "$hadoop_namenode_port" -w 5 -c 10 -vvv
+    #$perl -T ./check_hadoop_datanodes_blockcounts.pl -H $HADOOP_HOST -P "$hadoop_namenode_port" -vvv
     hr
-    $perl -T ./check_hadoop_datanodes.pl
+    $perl -T ./check_hadoop_datanodes.pl -P "$hadoop_namenode_port"
     hr
     docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hadoop --hadoop-user root --hdfs-space -w 80 -c 90
     hr
@@ -105,7 +123,7 @@ EOF
     hr
     # would be much higher on a real cluster, no defaults as must be configured based on NN heap
     # XXX: 404
-    #$perl -T ./check_hadoop_hdfs_blocks.pl -w 100 -c 200
+    #$perl -T ./check_hadoop_hdfs_blocks.pl -P "$hadoop_namenode_port" -w 100 -c 200
     hr
     # run inside Docker container so it can resolve redirect to DN
     docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728
@@ -139,68 +157,69 @@ EOF
     docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --stats
     hr
     # XXX: fix required for very small E number
-    #docker_exec check_hadoop_hdfs_space.pl -H localhost -vvv
+    #docker_exec check_hadoop_hdfs_space.pl -H localhost -P "$hadoop_namenode_port" -vvv
     hr
     # run inside Docker container so it can resolve redirect to DN
     docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
     hr
-    $perl -T ./check_hadoop_jmx.pl -P 8042 -a
+    $perl -T ./check_hadoop_jmx.pl -P "$hadoop_yarn_node_manager_port" -a
     hr
-    $perl -T ./check_hadoop_jmx.pl -P 8088 -a
+    $perl -T ./check_hadoop_jmx.pl -P "$hadoop_yarn_resource_manager_port" -a
     hr
-    $perl -T ./check_hadoop_jmx.pl -P 50070 -a
+    $perl -T ./check_hadoop_jmx.pl -P "$hadoop_namenode_port" -a
     hr
-    $perl -T ./check_hadoop_jmx.pl -P 50075 -a
+    $perl -T ./check_hadoop_jmx.pl -P "$hadoop_datanode_port" -a
     hr
-    $perl -T ./check_hadoop_namenode_heap.pl
+    $perl -T ./check_hadoop_namenode_heap.pl -P "$hadoop_namenode_port"
     hr
     # XXX: fix required for non-integer? Happens just after booting Hadoop docker image
     #$perl -T ./check_hadoop_namenode_heap.pl --non-heap -vvv
     hr
-    $perl -T ./check_hadoop_namenode_jmx.pl --all-metrics
+    $perl -T ./check_hadoop_namenode_jmx.pl -P "$hadoop_namenode_port" --all-metrics
     hr
     # all the hadoop namenode checks need updating
     # 404 not found
-    #$perl -T ./check_hadoop_namenode.pl -b -w 5 -c 10
+    #$perl -T ./check_hadoop_namenode.pl -P "$hadoop_namenode_port" -b -w 5 -c 10
     hr
-    $perl -T ./check_hadoop_namenode_safemode.pl
+    $perl -T ./check_hadoop_namenode_safemode.pl -P "$hadoop_namenode_port"
     hr
     set +o pipefail
-    $perl -T ./check_hadoop_namenode_security_enabled.pl | grep -Fx "CRITICAL: namenode security enabled 'false'"
+    $perl -T ./check_hadoop_namenode_security_enabled.pl -P "$hadoop_namenode_port" | grep -Fx "CRITICAL: namenode security enabled 'false'"
     set -o pipefail
     hr
-    $perl -T ./check_hadoop_namenode_state.pl
+    $perl -T ./check_hadoop_namenode_state.pl -P "$hadoop_namenode_port"
     hr
-    $perl -T ./check_hadoop_replication.pl
+    $perl -T ./check_hadoop_replication.pl -P "$hadoop_namenode_port"
     hr
-    $perl -T ./check_hadoop_yarn_app_stats.pl
+    $perl -T ./check_hadoop_yarn_app_stats.pl -P "$hadoop_yarn_resource_manager_port"
     hr
-    $perl -T ./check_hadoop_yarn_app_stats_queue.pl
+    $perl -T ./check_hadoop_yarn_app_stats_queue.pl -P "$hadoop_yarn_resource_manager_port"
     hr
-    $perl -T ./check_hadoop_yarn_metrics.pl
+    $perl -T ./check_hadoop_yarn_metrics.pl -P "$hadoop_yarn_resource_manager_port"
     hr
-    $perl -T ./check_hadoop_yarn_node_manager.pl
+    $perl -T ./check_hadoop_yarn_node_manager.pl -P "$hadoop_yarn_node_manager_port"
     hr
-    $perl -T ./check_hadoop_yarn_node_managers.pl -w 1 -c 1
+    $perl -T ./check_hadoop_yarn_node_managers.pl -P "$hadoop_yarn_resource_manager_port" -w 1 -c 1
     hr
-    $perl -T ./check_hadoop_yarn_node_manager_via_rm.pl --node $(docker ps | awk "/$DOCKER_CONTAINER/{print \$1}")
+    $perl -T ./check_hadoop_yarn_node_manager_via_rm.pl -P "$hadoop_yarn_resource_manager_port" --node "$hostname"
     hr
-    $perl -T ./check_hadoop_yarn_queue_capacity.pl
-    $perl -T ./check_hadoop_yarn_queue_capacity.pl --queue default
+    $perl -T ./check_hadoop_yarn_queue_capacity.pl -P "$hadoop_yarn_resource_manager_port"
+    $perl -T ./check_hadoop_yarn_queue_capacity.pl -P "$hadoop_yarn_resource_manager_port" --queue default
     hr
-    $perl -T ./check_hadoop_yarn_queue_state.pl
-    $perl -T ./check_hadoop_yarn_queue_state.pl --queue default
+    $perl -T ./check_hadoop_yarn_queue_state.pl -P "$hadoop_yarn_resource_manager_port"
+    $perl -T ./check_hadoop_yarn_queue_state.pl -P "$hadoop_yarn_resource_manager_port" --queue default
     hr
-    $perl -T ./check_hadoop_yarn_resource_manager_heap.pl
+    $perl -T ./check_hadoop_yarn_resource_manager_heap.pl -P "$hadoop_yarn_resource_manager_port"
     # returns -1 for NonHeapMemoryUsage max
     set +e
-    $perl -T ./check_hadoop_yarn_resource_manager_heap.pl --non-heap
+    $perl -T ./check_hadoop_yarn_resource_manager_heap.pl -P "$hadoop_yarn_resource_manager_port" --non-heap
     check_exit_code 3
     set -e
     hr
-    $perl -T ./check_hadoop_yarn_resource_manager_state.pl
+    $perl -T ./check_hadoop_yarn_resource_manager_state.pl -P "$hadoop_yarn_resource_manager_port"
     hr
-    delete_container
+    #delete_container
+    docker-compose down
 }
 
 for version in $(ci_sample $HADOOP_VERSIONS); do
