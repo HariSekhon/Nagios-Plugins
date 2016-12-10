@@ -36,12 +36,6 @@ export MEMCACHED_HOST
 
 export MEMCACHED_PORT=11211
 
-export SERVICE="${0#*test_}"
-export SERVICE="${SERVICE%.sh}"
-export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
-export COMPOSE_PROJECT_NAME="$DOCKER_CONTAINER"
-export COMPOSE_FILE="$srcdir/docker/$SERVICE-docker-compose.yml"
-
 check_docker_available
 
 startupwait 1
@@ -51,7 +45,7 @@ test_memcached(){
     echo "Setting up Memcached $version test container"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MEMCACHED_PORT
     VERSION="$version" docker-compose up -d
-    memcached_port="`docker-compose port "$SERVICE" "$MEMCACHED_PORT" | sed 's/.*://'`"
+    memcached_port="`docker-compose port "$DOCKER_SERVICE" "$MEMCACHED_PORT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$MEMCACHED_HOST" "$memcached_port"
     hr
     echo "creating test Memcached key-value"
