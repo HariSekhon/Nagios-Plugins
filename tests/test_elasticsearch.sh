@@ -36,12 +36,6 @@ export ELASTICSEARCH_HOST
 export ELASTICSEARCH_PORT="${ELASTICSEARCH_PORT:-9200}"
 export ELASTICSEARCH_INDEX="${ELASTICSEARCH_INDEX:-test}"
 
-export SERVICE="${0#*test_}"
-export SERVICE="${SERVICE%.sh}"
-export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
-export COMPOSE_PROJECT_NAME="$DOCKER_CONTAINER"
-export COMPOSE_FILE="$srcdir/docker/$SERVICE-docker-compose.yml"
-
 check_docker_available
 
 startupwait 20
@@ -51,7 +45,7 @@ test_elasticsearch(){
     echo "Setting up Elasticsearch $version test container"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ELASTICSEARCH_PORT
     VERSION="$version" docker-compose up -d
-    elasticsearch_port="`docker-compose port "$SERVICE" "$ELASTICSEARCH_PORT" | sed 's/.*://'`"
+    elasticsearch_port="`docker-compose port "$DOCKER_SERVICE" "$ELASTICSEARCH_PORT" | sed 's/.*://'`"
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
