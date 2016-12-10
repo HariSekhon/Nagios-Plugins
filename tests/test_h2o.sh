@@ -38,12 +38,6 @@ export H2O_HOST
 echo "using docker address '$H2O_HOST'"
 export H2O_PORT="${H2O_PORT:-54321}"
 
-export SERVICE="${0#*test_}"
-export SERVICE="${SERVICE%.sh}"
-export DOCKER_CONTAINER="nagios-plugins-$SERVICE-test"
-export COMPOSE_PROJECT_NAME="$DOCKER_CONTAINER"
-export COMPOSE_FILE="$srcdir/docker/$SERVICE-docker-compose.yml"
-
 check_docker_available
 
 startupwait 10
@@ -55,7 +49,7 @@ test_h2o(){
     hr
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $H2O_PORT
     VERSION="$version" docker-compose up -d
-    h2o_port="`docker-compose port "$SERVICE" "$H2O_PORT" | sed 's/.*://'`"
+    h2o_port="`docker-compose port "$DOCKER_SERVICE" "$H2O_PORT" | sed 's/.*://'`"
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
