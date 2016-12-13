@@ -15,7 +15,7 @@
 
 set -eu
 [ -n "${DEBUG:-}" ] && set -x
-srcdir_nagios_plugins_syntax="$srcdir"
+srcdir_nagios_plugins_syntax="${srcdir:-}"
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 echo "================================================================================"
