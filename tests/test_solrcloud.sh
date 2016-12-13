@@ -35,24 +35,19 @@ SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
 export SOLR_HOST="${SOLR_HOST%%:*}"
 export SOLR_PORT=8983
-export SOLR_PORTS="$SOLR_PORT 8984 9983"
+export SOLR_ZOOKEEPER_PORT="9983"
+export SOLR_PORTS="$SOLR_PORT 8984 $SOLR_ZOOKEEPER_PORT"
 export ZOOKEEPER_HOST="$SOLR_HOST"
-
-export DOCKER_IMAGE="harisekhon/solrcloud-dev"
-export DOCKER_CONTAINER="nagios-plugins-solrcloud-test"
 
 export SOLR_HOME="/solr"
 export MNTDIR="/pl"
 
-startupwait 60
+startupwait 30
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping SolrCloud checks!!!'
-    exit 0
-fi
+check_docker_available
 
 docker_exec(){
-    docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
+    docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
 }
 
 test_solrcloud(){
@@ -66,9 +61,18 @@ test_solrcloud(){
         export SOLR_COLLECTION="gettingstarted"
     fi
     echo "Setting up SolrCloud $version docker test container"
-    DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SOLR_PORTS
-    when_ports_available $startupwait $SOLR_HOST $SOLR_PORTS
+    #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SOLR_PORTS
+    VERSION="$version" docker-compose up -d
+    solr_port="`docker-compose port "$DOCKER_SERVICE" "$SOLR_PORT" | sed 's/.*://'`"
+    local SOLR_PORT="$solr_port"
+    solr_zookeeper_port="`docker-compose port "$DOCKER_SERVICE" "$SOLR_ZOOKEEPER_PORT" | sed 's/.*://'`"
+    local SOLR_ZOOKEEPER_PORT="$solr_port"
+    #solr_ports=`{ for x in $SOLR_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
+    #local SOLR_PORTS="$solr_ports"
+    when_ports_available "$startupwait" "$SOLR_HOST" "$SOLR_PORT" "$SOLR_ZOOKEEPER_PORT"
+    local DOCKER_CONTAINER="$(docker-compose ps | sed -n '3s/ .*//p')"
+    echo "container is $DOCKER_CONTAINER"
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
@@ -78,10 +82,15 @@ test_solrcloud(){
     hr
     ./check_solr_version.py -e "$version"
     hr
-    # docker is running slow
-    $perl -T ./check_solrcloud_cluster_status.pl -v -t 60
+    #echo "sleeping for 20 secs to allow SolrCloud shard state to settle"
+    #sleep 20
+    echo "will try cluster status up to $startupwait times to give cluster and collection chance to initialize properly"
+    for x in `seq $startupwait`; do
+        $perl -T ./check_solrcloud_cluster_status.pl -v && break
+        sleep 1
+    done
+    $perl -T ./check_solrcloud_cluster_status.pl -v
     hr
-    # FIXME: solr 5/6
     docker_exec check_solrcloud_cluster_status_zookeeper.pl -H localhost -P 9983 -b / -v
     hr
     # FIXME: doesn't pick up collection from env
@@ -105,7 +114,11 @@ test_solrcloud(){
     hr
     docker_exec check_solrcloud_overseer_zookeeper.pl -H localhost -P 9983 -b / -v
     hr
-    docker_exec check_solrcloud_server_znode.pl -H localhost -P 9983 -z /live_nodes/$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$DOCKER_CONTAINER"):8983_solr -v
+    # returns blank now
+    #container_ip="$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$DOCKER_CONTAINER")"
+    container_ip="$(docker-compose exec "$DOCKER_SERVICE" ip addr | awk '/inet .* e/{print $2}' | sed 's/\/.*//')"
+    echo "container IP is $container_ip"
+    docker_exec check_solrcloud_server_znode.pl -H localhost -P 9983 -z "/live_nodes/$container_ip:8983_solr" -v
     hr
     # FIXME: second node does not come/stay up
     # docker_exec check_solrcloud_server_znode.pl -H localhost -P 9983 -z /live_nodes/$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$DOCKER_CONTAINER"):8984_solr -v
@@ -116,7 +129,8 @@ test_solrcloud(){
         docker_exec check_zookeeper_config.pl -H localhost -P 9983 -C "$SOLR_HOME/example/cloud/node1/solr/zoo.cfg" --no-warn-extra -v
     fi
     hr
-    delete_container
+    #delete_container
+    docker-compose down
     hr
     echo
 }
