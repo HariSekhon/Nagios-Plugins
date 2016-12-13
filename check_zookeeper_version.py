@@ -49,6 +49,8 @@ except ImportError as _:
 __author__ = 'Hari Sekhon'
 __version__ = '0.2.1'
 
+# pylint: disable=too-few-public-methods
+
 
 class CheckZooKeeperVersion(VersionNagiosPlugin):
 
