@@ -42,11 +42,6 @@ export NGINX_PORT="80"
 export DOCKER_IMAGE="nginx"
 export DOCKER_CONTAINER="nagios-plugins-nginx-test"
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Nginx checks!!!'
-    exit 0
-fi
-
 startupwait 1
 is_CI && let startupwait+=4
 
