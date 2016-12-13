@@ -37,27 +37,22 @@ export SOLR_PORT="${SOLR_PORT:-8983}"
 export SOLR_COLLECTION="${SOLR_COLLECTION:-test}"
 export SOLR_CORE="${SOLR_COLLECTION:-${SOLR_CORE:-test}}"
 
-# using my own Docker images now as official solr doesn't have builds < 5
-#export DOCKER_IMAGE="solr"
-export DOCKER_IMAGE="harisekhon/solr"
-export DOCKER_CONTAINER="nagios-plugins-solr-test"
-
 startupwait 10
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Solr checks!!!'
-    exit 0
-fi
+check_docker_available
 
 test_solr(){
     local version="$1"
     echo "Setting up Solr $version docker test container"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SOLR_PORT
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SOLR_PORT
+    VERSION="$version" docker-compose up -d
+    solr_port="`docker-compose port "$DOCKER_SERVICE" "$SOLR_PORT" | sed 's/.*://'`"
+    local SOLR_PORT="$solr_port"
     when_ports_available $startupwait $SOLR_HOST $SOLR_PORT
     if [[ "$version" = "latest" || ${version:0:1} > 3 ]]; then
-        docker exec -ti "$DOCKER_CONTAINER" solr create_core -c "$SOLR_CORE" || :
+        docker-compose exec "$DOCKER_SERVICE" solr create_core -c "$SOLR_CORE" || :
         # TODO: fix this on Solr 5.x+
-        docker exec -ti "$DOCKER_CONTAINER" bin/post -c "$SOLR_CORE" example/exampledocs/money.xml || :
+        docker-compose exec "$DOCKER_SERVICE" bin/post -c "$SOLR_CORE" example/exampledocs/money.xml || :
     fi
     hr
     if [ -n "${NOTESTS:-}" ]; then
@@ -83,13 +78,14 @@ test_solr(){
     $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
     hr
     num_expected_docs=4
-    [ ${version:0:1} -lt 4 ] && num_expected_docs=0
+    [ "${version:0:1}" -lt 4 ] && num_expected_docs=0
     # TODO: fix Solr 5 + 6 doc insertion and then tighten this up
     $perl -T ./check_solr_query.pl -n 0:4 -v
     hr
-    $perl -T ./check_solr_write.pl -vvv -w 1000 # because Travis is slow
+    $perl -T ./check_solr_write.pl -v -w 1000 # because Travis is slow
     hr
-    delete_container
+    #delete_container
+    docker-compose down
     hr
     echo
 }
