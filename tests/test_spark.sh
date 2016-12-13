@@ -42,17 +42,20 @@ export DOCKER_CONTAINER="nagios-plugins-spark-test"
 
 startupwait 15
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Spark checks!!!'
-    exit 0
-fi
+check_docker_available
 
 test_spark(){
     local version="$1"
     hr
     echo "Setting up Spark $version test container"
     hr
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SPARK_MASTER_PORT $SPARK_WORKER_PORT
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SPARK_MASTER_PORT $SPARK_WORKER_PORT
+    docker-compose down &>/dev/null
+    VERSION="$version" docker-compose up -d
+    spark_master_port="`docker-compose port "$DOCKER_SERVICE" "$SPARK_MASTER_PORT" | sed 's/.*://'`"
+    spark_worker_port="`docker-compose port "$DOCKER_SERVICE" "$SPARK_WORKER_PORT" | sed 's/.*://'`"
+    local SPARK_MASTER_PORT="$spark_master_port"
+    local SPARK_WORKER_PORT="$spark_worker_port"
     when_ports_available $startupwait $SPARK_HOST $SPARK_MASTER_PORT $SPARK_WORKER_PORT
     if [ -n "${NOTESTS:-}" ]; then
         return 0
@@ -73,7 +76,8 @@ test_spark(){
     hr
     $perl -T ./check_spark_worker.pl -w 80 -c 90 -v
     hr
-    delete_container
+    #delete_container
+    docker-compose down
     hr
     echo
 }
