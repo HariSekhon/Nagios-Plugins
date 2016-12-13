@@ -15,6 +15,7 @@
 
 alpine-sdk
 expat-dev
+krb5-dev
 libxml2-dev
 mariadb-dev
 openssl-dev
