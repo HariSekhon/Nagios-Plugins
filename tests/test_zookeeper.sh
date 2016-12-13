@@ -36,57 +36,57 @@ export ZOOKEEPER_HOST
 export ZOOKEEPER_PORT=2181
 export ZOOKEEPER_PORTS="$ZOOKEEPER_PORT 3181 4181"
 
-export DOCKER_IMAGE="harisekhon/zookeeper"
-export DOCKER_IMAGE2="harisekhon/nagios-plugins"
-export DOCKER_CONTAINER="nagios-plugins-zookeeper-test"
-export DOCKER_CONTAINER2="nagios-plugins-test"
-
 export MNTDIR="/pl"
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping ZooKeeper checks!!!'
-    exit 0
-fi
+check_docker_available
 
 docker_exec(){
-    docker exec -ti "$DOCKER_CONTAINER2" $MNTDIR/$@
+    docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
 }
 
-startupwait 5
+startupwait 10
 
 test_zookeeper(){
     local version="$1"
     echo "Setting up ZooKeeper $version test container"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ZOOKEEPER_PORTS
-    docker cp "$DOCKER_CONTAINER":/zookeeper/conf/zoo.cfg .
-    hr
-    echo "Setting up nagios-plugins test container with zkperl library"
-    local DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper -v $PWD:$MNTDIR"
-    local DOCKER_CMD="tail -f /dev/null"
-    launch_container "$DOCKER_IMAGE2" "$DOCKER_CONTAINER2"
-    docker cp zoo.cfg "$DOCKER_CONTAINER2":"$MNTDIR/"
-    when_ports_available $startupwait $ZOOKEEPER_HOST $ZOOKEEPER_PORTS
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ZOOKEEPER_PORTS
+    #docker cp "$DOCKER_CONTAINER":/zookeeper/conf/zoo.cfg .
+    #hr
+    #echo "Setting up nagios-plugins test container with zkperl library"
+    #local DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper -v $PWD:$MNTDIR"
+    #local DOCKER_CMD="tail -f /dev/null"
+    #launch_container "$DOCKER_IMAGE2" "$DOCKER_CONTAINER2"
+    #docker cp zoo.cfg "$DOCKER_CONTAINER2":"$MNTDIR/"
+    VERSION="$version" docker-compose up -d
+    zookeeper_port="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT" | sed 's/.*://'`"
+    #local ZOOKEEPER_PORT="$zookeeper_port"
+    #local DOCKER_CONTAINER="$(docker-compose ps | sed -n '3s/ .*/p')"
+    when_ports_available "$startupwait" "$ZOOKEEPER_HOST" "$zookeeper_port"
     if [ -n "${NOTESTS:-}" ]; then
         return
     fi
-    hr
-    ./check_zookeeper_version.py -e "$version"
-    hr
-    if [ "${version:0:3}" = "3.3" ]; then
-        $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v || :
-    else
-        $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
+    expected_version="$version"
+    if [ "$expected_version" = "latest" ]; then
+        expected_version=".*"
     fi
     hr
-    docker_exec check_zookeeper_config.pl -H zookeeper -P $ZOOKEEPER_PORT -C "$MNTDIR/zoo.cfg" -v
+    ./check_zookeeper_version.py -P "$zookeeper_port" -e "$expected_version"
     hr
-    docker_exec check_zookeeper_child_znodes.pl -H zookeeper -P $ZOOKEEPER_PORT -z / --no-ephemeral-check -v
+    if [ "${version:0:3}" = "3.3" ]; then
+        $perl -T ./check_zookeeper.pl -P "$zookeeper_port" -s -w 50 -c 100 -v || :
+    else
+        $perl -T ./check_zookeeper.pl -P "$zookeeper_port" -s -w 50 -c 100 -v
+    fi
     hr
-    docker_exec check_zookeeper_znode.pl -H zookeeper -P $ZOOKEEPER_PORT -z / -v -n --child-znodes
+    docker_exec check_zookeeper_config.pl -H localhost -P $ZOOKEEPER_PORT -C "/zookeeper/conf/zoo.cfg" -v
+    hr
+    docker_exec check_zookeeper_child_znodes.pl -H localhost -P $ZOOKEEPER_PORT -z / --no-ephemeral-check -v
+    hr
+    docker_exec check_zookeeper_znode.pl -H localhost -P $ZOOKEEPER_PORT -z / -v -n --child-znodes
     hr
 
-    delete_container "$DOCKER_CONTAINER2"
-    delete_container "$DOCKER_CONTAINER"
+    #delete_container "$DOCKER_CONTAINER"
+    docker-compose down
 }
 
 for version in $(ci_sample $ZOOKEEPER_VERSIONS); do
