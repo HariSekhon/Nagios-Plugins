@@ -18,6 +18,7 @@ bash
 # ethtool needed for ./check_linux_interface.pl
 ethtool
 expat-dev
+krb5-dev
 gcc
 git
 libxml2-dev
