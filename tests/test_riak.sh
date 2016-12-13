@@ -39,25 +39,26 @@ export RIAK_PORT=8098
 export DOCKER_IMAGE="harisekhon/riak-dev"
 export DOCKER_CONTAINER="nagios-plugins-riak-test"
 
-export MNTDIR="/nagios-plugins-tmp"
+export MNTDIR="/pl"
+
+check_docker_available
 
 docker_exec(){
-    docker exec -ti -u riak "$DOCKER_CONTAINER" $MNTDIR/$@
+    docker-compose exec --user riak "$DOCKER_SERVICE" $MNTDIR/$@
 }
 
 startupwait 20
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Riak checks!!!'
-    exit 0
-fi
-
 test_riak(){
     local version="$1"
     echo "Setting up Riak $version test container"
-    DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $RIAK_PORT
-    when_ports_available $startupwait $RIAK_HOST $RIAK_PORT
+    #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $RIAK_PORT
+    VERSION="$version" docker-compose up -d
+    riak_port="`docker-compose port "$DOCKER_SERVICE" "$RIAK_PORT" | sed 's/.*://'`"
+    local RIAK_PORT="$riak_port"
+    when_ports_available "$startupwait" "$RIAK_HOST" "$RIAK_PORT"
+    sleep 2
     # Riak 2.x
     #echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
     #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type create myBucket '{"props":{"n_val":1}}' || :
@@ -66,7 +67,7 @@ test_riak(){
     echo "creating test Riak document"
     # don't use new bucket types yet
     #curl -XPUT localhost:8098/types/myType/buckets/myBucket/keys/myKey -d 'hari'
-    curl -XPUT $RIAK_HOST:$RIAK_PORT/buckets/myBucket/keys/myKey -d 'hari'
+    curl -XPUT "$RIAK_HOST:$RIAK_PORT/buckets/myBucket/keys/myKey" -d 'hari'
     echo "done"
     if [ -n "${NOTESTS:-}" ]; then
         return 0
@@ -100,9 +101,10 @@ test_riak(){
     $perl -T check_riak_version.pl -v
 
     echo
-    echo -n "Deleting container "
-    docker rm -f "$DOCKER_CONTAINER"
-    sleep 1
+    #echo -n "Deleting container "
+    #docker rm -f "$DOCKER_CONTAINER"
+    #sleep 1
+    docker-compose down
     echo
     hr
     echo; echo
