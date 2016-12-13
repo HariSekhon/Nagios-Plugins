@@ -23,7 +23,7 @@ cd "$srcdir/..";
 
 #[ `uname -s` = "Linux" ] || exit 0
 
-# No longer used, done as part of Linux checks now
+# XXX: NO LONGER USED, DONE AS PART OF LINUX CHECKS NOW
 return 0 &>/dev/null || :
 exit 0
 
