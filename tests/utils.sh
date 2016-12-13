@@ -15,11 +15,14 @@
 
 set -eu
 [ -n "${DEBUG:-}" ] && set -x
+srcdir_nagios_plugins_utils="$srcdir"
 srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 . "$srcdir/excluded.sh"
 . "$srcdir/../bash-tools/utils.sh"
 . "$srcdir/../bash-tools/docker.sh"
+
+export COMPOSE_PROJECT_NAME="nagios-plugins"
 
 # Taint code doesn't use PERL5LIB, use -I instead
 I_lib=""
@@ -82,4 +85,9 @@ check_docker_available(){
         echo 'WARNING: Docker Compose not found in $PATH, skipping checks!!!'
         exit 0
     fi
+    export DOCKER_SERVICE="${0#*test_}"
+    export DOCKER_SERVICE="${DOCKER_SERVICE%.sh}"
+    export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-docker-compose.yml"
 }
+
+srcdir="$srcdir_nagios_plugins_utils"
