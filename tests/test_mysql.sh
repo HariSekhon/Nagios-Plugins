@@ -41,30 +41,34 @@ export MYSQL_DATABASE="${MYSQL_DATABASE:-mysql}"
 export MYSQL_PORT=3306
 export MYSQL_USER="root"
 export MYSQL_PASSWORD="test123"
+export MYSQL_ROOT_PASSWORD="$MYSQL_PASSWORD"
 
-export DOCKER_IMAGE="mysql"
-export DOCKER_CONTAINER="nagios-plugins-mysql-test"
+export MYSQL_CONFIG_PATH=/etc/mysql/mysql.conf.d
+export MYSQL_CONFIG_FILE=mysqld.cnf
+
+check_docker_available
 
 startupwait 10
-
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping MySQL checks!!!'
-    exit 0
-fi
 
 test_mysql(){
     local version="$1"
     echo "Setting up MySQL $version test container"
-    local DOCKER_OPTS="-e MYSQL_ROOT_PASSWORD=$MYSQL_PASSWORD"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MYSQL_PORT
+    #local DOCKER_OPTS="-e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD"
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MYSQL_PORT
+    VERSION="$version" docker-compose up -d
+    mysql_port="`docker-compose port "$DOCKER_SERVICE" "$MYSQL_PORT" | sed 's/.*://'`"
+    local MYSQL_PORT="$mysql_port"
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
     when_ports_available $startupwait $MYSQL_HOST $MYSQL_PORT
     hr
-    docker cp "$DOCKER_CONTAINER":/etc/mysql/my.cnf /tmp
-    $perl -T ./check_mysql_config.pl -c /tmp/my.cnf --warn-on-missing -v
-    rm -f /tmp/my.cnf
+    local docker_container="$(docker-compose ps | sed -n '3s/ .*//p')"
+    echo "determined docker container to be '$docker_container'"
+    echo "fetching my.cnf to local host"
+    docker cp "$docker_container":"$MYSQL_CONFIG_PATH/$MYSQL_CONFIG_FILE" /tmp
+    $perl -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v
+    rm -f "/tmp/$MYSQL_CONFIG_FILE"
     hr
     $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema" -o CHARACTER_SETS -v
     hr
@@ -75,7 +79,8 @@ test_mysql(){
     unset MYSQL_HOST
     #$perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
     hr
-    delete_container
+    #delete_container
+    docker-compose down
     hr
     echo
 }
