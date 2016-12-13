@@ -15,6 +15,7 @@
 
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
+srcdir_nagios_plugins_help="$srcdir"
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
@@ -77,3 +78,5 @@ untrap
 upload_logs
 
 echo "All Perl / Python / Ruby programs found exited with expected code 3 for --help"
+
+srcdir="$srcdir_nagios_plugins_help"
