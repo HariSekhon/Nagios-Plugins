@@ -15,6 +15,7 @@
 
 set -eu
 [ -n "${DEBUG:-}" ] && set -x
+srcdir_nagios_plugins_syntax="$srcdir"
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 echo "================================================================================"
@@ -36,3 +37,4 @@ echo "                  All Perl programs passed syntax check"
 echo "================================================================================"
 echo
 echo
+srcdir="$srcdir_nagios_plugins_syntax"
