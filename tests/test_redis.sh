@@ -41,24 +41,23 @@ unset REDIS_PASSWORD
 unset PASSWORD
 
 export DOCKER_IMAGE="redis"
-export DOCKER_CONTAINER="nagios-plugins-redis-test"
 
 startupwait 5
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Redis checks!!!'
-    exit 0
-fi
+check_docker_available
 
 # TODO: redis authenticated container testing
 test_redis(){
     local version="$1"
     echo "Setting up Redis $version test container"
     #DOCKER_OPTS="--requirepass $REDIS_PASSWORD"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $REDIS_PORT
-    when_ports_available $startupwait $REDIS_HOST $REDIS_PORT
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $REDIS_PORT
+    VERSION="$version" docker-compose up -d
+    redis_port="`docker-compose port "$DOCKER_SERVICE" "$REDIS_PORT" | sed 's/.*://'`"
+    local REDIS_PORT="$redis_port"
+    when_ports_available "$startupwait" "$REDIS_HOST" "$REDIS_PORT"
     echo "creating test Redis key-value"
-    echo set myKey hari | redis-cli -h "$REDIS_HOST"
+    echo set myKey hari | redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT"
     echo done
     if [ -n "${NOTESTS:-}" ]; then
         return 0
@@ -96,7 +95,8 @@ test_redis(){
     echo "checking for no code failure masking root cause in catch quit handler"
     $perl -T ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v | tee /dev/stderr | grep -v ' line ' || :
     hr
-    delete_container
+    #delete_container
+    docker-compose down
     hr
     echo
 }
