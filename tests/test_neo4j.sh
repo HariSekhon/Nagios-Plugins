@@ -37,27 +37,27 @@ export NEO4J_HOST
 export NEO4J_USERNAME="${NEO4J_USERNAME:-${NEO4J_USERNAME:-neo4j}}"
 export NEO4J_PASSWORD="${NEO4J_PASSWORD:-${NEO4J_PASSWORD:-testpw}}"
 
-export NEO4J_PORTS="7473 7474"
+export NEO4J_PORT="7474"
+export NEO4J_PORTS="$NEO4J_PORT 7473"
 
-export DOCKER_IMAGE="neo4j"
-export DOCKER_CONTAINER="nagios-plugins-neo4j-test"
-
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Neo4j checks!!!'
-    exit 0
-fi
+check_docker_available
 
 startupwait 10
 
 test_neo4j(){
     local version="$1"
     echo "Setting up Neo4J $version test container without authentication"
-    delete_container "$DOCKER_CONTAINER-auth" &>/dev/null || :
-    local DOCKER_OPTS="-e NEO4J_AUTH=none"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $NEO4J_PORTS
-    when_ports_available $startupwait $NEO4J_HOST $NEO4J_PORTS
+    #local DOCKER_OPTS="-e NEO4J_AUTH=none"
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $NEO4J_PORTS
+    # otherwise repeated attempts create more nodes and break the NumberOfNodeIdsInUse upper threshold
+    docker-compose down &>/dev/null
+    VERSION="$version" docker-compose up -d
+    neo4j_port="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT" | sed 's/.*://'`"
+    local NEO4J_PORT="$neo4j_port"
+    neo4j_ports=`{ for x in $NEO4J_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
+    when_ports_available $startupwait $NEO4J_HOST $neo4j_ports
     echo "creating test Neo4J node"
-    docker exec "$DOCKER_CONTAINER" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
+    docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
     if [ "${NOTESTS:-}" ]; then
         return 0
     fi
@@ -81,7 +81,8 @@ test_neo4j(){
     # Neo4J on Travis doesn't seem to return anything resulting in "'attributes' field not returned by Neo4J" error
     $perl -T ./check_neo4j_store_sizes.pl -v
     hr
-    delete_container
+    #delete_container
+    docker-compose down
     hr
     echo
 }
@@ -91,12 +92,17 @@ test_neo4j(){
 test_neo4j_auth(){
     local version="$1"
     echo "Setting up Neo4J $version test container with authentication"
-    local DOCKER_OPTS="-e NEO4J_AUTH=$NEO4J_USERNAME/$NEO4J_PASSWORD"
-    delete_container "$DOCKER_CONTAINER" &>/dev/null || :
+    #local DOCKER_OPTS="-e NEO4J_AUTH=$NEO4J_USERNAME/$NEO4J_PASSWORD"
     local startupwait=20
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER-auth" $NEO4J_PORTS
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER-auth" $NEO4J_PORTS
+    docker-compose down &>/dev/null
+    VERSION="$version" NEO4J_AUTH="$NEO4J_USERNAME/$NEO4J_PASSWORD" docker-compose up -d
+    neo4j_port="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT" | sed 's/.*://'`"
+    local NEO4J_PORT="$neo4j_port"
+    neo4j_ports=`{ for x in $NEO4J_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
+    when_ports_available $startupwait $NEO4J_HOST $neo4j_ports
     echo "creating test Neo4J node"
-    docker exec "$DOCKER_CONTAINER-auth" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
+    docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
     if [ "${NOTESTS:-}" ]; then
         return 0
     fi
@@ -118,7 +124,8 @@ test_neo4j_auth(){
     # Neo4J on Travis doesn't seem to return anything resulting in "'attributes' field not returned by Neo4J" error
     $perl -T ./check_neo4j_store_sizes.pl -v
     hr
-    delete_container "$DOCKER_CONTAINER-auth"
+    #delete_container "$DOCKER_CONTAINER-auth"
+    docker-compose down
     hr
     echo
 }
