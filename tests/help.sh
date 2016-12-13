@@ -15,7 +15,7 @@
 
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
-srcdir_nagios_plugins_help="$srcdir"
+srcdir_nagios_plugins_help="${srcdir:-}"
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
