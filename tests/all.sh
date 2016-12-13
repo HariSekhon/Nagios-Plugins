@@ -15,6 +15,7 @@
 
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
+srcdir_nagios_plugins_all="$srcdir"
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 echo "
@@ -47,3 +48,5 @@ for script in $(find tests -name 'test*.sh'); do
 done
 
 echo "Done"
+
+srcdir="$srcdir_nagios_plugins_all"
