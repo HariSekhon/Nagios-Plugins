@@ -15,8 +15,7 @@
 
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
-
-srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "$srcdir/.."
 
@@ -38,30 +37,34 @@ export ALLUXIO_HOST
 export ALLUXIO_MASTER_PORT="${ALLUXIO_MASTER_PORT:-19999}"
 export ALLUXIO_WORKER_PORT="${ALLUXIO_WORKER_PORT:-30000}"
 
-export DOCKER_IMAGE="harisekhon/alluxio"
-export DOCKER_CONTAINER="nagios-plugins-alluxio-test"
-
 startupwait 15
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Alluxio checks!!!'
-    exit 0
-fi
+check_docker_available
 
 test_alluxio(){
     local version="$1"
     hr
     echo "Setting up Alluxio $version test container"
     hr
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ALLUXIO_MASTER_PORT $ALLUXIO_WORKER_PORT
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ALLUXIO_MASTER_PORT $ALLUXIO_WORKER_PORT
+    VERSION="$version" docker-compose up -d
+    alluxio_master_port="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_MASTER_PORT" | sed 's/.*://'`"
+    alluxio_worker_port="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_WORKER_PORT" | sed 's/.*://'`"
+    local ALLUXIO_MASTER_PORT="$alluxio_master_port"
+    local ALLUXIO_WORKER_PORT="$alluxio_worker_port"
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    when_ports_available $startupwait $ALLUXIO_HOST $ALLUXIO_MASTER_PORT $ALLUXIO_WORKER_PORT
+    when_ports_available "$startupwait" "$ALLUXIO_HOST" "$ALLUXIO_MASTER_PORT" "$ALLUXIO_WORKER_PORT"
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
     hr
+    echo "retrying for $startupwait secs to give Alluxio time to initialize"
+    for x in `seq $startupwait`; do
+        ./check_alluxio_master_version.py -v -e "$version" && break
+        sleep 1
+    done
     ./check_alluxio_master_version.py -v -e "$version"
     hr
     ./check_alluxio_worker_version.py -v -e "$version"
@@ -75,7 +78,8 @@ test_alluxio(){
     hr
     ./check_alluxio_dead_workers.py -v
     hr
-    delete_container
+    #delete_container
+    docker-compose down
     echo
 }
 
