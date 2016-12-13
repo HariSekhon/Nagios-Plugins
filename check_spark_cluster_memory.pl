@@ -15,7 +15,7 @@ Originally written for Apache Spark 0.8.1 / 0.9.1 standalone (also tested on 0.9
 
 Tested on Apache Spark standalone 1.3.1, 1.4.1, 1.5.1, 1.6.2";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -33,7 +33,7 @@ set_port_default(8080);
 # port 8080 is usually taken, CDH sets it to 18080
 #set_port_default(18080);
 
-env_creds("Spark");
+env_creds("Spark Master");
 
 %options = (
     %hostoptions,
