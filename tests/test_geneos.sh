@@ -29,7 +29,6 @@ echo "
 
 # Try to make these local tests with no dependencies for simplicity
 
-hr
 ./geneos_wrapper.py echo 'test detail | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
 hr
 ./geneos_wrapper.py --shell "echo 'test detail | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'"
@@ -63,4 +62,5 @@ hr
 hr
 ./geneos_wrapper.py $perl -T check_disk_write.pl --help | tee /dev/stderr | grep -q "^UNKNOWN,"
 hr
+echo "Success!"
 echo; echo
