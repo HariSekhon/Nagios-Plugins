@@ -19,9 +19,11 @@
 Geneos Wrapper program to convert any Nagios Plugin to Geneos CSV format for immediate re-use of all existing
 Nagios Plugins from the Advanced Nagios Plugins Collection or elsewhere.
 
-Usage is simple - just put 'geneos_wrapper.py' at the front of any nagios plugin command line and it will call
-the plugin and translate the output for you to CSV format for Geneos, with STATUS and DETAIL columns and
-optionally additional columns for each perfdata metric if present.
+Usage:
+
+Put 'geneos_wrapper.py' at the front of any nagios plugin command line and it will call the plugin and translate the
+output for you to CSV format for Geneos, with STATUS and DETAIL columns and optionally additional columns for each
+perfdata metric if present.
 
 I decided to write this after I worked for a couple of investment banks that were using Geneos instead of a
 standard Nagios compatible monitoring system as is more common and I wanted to be able to give production support
