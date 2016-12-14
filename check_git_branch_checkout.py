@@ -47,7 +47,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckGitBranchCheckout(NagiosPlugin):
@@ -65,13 +65,13 @@ class CheckGitBranchCheckout(NagiosPlugin):
     def run(self):
         self.no_args()
         directory = self.get_opt('directory')
+        validate_directory(directory)
         directory = os.path.abspath(directory)
         expected_branch = self.get_opt('branch')
-        validate_directory(directory)
         if expected_branch is None:
             self.usage('expected branch not defined')
         if not re.match(r'^[\w-]+$', expected_branch):
-            self.usage('Invalid branch name given, must be alphanumeric')
+            self.usage('Invalid branch name given, must be alphanumeric, may contain dashes')
         log_option('expected branch', expected_branch)
         repo = git.Repo(directory)
         current_branch = repo.active_branch.name
