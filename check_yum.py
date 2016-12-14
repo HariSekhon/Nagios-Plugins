@@ -277,7 +277,7 @@ class YumTester(object):
                 "Loaded plugins: " in output2[0] or \
                 re.search(r'Loading\s+".+"\s+plugin', output2[0])):
             end(WARNING, "Yum output signature does not match current known "  \
-                       + "format. " + support_msg
+                       + "format. " + support_msg)
         number_packages = 0
         if len(output2) == 1:
             # There are no updates but we have passed
@@ -294,7 +294,7 @@ class YumTester(object):
                 raise ValueError
         except ValueError:
             end(UNKNOWN, "Error parsing package information, invalid package " \
-                       + "number, yum output may have changed. " + support_msg
+                       + "number, yum output may have changed. " + support_msg)
 
         # Extra layer of checks. This is a security plugin so it's preferable
         # to fail on error rather than pass silently leaving you with an
@@ -314,7 +314,7 @@ class YumTester(object):
         if count != number_packages:
             end(UNKNOWN, "Error parsing package information, inconsistent "    \
                        + "package count (%d count vs %s num packages)" % (count, number_packages) \
-                       + ", yum output may have changed. " + support_msg
+                       + ", yum output may have changed. " + support_msg)
 
         return number_packages
 
@@ -355,21 +355,21 @@ class YumTester(object):
                 break
 
         if not summary_line_found:
-            end(WARNING, "Cannot find summary line in yum output. " + support_msg
+            end(WARNING, "Cannot find summary line in yum output. " + support_msg)
 
         try:
             number_security_updates = int(number_security_updates)
             number_total_updates = int(number_total_updates)
         except ValueError:
             end(WARNING, "Error parsing package information, yum output " \
-                       + "may have changed. " + support_msg
+                       + "may have changed. " + support_msg)
 
         number_other_updates = number_total_updates - number_security_updates
 
-	from_excluded_regex = re.compile(' from .+ excluded ')
+        from_excluded_regex = re.compile(' from .+ excluded ')
         if len([_ for _ in output if not from_excluded_regex.search(_)]) > number_total_updates + 25:
             end(WARNING, "Yum output signature is larger than current known "  \
-                       + "format. " + support_msg
+                       + "format. " + support_msg)
 
         return number_security_updates, number_other_updates
 
