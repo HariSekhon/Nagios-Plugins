@@ -16,16 +16,13 @@
 
 """
 
-Geneos Wrapper program to convert any Nagios Plugin to Geneos CSV format for immediate re-use of all existing
-Nagios Plugins from the Advanced Nagios Plugins Collection or elsewhere.
+CSV Wrapper program to convert any Nagios Plugin results to CSV format
 
-Usage is simple - just put 'geneos_wrapper.py' at the front of any nagios plugin command line and it will call
-the plugin and translate the output for you to CSV format for Geneos, with STATUS and DETAIL columns and
-optionally additional columns for each perfdata metric if present.
+Usage:
 
-I decided to write this after I worked for a couple of investment banks that were using Geneos instead of a
-standard Nagios compatible monitoring system as is more common and I wanted to be able to give production support
-access to all the code I've previously developed.
+Put 'csv_wrapper.py' at the front of any nagios plugin command line and it will call
+the plugin and translate the output for you to CSV format with STATUS, MESSAGE and
+optionally additional PERF1 ... PERFN columns for each perfdata metric present.
 
 """
 
@@ -55,11 +52,11 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.3.1'
 
 
-class GeneosWrapper(CLI):
+class CSVWrapper(CLI):
 
     def __init__(self):
         # Python 2.x
-        super(GeneosWrapper, self).__init__()
+        super(CSVWrapper, self).__init__()
         # Python 3.x
         # super().__init__()
         # special case to make all following args belong to the passed in command and not to this program
@@ -71,10 +68,10 @@ class GeneosWrapper(CLI):
         for key in ERRORS:
             self.returncodes[ERRORS[key]] = key
         self.perfdata_regex = re.compile(r'(\d+(?:\.\d+)?)([A-Za-z]{1,2}|%)?')
-        self.status = "UNKNOWN"
-        self.detail = "<None>"
+        self._status = 'UNKNOWN'
+        self.message = '<None>'
         self.perfdata = []
-        self.headers = ["STATUS", "DETAIL"]
+        self.headers = ['STATUS', 'MESSAGE']
 
     # @Overrride to prevent injecting the usual default opts
     # update: allowing default opts now as it's handy to have multiple verbosity levels for debugging
@@ -83,20 +80,28 @@ class GeneosWrapper(CLI):
 
     def add_options(self):
         self.add_opt('-s', '--shell', action='store_true',
-                     help='Use Shell to execute args (default: false)')
+                     help='Use Shell to execute nagios plugin command args (default: false)')
+        self.add_opt('-r', '--result', metavar='<exitcode>',
+                     help='Specify exitcode and use args as Nagios Plugin data results ' \
+                        + 'rather than nagios plugin command to execute')
 
     def run(self):
-        cmdline = ' '.join(self.args)
-        if not cmdline:
-            self.usage()
-        self.cmd(cmdline)
-        self.clean_detail()
+        argstr = ' '.join(self.args)
+        if not argstr:
+            self.usage('missing required args for either nagios plugin command to execute or result data')
+        result = self.get_opt('result')
+        if result is not None:
+            self.status = result
+            self.message = argstr
+        else:
+            self.cmd(argstr)
+        self.process_message()
         self.process_perfdata()
         self.output()
 
     #@staticmethod
-    def clean_detail(self):
-        detail = self.detail
+    def process_message(self):
+        detail = self.message
         detail = re.sub(r'\s*(?:[\w\s]+?\s)?(?:OK|WARNING|CRITICAL|UNKNOWN)(?:\s[\w\s]+?)?\s*:\s*', '', detail, 1, re.I)
         if re.search('^Hari Sekhon', detail):
             _ = re.search('^usage:', detail, re.M)
@@ -108,7 +113,26 @@ class GeneosWrapper(CLI):
         detail = re.sub(r'\r', '', detail)
         detail = re.sub(r'\n', r' \\n ', detail)
         detail = re.sub(r',\s*', '... ', detail)
-        self.detail = detail
+        self.message = detail
+
+    @property
+    def status(self):
+        return self._status
+
+    @status.setter
+    def status(self, returncode):
+        try:
+            returncode = int(returncode)
+        except ValueError:
+            pass
+        if returncode in self.returncodes:
+            log.debug("translating exit code '%s' => '%s'", returncode, self.returncodes[returncode])
+            self._status = self.returncodes[returncode]
+        elif returncode in ERRORS:
+            self._status = returncode
+        else:
+            log.info("non-standard exit code detected, resetting to CRITICAL")
+            self._status = "CRITICAL"
 
     def cmd(self, cmdline):
         log.info("cmd: %s", cmdline)
@@ -132,29 +156,24 @@ class GeneosWrapper(CLI):
                 log.debug('detected \'command not found\' when using shell ' +
                           'with not UNKNOWN exit code, resetting to UNKNOWN')
                 returncode = ERRORS['UNKNOWN']
-            if returncode in self.returncodes:
-                log.debug("translating exit code '%s' => '%s'", returncode, self.returncodes[returncode])
-                self.status = self.returncodes[returncode]
-            else:
-                log.info("non-standard exit code detected, resetting to CRITICAL")
-                self.status = "CRITICAL"
-            self.detail = stdout
+            self.status = returncode
+            self.message = stdout
         except subprocess.CalledProcessError as _:
             log.info("subprocess.CalledProcessError, resetting to UNKNOWN")
             self.status = "UNKNOWN"
-            self.detail = str(_)
+            self.message = str(_)
         except OSError as _:
             log.info("OSError, resetting to UNKNOWN")
             self.status = "UNKNOWN"
-            self.detail = "OSError: '{0}' when running '{1}'".format(_, cmdline)
-        if not self.detail:
-            self.detail = '<no output>'
-        log.debug("raw detail: %s", self.detail)
+            self.message = "OSError: '{0}' when running '{1}'".format(_, cmdline)
+        if not self.message:
+            self.message = '<no output>'
+        log.debug("raw detail: %s", self.message)
 
     def process_perfdata(self):
         perfdata_raw = None
-        if '|' in self.detail:
-            self.detail, perfdata_raw = self.detail.split('|', 1)
+        if '|' in self.message:
+            self.message, perfdata_raw = self.message.split('|', 1)
         if perfdata_raw:
             log.debug("raw perfdata: %s", perfdata_raw)
             for item in perfdata_raw.split():
@@ -177,10 +196,10 @@ class GeneosWrapper(CLI):
                         log.warn("no valid numeric value to extract found in perfdata item '%s'", item)
                 else:
                     log.warn("no key=value format detected in item '%s'", item)
-        self.detail = self.detail.strip()
+        self.message = self.message.strip()
 
     def output(self):
-        output = "{status},{detail}".format(status=self.status, detail=self.detail)
+        output = "{status},{message}".format(status=self.status, message=self.message)
         for val in self.perfdata:
             output += ',' + val
         print(','.join(self.headers))
@@ -188,6 +207,6 @@ class GeneosWrapper(CLI):
 
 
 if __name__ == '__main__':
-    GeneosWrapper().main()
+    CSVWrapper().main()
     # Must always exit zero for Geneos otherwise it won't take the output and will show as raw error
     sys.exit(0)
