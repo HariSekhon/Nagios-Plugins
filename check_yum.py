@@ -33,7 +33,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.7.6"
+__version__ = "0.7.7"
 
 # Standard Nagios return codes
 OK = 0
@@ -375,7 +375,8 @@ class YumTester(object):
 
         number_other_updates = number_total_updates - number_security_updates
 
-        if len(output) > number_total_updates + 25:
+	from_excluded_regex = re.compile(' from .+ excluded ')
+        if len([_ for _ in output if not from_excluded_regex.search(_)]) > number_total_updates + 25:
             end(WARNING, "Yum output signature is larger than current known "  \
                        + "format, please make sure you have upgraded to the "  \
                        + "latest version of this plugin. If the problem "      \
