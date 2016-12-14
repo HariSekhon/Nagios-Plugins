@@ -72,7 +72,7 @@ class CheckMKWrapper(CSVWrapper):
 
     def add_options(self):
         self.add_opt('-n', '--name', metavar='<check_name>',
-                     help='Name of the check')
+                     help='Name of the check (defaults to the basename of the plugin)')
         super(CheckMKWrapper, self).add_options()
 
     def process_options(self):
