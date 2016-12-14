@@ -21,7 +21,7 @@ See also: check_yum.py (the original, also part of the Advanced Nagios Plugins C
 Tested on CentOS 5 / 6 / 7
 ";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -161,7 +161,8 @@ sub get_security_updates(){
     }
     defined($number_security_updates) and defined($number_total_updates) or quit "UNKNOWN", "failed to determine the number of security & total updates. Format may have changed. $nagios_plugins_support_msg";
     my $number_other_updates = $number_total_updates - $number_security_updates;
-    if(scalar(@output) > $number_total_updates + 25){
+    my @package_output = grep { $_ !~ / from .+ excluded / } @output;
+    if(scalar(@package_output) > $number_total_updates + 25){
         quit "UNKNOWN", "Yum output signature is larger than current known format. Output format may have changed. $nagios_plugins_support_msg";
     }
     return ($number_security_updates, $number_other_updates);
