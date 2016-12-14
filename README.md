@@ -76,18 +76,21 @@ cd nagios-plugins
 make
 ```
 
-To build just the Perl or Python dependencies for the project you can do ``` make perl ``` or ``` make python ```.
+Some plugins like `check_yum.py` can be copied around independently but most newer more sophisticated plugins require the co-located libraries I've written so you should ```git clone && make``` on each machine you deploy this code to or just use the Docker [pre-built container](https://hub.docker.com/r/harisekhon/nagios-plugins) which has all plugins and dependencies inside.
 
-Don't copy plugins out as most require the co-located libraries I've written so you should ```git clone && make``` on each machine you deploy this code to or just use Docker - it's much simpler.
+You may need to install the GNU make system package if the ` make ` command isn't found (` yum install make ` / ` apt-get install make `)
 
-Be aware the ```make``` build will install yum rpms / apt debs automatically as well as a load of Perl CPAN & Python PyPI libraries. If you don't want all that stuff automatically installed you must follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead. You may need to install the GNU make system package if the ```make``` command isn't found (```yum install make``` / ```apt-get install make```)
+To build just the Perl or Python dependencies for the project you can do ` make perl ` or ` make python `.
 
-Also be aware this has become quite a large project and will take at least 10 minutes to build. Just be glad it's automated and tested on RHEL/CentOS 5/6/7 & Debian/Ubuntu systems. Build will work on Mac OS X too but will not handle system package dependencies.
-<!--
-Make sure /usr/local/bin is in your $PATH when running make as otherwise it'll fail to find ```cpanm```
--->
+If you only want to use one plugin, you can do ` make perl-libs ` or ` make python-libs ` and then just install the potential one or two dependencies specific to that one plugin if it has any, which is much quicker than building the whole project.
 
-This automated build will use 'sudo' to install required Perl CPAN & Python PyPI libraries to the system unless running inside Perlbrew or VirtualEnv. If you want to install some of the common Perl / Python libraries such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN / PyPI then follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead.
+` make ` builds will install yum rpms / apt debs dependencies automatically as well as a load of Perl CPAN & Python PyPI libraries. To pick and choose what to install follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead
+
+This has become quite a large project and will take at least 10 minutes to build. Luckily the build is automated and tested on RHEL/CentOS 5/6/7 & Debian/Ubuntu systems. The automated build will also work on Mac OS X too but will not handle base OS system package dependencies.
+
+Make sure /usr/local/bin is in your $PATH when running make as otherwise it'll fail to find ` cpanm `
+
+The automated build will use 'sudo' to install required Perl CPAN & Python PyPI libraries to the system unless running as root or it detects being inside Perlbrew or VirtualEnv. If you want to install some of the common Perl / Python libraries such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN / PyPI then follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead.
 
 If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.8, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
 
@@ -111,7 +114,6 @@ Make sure to run the [automated build](https://github.com/harisekhon/nagios-plug
 
 ##### Hadoop
 - ```check_hadoop_*.pl``` - various Apache Hadoop monitoring utilities for HDFS, YARN and MapReduce (both MRv1 & MRv2) including HDFS cluster balance, block replication, space, block count limits per datanode / cluster total, node counts, dead Datanodes/TaskTrackers/NodeManagers, blacklisted TaskTrackers, unhealthy NodeManagers, Namenode & JobTracker / Yarn Resource Manager heap usage, NameNode & JobTracker HA, NameNode safe mode, WebHDFS (with HDFS HA failover support), HttpFS, HDFS writeability, HDFS fsck status / last check / run time / max blocks, HDFS file / directory existence & metadata attributes, gather metrics and JMX information
-- ```check_kafka.pl / check_kafka.py``` - checks Kafka brokers end-to-end via API, acts as both a producer and a consumer and checks that a unique generated message passes through the Kafka broker cluster successfully
 - ```check_hbase_*.pl``` - various HBase monitoring utilities using Thrift + Stargate APIs, checking Masters / Backup Masters, RegionServers, table availability (exists, is enabled, and has minimum number of column families), number of expected table regions, unassigned table regions, regions stuck in transition, region count balance across RegionServers, compaction in progress (by table and by regionserver), number of regions in transition, longest current region migration time, hbck status and any inconsistencies, cell content vs optional regex + thresholds, table write and read back of unique generated values with write/read/delete latency checks against all detected column families, table write spray and read back of unique values across all regions for all column families with write/read/delete latency checks, gather metrics
 - ```check_ambari_*.pl``` - Hadoop cluster checks via Hortonworks Ambari API - checks the service status, node(s) status, stale configs, cluster alerts summary, host alerts summary, cluster health report, kerberos enabled, cluster version, service config compatible with stack and cluster
 - ```check_cloudera_manager_*.pl``` - Hadoop cluster checks via Cloudera Manager API - checks states and health of cluster services/roles/nodes, management services, config staleness, Cloudera Enterprise license expiry, Cloudera Manager and CDH cluster versions, utility switches to list clusters/services/roles/nodes as well as list users and their role privileges, fetch a wealth of Hadoop & OS monitoring metrics from Cloudera Manager and compare to thresholds. Disclaimer: I worked for Cloudera, but seriously CM collects an impressive amount of metrics making check_cloudera_manager_metrics.pl alone a very versatile program from which to create hundreds of checks to flexibly alert on
@@ -121,13 +123,20 @@ Make sure to run the [automated build](https://github.com/harisekhon/nagios-plug
 - ```check_zookeeper.pl``` - ZooKeeper server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gather statistics
 - ```check_zookeeper_*znode*.pl``` - ZooKeeper znode checks using ZK Perl API, useful for HBase, Kafka, SolrCloud, Hadoop NameNode HA & JobTracker HA (ZKFC) and any other ZooKeeper based service. Very versatile with multiple optional checks including data vs regex, json field extraction, ephemeral status, child znodes, znode last modified age
 
+Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are available for those proprietary products related to Hadoop.
+
 ##### NoSQL
-- ```check_elasticsearch_*.pl``` - checks Elasticsearch cluster state, shards, replicas, number of nodes & data nodes online, shard and disk % balance between nodes, single node ok, specific node found in cluster state, pending tasks on a node, elasticsearch / lucene versions, per index existence / shards / replicas / settings / age, stats per cluster / index / node
+- ```check_elasticsearch_*.pl``` - Elasticsearch cluster state, shards, replicas, number of nodes & data nodes online, shard and disk % balance between nodes, single node ok, specific node found in cluster state, pending tasks on a node, elasticsearch / lucene versions, per index existence / shards / replicas / settings / age, stats per cluster / index / node
 - ```check_solr*.pl``` - checks for Solr and SolrCloud including API write/read/delete, arbitrary Solr queries vs num matching documents, API ping, Solr Core Heap / Index Size / Number of Docs for a given Solr Collection, and thresholds in ms against all Solr API operations as well as perfdata for graphing, as well as SolrCloud ZooKeeper content checks for collection shards and replicas states, number of live nodes in SolrCloud cluster, overseer, SolrCloud config and Solr metrics.
 - ```check_cassandra_*.pl / check_datastax_opscenter_*.pl``` - Cassandra and DataStax OpsCenter monitoring, including Cassandra cluster nodes, token balance, space, heap, keyspace replication settings, alerts, backups, best practice rule checks, DSE hadoop analytics service status and both nodetool and DataStax OpsCenter collected metrics
-- ```check_memcached_*.pl``` - check Memcached API writes/reads/deletes with timings, check specific key's value against regex or value range, number of current connections, gather statistics
-- ```check_riak_*.pl``` - check Riak API writes/reads/deletes with timings, check a specific key's value against regex or value range, check all riak diagnostics, check node states, check all nodes agree on ring status, gather statistics, alert on any single stat
-- ```check_redis_*.pl``` - check Redis API writes/reads/deletes with timings, check specific key's value against regex or value range, replication slaves I/O, replicated writes (write on master -> read from slave), publish/subscribe, connected clients, validate redis.conf against running server to check deployments or remote compliance checks, gather statistics, alert on any single stat
+- ```check_memcached_*.pl``` - Memcached API writes/reads/deletes with timings, check specific key's value against regex or value range, number of current connections, gather statistics
+- ```check_riak_*.pl``` - Riak API writes/reads/deletes with timings, check a specific key's value against regex or value range, check all riak diagnostics, check node states, check all nodes agree on ring status, gather statistics, alert on any single stat
+- ```check_redis_*.pl``` - Redis API writes/reads/deletes with timings, check specific key's value against regex or value range, replication slaves I/O, replicated writes (write on master -> read from slave), publish/subscribe, connected clients, validate redis.conf against running server to check deployments or remote compliance checks, gather statistics, alert on any single stat
+
+##### Publish - Subscribe / Message Queues
+These programs check these message brokers end-to-end via their API, by acting as both a producer and a consumer and checking that a unique generated message passes through the broker cluster and is received by the consumer at the other side successfully. They report the publish, consumer and total timings taken, against which thresholds can be applied, and are also available as perfdata for graphing.
+- `check_kafka.pl / check_kafka.py` - Kafka brokers API read & write with configurable topics/partition and producer behaviour for acks, sleep, retries, backoff, can also lists topics and partitions
+- `check_redis_publish_subscribe.pl` - Redis publish-subscribe API writes, reads with configurable subscriber wait
 
 ##### Infrastructure
 - ```check_ssl_cert.pl``` - SSL expiry, chain of trust (including intermediate certs important for certain mobile devices), SNI, domain, wildcard and multi-domain support validation
@@ -142,10 +151,11 @@ Make sure to run the [automated build](https://github.com/harisekhon/nagios-plug
 - ```check_mysql_query.pl``` - generic enough it obsoleted a dozen custom MySQL plugins and prevented writing many more
 - ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline
 - `check_linux_*` - checks RAM used, CPU context switches, system file descriptors, interface errors / promiscous mode / duplex / speed / MTU / stats, load normalized per CPU core (more useful than the default check_load plugin which would need different configs for heterogenous hardware), timezone settings, users / groups present (eg. PAM/LDAP integration is working), duplicate UID/GIDs (helps detects rogue uid 0 accounts and more common LDAP vs local id range overlap misconfigurations), groups.allow contains only specific groups
+- `older/check_*raid.py` - RAID controller / array checks for 3ware, LSI MegaRaid / Dell PERC controllers (they're rebranded from LSI), and Linux software MD Raid. I also recommend the widely used [Dell OpenManage Check](http://folk.uio.no/trondham/software/check_openmanage.html)
 - `check_ssh_login.pl` - performs a full SSH login with username & password, good for testing your Dell DRAC / HP iLO infrastructure is properly secured and accessible. Also works for your Linux servers and even Mac OSX
 - ```check_travis_ci_last_build.py``` - checks the last build status of a given Travis CI repo showing build number, build duration with optional thresholds, start/stop date/time, if there are currently any builds in progress and perfdata for graphing last build time and number of builds in progress. Verbose mode gives the commit details as well such as commit id and message
 - `check_*_version*` - checks running versions of software, primarily written to detect version inconsistency across clusters of servers and failed/partial upgrades across large automated infrastructures, as well as containerized images are using the versions we expect, which is also used to validate which versions of software programs in this repo are tested against. `check_cluster_version.pl` can be used to tie together versions returned from many different servers (by passing it their outputs via Nagios macros) to ensure a cluster is all running the same version of software even if you don't enforce a particular `--expected` version on individual systems
-- ```check_yum.py / check_yum.pl``` - widely used yum security updates checker for RHEL 5 - 7 systems dating back to 2008. You'll find forks of this around including NagiosExchange but please re-unify on this central updated version. Also has a Perl version which is a newer straight port with nicer more concise code and better library backing as well as configurable self-timeout.
+- ```check_yum.py / check_yum.pl``` - widely used yum security updates checker for RHEL 5 - 7 systems dating back to 2008. You'll find forks of this around including NagiosExchange but please re-unify on this central updated version. Also has a Perl version which is a newer straight port with nicer more concise code and better library backing as well as configurable self-timeout. For those running Debian-based systems like Ubuntu see `check_apt` from the `nagios-plugins-basic` package.
 
 ... and there are many more.
 
@@ -175,12 +185,12 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - consistent behaviour
 - standardized switches
 - strict input/output validation at all stages, written for security and robustness
-- multiple verbosity levels & debug mode
-- thresholds with flexible ranges in form of minimum:maximum (`@` prefix inverts to expect value outside of this range)
-- self-timeouts
-- graphing data where appropriate ([PNP4Nagios](https://docs.pnp4nagios.org/) add-on auto-graphs the perfdata from these plugins)
 - code reuse, especially for more complex input/output validations and error handling
+- multiple `--verbose` levels & `--debug` mode
+- `--warning/--critical` thresholds with range support, in form of `min:max` (`@` prefix inverts to expect value outside of this range)
 - support for use of $USERNAME and $PASSWORD environment variables as well as more specific overrides (eg. $MYSQL_USERNAME, $REDIS_PASSWORD) to give administrators the option to avoid leaking ```--password``` credentials in the process list for all users to see
+- self-timeouts
+- graph data ([PNP4Nagios](https://docs.pnp4nagios.org/) add-on auto-graphs the perfdata from these plugins)
 - [continuous integration](https://travis-ci.org/HariSekhon/nagios-plugins) with tests for success and failure scenarios:
   - unit tests for the custom supporting [perl](https://github.com/harisekhon/lib) and [python](https://github.com/harisekhon/pylib) libraries
   - [functional tests](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) for the top level programs using [Dockerized containers](https://hub.docker.com/u/harisekhon/) for each technology (eg. Cassandra, Elasticsearch, Hadoop, HBase, ZooKeeper, Memcached, Neo4j, MongoDB, MySQL, Riak, Redis...)
@@ -190,7 +200,9 @@ Several plugins have been merged together and replaced with symlinks to the unif
 
 Some plugins such as those relating to Redis and Couchbase also have different modes and expose different options when called as different program names, so those symlinks are not just cosmetic. An example of this is write replication, which exposes extra options to read from a slave after writing to the master to check that replication is 100% working.
 
-ePN optimization is not supported at this time by any of the plugins as I ran 13,000 checks per Nagios server years ago without ePN optimization - it's not worth the effort.
+Perl ePN optimization is not supported at this time as I was running 13,000 production checks per Nagios server years ago (circa 2010) without ePN optimization - it's not worth the effort and isn't available in any of the other languages anyway.
+
+Python plugins are all pre-byte-compiled as part of the automated build.
 
 ##### Contributions #####
 
@@ -399,12 +411,15 @@ The following enterprise monitoring systems are compatible with this project:
 * [Nagios](https://www.nagios.org/) - the original widely used open source monitoring system that set the standard
   * [Nagios Command Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command)
   * [Nagios Service Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service)
+  * [NRPE - Nagios Remote Plugin Executor](https://assets.nagios.com/downloads/nagioscore/docs/nrpe/NRPE.pdf) (use this for plugins that check the local system eg. `check_linux*.py` / `older/check_*raid*.py` rather than query network services like NoSQL datastores)
 
 * [Icinga](https://www.icinga.org/) - a newer alternative to classic Nagios
 
 * [Sensu](https://sensuapp.org/) - another modern Nagios compatible alternative
 
 * [Shinken](http://www.shinken-monitoring.org/) - a Nagios core reimplementation in Python
+
+* [Check_MK](http://mathias-kettner.com/check_mk.html) - Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html)
 
 * [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program.
 
