@@ -102,7 +102,8 @@ class CSVWrapper(CLI):
     #@staticmethod
     def process_message(self):
         message = self.message
-        message = re.sub(r'\s*(?:[\w\s]+?\s)?(?:OK|WARNING|CRITICAL|UNKNOWN)(?:\s[\w\s]+?)?\s*:\s*', '', message, 1, re.I)
+        message = re.sub(r'\s*(?:[\w\s]+?\s)?(?:OK|WARNING|CRITICAL|UNKNOWN)(?:\s[\w\s]+?)?\s*:\s*',
+                         '', message, 1, re.I)
         if re.search('^Hari Sekhon', message):
             _ = re.search('^usage:', message, re.M)
             if _:
@@ -132,7 +133,8 @@ class CSVWrapper(CLI):
             self._status = returncode
         else:
             log.info("non-standard exit code detected, resetting to CRITICAL")
-            self._status = "CRITICAL"
+            # this is a property that can handle either type not a real variable
+            self._status = "CRITICAL"  # pylint: disable=redefined-variable-type
 
     def cmd(self, cmdline):
         log.info("cmd: %s", cmdline)
@@ -160,7 +162,8 @@ class CSVWrapper(CLI):
             self.message = stdout
         except subprocess.CalledProcessError as _:
             log.info("subprocess.CalledProcessError, resetting to UNKNOWN")
-            self.status = "UNKNOWN"
+            # this is a property that can handle either type not a real variable
+            self.status = "UNKNOWN"  # pylint: disable=redefined-variable-type
             self.message = str(_)
         except OSError as _:
             log.info("OSError, resetting to UNKNOWN")
