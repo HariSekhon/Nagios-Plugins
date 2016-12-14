@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.1'
+__version__ = '0.4'
 
 
 class CSVWrapper(CLI):
@@ -74,6 +74,7 @@ class CSVWrapper(CLI):
         self.message = '<None>'
         self.perfdata = []
         self.headers = ['STATUS', 'MESSAGE']
+        self.separator = ','
 
     # @Overrride to prevent injecting the usual default opts
     # update: allowing default opts now as it's handy to have multiple verbosity levels for debugging
@@ -136,7 +137,7 @@ class CSVWrapper(CLI):
         else:
             log.info("non-standard exit code detected, resetting to CRITICAL")
             # this is a property that can handle either type not a real variable
-            self._status = "CRITICAL"  # pylint: disable=redefined-variable-type
+            self._status = 'UNKNOWN'  # pylint: disable=redefined-variable-type
 
     def cmd(self, cmdline):
         log.info("cmd: %s", cmdline)
@@ -184,8 +185,6 @@ class CSVWrapper(CLI):
             for item in perfdata_raw.split():
                 if '=' in item:
                     header, data = item.split('=', 1)
-                    header = header.strip('"')
-                    header = header.strip('"')
                     data = data.split(';')[0]
                     match = self.perfdata_regex.search(data)
                     if match:
@@ -195,6 +194,9 @@ class CSVWrapper(CLI):
                             units = match.group(2)
                             log.debug("found units '%s' in item '%s'", units, item)
                             header += " ({0})".format(units)
+                        header = header.strip('"')
+                        header = header.strip("'")
+                        header = header.replace(self.separator, '_')
                         self.headers += [header.upper()]
                         self.perfdata += [val]
                     else:
@@ -206,8 +208,8 @@ class CSVWrapper(CLI):
     def output(self):
         output = "{status},{message}".format(status=self.status, message=self.message)
         for val in self.perfdata:
-            output += ',' + val
-        print(','.join(self.headers))
+            output += self.separator + val
+        print(self.separator.join(self.headers))
         print(output)
 
 
