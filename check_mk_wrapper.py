@@ -16,7 +16,7 @@
 
 """
 
-Wrapper program to convert any Nagios Plugin to Check MK format for immediate re-use of all existing
+Wrapper program to convert any Nagios Plugin to Check MK local check format for immediate re-use of all existing
 Nagios Plugins from the Advanced Nagios Plugins Collection or elsewhere.
 
 Usage:
@@ -32,9 +32,13 @@ message | perfdata
 
 statuscode is the exit code
 
-Check MK format:
+Check MK format (http://mathias-kettner.de/checkmk_localchecks.html):
 
 statuscode name perfdata message
+
+Since the format of Check MK local checks doesn't permit spaces in anything except the final message data, any spaces
+in the check name or perfdata will be changed to underscores and multiple perfdata items will result in multiple lines
+of output to separate out each perfdata item one per line
 
 """
 
@@ -44,6 +48,7 @@ from __future__ import print_function
 #from __future__ import unicode_literals
 
 import os
+import re
 import sys
 import traceback
 srcdir = os.path.abspath(os.path.dirname(__file__))
@@ -51,14 +56,14 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import ERRORS, isFloat
+    from harisekhon.utils import log, ERRORS, isFloat
     from csv_wrapper import CSVWrapper
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckMKWrapper(CSVWrapper):
@@ -69,6 +74,7 @@ class CheckMKWrapper(CSVWrapper):
         # Python 3.x
         # super().__init__()
         self.name = None
+        self.space_regex = re.compile(r'\s+')
 
     def add_options(self):
         self.add_opt('-n', '--name', metavar='<check_name>',
@@ -88,6 +94,8 @@ class CheckMKWrapper(CSVWrapper):
                     break
         if not self.name:
             self.usage('--name not defined')
+        self.name = self.space_regex.sub('_', self.name)
+        log.info('name = %s', self.name)
 
     # handles if you call plugin with explicit numbered interpreter eg. python2.7 etc...
     @staticmethod
@@ -98,10 +106,17 @@ class CheckMKWrapper(CSVWrapper):
         return False
 
     def output(self):
-        output = '"{status}" "{name}" "{perfdata}" "{message}"'\
-                 .format(status=self.status,
+        perfdata = ""
+        for key, val in zip(self.headers[2:], self.perfdata):
+            perfdata += '{key}={val}|'.format(key=self.space_regex.sub('_', key),
+                                              val=val)
+        perfdata = perfdata.rstrip('|')
+        if not perfdata:
+            perfdata = '-'
+        output = '{status} {name} {perfdata} {message}'\
+                 .format(status=ERRORS[self.status],
                          name=self.name,
-                         perfdata=' '.join(self.perfdata),
+                         perfdata=perfdata,
                          message=self.message)
         print(output)
 
