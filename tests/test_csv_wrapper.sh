@@ -71,6 +71,8 @@ hr
 hr
 ./csv_wrapper.py --shell exit 3 | tee /dev/stderr | grep -q "^UNKNOWN,"
 hr
+./csv_wrapper.py --shell exit 5 | tee /dev/stderr | grep -q "^UNKNOWN,"
+hr
 ./csv_wrapper.py nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q "^UNKNOWN,"
 hr
 ./csv_wrapper.py --shell nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q "^UNKNOWN,"
