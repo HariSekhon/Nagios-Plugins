@@ -101,19 +101,19 @@ class CSVWrapper(CLI):
 
     #@staticmethod
     def process_message(self):
-        detail = self.message
-        detail = re.sub(r'\s*(?:[\w\s]+?\s)?(?:OK|WARNING|CRITICAL|UNKNOWN)(?:\s[\w\s]+?)?\s*:\s*', '', detail, 1, re.I)
-        if re.search('^Hari Sekhon', detail):
-            _ = re.search('^usage:', detail, re.M)
+        message = self.message
+        message = re.sub(r'\s*(?:[\w\s]+?\s)?(?:OK|WARNING|CRITICAL|UNKNOWN)(?:\s[\w\s]+?)?\s*:\s*', '', message, 1, re.I)
+        if re.search('^Hari Sekhon', message):
+            _ = re.search('^usage:', message, re.M)
             if _:
                 log.debug('stripping off my extended plugin description header up to usage: options line' +
                           'to make it more obvious that a usage error has occurred')
-                detail = detail[_.start():]
-        detail = detail.rstrip('\n')
-        detail = re.sub(r'\r', '', detail)
-        detail = re.sub(r'\n', r' \\n ', detail)
-        detail = re.sub(r',\s*', '... ', detail)
-        self.message = detail
+                message = message[_.start():]
+        message = message.rstrip('\n')
+        message = re.sub(r'\r', '', message)
+        message = re.sub(r'\n', r' \\n ', message)
+        message = re.sub(r',\s*', '... ', message)
+        self.message = message
 
     @property
     def status(self):
