@@ -49,8 +49,11 @@ hr
 hr
 ./geneos_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^*/{print $2}')"
 hr
-echo "Testing failure detection of wrong git branch"
-./geneos_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch
+echo "Testing failure detection of wrong git branch (perl)"
+./geneos_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch | tee /dev/stderr | grep -q '^CRITICAL,'
+hr
+echo "Testing failure detection of wrong git branch (python)"
+./geneos_wrapper.py ./check_git_branch_checkout.py -d . -b nonexistentbranch | tee /dev/stderr | grep -q '^CRITICAL,'
 hr
 echo test > test.txt
 ./geneos_wrapper.py $perl -T ./check_file_md5.pl -f test.txt -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
