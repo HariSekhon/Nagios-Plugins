@@ -29,9 +29,21 @@ echo "
 
 # Try to make these local tests with no dependencies for simplicity
 
-./geneos_wrapper.py echo 'test detail | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
+./geneos_wrapper.py echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^OK,'
 hr
-./geneos_wrapper.py --shell "echo 'test detail | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'"
+./geneos_wrapper.py --shell --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000 | tee /dev/stderr | grep -q '^OK,'
+hr
+./geneos_wrapper.py --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000 --shell | tee /dev/stderr | grep -q '^OK,'
+hr
+./geneos_wrapper.py --result 1 'test 1 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^WARNING,'
+hr
+./geneos_wrapper.py --result 2 'test 2 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^CRITICAL,'
+hr
+./geneos_wrapper.py --result 3 'test 3 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^UNKNOWN,'
+hr
+./geneos_wrapper.py --result 4 'test 4 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^DEPENDENT,'
+hr
+./geneos_wrapper.py --shell "echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'" | tee /dev/stderr | grep -q '^OK,'
 hr
 ./geneos_wrapper.py $perl -T ./check_disk_write.pl -d .
 hr
