@@ -16,7 +16,7 @@ version: '2.1'
 services:
   alpine-github:
     extends:
-      file: common-docker-compose.yml
+      file: common.yml
       service: common
     image: harisekhon/alpine-github:${VERSION:-latest}
     command: tail -f /dev/null
