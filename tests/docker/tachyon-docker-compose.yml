@@ -16,7 +16,7 @@ version: '2.1'
 services:
   tachyon:
     extends:
-      file: common-docker-compose.yml
+      file: common.yml
       service: common
     image: harisekhon/tachyon:${VERSION:-latest}
     ports:
