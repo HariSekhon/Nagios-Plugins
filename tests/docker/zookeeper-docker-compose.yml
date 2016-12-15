@@ -16,7 +16,7 @@ version: '2.1'
 services:
   zookeeper:
     extends:
-      file: common-docker-compose.yml
+      file: common.yml
       service: common
     image: harisekhon/zookeeper-dev:${VERSION:-latest}
     ports:
