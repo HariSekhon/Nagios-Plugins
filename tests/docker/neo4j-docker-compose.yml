@@ -16,7 +16,7 @@ version: '2.1'
 services:
   neo4j:
     extends:
-      file: common-docker-compose.yml
+      file: common.yml
       service: common
     image: neo4j:${VERSION:-latest}
     ports:
