@@ -16,19 +16,11 @@ version: '2.1'
 services:
   rabbitmq:
     extends:
-      file: common-docker-compose.yml
-      service: common
-    image: rabbitmq:${VERSION:-latest}
-    ports:
-      - 5672
-      - 15672
+      file: rabbitmq-common.yml
+      service: rabbitmq-common
     links:
       - rabbitmq2
   rabbitmq2:
     extends:
-      file: common-docker-compose.yml
-      service: common
-    image: rabbitmq:${VERSION:-latest}
-    ports:
-      - 5672
-      - 15672
+      file: rabbitmq-common.yml
+      service: rabbitmq-common
