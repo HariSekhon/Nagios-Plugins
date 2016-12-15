@@ -16,9 +16,11 @@ version: '2.1'
 services:
   kafka:
     extends:
-      file: common-docker-compose.yml
+      file: common.yml
       service: common
     image: harisekhon/kafka:${VERSION:-latest}
     ports:
       - 2181
       - 9092
+    environment:
+      - ADVERTISED_HOSTNAME=$ADVERTISED_HOSTNAME
