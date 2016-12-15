@@ -18,7 +18,7 @@ services:
     extends:
       file: common.yml
       service: common
-    image: rabbitmq:${VERSION:-latest}
+    image: rabbitmq:${VERSION:-management}
     environment:
       # quotes here break RabbitMQ startup:
       # could not start kernel pid (application_controller) (error in config file "/etc/rabbitmq/rabbitmq.config" (5): syntax error before: rabbituser)
