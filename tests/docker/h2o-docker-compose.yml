@@ -16,7 +16,7 @@ version: '2.1'
 services:
   h2o:
     extends:
-      file: common-docker-compose.yml
+      file: common.yml
       service: common
     image: harisekhon/h2o:${VERSION:-latest}
     ports:
