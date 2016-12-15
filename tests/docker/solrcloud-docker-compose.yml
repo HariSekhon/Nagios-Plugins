@@ -16,7 +16,7 @@ version: '2.1'
 services:
   solrcloud:
     extends:
-      file: common-docker-compose.yml
+      file: common.yml
       service: common
     # using my own Docker images now as official solr doesn't have builds < 5
     image: harisekhon/solrcloud-dev:${VERSION:-latest}
