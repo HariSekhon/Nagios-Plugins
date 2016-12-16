@@ -3,7 +3,7 @@
 #  Date: Fri May 22 09:48:39 UTC 2015
 #
 
-name: Advanced Nagios Plugins Collection (Hadoop, Kafka, Redis, Cassandra, Elasticsearch, Solr, HBase, ZooKeeper, MongoDB, MySQL, Linux, Memcached, Neo4j, Travis CI, SSL Certs, Security Updates, Whois expiry, Cloudera, Hortonworks, MapR, HDFS, YARN, Impala, Mesos, Riak, DNS for your public NS / MX records)
+name: Hadoop, Kafka, Redis, Elasticsearch, Solr, HBase, Cassandra & DataStax OpsCenter, MongoDB, MySQL, Riak, Memcached, Couchbase, HDFS, Yarn, Impala, Apache Drill, ZooKeeper, Consul, Mesos, Spark, Cloudera, Hortonworks, MapR, IBM BigInsights, Neo4j, Travis CI, Infrastructure - Linux, DNS, Whois, SSL Certs, Yum Security Updates. Products: Datameer, H2O, WanDisco, Zaloni
 description: "file:///README.md"
 url: "https://github.com/harisekhon/nagios-plugins"
 type: Plugin
