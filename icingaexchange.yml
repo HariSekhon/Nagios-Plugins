@@ -3,7 +3,7 @@
 #  Date: Fri May 22 09:48:39 UTC 2015
 #
 
-name: Hadoop, Kafka, Redis, Elasticsearch, Solr, HBase, Cassandra & DataStax OpsCenter, MongoDB, MySQL, Riak, Memcached, Couchbase, HDFS, Yarn, Impala, Apache Drill, ZooKeeper, Consul, Mesos, Spark, Cloudera, Hortonworks, MapR, IBM BigInsights, Neo4j, Travis CI, Infrastructure - Linux, DNS, Whois, SSL Certs, Yum Security Updates. Products: Datameer, H2O, WanDisco, Zaloni
+name: Hadoop, Kafka, Redis, Elasticsearch, Solr, HBase, Cassandra, MongoDB, MySQL, Riak, Memcached, Couchbase, HDFS, Yarn, ZooKeeper, Consul, Mesos, Spark, Cloudera, Hortonworks, MapR, Neo4j, Travis CI, Linux, DNS, Whois, SSL Certs, Yum Security Updates
 description: "file:///README.md"
 url: "https://github.com/harisekhon/nagios-plugins"
 type: Plugin
