@@ -3,7 +3,9 @@
 #  Date: Fri May 22 09:48:39 UTC 2015
 #
 
-name: Hadoop, Kafka, Redis, Elasticsearch, Solr, HBase, Cassandra, MongoDB, MySQL, Riak, Memcached, Couchbase, HDFS, Yarn, ZooKeeper, Consul, Mesos, Spark, Cloudera, Hortonworks, MapR, Neo4j, Travis CI, Linux, DNS, Whois, SSL Certs, Yum Security Updates
+# must match the Icinga Project Name
+#name: Hadoop, Kafka, Redis, Elasticsearch, Solr, HBase, Cassandra, MongoDB, MySQL, Riak, Memcached, Couchbase, HDFS, Yarn, ZooKeeper, Consul, Mesos, Spark, Cloudera, Hortonworks, MapR, Neo4j, Travis CI, Linux, DNS, Whois, SSL Certs, Yum Security Updates
+name: Advanced Nagios Plugins Collection (NoSQL, Hadoop, Redis, Cassandra, Elasticsearch, Solr, MySQL, Linux, HBase, MongoDB etc)
 description: "file:///README.md"
 url: "https://github.com/harisekhon/nagios-plugins"
 type: Plugin
