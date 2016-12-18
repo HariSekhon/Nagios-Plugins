@@ -81,26 +81,26 @@ test_kafka(){
     # TODO: use ENV
     set +e
     ./check_kafka.py -B $KAFKA_HOST -v --list-topics
-    [ $? -eq 3 ] || exit 1
+    check_exit_code 3
     hr
     ./check_kafka.py -B $KAFKA_HOST -v -T "$KAFKA_TOPIC" --list-partitions
-    [ $? -eq 3 ] || exit 1
+    check_exit_code 3
     hr
     ./check_kafka.py -B $KAFKA_HOST -v --list-partitions
-    [ $? -eq 3 ] || exit 1
+    check_exit_code 3
     set -e
     hr
     ./check_kafka.py -B $KAFKA_HOST -T "$KAFKA_TOPIC" -v
     hr
     set +e
     $perl -T ./check_kafka.pl -v --list-topics
-    [ $? -eq 3 ] || exit 1
+    check_exit_code 3
     hr
     $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions
-    [ $? -eq 3 ] || exit 1
+    check_exit_code 3
     hr
     $perl -T ./check_kafka.pl -v --list-partitions
-    [ $? -eq 3 ] || exit 1
+    check_exit_code 3
     set -e
     hr
     $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
