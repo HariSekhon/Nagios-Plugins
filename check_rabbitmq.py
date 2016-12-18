@@ -27,6 +27,16 @@ Total time includes setup, connection and message timings etc.
 
 Makes thorough use of the API checks at every stage through the code to be as robust as possible to detecting issues.
 
+Important Usage Notes:
+
+1. If a Queue + Exchange are both specified, then both will be created if not already existing and the queue will be
+   bound to the exchange.
+2. Queues and Exchange creation will fail if they already exist with different parameters
+3. Queue + Exchange options should be used by advanced users only - depending on your deployment you could end up
+   building up surplus messages in the queue, occupying increasing amounts of RAM.
+4. Beginners should omit --queue and --exchange options and just use the temporary auto-generated queue on the nameless
+   exchange to avoid building up messages in RAM.
+
 Tested on RabbitMQ 3.6.6
 
 """
@@ -50,7 +60,7 @@ libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, log_option, CriticalError, UnknownError
+    from harisekhon.utils import log, log_option, CriticalError, UnknownError, getenvs
     from harisekhon.utils import validate_host, validate_port, validate_user, validate_password, \
                                  validate_int, validate_chars
     from harisekhon import PubSubNagiosPlugin
@@ -59,7 +69,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckRabbitMQ(PubSubNagiosPlugin):
@@ -120,19 +130,23 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
         self.add_hostoption(default_host=self.default_host, default_port=self.default_port)
         self.add_useroption(default_user=self.default_user, default_password=self.default_password)
         self.add_opt('-S', '--use-ssl', action='store_true', help='Use SSL connection')
-        self.add_opt('-O', '--vhost', default=self.default_vhost,
-                     help='{name} Vhost to connect to (default: {default_vhost})'\
+        self.add_opt('-O', '--vhost', default=getenvs('RABBITMQ_VHOST', default=self.default_vhost),
+                     help='{name} Vhost to connect to ($RABBITMQ_VHOST, default: {default_vhost})'\
                           .format(name=self.name, default_vhost=self.default_vhost))
-        self.add_opt('-E', '--exchange', default=self.default_exchange,
-                     help='Exchange to use (default: {default_exchange}, \'\' uses the nameless exchange)'\
-                          .format(default_exchange=self.default_exchange))
-        self.add_opt('-T', '--exchange-type', default=self.default_exchange_type,
-                     help='Exchange type to use (default: {default_exchange_type})'\
+        self.add_opt('-E', '--exchange', default=getenvs('RABBITMQ_EXCHANGE', default=self.default_exchange),
+                     help='Exchange to use ($RABBITMQ_EXCHANGE, default: {default_exchange}, '\
+                          .format(default_exchange=self.default_exchange) + "blank uses the nameless exchange)")
+        self.add_opt('-T', '--exchange-type', default=getenvs('RABBITMQ_EXCHANGE_TYPE',
+                                                              default=self.default_exchange_type),
+                     help='Exchange type to use ($RABBITMQ_EXCHANGE_TYPE, default: {default_exchange_type})'\
                           .format(default_exchange_type=self.default_exchange_type))
-        self.add_opt('-Q', '--queue', default=self.default_queue,
-                     help='Queue to use (default: {0}, auto-generated if None)'.format(self.default_queue))
-        self.add_opt('-R', '--routing-key', help='Routing Key to use when publishing unique test message ' + \
-                                                 'to exchange (defaults to same as queue name)')
+        self.add_opt('-Q', '--queue', default=getenvs('RABBITMQ_QUEUE', default=self.default_queue),
+                     help='Queue to create and bind to exchange ($RABBITMQ_QUEUE, ' + \
+                          'default: {default_queue}, auto-generated if not supplied)'.\
+                          format(default_queue=self.default_queue))
+        self.add_opt('-R', '--routing-key', default=getenvs('RABBITMQ_ROUTING_KEY', default=None),
+                     help='Routing Key to use when publishing unique test message ' + \
+                          'to exchange ($RABBITMQ_ROUTING_KEY, defaults to same as queue name if not supplied)')
         #self.add_opt('-N', '--no-ack', action='store_true', default=self.default_no_ack,
         #             help='Do not use acknowledgements')
         self.add_opt('--non-durable', action='store_true',
@@ -168,19 +182,23 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
         validate_password(self.password)
         self.vhost = self.get_opt('vhost')
         self.vhost = self.vhost if self.vhost else '/'
-        validate_chars(self.vhost, 'vhost', r'\w_-')
+        validate_chars(self.vhost, 'vhost', r'/\w_-')
         self.exchange = self.get_opt('exchange')
         if self.exchange:
             validate_chars(self.exchange, 'exchange', r'\w_-')
+        else:
+            log_option('exchange', self.exchange)
         self.exchange_type = self.get_opt('exchange_type')
         if self.exchange_type:
             if self.exchange_type not in self.valid_exchange_types:
                 self.usage('invalid --exchange-type given, expected one of: {valid_exchange_types}'\
                            .format(valid_exchange_types=', '.join(self.valid_exchange_types)))
-            log_option('exchange type', self.exchange_type)
+        log_option('exchange type', self.exchange_type)
         self.queue = self.get_opt('queue')
         if self.queue:
             validate_chars(self.queue, 'queue', r'\w_-')
+        else:
+            log_option('queue', self.queue)
         self.routing_key = self.get_opt('routing_key')
         if not self.routing_key:
             self.routing_key = self.queue
@@ -292,11 +310,13 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
             # auto-generate uniq queue, durable flag is ignored for exclusive
             result = self.channel.queue_declare(exclusive=True)
             self.queue = result.method.queue
+            self.routing_key = self.queue
         log.info('was assigned unique exclusive queue: %s', self.queue)
         if self.exchange:
             log.info("declaring exchange: '%s', type: '%s'", self.exchange, self.exchange_type)
             self.channel.exchange_declare(exchange=self.exchange,
                                           type=self.exchange_type)
+            # if using nameless exchange this isn't necessary as routing key will send to queue
             log.info("binding queue '%s' to exchange '%s'", self.queue, self.exchange)
             self.channel.queue_bind(exchange=self.exchange,
                                     queue=self.queue)
