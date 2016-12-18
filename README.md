@@ -126,7 +126,7 @@ Make sure to run the [automated build](https://github.com/harisekhon/nagios-plug
 - ```check_zookeeper.pl``` - ZooKeeper server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gather statistics
 - ```check_zookeeper_*znode*.pl``` - ZooKeeper znode checks using ZK Perl API, useful for HBase, Kafka, SolrCloud, Hadoop NameNode HA & JobTracker HA (ZKFC) and any other ZooKeeper based service. Very versatile with multiple optional checks including data vs regex, json field extraction, ephemeral status, child znodes, znode last modified age
 
-plus Attivio, Blue Talon, Datameer, Platfora, Zaloni (proprietary products related to Hadoop).
+Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for those proprietary products related to Hadoop.
 
 ##### NoSQL
 - ```check_elasticsearch_*.pl``` - Elasticsearch cluster state, shards, replicas, number of nodes & data nodes online, shard and disk % balance between nodes, single node ok, specific node found in cluster state, pending tasks on a node, elasticsearch / lucene versions, per index existence / shards / replicas / settings / age, stats per cluster / index / node
