@@ -80,27 +80,33 @@ test_kafka(){
     hr
     # TODO: use ENV
     set +e
-    ./check_kafka.py -B $KAFKA_HOST -v --list-topics
+    ./check_kafka.py -B "$KAFKA_HOST" -v --list-topics
     check_exit_code 3
     hr
-    ./check_kafka.py -B $KAFKA_HOST -v -T "$KAFKA_TOPIC" --list-partitions
+    ./check_kafka.py -B "$KAFKA_HOST" -v -T "$KAFKA_TOPIC" --list-partitions
     check_exit_code 3
     hr
-    ./check_kafka.py -B $KAFKA_HOST -v --list-partitions
+    ./check_kafka.py -B "localhost:9999" -v -T "$KAFKA_TOPIC"
+    check_exit_code 2
+    hr
+    ./check_kafka.py -B "$KAFKA_HOST" -v --list-partitions
     check_exit_code 3
     set -e
     hr
-    ./check_kafka.py -B $KAFKA_HOST -T "$KAFKA_TOPIC" -v
+    ./check_kafka.py -B "$KAFKA_HOST" -T "$KAFKA_TOPIC" -v
     hr
     set +e
     $perl -T ./check_kafka.pl -v --list-topics
     check_exit_code 3
     hr
+    $perl -T ./check_kafka.pl -v --list-partitions
+    check_exit_code 3
+    hr
     $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions
     check_exit_code 3
     hr
-    $perl -T ./check_kafka.pl -v --list-partitions
-    check_exit_code 3
+    ./check_kafka.py -B "localhost:9999" -v -T "$KAFKA_TOPIC"
+    check_exit_code 2
     set -e
     hr
     $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
