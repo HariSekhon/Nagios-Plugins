@@ -25,7 +25,7 @@ It's a treasure trove of essentials for every single "DevOp" / sysadmin / engine
 [RabbitMQ](http://www.rabbitmq.com/),
 [Mesos](http://mesos.apache.org/),
 [Consul](https://www.consul.io/)
-and NoSQL technologies ([Cassandra](http://cassandra.apache.org/),
+and NoSQL technologies [Cassandra](http://cassandra.apache.org/),
 [HBase](https://hbase.apache.org/),
 [MongoDB](https://www.mongodb.com/),
 [Memcached](https://memcached.org/),
@@ -34,11 +34,9 @@ and NoSQL technologies ([Cassandra](http://cassandra.apache.org/),
 [Riak](http://basho.com/products/),
 [Solr / SolrCloud](http://lucene.apache.org/solr/),
 [Elasticsearch](https://www.elastic.co/products/elasticsearch)
-...) etc.
+... etc.
 
 Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/harisekhon/nagios-plugins/issues) or [pull requests](https://github.com/harisekhon/nagios-plugins/pulls) (in which case GitHub will give you credit and mark you as a contributor to the project :) ).
-
-This project is freeware (don't sell it) and is intended to always remain a free standard monitoring resource.
 
 Hari Sekhon
 
@@ -93,7 +91,7 @@ If you only want to use one plugin, you can do ` make perl-libs ` or ` make pyth
 
 This has become quite a large project and will take at least 10 minutes to build. The build is automated and tested on RHEL / CentOS 5/6/7 & Debian / Ubuntu systems. The automated build also works on Mac OS X but will not handle basic OS system package dependencies for Mac.
 
-Make sure /usr/local/bin is in your $PATH when running make as otherwise it'll fail to find ` cpanm `
+Make sure /usr/local/bin is in your ` $PATH ` when running make as otherwise it'll fail to find ` cpanm `
 
 The automated build will use 'sudo' to install required Perl CPAN & Python PyPI libraries to the system unless running as root or it detects being inside Perlbrew or VirtualEnv. If you want to install some of the common Perl / Python libraries such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN / PyPI then follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead.
 
