@@ -140,7 +140,7 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
 These programs check these message brokers end-to-end via their API, by acting as both a producer and a consumer and checking that a unique generated message passes through the broker cluster and is received by the consumer at the other side successfully. They report the publish, consumer and total timings taken, against which thresholds can be applied, and are also available as perfdata for graphing.
 - `check_kafka.pl / check_kafka.py` - Kafka brokers API read & write with configurable topics/partition and producer behaviour for acks, sleep, retries, backoff, can also lists topics and partitions
 - `check_redis_publish_subscribe.pl` - Redis publish-subscribe API writes, reads with configurable subscriber wait
-- `check_rabbitmq.py` - RabbitMQ brokers via AMQP API read & write with configurable vhost, exchange, exchange type, queue, routing key, durability, RabbitMQ 'confirms' protocol extension & standard AMQP transactions support, plus timings for publish, consumer and total time, against which thresholds can be applied, and are also available as perfdata for graphing.
+- `check_rabbitmq.py` - RabbitMQ brokers via AMQP API read & write with configurable vhost, exchange, exchange type, queue, routing key, durability, RabbitMQ 'confirms' protocol extension & standard AMQP transactions support, plus timings for publish, consume and total time, against which thresholds can be applied, and are also available as perfdata for graphing.
 <!--
 Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagios-plugins-rabbitmq` package
 -->
