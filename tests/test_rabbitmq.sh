@@ -72,7 +72,9 @@ test_rabbitmq(){
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
-    if [ "$version" = "latest" ]; then
+    version="${version%management}"
+    version="${version%-}"
+    if [ -z "$version" -o "$version" = "latest" ]; then
         local version=".*"
     fi
     hr
