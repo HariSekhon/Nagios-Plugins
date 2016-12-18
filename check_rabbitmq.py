@@ -69,7 +69,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 class CheckRabbitMQ(PubSubNagiosPlugin):
@@ -226,12 +226,12 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
     def check_connection(self):
         log.info('checking connection is still open')
         if not self.conn.is_open:
-            self.quit('CRITICAL', 'connection closed')
+            raise CriticalError('connection closed')
 
     def check_channel(self):
         log.info('checking channel is still open')
         if not self.channel.is_open:
-            self.quit('CRITICAL', 'channel closed')
+            raise CriticalError('channel closed')
 
     @staticmethod
     def connection_blocked_callback(method):
