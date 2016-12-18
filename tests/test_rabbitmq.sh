@@ -38,8 +38,14 @@ export RABBITMQ_HOST
 export RABBITMQ_PORT="${RABBITMQ_PORT:-5672}"
 export RABBITMQ_HTTP_PORT="${RABBITMQ_HTTP_PORT:-15672}"
 
-export RABBITMQ_USER="rabbitmq_user"
-export RABBITMQ_PASSWORD="rabbitmq_password"
+# used by docker-compose config
+export RABBITMQ_DEFAULT_VHOST="nagios-plugins"
+export RABBITMQ_DEFAULT_USER="rabbitmq_user"
+export RABBITMQ_DEFAULT_PASS="rabbitmq_password"
+# used by plugins
+export RABBITMQ_VHOST="$RABBITMQ_DEFAULT_VHOST"
+export RABBITMQ_USER="$RABBITMQ_DEFAULT_USER"
+export RABBITMQ_PASSWORD="$RABBITMQ_DEFAULT_PASS"
 
 check_docker_available
 
@@ -67,14 +73,14 @@ test_rabbitmq(){
         return 0
     fi
     if [ "$version" = "latest" ]; then
-        local version="*"
+        local version=".*"
     fi
     hr
-    ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT"
+    ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" -e "$version"
     hr
     echo "check auth failure for version check"
     set +e
-    ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" -u wronguser
+    ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" -u wronguser -e "$version"
     check_exit_code 2
     set -e
     hr
