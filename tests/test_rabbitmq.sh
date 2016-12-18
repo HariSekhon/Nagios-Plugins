@@ -36,6 +36,7 @@ RABBITMQ_HOST="${RABBITMQ_HOST%%:*}"
 export RABBITMQ_HOST
 
 export RABBITMQ_PORT="${RABBITMQ_PORT:-5672}"
+export RABBITMQ_HTTP_PORT="${RABBITMQ_HTTP_PORT:-15672}"
 
 export RABBITMQ_USER="rabbitmq_user"
 export RABBITMQ_PASSWORD="rabbitmq_password"
@@ -53,8 +54,10 @@ test_rabbitmq(){
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $RABBITMQ_PORT
     VERSION="$version" docker-compose up -d
     rabbitmq_port="`docker-compose port "$DOCKER_SERVICE" "$RABBITMQ_PORT" | sed 's/.*://'`"
+    rabbitmq_http_port="`docker-compose port "$DOCKER_SERVICE" "$RABBITMQ_HTTP_PORT" | sed 's/.*://'`"
     local RABBITMQ_PORT="$rabbitmq_port"
-    when_ports_available "$startupwait" "$RABBITMQ_HOST" "$RABBITMQ_PORT"
+    local RABBITMQ_HTTP_PORT="$rabbitmq_http_port"
+    when_ports_available "$startupwait" "$RABBITMQ_HOST" "$RABBITMQ_PORT" "$RABBITMQ_HTTP_PORT"
     # echo sleeping 30 secs
     #sleep 30
     hr
@@ -67,21 +70,21 @@ test_rabbitmq(){
         local version="*"
     fi
     hr
-    set +e
-    # -T often returns no output, just strip leading escape chars instead
-    #found_version="$(docker-compose exec "$DOCKER_SERVICE" /bin/sh -c 'ls -d /rabbitmq_*' | tail -n1 | tr -d '$\r' | sed 's/.*\/rabbitmq_//; s/\.[[:digit:]]*\.[[:digit:]]*$//')"
-    set -e
-    #if [[ "${found_version//-/_}" != ${version//-/_}* ]]; then
-    #    echo "Docker container version does not match expected version! (found '$found_version', expected '$version')"
-    #    exit 1
-    #fi
+    ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT"
     hr
+    echo "check auth failure for version check"
     set +e
-    ./check_rabbitmq.py -u wronguser -p wrongpassword -v
+    ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" -u wronguser
     check_exit_code 2
     set -e
     hr
     ./check_rabbitmq.py -v
+    hr
+    echo "checking auth failure for message pub-sub"
+    set +e
+    ./check_rabbitmq.py -u wronguser -p wrongpassword -v
+    check_exit_code 2
+    set -e
     hr
     #delete_container
     docker-compose down
