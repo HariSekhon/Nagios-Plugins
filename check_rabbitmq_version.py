@@ -16,7 +16,9 @@
 
 """
 
-Nagios Plugin to check the deployed version of an RabbitMQ matches what's expected via the Managementg REST API
+Nagios Plugin to check the deployed version of an RabbitMQ matches what's expected via the Management REST API
+
+Requires the management plugin to be loaded.
 
 This is also used in the accompanying test suite to ensure we're checking the right version of RabbitMQ
 for compatibility for all my other RabbitMQ nagios plugins.
