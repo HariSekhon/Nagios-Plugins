@@ -16,12 +16,12 @@
 
 """
 
-Nagios Plugin to check the deployed version of an RabbitMQ matches what's expected via the REST API
+Nagios Plugin to check the deployed version of an RabbitMQ matches what's expected via the Managementg REST API
 
 This is also used in the accompanying test suite to ensure we're checking the right version of RabbitMQ
 for compatibility for all my other RabbitMQ nagios plugins.
 
-Tested on Apache RabbitMQ 1.0.3, 1.1.6, 1.2.2
+Tested on RabbitMQ 3.6.6
 
 """
 
@@ -35,11 +35,6 @@ import logging
 import os
 import sys
 import traceback
-try:
-    import requests
-except ImportError:
-    print(traceback.format_exc(), end='')
-    sys.exit(4)
 srcdir = os.path.abspath(os.path.dirname(__file__))
 libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
@@ -48,12 +43,13 @@ try:
     from harisekhon.utils import log, qquit, support_msg_api, jsonpp, \
                                  validate_host, validate_port, validate_user, validate_password
     from harisekhon import VersionNagiosPlugin
+    from harisekhon.request_handler import RequestHandler
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckRabbitMQVersion(VersionNagiosPlugin):
@@ -89,15 +85,7 @@ class CheckRabbitMQVersion(VersionNagiosPlugin):
 
     def get_version(self):
         url = 'http://{host}:{port}/{path}'.format(host=self.host, port=self.port, path=self.url_path)
-        log.debug('GET %s', url)
-        try:
-            req = requests.get(url, auth=(self.user, self.password))
-        except requests.exceptions.RequestException as _:
-            qquit('CRITICAL', _)
-        log.debug("response: %s %s", req.status_code, req.reason)
-        log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
-        if req.status_code != 200:
-            qquit('CRITICAL', '%s %s' % (req.status_code, req.reason))
+        req = RequestHandler().get(url, auth=(self.user, self.password))
         try:
             json_data = json.loads(req.content)
             if log.isEnabledFor(logging.DEBUG):
