@@ -22,6 +22,7 @@ Most enterprise monitoring systems come with basic generic checks, while this pr
 It's a treasure trove of essentials for every single "DevOp" / sysadmin / engineer, with extensive goodies for people running Web Infrastructure,
 [Hadoop](http://hadoop.apache.org/),
 [Kafka](http://kafka.apache.org/),
+[RabbitMQ](http://www.rabbitmq.com/),
 [Mesos](http://mesos.apache.org/),
 [Consul](https://www.consul.io/)
 and NoSQL technologies ([Cassandra](http://cassandra.apache.org/),
@@ -71,9 +72,13 @@ docker run harisekhon/nagios-plugins check_ssl_cert.pl --help
 #### Automated Build from Source
 
 ```
+
 git clone https://github.com/harisekhon/nagios-plugins
+
 cd nagios-plugins
+
 make
+
 ```
 
 Some plugins like `check_yum.py` can be copied around independently but most newer more sophisticated plugins require the co-located libraries I've written so you should ```git clone && make``` on each machine you deploy this code to or just use the Docker [pre-built container](https://hub.docker.com/r/harisekhon/nagios-plugins) which has all plugins and dependencies inside.
@@ -86,7 +91,7 @@ If you only want to use one plugin, you can do ` make perl-libs ` or ` make pyth
 
 ` make ` builds will install yum rpms / apt debs dependencies automatically as well as a load of Perl CPAN & Python PyPI libraries. To pick and choose what to install follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead
 
-This has become quite a large project and will take at least 10 minutes to build. Luckily the build is automated and tested on RHEL/CentOS 5/6/7 & Debian/Ubuntu systems. The automated build will also work on Mac OS X too but will not handle base OS system package dependencies.
+This has become quite a large project and will take at least 10 minutes to build. The build is automated and tested on RHEL / CentOS 5/6/7 & Debian / Ubuntu systems. The automated build also works on Mac OS X but will not handle basic OS system package dependencies for Mac.
 
 Make sure /usr/local/bin is in your $PATH when running make as otherwise it'll fail to find ` cpanm `
 
@@ -137,6 +142,10 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are available for those 
 These programs check these message brokers end-to-end via their API, by acting as both a producer and a consumer and checking that a unique generated message passes through the broker cluster and is received by the consumer at the other side successfully. They report the publish, consumer and total timings taken, against which thresholds can be applied, and are also available as perfdata for graphing.
 - `check_kafka.pl / check_kafka.py` - Kafka brokers API read & write with configurable topics/partition and producer behaviour for acks, sleep, retries, backoff, can also lists topics and partitions
 - `check_redis_publish_subscribe.pl` - Redis publish-subscribe API writes, reads with configurable subscriber wait
+- `check_rabbitmq.py` - RabbitMQ brokers via AMQP API read & write with configurable vhost, exchange, exchange type, queue, routing key, durability, RabbitMQ specific confirms & AMQP transactions support as well as timings for publish, consumer and total time, against which thresholds can be applied, and are also available as perfdata for graphing.
+<!--
+Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagios-plugins-rabbitmq` package
+-->
 
 ##### Infrastructure
 - ```check_ssl_cert.pl``` - SSL expiry, chain of trust (including intermediate certs important for certain mobile devices), SNI, domain, wildcard and multi-domain support validation
@@ -156,6 +165,11 @@ These programs check these message brokers end-to-end via their API, by acting a
 - ```check_travis_ci_last_build.py``` - checks the last build status of a given Travis CI repo showing build number, build duration with optional thresholds, start/stop date/time, if there are currently any builds in progress and perfdata for graphing last build time and number of builds in progress. Verbose mode gives the commit details as well such as commit id and message
 - `check_*_version*` - checks running versions of software, primarily written to detect version inconsistency across clusters of servers and failed/partial upgrades across large automated infrastructures, as well as containerized images are using the versions we expect, which is also used to validate which versions of software programs in this repo are tested against. `check_cluster_version.pl` can be used to tie together versions returned from many different servers (by passing it their outputs via Nagios macros) to ensure a cluster is all running the same version of software even if you don't enforce a particular `--expected` version on individual systems
 - ```check_yum.py / check_yum.pl``` - widely used yum security updates checker for RHEL 5 - 7 systems dating back to 2008. You'll find forks of this around including NagiosExchange but please re-unify on this central updated version. Also has a Perl version which is a newer straight port with nicer more concise code and better library backing as well as configurable self-timeout. For those running Debian-based systems like Ubuntu see `check_apt` from the `nagios-plugins-basic` package.
+<!--
+##### Compatability / Translation Plugins
+- `check_mk_wrapper.py` - translate standard nagios plugins to Check_MK local plugin format
+- `geneos_wrapper.py` - allows the Geneos monitoring system to utilize nagios plugins
+-->
 
 ... and there are many more.
 
@@ -233,10 +247,15 @@ If you're new remember to check out the `older/` directory for more plugins that
 Fetch my library repos which are included as submodules (they're shared between this and other repos containing various programs I've written over the years).
 
 ```
+
 git clone https://github.com/harisekhon/nagios-plugins
+
 cd nagios-plugins
+
 git submodule init
+
 git submodule update
+
 ```
 
 Then install the Perl CPAN and Python PyPI modules as listed in the next sections.
