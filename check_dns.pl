@@ -15,11 +15,13 @@ $DESCRIPTION = "Nagios Plugin to test a DNS record
 
 Primarily written to check things like NS and MX records for domains which the standard check_dns Nagios plugin can't do.
 
-Full list of supported record types: " . join(", ", @valid_types);
+Full list of supported record types: " . join(", ", @valid_types) . "
+
+The regex if supplied is validated against each record returned and it is anchored (^regex\$) as that's normally what you want to make it easier to strictly validate IP / name results, but if testing partial TXT records you may need to use .* before and after the regex, eg. '.*spf.*'. If differing TXT records are returned then use alternation '|' as per regex standard to be able to match both types of records, eg. 'regex1|regex2', see tests/test_dns.sh for an example.";
 
 # TODO: root name servers switch, determine root name servers for the specific TLD and go straight to them to bypass intermediate caching
 
-$VERSION = "0.8.1";
+$VERSION = "0.8.2";
 
 use strict;
 use warnings;
@@ -48,7 +50,7 @@ my $no_uniq_results;
     "r|record=s"            => [ \$record,          "DNS record to query"  ],
     "q|type=s"              => [ \$type,            "DNS query type (defaults to '$default_type' record)"  ],
     "e|expected-result=s"   => [ \$expected_result, "Expected results, comma separated" ],
-    "R|expected-regex=s"    => [ \$expected_regex,  "Expected regex to validate against each returned result" ],
+    "R|expected-regex=s"    => [ \$expected_regex,  "Expected regex to validate against each returned result (anchored, so if testing partial TXT records you may need to use .* before and after the regex, and if differing TXT records are returned then use alternation '|' to support the different regex, see tests/test_dns.sh for an example)" ],
     "no-uniq-results"       => [ \$no_uniq_results, "Test and display all results, not only unique results" ]
 );
 
@@ -192,16 +194,16 @@ if(scalar @rogue_results or scalar @missing_results){
     $msg .= "mismatch, expected '" . join(",", @expected_results) . "', got '";
 } elsif(scalar @regex_mismatches){
     critical;
-    $msg .= "regex validation failed on '" . join(",", @regex_mismatches) . "' against regex '$expected_regex', returns '";
+    $msg .= "regex validation failed on '" . join("','", @regex_mismatches) . "' against regex '$expected_regex', returns '";
 } elsif($type eq "SOA"){
     $msg .= "return serial '";
 } else {
     $msg .= "returns '";
 }
 if($no_uniq_results){
-    $msg .= join(",", @results);
+    $msg .= join("','", @results);
 } else {
-    $msg .= join(",", @results_uniq);
+    $msg .= join("','", @results_uniq);
 }
 $msg .= "'";
 $msg .= " in $total_time secs" if $verbose;
