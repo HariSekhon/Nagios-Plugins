@@ -32,5 +32,7 @@ hr
 $perl -T ./check_dns.pl -s a.resolvers.level3.net,b.resolvers.level3.net,c.resolvers.level3.net,d.resolvers.level3.net -r google.com -q MX
 hr
 $perl -T ./check_dns.pl -s a.resolvers.level3.net,b.resolvers.level3.net,c.resolvers.level3.net,d.resolvers.level3.net -r google.com
+hr
+$perl -T ./check_dns.pl -q TXT -s 8.8.8.8 -R '.*spf.*|[A-Za-z0-9+]+==' -r telenor.rs
 
 echo; echo
