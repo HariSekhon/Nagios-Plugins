@@ -42,10 +42,8 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit, support_msg_api, jsonpp, \
-                                 validate_host, validate_port, validate_user, validate_password
-    from harisekhon import VersionNagiosPlugin
-    from harisekhon.request_handler import RequestHandler
+    from harisekhon.utils import log, qquit, support_msg_api, jsonpp
+    from harisekhon import RestVersionNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
@@ -54,40 +52,20 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.3'
 
 
-class CheckRabbitMQVersion(VersionNagiosPlugin):
+class CheckRabbitMQVersion(RestVersionNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
         super(CheckRabbitMQVersion, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.software = 'RabbitMQ'
-        self.host = None
-        self.port = None
-        self.user = None
-        self.password = None
-        self.url_path = 'api/overview'
+        self.name = 'RabbitMQ'
+        self.default_port = 15672
+        self.default_user = 'guest'
+        self.default_password = 'guest'
+        self.path = 'api/overview'
 
-    def add_options(self):
-        self.add_hostoption(default_host='localhost', default_port=15672)
-        self.add_useroption(default_user='guest', default_password='guest')
-        self.add_expected_version_option()
-
-    def process_options(self):
-        self.no_args()
-        self.host = self.get_opt('host')
-        self.port = self.get_opt('port')
-        self.user = self.get_opt('user')
-        self.password = self.get_opt('password')
-        validate_host(self.host)
-        validate_port(self.port)
-        validate_user(self.user)
-        validate_password(self.password)
-        self.process_expected_version_option()
-
-    def get_version(self):
-        url = 'http://{host}:{port}/{path}'.format(host=self.host, port=self.port, path=self.url_path)
-        req = RequestHandler().get(url, auth=(self.user, self.password))
+    def parse(self, req):
         try:
             json_data = json.loads(req.content)
             if log.isEnabledFor(logging.DEBUG):
