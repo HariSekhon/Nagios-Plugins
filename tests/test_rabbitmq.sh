@@ -28,7 +28,7 @@ echo "
 # ============================================================================ #
 "
 
-export RABBITMQ_VERSIONS="${@:-${RABBITMQ_VERSIONS:-management 3.4-management 3.5-management 3.6-management}}"
+export RABBITMQ_VERSIONS="${@:-${RABBITMQ_VERSIONS:-latest 3.4 3.5 3.6}}"
 
 RABBITMQ_HOST="${DOCKER_HOST:-${RABBITMQ_HOST:-${HOST:-localhost}}}"
 RABBITMQ_HOST="${RABBITMQ_HOST##*/}"
@@ -58,7 +58,9 @@ test_rabbitmq(){
     hr
     #local DOCKER_OPTS=""
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $RABBITMQ_PORT
-    VERSION="$version" docker-compose up -d
+    local VERSION="$version-management"
+    VERSION="${VERSION#latest-}"
+    VERSION="$VERSION" docker-compose up -d
     rabbitmq_port="`docker-compose port "$DOCKER_SERVICE" "$RABBITMQ_PORT" | sed 's/.*://'`"
     rabbitmq_http_port="`docker-compose port "$DOCKER_SERVICE" "$RABBITMQ_HTTP_PORT" | sed 's/.*://'`"
     local RABBITMQ_PORT="$rabbitmq_port"
@@ -67,8 +69,14 @@ test_rabbitmq(){
     # echo sleeping 30 secs
     #sleep 30
     hr
-    #echo "creating RabbitMQ queue"
-    #docker-compose exec "$DOCKER_SERVICE" rabbitmq-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic "$RABBITMQ_TOPIC" || :
+    docker-compose exec "$DOCKER_SERVICE" bash <<-EOF
+        # RabbitMQ 3.4 docker image doesn't auto-create the mgmt user or vhost based on the env vars like 3.6 :-/
+        rabbitmqctl add_user "$RABBITMQ_USER" "$RABBITMQ_PASSWORD"
+        rabbitmqctl set_user_tags "$RABBITMQ_USER" management
+        rabbitmqctl add_vhost nagios-plugins
+        rabbitmqctl set_permissions -p nagios-plugins rabbitmq_user '.*' '.*' '.*'
+        exit
+EOF
     if [ -n "${NOTESTS:-}" ]; then
         return 0
     fi
