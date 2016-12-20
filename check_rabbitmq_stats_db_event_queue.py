@@ -22,7 +22,7 @@ Requires the management plugin to be loaded.
 
 Optional thresholds may be applied, perfdata is output regardless.
 
-Tested on RabbitMQ 3.4.4, 3.5.7, 3.6.6
+Tested on RabbitMQ 3.5.7, 3.6.6 (does not work on RabbitMQ <= 3.4)
 
 """
 
