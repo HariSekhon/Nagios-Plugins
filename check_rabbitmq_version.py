@@ -32,8 +32,6 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import json
-import logging
 import os
 import sys
 import traceback
@@ -42,7 +40,6 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit, support_msg_api, jsonpp
     from harisekhon import RestVersionNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
@@ -64,16 +61,13 @@ class CheckRabbitMQVersion(RestVersionNagiosPlugin):
         self.default_user = 'guest'
         self.default_password = 'guest'
         self.path = 'api/overview'
+        self.json = True
 
-    def parse(self, req):
-        try:
-            json_data = json.loads(req.content)
-            if log.isEnabledFor(logging.DEBUG):
-                print(jsonpp(json_data))
-                print('=' * 80)
-            return json_data['rabbitmq_version']
-        except (KeyError, ValueError) as _:
-            qquit('UNKNOWN', str(_) + support_msg_api())
+    def parse_json(self, json_data):
+        return json_data['rabbitmq_version']
+
+    def extra_info(self):
+        return ', erlang version = {0}'.format(self.json_data['erlang_version'])
 
 
 if __name__ == '__main__':
