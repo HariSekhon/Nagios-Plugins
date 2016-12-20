@@ -104,7 +104,7 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
         self.channel = None
         self.exchange = self.default_exchange
         self.exchange_type = self.default_exchange_type
-        self.valid_exchange_types = ('direct', 'fanout', 'topic')
+        self.valid_exchange_types = ('direct', 'headers', 'fanout', 'topic')
         self.queue = self.default_queue
         self.routing_key = None
 
@@ -339,6 +339,7 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
                              body=self.publish_message,
                              properties=properties,
                              mandatory=True,
+                             # RabbitMQ does not support 'immediate', use TTL zero on queue instead
                              # CRITICAL: ConnectionClosed: (540, 'NOT_IMPLEMENTED - immediate=true')
                              #immediate=True
                             )
