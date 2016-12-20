@@ -63,7 +63,8 @@ class CheckRabbitMQVersion(RestVersionNagiosPlugin):
         self.path = 'api/overview'
         self.json = True
 
-    def parse_json(self, json_data):
+    @staticmethod
+    def parse_json(json_data):
         return json_data['rabbitmq_version']
 
     def extra_info(self):
