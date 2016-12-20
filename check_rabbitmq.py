@@ -236,7 +236,8 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
     @staticmethod
     def connection_blocked_callback(method):
         # could really be a warning
-        raise CriticalError('connection blocked: {0} (RabbitMQ broker low on RAM / disk?)'.format(method.reason))
+        raise CriticalError('connection blocked: {0}'.format(method.reason) + \
+                            '(is the RabbitMQ broker low on resources eg. RAM / disk?)')
 
     def connection_timeout_handler(self):
         raise CriticalError('connection timed out to {name} broker'.format(name=self.name))
