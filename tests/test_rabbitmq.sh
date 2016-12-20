@@ -76,7 +76,7 @@ test_rabbitmq(){
         rabbitmqctl add_user "$RABBITMQ_USER" "$RABBITMQ_PASSWORD"
         rabbitmqctl set_user_tags "$RABBITMQ_USER" management
         rabbitmqctl add_vhost nagios-plugins
-        rabbitmqctl set_permissions -p nagios-plugins rabbitmq_user '.*' '.*' '.*'
+        rabbitmqctl set_permissions -p nagios-plugins "$RABBITMQ_USER" '.*' '.*' '.*'
         exit
 EOF
     if [ -n "${NOTESTS:-}" ]; then
