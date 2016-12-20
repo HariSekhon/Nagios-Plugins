@@ -104,6 +104,8 @@ EOF
     check_exit_code 2
     set -e
     hr
+    ./check_rabbitmq_stats_db_event_queue.py
+    hr
     #delete_container
     docker-compose down
     echo
