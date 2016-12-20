@@ -33,6 +33,14 @@ notifications:
 branches:
   only:
     - master
+env:
+  DOCKER_COMPOSE_VERSION: 1.9.0
+
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
 
 # after_failure doesn't trigger from install failure
 # perlbrew and cpanm are not installed without an install section
