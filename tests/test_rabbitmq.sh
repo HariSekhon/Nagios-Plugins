@@ -40,8 +40,8 @@ export RABBITMQ_HTTP_PORT="${RABBITMQ_HTTP_PORT:-15672}"
 
 # used by docker-compose config
 export RABBITMQ_DEFAULT_VHOST="nagios-plugins"
-export RABBITMQ_DEFAULT_USER="rabbitmq_user"
-export RABBITMQ_DEFAULT_PASS="rabbitmq_password"
+export RABBITMQ_DEFAULT_USER="rabbituser"
+export RABBITMQ_DEFAULT_PASS="rabbitpw"
 # used by plugins
 export RABBITMQ_VHOST="$RABBITMQ_DEFAULT_VHOST"
 export RABBITMQ_USER="$RABBITMQ_DEFAULT_USER"
@@ -65,6 +65,8 @@ test_rabbitmq(){
     rabbitmq_http_port="`docker-compose port "$DOCKER_SERVICE" "$RABBITMQ_HTTP_PORT" | sed 's/.*://'`"
     local RABBITMQ_PORT="$rabbitmq_port"
     local RABBITMQ_HTTP_PORT="$rabbitmq_http_port"
+    echo "RabbitMQ Port = $RABBITMQ_PORT"
+    echo "RabbitMQ HTTP Port = $RABBITMQ_HTTP_PORT"
     when_ports_available "$startupwait" "$RABBITMQ_HOST" "$RABBITMQ_PORT" "$RABBITMQ_HTTP_PORT"
     # echo sleeping 30 secs
     #sleep 30
