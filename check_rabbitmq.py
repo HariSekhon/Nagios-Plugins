@@ -37,7 +37,7 @@ Important Usage Notes:
 4. Beginners should omit --queue and --exchange options and just use the temporary auto-generated queue on the nameless
    exchange to avoid building up messages in RAM.
 
-Tested on RabbitMQ 3.6.6
+Tested on RabbitMQ 3.4.4, 3.6.6
 
 """
 
@@ -236,7 +236,7 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
     @staticmethod
     def connection_blocked_callback(method):
         # could really be a warning
-        raise CriticalError('connection blocked: {0}'.format(method.reason))
+        raise CriticalError('connection blocked: {0} (RabbitMQ broker low on RAM / disk?)'.format(method.reason))
 
     def connection_timeout_handler(self):
         raise CriticalError('connection timed out to {name} broker'.format(name=self.name))
