@@ -23,7 +23,7 @@ Requires the management plugin to be loaded.
 This is also used in the accompanying test suite to ensure we're checking the right version of RabbitMQ
 for compatibility for all my other RabbitMQ nagios plugins.
 
-Tested on RabbitMQ 3.6.6
+Tested on RabbitMQ 3.4.4, 3.5.7, 3.6.6
 
 """
 
