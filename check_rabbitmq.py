@@ -37,7 +37,7 @@ Important Usage Notes:
 4. Beginners should omit --queue and --exchange options and just use the temporary auto-generated queue on the nameless
    exchange to avoid building up messages in RAM.
 
-Tested on RabbitMQ 3.4.4, 3.6.6
+Tested on RabbitMQ 3.4.4, 3.5.7, 3.6.6
 
 """
 
