@@ -35,8 +35,10 @@ RABBITMQ_HOST="${RABBITMQ_HOST##*/}"
 RABBITMQ_HOST="${RABBITMQ_HOST%%:*}"
 export RABBITMQ_HOST
 
-export RABBITMQ_PORT="${RABBITMQ_PORT:-5672}"
-export RABBITMQ_HTTP_PORT="${RABBITMQ_HTTP_PORT:-15672}"
+#export RABBITMQ_PORT="${RABBITMQ_PORT:-5672}"
+#export RABBITMQ_HTTP_PORT="${RABBITMQ_HTTP_PORT:-15672}"
+export RABBITMQ_PORT=5672
+export RABBITMQ_HTTP_PORT=15672
 
 # used by docker-compose config
 export RABBITMQ_DEFAULT_VHOST="nagios-plugins"
@@ -103,9 +105,21 @@ EOF
     ./check_rabbitmq.py -u wronguser -p wrongpassword -v
     check_exit_code 2
     set -e
+
+    local RABBITMQ_PORT="$RABBITMQ_HTTP_PORT"
     hr
-    ./check_rabbitmq_stats_db_event_queue.py
-    hr
+    if [ "$version" = "latest" ] ||
+        [ ${version:0:1} -gt 3 ] ||
+        [ ${version:0:1} -eq 3 -a ${version:2:1} -ge 5 ]; then
+        ./check_rabbitmq_stats_db_event_queue.py
+        hr
+        echo "check auth failure for stats db event queue check"
+        set +e
+        ./check_rabbitmq_stats_db_event_queue.py -u wronguser
+        check_exit_code 2
+        set -e
+        hr
+    fi
     #delete_container
     docker-compose down
     echo
