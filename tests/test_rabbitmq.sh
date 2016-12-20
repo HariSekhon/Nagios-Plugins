@@ -108,9 +108,15 @@ EOF
 
     local RABBITMQ_PORT="$RABBITMQ_HTTP_PORT"
     hr
+    # 3.5+ only
     if [ "$version" = "latest" ] ||
         [ ${version:0:1} -gt 3 ] ||
         [ ${version:0:1} -eq 3 -a ${version:2:1} -ge 5 ]; then
+        # 3.6+ only
+        if [ ${version:0:1} -lt 4 -a ${version:2:1} -ge 6 ]; then
+            ./check_rabbitmq_healthchecks.py
+            hr
+        fi
         ./check_rabbitmq_stats_db_event_queue.py
         hr
         echo "check auth failure for stats db event queue check"
