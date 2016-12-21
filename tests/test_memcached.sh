@@ -52,7 +52,7 @@ test_memcached(){
     echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc "$MEMCACHED_HOST" "$memcached_port"
     echo done
     if [ -n "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
     hr
     # MEMCACHED_HOST obtained via .travis.yml
