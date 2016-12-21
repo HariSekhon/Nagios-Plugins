@@ -68,7 +68,7 @@ class CheckRabbitMQAliveness(RestNagiosPlugin):
         self.default_password = 'guest'
         self.default_vhost = '/'
         self.vhost = self.default_vhost
-        self.path = 'api/aliveness-test/' # add vhost
+        self.path = 'api/aliveness-test/'
         self.json = True
         self.msg = 'msg not defined yet'
 
