@@ -45,7 +45,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 class CheckRabbitMQClusterName(RestNagiosPlugin):
@@ -78,10 +78,9 @@ class CheckRabbitMQClusterName(RestNagiosPlugin):
     def parse_json(self, json_data):
         cluster_name = json_data['name']
         self.msg = "RabbitMQ cluster name = '{0}'".format(cluster_name)
-        if self.expected:
-            if not re.match('^' + self.expected + '$', cluster_name):
-                self.msg += " (expected '{0}')".format(self.expected)
-                self.critical()
+        if self.expected and not re.match('^' + self.expected + '$', cluster_name):
+            self.msg += " (expected '{0}')".format(self.expected)
+            self.critical()
 
 
 if __name__ == '__main__':
