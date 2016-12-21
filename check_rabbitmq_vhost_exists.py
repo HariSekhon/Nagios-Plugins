@@ -92,24 +92,21 @@ class CheckRabbitMQVhost(RestNagiosPlugin):
             raise UnknownError("non-list returned by RabbitMQ (got type '{0}'). {1}"\
                                .format(type(json_data), support_msg_api()))
         self.msg = "{0} vhost '{1}' ".format(self.name, self.vhost)
-        vhost_item = self.check_vhost(json_data)
-        if not vhost_item:
-            return False
-        tracing = vhost_item['tracing']
-        if self.no_tracing and tracing:
-            self.msg += ', tracing = {0}!'.format(tracing)
-            self.warning()
-        elif self.verbose:
-            self.msg += ', tracing = {0}'.format(tracing)
+        self.check_vhost(json_data)
 
     def check_vhost(self, json_data):
         for item in json_data:
             if item['name'] == self.vhost:
                 self.msg += 'exists'
-                return item
+                tracing = item['tracing']
+                if self.no_tracing and tracing:
+                    self.msg += ', tracing = {0}!'.format(tracing)
+                    self.warning()
+                elif self.verbose:
+                    self.msg += ', tracing = {0}'.format(tracing)
+                return
         self.msg += 'does not exist!'
         self.critical()
-        return {}
 
 
 if __name__ == '__main__':
