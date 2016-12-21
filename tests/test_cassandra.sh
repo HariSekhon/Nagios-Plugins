@@ -57,7 +57,7 @@ test_cassandra(){
     cassandra_port="`docker-compose port "$DOCKER_SERVICE" "$CASSANDRA_PORT" | sed 's/.*://'`"
     cassandra_ports=`{ for x in $CASSANDRA_PORTS; do  docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
     if [ -n "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
     when_ports_available "$startupwait" "$CASSANDRA_HOST" $cassandra_ports
     if [ "$version" = "latest" ]; then
