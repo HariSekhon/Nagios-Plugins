@@ -28,9 +28,9 @@ export DOCKER_IMAGE="harisekhon/nagios-plugins"
 if is_docker_available; then
     docker pull "$DOCKER_IMAGE"
     set +e
-    docker run --rm "$DOCKER_IMAGE" check_ssl_cert.pl --help
+    docker run --rm -e "DEBUG=$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl --help
     check_exit_code 3
     set -e
-    docker run --rm "$DOCKER_IMAGE" check_ssl_cert.pl -H google.com
-    docker run --rm "$DOCKER_IMAGE" tests/help.sh
+    docker run --rm -e "DEBUG=$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl -H google.com
+    docker run --rm -e "DEBUG=$DEBUG" "$DOCKER_IMAGE" tests/help.sh
 fi
