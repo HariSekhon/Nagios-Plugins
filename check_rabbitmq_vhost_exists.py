@@ -82,6 +82,7 @@ class CheckRabbitMQVhost(RestNagiosPlugin):
         self.vhost = self.get_opt('vhost')
         validate_chars(self.vhost, 'vhost', r'/\w\+-')
         # more concise but we'll get a more generic 404 object not found error
+        # requires 'administrator' user tag
         #self.path += '/' + urllib.quote_plus(self.vhost)
         self.no_tracing = self.get_opt('no_tracing')
 
