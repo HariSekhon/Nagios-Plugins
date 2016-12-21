@@ -51,7 +51,7 @@ test_h2o(){
     VERSION="$version" docker-compose up -d
     h2o_port="`docker-compose port "$DOCKER_SERVICE" "$H2O_PORT" | sed 's/.*://'`"
     if [ -n "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
     when_ports_available $startupwait $H2O_HOST $H2O_PORT
     hr
