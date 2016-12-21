@@ -59,7 +59,7 @@ test_mysql(){
     mysql_port="`docker-compose port "$DOCKER_SERVICE" "$MYSQL_PORT" | sed 's/.*://'`"
     local MYSQL_PORT="$mysql_port"
     if [ -n "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
     when_ports_available $startupwait $MYSQL_HOST $MYSQL_PORT
     hr
