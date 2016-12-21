@@ -49,6 +49,8 @@ export RABBITMQ_VHOST="$RABBITMQ_DEFAULT_VHOST"
 export RABBITMQ_USER="$RABBITMQ_DEFAULT_USER"
 export RABBITMQ_PASSWORD="$RABBITMQ_DEFAULT_PASS"
 
+export TEST_VHOSTS="$RABBITMQ_VHOST / /test test2"
+
 check_docker_available
 
 # needs to be longer than 10 to allow RabbitMQ to settle so topic creation works
@@ -77,8 +79,14 @@ test_rabbitmq(){
         # RabbitMQ 3.4 docker image doesn't auto-create the mgmt user or vhost based on the env vars like 3.6 :-/
         rabbitmqctl add_user "$RABBITMQ_USER" "$RABBITMQ_PASSWORD"
         rabbitmqctl set_user_tags "$RABBITMQ_USER" management
-        rabbitmqctl add_vhost nagios-plugins
-        rabbitmqctl set_permissions -p nagios-plugins "$RABBITMQ_USER" '.*' '.*' '.*'
+
+        for x in $TEST_VHOSTS vhost_with_tracing; do
+            rabbitmqctl add_vhost \$x
+            rabbitmqctl set_permissions -p \$x "$RABBITMQ_USER" '.*' '.*' '.*'
+        done
+
+        rabbitmqctl trace_on -p vhost_with_tracing
+
         exit
 EOF
     if [ -n "${NOTESTS:-}" ]; then
@@ -100,15 +108,37 @@ EOF
     hr
     ./check_rabbitmq.py -v
     hr
-    echo "checking auth failure for message pub-sub"
     set +e
+    echo "checking auth failure for message pub-sub"
     ./check_rabbitmq.py -u wronguser -p wrongpassword -v
+    check_exit_code 2
+    hr
+    echo "checking message pub-sub against non-existent vhost"
+    ./check_rabbitmq.py -v -O "nonexistentvhost"
     check_exit_code 2
     set -e
 
     local RABBITMQ_PORT="$RABBITMQ_HTTP_PORT"
     hr
-    ./check_rabbitmq_aliveness.py
+    for x in $TEST_VHOSTS; do
+        ./check_rabbitmq_aliveness.py -O "$x"
+        hr
+        ./check_rabbitmq_vhost_exists.py -O "$x" --no-tracing
+        hr
+    done
+    set +e
+    echo "checking non-existent vhost raises aliveness critical for object not found:"
+    ./check_rabbitmq_aliveness.py -O "nonexistentvhost"
+    check_exit_code 2
+    hr
+    echo "checking non-existent vhost raises critical:"
+    ./check_rabbitmq_vhost_exists.py -O "nonexistentvhost" --no-tracing
+    check_exit_code 2
+    hr
+    echo "checking vhost with tracing raises warning:"
+    ./check_rabbitmq_vhost_exists.py -O "vhost_with_tracing" --no-tracing
+    check_exit_code 1
+    set -e
     hr
     # 3.5+ only
     if [ "$version" = "latest" ] ||
