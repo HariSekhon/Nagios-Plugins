@@ -37,6 +37,8 @@ from __future__ import unicode_literals
 import os
 import sys
 import traceback
+# unfortunately Python 3 is changing this and it will require code update for Python 3 :-/
+import urllib
 srcdir = os.path.abspath(os.path.dirname(__file__))
 libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
@@ -49,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckRabbitMQAliveness(RestNagiosPlugin):
@@ -78,11 +80,11 @@ class CheckRabbitMQAliveness(RestNagiosPlugin):
         super(CheckRabbitMQAliveness, self).process_options()
         self.vhost = self.get_opt('vhost')
         validate_chars(self.vhost, 'vhost', r'/\w\+-')
-        self.path += self.vhost.lstrip('/')
+        self.path += urllib.quote_plus(self.vhost)
 
     def parse_json(self, json_data):
         status = json_data['status']
-        self.msg = "{0} aliveness status = '{1}'".format(self.name, status)
+        self.msg = "{0} aliveness status = '{1}' for vhost '{2}'".format(self.name, status, self.vhost)
         if status != 'ok':
             self.critical()
             if 'reason' in json_data:
