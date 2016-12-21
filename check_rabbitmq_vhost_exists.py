@@ -20,6 +20,9 @@ Nagios Plugin to check a given RabbitMQ vhost exists via the RabbitMQ Management
 
 Requires the management plugin to be loaded.
 
+Verbose mode will output whether tracing is enabled on the vhost, and an optional --no-tracing check can
+be enabled to ensure that tracing is set to False or raise a Warning status otherwise
+
 Tested on RabbitMQ 3.4.4, 3.5.7, 3.6.6
 
 """
@@ -88,10 +91,11 @@ class CheckRabbitMQVhost(RestNagiosPlugin):
         if not vhost_item:
             return False
         tracing = vhost_item['tracing']
-        self.msg += ', tracing = {0}'.format(tracing)
         if self.no_tracing and tracing:
+            self.msg += ', tracing = {0}!'.format(tracing)
             self.warning()
-            self.msg += '!'
+        elif self.verbose:
+            self.msg += ', tracing = {0}'.format(tracing)
 
     def check_vhost(self, json_data):
         for item in json_data:
