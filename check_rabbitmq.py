@@ -29,11 +29,11 @@ Makes thorough use of the API checks at every stage through the code to be as ro
 
 Important Usage Notes:
 
-1. If a Queue + Exchange are both specified, then both will be created if not already existing and the queue will be
-   bound to the exchange.
-2. Queues and Exchange creation will fail if they already exist with different parameters
+1. If a Queue + Exchange are both specified, then both will be (re)created and the queue will be bound to the exchange.
+2. Queues and Exchange creation will fail if they already exist and have different conflicting parameters
 3. Queue + Exchange options should be used by advanced users only - depending on your deployment you could end up
-   building up surplus messages in the queue, occupying increasing amounts of RAM.
+   building up surplus messages in the queue, occupying increasing amounts of RAM. You must also take account of your
+   routing topology as message consumption characteristics to avoid losing messages on pre-existing queues.
 4. Beginners should omit --queue and --exchange options and just use the temporary auto-generated queue on the nameless
    exchange to avoid building up messages in RAM.
 
