@@ -16,9 +16,10 @@
 
 """
 
-Nagios Plugin to check RabbitMQ aliveness built-in check on the given node via its Management REST API
+Nagios Plugin to check RabbitMQ aliveness built-in check for a given vhost via the RabbitMQ Management REST API
 
-This check declares a test queue, then publishes and consumes a message and returns the status of the check.
+This check declares a test queue called 'aliveness-test' on the given vhost, then publishes and consumes a message
+and returns the status of the whole check. The 'aliveness-test' queue remains after the test is concluded.
 
 Requires the management plugin to be loaded.
 
