@@ -108,6 +108,8 @@ EOF
 
     local RABBITMQ_PORT="$RABBITMQ_HTTP_PORT"
     hr
+    ./check_rabbitmq_aliveness.py
+    hr
     # 3.5+ only
     if [ "$version" = "latest" ] ||
         [ ${version:0:1} -gt 3 ] ||
