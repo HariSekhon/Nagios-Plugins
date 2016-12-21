@@ -60,7 +60,7 @@ test_redis(){
     echo set myKey hari | redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT"
     echo done
     if [ -n "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
     local version="${version%%-*}"
     if [ "$version" = "latest" ]; then
