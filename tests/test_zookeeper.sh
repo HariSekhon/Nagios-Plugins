@@ -63,7 +63,7 @@ test_zookeeper(){
     #local DOCKER_CONTAINER="$(docker-compose ps | sed -n '3s/ .*/p')"
     when_ports_available "$startupwait" "$ZOOKEEPER_HOST" "$zookeeper_port"
     if [ -n "${NOTESTS:-}" ]; then
-        return
+        exit 0
     fi
     expected_version="$version"
     if [ "$expected_version" = "latest" ]; then
