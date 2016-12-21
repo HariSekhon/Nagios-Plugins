@@ -59,7 +59,7 @@ test_neo4j(){
     echo "creating test Neo4J node"
     docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
     if [ "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
     if [ "$version" = "latest" ]; then
         local version=".*"
@@ -104,7 +104,7 @@ test_neo4j_auth(){
     echo "creating test Neo4J node"
     docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
     if [ "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
     if [ "$version" = "latest" ]; then
         local version=".*"
