@@ -74,7 +74,7 @@ test_solrcloud(){
     local DOCKER_CONTAINER="$(docker-compose ps | sed -n '3s/ .*//p')"
     echo "container is $DOCKER_CONTAINER"
     if [ -n "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
     if [ "$version" = "latest" ]; then
         local version=".*"
