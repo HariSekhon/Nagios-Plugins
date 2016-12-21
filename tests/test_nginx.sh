@@ -66,7 +66,7 @@ test_nginx(){
         echo "Docker Nginx test container already running"
     fi
     if [ -n "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
     if [ "$version" = "latest" ]; then
         local version=".*"
