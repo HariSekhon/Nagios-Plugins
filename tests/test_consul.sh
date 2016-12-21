@@ -59,7 +59,7 @@ test_consul(){
     CONSUL_PORT_ORIG="$CONSUL_PORT"
     local CONSUL_PORT="$consul_port"
     if [ -n "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
     when_ports_available "$startupwait" "$CONSUL_HOST" "$consul_port"
     # give it some extra time to settle, otherwise get no peers found error
