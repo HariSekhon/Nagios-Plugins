@@ -75,7 +75,7 @@ class CheckRabbitMQAliveness(RestNagiosPlugin):
     def add_options(self):
         super(CheckRabbitMQAliveness, self).add_options()
         self.add_opt('-O', '--vhost', default=getenvs('RABBITMQ_VHOST', default=self.default_vhost),
-                     help='{0} VHost to check ($RABBITMQ_VHOST, default: /)')
+                     help='RabbitMQ vhost to check ($RABBITMQ_VHOST, default: /)')
 
     def process_options(self):
         super(CheckRabbitMQAliveness, self).process_options()
