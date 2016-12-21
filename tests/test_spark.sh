@@ -58,7 +58,7 @@ test_spark(){
     local SPARK_WORKER_PORT="$spark_worker_port"
     when_ports_available $startupwait $SPARK_HOST $SPARK_MASTER_PORT $SPARK_WORKER_PORT
     if [ -n "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
     if [ "$version" = "latest" ]; then
         local version=".*"
