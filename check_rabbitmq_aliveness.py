@@ -26,7 +26,7 @@ Requires the management plugin to be loaded.
 For a similar check see check_rabbitmq.py which does this via the native AMQP API with a high degree of configurability
 as well as performance data timings for each action.
 
-Tested on RabbitMQ 3.6.6 (does not work on RabbitMQ <= 3.5)
+Tested on RabbitMQ 3.4.4, 3.5.7, 3.6.6
 
 """
 
