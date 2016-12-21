@@ -132,10 +132,16 @@ EOF
     check_exit_code 2
     hr
     echo "checking non-existent vhost raises critical:"
+    ./check_rabbitmq_vhost_exists.py -O "nonexistentvhost"
+    check_exit_code 2
+    echo "and with tracing:"
     ./check_rabbitmq_vhost_exists.py -O "nonexistentvhost" --no-tracing
     check_exit_code 2
     hr
-    echo "checking vhost with tracing raises warning:"
+    echo "checking vhost with tracing is still ok:"
+    ./check_rabbitmq_vhost_exists.py -O "vhost_with_tracing"
+    check_exit_code 0
+    echo "checking vhost with tracing raises warning when using --no-tracing:"
     ./check_rabbitmq_vhost_exists.py -O "vhost_with_tracing" --no-tracing
     check_exit_code 1
     set -e
