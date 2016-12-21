@@ -29,7 +29,7 @@ ethtool
 mysql-devel
 perl-DBD-MySQL
 
-# needed for check_ssl_cert.pl
+# for check_ssl_cert.pl
 openssl
 
 # needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
