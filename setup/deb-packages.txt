@@ -33,6 +33,8 @@ libsasl2-dev
 libexpat1-dev
 # needed for ndg-httpsclient upgrade
 libffi-dev
+# needed for check_ssl_cert.pl
+openssl
 # for ndg-httpsclient
 python-pyasn1
 # Class::Accessor pre-packaged
