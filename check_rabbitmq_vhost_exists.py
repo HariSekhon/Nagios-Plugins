@@ -35,6 +35,7 @@ from __future__ import unicode_literals
 import os
 import sys
 import traceback
+#import urllib
 srcdir = os.path.abspath(os.path.dirname(__file__))
 libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
@@ -80,9 +81,12 @@ class CheckRabbitMQVhost(RestNagiosPlugin):
         super(CheckRabbitMQVhost, self).process_options()
         self.vhost = self.get_opt('vhost')
         validate_chars(self.vhost, 'vhost', r'/\w\+-')
+        # more concise but we'll get a more generic 404 object not found error
+        #self.path += '/' + urllib.quote_plus(self.vhost)
         self.no_tracing = self.get_opt('no_tracing')
 
     def parse_json(self, json_data):
+        # when returning all vhosts, otherwise will return lone dict item or 404
         if not isList(json_data):
             raise UnknownError("non-list returned by RabbitMQ (got type '{0}'). {1}"\
                                .format(type(json_data), support_msg_api()))
