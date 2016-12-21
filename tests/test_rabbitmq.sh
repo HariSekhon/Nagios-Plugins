@@ -90,7 +90,7 @@ test_rabbitmq(){
         exit
 EOF
     if [ -n "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
     version="${version%management}"
     version="${version%-}"
@@ -100,7 +100,7 @@ EOF
     hr
     ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" -e "$version"
     hr
-    echo "check auth failure for version check"
+    echo "check auth failure for version check:"
     set +e
     ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" -u wronguser -e "$version"
     check_exit_code 2
@@ -109,16 +109,25 @@ EOF
     ./check_rabbitmq.py -v
     hr
     set +e
-    echo "checking auth failure for message pub-sub"
+    echo "checking auth failure for message pub-sub:"
     ./check_rabbitmq.py -u wronguser -p wrongpassword -v
     check_exit_code 2
     hr
-    echo "checking message pub-sub against non-existent vhost"
+    echo "checking message pub-sub against non-existent vhost:"
     ./check_rabbitmq.py -v -O "nonexistentvhost"
     check_exit_code 2
     set -e
 
     local RABBITMQ_PORT="$RABBITMQ_HTTP_PORT"
+    hr
+    ./check_rabbitmq_cluster_name.py
+    hr
+    ./check_rabbitmq_cluster_name.py -e 'rabbit@\w+'
+    hr
+    set +e
+    echo "checking cluster name regex failure:"
+    ./check_rabbitmq_cluster_name.py -e 'wrongclustername'
+    set -e
     hr
     for x in $TEST_VHOSTS; do
         ./check_rabbitmq_aliveness.py -O "$x"
