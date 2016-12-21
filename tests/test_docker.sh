@@ -14,6 +14,7 @@
 #
 
 set -euo pipefail
+DEBUG="${DEBUG:-}"
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$(cd "$(dirname "$0")" && pwd)"
 
@@ -31,6 +32,8 @@ if is_docker_available; then
     docker run --rm -e "DEBUG=$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl --help
     check_exit_code 3
     set -e
+    hr
     docker run --rm -e "DEBUG=$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl -H google.com
+    echo
     docker run --rm -e "DEBUG=$DEBUG" "$DOCKER_IMAGE" tests/help.sh
 fi
