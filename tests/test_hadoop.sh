@@ -76,7 +76,7 @@ test_hadoop(){
 EOF
     echo
     if [ -n "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
     hr
     if [ "$version" = "latest" ]; then
