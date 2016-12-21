@@ -18,30 +18,41 @@ build-essential
 git
 libwww-perl
 wget
+
 # ethtool needed for ./check_linux_interface.pl
 ethtool
+
 # for LWP::Authenticate - prompts for realm + KDC, use libkrb5-dev instead
 #krb5-config
 libkrb5-dev
+
 # for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 libdbd-mysql-perl
 libmysqlclient-dev
+
 # needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 libssl-dev
 libsasl2-dev
+
 # for XML::Simple building
 libexpat1-dev
+
 # needed for ndg-httpsclient upgrade
 libffi-dev
-# needed for check_ssl_cert.pl
+
+# for check_ssl_cert.pl
 openssl
+
 # for ndg-httpsclient
 python-pyasn1
+
 # Class::Accessor pre-packaged
 #libclass-accessor-perl
+
 python-setuptools
 python-pip
 python-dev
+
 # for Cassandra's Python driver
 #libev4
 #libev-dev
