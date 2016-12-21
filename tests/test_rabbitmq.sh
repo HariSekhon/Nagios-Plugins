@@ -78,7 +78,7 @@ test_rabbitmq(){
     docker-compose exec "$DOCKER_SERVICE" bash <<-EOF
         # RabbitMQ 3.4 docker image doesn't auto-create the mgmt user or vhost based on the env vars like 3.6 :-/
         rabbitmqctl add_user "$RABBITMQ_USER" "$RABBITMQ_PASSWORD"
-        rabbitmqctl set_user_tags "$RABBITMQ_USER" management
+        rabbitmqctl set_user_tags "$RABBITMQ_USER" monitoring
 
         for x in $TEST_VHOSTS vhost_with_tracing; do
             rabbitmqctl add_vhost \$x
