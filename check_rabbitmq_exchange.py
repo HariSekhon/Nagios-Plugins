@@ -78,8 +78,9 @@ class CheckRabbitMQExchanges(RestNagiosPlugin):
                      help='RabbitMQ exchange to check ($RABBITMQ_EXCHANGE)')
         self.add_opt('-O', '--vhost', default=getenvs('RABBITMQ_VHOST', default=self.default_vhost),
                      help='RabbitMQ vhost for exchange ($RABBITMQ_VHOST, default: /)')
-        self.add_opt('-T', '--exchange-type', help='Check exchange is of given type (optional)')
-        self.add_opt('-U', '--exchange-durable', help='Check exchange durable (true/false, optional)')
+        self.add_opt('-T', '--exchange-type', help='Check exchange is of given type (optional, must be one of: {0})'\
+                                                   .format(', '.join(self.valid_exchange_types)))
+        self.add_opt('-U', '--exchange-durable', help="Check exchange durable (optional, arg must be: 'true' / 'false')")
         self.add_opt('-l', '--list-exchanges', action='store_true', help='List exchanges on given vhost and exit')
 
     def process_options(self):
