@@ -99,12 +99,13 @@ class CheckRabbitMQExchanges(RestNagiosPlugin):
         self.exchange_type = self.get_opt('exchange_type')
         self.exchange_durable = self.get_opt('exchange_durable')
         if self.exchange_type and self.exchange_type not in self.valid_exchange_types:
-            self.usage('invalid --exchange-type, if specified must be one of: {0}'\
-                       .format(', '.join(self.valid_exchange_types)))
+            self.usage("invalid --exchange-type '{0}', if specified must be one of: {1}"\
+                       .format(self.exchange_type, ', '.join(self.valid_exchange_types)))
         if self.exchange_durable:
             self.exchange_durable = self.exchange_durable.lower()
             if self.exchange_durable not in ('true', 'false'):
-                self.usage("invalid --exchange-durable, if specified must be either 'true' or 'false'")
+                self.usage("invalid --exchange-durable '{0}', if specified must be either 'true' or 'false'".\
+                           format(self.exchange_durable))
 
     def check_response_code(self, req):
         if req.status_code != 200:
