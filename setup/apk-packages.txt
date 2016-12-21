@@ -15,6 +15,7 @@
 
 alpine-sdk
 bash
+ca-certificates
 # ethtool needed for ./check_linux_interface.pl
 ethtool
 expat-dev
@@ -24,6 +25,7 @@ git
 libxml2-dev
 make
 mariadb-dev
+openssl
 openssl-dev
 perl
 perl-dev
