@@ -132,7 +132,7 @@ EOF
     for x in $TEST_VHOSTS; do
         ./check_rabbitmq_aliveness.py -O "$x"
         hr
-        ./check_rabbitmq_vhost_exists.py -O "$x" --no-tracing
+        ./check_rabbitmq_vhost.py -O "$x" --no-tracing
         hr
         ./check_rabbitmq_exchange.py -O "$x" -E amq.direct         -T direct   -U true
         ./check_rabbitmq_exchange.py -O "$x" -E amq.fanout         -T fanout   -U true
@@ -148,19 +148,19 @@ EOF
     check_exit_code 2
     hr
     echo "checking non-existent vhost raises critical:"
-    ./check_rabbitmq_vhost_exists.py -O "nonexistentvhost"
+    ./check_rabbitmq_vhost.py -O "nonexistentvhost"
     check_exit_code 2
     hr
     echo "and with tracing:"
-    ./check_rabbitmq_vhost_exists.py -O "nonexistentvhost" --no-tracing
+    ./check_rabbitmq_vhost.py -O "nonexistentvhost" --no-tracing
     check_exit_code 2
     hr
     echo "checking vhost with tracing is still ok:"
-    ./check_rabbitmq_vhost_exists.py -O "vhost_with_tracing"
+    ./check_rabbitmq_vhost.py -O "vhost_with_tracing"
     check_exit_code 0
     hr
     echo "checking vhost with tracing raises warning when using --no-tracing:"
-    ./check_rabbitmq_vhost_exists.py -O "vhost_with_tracing" --no-tracing
+    ./check_rabbitmq_vhost.py -O "vhost_with_tracing" --no-tracing
     check_exit_code 1
     hr
     echo "checking check_rabbitmq_exchange.py non-existent vhost raises critical:"
