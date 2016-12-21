@@ -56,7 +56,7 @@ test_solr(){
     fi
     hr
     if [ -n "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
     echo "Setup done, starting checks ..."
     if [[ "$version" = "latest" || ${version:0:1} > 3 ]]; then
