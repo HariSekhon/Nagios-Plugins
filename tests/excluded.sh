@@ -47,7 +47,9 @@ isExcluded(){
         echo "skipping $prog due to Net::ZooKeeper dependency not having been built (do 'make zookeeper' if intending to use this plugin)"
         return 0
     fi
-    if which git &>/dev/null; then
+    if [ -n "${NO_GIT:-}" ]; then
+        return 1
+    elif which git &>/dev/null; then
         commit="$(git log "$prog" | head -n1 | grep 'commit')"
         if [ -z "$commit" ]; then
             return 0
