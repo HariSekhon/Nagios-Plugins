@@ -20,6 +20,8 @@ Nagios Plugin to query Attivio AIE ingest session count via the REST API
 
 Optional thresholds may be applied to the session count
 
+Tested on Attivio 5.1.8
+
 """
 
 from __future__ import absolute_import
