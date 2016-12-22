@@ -42,14 +42,14 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import getenvs, isList, validate_chars, \
-                                 UnknownError, support_msg_api
+                                 UnknownError, ERRORS, support_msg_api
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckRabbitMQVhost(RestNagiosPlugin):
@@ -76,17 +76,23 @@ class CheckRabbitMQVhost(RestNagiosPlugin):
                      help='RabbitMQ vhost to check ($RABBITMQ_VHOST, default: /)')
         self.add_opt('--no-tracing', action='store_true', default=False,
                      help='Check vhost does not have tracing enabled')
+        self.add_opt('-l', '--list-vhosts', action='store_true', help='List vhosts and exit')
 
     def process_options(self):
         super(CheckRabbitMQVhost, self).process_options()
-        self.vhost = self.get_opt('vhost')
-        validate_chars(self.vhost, 'vhost', r'/\w\+-')
+        if not self.get_opt('list_vhosts'):
+            self.vhost = self.get_opt('vhost')
+            validate_chars(self.vhost, 'vhost', r'/\w\+-')
         # more concise but we'll get a more generic 404 object not found error
         # requires 'administrator' user tag
         #self.path += '/' + urllib.quote_plus(self.vhost)
         self.no_tracing = self.get_opt('no_tracing')
 
     def parse_json(self, json_data):
+        if self.get_opt('list_vhosts'):
+            print('RabbitMQ vhosts:\n')
+            print('\n'.join([_['name'] for _ in json_data]))
+            sys.exit(ERRORS['UNKNOWN'])
         # when returning all vhosts, otherwise will return lone dict item or 404
         if not isList(json_data):
             raise UnknownError("non-list returned by RabbitMQ (got type '{0}'). {1}"\
