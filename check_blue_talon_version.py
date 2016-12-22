@@ -72,6 +72,7 @@ class CheckBlueTalonVersion(VersionNagiosPlugin):
         self.default_host = 'localhost'
         self.default_port = 8111
         self.default_user = 'btadminuser'
+        self.default_password = 'P@ssw0rd'
         self.host = self.default_host
         self.port = self.default_port
         self.user = self.default_user
