@@ -20,6 +20,8 @@ Nagios Plugin to check the RabbitMQ cluster name via the RabbitMQ Management RES
 
 Requires the management plugin to be loaded.
 
+Useful to ensure RabbitMQ brokers are in the same expected cluster.
+
 Tested on RabbitMQ 3.4.4, 3.5.7, 3.6.6
 
 """
