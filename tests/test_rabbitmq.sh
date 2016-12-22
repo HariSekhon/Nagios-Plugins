@@ -120,6 +120,19 @@ EOF
 
     local RABBITMQ_PORT="$RABBITMQ_HTTP_PORT"
     hr
+    ./check_rabbitmq_auth.py
+    ./check_rabbitmq_auth.py -T 'admin.*'
+    hr
+    set +e
+    echo "checking auth failure:"
+    ./check_rabbitmq_auth.py -u 'wronguser'
+    check_exit_code 2
+    hr
+    echo "checking auth failure with differing tag:"
+    ./check_rabbitmq_auth.py -T 'monitoring'
+    check_exit_code 2
+    set -e
+    hr
     ./check_rabbitmq_cluster_name.py
     hr
     ./check_rabbitmq_cluster_name.py -e 'rabbit@\w+'
@@ -127,6 +140,7 @@ EOF
     set +e
     echo "checking cluster name regex failure:"
     ./check_rabbitmq_cluster_name.py -e 'wrongclustername'
+    check_exit_code 2
     set -e
     hr
     for x in $TEST_VHOSTS; do
