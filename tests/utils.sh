@@ -15,7 +15,7 @@
 
 set -eu
 [ -n "${DEBUG:-}" ] && set -x
-srcdir_nagios_plugins_utils="$srcdir"
+srcdir_nagios_plugins_utils="${srcdir:-}"
 srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 . "$srcdir/excluded.sh"
