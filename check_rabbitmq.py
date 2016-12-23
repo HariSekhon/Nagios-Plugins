@@ -69,7 +69,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class CheckRabbitMQ(PubSubNagiosPlugin):
@@ -241,11 +241,12 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
                             '(is the RabbitMQ broker low on resources eg. RAM / disk?)')
 
     def connection_timeout_handler(self):
-        raise CriticalError('connection timed out to {name} broker'.format(name=self.name))
+        raise CriticalError("connection timed out while communicating with {name} broker '{host}:{port}'"\
+                            .format(name=self.name, host=self.host, port=self.port))
 
-    @staticmethod
-    def connection_cancel_callback():
-        raise CriticalError('broker sent channel cancel notification')
+    def connection_cancel_callback(self):
+        raise CriticalError('{name} broker {host}:{port} sent channel cancel notification'\
+                            .format(name=self.name, host=self.host, port=self.port))
 
 #    @staticmethod
 #    def connection_on_return_callback(channel, method, properties, body):  # pylint: disable=unused-argument
@@ -277,7 +278,7 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
         log.debug('adding connection timeout to one 3rd of total timeout (%.2f out of %.2f secs)',
                   self.timeout / 3, self.timeout)
         # no args to this callback
-        self.conn.add_timeout(self.timeout / 3, self.connection_timeout_handler)
+        self.conn.add_timeout(max(self.timeout - 1, 1), self.connection_timeout_handler)
         #
         self.check_connection()
         log.info('requesting channel')
@@ -378,6 +379,12 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
     def consume(self):
         self.check_connection()
         self.check_channel()
+        def connection_timeout_handler():
+            raise CriticalError("unique message was not found returned on queue '{queue}' within {secs:.2f} secs"\
+                                .format(queue=self.queue, secs=self.timeout / 3) + \
+                                ", consumer timed out while consuming messages from {name} broker '{host}:{port}'"\
+                                .format(name=self.name, host=self.host, port=self.port))
+        self.conn.add_timeout(self.timeout / 3, connection_timeout_handler)
         # don't re-declare, queue should still exist otherwise error out
         #channel.queue_declare(queue = 'hello')
         # don't ack as messages could stay in queue indefinitely
