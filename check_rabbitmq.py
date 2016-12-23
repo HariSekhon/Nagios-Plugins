@@ -186,7 +186,7 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
         validate_chars(self.vhost, 'vhost', r'/\w\._-')
         self.exchange = self.get_opt('exchange')
         if self.exchange:
-            validate_chars(self.exchange, 'exchange', r'\w_-')
+            validate_chars(self.exchange, 'exchange', r'\w\._-')
         else:
             log_option('exchange', self.exchange)
         self.exchange_type = self.get_opt('exchange_type')
@@ -197,7 +197,7 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
         log_option('exchange type', self.exchange_type)
         self.queue = self.get_opt('queue')
         if self.queue:
-            validate_chars(self.queue, 'queue', r'\w_-')
+            validate_chars(self.queue, 'queue', r'\w\._-')
         else:
             log_option('queue', self.queue)
         self.routing_key = self.get_opt('routing_key')
