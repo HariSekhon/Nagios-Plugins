@@ -69,7 +69,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.2'
+__version__ = '0.2.3'
 
 
 class CheckRabbitMQ(PubSubNagiosPlugin):
@@ -183,7 +183,7 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
         validate_password(self.password)
         self.vhost = self.get_opt('vhost')
         self.vhost = self.vhost if self.vhost else '/'
-        validate_chars(self.vhost, 'vhost', r'/\w_-')
+        validate_chars(self.vhost, 'vhost', r'/\w\._-')
         self.exchange = self.get_opt('exchange')
         if self.exchange:
             validate_chars(self.exchange, 'exchange', r'\w_-')
