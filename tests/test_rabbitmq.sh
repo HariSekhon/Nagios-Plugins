@@ -65,16 +65,21 @@ test_rabbitmq(){
     local VERSION="$version"
     VERSION="${VERSION#latest-}"
     VERSION="$VERSION" docker-compose up -d
-    local DOCKER_SERVICE="rabbit2"
+    local DOCKER_SERVICE="rabbit1"
+    local DOCKER_SERVICE2="rabbit2"
     rabbitmq_port="`docker-compose port "$DOCKER_SERVICE" "$RABBITMQ_PORT" | sed 's/.*://'`"
+    rabbitmq_port2="`docker-compose port "$DOCKER_SERVICE2" "$RABBITMQ_PORT" | sed 's/.*://'`"
     rabbitmq_http_port="`docker-compose port "$DOCKER_SERVICE" "$RABBITMQ_HTTP_PORT" | sed 's/.*://'`"
+    rabbitmq_http_port2="`docker-compose port "$DOCKER_SERVICE2" "$RABBITMQ_HTTP_PORT" | sed 's/.*://'`"
     local RABBITMQ_PORT="$rabbitmq_port"
+    local RABBITMQ_PORT2="$rabbitmq_port2"
     local RABBITMQ_HTTP_PORT="$rabbitmq_http_port"
-    echo "RabbitMQ Port = $RABBITMQ_PORT"
-    echo "RabbitMQ HTTP Port = $RABBITMQ_HTTP_PORT"
-    when_ports_available "$startupwait" "$RABBITMQ_HOST" "$RABBITMQ_PORT" "$RABBITMQ_HTTP_PORT"
-    # echo sleeping 30 secs
-    #sleep 30
+    local RABBITMQ_HTTP_PORT2="$rabbitmq_http_port2"
+    echo "Rabbit1 Port = $RABBITMQ_PORT"
+    echo "Rabbit2 Port = $RABBITMQ_PORT2"
+    echo "Rabbit1 HTTP Port = $RABBITMQ_HTTP_PORT"
+    echo "Rabbit2 HTTP Port = $RABBITMQ_HTTP_PORT2"
+    when_ports_available "$startupwait" "$RABBITMQ_HOST" "$RABBITMQ_PORT" "$RABBITMQ_HTTP_PORT" "$RABBITMQ_PORT2" "$RABBITMQ_HTTP_PORT2"
     hr
     docker-compose exec "$DOCKER_SERVICE" bash <<-EOF
         # RabbitMQ 3.4 docker image doesn't auto-create the mgmt user or vhost based on the env vars like 3.6 :-/
@@ -171,7 +176,10 @@ EOF
     hr
     ./check_rabbitmq_cluster_name.py
     hr
-    ./check_rabbitmq_cluster_name.py -e 'rabbit@\w+'
+    ./check_rabbitmq_cluster_name.py -e 'rabbit@rabbit\w+'
+    hr
+    echo "and via rabbit2:"
+    ./check_rabbitmq_cluster_name.py -e 'rabbit@rabbit\w+' -P "$RABBITMQ_HTTP_PORT2"
     hr
     set +e
     echo "checking cluster name regex failure:"
