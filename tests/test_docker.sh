@@ -27,7 +27,8 @@ section "Docker Image"
 export DOCKER_IMAGE="harisekhon/nagios-plugins"
 
 if is_docker_available; then
-    docker pull "$DOCKER_IMAGE"
+    [ -n "${NO_PULL:-}" ] ||
+        docker pull "$DOCKER_IMAGE"
     set +e
     docker run --rm -e "DEBUG=$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl --help
     check_exit_code 3
