@@ -69,7 +69,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.3'
+__version__ = '0.3'
 
 
 class CheckRabbitMQ(PubSubNagiosPlugin):
@@ -225,12 +225,12 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
         self.validate_thresholds()
 
     def check_connection(self):
-        log.info('checking connection is still open')
+        log.debug('checking connection is still open')
         if not self.conn.is_open:
             raise CriticalError('connection closed')
 
     def check_channel(self):
-        log.info('checking channel is still open')
+        log.debug('checking channel is still open')
         if not self.channel.is_open:
             raise CriticalError('channel closed')
 
@@ -312,7 +312,8 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
             # auto-generate uniq queue, durable flag is ignored for exclusive
             result = self.channel.queue_declare(exclusive=True)
             self.queue = result.method.queue
-            self.routing_key = self.queue
+            if not self.routing_key:
+                self.routing_key = self.queue
         log.info('was assigned unique exclusive queue: %s', self.queue)
         if self.exchange:
             log.info("declaring exchange: '%s', type: '%s'", self.exchange, self.exchange_type)
@@ -335,6 +336,8 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
         #result = self.channel.basic_publish(exchange=self.exchange,
         # gives more error information via exceptions UnroutableError / NackError
         # returns None so don't collect as result
+        log.info("publishing message to exchange '{exchange}' using routing key '{routing_key}'"\
+                 .format(exchange=self.exchange, routing_key=self.routing_key))
         self.channel.publish(exchange=self.exchange,
                              routing_key=self.routing_key,
                              body=self.publish_message,
