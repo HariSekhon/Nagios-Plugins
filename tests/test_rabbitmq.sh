@@ -62,9 +62,10 @@ test_rabbitmq(){
     hr
     #local DOCKER_OPTS=""
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $RABBITMQ_PORT
-    local VERSION="$version-management"
+    local VERSION="$version"
     VERSION="${VERSION#latest-}"
     VERSION="$VERSION" docker-compose up -d
+    local DOCKER_SERVICE="rabbit2"
     rabbitmq_port="`docker-compose port "$DOCKER_SERVICE" "$RABBITMQ_PORT" | sed 's/.*://'`"
     rabbitmq_http_port="`docker-compose port "$DOCKER_SERVICE" "$RABBITMQ_HTTP_PORT" | sed 's/.*://'`"
     local RABBITMQ_PORT="$rabbitmq_port"
@@ -89,6 +90,21 @@ test_rabbitmq(){
 
         exit
 EOF
+    rabbitmqadmin="tests/bin/rabbitmqadmin"
+    if ! [ -x "$rabbitmqadmin" ]; then
+        mkdir -p "$(dirname "$rabbitmqadmin")"
+        wget -O "$rabbitmqadmin" "http://$RABBITMQ_HOST:$RABBITMQ_HTTP_PORT/cli/rabbitmqadmin"
+        chmod +x "$rabbitmqadmin"
+    fi
+    rabbitmq_cmd="$rabbitmqadmin -H $RABBITMQ_HOST -P $RABBITMQ_HTTP_PORT -u $RABBITMQ_USER -p $RABBITMQ_PASSWORD --vhost $RABBITMQ_VHOST"
+    echo "Declaring exchanges, queues and bindings"
+    $rabbitmq_cmd declare exchange name=exchange1 type=topic durable=true
+    $rabbitmq_cmd declare exchange name=exchange2 type=fanout durable=false
+    $rabbitmq_cmd declare queue name=queue1 durable=true
+    $rabbitmq_cmd declare queue name=queue2 durable=false
+    $rabbitmq_cmd declare binding source="exchange1" destination_type="queue" destination="queue1" routing_key=""
+    $rabbitmq_cmd declare binding source="exchange2" destination_type="queue" destination="queue2" routing_key=""
+    echo "Done"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -108,6 +124,9 @@ EOF
     hr
     ./check_rabbitmq.py -v
     hr
+    echo "and via non-durable queue2:"
+    ./check_rabbitmq.py -v --queue queue2 --non-durable
+    hr
     set +e
     echo "checking auth failure for message pub-sub:"
     ./check_rabbitmq.py -u wronguser -p wrongpassword -v
@@ -116,11 +135,28 @@ EOF
     echo "checking message pub-sub against non-existent vhost:"
     ./check_rabbitmq.py -v -O "nonexistentvhost"
     check_exit_code 2
+    hr
+    echo "checking mandatory flag publish failure:"
+    ./check_rabbitmq.py -v --routing-key nonexistentroutingkey
+    check_exit_code 2
+    hr
+    echo "checking message never received (pub-sub against wrong queue that won't receive the message):"
+    ./check_rabbitmq.py -v --queue queue1 --routing-key queue2
+    check_exit_code 2
+    hr
+    echo "checking exchange1 precondition failure for type topic vs direct:"
+    ./check_rabbitmq.py -v --exchange exchange1
+    check_exit_code 2
+    hr
+    echo "checking queue2 precondition failure for durable vs non-durable:"
+    ./check_rabbitmq.py -v --queue queue2
+    check_exit_code 2
+    hr
     set -e
 
     local RABBITMQ_PORT="$RABBITMQ_HTTP_PORT"
-    hr
     ./check_rabbitmq_auth.py
+    hr
     ./check_rabbitmq_auth.py -T 'admin.*'
     hr
     set +e
@@ -141,6 +177,12 @@ EOF
     echo "checking cluster name regex failure:"
     ./check_rabbitmq_cluster_name.py -e 'wrongclustername'
     check_exit_code 2
+    hr
+    ./check_rabbitmq_vhost.py --list-vhosts
+    check_exit_code 3
+    hr
+    ./check_rabbitmq_exchange.py --list-exchanges
+    check_exit_code 3
     set -e
     hr
     for x in $TEST_VHOSTS; do
