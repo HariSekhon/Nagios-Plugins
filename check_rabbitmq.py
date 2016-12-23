@@ -380,7 +380,7 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
         self.check_connection()
         self.check_channel()
         def connection_timeout_handler():
-            raise CriticalError("unique message was not found returned on queue '{queue}' within {secs:.2f} secs"\
+            raise CriticalError("unique message not returned on queue '{queue}' within {secs:.2f} secs"\
                                 .format(queue=self.queue, secs=self.timeout / 3) + \
                                 ", consumer timed out while consuming messages from {name} broker '{host}:{port}'"\
                                 .format(name=self.name, host=self.host, port=self.port))
