@@ -53,8 +53,8 @@ export TEST_VHOSTS="$RABBITMQ_VHOST / /test test2"
 
 check_docker_available
 
-# needs to be longer than 10 to allow RabbitMQ to settle so topic creation works
-startupwait 20
+# needs to be longer to allow RabbitMQ Cluster to settle
+startupwait 40
 
 test_rabbitmq(){
     local version="$1"
@@ -73,8 +73,6 @@ test_rabbitmq(){
     echo "RabbitMQ Port = $RABBITMQ_PORT"
     echo "RabbitMQ HTTP Port = $RABBITMQ_HTTP_PORT"
     when_ports_available "$startupwait" "$RABBITMQ_HOST" "$RABBITMQ_PORT" "$RABBITMQ_HTTP_PORT"
-    # echo sleeping 30 secs
-    #sleep 30
     hr
     docker-compose exec "$DOCKER_SERVICE" bash <<-EOF
         # RabbitMQ 3.4 docker image doesn't auto-create the mgmt user or vhost based on the env vars like 3.6 :-/
