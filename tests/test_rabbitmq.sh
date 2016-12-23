@@ -176,10 +176,9 @@ EOF
     hr
     ./check_rabbitmq_cluster_name.py
     hr
-    ./check_rabbitmq_cluster_name.py -e 'rabbit@rabbit\w+'
+    ./check_rabbitmq_cluster_name.py -e 'rabbit@rabb.t1'
     hr
-    echo "and via rabbit2:"
-    ./check_rabbitmq_cluster_name.py -e 'rabbit@rabbit\w+' -P "$RABBITMQ_HTTP_PORT2"
+    ./check_rabbitmq_cluster_name.py -e 'rabbit@rabb.t2' -P "$RABBITMQ_HTTP_PORT2"
     hr
     set +e
     echo "checking cluster name regex failure:"
