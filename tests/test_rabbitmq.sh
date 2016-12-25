@@ -246,7 +246,6 @@ EOF
     echo "checking check_rabbitmq_exchange.py non-existent exchange raises critical:"
     ./check_rabbitmq_exchange.py --exchange "nonexistentexchange"
     check_exit_code 2
-    hr
     set -e
     hr
     # ============================================================================ #
