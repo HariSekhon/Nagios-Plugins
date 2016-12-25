@@ -46,7 +46,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckRabbitMQQueue(RestNagiosPlugin):
@@ -64,7 +64,7 @@ class CheckRabbitMQQueue(RestNagiosPlugin):
         self.vhost = self.default_vhost
         self.queue = None
         self.expected_queue_state = 'running'
-        self.queue_durable = None
+        self.expected_durable = None
         self.path = 'api/queues'
         self.json = True
         self.msg = 'msg not defined yet'
@@ -77,33 +77,32 @@ class CheckRabbitMQQueue(RestNagiosPlugin):
                      help='RabbitMQ queue to check ($RABBITMQ_QUEUE)')
         self.add_opt('-O', '--vhost', default=getenvs('RABBITMQ_VHOST', default=self.default_vhost),
                      help='RabbitMQ vhost for queue ($RABBITMQ_VHOST, default: /)')
-        self.add_opt('-U', '--queue-durable',
+        self.add_opt('-U', '--durable',
                      help="Check queue durable (optional, arg must be: 'true' / 'false')")
         self.add_opt('-l', '--list-queues', action='store_true', help='List queues on given vhost and exit')
 
     def process_options(self):
         super(CheckRabbitMQQueue, self).process_options()
+        self.vhost = self.get_opt('vhost')
+        validate_chars(self.vhost, 'vhost', r'/\w\+-')
+        self.path += '/' + urllib.quote_plus(self.vhost)
         self.queue = self.get_opt('queue')
         if self.get_opt('list_queues'):
             pass
         else:
             validate_chars(self.queue, 'queue', r'/\w\.\+-')
-        self.vhost = self.get_opt('vhost')
-        validate_chars(self.vhost, 'vhost', r'/\w\+-')
-        self.path += '/' + urllib.quote_plus(self.vhost)
-        if self.queue and not self.get_opt('list_queues'):
             self.path += '/' + urllib.quote_plus(self.queue)
-        self.queue_durable = self.get_opt('queue_durable')
-        if self.queue_durable:
-            self.queue_durable = self.queue_durable.lower()
-            if self.queue_durable not in ('true', 'false'):
-                self.usage("invalid --queue-durable '{0}', if specified must be either 'true' or 'false'".\
-                           format(self.queue_durable))
+        self.expected_durable = self.get_opt('durable')
+        if self.expected_durable:
+            self.expected_durable = self.expected_durable.lower()
+            if self.expected_durable not in ('true', 'false'):
+                self.usage("invalid --durable option '{0}' given, if specified must be either 'true' or 'false'".\
+                           format(self.expected_durable))
 
     def check_response_code(self, req):
         if req.status_code != 200:
             if req.status_code == 404 and req.reason == 'Object Not Found':
-                self.msg = "RabbitMQ queue '{0}' on vhost '{1}' not found!".format(self.queue, self.vhost)
+                self.msg = "RabbitMQ queue '{0}' not found on vhost '{1}'!".format(self.queue, self.vhost)
                 raise CriticalError(self.msg)
             else:
                 self.check_response_code_orig(req)
@@ -117,7 +116,9 @@ class CheckRabbitMQQueue(RestNagiosPlugin):
             print("RabbitMQ queues on vhost '{0}':\n".format(self.vhost))
             print('\n'.join([_['name'] for _ in json_data]))
             sys.exit(ERRORS['UNKNOWN'])
-        self.msg = "RabbitMQ vhost '{0}' queue '{1}' ".format(self.vhost, self.queue)
+        self.msg = "RabbitMQ queue '{0}' ".format(self.queue)
+        if self.verbose:
+            self.msg += "on vhost '{0}' ".format(self.vhost)
         self.check_queue(json_data)
 
     def check_queue(self, json_data):
@@ -133,9 +134,9 @@ class CheckRabbitMQQueue(RestNagiosPlugin):
             self.msg += " (expected '{0}')".format(self.expected_queue_state)
         queue_durable = str(json_data['durable']).lower()
         self.msg += ', durable = {0}'.format(queue_durable)
-        if self.queue_durable and self.queue_durable != queue_durable:
+        if self.expected_durable and self.expected_durable != queue_durable:
             self.critical()
-            self.msg += " (expected '{0}')".format(self.queue_durable)
+            self.msg += " (expected '{0}')".format(self.expected_durable)
         return
 
 
