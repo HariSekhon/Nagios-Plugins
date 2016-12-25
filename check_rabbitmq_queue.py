@@ -137,7 +137,6 @@ class CheckRabbitMQQueue(RestNagiosPlugin):
         if self.expected_durable and self.expected_durable != queue_durable:
             self.critical()
             self.msg += " (expected '{0}')".format(self.expected_durable)
-        return
 
 
 if __name__ == '__main__':
