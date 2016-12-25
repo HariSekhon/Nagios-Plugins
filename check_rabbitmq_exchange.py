@@ -38,7 +38,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import getenvs, isList, validate_chars, \
+    from harisekhon.utils import getenvs, isDict, isList, validate_chars, \
                                  CriticalError, UnknownError, ERRORS, support_msg_api
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
@@ -46,14 +46,14 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
-class CheckRabbitMQExchanges(RestNagiosPlugin):
+class CheckRabbitMQExchange(RestNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckRabbitMQExchanges, self).__init__()
+        super(CheckRabbitMQExchange, self).__init__()
         # Python 3.x
         # super().__init__()
         self.name = 'RabbitMQ'
@@ -63,9 +63,9 @@ class CheckRabbitMQExchanges(RestNagiosPlugin):
         self.default_vhost = '/'
         self.vhost = self.default_vhost
         self.exchange = None
-        self.exchange_type = None
+        self.expected_type = None
         self.valid_exchange_types = ('direct', 'fanout', 'headers', 'topic')
-        self.exchange_durable = None
+        self.expected_durable = None
         self.path = 'api/exchanges'
         self.json = True
         self.msg = 'msg not defined yet'
@@ -73,40 +73,41 @@ class CheckRabbitMQExchanges(RestNagiosPlugin):
         self.request.check_response_code = self.check_response_code
 
     def add_options(self):
-        super(CheckRabbitMQExchanges, self).add_options()
+        super(CheckRabbitMQExchange, self).add_options()
         self.add_opt('-E', '--exchange', default=getenvs('RABBITMQ_EXCHANGE'),
                      help='RabbitMQ exchange to check ($RABBITMQ_EXCHANGE)')
         self.add_opt('-O', '--vhost', default=getenvs('RABBITMQ_VHOST', default=self.default_vhost),
                      help='RabbitMQ vhost for exchange ($RABBITMQ_VHOST, default: /)')
-        self.add_opt('-T', '--exchange-type', help='Check exchange is of given type (optional, must be one of: {0})'\
-                                                   .format(', '.join(self.valid_exchange_types)))
-        self.add_opt('-U', '--exchange-durable',
-                     help="Check exchange durable (optional, arg must be: 'true' / 'false')")
+        self.add_opt('-T', '--type', help='Check exchange is of given type (optional, must be one of: {0})'\
+                                          .format(', '.join(self.valid_exchange_types)))
+        self.add_opt('-U', '--durable', help="Check exchange durable (optional, arg must be: 'true' / 'false')")
         self.add_opt('-l', '--list-exchanges', action='store_true', help='List exchanges on given vhost and exit')
 
     def process_options(self):
-        super(CheckRabbitMQExchanges, self).process_options()
-        self.exchange = self.get_opt('exchange')
-        if self.get_opt('list_exchanges'):
-            pass
-        elif self.exchange == '':
-            # nameless exchange
-            pass
-        else:
-            validate_chars(self.exchange, 'exchange', r'/\w\.\+-')
+        super(CheckRabbitMQExchange, self).process_options()
         self.vhost = self.get_opt('vhost')
         validate_chars(self.vhost, 'vhost', r'/\w\+-')
         self.path += '/' + urllib.quote_plus(self.vhost)
-        self.exchange_type = self.get_opt('exchange_type')
-        self.exchange_durable = self.get_opt('exchange_durable')
-        if self.exchange_type and self.exchange_type not in self.valid_exchange_types:
-            self.usage("invalid --exchange-type '{0}', if specified must be one of: {1}"\
-                       .format(self.exchange_type, ', '.join(self.valid_exchange_types)))
-        if self.exchange_durable:
-            self.exchange_durable = self.exchange_durable.lower()
-            if self.exchange_durable not in ('true', 'false'):
-                self.usage("invalid --exchange-durable '{0}', if specified must be either 'true' or 'false'".\
-                           format(self.exchange_durable))
+        self.exchange = self.get_opt('exchange')
+        if self.get_opt('list_exchanges'):
+            pass
+        else:
+            if self.exchange == '':
+                # nameless exchange
+                pass
+            else:
+                validate_chars(self.exchange, 'exchange', r'/\w\.\+-')
+            self.path += '/' + urllib.quote_plus(self.exchange)
+        self.expected_type = self.get_opt('type')
+        self.expected_durable = self.get_opt('durable')
+        if self.expected_type and self.expected_type not in self.valid_exchange_types:
+            self.usage("invalid --type '{0}' given, if specified must be one of: {1}"\
+                       .format(self.expected_type, ', '.join(self.valid_exchange_types)))
+        if self.expected_durable:
+            self.expected_durable = self.expected_durable.lower()
+            if self.expected_durable not in ('true', 'false'):
+                self.usage("invalid --durable '{0}' given, if specified must be either 'true' or 'false'".\
+                           format(self.expected_durable))
 
     def check_response_code(self, req):
         if req.status_code != 200:
@@ -118,10 +119,10 @@ class CheckRabbitMQExchanges(RestNagiosPlugin):
 
     def parse_json(self, json_data):
         # when returning all vhosts, otherwise will return lone dict item or 404
-        if not isList(json_data):
-            raise UnknownError("non-list returned by RabbitMQ (got type '{0}'). {1}"\
-                               .format(type(json_data), support_msg_api()))
         if self.get_opt('list_exchanges'):
+            if not isList(json_data):
+                raise UnknownError("non-list returned by RabbitMQ (got type '{0}'). {1}"\
+                                   .format(type(json_data), support_msg_api()))
             print("RabbitMQ Exchanges on vhost '{0}':\n".format(self.vhost))
             exchanges = [_['name'] for _ in json_data]
             for key, item in enumerate(exchanges):
@@ -129,27 +130,29 @@ class CheckRabbitMQExchanges(RestNagiosPlugin):
                     exchanges[key] = '<nameless>'
             print('\n'.join([_['name'] for _ in json_data if _['name']]))
             sys.exit(ERRORS['UNKNOWN'])
-        self.msg = "RabbitMQ exchange '{0}' on vhost '{1}' ".format(self.exchange, self.vhost)
+        self.msg = "RabbitMQ exchange '{0}' ".format(self.exchange)
+        if self.verbose:
+            self.msg += "on vhost '{0}' ".format(self.vhost)
         self.check_exchange(json_data)
 
     def check_exchange(self, json_data):
-        for item in json_data:
-            if item['name'] == self.exchange:
-                self.msg += 'exists'
-                exchange_type = str(item['type']).lower()
-                self.msg += ', type = {0}'.format(exchange_type)
-                if self.exchange_type and self.exchange_type != exchange_type:
-                    self.critical()
-                    self.msg += " (expected '{0}')".format(self.exchange_type)
-                exchange_durable = str(item['durable']).lower()
-                self.msg += ', durable = {0}'.format(exchange_durable)
-                if self.exchange_durable and self.exchange_durable != exchange_durable:
-                    self.critical()
-                    self.msg += " (expected '{0}')".format(self.exchange_durable)
-                return
-        self.msg += 'does not exist!'
-        self.critical()
+        if not isDict(json_data):
+            raise UnknownError("non-dict passed to check_exchange), got type '{0}".format(type(json_data)))
+        if json_data['name'] != self.exchange:
+            raise CriticalError("exchange name returned '{0}' does not match expected exchange '{1}'"\
+                                .format(json_data['name'], self.exchange))
+        self.msg += 'exists'
+        exchange_type = str(json_data['type']).lower()
+        self.msg += ', type = {0}'.format(exchange_type)
+        if self.expected_type and self.expected_type != exchange_type:
+            self.critical()
+            self.msg += " (expected '{0}')".format(self.expected_type)
+        exchange_durable = str(json_data['durable']).lower()
+        self.msg += ', durable = {0}'.format(exchange_durable)
+        if self.expected_durable and self.expected_durable != exchange_durable:
+            self.critical()
+            self.msg += " (expected '{0}')".format(self.expected_durable)
 
 
 if __name__ == '__main__':
-    CheckRabbitMQExchanges().main()
+    CheckRabbitMQExchange().main()
