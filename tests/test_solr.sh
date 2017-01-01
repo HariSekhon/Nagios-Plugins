@@ -27,7 +27,7 @@ echo "
 # ============================================================================ #
 "
 
-export SOLR_VERSIONS="${@:-${SOLR_VERSIONS:-latest 3.1 3.6 4.10 5.5 6.0 6.1}}"
+export SOLR_VERSIONS="${@:-${SOLR_VERSIONS:-latest 3.1 3.6 4.10 5.5 6.0 6.1 6.2}}"
 
 SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
@@ -36,6 +36,8 @@ export SOLR_HOST
 export SOLR_PORT="${SOLR_PORT:-8983}"
 export SOLR_COLLECTION="${SOLR_COLLECTION:-test}"
 export SOLR_CORE="${SOLR_COLLECTION:-${SOLR_CORE:-test}}"
+
+export SOLR_HOME=/solr
 
 startupwait 10
 
@@ -52,7 +54,7 @@ test_solr(){
     if [[ "$version" = "latest" || ${version:0:1} > 3 ]]; then
         docker-compose exec "$DOCKER_SERVICE" solr create_core -c "$SOLR_CORE" || :
         # TODO: fix this on Solr 5.x+
-        docker-compose exec "$DOCKER_SERVICE" bin/post -c "$SOLR_CORE" example/exampledocs/money.xml || :
+        docker-compose exec "$DOCKER_SERVICE" "$SOLR_HOME/bin/post" -c "$SOLR_CORE" "$SOLR_HOME/example/exampledocs/money.xml" || :
     fi
     hr
     if [ -n "${NOTESTS:-}" ]; then
@@ -71,7 +73,7 @@ test_solr(){
         :
     fi
     hr
-    $perl -T ./check_solr_api_ping.pl -v -w 500
+    $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
     hr
     $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
     hr
@@ -80,7 +82,7 @@ test_solr(){
     num_expected_docs=4
     [ "${version:0:1}" -lt 4 ] && num_expected_docs=0
     # TODO: fix Solr 5 + 6 doc insertion and then tighten this up
-    $perl -T ./check_solr_query.pl -n 0:4 -v
+    $perl -T ./check_solr_query.pl -n 0:4 -w 200 -v
     hr
     $perl -T ./check_solr_write.pl -v -w 1000 # because Travis is slow
     hr
