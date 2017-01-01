@@ -29,7 +29,7 @@ Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.7.2, 4.10.3, 5.4.0, 5.5.0, 6.0.
 # Replication status
 # Synthetic queries
 
-our $VERSION = "0.3.4";
+our $VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -133,7 +133,7 @@ my $stat_found = 0;
 # This construct is the more general purpose left over from parsing all the metric categories, still viable now using only a single category
 foreach (my $i = 1; $i < scalar @mbeans; $i+=2){
     isHash($mbeans[$i]) or quit "UNKNOWN", "mbean member $i is not a hashref, got '$mbeans[$i]'. $nagios_plugins_support_msg_api";
-    #print "i $i => " . Dumper(%{$mbeans[$i]});
+    #print "i $i => " . Dumper($mbeans[$i]);
     foreach my $key2 (keys %{$mbeans[$i]}){
         # if specifying wrong key then whole hash is empty so this logic is redundant
         #if($key and $key eq $key2){
@@ -146,7 +146,13 @@ foreach (my $i = 1; $i < scalar @mbeans; $i+=2){
         # Odd number of elements in hash assignment at ./check_solr_metrics.pl line 135.
         # Use of uninitialized value in list assignment at ./check_solr_metrics.pl line 135.
         no warnings;
-        my %keys3 = get_field2_hash($mbeans[$i], "$key2_dot.stats", 1);
+        my %keys3;
+        # For some unknown reason the API returns this data as an array instead of a hash for this key, see issue # 127
+        if($key2 =~ /^org.apache.solr.handler.dataimport.DataImportHandler$/){
+            %keys3 = get_field2_array($mbeans[$i], "$key2_dot.stats", 1);
+        } else {
+            %keys3 = get_field2_hash($mbeans[$i], "$key2_dot.stats", 1);
+        }
         use warnings;
         if(%keys3){
             foreach (sort keys %keys3){
@@ -155,6 +161,8 @@ foreach (my $i = 1; $i < scalar @mbeans; $i+=2){
                 }
                 $stat_found = 1;
                 my $value = $keys3{$_};
+                # org.apache.solr.handler.dataimport.DataImportHandler returns these, see issue # 127
+                $value =~ s/^java\.util\.concurrent\.atomic\.AtomicLong://;
                 if(defined($value) and isFloat($value)){
                     if(defined($stats{"${key2}.$_"})){
                         code_error "duplicate key '${key2}.$_' detected";
@@ -196,16 +204,15 @@ foreach(keys %stats){
 }
 vlog2 "$num_stats stats collected";
 foreach my $key (sort keys %stats){
-    $msg .= "$key";
+    $msg .= "$key ";
     foreach(sort keys %{$stats{$key}}){
         #print "$_=$stats{$_}\n";
-        $msg  .= " $_=$stats{$key}{$_}";
+        $msg  .= "$_=$stats{$key}{$_}, ";
         $msg2 .= " '${key} => $_'=$stats{$key}{$_}";
         if($num_stats == 1){
             check_thresholds($stats{$key}{$_});
         }
     }
-    $msg .= ", ";
 }
 
 $msg .= sprintf('query time %dms, QTime %dms |', $query_time, $query_qtime);
