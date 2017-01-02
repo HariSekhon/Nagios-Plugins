@@ -29,7 +29,7 @@ Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.7.2, 4.10.3, 5.4.0, 5.5.0, 6.0.
 # Replication status
 # Synthetic queries
 
-our $VERSION = "0.4";
+our $VERSION = "0.4.1";
 
 use strict;
 use warnings;
@@ -148,7 +148,7 @@ foreach (my $i = 1; $i < scalar @mbeans; $i+=2){
         no warnings;
         my %keys3;
         # For some unknown reason the API returns this data as an array instead of a hash for this key, see issue # 127
-        if($key2 =~ /^org.apache.solr.handler.dataimport.DataImportHandler$/){
+        if($key2 =~ /^org.apache.solr.handler.dataimport.DataImportHandler|\/dataimport$/){
             %keys3 = get_field2_array($mbeans[$i], "$key2_dot.stats", 1);
         } else {
             %keys3 = get_field2_hash($mbeans[$i], "$key2_dot.stats", 1);
