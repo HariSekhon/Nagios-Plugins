@@ -53,8 +53,8 @@ export TEST_VHOSTS="$RABBITMQ_VHOST / /test test2"
 
 check_docker_available
 
-# needs to be longer than 10 to allow RabbitMQ to settle so topic creation works
-startupwait 20
+# needs to be longer to allow RabbitMQ Cluster to settle
+startupwait 40
 
 test_rabbitmq(){
     local version="$1"
@@ -119,11 +119,11 @@ EOF
         local version=".*"
     fi
     hr
-    ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" -e "$version"
+    ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" --expected "$version"
     hr
     echo "check auth failure for version check:"
     set +e
-    ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" -u wronguser -e "$version"
+    ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" -u wronguser --expected "$version"
     check_exit_code 2
     set -e
     hr
@@ -138,7 +138,7 @@ EOF
     check_exit_code 2
     hr
     echo "checking message pub-sub against non-existent vhost:"
-    ./check_rabbitmq.py -v -O "nonexistentvhost"
+    ./check_rabbitmq.py -v --vhost "nonexistentvhost"
     check_exit_code 2
     hr
     echo "checking mandatory flag publish failure:"
@@ -160,9 +160,12 @@ EOF
     set -e
 
     local RABBITMQ_PORT="$RABBITMQ_HTTP_PORT"
+    # ============================================================================ #
+    hr
+    echo "check_rabbitmq_auth.py:"
     ./check_rabbitmq_auth.py
     hr
-    ./check_rabbitmq_auth.py -T 'admin.*'
+    ./check_rabbitmq_auth.py --tag 'admin.*'
     hr
     set +e
     echo "checking auth failure:"
@@ -170,9 +173,11 @@ EOF
     check_exit_code 2
     hr
     echo "checking auth failure with differing tag:"
-    ./check_rabbitmq_auth.py -T 'monitoring'
+    ./check_rabbitmq_auth.py --tag 'monitoring'
     check_exit_code 2
     set -e
+    hr
+    # ============================================================================ #
     hr
     ./check_rabbitmq_cluster_name.py
     hr
@@ -182,68 +187,113 @@ EOF
     hr
     set +e
     echo "checking cluster name regex failure:"
-    ./check_rabbitmq_cluster_name.py -e 'wrongclustername'
+    ./check_rabbitmq_cluster_name.py --expected 'wrongclustername'
     check_exit_code 2
     hr
+    set -e
+    # ============================================================================ #
+    hr
+    for x in $TEST_VHOSTS; do
+        ./check_rabbitmq_aliveness.py --vhost "$x"
+        hr
+        ./check_rabbitmq_vhost.py --vhost "$x" --no-tracing
+        hr
+        ./check_rabbitmq_exchange.py --vhost "$x" --exchange amq.direct         --type direct   --durable true
+        ./check_rabbitmq_exchange.py --vhost "$x" --exchange amq.fanout         --type fanout   --durable true
+        ./check_rabbitmq_exchange.py --vhost "$x" --exchange amq.headers        --type headers  --durable true
+        ./check_rabbitmq_exchange.py --vhost "$x" --exchange amq.match          --type headers  --durable true
+        ./check_rabbitmq_exchange.py --vhost "$x" --exchange amq.rabbitmq.trace --type topic    --durable true
+        ./check_rabbitmq_exchange.py --vhost "$x" --exchange amq.topic          --type topic    --durable true
+        hr
+    done
+    # ============================================================================ #
+    hr
+    set +e
+    echo "check_rabbitmq_aliveness raises critical for non-existent vhost object not found:"
+    ./check_rabbitmq_aliveness.py --vhost "nonexistentvhost"
+    check_exit_code 2
+    set -e
+    hr
+    # ============================================================================ #
+    hr
+    echo "check_rabbitmq_exchange:"
+    set +e
     ./check_rabbitmq_vhost.py --list-vhosts
     check_exit_code 3
     hr
-    ./check_rabbitmq_exchange.py --list-exchanges
-    check_exit_code 3
-    set -e
-    hr
-    for x in $TEST_VHOSTS; do
-        ./check_rabbitmq_aliveness.py -O "$x"
-        hr
-        ./check_rabbitmq_vhost.py -O "$x" --no-tracing
-        hr
-        ./check_rabbitmq_exchange.py -O "$x" -E amq.direct         -T direct   -U true
-        ./check_rabbitmq_exchange.py -O "$x" -E amq.fanout         -T fanout   -U true
-        ./check_rabbitmq_exchange.py -O "$x" -E amq.headers        -T headers  -U true
-        ./check_rabbitmq_exchange.py -O "$x" -E amq.match          -T headers  -U true
-        ./check_rabbitmq_exchange.py -O "$x" -E amq.rabbitmq.trace -T topic    -U true
-        ./check_rabbitmq_exchange.py -O "$x" -E amq.topic          -T topic    -U true
-        hr
-    done
-    set +e
-    echo "checking non-existent vhost raises aliveness critical for object not found:"
-    ./check_rabbitmq_aliveness.py -O "nonexistentvhost"
-    check_exit_code 2
-    hr
-    echo "checking non-existent vhost raises critical:"
-    ./check_rabbitmq_vhost.py -O "nonexistentvhost"
+    echo "check_rabbitmq_vhost.py raises critical for non-existent vhost:"
+    ./check_rabbitmq_vhost.py --vhost "nonexistentvhost"
     check_exit_code 2
     hr
     echo "and with tracing:"
-    ./check_rabbitmq_vhost.py -O "nonexistentvhost" --no-tracing
+    ./check_rabbitmq_vhost.py --vhost "nonexistentvhost" --no-tracing
     check_exit_code 2
     hr
     echo "checking vhost with tracing is still ok:"
-    ./check_rabbitmq_vhost.py -O "vhost_with_tracing"
+    ./check_rabbitmq_vhost.py --vhost "vhost_with_tracing"
     check_exit_code 0
     hr
     echo "checking vhost with tracing raises warning when using --no-tracing:"
-    ./check_rabbitmq_vhost.py -O "vhost_with_tracing" --no-tracing
+    ./check_rabbitmq_vhost.py --vhost "vhost_with_tracing" --no-tracing
     check_exit_code 1
+    set -e
+    hr
+    # ============================================================================ #
+    hr
+    echo "check_rabbitmq_exchange:"
+    set +e
+    ./check_rabbitmq_exchange.py --list-exchanges
+    check_exit_code 3
+    hr
+    ./check_rabbitmq_exchange.py --exchange exchange1 -v
+    check_exit_code 0
     hr
     echo "checking check_rabbitmq_exchange.py non-existent vhost raises critical:"
-    ./check_rabbitmq_exchange.py -O "nonexistentvhost" -E amq.direct
+    ./check_rabbitmq_exchange.py --vhost "nonexistentvhost" --exchange amq.direct
     check_exit_code 2
     hr
     echo "checking check_rabbitmq_exchange.py non-existent exchange raises critical:"
-    ./check_rabbitmq_exchange.py -E "nonexistentexchange"
+    ./check_rabbitmq_exchange.py --exchange "nonexistentexchange"
     check_exit_code 2
     set -e
+    hr
+    # ============================================================================ #
+    hr
+    echo "check_rabbitmq_queue.py:"
+    set +e
+    ./check_rabbitmq_queue.py --list-queues
+    check_exit_code 3
+    set -e
+    hr
+    ./check_rabbitmq_queue.py --queue queue1 --durable true
+    hr
+    echo "with non-durable queue:"
+    ./check_rabbitmq_queue.py --queue queue2 --durable false
+    hr
+    set +e
+    echo "with non-durable queue where durable queue is found:"
+    ./check_rabbitmq_queue.py --queue queue1 --durable false
+    check_exit_code 2
+    hr
+    echo "with durable queue where non-durable queue is found:"
+    ./check_rabbitmq_queue.py --queue queue2 --durable true
+    check_exit_code 2
+    set -e
+    hr
+    # ============================================================================ #
     hr
     # 3.5+ only
     if [ "$version" = "latest" ] ||
         [ ${version:0:1} -gt 3 ] ||
         [ ${version:0:1} -eq 3 -a ${version:2:1} -ge 5 ]; then
         # 3.6+ only
-        if [ ${version:0:1} -lt 4 -a ${version:2:1} -ge 6 ]; then
+        if [ ${version:0:1} -gt 4 ] || [ ${version:0:1} -lt 4 -a ${version:2:1} -ge 6 ]; then
+            echo "check_rabbitmq_healthchecks.py (RabbitMQ 3.6+ only):"
             ./check_rabbitmq_healthchecks.py
             hr
         fi
+        hr
+        echo "check_rabbitmq_stats_db_event_queue.py (RabbitMQ 3.5+ only):"
         ./check_rabbitmq_stats_db_event_queue.py
         hr
         echo "check auth failure for stats db event queue check"
