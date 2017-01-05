@@ -16,7 +16,7 @@
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 
-srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "$srcdir/.."
 
@@ -101,29 +101,38 @@ EOF
         wget -O "$rabbitmqadmin" "http://$RABBITMQ_HOST:$RABBITMQ_HTTP_PORT/cli/rabbitmqadmin"
         chmod +x "$rabbitmqadmin"
     fi
-    rabbitmq_cmd="$rabbitmqadmin -H $RABBITMQ_HOST -P $RABBITMQ_HTTP_PORT -u $RABBITMQ_USER -p $RABBITMQ_PASSWORD --vhost $RABBITMQ_VHOST"
+    rabbitmqadmin="$rabbitmqadmin -H $RABBITMQ_HOST -P $RABBITMQ_HTTP_PORT -u $RABBITMQ_USER -p $RABBITMQ_PASSWORD --vhost $RABBITMQ_VHOST"
     echo "Declaring exchanges, queues and bindings"
-    $rabbitmq_cmd declare exchange name=exchange1 type=topic durable=true
-    $rabbitmq_cmd declare exchange name=exchange2 type=fanout durable=false
-    $rabbitmq_cmd declare queue name=queue1 durable=true
-    $rabbitmq_cmd declare queue name=queue2 durable=false
-    $rabbitmq_cmd declare binding source="exchange1" destination_type="queue" destination="queue1" routing_key=""
-    $rabbitmq_cmd declare binding source="exchange2" destination_type="queue" destination="queue2" routing_key=""
+    $rabbitmqadmin declare exchange name=exchange1 type=topic durable=true
+    $rabbitmqadmin declare exchange name=exchange2 type=fanout durable=false
+    $rabbitmqadmin declare queue name=queue1 durable=true
+    $rabbitmqadmin declare queue name=queue2 durable=false
+    $rabbitmqadmin declare binding source="exchange1" destination_type="queue" destination="queue1" routing_key=""
+    $rabbitmqadmin declare binding source="exchange2" destination_type="queue" destination="queue2" routing_key=""
+    echo Done
+    echo "Setting up HA on queue2"
+    $rabbitmqadmin declare policy name='ha-two' pattern='^queue2$' definition='{"ha-mode":"exactly", "ha-params":2, "ha-sync-mode":"automatic"}'
+    docker-compose exec "$DOCKER_SERVICE" bash <<-EOF
+        rabbitmqctl set_policy ha-two "^queue2$"  '{"ha-mode":"exactly", "ha-params":2, "ha-sync-mode":"automatic"}'
+
+        exit
+EOF
     echo "Done"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
     version="${version%management}"
     version="${version%-}"
-    if [ -z "$version" -o "$version" = "latest" ]; then
-        local version=".*"
+    local expected_version="$version"
+    if [ -z "$expected_version" -o "$expected_version" = "latest" ]; then
+        local expected_version=".*"
     fi
     hr
-    ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" --expected "$version"
+    ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" --expected "$expected_version"
     hr
     echo "check auth failure for version check:"
     set +e
-    ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" -u wronguser --expected "$version"
+    ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" -u wronguser --expected "$expected_version"
     check_exit_code 2
     set -e
     hr
@@ -181,9 +190,9 @@ EOF
     hr
     ./check_rabbitmq_cluster_name.py
     hr
-    ./check_rabbitmq_cluster_name.py -e 'rabbit@rabb.t1'
+    ./check_rabbitmq_cluster_name.py -e 'rabbit@rabb.t\d'
     hr
-    ./check_rabbitmq_cluster_name.py -e 'rabbit@rabb.t2' -P "$RABBITMQ_HTTP_PORT2"
+    ./check_rabbitmq_cluster_name.py -e 'rabbit@rabb.t\d' -P "$RABBITMQ_HTTP_PORT2"
     hr
     set +e
     echo "checking cluster name regex failure:"
@@ -279,10 +288,16 @@ EOF
     ./check_rabbitmq_queue.py --queue queue2 --durable true
     check_exit_code 2
     set -e
+    docker-compose exec "$DOCKER_SERVICE" bash <<-EOF
+        rabbitmqctl sync_queue -p "$RABBITMQ_VHOST" queue2
+
+        exit
+EOF
     hr
     # ============================================================================ #
     hr
     # 3.5+ only
+    echo $version
     if [ "$version" = "latest" ] ||
         [ ${version:0:1} -gt 3 ] ||
         [ ${version:0:1} -eq 3 -a ${version:2:1} -ge 5 ]; then
@@ -302,9 +317,14 @@ EOF
         check_exit_code 2
         set -e
         hr
+        echo
+        echo "Tests completed successfully for RabbitMQ version $version"
+        echo
+        hr
     fi
     #delete_container
-    docker-compose down
+    [ -z "${NODELETE:-}" ] &&
+        docker-compose down
     echo
 }
 
