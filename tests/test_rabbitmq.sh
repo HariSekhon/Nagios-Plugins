@@ -302,7 +302,8 @@ EOF
         [ ${version:0:1} -gt 3 ] ||
         [ ${version:0:1} -eq 3 -a ${version:2:1} -ge 5 ]; then
         # 3.6+ only
-        if [ ${version:0:1} -gt 4 ] || [ ${version:0:1} -lt 4 -a ${version:2:1} -ge 6 ]; then
+        if [ "$version" = "latest" -o ${version:0:1} -gt 4 ] ||
+            [ ${version:0:1} -eq 3 -a ${version:2:1} -ge 6 ]; then
             echo "check_rabbitmq_healthchecks.py (RabbitMQ 3.6+ only):"
             ./check_rabbitmq_healthchecks.py
             hr
