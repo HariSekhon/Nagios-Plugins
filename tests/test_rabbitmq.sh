@@ -64,6 +64,9 @@ test_rabbitmq(){
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $RABBITMQ_PORT
     local VERSION="$version"
     VERSION="${VERSION#latest-}"
+    # if one container is already still up it'll result in inconsistent state error when the other tries to join cluster, causing rabbit2 joining node container to crash
+    # so shut down any already existing containers for safety
+    #docker-compose down
     VERSION="$VERSION" docker-compose up -d
     local DOCKER_SERVICE="rabbit1"
     local DOCKER_SERVICE2="rabbit2"
