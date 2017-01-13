@@ -26,7 +26,8 @@ libxml2-dev
 make
 mariadb-dev
 openssl
-openssl-dev
+# conflicts with libressl-dev which is required by mariadb-dev
+#openssl-dev
 perl
 perl-dev
 perl-dbd-mysql
