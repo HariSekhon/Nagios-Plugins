@@ -99,6 +99,7 @@ Socket6
 Sub::Exporter::Progressive
 Sub::Name
 TAP::Harness::Env
+Test::More
 Test::SharedFork
 Thrift
 Time::HiRes
