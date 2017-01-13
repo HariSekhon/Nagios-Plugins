@@ -428,7 +428,7 @@ The following enterprise monitoring systems are compatible with this project:
 * [Nagios](https://www.nagios.org/) - the original widely used open source monitoring system that set the standard
   * [Nagios Command Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command)
   * [Nagios Service Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service)
-  * [NRPE - Nagios Remote Plugin Executor](https://assets.nagios.com/downloads/nagioscore/docs/nrpe/NRPE.pdf) (use this for plugins that check the local system eg. `check_linux*.py` / `older/check_*raid*.py` rather than query network services like NoSQL datastores)
+  * [NRPE - Nagios Remote Plugin Executor](https://assets.nagios.com/downloads/nagioscore/docs/nrpe/NRPE.pdf) (use this for plugins that check the local system eg. `check_linux_*` / `older/check_*raid*.py` rather than query network services like NoSQL datastores)
 
 * [Icinga](https://www.icinga.org/) - a newer alternative to classic Nagios
 
