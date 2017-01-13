@@ -178,7 +178,10 @@ class YumTester(object):
         with an appropriate message if any are found"""
 
         if returncode == 0:
-            pass
+            if "You must run this command as root" in output[2]:
+                end(UNKNOWN, "You must run this plugin as root")
+            else:
+                pass
         elif returncode == 100:
             # Updates Available
             pass
