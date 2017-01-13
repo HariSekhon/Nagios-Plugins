@@ -32,6 +32,6 @@ perl
 perl-dev
 perl-dbd-mysql
 py-mysqldb
-py-pip
+py2-pip
 ruby
 wget
