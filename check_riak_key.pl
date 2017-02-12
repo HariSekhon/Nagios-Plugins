@@ -20,7 +20,7 @@ Checks:
 4. outputs the read timing to a given precision for reporting and graphing
 5. optionally outputs the key's value for graphing purposes
 
-Tested on Riak 1.x, 2.0.0, 2.1.1, 2.1.4";
+Tested on Riak 1.4.0, 2.0.0, 2.1.1, 2.1.4";
 
 $VERSION = "0.7.1";
 
