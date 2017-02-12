@@ -15,7 +15,7 @@ Useful to check that ring state has settled after changing cluster memberships
 
 Designed to be run on a Riak node over NRPE
 
-Tested on Riak 1.x, 2.0.0, 2.1.1, 2.1.4";
+Tested on Riak 1.4.0, 2.0.0, 2.1.1, 2.1.4";
 
 $VERSION = "0.3";
 
