@@ -126,10 +126,10 @@ def test_all(verbosity, warn_true=False, no_summary=False, show_drives=False):
 
     array_result, array_message = test_arrays(verbosity, warn_true, no_summary)
 
-    if array_result != OK and not show_drives:
-        return array_result, array_message
-
     drive_result, drive_message = test_drives(verbosity, warn_true, no_summary)
+
+    if array_result != OK and drive_result == OK and not show_drives:
+        return array_result, array_message
 
     if drive_result > array_result:
         result = drive_result
