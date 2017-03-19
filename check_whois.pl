@@ -64,7 +64,7 @@ DISCLAIMER:
 # THERE IS A LOT OF REGEX. EVEN IF YOU ARE A REGEX MASTER YOU CANNOT PREDICT ALL SIDE EFFECTS
 # YOU MUST RELY ON THE ACCOMPANYING TESTS I HAVE WRITTEN IF YOU CHANGE ANYTHING AT ALL
 
-$VERSION = "0.11.1";
+$VERSION = "0.11.2";
 
 use strict;
 use warnings;
@@ -436,11 +436,14 @@ foreach(@output){
         my $domain_status = strip($1);
         $domain_status =~ s/\s+https?$//i;
         $domain_status =~ s/\s+--.*$//i;
+        $domain_status =~ s/ -//;
         push(@{$results{"status"}}, $domain_status);
     } elsif (/^state:\s*([\w\s,-]+)\s*$/io){
         my @states = split(",", $1);
         foreach(@states){
-            push(@{$results{"status"}}, strip($_));
+            my $domain_status = strip($1);
+            $domain_status =~ s/ -//;
+            push(@{$results{"status"}}, $domain_status);
         }
     } elsif (/^\s*(?:Registrant Organization|Organisation Name|registrant_contact_name)[.:]+\s*(.+?)\s*$/io or
              /^\[Registrant\]\s+(.+?)\s*$/ or
