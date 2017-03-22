@@ -70,7 +70,7 @@ if($i >= scalar @output){
 my %stats;
 foreach(; $i < scalar @output; $i++){
     $output[$i] =~ /^\s*$/ and $i++ and last;
-    $output[$i] =~ /^(\w+(?:\s[A-Za-z]+)?)\s+(n\/a|\d+)\s+(\d+)\s+(\d+)(?:\s+(\d+))?\s*$/i or die_nodetool_unrecognized_output($output[$i]);
+    $output[$i] =~ /^(\w+(?:\s[A-Za-z]+)?)\s+(n\/a|\d+)\s+(\d+)\s+(\d+)(?:\s+(n\/a|\d+))?\s*$/i or die_nodetool_unrecognized_output($output[$i]);
     my $type = $1;
     my $active = $2;
     my $pending = $3;
