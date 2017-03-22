@@ -17,7 +17,7 @@ Can specify a remote host and port otherwise it checks the local node's stats (f
 
 Tested on Cassandra 1.2.9, 2.0.1, 2.0.9, 2.2.5, 3.0.8, 3.5, 3.6, 3.7";
 
-$VERSION = "0.7.1";
+$VERSION = "0.7.2";
 
 use strict;
 use warnings;
@@ -76,7 +76,7 @@ foreach(; $i < scalar @output; $i++){
     my $pending = $3;
     my $completed = $4;
     my $dropped = undef;
-    if(defined($5)){
+    if(defined($5) and $5 ne "n/a"){
         $dropped = $5;
     }
     vlog3 "type = $type";
