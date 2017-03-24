@@ -64,7 +64,7 @@ DISCLAIMER:
 # THERE IS A LOT OF REGEX. EVEN IF YOU ARE A REGEX MASTER YOU CANNOT PREDICT ALL SIDE EFFECTS
 # YOU MUST RELY ON THE ACCOMPANYING TESTS I HAVE WRITTEN IF YOU CHANGE ANYTHING AT ALL
 
-$VERSION = "0.11.2";
+$VERSION = "0.11.3";
 
 use strict;
 use warnings;
@@ -228,6 +228,7 @@ my @valid_statuses = qw/
                         pendingTransfer
                         pendingUpdate
                         published
+                        Publicado
                         registered
                         RENEWPERIOD
                         serverDeleteProhibited
