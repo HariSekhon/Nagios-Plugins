@@ -73,6 +73,7 @@ LWP::Authen::Negotiate
 LWP::Simple
 LWP::UserAgent
 List::MoreUtils
+List::MoreUtils::XS
 Math::Round
 Module::Build::Tiny
 Module::CPANfile::Result
