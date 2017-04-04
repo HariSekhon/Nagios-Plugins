@@ -91,6 +91,7 @@ class YumTester(object):
         self.no_warn_on_lock = False
         self.enable_repo = ""
         self.disable_repo = ""
+        self.yum_config = ""
         self.timeout = DEFAULT_TIMEOUT
         self.verbosity = 0
         self.warn_on_any_update = False
@@ -138,6 +139,10 @@ class YumTester(object):
         if self.disable_repo:
             for repo in self.disable_repo.split(","):
                 cmd += " --disablerepo=%s" % repo
+
+        if self.yum_config:
+            for repo in self.yum_config.split(","):
+                cmd += " --config=%s" % repo
 
         self.vprint(3, "running command: %s" % cmd)
 
@@ -495,6 +500,12 @@ def main():
                          + "check itself doesn't have to do it, possibly "  \
                          + "speeding up execution (by 1-2 seconds in tests)")
 
+    parser.add_option("-c",
+                      "--config",
+                      dest="yum_config",
+                      help="Run with custom repository config in order to use " \
+                         + "custom repositories in case of special setup for")
+
     parser.add_option("-N",
                       "--no-warn-on-lock",
                       action="store_true",
@@ -552,6 +563,7 @@ def main():
     tester.no_warn_on_lock = options.no_warn_on_lock
     tester.enable_repo = options.repository_to_enable
     tester.disable_repo = options.repository_to_disable
+    tester.yum_config = options.yum_config
     tester.timeout = options.timeout
     tester.verbosity = options.verbosity
     tester.warn_on_any_update = options.warn_on_any_update
