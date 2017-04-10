@@ -23,9 +23,8 @@ through the brokers
 Thresholds apply to max produce / consume message timings which are also output as perfdata for graphing.
 Total time includes setup, connection and message timings etc.
 
-See also Perl versio check_kafka.pl of which this is a port of since one of the underlying Perl library's dependencies
-developed an autoload bug which needs manual fixing before that Perl version can be run (documented
-at the landing page at https://github.com/harisekhon/nagios-plugins and automated in the build now).
+See also Perl version check_kafka.pl of which this is a port of since one of the underlying Perl library's
+dependencies developed an autoload bug (now auto-patched in the automated build of this project).
 
 The Perl version does have better info for --list-partitions however, including Replicas,
 ISRs and Leader info per partition as the Perl API exposes this additional information.
@@ -59,7 +58,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.9'
+__version__ = '0.4.0'
 
 
 class CheckKafka(PubSubNagiosPlugin):
@@ -74,8 +73,11 @@ class CheckKafka(PubSubNagiosPlugin):
         self.producer = None
         self.consumer = None
         self.topic = None
-        self.client_id = 'Hari Sekhon ' + os.path.basename(get_topfile()) + ' ' + __version__
-        self.group_id = self.client_id + ' ' + str(os.getpid()) + ' ' + random_alnum(10)
+        self.client_id = 'Hari Sekhon {prog} {version}'.format(prog=os.path.basename(get_topfile()),
+                                                               version=__version__)
+        self.group_id = '{client_id} {pid} {random}'.format(client_id=self.client_id,
+                                                            pid=os.getpid(),
+                                                            random=random_alnum(10))
         self.acks = '1'
         self.retries = 0
         self.partition = None
@@ -83,6 +85,7 @@ class CheckKafka(PubSubNagiosPlugin):
         self.brokers = None
         self.timeout_ms = None
         self.start_offset = None
+        self.sleep_secs = 0
 
     def add_options(self):
         # super(CheckKafka, self).add_options()
@@ -99,7 +102,7 @@ class CheckKafka(PubSubNagiosPlugin):
                      'partition leader, or \'all\' for all In-Sync Replicas (may block causing ' +
                      'timeout if replicas aren\'t available, default: 1)')
         self.add_opt('-s', '--sleep', metavar='secs',
-                     help='Sleep in seconds between producing and consuming from given topic (default: 0.5)')
+                     help='Sleep in seconds between producing and consuming from given topic (optional)')
         self.add_opt('--list-topics', action='store_true', help='List Kafka topics from broker(s) and exit')
         self.add_opt('--list-partitions', action='store_true',
                      help='List Kafka topic paritions from broker(s) and exit')
@@ -124,7 +127,8 @@ class CheckKafka(PubSubNagiosPlugin):
         self.consumer = KafkaConsumer(
             bootstrap_servers=self.brokers,
             client_id=self.client_id,
-            request_timeout_ms=self.timeout_ms
+            request_timeout_ms=self.timeout_ms + 1, # must be larger than session timeout in newer 1.3.3 library
+            session_timeout_ms=self.timeout_ms,
             )
         return self.consumer.topics()
 
@@ -159,7 +163,10 @@ class CheckKafka(PubSubNagiosPlugin):
         # validate_hostport(self.brokers)
         log_option('brokers', self.brokers)
         self.timeout_ms = max((self.timeout * 1000 - 1000) / 2, 1000)
-
+        sleep_secs = self.get_opt('sleep')
+        if sleep_secs:
+            # validation done through property wrapper
+            self.sleep_secs = sleep_secs
         try:
             list_topics = self.get_opt('list_topics')
             list_partitions = self.get_opt('list_partitions')
@@ -171,7 +178,7 @@ class CheckKafka(PubSubNagiosPlugin):
             raise CriticalError(self.exception_msg())
 
         if self.topic:
-            validate_chars(self.topic, 'topic', '\w\.-')
+            validate_chars(self.topic, 'topic', r'\w\.-')
         elif list_topics or list_partitions:
             pass
         else:
@@ -243,7 +250,8 @@ class CheckKafka(PubSubNagiosPlugin):
             acks=self.acks,
             batch_size=0,
             max_block_ms=self.timeout_ms,
-            request_timeout_ms=self.timeout_ms
+            request_timeout_ms=self.timeout_ms + 1, # must be larger than session timeout in newer 1.3.3 library
+            session_timeout_ms=self.timeout_ms,
             )
             #key_serializer
             #value_serializer
