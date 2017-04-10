@@ -15,7 +15,7 @@ Raises Critical or Warning if any such diagnostics are found, outputs the number
 
 Designed to be run on each Riak node via NRPE
 
-Tested on Riak 1.x, 2.0.0, 2.1.1, 2.1.4";
+Tested on Riak 1.4.0, 2.0.0, 2.1.1, 2.1.4";
 
 $VERSION = "0.2";
 

@@ -64,6 +64,7 @@ myspace.com.ee
 domains="$domains
 shomershabbatscouting.org
 ymkatz.net
+barcodepack.com
 "
 
 # generic TLDs, will generate google.$tld from this list

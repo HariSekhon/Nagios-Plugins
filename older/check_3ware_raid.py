@@ -64,24 +64,32 @@ if os.geteuid() != 0:
 
 ARCH = os.uname()[4]
 
-if re.match("i[3456]86", ARCH):
-    BIN = SRCDIR + "/tw_cli"
-elif ARCH == "x86_64":
-    BIN = SRCDIR + "/tw_cli_64"
-else:
-    end(UNKNOWN, "architecture is not x86 or x86_64, cannot run 3ware utility")
+BIN = None
 
-if not os.path.exists(BIN):
-    end(UNKNOWN, "3ware utility for this architecture '%s' cannot be found" \
-                                                                          % BIN)
+def _set_twcli_binary(path=None):
+    """ set the path to the twcli binary"""
+    global BIN
 
-if not os.access(BIN, os.X_OK):
-    end(UNKNOWN, "3ware utility '%s' is not executable" % BIN)
+    if path:
+        BIN = path
+    elif re.match("i[3456]86", ARCH):
+        BIN = SRCDIR + "/tw_cli"
+    elif ARCH == "x86_64":
+        BIN = SRCDIR + "/tw_cli_64"
+    else:
+        end(UNKNOWN, "architecture is not x86 or x86_64, cannot run 3ware " \
+                     "utility")
+
+    if not os.path.exists(BIN):
+        end(UNKNOWN, "3ware utility for this architecture '%s' cannot be " \
+                     "found" % BIN)
+
+    if not os.access(BIN, os.X_OK):
+        end(UNKNOWN, "3ware utility '%s' is not executable" % BIN)
 
 
 def run(cmd):
     """runs a system command and returns stripped output"""
-
     if cmd == "" or cmd == None:
         end(UNKNOWN, "internal python error - " \
                    + "no cmd supplied for 3ware utility")
@@ -345,6 +353,11 @@ def main():
                        help="Only test the arrays. By default both arrays " \
                           + "and drives are checked")
 
+    parser.add_option( "-b",
+                       "--binary",
+                       dest="binary",
+                       help="Full path of the tw_cli binary to use.")
+
     parser.add_option( "-d",
                        "--drives-only",
                        action="store_true",
@@ -408,6 +421,7 @@ def main():
         sys.exit(UNKNOWN)
 
     arrays_only  = options.arrays_only
+    binary       = options.binary
     drives_only  = options.drives_only
     no_summary   = options.no_summary
     show_drives  = options.show_drives
@@ -434,6 +448,8 @@ def main():
         print "Array warning states are invalid when testing only drives\n"
         parser.print_help()
         sys.exit(UNKNOWN)
+
+    _set_twcli_binary(binary)
 
     if arrays_only:
         result, output = test_arrays(verbosity, warn_true, no_summary)

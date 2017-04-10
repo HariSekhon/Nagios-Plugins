@@ -18,7 +18,7 @@ Configurable warning/critical thresholds apply to this API call's millisecond ti
 Tested on Solr / SolrCloud 4.7.2, 4.10.3, 5.4.0, 5.5.0, 6.0.0, 6.1.0, 6.2.0";
 # not available on Solr <= 3.x
 
-$VERSION = "0.3.2";
+$VERSION = "0.3.3";
 
 use strict;
 use warnings;
@@ -49,7 +49,7 @@ get_options();
 $host       = validate_host($host);
 $port       = validate_port($port);
 unless($list_collections or $list_cores){
-    $collection = validate_collection($collection);
+    $collection = validate_solr_collection($collection);
 }
 $http_context = validate_solr_context($http_context);
 validate_ssl();

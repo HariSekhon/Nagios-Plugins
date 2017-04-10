@@ -24,7 +24,7 @@ Checks:
 
 Control of Riak's n_val for the nagios bucket should be done separately, preferably by pre-creating the bucket with the desired n_val
 
-Tested on Riak 1.x, 2.0.0, 2.1.1, 2.1.4";
+Tested on Riak 1.4.0, 2.0.0, 2.1.1, 2.1.4";
 
 $VERSION = "0.8.1";
 

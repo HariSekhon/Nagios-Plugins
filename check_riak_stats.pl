@@ -20,7 +20,7 @@ Checks:
 3. checks stat's value against warning/critical range thresholds (optional)
    raises warning/critical if the value is outside thresholds or not a floating point number
 
-Tested on Riak 1.x, 2.0.0, 2.1.1, 2.1.4";
+Tested on Riak 1.4.0, 2.0.0, 2.1.1, 2.1.4";
 
 $VERSION = "0.8.0";
 

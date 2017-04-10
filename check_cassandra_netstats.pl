@@ -17,7 +17,7 @@ Can specify a remote host and port otherwise it checks the local node's stats (f
 
 Tested on Cassandra 1.2.9, 2.0.1, 2.0.9, 2.2.5, 3.0.8, 3.5, 3.6, 3.7";
 
-$VERSION = "0.7.1";
+$VERSION = "0.7.2";
 
 use strict;
 use warnings;
@@ -70,13 +70,13 @@ if($i >= scalar @output){
 my %stats;
 foreach(; $i < scalar @output; $i++){
     $output[$i] =~ /^\s*$/ and $i++ and last;
-    $output[$i] =~ /^(\w+(?:\s[A-Za-z]+)?)\s+(n\/a|\d+)\s+(\d+)\s+(\d+)(?:\s+(\d+))?\s*$/i or die_nodetool_unrecognized_output($output[$i]);
+    $output[$i] =~ /^(\w+(?:\s[A-Za-z]+)?)\s+(n\/a|\d+)\s+(\d+)\s+(\d+)(?:\s+(n\/a|\d+))?\s*$/i or die_nodetool_unrecognized_output($output[$i]);
     my $type = $1;
     my $active = $2;
     my $pending = $3;
     my $completed = $4;
     my $dropped = undef;
-    if(defined($5)){
+    if(defined($5) and $5 ne "n/a"){
         $dropped = $5;
     }
     vlog3 "type = $type";
