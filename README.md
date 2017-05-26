@@ -156,7 +156,7 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 - `check_git_branch_checkout.p*` - if deploying from a git checkout (eg. puppetmaster), make sure it stays on the expected branch otherwise you could auto-deploy the wrong stuff
 - `check_consul_*` - check Consul API write / read back, arbitrary key-value content checks, number of cluster peers & version
 - ```check_mesos_*.pl``` - check Mesos master health API, master & slaves state information including leader and versions, activated & deactivated slaves, number of Chronos jobs, master & slave metrics
-- ```check_mysql_query.pl``` - generic enough it obsoleted a dozen custom MySQL plugins and prevented writing many more
+- ```check_mysql_query.pl``` - generic enough it obsoleted a dozen custom MySQL plugins and prevented writing many more as it's flexible enough to check almost anything. You may also be interested in [Percona's plugins](https://www.percona.com/doc/percona-monitoring-plugins/latest/index.html)
 - ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline
 - `check_linux_*` - checks RAM used, CPU context switches, system file descriptors, interface errors / promiscous mode / duplex / speed / MTU / stats, load normalized per CPU core (more useful than the default check_load plugin which would need different configs for heterogenous hardware), timezone settings, users / groups present (eg. PAM/LDAP integration is working), duplicate UID/GIDs (helps detects rogue uid 0 accounts and more common LDAP vs local id range overlap misconfigurations), groups.allow contains only specific groups
 - `older/check_*raid.py` - RAID controller / array checks for 3ware, LSI MegaRaid / Dell PERC controllers (they're rebranded from LSI), and Linux software MD Raid. I also recommend the widely used [Dell OpenManage Check](http://folk.uio.no/trondham/software/check_openmanage.html)
@@ -428,7 +428,7 @@ The following enterprise monitoring systems are compatible with this project:
 * [Nagios](https://www.nagios.org/) - the original widely used open source monitoring system that set the standard
   * [Nagios Command Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command)
   * [Nagios Service Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service)
-  * [NRPE - Nagios Remote Plugin Executor](https://assets.nagios.com/downloads/nagioscore/docs/nrpe/NRPE.pdf) (use this for plugins that check the local system eg. `check_linux_*` / `older/check_*raid*.py` rather than query network services like NoSQL datastores)
+  * [NRPE - Nagios Remote Plugin Executor](https://assets.nagios.com/downloads/nagioscore/docs/nrpe/NRPE.pdf) - most plugins check network services like NoSQL datastores but you can use NRPE for plugins that check the local system eg. `check_linux_*` / `older/check_*raid*.py`)
 
 * [Icinga](https://www.icinga.org/) - a newer alternative to classic Nagios
 
