@@ -100,6 +100,7 @@ SMS::AQL
 Socket6
 Sub::Exporter::Progressive
 Sub::Name
+Sub::Util
 TAP::Harness::Env
 Test::More
 Test::SharedFork
