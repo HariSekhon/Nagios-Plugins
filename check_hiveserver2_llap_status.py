@@ -70,9 +70,9 @@ class CheckHiveServer2InteractiveStatus(StatusNagiosPlugin):
         req = RequestHandler().get(url)
         return self.parse(req)
 
-    def get_key(self, json_dict, key):
+    def get_key(self, json_data, key):
         try:
-            return json_dict[key]
+            return json_data[key]
         except KeyError:
             raise UnknownError('\'{0}\' key was not returned in output from '.format(key) +
                                'HiveServer2 Interactive instance at {0}:{1}. {2}'\
