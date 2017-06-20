@@ -31,8 +31,11 @@ Tests:
 Finding an entity by name adds an O(n) operation to first find the guid by scanning all entities so you may need
 to increase timeouts and reduce check frequency if you have a lot of entities stored in Atlas.
 
-I recommended you find the entity one time using --list-entities to get the ID and then run the check against the ID
-which is much more efficient.
+I strongly recommend that you find the entity one time using --list to get the ID and then run the check using the ID
+returned because it's much more efficient - it saves one query to find and return all entities as well as having to
+iterate on every returned entity until it can find a matching name or throw a critical result if no matching name is
+found. Those extra operations to find by name won't scale well on a large setup due to the O(n) nature of the work
+required increasing proportionally as more and more metadata entities are stored in Atlas over time.
 
 Tested on Atlas 0.8.0 on Hortonworks HDP 2.6.0
 
@@ -58,7 +61,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.4.1'
 
 
 class CheckAtlasEntity(RestNagiosPlugin):
@@ -89,13 +92,13 @@ class CheckAtlasEntity(RestNagiosPlugin):
         self.add_opt('-T', '--type', help='Type to expect entity to have')
         self.add_opt('-A', '--tags', help='Tag(s) to expect entity to have, comma separated')
         self.add_opt('-R', '--traits', help='Trait(s) to expect entity to have, comma separated')
-        self.add_opt('-l', '--list-entities', action='store_true', help='List entities')
+        self.add_opt('-l', '--list', action='store_true', help='List entities')
 
     def process_options(self):
         super(CheckAtlasEntity, self).process_options()
         self.entity_name = self.get_opt('entity_name')
         self.entity_id = self.get_opt('entity_id')
-        self.list_entities = self.get_opt('list_entities')
+        self.list_entities = self.get_opt('list')
         if not self.list_entities:
             if not self.entity_name and not self.entity_id:
                 self.usage('must supply an --entity-id/--entity-name to find or --list-entities')
