@@ -46,6 +46,7 @@ except ImportError as _:
 __author__ = 'Hari Sekhon'
 __version__ = '0.5'
 
+
 class CheckHiveServer2InteractiveStatus(StatusNagiosPlugin):
 
     def __init__(self):
