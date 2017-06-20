@@ -18,7 +18,7 @@
 
 Nagios Plugin to check the status of an Oozie server via the HTTP Rest API
 
-Tested on Hortonworks HDP 2.3.2, 2.4.0, 2.6.0
+Tested on Oozie 4.2.0 on Hortonworks HDP 2.3.2, 2.4.0, 2.6.0
 
 """
 
