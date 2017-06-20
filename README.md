@@ -125,7 +125,7 @@ Make sure to run the [automated build](https://github.com/harisekhon/nagios-plug
 - ```check_ibm_biginsights_*.pl``` - Hadoop cluster checks via IBM BigInsights Console API - checks services, nodes, agents, BigSheets workbook runs, dfs paths and properties, HDFS space and block replication, BI console version, BI console applications deployed
 - ```check_apache_drill_*``` - check Apache Drill status and metrics for a given node, apply thresholds to a given metric or return multiple or all metrics
 - ```check_atlas_*``` - Apache Atlas status and entity checks including entity existence, state=ACTIVE, expected type, expected tags and traits are assigned to entity (eg. PII - important because Ranger ACLs to allow or deny access to data can be assigned based on tags)
-- ```check_hive_llap_*``` - Hive status and uptime, peers counts, specific peer host found
+- ```check_hiveserver2_llap_*``` - HiveServer2 LLAP Interactive server status and uptime, peers counts, specific peer host found
 - ```check_zookeeper.pl``` - ZooKeeper server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gather statistics
 - ```check_zookeeper_*znode*.pl``` - ZooKeeper znode checks using ZK Perl API, useful for HBase, Kafka, SolrCloud, Hadoop NameNode HA & JobTracker HA (ZKFC) and any other ZooKeeper based service. Very versatile with multiple optional checks including data vs regex, json field extraction, ephemeral status, child znodes, znode last modified age
 
