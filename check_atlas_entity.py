@@ -20,9 +20,12 @@ Nagios Plugin to check an Atlas entity via the HTTP Rest API of an Atlas Metadat
 
 Tests:
 
-    - existence
-    - status = ACTIVE
-    - has specified tag(s) and/or trait(s) (Optional, eg. PII)
+    - entity exists
+    - entity status = ACTIVE
+    - optional:
+        - type - entity is of specified type (eg. 'DB' or 'hdfs_path')
+        - tags - specified tag(s) are assigned to entity (eg. PII)
+        - traits - specified trait(s) are assigned to entity
     - verbose mode will also show modified date and version
 
 Finding an entity by name adds an O(n) operation to first find the guid by scanning all entities so you may need
@@ -55,7 +58,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class CheckAtlasEntity(RestNagiosPlugin):
@@ -71,6 +74,7 @@ class CheckAtlasEntity(RestNagiosPlugin):
         self.msg = 'Atlas entity'
         self.entity_name = None
         self.entity_id = None
+        self._type = None
         self.tags = None
         self.traits = None
         self.list_entities = False
@@ -82,7 +86,8 @@ class CheckAtlasEntity(RestNagiosPlugin):
         self.add_opt('-E', '--entity-name', help='Entity name in find in Atlas')
         self.add_opt('-I', '--entity-id',
                      help='Entity ID to find in Atlas (prefer this over name, see --help description)')
-        self.add_opt('-T', '--tags', help='Tag(s) to expect entity to have, comma separated')
+        self.add_opt('-T', '--type', help='Type to expect entity to have')
+        self.add_opt('-A', '--tags', help='Tag(s) to expect entity to have, comma separated')
         self.add_opt('-R', '--traits', help='Trait(s) to expect entity to have, comma separated')
         self.add_opt('-l', '--list-entities', action='store_true', help='List entities')
 
@@ -107,8 +112,11 @@ class CheckAtlasEntity(RestNagiosPlugin):
                 self.path += '/{0}'.format(self.entity_id)
                 # v2
                 #self.path += '/guids?guid={0}'.format(self.entity_id)
+        self._type = self.get_opt('type')
         self.tags = self.get_opt('tags')
         self.traits = self.get_opt('traits')
+        if self._type:
+            validate_chars(self._type, 'type', r'A-Za-z0-9_-')
         if self.tags:
             self.tags = sorted(self.tags.split(','))
             for tag in self.tags:
@@ -172,6 +180,7 @@ class CheckAtlasEntity(RestNagiosPlugin):
             self.critical()
             self.msg += " (expected 'ACTIVE')"
         self.msg += ", type='{type}'".format(type=_type)
+        self.check_type(_type)
         #if self.verbose:
         self.msg += ", tags='{tags}'".format(tags=','.join(tags))
         self.check_missing_tags(tags)
@@ -183,6 +192,13 @@ class CheckAtlasEntity(RestNagiosPlugin):
                 modified_date=modified_date,
                 version=version
             )
+
+    def check_type(self, _type):
+        if self._type and self._type != _type:
+            self.critical()
+            self.msg += " (expected type '{type}')".format(type=self._type)
+            return False
+        return True
 
     def check_missing_tags(self, tags):
         if not isList(tags):
