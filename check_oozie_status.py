@@ -76,7 +76,8 @@ class CheckOozieStatus(StatusNagiosPlugin):
             _ = json.loads(req.content)
             status = _['systemMode']
         except KeyError:
-            raise UnknownError('systemMode key was not returned in output from Oozie. {0}'.format(support_msg_api()))
+            raise UnknownError('systemMode key was not returned in output from Oozie at {0}:{1}. {2}'\
+                               .format(self.host, self.port, support_msg_api()))
         if status == 'NORMAL':
             self.ok()
         else:
