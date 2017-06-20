@@ -24,8 +24,8 @@ Tests:
     - entity status = ACTIVE
     - optional:
         - type - entity is of specified type (eg. 'DB' or 'hdfs_path')
-        - tags - specified tag(s) are assigned to entity (eg. PII)
-        - traits - specified trait(s) are assigned to entity
+        - tags - specified tag(s) are assigned to entity (eg. PII - important as Ranger ACLs can allow or deny access
+                 based on these tags)
     - verbose mode will also show modified date and version
 
 Finding an entity by name adds an O(n) operation to first find the guid by scanning all entities so you may need
@@ -61,7 +61,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 
 
 class CheckAtlasEntity(RestNagiosPlugin):
@@ -91,7 +91,7 @@ class CheckAtlasEntity(RestNagiosPlugin):
                      help='Entity ID to find in Atlas (prefer this over name, see --help description)')
         self.add_opt('-T', '--type', help='Type to expect entity to have')
         self.add_opt('-A', '--tags', help='Tag(s) to expect entity to have, comma separated')
-        self.add_opt('-R', '--traits', help='Trait(s) to expect entity to have, comma separated')
+        #self.add_opt('-R', '--traits', help='Trait(s) to expect entity to have, comma separated')
         self.add_opt('-l', '--list', action='store_true', help='List entities')
 
     def process_options(self):
@@ -117,7 +117,7 @@ class CheckAtlasEntity(RestNagiosPlugin):
                 #self.path += '/guids?guid={0}'.format(self.entity_id)
         self._type = self.get_opt('type')
         self.tags = self.get_opt('tags')
-        self.traits = self.get_opt('traits')
+        #self.traits = self.get_opt('traits')
         if self._type:
             validate_chars(self._type, 'type', r'A-Za-z0-9_-')
         if self.tags:
@@ -174,8 +174,10 @@ class CheckAtlasEntity(RestNagiosPlugin):
         # available for HDFS path but not DB
         #path = self.get_key(json_data, 'path')
         _type = self.get_key(json_data, 'type')
-        tags = self.get_key(json_data, 'tags')
-        traits = self.get_key(json_data, 'traits')
+        tags = []
+        if 'trait_names' in json_data:
+            tags = self.get_key(json_data, 'trait_names')
+        #traits = self.get_key(json_data, 'traits')
         version = self.get_key(json_data, 'version')
         modified_date = self.get_key(json_data, 'modified_time')
         self.msg = " '{name}' exists, state='{state}'".format(name=name, state=state)
@@ -188,8 +190,8 @@ class CheckAtlasEntity(RestNagiosPlugin):
         self.msg += ", tags='{tags}'".format(tags=','.join(tags))
         self.check_missing_tags(tags)
         #if self.verbose:
-        self.msg += ", traits='{traits}'".format(traits=','.join(traits))
-        self.check_missing_traits(traits)
+        #self.msg += ", traits='{traits}'".format(traits=','.join(traits))
+        #self.check_missing_traits(traits)
         if self.verbose:
             self.msg += ", modified_date='{modified_date}', version='{version}'".format(
                 modified_date=modified_date,
@@ -208,7 +210,9 @@ class CheckAtlasEntity(RestNagiosPlugin):
             raise UnknownError('tags non-list returned. {0}'.format(support_msg_api()))
         if self.tags:
             missing_tags = []
+            #tags = [t.lower() for t in tags]
             for tag in self.tags:
+                #if tag.lower() not in tags:
                 if tag not in tags:
                     missing_tags.append(tag)
             if missing_tags:
@@ -224,9 +228,11 @@ class CheckAtlasEntity(RestNagiosPlugin):
             raise UnknownError('traits non-list returned. {0}'.format(support_msg_api()))
         if self.traits:
             missing_traits = []
-            for tag in self.traits:
-                if tag not in traits:
-                    missing_traits.append(tag)
+            #traits = [t.lower() for t in traits]
+            for trait in self.traits:
+                #if trait.lower() not in traits:
+                if trait not in traits:
+                    missing_traits.append(trait)
             if missing_traits:
                 self.critical()
                 self.msg += " (expected trait{plural} '{missing_traits}' not found in entity)".format(
