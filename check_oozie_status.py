@@ -18,7 +18,7 @@
 
 Nagios Plugin to check the status of an Oozie server via the HTTP Rest API
 
-Tested on Hortonworks HDP 2.3.2 and 2.4.0
+Tested on Hortonworks HDP 2.3.2, 2.4.0, 2.6.0
 
 """
 
@@ -44,7 +44,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5'
 
 class CheckOozieStatus(StatusNagiosPlugin):
 
@@ -55,9 +55,16 @@ class CheckOozieStatus(StatusNagiosPlugin):
         # super().__init__()
         self.name = 'Oozie'
         self.default_port = 11000
+        self.protocol = 'http'
+
+    def add_options(self):
+        super(CheckOozieStatus, self).add_options()
+        self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
 
     def get_status(self):
-        url = 'http://%(host)s:%(port)s/oozie/v1/admin/status' % self.__dict__
+        if self.get_opt('ssl'):
+            self.protocol = 'https'
+        url = '%(protocol)s://%(host)s:%(port)s/oozie/v1/admin/status' % self.__dict__
         req = RequestHandler().get(url)
         return self.parse(req)
 
