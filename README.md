@@ -410,10 +410,10 @@ Contributions are more than welcome with patches accepted in the form of Github 
 [Tools](https://github.com/harisekhon/tools) & [PyTools](https://github.com/harisekhon/pytools) repos - contains another 50+ programs including useful tools such as:
 * Hive / Pig => Elasticsearch / SolrCloud indexers
 * Hadoop HDFS performance debugger, native checksum extractor, file retention policy script, HDFS file stats, XML & running Hadoop cluster config differ
-* ```watch_url.pl``` for debugging load balanced web farms
+* ```watch_url.pl``` - debugs load balanced web farms using repeated queries of a URL, returning HTTP status codes, % success across all requests, timestamps, round trip timings to millisecond precision and optionally the output itself (hint: if you have some interesting output to distinguish nodes on the back end)
 * tools for Ambari, Pig, Hive, Spark + IPython Notebook, Solr CLI
 * code reCaser for SQL / Pig / Neo4j / Hive HQL / Cassandra / MySQL / PostgreSQL / Impala / MSSQL / Oracle / Dockerfiles
-* ```scrub.pl``` anonymizes configs / logs for posting online - replaces hostnames/domains/FQDNs, IPs, passwords/keys in Cisco/Juniper configs, custom extensible phrases like your name or your company name
+* ```scrub.pl``` - anonymizes configs / logs for posting online - replaces hostnames/domains/FQDNs, IPs, passwords/keys in Cisco/Juniper configs, custom extensible phrases like your name or your company name
 * ```validate_json/yaml/xml/avro/parquet.py``` - validates JSON, XML, YAML, Avro, Parquet including directory trees, standard input and even multi-record JSON as found in MongoDB and Hadoop / Big Data systems.
 * PySpark Avro / CSV / JSON / Parquet data converters
 * Ambari Blueprints tool & templates
