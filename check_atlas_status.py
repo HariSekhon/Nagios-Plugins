@@ -44,7 +44,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5'
+__version__ = '0.5.1'
 
 
 class CheckAtlasStatus(StatusNagiosPlugin):
@@ -95,8 +95,7 @@ class CheckAtlasStatus(StatusNagiosPlugin):
             self.critical()
         elif status == 'PASSIVE':
             pass
-        elif status == 'BECOMING_ACTIVE' or \
-             status == 'BECOMING_PASSIVE':
+        elif status in ('BECOMING_ACTIVE', 'BECOMING_PASSIVE'):
             self.warning()
         else:
             self.critical()
