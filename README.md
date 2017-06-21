@@ -167,13 +167,16 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 - `check_*_version*` - checks running versions of software, primarily written to detect version inconsistency across clusters of servers and failed/partial upgrades across large automated infrastructures, as well as containerized images are using the versions we expect, which is also used to validate which versions of software programs in this repo are tested against. `check_cluster_version.pl` can be used to tie together versions returned from many different servers (by passing it their outputs via Nagios macros) to ensure a cluster is all running the same version of software even if you don't enforce a particular `--expected` version on individual systems
 - ```check_yum.py / check_yum.pl``` - widely used yum security updates checker for RHEL 5 - 7 systems dating back to 2008. You'll find forks of this around including NagiosExchange but please re-unify on this central updated version. Also has a Perl version which is a newer straight port with nicer more concise code and better library backing as well as configurable self-timeout. For those running Debian-based systems like Ubuntu see `check_apt` from the `nagios-plugins-basic` package.
 
-##### Compatability / Translation Plugins
-- `check_mk_wrapper.py` - translate standard nagios plugins to Check_MK local plugin format
-- `geneos_wrapper.py` - allows the Geneos monitoring system to utilize nagios plugins
-
-... and there are many more.
+... and there are many more plugins than we have space to list here, have a browse!
 
 This code base is under active development and there are many more cool plugins pending import.
+
+##### Compatability / Translation Plugins
+
+These allow you to use any standard nagios plugin with other non-Nagios style monitoring systems by prefixing the nagios plugin command with these programs, which will execute and translate the outputs:
+
+- `check_mk_wrapper.py` - executes and translates output from any standard nagios plugin to Check_MK local plugin format
+- `geneos_wrapper.py / csv_wrapper.py` - executes and translates output from any standard nagios plugin to Geneos / CSV format
 
 ### See Also
 
