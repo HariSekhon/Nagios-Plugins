@@ -16,7 +16,7 @@ Largest collection of Hadoop & NoSQL monitoring code, written by a former Cloude
 
 Hadoop and extensive API integration with all major Hadoop vendors ([Hortonworks](http://www.hortonworks.com), [Cloudera](http://www.cloudera.com), [MapR](http://www.mapr.com), [IBM BigInsights](http://www-03.ibm.com/software/products/en/ibm-biginsights-for-apache-hadoop)).
 
-Extends a variety of [compatible Enterprise Monitoring Systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems), can also be used standalone on the command line, in scripts etc.
+Extends a variety of [compatible Enterprise Monitoring Systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems), can also be used standalone on the command line and in scripts.
 
 Most enterprise monitoring systems come with basic generic checks, while this project extends their monitoring capabilities significantly further in to advanced infrastructure, application layer, APIs etc.
 
