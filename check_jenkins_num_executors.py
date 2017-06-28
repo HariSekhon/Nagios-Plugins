@@ -18,7 +18,7 @@
 
 Nagios Plugin to check the number of executors of a Jenkins server
 
-Thresholds may be optionally applied using --warning/--critical
+Thresholds may be optionally applied using --warning/--critical for minimum number of executors or range format
 
 The --password switch accepts either a password or an API token
 
