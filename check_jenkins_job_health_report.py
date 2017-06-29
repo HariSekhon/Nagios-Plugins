@@ -101,7 +101,7 @@ class CheckJenkinsJobHealthReport(RestNagiosPlugin):
         score = health_report['score']
         if not isFloat(score):
             raise UnknownError("non-numeric score returned in health report for job '{job}'".format(job=self.job))
-        score = int(score)
+        score = float(score)
         description = health_report['description']
         self.msg += "'{job}' health report score = {score}".format(job=self.job, score=score)
         self.check_thresholds(score)
