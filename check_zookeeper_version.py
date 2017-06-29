@@ -47,11 +47,10 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
+
 
 # pylint: disable=too-few-public-methods
-
-
 class CheckZooKeeperVersion(VersionNagiosPlugin):
 
     def __init__(self):
@@ -74,7 +73,7 @@ class CheckZooKeeperVersion(VersionNagiosPlugin):
             qquit('CRITICAL', "Failed to connect to ZooKeeper at '{host}:{port}': "\
                               .format(host=self.host, port=self.port) + str(_))
         version = None
-        log.debug(data.strip())
+        log.debug('%s', data.strip())
         for line in data.split('\n'):
             _ = self.version_line_regex.match(line)
             if _:
