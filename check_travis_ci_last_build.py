@@ -57,7 +57,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.4.1'
 
 
 class CheckTravisCILastBuild(NagiosPlugin):
@@ -99,7 +99,7 @@ class CheckTravisCILastBuild(NagiosPlugin):
         if req.status_code != 200:
             raise CriticalError("%s %s" % (req.status_code, req.reason))
         if log.isEnabledFor(logging.DEBUG):
-            log.debug("\n{0}".format(jsonpp(req.content)))
+            log.debug("\n%s", jsonpp(req.content))
         try:
             self.parse_results(req.content)
         except (KeyError, ValueError) as _:
@@ -130,7 +130,7 @@ class CheckTravisCILastBuild(NagiosPlugin):
         if build is None:
             qquit('UNKNOWN', 'no recent builds finished yet')
         if log.isEnabledFor(logging.DEBUG):
-            log.debug("latest build:\n{0}".format(jsonpp(build)))
+            log.debug("latest build:\n%s", jsonpp(build))
         return build
 
     def parse_results(self, content):
