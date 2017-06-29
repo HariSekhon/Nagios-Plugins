@@ -149,7 +149,7 @@ class CheckHBaseTable(NagiosPlugin):
             qquit('CRITICAL', _)
 
         if log.isEnabledFor(logging.DEBUG):
-            log.debug(jsonpp(regions))
+            log.debug('%s', jsonpp(regions))
         if not regions:
             qquit('CRITICAL', 'failed to get regions for table \'{0}\''.format(self.table))
         if not isList(regions):
