@@ -54,7 +54,6 @@ class CheckAtlasVersion(RestVersionNagiosPlugin):
         # Python 3.x
         # super().__init__()
         self.name = 'Atlas'
-        self.default_host = 'localhost'
         self.default_port = 21000
         self.path = '/api/atlas/admin/version'
         self.json = True
