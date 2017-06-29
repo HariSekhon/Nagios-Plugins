@@ -16,7 +16,7 @@
 
 """
 
-Nagios Plugin to check the status color of a Jenkins job workflow via the Rest API
+Nagios Plugin to check the status color of a Jenkins job via the Rest API
 
 This is a simpler yes/no type check than check_jenkins_job.py / check_jenkins_job2.py
 
