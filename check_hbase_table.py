@@ -78,7 +78,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.1'
+__version__ = '0.3'
 
 
 class CheckHBaseTable(NagiosPlugin):
@@ -156,7 +156,7 @@ class CheckHBaseTable(NagiosPlugin):
             qquit('CRITICAL', _)
 
         if log.isEnabledFor(logging.DEBUG):
-            log.debug('column families:\n' + jsonpp(families))
+            log.debug('column families:\n%s', jsonpp(families))
         if not families:
             qquit('CRITICAL', 'failed to get column families for table \'{0}\''.format(self.table))
         if not isDict(families):
