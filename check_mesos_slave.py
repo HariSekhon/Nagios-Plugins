@@ -49,7 +49,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 class CheckMesosSlave(NagiosPlugin):
 
@@ -90,7 +90,7 @@ class CheckMesosSlave(NagiosPlugin):
             qquit('UNKNOWN', 'invalid JSON returned by Mesos Master')
         data = json.loads(content)
         if log.isEnabledFor(logging.DEBUG):
-            log.debug('\n' + jsonpp(data))
+            log.debug('\n%s', jsonpp(data))
         slaves = {}
         regex = re.compile(r'^slave\(\d+\)\@(.+):\d+')
         try:
