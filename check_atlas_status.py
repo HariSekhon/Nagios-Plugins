@@ -18,6 +18,14 @@
 
 Nagios Plugin to check the status of an Atlas metadata server instance via the HTTP Rest API
 
+By default it expects Atlas to be in an active state, for --high-availability setups it will permit a passive state.
+
+If you want to ensure at least one of the Atlas servers is active you can either check a load balancer endpoint or
+combine this check with find_active_server.py from PyTools (see project README.md for more details).
+
+This plugin will raise a Warning if the Atlas instance is transitioning between active and passive states
+as that means a failover is occurring.
+
 Tested on Atlas 0.8.0 on Hortonworks HDP 2.6.0
 
 """
@@ -44,7 +52,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.1'
+__version__ = '0.6.0'
 
 
 class CheckAtlasStatus(StatusNagiosPlugin):
@@ -57,16 +65,18 @@ class CheckAtlasStatus(StatusNagiosPlugin):
         self.name = 'Atlas'
         self.default_port = 21000
         self.protocol = 'http'
-        self.expect_active = False
+        self.high_availability = False
+        self.ok()
 
     def add_options(self):
         super(CheckAtlasStatus, self).add_options()
         self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
-        self.add_opt('-A', '--active', action='store_true', help='Expect status = ACTIVE')
+        self.add_opt('-A', '--high-availability', action='store_true',
+                     help='High Availability setup, allow either ACTIVE or PASSIVE status')
 
     def process_options(self):
         super(CheckAtlasStatus, self).process_options()
-        self.expect_active = self.get_opt('active')
+        self.high_availability = self.get_opt('high_availability')
 
     def get_status(self):
         if self.get_opt('ssl'):
@@ -90,10 +100,8 @@ class CheckAtlasStatus(StatusNagiosPlugin):
         _ = json.loads(req.content)
         status = self.get_key(_, 'Status')
         if status == 'ACTIVE':
-            self.ok()
-        elif self.expect_active:
-            self.critical()
-        elif status == 'PASSIVE':
+            pass
+        elif self.high_availability and status == 'PASSIVE':
             pass
         elif status in ('BECOMING_ACTIVE', 'BECOMING_PASSIVE'):
             self.warning()
