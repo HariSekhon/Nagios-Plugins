@@ -59,7 +59,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckHBaseCompactionInProgress(NagiosPlugin):
@@ -107,13 +107,13 @@ class CheckHBaseCompactionInProgress(NagiosPlugin):
         try:
             _ = json.loads(content)
             if log.isEnabledFor(logging.DEBUG):
-                log.debug(jsonpp(_))
+                log.debug('%s', jsonpp(_))
             compaction_queue_size = None
             for bean in _['beans']:
                 if bean['name'] == 'Hadoop:service=HBase,name=RegionServer,sub=Server':
                     if log.isEnabledFor(logging.DEBUG):
                         log.debug('found RegionServer section:')
-                        log.debug(jsonpp(bean))
+                        log.debug('%s', jsonpp(bean))
                     compaction_queue_size = bean['compactionQueueLength']
                     if not isInt(compaction_queue_size):
                         qquit('UNKNOWN', 'non-integer returned for compactionQueueLength! ' + support_msg_api())
