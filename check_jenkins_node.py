@@ -52,7 +52,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckJenkinsNode(RestNagiosPlugin):
@@ -117,7 +117,7 @@ class CheckJenkinsNode(RestNagiosPlugin):
 
         query_time = time.time() - start_time
         if log.isEnabledFor(logging.DEBUG):
-            log.debug(jsonpp(node))
+            log.debug('%s', jsonpp(node))
         offline = node['offline']
         offline_reason = node['offlineCauseReason']
         num_executors = node['numExecutors']
