@@ -61,7 +61,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4.2'
+__version__ = '0.4.3'
 
 
 class CheckAtlasEntity(RestNagiosPlugin):
@@ -180,7 +180,7 @@ class CheckAtlasEntity(RestNagiosPlugin):
         #traits = self.get_key(json_data, 'traits')
         version = self.get_key(json_data, 'version')
         modified_date = self.get_key(json_data, 'modified_time')
-        self.msg = " '{name}' exists, state='{state}'".format(name=name, state=state)
+        self.msg += " '{name}' exists, state='{state}'".format(name=name, state=state)
         if state != 'ACTIVE':
             self.critical()
             self.msg += " (expected 'ACTIVE')"
