@@ -43,13 +43,13 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon import RestNagiosPlugin
     from harisekhon.utils import validate_chars, validate_int, isInt
-    from harisekhon.utils import UnknownError, ERRORS, sec2human, support_msg_api
+    from harisekhon.utils import WarningError, UnknownError, ERRORS, sec2human, support_msg_api
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckJenkinsJob(RestNagiosPlugin):
@@ -99,6 +99,8 @@ class CheckJenkinsJob(RestNagiosPlugin):
             sys.exit(ERRORS['UNKNOWN'])
         if 'lastCompletedBuild' in json_data:
             last_completed_build = json_data['lastCompletedBuild']
+            if not last_completed_build:
+                raise WarningError("job '{job}' not built yet".format(job=self.job))
             self.path = '/job/{job}/{number}/api/json'.format(job=self.job,
                                                               number=last_completed_build['number'])
             req = self.query()

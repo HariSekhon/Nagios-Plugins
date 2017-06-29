@@ -47,7 +47,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, ERRORS, CriticalError, UnknownError, sec2human, jsonpp
+    from harisekhon.utils import log, ERRORS, WarningError, CriticalError, UnknownError, sec2human, jsonpp
     from harisekhon.utils import validate_chars, validate_int, isInt, support_msg_api
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
@@ -55,7 +55,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckJenkinsJob(RestNagiosPlugin):
@@ -150,11 +150,15 @@ class CheckJenkinsJob(RestNagiosPlugin):
             log.debug('checking job exists')
             # less informative error message
             #assert server.job_exists(self.job) # True
-            # this will give an intuitive error that a job doesn't exist rather than letting it fail later with 'request object not found'
+            # this will give an intuitive error that a job doesn't exist
+            # rather than letting it fail later with 'request object not found'
             server.assert_job_exists(self.job)
 
             log.debug('getting last build num for job %s', self.job)
-            latest_build = server.get_job_info(self.job)['lastCompletedBuild']['number']
+            last_completed_build = server.get_job_info(self.job)['lastCompletedBuild']
+            if not last_completed_build:
+                raise WarningError("job '{job}' not built yet".format(job=self.job))
+            latest_build = last_completed_build['number']
             log.debug('getting build info for job %s, latest build num %s', self.job, latest_build)
             build_info = server.get_build_info(self.job, latest_build)
             log.debug('build info: %s', build_info)
