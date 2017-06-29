@@ -18,7 +18,7 @@ pika>=0.10.0
 py>=1.4.31
 #pyhs2>=0.6.0
 pytest>=3.0.0
-#python-jenkins>=0.4.13
+python-jenkins>=0.4.14
 #python-krbV>=1.0.90
 # PyLint fails some checks in Travis that pass locally
 #pylint==1.5.2
