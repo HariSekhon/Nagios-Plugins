@@ -53,7 +53,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckJenkinsRunningBuilds(RestNagiosPlugin):
@@ -92,7 +92,7 @@ class CheckJenkinsRunningBuilds(RestNagiosPlugin):
             log.debug('fetching running builds')
             running_builds = server.get_running_builds()
             if log.isEnabledFor(logging.DEBUG):
-                log.debug(jsonpp(running_builds))
+                log.debug('%s', jsonpp(running_builds))
             running_build_count = len(running_builds)
             log.debug('running build count: %s', running_build_count)
             self.msg += '{0}'.format(running_build_count)
