@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckJenkinsQueuedBuilds(RestNagiosPlugin):
@@ -90,7 +90,7 @@ class CheckJenkinsQueuedBuilds(RestNagiosPlugin):
             log.debug('fetching queued builds')
             queued_builds = server.get_queue_info()
             if log.isEnabledFor(logging.DEBUG):
-                log.debug(jsonpp(queued_builds))
+                log.debug('%s', jsonpp(queued_builds))
             queued_build_count = len(queued_builds)
             log.debug('queued build count: %s', queued_build_count)
             self.msg += '{0}'.format(queued_build_count)
