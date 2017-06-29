@@ -53,7 +53,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckJenkinsPlugin(RestNagiosPlugin):
@@ -110,7 +110,7 @@ class CheckJenkinsPlugin(RestNagiosPlugin):
             raise CriticalError(_)
 
         if log.isEnabledFor(logging.DEBUG):
-            log.debug(jsonpp(plugins))
+            log.debug('%s', jsonpp(plugins))
         if self.list_plugins:
             plugin_list = []
             print('Jenkins plugins:\n')
