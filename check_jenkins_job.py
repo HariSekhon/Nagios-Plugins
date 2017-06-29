@@ -167,7 +167,7 @@ class CheckJenkinsJob(RestNagiosPlugin):
             raise CriticalError(_)
 
         query_time = time.time() - start_time
-        self.msg += ' | query_time={0:.4f}s'.format(query_time)
+        self.msg += ' query_time={0:.4f}s'.format(query_time)
 
     def process_build_info(self, build_info):
         displayname = build_info['displayName']
