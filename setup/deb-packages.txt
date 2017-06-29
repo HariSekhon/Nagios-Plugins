@@ -53,6 +53,8 @@ python-setuptools
 python-pip
 python-dev
 
+python-jenkins
+
 # for Cassandra's Python driver
 #libev4
 #libev-dev
