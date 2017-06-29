@@ -38,14 +38,14 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon import RestNagiosPlugin
-    from harisekhon.utils import validate_chars, isInt
+    from harisekhon.utils import validate_chars, isFloat
     from harisekhon.utils import ERRORS, UnknownError
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckJenkinsJobHealthReport(RestNagiosPlugin):
@@ -99,8 +99,8 @@ class CheckJenkinsJobHealthReport(RestNagiosPlugin):
             raise UnknownError("no health report found for job '{job}' (not built yet?)".format(job=self.job))
         health_report = health_report[0]
         score = health_report['score']
-        if not isInt(score):
-            raise UnknownError("non-integer returned for health report score for job '{job}'".format(job=self.job))
+        if not isFloat(score):
+            raise UnknownError("non-numeric score returned in health report for job '{job}'".format(job=self.job))
         score = int(score)
         description = health_report['description']
         self.msg += "'{job}' health report score = {score}".format(job=self.job, score=score)
