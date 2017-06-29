@@ -18,7 +18,7 @@
 
 Nagios Plugin to check the status color of a Jenkins job workflow via the Rest API
 
-This is a simpler version of the check_jenkins_job.py / check_jenkins_job2.py which uses a different endpoint
+This is a simpler yes/no type check than check_jenkins_job.py / check_jenkins_job2.py
 
 The --password switch accepts either a password or an API token
 
@@ -41,13 +41,13 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon import RestNagiosPlugin
     from harisekhon.utils import validate_chars
-    from harisekhon.utils import CriticalError, ERRORS
+    from harisekhon.utils import ERRORS
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckJenkinsJobColor(RestNagiosPlugin):
@@ -76,22 +76,26 @@ class CheckJenkinsJobColor(RestNagiosPlugin):
         self.list_jobs = self.get_opt('list')
         if not self.list_jobs:
             validate_chars(self.job, 'job', r'A-Za-z0-9\s\._-')
+            self.path = '/job/{job}/api/json'.format(job=self.job)
 
     def parse_json(self, json_data):
-        jobs = json_data['jobs']
         if self.list_jobs:
+            jobs = json_data['jobs']
             print('Jenkins Jobs:\n')
             for job in jobs:
                 print(job['name'])
             sys.exit(ERRORS['UNKNOWN'])
-        job = None
-        for _ in jobs:
-            if _['name'].lower() == self.job.lower():
-                job = _
-                break
-        if not job:
-            raise CriticalError("job '{job}' not found. See --list to see available jobs".format(job=self.job))
-        color = job['color']
+        # this method has a nicer job not found error message
+        # but it's less efficient if querying a Jenkins server with lots of jobs
+        #job = None
+        #for _ in jobs:
+        #    if _['name'].lower() == self.job.lower():
+        #        job = _
+        #        break
+        #if not job:
+        #    raise CriticalError("job '{job}' not found. See --list to see available jobs".format(job=self.job))
+        #color = job['color']
+        color = json_data['color']
         self.msg += "'{job}' status color = '{color}'".format(job=self.job, color=color)
         if color in ('blue', 'green'):
             pass
