@@ -41,7 +41,7 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon import RestNagiosPlugin
     from harisekhon.utils import validate_chars
-    from harisekhon.utils import UnknownError, ERRORS
+    from harisekhon.utils import CriticalError, ERRORS
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
@@ -90,7 +90,7 @@ class CheckJenkinsJobColor(RestNagiosPlugin):
                 job = _
                 break
         if not job:
-            raise UnknownError("job '{job}' not found. See --list to see available jobs".format(job=self.job))
+            raise CriticalError("job '{job}' not found. See --list to see available jobs".format(job=self.job))
         color = job['color']
         self.msg += "'{job}' status color = '{color}'".format(job=self.job, color=color)
         if color in ('blue', 'green'):
