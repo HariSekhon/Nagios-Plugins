@@ -20,7 +20,7 @@ Nagios Plugin to check the deployed version of Apache Spark standalone matches w
 
 This is also used in the accompanying test suite to ensure we're checking the right version of Spark
 
-Tested on Spark 1.3, 1.4, 1.5, 1.6
+Tested on Apache Spark standalone 1.3.1, 1.4.1, 1.5.1, 1.6.2
 
 """
 
