@@ -28,6 +28,7 @@ mariadb-dev
 openssl
 # conflicts with libressl-dev which is required by mariadb-dev
 #openssl-dev
+libressl-dev
 perl
 perl-dev
 perl-dbd-mysql
