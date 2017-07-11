@@ -2,7 +2,7 @@
 #
 #  Author: Hari Sekhon
 #  Date: 2007-02-21 16:15:32 +0000 (Wed, 21 Feb 2007)
-# 
+#
 #  http://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
@@ -11,23 +11,24 @@
 """ This plugin for Nagios uses the standard mdadm program to get the status
  of all the linux md arrays on the local machine using the mdadm utility"""
 
-__author__  = "Hari Sekhon"
-__title__   = "Nagios Plugin for Linux MD Software RAID"
-__version__ = "0.7.2"
+__author__ = "Hari Sekhon"
+__title__ = "Nagios Plugin for Linux MD Software RAID"
+__version__ = "0.7.3"
 
+# pylint: disable=wrong-import-position
 import os
 import re
 import sys
 from optparse import OptionParser
 
 # Standard Nagios return codes
-OK       = 0
-WARNING  = 1
+OK = 0
+WARNING = 1
 CRITICAL = 2
-UNKNOWN  = 3
+UNKNOWN = 3
 
 # Full path to the mdadm utility check on the Raid state
-BIN    = "/sbin/mdadm"
+BIN = "/sbin/mdadm"
 
 def end(status, message):
     """exits the plugin with first arg as the return code and the second
@@ -58,13 +59,13 @@ if not os.access(BIN, os.X_OK):
 
 
 def find_arrays(verbosity):
-    """finds all MD arrays on local machine using mdadm and returns a list of 
+    """finds all MD arrays on local machine using mdadm and returns a list of
     them, or exits UNKNOWN if no MD arrays are found"""
 
     if verbosity >= 3:
         print "finding all MD arrays via: %s --detail --scan" % BIN
     devices_output = os.popen("%s --detail --scan" % BIN).readlines()
-    raid_devices   = []
+    raid_devices = []
     for line in devices_output:
         if "ARRAY" in line:
             raid_device = line.split()[1]
@@ -72,7 +73,7 @@ def find_arrays(verbosity):
                 print "found array %s" % raid_device
             raid_devices.append(raid_device)
 
-    if len(raid_devices) == 0:
+    if not raid_devices:
         end(UNKNOWN, "no MD raid devices found on this machine")
     else:
         raid_devices.sort()
@@ -84,7 +85,7 @@ def test_raid(verbosity):
 
     raid_devices = find_arrays(verbosity)
 
-    status = OK 
+    status = OK
     message = ""
     arrays_not_ok = 0
     number_arrays = len(raid_devices)
@@ -92,11 +93,11 @@ def test_raid(verbosity):
         if verbosity >= 2:
             print 'Now testing raid device "%s"' % array
 
-        detailed_output = os.popen("%s --detail %s" % (BIN, array) ).readlines()
+        detailed_output = os.popen("%s --detail %s" % (BIN, array)).readlines()
 
         if verbosity >= 3:
             for line in detailed_output:
-                print line, 
+                print line,
 
         state = "unknown"
         for line in detailed_output:
@@ -110,7 +111,7 @@ def test_raid(verbosity):
             shortname = array.split("/")[-1].upper()
             if state == "dirty":
             # This happens when the array is under heavy usage but it's \
-            # normal and the array recovers within seconds 
+            # normal and the array recovers within seconds
                 continue
             elif "recovering" in state:
                 extra_info = None
@@ -158,18 +159,18 @@ def main():
 
     parser = OptionParser()
 
-    parser.add_option(  "-v",
-                        "--verbose",
-                        action="count",
-                        dest="verbosity",
-                        help="Verbose mode. Good for testing plugin. By default\
+    parser.add_option("-v",
+                      "--verbose",
+                      action="count",
+                      dest="verbosity",
+                      help="Verbose mode. Good for testing plugin. By default\
  only one result line is printed as per Nagios standards")
 
-    parser.add_option(  "-V",
-                        "--version",
-                        action="store_true",
-                        dest="version",
-                        help="Print version number and exit")
+    parser.add_option("-V",
+                      "--version",
+                      action="store_true",
+                      dest="version",
+                      help="Print version number and exit")
 
     (options, args) = parser.parse_args()
 
@@ -178,7 +179,7 @@ def main():
         sys.exit(UNKNOWN)
 
     verbosity = options.verbosity
-    version   = options.version
+    version = options.version
 
     if version:
         print __version__
