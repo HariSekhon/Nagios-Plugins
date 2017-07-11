@@ -97,9 +97,9 @@ services:
 #  - redis
 #  - riak
 
-# env stuff is handled with docker test scripts now
-env:
-  - DEBUG=1
+#env:
+#  - DEBUG=1
+# env vars are handled in docker test scripts now
 #  - MYSQL_DATABASE=mysql
 #  - MYSQL_PASSWORD=""
 #  - MYSQL_USER=travis
