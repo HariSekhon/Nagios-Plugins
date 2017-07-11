@@ -2,7 +2,7 @@
 #
 #  Author: Hari Sekhon
 #  Date: 2007-02-22 17:27:33 +0000 (Thu, 22 Feb 2007)
-# 
+#
 #  http://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
@@ -13,24 +13,25 @@ controllers on the local machine. Uses the megarc.bin program written by LSI to
 get the status of all arrays on all local LSI MegaRAID controllers. Expects the
 megarc.bin program to be in the same directory as this plugin"""
 
-__author__  = "Hari Sekhon"
-__title__   = "Nagios Plugin for LSI MegaRAID"
-__version__ = 0.8
+__author__ = "Hari Sekhon"
+__title__ = "Nagios Plugin for LSI MegaRAID"
+__version__ = "0.8.1"
 
+# pylint: disable=wrong-import-position
 import os
 import sys
 import commands
 from optparse import OptionParser
 
 # Standard Nagios return codes
-OK       = 0
-WARNING  = 1
+OK = 0
+WARNING = 1
 CRITICAL = 2
-UNKNOWN  = 3
+UNKNOWN = 3
 
-SRCDIR   = os.path.dirname(sys.argv[0])
-BIN      = SRCDIR + "/megarc.bin"
-MEGADEV  = "/dev/megadev0"
+SRCDIR = os.path.dirname(sys.argv[0])
+BIN = SRCDIR + "/megarc.bin"
+MEGADEV = "/dev/megadev0"
 
 
 def end(status, message):
@@ -57,7 +58,7 @@ def make_megadev(devicenode):
 
     try:
         devices = open("/proc/devices", "r")
-        lines   = devices.read()
+        lines = devices.read()
         devices.close()
     except IOError, error:
         end(UNKNOWN, "Error reading /proc/devices while trying to create " \
@@ -67,7 +68,7 @@ def make_megadev(devicenode):
         line = line.split()
         if len(line) > 1:
             major_number = line[0]
-            device       = line[1]
+            device = line[1]
             if device == "megadev":
                 break
 
@@ -78,7 +79,7 @@ def make_megadev(devicenode):
     cmd = "mknod /dev/megadev0 c %s 2" % major_number
     print >> sys.stderr, "running in shell: %s" % cmd
     try:
-        result, output = commands.getstatusoutput(cmd) 
+        result, output = commands.getstatusoutput(cmd)
         if result != 0:
             end(UNKNOWN, "Error making device node '%s' - %s" \
                                                         % (devicenode, output))
@@ -99,13 +100,13 @@ if not os.access(BIN, os.X_OK):
 
 if not os.path.exists(MEGADEV):
     print >> sys.stderr, "Megaraid device node not found (possible first " \
-                       + "run?), creating it now..." 
+                       + "run?), creating it now..."
     make_megadev(MEGADEV)
 
 
 def run(args):
     """run megarc.bin util with passed in args and return output"""
-    if args == "" or args == None:
+    if not args:
         print "UNKNOWN: internal python error",
         print "- no cmd supplied for Lsi MegaRaid utility"
         sys.exit(UNKNOWN)
@@ -120,7 +121,7 @@ def run(args):
         elif len(lines) < 13:
             print >> sys.stderr, "Error running '%s':" % cmd
             print >> sys.stderr, "%s" % output
-            end(UNKNOWN, "Output from Lsi MegaRaid utility is too short, "
+            end(UNKNOWN, "Output from Lsi MegaRaid utility is too short, " \
                        + "try -vvv for debug")
         else:
             end(UNKNOWN, "Error using MegaRaid utility - %s" \
@@ -142,11 +143,11 @@ def get_controllers(verbosity):
     for line in controller_lines:
         try:
             controller = int(line.split("\t")[1])
-        except OSError,error:
+        except OSError, error:
             end(UNKNOWN, "Exception occurred in code - %s" % str(error))
         controllers.append(controller)
 
-    if len(controllers) == 0:
+    if not controllers:
         end(WARNING, "No LSI controllers were found on this machine")
 
     if verbosity >= 2:
@@ -159,14 +160,14 @@ def test_raid(verbosity, no_summary=False):
     """tests all raid arrays on all Lsi controllers found on local machine
     and returns status code"""
 
-    status = OK 
+    status = OK
     message = ""
     number_arrays = 0
     non_optimal_arrays = 0
     controllers = get_controllers(verbosity)
     number_controllers = len(controllers)
     for controller in controllers:
-        detailed_output = run("-dispCfg -a%s" % controller )
+        detailed_output = run("-dispCfg -a%s" % controller)
         if verbosity >= 3:
             for line in detailed_output:
                 print "%s" % line
@@ -176,7 +177,7 @@ def test_raid(verbosity, no_summary=False):
             if "Status:" in line:
                 state = line.split(":")[-1][1:-1]
                 logical_drive = line.split()[3][:-1]
-                array_details[logical_drive] = [state]  
+                array_details[logical_drive] = [state]
             if "RaidLevel:" in line:
                 raid_level = line.split()[3]
                 array_details[logical_drive].append(raid_level)
@@ -197,9 +198,9 @@ def test_raid(verbosity, no_summary=False):
                 non_optimal_arrays += 1
                 raid_level = array_details[drive][1]
                 # The Array number here is incremented by one because of the
-                # inconsistent way that the LSI tools count arrays. 
-                # This brings it back in line with the view in the bios 
-                # and from megamgr.bin where the array counting starts at 
+                # inconsistent way that the LSI tools count arrays.
+                # This brings it back in line with the view in the bios
+                # and from megamgr.bin where the array counting starts at
                 # 1 instead of 0
                 message += 'Array %s status is "%s"' % (int(drive)+1, state)
                 message += '(Raid-%s on adapter %s), ' \
@@ -254,34 +255,34 @@ def main():
     """parses args and calls func to test raid arrays"""
 
     parser = OptionParser()
-    parser.add_option( "-n",
-                       "--no-summary",
-                       action="store_true",
-                       dest="no_summary",
-                       help="Do not display the number of arrays " \
-                          + "checked. By default the number of arrays " \
-                          + "checked are printed at the end of the " \
-                          + "line. This is useful information and helps to " \
-                          + "know that they are detected properly")
+    parser.add_option("-n",
+                      "--no-summary",
+                      action="store_true",
+                      dest="no_summary",
+                      help="Do not display the number of arrays " \
+                         + "checked. By default the number of arrays " \
+                         + "checked are printed at the end of the " \
+                         + "line. This is useful information and helps to " \
+                         + "know that they are detected properly")
 
-    parser.add_option(  "-v",
-                        "--verbose",
-                        action="count",
-                        dest="verbosity",
-                        help="Verbose mode. Good for testing plugin. By \
+    parser.add_option("-v",
+                      "--verbose",
+                      action="count",
+                      dest="verbosity",
+                      help="Verbose mode. Good for testing plugin. By \
 default only one result line is printed as per Nagios standards")
 
-    parser.add_option( "-V",
-                        "--version",
-                        action = "store_true",
-                        dest = "version",
-                        help = "Print version number and exit" )
+    parser.add_option("-V",
+                      "--version",
+                      action="store_true",
+                      dest="version",
+                      help="Print version number and exit")
 
     (options, args) = parser.parse_args()
 
     no_summary = options.no_summary
-    verbosity  = options.verbosity
-    version    = options.version
+    verbosity = options.verbosity
+    version = options.version
 
     if args:
         parser.print_help()
