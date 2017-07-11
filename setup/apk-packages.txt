@@ -18,7 +18,11 @@ ca-certificates
 # ethtool needed for ./check_linux_interface.pl
 ethtool
 gcc
+
+# needed to fetch the library submodule at end of build
+# and also for check_git_branch_checkout.pl and Git-Python / check_git_branch_checkout.py
 git
+
 make
 acf-openssl
 perl
