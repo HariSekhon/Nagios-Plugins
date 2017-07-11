@@ -8,17 +8,19 @@
 #  License: see accompanying LICENSE file
 #
 
-# UPDATED NOTE: I never really utilized this since I started rewriting it in Perl instead and that became my main library
+# DEPRECATED: I never really used this library, instead used my much larger Perl version
+#             and modern Python code should use the OO classes from my pylib submodule
 
 """Library to standardize Nagios Plugin development in Python
    Hari Sekhon 2008"""
 
 # Standard Nagios return codes
-OK       = 0
-WARNING  = 1
+OK = 0
+WARNING = 1
 CRITICAL = 2
-UNKNOWN  = 3
+UNKNOWN = 3
 
+# pylint: disable=wrong-import-position
 import os
 import re
 import sys
@@ -30,15 +32,15 @@ except ImportError:
     print "Perhaps you are using a version of python older than 2.4?"
     sys.exit(CRITICAL)
 
-__author__      = "Hari Sekhon"
-__version__     = 0.4
+__author__ = "Hari Sekhon"
+__version__ = 0.4
 
 DEFAULT_TIMEOUT = 10
-CHECK_NAME      = ""
+CHECK_NAME = ""
 
 # Pythonic version of "which", inspired by my beloved *nix core utils
 # although I've decided it makes more sense to fetch a non-executable
-# program and alert on it rather than say it wasn't found in the path 
+# program and alert on it rather than say it wasn't found in the path
 # at all from a user perspective.
 def which(executable):
     """Takes an executable name as a string and tests if it is in the path.
@@ -88,9 +90,9 @@ class NagiosTester(object):
     def __init__(self):
         """Initializes all variables to their default states"""
 
-        self.server     = ""
-        self.timeout    = DEFAULT_TIMEOUT
-        self.verbosity  = 0
+        self.server = ""
+        self.timeout = DEFAULT_TIMEOUT
+        self.verbosity = 0
 
 
     def validate_variables(self):
@@ -103,14 +105,14 @@ class NagiosTester(object):
 
 
     def validate_host(self):
-        """Exits with an error if the hostname 
+        """Exits with an error if the hostname
         does not conform to expected format"""
 
         # Input Validation - Rock my regex ;-)
-        re_hostname = re.compile("^[a-zA-Z0-9]+[a-zA-Z0-9-]*((([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6})?$")
-        re_ipaddr   = re.compile("^((25[0-5]|2[0-4]\d|[01]\d\d|\d?\d)\.){3}(25[0-5]|2[0-4]\d|[01]\d\d|\d?\d)$")
+        re_hostname = re.compile(r"^[a-zA-Z0-9]+[a-zA-Z0-9-]*((([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6})?$")
+        re_ipaddr = re.compile(r"^((25[0-5]|2[0-4]\d|[01]\d\d|\d?\d)\.){3}(25[0-5]|2[0-4]\d|[01]\d\d|\d?\d)$")
 
-        if self.server == None:
+        if self.server is None:
             end(UNKNOWN, "You must supply a server hostname or ip address. " \
                        + "See --help for details")
 
@@ -123,7 +125,7 @@ class NagiosTester(object):
 #    def validate_port(self):
 #        """Exits with an error if the port is not valid"""
 #
-#        if self.port == None:
+#        if self.port is None:
 #            self.port = ""
 #        else:
 #            try:
@@ -138,7 +140,7 @@ class NagiosTester(object):
     def validate_timeout(self):
         """Exits with an error if the timeout is not valid"""
 
-        if self.timeout == None:
+        if self.timeout is None:
             self.timeout = DEFAULT_TIMEOUT
         try:
             self.timeout = int(self.timeout)
@@ -148,26 +150,26 @@ class NagiosTester(object):
             end(UNKNOWN, "timeout number must be a whole number between " \
                        + "1 and 3600 seconds")
 
-        if self.verbosity == None:
+        if self.verbosity is None:
             self.verbosity = 0
 
 
     def run(self, cmd):
-        """runs a system command and returns a tuple containing 
+        """runs a system command and returns a tuple containing
         the return code and the output as a single text block"""
 
-        if cmd == "" or cmd == None:
+        if cmd == "" or cmd is None:
             end(UNKNOWN, "Internal python error - " \
                        + "no cmd supplied for run function")
 
         self.vprint(3, "running command: %s" % cmd)
 
         try:
-            process = Popen( cmd.split(), 
-                             shell=False, 
-                             stdin=PIPE, 
-                             stdout=PIPE, 
-                             stderr=STDOUT )
+            process = Popen(cmd.split(),
+                            shell=False,
+                            stdin=PIPE,
+                            stdout=PIPE,
+                            stderr=STDOUT)
         except OSError, error:
             error = str(error)
             if error == "No such file or directory":
@@ -178,13 +180,13 @@ class NagiosTester(object):
 
         stdout, stderr = process.communicate()
 
-        if stderr == None:
+        if stderr is None:
             pass
 
         returncode = process.returncode
         self.vprint(3, "Returncode: '%s'\nOutput: '%s'" % (returncode, stdout))
 
-        if stdout == None or stdout == "":
+        if stdout is None or stdout == "":
             end(UNKNOWN, "No output from utility '%s'" % cmd.split()[0])
 
         return (returncode, str(stdout))
@@ -215,12 +217,12 @@ class NagiosTester(object):
         else:
             timeout = "(%s seconds)" % self.timeout
 
-        if CHECK_NAME == "" or CHECK_NAME == None:
+        if not CHECK_NAME:
             check_name = ""
         else:
             check_name = CHECK_NAME.lower().strip() + " "
 
-        end(CRITICAL, "%splugin has self terminated after " % check_name
+        end(CRITICAL, "%splugin has self terminated after " % check_name \
                     + "exceeding the timeout %s" % timeout)
 
 
