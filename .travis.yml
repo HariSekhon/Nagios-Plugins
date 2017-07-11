@@ -15,9 +15,10 @@
 
 language: perl
 perl:
-  - "5.22"
   # this build has thread support
-  - "5.18-shrplib"
+  - "5.24-shrplib"
+  #- "5.22"
+  #- "5.18-shrplib"
   #- "5.16"
   # latest Redis cpan module requires Perl >= 5.10
   - "5.10"
