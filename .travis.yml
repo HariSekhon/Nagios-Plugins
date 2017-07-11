@@ -99,8 +99,7 @@ services:
 
 # env stuff is handled with docker test scripts now
 env:
-  global:
-    - DEBUG=1
-#    - MYSQL_DATABASE=mysql
-#    - MYSQL_PASSWORD=""
-#    - MYSQL_USER=travis
+  - DEBUG=1
+#  - MYSQL_DATABASE=mysql
+#  - MYSQL_PASSWORD=""
+#  - MYSQL_USER=travis
