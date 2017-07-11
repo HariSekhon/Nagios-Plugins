@@ -15,9 +15,6 @@
 
 epel-release
 wget
-gcc
-gcc-c++
-perl-CPAN
 perl-libwww-perl
 tar
 which
@@ -25,18 +22,10 @@ which
 # ethtool for ./check_linux_interface.pl
 ethtool
 
-# to build DBD::mysql if building from CPAN
-mysql-devel
 perl-DBD-MySQL
 
 # for check_ssl_cert.pl
 openssl
-
-# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-openssl-devel
-
-# for XML::Simple building
-expat-devel
 
 # for ndg-httpsclient
 python-pyasn1
@@ -48,7 +37,6 @@ jwhois
 git
 python-setuptools
 python-pip
-python-devel
 
 python-jenkins
 
@@ -57,15 +45,7 @@ python-jenkins
 #libev-devel
 #snappy-devel
 
-# needed for ndg-httpsclient upgrade
-libffi-devel
-
-# needed to build pyhs2
-# libgsasl-devel saslwrapper-devel
-
-# breaks on CentOS 7.0 on Docker, fakesystemd conflicts with systemd, 7.2 works though
-#cyrus-sasl-devel
-
 # for check_yum.pl / check_yum.py
+# one of these will be missing, handled in Makefile instead
 #yum-security
 #yum-plugin-security

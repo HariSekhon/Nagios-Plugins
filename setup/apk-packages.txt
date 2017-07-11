@@ -13,26 +13,16 @@
 #                          Alpine Package Requirements
 # ============================================================================ #
 
-alpine-sdk
 bash
 ca-certificates
 # ethtool needed for ./check_linux_interface.pl
 ethtool
-expat-dev
-krb5-dev
 gcc
 git
-libxml2-dev
 make
-mariadb-dev
 openssl
-# conflicts with libressl-dev which is required by mariadb-dev
-#openssl-dev
-libressl-dev
 perl
-perl-dev
 perl-dbd-mysql
 py-mysqldb
 py2-pip
 ruby
-wget

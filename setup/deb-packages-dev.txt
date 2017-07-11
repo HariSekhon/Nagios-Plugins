@@ -13,15 +13,29 @@
 #                          Deb Dev Package Requirements
 # ============================================================================ #
 
+# needed to fetch and build CPAN modules and fetch the library submodule at end of build
 build-essential
+wget
+
 libev-dev
+
+# for XML::Simple building
 libexpat1-dev
+
+# needed for ndg-httpsclient upgrade
 libffi-dev
+
+# for LWP::Authenticate - prompts for realm + KDC, use libkrb5-dev instead
+#krb5-config
 libkrb5-dev
+
+# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 #libmysqlclient-dev
 libmariadbd-dev
-libsasl2-dev
-libsnappy-dev
+
+# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 libssl-dev
+libsasl2-dev
+
+#libsnappy-dev
 python-dev
-wget

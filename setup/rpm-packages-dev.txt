@@ -13,14 +13,27 @@
 #                          RPM Dev Package Requirements
 # ============================================================================ #
 
-cyrus-sasl-devel
+# breaks on CentOS 7.0 on Docker, fakesystemd conflicts with systemd, 7.2 works though
+#cyrus-sasl-devel
+
+# for XML::Simple
 expat-devel
 gcc
 gcc-c++
 libev-devel
+
+# needed for ndg-httpsclient upgrade
 libffi-devel
+
+# to build DBD::mysql if building from CPAN
 mysql-devel
+
+# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 openssl-devel
+
 perl-CPAN
 python-devel
 snappy-devel
+
+# needed to build pyhs2
+# libgsasl-devel saslwrapper-devel

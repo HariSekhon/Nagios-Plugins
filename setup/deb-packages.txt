@@ -13,34 +13,16 @@
 #                            Deb Package Requirements
 # ============================================================================ #
 
-# needed to fetch and build CPAN modules and fetch the library submodule at end of build
-build-essential
+# needed to fetch the library submodule at end of build
 git
+
 libwww-perl
-wget
 
 # ethtool needed for ./check_linux_interface.pl
 ethtool
 
-# for LWP::Authenticate - prompts for realm + KDC, use libkrb5-dev instead
-#krb5-config
-libkrb5-dev
-
-# for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 libdbd-mysql-perl
-#libmysqlclient-dev
-libmariadbd-dev
 python-mysqldb
-
-# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-libssl-dev
-libsasl2-dev
-
-# for XML::Simple building
-libexpat1-dev
-
-# needed for ndg-httpsclient upgrade
-libffi-dev
 
 # for check_ssl_cert.pl
 openssl
@@ -53,7 +35,6 @@ python-pyasn1
 
 python-setuptools
 python-pip
-python-dev
 
 python-jenkins
 
@@ -65,3 +46,6 @@ python-jenkins
 # for check_whois.pl - looks like this has been removed from repos :-/
 # trying in Makefile with error suppression
 #jwhois
+
+# for 'make test'
+procps
