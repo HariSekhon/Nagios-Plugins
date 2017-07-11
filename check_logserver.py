@@ -14,25 +14,27 @@ end MySQL database to check that it was properly received"""
 
 # TODO: add a log delete switch to remove the just inserted log -h
 
-__author__  = "Hari Sekhon"
-__title__   = "Nagios Plugin to check Syslog-NG/MySQL logservers"
-__version__ = "0.8"
+__author__ = "Hari Sekhon"
+__title__ = "Nagios Plugin to check Syslog-NG/MySQL logservers"
+__version__ = "0.8.1"
 
 # Nagios Standard Exit Codes
-OK       = 0
-WARNING  = 1
+OK = 0
+WARNING = 1
 CRITICAL = 2
-UNKNOWN  = 3
+UNKNOWN = 3
 
 # Additional to support specific help returns
-HELP     = 4
+HELP = 4
 
+# pylint: disable=wrong-import-position
 import os
 import re
 import sys
 import time
 import signal
 import socket
+from optparse import OptionParser
 try:
     import MySQLdb
     from MySQLdb import MySQLError
@@ -40,7 +42,6 @@ except ImportError:
     print "You must have the MySQLdb python library",
     print "installed to run this plugin"
     sys.exit(CRITICAL)
-from optparse import OptionParser
 
 SCRIPTNAME = os.path.basename(sys.argv[0])
 
@@ -68,7 +69,7 @@ def end(exitcode, message):
     sys.exit(exitcode)
 
 
-class LogServerTester:
+class LogServerTester(object):
     """Class to create object containing logserver test, holding all variables
     and methods to perform the test"""
 
@@ -76,43 +77,43 @@ class LogServerTester:
         """Instantiate variables to defaults"""
 
         # starting values of variables used/defined later
-        self.conn_type      = "TCP"
-        self.log            = ""
-        self.re_validation  = None
+        self.conn_type = "TCP"
+        self.log = ""
+        self.re_validation = None
 
         # Input variables
-        self.delay          = None
-        self.logserver      = None
+        self.delay = None
+        self.logserver = None
         self.logserver_port = None
-        self.mysql_column   = None
-        self.mysql_db       = None
-        self.mysql_port     = None
-        self.mysql_server   = None
-        self.mysql_table    = None
-        self.password       = None
-        self.timeout        = None
-        self.udp            = False
-        self.username       = None
-        self.verbosity      = 0
+        self.mysql_column = None
+        self.mysql_db = None
+        self.mysql_port = None
+        self.mysql_server = None
+        self.mysql_table = None
+        self.password = None
+        self.timeout = None
+        self.udp = False
+        self.username = None
+        self.verbosity = 0
 
         # Default variables which are based on the most commonly
         # use database names and the default ports for each service
 
-        self.default_delay          = 0
+        self.default_delay = 0
         self.default_logserver_port = 514
-        self.default_mysql_column   = "msg"
-        self.default_mysql_db       = "syslog"
-        self.default_mysql_port     = 3306
-        self.default_mysql_table    = "logs"
-        self.default_timeout        = 30
-        self.default_udp            = False
+        self.default_mysql_column = "msg"
+        self.default_mysql_db = "syslog"
+        self.default_mysql_port = 3306
+        self.default_mysql_table = "logs"
+        self.default_timeout = 30
+        self.default_udp = False
 
 
     def generate_log(self):
         """Generates and returns a unique timestamped log string to feed the \
         logserver. Log string is not ended by a newline"""
 
-        if self.udp == True:
+        if self.udp is True:
             self.conn_type = "UDP"
 
         program = SCRIPTNAME
@@ -132,7 +133,7 @@ class LogServerTester:
         # <pri>timestamp hostname program: log message epoch
 
         # newline is not added as the newline is not put into
-        # the database and we want to query the database for 
+        # the database and we want to query the database for
         # this pure log later on
         log = "<%s>%s %s %s: Nagios Log Server %s Check %s" % \
             (pri, timestamp, hostname, program, self.conn_type, epoch)
@@ -143,14 +144,14 @@ class LogServerTester:
     def send_log(self):
         """send the log to the logserver"""
 
-        if self.udp == True:
+        if self.udp:
             self.vprint(2, "creating udp connection to logserver")
             logserver_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         else:
             self.vprint(2, "creating tcp connection to logserver")
             logserver_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.vprint(3, "connecting to %s on port %s..." % (self.logserver, \
-                                                      self.logserver_port) )
+        self.vprint(3, "connecting to %s on port %s..." \
+                       % (self.logserver, self.logserver_port))
         try:
             logserver_socket.connect((self.logserver, self.logserver_port))
             # Newline added here as it is what separates one syslog message
@@ -213,8 +214,8 @@ class LogServerTester:
         if self.log == "":
             end(CRITICAL, "Log generation failed")
 
-        self.vprint(3,"log is '%s'" % self.log)
-        self.vprint(2,"now sending log...")
+        self.vprint(3, "log is '%s'" % self.log)
+        self.vprint(2, "now sending log...")
 
         self.send_log()
 
@@ -242,11 +243,11 @@ class LogServerTester:
             print "mysql_db = '%s'" % self.mysql_db
 
         try:
-            db_connection = MySQLdb.connect(host   = self.mysql_server, \
-                                            user   = self.username,     \
-                                            passwd = self.password,     \
-                                            db     = self.mysql_db,     \
-                                            port   = self.mysql_port    )
+            db_connection = MySQLdb.connect(host=self.mysql_server,
+                                            user=self.username,
+                                            passwd=self.password,
+                                            db=self.mysql_db,
+                                            port=self.mysql_port)
         except MySQLError, mysql_error:
             end(CRITICAL, "error connecting to database - %s" % mysql_error[1])
 
@@ -265,13 +266,13 @@ class LogServerTester:
         self.vprint(2, "log message is '%s'" % log_message)
 
         # security is maintained by a combinarion of `` and restrictive
-        # regex validation the validate functions. MySQLdb must take care of 
+        # regex validation the validate functions. MySQLdb must take care of
         # the log value but this is not an input variable anyway.
         query = "select count(*) from `%s` where `%s`=%%s" \
                                 % (self.mysql_table, self.mysql_column)
 
-        # This query will be slow and necessitates the need for a long default 
-        # timeout, as this is not suitable for an index and therefore must do a 
+        # This query will be slow and necessitates the need for a long default
+        # timeout, as this is not suitable for an index and therefore must do a
         # full table scan
         # select count(*) from logs where msg='logmessage'
         self.vprint(2, "querying mysql database for log...")
@@ -287,12 +288,12 @@ class LogServerTester:
                                                         % mysql_error[1])
         result = cursor.fetchall()
         if len(result) == 0:
-            end(CRITICAL, "No results returned from database query! "
+            end(CRITICAL, "No results returned from database query! " \
                         + "Possible database problem")
         try:
             number_of_logs = result[0][0]
         except IndexError:
-            end(CRITICAL, "Error processing result returned from MySQL server, "
+            end(CRITICAL, "Error processing result returned from MySQL server, " \
                         + "please run with -vvv")
 
         self.vprint(2, "number of logs matching message body: %s" \
@@ -312,22 +313,22 @@ message has been inserted into the database")
 
 
     def validate_credentials(self):
-        """Validates the username and password for use in 
+        """Validates the username and password for use in
         the MySQL connection"""
 
         # No regex validation here since the MySQLdb library seems to be safe
         # against injection on these variables
-        if self.username == None:
+        if self.username is None:
             end(HELP, "You must enter a username for the MySQL database")
 
-        if self.password == None:
+        if self.password is None:
             end(HELP, "You must enter a password for the MySQL database")
 
 
     def validate_delay(self):
         """Validates delay and exits if invalid"""
 
-        if self.delay == None:
+        if self.delay is None:
             self.delay = self.default_delay
 
         try:
@@ -343,7 +344,7 @@ message has been inserted into the database")
     def validate_logserver(self):
         """Validates logserver and exits if invalid"""
 
-        if self.logserver == None:
+        if self.logserver is None:
             end(HELP, "You must enter a logserver hostname or ip address")
 
         if not self.re_validation.match(self.logserver):
@@ -354,7 +355,7 @@ message has been inserted into the database")
     def validate_logserver_port(self):
         """Validates logserver variable and exits if invalid"""
 
-        if self.logserver_port == None:
+        if self.logserver_port is None:
             self.logserver_port = self.default_logserver_port
 
         try:
@@ -370,7 +371,7 @@ message has been inserted into the database")
     def validate_mysql_column(self):
         """Validates the mysql column name and exits if invalid"""
 
-        if self.mysql_column == None:
+        if self.mysql_column is None:
             self.mysql_column = self.default_mysql_column
 
         if not self.re_validation.match(self.mysql_column):
@@ -381,7 +382,7 @@ message has been inserted into the database")
     def validate_mysql_db(self):
         """Validates the mysql database name and exits if invalid"""
 
-        if self.mysql_db == None:
+        if self.mysql_db is None:
             self.mysql_db = self.default_mysql_db
 
         if not self.re_validation.match(self.mysql_db):
@@ -392,7 +393,7 @@ message has been inserted into the database")
     def validate_mysql_port(self):
         """Validates the mysql port and exits if invalid"""
 
-        if self.mysql_port == None:
+        if self.mysql_port is None:
             self.mysql_port = self.default_mysql_port
 
         try:
@@ -408,11 +409,11 @@ message has been inserted into the database")
         """Validates the mysql server, makes it default to the same host as
         the logserver. Exits if invalid name"""
 
-        # This test should be after the logserver test to keep error messages 
+        # This test should be after the logserver test to keep error messages
         # sane, ie if logserver is invalid, you don't want to test mysql_server
-        # first and end up with a message saying the mysql_server variable in 
+        # first and end up with a message saying the mysql_server variable in
         # invalid when actually you put in an invalid logserver
-        if self.mysql_server == None:
+        if self.mysql_server is None:
             self.mysql_server = self.logserver
 
         if not self.re_validation.match(self.mysql_server):
@@ -423,7 +424,7 @@ message has been inserted into the database")
     def validate_mysql_table(self):
         """Validates the mysql table name and exits if invalid"""
 
-        if self.mysql_table == None:
+        if self.mysql_table is None:
             self.mysql_table = self.default_mysql_table
 
         if not self.re_validation.match(self.mysql_table):
@@ -434,7 +435,7 @@ message has been inserted into the database")
     def validate_timeout(self):
         """Validates timeout and exits if invalid"""
 
-        if self.timeout == None:
+        if self.timeout is None:
             self.timeout = self.default_timeout
 
         try:
@@ -447,12 +448,12 @@ message has been inserted into the database")
 
 
     def validate_udp(self):
-        """Validates the udp switch setting and sets the appropriate 
+        """Validates the udp switch setting and sets the appropriate
         connection type"""
 
-        if self.udp == False or self.udp == None:
+        if not self.udp:
             pass
-        elif self.udp == True:
+        elif self.udp:
             self.conn_type = "UDP"
         else:
             end(CRITICAL, "Invalid udp variable specified, value must be " \
@@ -463,15 +464,15 @@ message has been inserted into the database")
         """Performs validation against all object variables. Should be called
         before or by test before using those variables"""
 
-        # security note against injection: these sanity checks are necessary 
-        # because of the weakness of the MySQLdb library quoting issue, but 
-        # username and password is not vulnerable by my testing for cli 
+        # security note against injection: these sanity checks are necessary
+        # because of the weakness of the MySQLdb library quoting issue, but
+        # username and password is not vulnerable by my testing for cli
         # injection so they are not tested here.
-        self.re_validation = re.compile("^[\w\d\.-]+$")
+        self.re_validation = re.compile(r'^[\w\d\.-]+$')
 
         # validate logserver should be before validate mysql_server
         # see validate_mysql_server for why
-        # every input variable except for verbosity which is an 
+        # every input variable except for verbosity which is an
         # incremental counter should be validated here
 
         # validate_credentials takes care of the username and password
@@ -493,7 +494,7 @@ message has been inserted into the database")
     def validate_verbosity(self):
         """Validates that verbosity is a numeric integer, exits if not"""
 
-        if self.verbosity == None:
+        if self.verbosity is None:
             self.verbosity = 0
 
         try:
@@ -506,7 +507,7 @@ message has been inserted into the database")
 
 
     def vprint(self, verbosity, message):
-        """Prints messages based on the verbosity level. Takes 2 arguments, 
+        """Prints messages based on the verbosity level. Takes 2 arguments,
         verbosity, and the message. If verbosity is equal to or greater than
         the minimum verbosity then the message is printed"""
 
@@ -521,108 +522,108 @@ def main():
     tester = LogServerTester()
     parser = OptionParser()
 
-    parser.add_option( "-H",
-                       "--logserver",
-                       dest="logserver",
-                       help="The logserver to test" )
+    parser.add_option("-H",
+                      "--logserver",
+                      dest="logserver",
+                      help="The logserver to test")
 
-    parser.add_option( "-p",
-                       "--port",
-                       "--logserver-port",
-                       dest="logserver_port",
-                       help="The port of the logserver. Optional, defaults to" \
-                           +" port %s" % tester.default_logserver_port )
+    parser.add_option("-p",
+                      "--port",
+                      "--logserver-port",
+                      dest="logserver_port",
+                      help="The port of the logserver. Optional, defaults to" \
+                          +" port %s" % tester.default_logserver_port)
 
-    parser.add_option( "-U",
-                       "--username",
-                       dest="username",
-                       help="The MySQL user to log in as to test that the log" \
-                           +" was created in the back end database" )
+    parser.add_option("-U",
+                      "--username",
+                      dest="username",
+                      help="The MySQL user to log in as to test that the log" \
+                          +" was created in the back end database")
 
-    parser.add_option( "-P",
-                       "--password",
-                       dest="password",
-                       help="The MySQL password to log in with to test that " \
-                           +"the log was created in the back end database" )
+    parser.add_option("-P",
+                      "--password",
+                      dest="password",
+                      help="The MySQL password to log in with to test that " \
+                          +"the log was created in the back end database")
 
-    parser.add_option( "-M",
-                       "--mysql-server",
-                       dest="mysql_server",
-                       help="The mysql server hostname or ip address. " \
-                           +"Optional, defaults to the same address as the " \
-                           +"logserver." )
+    parser.add_option("-M",
+                      "--mysql-server",
+                      dest="mysql_server",
+                      help="The mysql server hostname or ip address. " \
+                          +"Optional, defaults to the same address as the " \
+                          +"logserver.")
 
-    parser.add_option( "-m",
-                       "--mysql-port",
-                        dest="mysql_port",
-                        help="The port number of the MySQL database. Optional" \
-                            +", defaults to %s" % tester.default_mysql_port )
+    parser.add_option("-m",
+                      "--mysql-port",
+                      dest="mysql_port",
+                      help="The port number of the MySQL database. Optional" \
+                          +", defaults to %s" % tester.default_mysql_port)
 
-    parser.add_option( "-D",
-                       "--mysql-db",
-                       dest="mysql_db",
-                       help="The MySQL database instance to query for the log" \
-                           +". Optional, defaults to '%s'" \
-                                                    % tester.default_mysql_db )
+    parser.add_option("-D",
+                      "--mysql-db",
+                      dest="mysql_db",
+                      help="The MySQL database instance to query for the log" \
+                          +". Optional, defaults to '%s'" \
+                                                    % tester.default_mysql_db)
 
-    parser.add_option( "-T",
-                       "--mysql-table",
-                        dest="mysql_table",
-                        help="The MySQL table to query for the log. Optional" \
-                            +", defaults to '%s'" % tester.default_mysql_table )
+    parser.add_option("-T",
+                      "--mysql-table",
+                      dest="mysql_table",
+                      help="The MySQL table to query for the log. Optional" \
+                          +", defaults to '%s'" % tester.default_mysql_table)
 
-    parser.add_option( "-C",
-                       "--mysql-column",
-                       dest="mysql_column",
-                       help="The MySQL column in which the log message is " \
-                           +"kept. Optional, defaults to '%s'" \
-                                                % tester.default_mysql_column )
+    parser.add_option("-C",
+                      "--mysql-column",
+                      dest="mysql_column",
+                      help="The MySQL column in which the log message is " \
+                          +"kept. Optional, defaults to '%s'" \
+                                                % tester.default_mysql_column)
 
-    parser.add_option( "-d",
-                       "--delay",
-                        dest="delay",
-                        help="Delay between sending the log and querying the "\
-                            +"logserver backend mysql database for the log " \
-                            +"message. This is useful if the logserver is " \
-                            +"heavily utilized or has batch inserts, as it " \
-                            +"allows the logserver more time to process the " \
-                            +"log and insert it into the database before the " \
-                            +"second part of the test searches for it. Valid " \
-                            +"range is between 0 and 3600 seconds. Defaults " \
-                            +"to %s seconds" % tester.default_delay )
+    parser.add_option("-d",
+                      "--delay",
+                      dest="delay",
+                      help="Delay between sending the log and querying the "\
+                          +"logserver backend mysql database for the log " \
+                           +"message. This is useful if the logserver is " \
+                           +"heavily utilized or has batch inserts, as it " \
+                           +"allows the logserver more time to process the " \
+                           +"log and insert it into the database before the " \
+                           +"second part of the test searches for it. Valid " \
+                           +"range is between 0 and 3600 seconds. Defaults " \
+                           +"to %s seconds" % tester.default_delay)
 
-    parser.add_option( "-t",
-                       "--timeout",
-                       dest="timeout", 
-                       help="sets a timeout in seconds after which the " \
-                           +"plugin will exit (defaults to %s). " \
-                                                      % tester.default_timeout \
-                           +"Recommended that this is used to increase " \
-                           +"timeout if mysql server takes more than 30 " \
-                           +"seconds to query logs table as it usually will. " \
-                           +"Best used in conjunction with passive service " \
-                           +"check if longer than 30 seconds" )
+    parser.add_option("-t",
+                      "--timeout",
+                      dest="timeout",
+                      help="sets a timeout in seconds after which the " \
+                          +"plugin will exit (defaults to %s). " \
+                                                     % tester.default_timeout \
+                          +"Recommended that this is used to increase " \
+                          +"timeout if mysql server takes more than 30 " \
+                          +"seconds to query logs table as it usually will. " \
+                          +"Best used in conjunction with passive service " \
+                          +"check if longer than 30 seconds")
 
-    parser.add_option( "-u",
-                       "--udp",
-                       action="store_true",
-                       dest="udp",
-                       help="Send the log to the logserver by udp. Default " \
-                           +"is to send the log via %s" % tester.conn_type )
+    parser.add_option("-u",
+                      "--udp",
+                      action="store_true",
+                      dest="udp",
+                      help="Send the log to the logserver by udp. Default " \
+                          +"is to send the log via %s" % tester.conn_type)
 
-    parser.add_option( "-v", 
-                       "--verbose",
-                       action="count",
-                       dest="verbosity",
-                       help="Verbose mode. Good for testing plugin. By " \
-                           +"default only one result line is printed as per " \
-                           +"Nagios standards" )
+    parser.add_option("-v",
+                      "--verbose",
+                      action="count",
+                      dest="verbosity",
+                      help="Verbose mode. Good for testing plugin. By " \
+                          +"default only one result line is printed as per " \
+                          +"Nagios standards")
 
-    parser.add_option( "-V",
-                       "--version",
-                       action="store_true",
-                       dest="version",
-                       help="Print version number and exit" ) 
+    parser.add_option("-V",
+                      "--version",
+                      action="store_true",
+                      dest="version",
+                      help="Print version number and exit")
 
     (options, args) = parser.parse_args()
 
@@ -632,19 +633,19 @@ def main():
 
     # Very important. Input validation is done in the object itself
     # before these variables are used.
-    tester.delay          = options.delay
-    tester.logserver      = options.logserver
+    tester.delay = options.delay
+    tester.logserver = options.logserver
     tester.logserver_port = options.logserver_port
-    tester.mysql_column   = options.mysql_column
-    tester.mysql_db       = options.mysql_db
-    tester.mysql_port     = options.mysql_port
-    tester.mysql_server   = options.mysql_server
-    tester.mysql_table    = options.mysql_table
-    tester.password       = options.password
-    tester.timeout        = options.timeout
-    tester.udp            = options.udp
-    tester.username       = options.username
-    tester.verbosity      = options.verbosity
+    tester.mysql_column = options.mysql_column
+    tester.mysql_db = options.mysql_db
+    tester.mysql_port = options.mysql_port
+    tester.mysql_server = options.mysql_server
+    tester.mysql_table = options.mysql_table
+    tester.password = options.password
+    tester.timeout = options.timeout
+    tester.udp = options.udp
+    tester.username = options.username
+    tester.verbosity = options.verbosity
 
     if options.version:
         print __version__
