@@ -98,8 +98,9 @@ services:
 #  - riak
 
 # env stuff is handled with docker test scripts now
-#env:
-#  global:
+env:
+  global:
+    - DEBUG=1
 #    - MYSQL_DATABASE=mysql
 #    - MYSQL_PASSWORD=""
 #    - MYSQL_USER=travis
