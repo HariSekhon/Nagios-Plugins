@@ -28,7 +28,8 @@ libkrb5-dev
 
 # for DBD::mysql as well as headers to build DBD::mysql if building from CPAN
 libdbd-mysql-perl
-libmysqlclient-dev
+#libmysqlclient-dev
+libmariadbd-dev
 
 # needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 libssl-dev

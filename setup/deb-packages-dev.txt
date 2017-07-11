@@ -18,7 +18,8 @@ libev-dev
 libexpat1-dev
 libffi-dev
 libkrb5-dev
-libmysqlclient-dev
+#libmysqlclient-dev
+libmariadbd-dev
 libsasl2-dev
 libsnappy-dev
 libssl-dev
