@@ -150,8 +150,7 @@ python-libs:
 	if [ "$$(python -c 'import sys; sys.path.append("pylib"); import harisekhon; print(harisekhon.utils.getPythonVersion())')" = "2.6" ]; then $(SUDO2) pip install --upgrade "happybase==0.9"; fi
 
 	@echo
-	unalias mv
-	wget -O find_active_server.py.tmp https://raw.githubusercontent.com/HariSekhon/pytools/master/find_active_server.py && mv -f find_active_server.py.tmp find_active_server.py
+	unalias mv; wget -O find_active_server.py.tmp https://raw.githubusercontent.com/HariSekhon/pytools/master/find_active_server.py && mv -f find_active_server.py.tmp find_active_server.py
 	chmod +x find_active_server.py
 	@echo
 	bash-tools/python_compile.sh
