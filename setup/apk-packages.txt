@@ -20,7 +20,7 @@ ethtool
 gcc
 git
 make
-openssl
+acf-openssl
 perl
 perl-dbd-mysql
 py-mysqldb
