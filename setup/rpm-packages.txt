@@ -19,6 +19,11 @@ perl-libwww-perl
 tar
 which
 
+# needed to fetch the library submodule at end of build
+# and also for check_git_branch_checkout.pl and Git-Python / check_git_branch_checkout.py
+# only available on EPEL in CentOS 5
+git
+
 # ethtool for ./check_linux_interface.pl
 ethtool
 
@@ -33,8 +38,6 @@ python-pyasn1
 # for check_whois.pl
 jwhois
 
-# only available on EPEL in CentOS 5
-git
 python-setuptools
 python-pip
 
