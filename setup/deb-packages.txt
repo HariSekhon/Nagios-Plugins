@@ -30,6 +30,7 @@ libkrb5-dev
 libdbd-mysql-perl
 #libmysqlclient-dev
 libmariadbd-dev
+python-mysqldb
 
 # needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 libssl-dev
