@@ -68,6 +68,8 @@ Run any given plugin by suffixing it to the ```docker run``` command:
 docker run harisekhon/nagios-plugins check_ssl_cert.pl --help
 ```
 
+There are also `:centos`, `:debian` and `:ubuntu` tagged docker images available
+
 #### Automated Build from Source
 
 ```
@@ -165,7 +167,7 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 - ```check_puppet.rb``` - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
 - ```check_aws_s3_file.pl``` - check for the existence of any arbitrary file on AWS S3, eg. to check backups have happened or _SUCCESS placeholder files are present for a job
 - ```check_dns.pl``` - advanced DNS query checker supporting NS records for your public domain name, MX records for your mail servers, SOA, SRV, TXT as well as A and PTR records. Can optionally specify `--expected` literal or `--regex` results (which is anchored for security) for strict validation to ensure all records returned are expected and authorized. The record, type and result(s) are output along with the DNS query timing perfdata for graphing DNS performance
-- `check_disk_write.pl` - canary write test, catches partitions getting auto-remounted read-only by Linux when it detects underlying storage issues (often caused by malfunctioning block devices, raid arrays, failing disks)
+- `check_disk_write.pl` - canary write test, catches partitions getting auto-remounted read-only by Linux when it detects underlying storage I/O errors (often caused by malfunctioning block devices, raid arrays, failing disks)
 - `check_git_branch_checkout.p*` - if deploying from a git checkout (eg. puppetmaster), make sure it stays on the expected branch otherwise you could auto-deploy the wrong stuff
 - `check_consul_*.py` - Consul API write / read back, arbitrary key-value content checks, number of cluster peers & version
 - ```check_mesos_*.pl``` - Mesos master health API, master & slaves state information including leader and versions, activated & deactivated slaves, number of Chronos jobs, master & slave metrics
