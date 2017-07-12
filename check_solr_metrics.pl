@@ -17,7 +17,7 @@ Additionally, can drill down to a specific --stat to collect from that metric.
 
 Optional thresholds apply if specifying a single --stat.
 
-Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.7.2, 4.10.3, 5.4.0, 5.5.0, 6.0.0, 6.1.0, 6.2.0";
+Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.7.2, 4.10.3, 5.4.0, 5.5.0, 6.0.0, 6.1.0, 6.2.0, 6.2.1, 6.3.0, 6.4.2, 6.5.1, 6.6.0";
 
 # Some useful metrics to collect
 #

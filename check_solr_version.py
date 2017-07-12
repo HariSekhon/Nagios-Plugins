@@ -21,7 +21,7 @@ Nagios Plugin to check the deployed version of Solr matches what's expected.
 This is also used in the accompanying test suite to ensure we're checking the right version of Solr
 for compatibility for all my other Solr / SolrCloud nagios plugins.
 
-Tested on Solr 4.10.4, 5.5.0, 6.0.0, 6.1.0, 6.2.0
+Tested on Solr 4.10.4, 5.5.0, 6.0.0, 6.1.0, 6.2.0, 6.2.1, 6.3.0, 6.4.2, 6.5.1, 6.6.0";
 
 """
 

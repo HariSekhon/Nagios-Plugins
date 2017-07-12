@@ -15,7 +15,7 @@ Thresholds for warning / critical apply to the minimum number of live nodes foun
 
 See also check_solrcloud_live_nodes_zookeeper.pl which does the same as this plugin but via ZooKeeper, which is more robust in case given Solr host is down.
 
-Tested on SolrCloud 4.7.2, 4.10.3, 5.4.0, 5.5.0, 6.0.0";
+Tested on SolrCloud 4.7.2, 4.10.3, 5.4.0, 5.5.0, 6.0.0, 6.1.0, 6.2.0, 6.2.1, 6.3.0, 6.4.2, 6.5.1, 6.6.0";
 
 $VERSION = "0.2";
 
