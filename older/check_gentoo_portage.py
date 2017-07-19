@@ -31,7 +31,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Gentoo Portage"
-__version__ = "0.8.3"
+__version__ = "0.8.4"
 
 # Standard Nagios return codes
 OK = 0
