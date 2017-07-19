@@ -455,9 +455,9 @@ foreach(@output){
     } elsif (/(?:registrar(?:[ _]name)?|Registered through):\s*(.+?)\s*$/io){
         $results{"registrar"} = $1;
         #$results{"registrar"} =~ s/, Ltd\.? .+$//io;
-    } elsif (/^\s*(?:Admin Email|admin_contact_email)[.:]+\s*($email_regex)\s*$/io){
+    } elsif (/^\s*(?:Admin Email|admin_contact_email|Administrative Contact Email)[.:]+\s*($email_regex)\s*$/io){
         $results{"admin_email"} = $1;
-    } elsif (/^\s*(?:Tech Email|technical_contact_email)[.:]+\s*($email_regex)\s*$/io){
+    } elsif (/^\s*(?:Tech Email|technical_contact_email|Technical Contact Email)[.:]+\s*($email_regex)\s*$/io){
         $results{"tech_email"} = $1;
     }
 }
