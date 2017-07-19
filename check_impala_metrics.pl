@@ -74,7 +74,9 @@ $status = "OK";
 # Impala 1.0 / 1.0.1 doesn't currently support &raw on this URI handler
 #my $url = "http://$host:$port/metrics";
 # switched to /jsonmetrics
-my $url = "http://$host:$port/jsonmetrics";
+# Impala 1.0 / 1.0.1 doesn't currently support &raw on this URI handler
+# Impala since CDH 5.4 switched to jsonmetrics?json
+my $url = "http://$host:$port/jsonmetrics?json";
 
 my $content = curl $url, "Impala debug UI metrics";
 
