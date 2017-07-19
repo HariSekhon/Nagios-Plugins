@@ -325,6 +325,7 @@ class PortageTester(object):
         self.vprint(2, "portage tree is %.1f hours old" % portage_age)
         if portage_age > self.max_portage_tree_age:
             end(CRITICAL, "Portage tree is %.1f hours out of date, " \
+                                                                   % portage_age \
                         + "security package information is not reliable")
         elif portage_age < 0:
             end(WARNING, "Portage tree timestamp is in the future! (%s)" \
