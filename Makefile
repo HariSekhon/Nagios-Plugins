@@ -26,7 +26,9 @@ endif
 # Perms not set correctly on custom python install in Travis perl build so workaround is done to chown to travis user in .travis.yml
 # Better than modifying $PATH to put /usr/bin first which is likely to affect many other things including potentially not finding the perlbrew installation first
 #ifdef VIRTUAL_ENV
-ifneq '$(VIRTUAL_ENV)$(CONDA_DEFAULT_ENV)$(TRAVIS)' ''
+#ifneq '$(VIRTUAL_ENV)$(CONDA_DEFAULT_ENV)$(TRAVIS)' ''
+# Looks like Perl travis builds are now using system Python
+ifneq '$(VIRTUAL_ENV)$(CONDA_DEFAULT_ENV)' ''
 	SUDO3 =
 else
 	SUDO3 = sudo -H
