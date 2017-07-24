@@ -28,7 +28,7 @@ echo "
 # ============================================================================ #
 "
 
-export APACHE_DRILL_VERSIONS="${@:-${APACHE_DRILL_VERSIONS:-latest 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6}}"
+export APACHE_DRILL_VERSIONS="${@:-${APACHE_DRILL_VERSIONS:-latest 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 1.10}}"
 
 APACHE_DRILL_HOST="${DOCKER_HOST:-${APACHE_DRILL_HOST:-${HOST:-localhost}}}"
 APACHE_DRILL_HOST="${APACHE_DRILL_HOST##*/}"
@@ -36,36 +36,33 @@ APACHE_DRILL_HOST="${APACHE_DRILL_HOST%%:*}"
 export APACHE_DRILL_HOST
 export APACHE_DRILL_PORT=8047
 
-export DOCKER_IMAGE="harisekhon/zookeeper"
-export DOCKER_CONTAINER="nagios-plugins-zookeeper-test"
+export DOCKER_CONTAINER="nagios-plugins-apache-drill"
 
-export DOCKER_IMAGE2="harisekhon/apache-drill"
-export DOCKER_CONTAINER2="nagios-plugins-drill-test"
-
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Apache Drill checks!!!'
-    exit 0
-fi
+check_docker_available
 
 test_drill(){
     local version="$1"
     hr
     echo "Setting up Apache Drill $version test container"
     hr
-    echo "lauching drill container linked to zookeeper"
-    local DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper"
-    local DOCKER_CMD="supervisord -n"
-    launch_container "$DOCKER_IMAGE2:$version" "$DOCKER_CONTAINER2" $APACHE_DRILL_PORT
+    #echo "lauching drill container linked to zookeeper"
+    #local DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper"
+    #local DOCKER_CMD="supervisord -n"
+    #launch_container "$DOCKER_IMAGE2:$version" "$DOCKER_CONTAINER2" $APACHE_DRILL_PORT
+    VERSION="$version" docker-compose up -d
     if [ -n "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
-    when_ports_available $startupwait $APACHE_DRILL_HOST $APACHE_DRILL_PORT
+    port="`docker-compose port "$DOCKER_SERVICE" "$APACHE_DRILL_PORT" | sed 's/.*://'`"
+    when_ports_available "$startupwait" "$APACHE_DRILL_HOST" "$port"
     if [ "$version" = "latest" ]; then
         local version="*"
     fi
     hr
     set +e
-    found_version=$(docker exec  "$DOCKER_CONTAINER2" ls / | grep apache-drill | tee /dev/stderr | tail -n1 | sed 's/.*-//')
+    #found_version="$(docker exec  "$DOCKER_CONTAINER" ls / | grep apache-drill | tee /dev/stderr | tail -n1 | sed 's/-[[:digit:]]*//')"
+    env | grep -i -e docker -e compose
+    found_version="$(docker-compose exec "$DOCKER_SERVICE" ls / -1 --color=no | grep --color=no apache-drill | tee /dev/stderr | tail -n 1 | sed 's/apache-drill-//')"
     set -e
     if [[ "$found_version" != $version* ]]; then
         echo "Docker container version does not match expected version! (found '$found_version', expected '$version')"
@@ -74,24 +71,25 @@ test_drill(){
     hr
     echo "found Apache Drill version $found_version"
     hr
-    #./check_apache_drill_version.py -v -e "$version"
+    #./check_apache_drill_version.py -P $port -v -e "$version"
     hr
-    ./check_apache_drill_status.py -v
+    ./check_apache_drill_status.py -P $port -v
     hr
-    $perl -T ./check_apache_drill_metrics.pl -v
+    $perl -T ./check_apache_drill_metrics.pl -P $port -v
     hr
-    delete_container "$DOCKER_CONTAINER2"
+    #delete_container "$DOCKER_CONTAINER2"
+    docker-compose down
     echo
 }
 
-startupwait 1
-echo "launching zookeeper container"
-launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 3181 4181
+#startupwait 1
+#echo "launching zookeeper container"
+#launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 3181 4181
 
 startupwait 30
 for version in $(ci_sample $APACHE_DRILL_VERSIONS); do
     test_drill $version
 done
 
-delete_container "$DOCKER_CONTAINER"
+#delete_container "$DOCKER_CONTAINER"
 echo
