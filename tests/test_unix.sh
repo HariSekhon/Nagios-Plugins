@@ -51,20 +51,6 @@ $perl -T ./check_file_sha256.pl   -f test.txt -v -c 'f2ca1bb6c7e907d06dafe4687e5
 $perl -T ./check_file_sha512.pl   -f test.txt -v -c '0e3e75234abc68f4378a86b3f4b32a198ba301845b0cd6e50106e874345700cc6663a86c1ea125dc5e92be17c98f9a0f85ca9d5f595db2012f7cc3571945c123'
 rm -f test.txt
 hr
-$perl -T ./check_ssl_cert.pl -H www.google.com -d www.google.com -w 2 -c 1 -v
-hr
-set +e
-$perl -T ./check_ssl_cert.pl -H www.google.com -d wrongdomain.com -w 2 -c 1 -v
-check_exit_code 2
-set -e
-hr
-$perl -T ./check_ssl_cert.pl -H signin.ebay.com --domain signin.ebay.com --subject-alternative-name signin.ebay.co.uk,signin.ebay.de -w 2 -c 1 -v
-hr
-set +e
-$perl -T ./check_ssl_cert.pl -H signin.ebay.com -d signin.ebay.com --subject-alternative-name nonexistent.co.uk -w 2 -c 1 -v
-check_exit_code 2
-set -e
-hr
 # test real login against HP iLO or similar if local environment is configured for it
 if [ -n "${SSH_HOST:-}" -a -n "${SSH_USER:-}" -a -n "${SSH_PASSWORD:-}" ]; then
     $perl -T ./check_ssh_login.pl -H "$SSH_HOST" -u "$SSH_USER" -p "$SSH_PASSWORD"
