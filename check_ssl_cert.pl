@@ -103,6 +103,14 @@ set_timeout($timeout, sub { pkill("$openssl s_client -connect $host:$port", "-9"
 
 $openssl = which($openssl, 1);
 
+# OpenSSL 1.1 on Debian Stetch shows /usr/lib/ssl/ but in fact requires /usr/lib/ssl/certs/
+# so this now causes a certificate validation failure if using the inferred path location
+# as newer OpenSSL appears to no longer recurse for CA certs. Instead leave openssl to
+# use it's default location and only use -CApath if the user has specifically requested
+# changing the path, see:
+#
+# https://github.com/HariSekhon/nagios-plugins/issues/163
+#
 #unless(defined($CApath)){
 #    @output = cmd("$openssl version -a");
 #    foreach(@output){
