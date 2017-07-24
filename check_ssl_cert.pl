@@ -21,7 +21,7 @@ Checks:
 4. Subject Alternative Names supported by certificate (optional)
 5. SNI - Server Name Identification - supply hostname identifier for servers that contain multiple certificates to tell the server which SSL certificate to use (optional)";
 
-$VERSION = "0.9.12";
+$VERSION = "0.9.13";
 
 use warnings;
 use strict;
@@ -103,27 +103,28 @@ set_timeout($timeout, sub { pkill("$openssl s_client -connect $host:$port", "-9"
 
 $openssl = which($openssl, 1);
 
-unless(defined($CApath)){
-    @output = cmd("$openssl version -a");
-    foreach(@output){
-        if (/^OPENSSLDIR: "($filename_regex)"\s*\n?$/) {
-            $CApath = $1;
-            vlog2 "Found CApath from openssl binary as: $CApath\n";
-            last;
-        }
-    }
-    unless(defined($CApath)){
-        usage "CApath to root certs was not specified and could not be found from openssl binary";
-    }
-    $CApath = validate_dir($CApath, "CA path");
-}
+#unless(defined($CApath)){
+#    @output = cmd("$openssl version -a");
+#    foreach(@output){
+#        if (/^OPENSSLDIR: "($filename_regex)"\s*\n?$/) {
+#            $CApath = $1;
+#            vlog2 "Found CApath from openssl binary as: $CApath\n";
+#            last;
+#        }
+#    }
+#    unless(defined($CApath)){
+#        usage "CApath to root certs was not specified and could not be found from openssl binary";
+#    }
+#    $CApath = validate_dir($CApath, "CA path");
+#}
 
 vlog2;
 
 $status = "OK";
 
 vlog2 "* checking validity of cert (chain of trust)";
-$cmd = "echo | $openssl s_client -connect $host:$port -CApath $CApath";
+$cmd = "echo | $openssl s_client -connect $host:$port";
+$cmd .= " -CApath $CApath" if $CApath;
 $cmd .= " -servername $sni_hostname" if $sni_hostname;
 $cmd .= " 2>&1";
 
