@@ -179,7 +179,7 @@ foreach (@output){
     }
     #elsif (/subject=/) {
     # The * must be in there for wildcard certs
-    elsif (/Subject:(?:.+,)?\s*CN=([\*\w\.-]+)/) {
+    elsif (/Subject:(?:.+,)?\s*CN\s*=\s*([\*\w\.-]+)/) {
         $domain = $1;
         #defined($domain) || quit "CRITICAL", "failed to determine certificate domain name";
         last;
