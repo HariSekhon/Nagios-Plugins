@@ -35,7 +35,8 @@ isExcluded(){
     [[ "$prog" =~ ^\* ]] && return 0
     [[ "$prog" = "check_puppet.rb" ]] && return 0
     # temporarily disable check_kafka.pl check as there is an upstream library breakage
-    [[ "$prog" = "check_kafka.pl" ]] && return 0
+    #[[ "$prog" = "check_kafka.pl" ]] && return 0
+    [[ "$prog" =~ *TODO* ]] && return 0
     # Kafka module requires Perl >= 5.10, skip when running tests on 5.8 for CentOS 5 for which everything else works
     if [ "$PERL_MAJOR_VERSION" = "5.8" ]; then
         [ "$prog" = "check_kafka.pl" ] && { echo "skipping check_kafka.pl on Perl 5.8 since the Kafka CPAN module requires Perl >= 5.10"; return 0; }
