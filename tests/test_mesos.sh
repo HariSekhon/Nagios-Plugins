@@ -29,7 +29,7 @@ echo "
 "
 
 # TODO: update plugins for > 0.24
-export MESOS_VERSIONS="${@:-${MESOS_VERSIONS:-latest 0.23 0.24}}"
+export MESOS_VERSIONS="${@:-${MESOS_VERSIONS:-${VERSIONS:-latest 0.23 0.24}}}"
 
 MESOS_HOST="${DOCKER_HOST:-${MESOS_HOST:-${HOST:-localhost}}}"
 MESOS_HOST="${MESOS_HOST##*/}"
@@ -40,50 +40,47 @@ export MESOS_MASTER_PORT="${MESOS_MASTER_PORT:-5050}"
 export MESOS_WORKER_PORT="${MESOS_WORKER_PORT:-5051}"
 export MESOS_MASTER="$MESOS_HOST:$MESOS_MASTER_PORT"
 
-export DOCKER_IMAGE="harisekhon/mesos"
-export DOCKER_CONTAINER="nagios-plugins-mesos-test"
-
 startupwait 20
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Mesos checks!!!'
-    exit 0
-fi
+check_docker_available
 
 test_mesos_version(){
     local version="${1:-latest}"
     hr
     echo "Setting up Mesos $version test container"
     hr
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MESOS_MASTER_PORT $MESOS_WORKER_PORT
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MESOS_MASTER_PORT $MESOS_WORKER_PORT
+    VERSION="$version" docker-compose up -d
+    mesos_master_port="`docker-compose port "$DOCKER_SERVICE" "$MESOS_MASTER_PORT" | sed 's/.*://'`"
+    mesos_worker_port="`docker-compose port "$DOCKER_SERVICE" "$MESOS_WORKER_PORT" | sed 's/.*://'`"
     if [ -n "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
-    when_ports_available $startupwait $MESOS_HOST $MESOS_MASTER_PORT $MESOS_WORKER_PORT
+    when_ports_available "$startupwait" "$MESOS_HOST" "$mesos_master_port" "$mesos_worker_port"
     hr
-    $perl -T ./check_mesos_activated_slaves.pl -v
+    $perl -T ./check_mesos_activated_slaves.pl -P "$mesos_master_port" -v
     hr
-    #$perl -T ./check_mesos_chronos_jobs.pl -v
+    #$perl -T ./check_mesos_chronos_jobs.pl -P "$cronos_port" -v
     hr
-    $perl -T ./check_mesos_deactivated_slaves.pl -v
+    $perl -T ./check_mesos_deactivated_slaves.pl -P "$mesos_master_port" -v
     hr
-    $perl -T ./check_mesos_master_health.pl -v
+    $perl -T ./check_mesos_master_health.pl -P "$mesos_master_port" -v
     hr
-    $perl -T ./check_mesos_master_state.pl -v
+    $perl -T ./check_mesos_master_state.pl -P "$mesos_master_port" -v
     hr
-    $perl -T ./check_mesos_metrics.pl -P 5050 -v
+    $perl -T ./check_mesos_metrics.pl -P "$mesos_master_port" -v
     hr
-    $perl -T ./check_mesos_metrics.pl -P 5051 -v
+    $perl -T ./check_mesos_metrics.pl -P "$mesos_worker_port" -v
     hr
-    $perl -T ./check_mesos_master_metrics.pl -v
+    $perl -T ./check_mesos_master_metrics.pl -P "$mesos_master_port" -v
     hr
     set +e
-    slave="$(./check_mesos_slave.py -l | awk '/=/{print $1; exit}')"
+    slave="$(./check_mesos_slave.py -P "$mesos_master_port" -l | awk '/=/{print $1; exit}')"
     set -e
     echo "checking for mesos slave '$slave'"
-    ./check_mesos_slave.py -v -s "$slave"
+    ./check_mesos_slave.py -P "$mesos_master_port" -v -s "$slave"
     hr
-    $perl -T ./check_mesos_slave_metrics.pl -v
+    $perl -T ./check_mesos_slave_metrics.pl -P "$mesos_worker_port" -v
     hr
     # Not implemented yet
     #$perl -T ./check_mesos_registered_framework.py -v
@@ -91,9 +88,10 @@ test_mesos_version(){
     # Not implemented yet
     #$perl -T ./check_mesos_slave_container_statistics.pl -v
     hr
-    $perl -T ./check_mesos_slave_state.pl -v
+    $perl -T ./check_mesos_slave_state.pl -P "$mesos_worker_port" -v
     hr
-    delete_container
+    #delete_container
+    docker-compose down
 }
 
 for version in $(ci_sample $MESOS_VERSIONS); do
