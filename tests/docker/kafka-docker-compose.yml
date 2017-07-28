@@ -20,7 +20,7 @@ services:
       service: common
     image: harisekhon/kafka:${VERSION:-latest}
     ports:
-      - 2181:2181
+      - 2181
       # If this port is randomized then the Kafka python library seems to not find topics, must be a bug
       - 9092:9092
     environment:
