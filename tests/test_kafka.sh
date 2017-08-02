@@ -75,6 +75,7 @@ test_kafka(){
     set +e
     # -T often returns no output, just strip leading escape chars instead
     found_version="$(docker-compose exec "$DOCKER_SERVICE" /bin/sh -c 'ls -d /kafka_*' | tail -n1 | tr -d '$\r' | sed 's/.*\/kafka_//; s/\.[[:digit:]]*\.[[:digit:]]*$//')"
+    echo "found version $found_version"
     set -e
     # TODO: make container and official versions align
     if [[ "${found_version//-/_}" != ${version//-/_}* ]]; then
