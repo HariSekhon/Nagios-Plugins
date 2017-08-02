@@ -56,6 +56,10 @@ build :
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins)"
 
+.PHONY: quick
+quick:
+	QUICK=1 make build
+
 .PHONY: common
 common:
 	make system-packages
