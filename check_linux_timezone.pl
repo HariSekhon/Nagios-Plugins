@@ -15,7 +15,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check a Linux Server's timezone is set as expected";
 
-$VERSION = "0.8.1";
+$VERSION = "0.9.0";
 
 use strict;
 use warnings;
@@ -83,15 +83,20 @@ if(-f $zoneinfo_file){
         unless($_ eq <$fh2>){
             critical;
             if($verbose and not $timezone_mismatch){
-                $msg = "localtime file '$localtime_file' does not match timezone file '$zoneinfo_file'! $msg";
-                last;
+                quit "CRITICAL", "localtime file '$localtime_file' does not match timezone file '$zoneinfo_file'! $msg";
             }
         }
         $linecount++;
-        if($linecount > 500){
+        # the largest file under /usr/share/zoneinfo is 119 lines /usr/share/zoneinfo/right/Atlantic/Madeira
+        if($linecount > 150){
             warning;
-            $msg = "localtime file '$localtime_file' exceeded 500 lines, aborting check! $msg";
-            last;
+            quit "CRITICAL", "localtime file '$localtime_file' exceeded 150 lines, aborting check! $msg";
+        }
+    }
+    if(<$fh2>){
+        critical;
+        if($verbose and not $timezone_mismatch){
+            quit "CRITICAL", "localtime file '$localtime_file' does not match timezone file '$zoneinfo_file' (zoneinfo file is larger)! $msg";
         }
     }
     close $fh2;
