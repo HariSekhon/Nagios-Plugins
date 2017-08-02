@@ -30,7 +30,7 @@ Limitations (these all currently have tickets open to fix in the underlying API)
 - first run if given a topic that doesn't already exist will cause the error \"Error: There are no known brokers: topic = '<topic>'\"
 ";
 
-$VERSION = "0.2.6";
+$VERSION = "0.2.7";
 
 # Kafka lib requires Perl 5.10
 use 5.010;
@@ -59,8 +59,7 @@ set_port_default(9092);
 env_creds("Kafka");
 
 my $broker_list = "";
-my $topic;
-#my $topic = "nagios";
+my $topic = "nagios";
 my $list_topics;
 my $list_partitions;
 my $partition = 0;
