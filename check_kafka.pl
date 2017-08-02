@@ -75,7 +75,7 @@ my $sleep = 0.5;
     %hostoptions,
     "B|broker-list=s"            => [ \$broker_list,         "Comma separated list of brokers in form 'host:port' to try if broker specified by --host and --port is not the leader. Either host or broker list must be supplied at the minimum. If --host isn't specified then first broker in the list will be use for metadata retrieval (\$KAFKA_BROKERS)" ],
     "T|topic=s"                  => [ \$topic,               "Kafka topic (\$KAFKA_TOPIC, default: nagios)" ],
-    "p|partition=s"              => [ \$partition,           "Kafka partition number to check by pushing message through (default: undefined, random)" ],
+    "p|partition=s"              => [ \$partition,           "Kafka partition number to check by pushing message through (default: random)" ],
     "R|required-acks=s"          => [ \$RequiredAcks,        "Required Acks from Kafka replicas. Default is 'LOG' which requires ack from Kafka partition leader, alternatively 'ISR' requires commit on all In-Sync Replicas, or specifying any integer which will block until this number of In-Sync Replicas ack the message (causing timeout - but will not wait for more acks than there are in-sync replicas)" ],
     "I|ignore-invalid-messages"  => [ \$ignore_invalid_msgs, "Ignore invalid messages, only try to find the unique message we produced in the stream. By default any invalid message since the offset when the program started could trigger a critical alert. Strong test of broker to leave this switch unset. Message we sent must be valid regardless, this is just to ignore some other producer problem" ],
     "send-max-attempts=s"        => [ \$send_max_attempts,    "Max number of send    attempts for Kafka broker (default: 1, min: 1, max: 100)" ],
