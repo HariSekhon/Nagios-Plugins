@@ -33,6 +33,8 @@ is_zookeeper_built(){
 isExcluded(){
     local prog="$1" 
     [[ "$prog" =~ ^\* ]] && return 0
+    [[ "$prog" =~ ^\.\/\. ]] && return 0
+    [[ "$prog" =~ ^\.[[:alnum:]] ]] && return 0
     [[ "$prog" = "check_puppet.rb" ]] && return 0
     # temporarily disable check_kafka.pl check as there is an upstream library breakage
     #[[ "$prog" = "check_kafka.pl" ]] && return 0
