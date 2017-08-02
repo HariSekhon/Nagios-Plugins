@@ -40,37 +40,41 @@ export KAFKA_HOST
 export KAFKA_PORT="${KAFKA_PORT:-9092}"
 
 export DOCKER_IMAGE="harisekhon/kafka"
-export DOCKER_CONTAINER="nagios-plugins-kafka-test"
+
+check_docker_available
 
 export KAFKA_TOPIC="nagios-plugins-kafka-test"
 
 # needs to be longer than 10 to allow Kafka to settle so topic creation works
 startupwait 20
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Kafka checks!!!'
-    exit 0
-fi
-
 test_kafka(){
     local version="$1"
     echo "Setting up Apache Kafka $version test container"
     hr
-    local DOCKER_OPTS="-e ADVERTISED_HOSTNAME=$HOST"
-    launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $KAFKA_PORT
+    #local DOCKER_OPTS="-e ADVERTISED_HOSTNAME=$HOST"
+    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $KAFKA_PORT
+    export ADVERTISED_HOSTNAME="$HOST"
+    VERSION="$version" docker-compose up -d
+    # not mapping kafka port any more
+    #kafka_port="`docker-compose port "$DOCKER_SERVICE" "$KAFKA_PORT" | sed 's/.*://'`"
+    #local KAFKA_PORT="$kafka_port"
     when_ports_available $startupwait $KAFKA_HOST $KAFKA_PORT
+    # echo sleeping 30 secs
+    #sleep 30
     hr
     echo "creating Kafka test topic"
-    docker exec -ti "$DOCKER_CONTAINER" kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic "$KAFKA_TOPIC" || :
+    docker-compose exec "$DOCKER_SERVICE" kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic "$KAFKA_TOPIC" || :
     if [ -n "${NOTESTS:-}" ]; then
-        return 0
+        exit 0
     fi
     if [ "$version" = "latest" ]; then
         local version="*"
     fi
     hr
     set +e
-    found_version="$(docker exec "$DOCKER_CONTAINER" /bin/sh -c 'ls -d /kafka_*' | tail -n1 | sed 's,^/kafka_,,;s,\.[[:digit:]]*\.[[:digit:]]*$,,')"
+    # -T often returns no output, just strip leading escape chars instead
+    found_version="$(docker-compose exec "$DOCKER_SERVICE" /bin/sh -c 'ls -d /kafka_*' | tail -n1 | tr -d '$\r' | sed 's/.*\/kafka_//; s/\.[[:digit:]]*\.[[:digit:]]*$//')"
     set -e
     # TODO: make container and official versions align
     if [[ "${found_version//-/_}" != ${version//-/_}* ]]; then
@@ -78,40 +82,71 @@ test_kafka(){
         exit 1
     fi
     hr
-    # TODO: use ENV
+    ./check_kafka.py -H "$KAFKA_HOST" -P "$KAFKA_PORT" -T "$KAFKA_TOPIC" -v
+    hr
+    ./check_kafka.py -H "$KAFKA_HOST" -P "$KAFKA_PORT" -v
+    hr
+    ./check_kafka.py -H "$KAFKA_HOST" -v
+    hr
+    ./check_kafka.py -B "$KAFKA_HOST" -v
+    hr
+    ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -v
+    hr
+    ./check_kafka.py -B "$KAFKA_HOST" -P "$KAFKA_PORT" -v
+    hr
+    KAFKA_BROKERS="$KAFKA_HOST" ./check_kafka.py -v
+    hr
+    KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" ./check_kafka.py -P "999" -v
+    hr
+    ./check_kafka.py -v
+    hr
     set +e
-    ./check_kafka.py -B "$KAFKA_HOST" -v --list-topics
+    ./check_kafka.py -B "$KAFKA_HOST" -P "999" -v
+    check_exit_code 2
+    hr
+    ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -v --list-topics
     check_exit_code 3
     hr
-    ./check_kafka.py -B "$KAFKA_HOST" -v -T "$KAFKA_TOPIC" --list-partitions
+    ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -v -T "$KAFKA_TOPIC" --list-partitions
+    check_exit_code 3
+    hr
+    ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -v --list-partitions
     check_exit_code 3
     hr
     ./check_kafka.py -B "localhost:9999" -v -T "$KAFKA_TOPIC"
     check_exit_code 2
     hr
-    ./check_kafka.py -B "$KAFKA_HOST" -v --list-partitions
-    check_exit_code 3
+    ./check_kafka.py -B "localhost:9999" -v -T "$KAFKA_TOPIC" --list-partitions
+    check_exit_code 2
     set -e
     hr
-    ./check_kafka.py -B "$KAFKA_HOST" -T "$KAFKA_TOPIC" -v
+    ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -T "$KAFKA_TOPIC" -v
     hr
     set +e
     $perl -T ./check_kafka.pl -v --list-topics
     check_exit_code 3
     hr
-    $perl -T ./check_kafka.pl -v --list-partitions
-    check_exit_code 3
-    hr
     $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions
     check_exit_code 3
     hr
-    ./check_kafka.py -B "localhost:9999" -v -T "$KAFKA_TOPIC"
+    $perl -T ./check_kafka.pl -v --list-partitions
+    check_exit_code 3
+    hr
+    $perl -T ./check_kafka.pl -H localhost -P 9999 -v --list-partitions
+    check_exit_code 2
+    hr
+    $perl -T ./check_kafka.pl -H localhost -P 9999 -v
     check_exit_code 2
     set -e
     hr
+    KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" KAFKA_HOST="" KAFKA_PORT="" $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
+    hr
     $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
     hr
-    delete_container
+    $perl -T ./check_kafka.pl -v
+    hr
+    #delete_container
+    docker-compose down
     echo
 }
 
