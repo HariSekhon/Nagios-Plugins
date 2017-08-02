@@ -61,7 +61,6 @@ set_timeout();
 vlog2 "getting current timezone\n";
 my $server_timezone = join("\n", cmd("/bin/date +%Z"));
 quit "CRITICAL", "failed to get timezone" unless $server_timezone;
-my $timezone_mismatch = 0;
 $msg = "timezone is '$server_timezone'";
 unless("$server_timezone" eq "$timezone" or "$server_timezone" eq "$alternate_timezone"){
     critical;
@@ -70,7 +69,7 @@ unless("$server_timezone" eq "$timezone" or "$server_timezone" eq "$alternate_ti
     } else {
         $msg .= " (expected: '$timezone')";
     }
-    $timezone_mismatch = 1;
+    quit "CRITICAL", $msg;
 }
 
 # Alpine Linux doesn't have zoneinfo
@@ -81,23 +80,16 @@ if(-f $zoneinfo_file){
     my $linecount = 0;
     while(<$fh1>){
         unless($_ eq <$fh2>){
-            critical;
-            if($verbose and not $timezone_mismatch){
-                quit "CRITICAL", "localtime file '$localtime_file' does not match timezone file '$zoneinfo_file'! $msg";
-            }
+            quit "CRITICAL", "localtime file '$localtime_file' does not match timezone file '$zoneinfo_file'! $msg";
         }
         $linecount++;
         # the largest file under /usr/share/zoneinfo is 119 lines /usr/share/zoneinfo/right/Atlantic/Madeira
         if($linecount > 150){
-            warning;
             quit "CRITICAL", "localtime file '$localtime_file' exceeded 150 lines, aborting check! $msg";
         }
     }
     if(<$fh2>){
-        critical;
-        if($verbose and not $timezone_mismatch){
-            quit "CRITICAL", "localtime file '$localtime_file' does not match timezone file '$zoneinfo_file' (zoneinfo file is larger)! $msg";
-        }
+        quit "CRITICAL", "localtime file '$localtime_file' does not match timezone file '$zoneinfo_file' (zoneinfo file is larger)! $msg";
     }
     close $fh2;
 } else {
