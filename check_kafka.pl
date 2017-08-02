@@ -30,7 +30,7 @@ Limitations (these all currently have tickets open to fix in the underlying API)
 - first run if given a topic that doesn't already exist will cause the error \"Error: There are no known brokers: topic = '<topic>'\"
 ";
 
-$VERSION = "0.2.7";
+$VERSION = "0.3";
 
 # Kafka lib requires Perl 5.10
 use 5.010;
@@ -58,11 +58,11 @@ set_port_default(9092);
 
 env_creds("Kafka");
 
-my $broker_list = "";
-my $topic = "nagios";
+my $broker_list = undef;
+my $topic = undef;
 my $list_topics;
 my $list_partitions;
-my $partition = 0;
+my $partition = undef;
 my $all_ISR = 0;
 my $RequiredAcks = $WAIT_WRITTEN_TO_LOCAL_LOG;
 my $send_max_attempts    = 1;
@@ -73,9 +73,9 @@ my $sleep = 0.5;
 
 %options = (
     %hostoptions,
-    "B|broker-list=s"            => [ \$broker_list,         "Comma separated list of brokers in form 'host:port' to try if broker specified by --host and --port is not the leader. Either host or broker list must be supplied at the minimum. If --host isn't specified then first broker in the list will be use for metadata retrieval" ],
-    "T|topic=s"                  => [ \$topic,               "Kafka topic (default: nagios)" ],
-    "p|partition=s"              => [ \$partition,           "Kafka partition number to check by pushing message through (default: 0)" ],
+    "B|broker-list=s"            => [ \$broker_list,         "Comma separated list of brokers in form 'host:port' to try if broker specified by --host and --port is not the leader. Either host or broker list must be supplied at the minimum. If --host isn't specified then first broker in the list will be use for metadata retrieval (\$KAFKA_BROKERS)" ],
+    "T|topic=s"                  => [ \$topic,               "Kafka topic (\$KAFKA_TOPIC, default: nagios)" ],
+    "p|partition=s"              => [ \$partition,           "Kafka partition number to check by pushing message through (default: undefined, random)" ],
     "R|required-acks=s"          => [ \$RequiredAcks,        "Required Acks from Kafka replicas. Default is 'LOG' which requires ack from Kafka partition leader, alternatively 'ISR' requires commit on all In-Sync Replicas, or specifying any integer which will block until this number of In-Sync Replicas ack the message (causing timeout - but will not wait for more acks than there are in-sync replicas)" ],
     "I|ignore-invalid-messages"  => [ \$ignore_invalid_msgs, "Ignore invalid messages, only try to find the unique message we produced in the stream. By default any invalid message since the offset when the program started could trigger a critical alert. Strong test of broker to leave this switch unset. Message we sent must be valid regardless, this is just to ignore some other producer problem" ],
     "send-max-attempts=s"        => [ \$send_max_attempts,    "Max number of send    attempts for Kafka broker (default: 1, min: 1, max: 100)" ],
@@ -89,6 +89,10 @@ splice @usage_order, 6, 0, qw/broker-list topic partition required-acks ignore-i
 get_options();
 
 my @broker_list;
+if(not defined($broker_list) and $ENV{'KAFKA_BROKERS'}){
+    vlog2 "inheriting \$KAFKA_BROKERS from environment";
+    $broker_list = $ENV{'KAFKA_BROKERS'};
+}
 if($broker_list){
     my ($host2, $port2);
     foreach(split(/\s*,\s*/, $broker_list)){
@@ -106,13 +110,21 @@ if($broker_list){
 }
 $host = validate_host($host);
 $port = validate_port($port);
-unless($list_topics or $list_partitions){
+if(not defined($topic)){
+    if($ENV{'KAFKA_TOPIC'}){
+        vlog2 "inheriting \$KAFKA_TOPIC from environment";
+        $topic = $ENV{'KAFKA_TOPIC'};
+    } else {
+        $topic = "nagios";
+    }
+}
+unless($list_topics){
     $topic or usage "topic not defined";
     $topic =~ /^([\w\.-]+)$/ or usage "topic must be alphanumeric and may contain dots, dashes and underscores";
     $topic = $1;
     vlog_option "topic", $topic;
 }
-$partition = validate_int($partition, "partition", 0, 10000);
+$partition = validate_int($partition, "partition", 0, 10000) if defined($partition);
 if($RequiredAcks eq "ISR"){
     $RequiredAcks = $BLOCK_UNTIL_IS_COMMITTED;
 } elsif($RequiredAcks eq "LOCAL_LOG"){
@@ -214,23 +226,43 @@ try {
         my $metadata = shift;
         my $topic = shift;
         print "Kafka topic '$topic' partitions:\n";
+        my $topic_metadata = get_field2($metadata, $topic);
+        foreach my $partition (get_topic_partitions($metadata, $topic)){
+            printf("\t\tPartition: %-8s Replicas: %-10s ISR: %-10s Leader: %s\n", $partition, join(",", get_field2_array($topic_metadata, "$partition.Replicas")), join(",", get_field2_array($topic_metadata, "$partition.Isr")), get_field2($topic_metadata, "$partition.Leader") );
+        }
+        print "\n";
+    }
+
+    sub get_topic_partitions($$) {
+        my $metadata = shift;
+        my $topic = shift;
         # escape topics with dots in them for passing to get_field() subs
         $topic =~ s/\./\\./g;
         if(not defined($metadata->{$topic})){
             quit "CRITICAL", "topic '$topic' does not exist on Kafka broker";
         }
         my $topic_metadata = get_field2($metadata, $topic);
-        foreach my $partition (sort keys %$topic_metadata){
-            printf("\t\tPartition: %-8s Replicas: %-10s ISR: %-10s Leader: %s\n", $partition, join(",", get_field2_array($topic_metadata, "$partition.Replicas")), join(",", get_field2_array($topic_metadata, "$partition.Isr")), get_field2($topic_metadata, "$partition.Leader") );
-        }
-        print "\n";
+        return sort keys %$topic_metadata;
     }
 
     # XXX: how to check we're connected here if we can't get metadata??
-    if($list_topics or $list_partitions or $verbose > 2 or $debug){
-        my $metadata = $connection->get_metadata();
+    my $metadata;
+    if(not defined($partition) or
+       $list_topics or
+       $list_partitions or
+       $verbose > 2 or
+       $debug){
+        $metadata = $connection->get_metadata();
         vlog3 "\nMetadata: " . Dumper($metadata) . "\n" if $debug;
         vlog3 "\nMetadata:\n";
+    }
+    if($list_topics){
+        print "Topics:\n\n" . join("\n", sort keys %$metadata) . "\n";
+        exit $ERRORS{"UNKNOWN"};
+    }
+    if($list_partitions or
+       $verbose > 2 or
+       $debug){
         if($list_partitions or $verbose > 2){
             if($list_partitions and $topic){
                 print_topic_partitions($metadata, $topic)
@@ -241,10 +273,6 @@ try {
             }
         }
         exit $ERRORS{"UNKNOWN"} if $list_partitions;
-        if($list_topics){
-            print "Topics:\n\n" . join("\n", sort keys %$metadata) . "\n";
-            exit $ERRORS{"UNKNOWN"};
-        }
     }
 
     vlog2 "connecting producer";
@@ -266,6 +294,13 @@ try {
     vlog2 "connecting consumer\n";
     $consumer = Kafka::Consumer->new( Connection  => $connection ) or quit "CRITICAL", "failed to connect consumer to Kafka broker$broker_name! $!";
     vlog3 Dumper($consumer) if $debug;
+
+    if(not defined($partition)){
+        vlog2 "partition not specified, getting random partition";
+        my @partitions = get_topic_partitions($metadata, $topic);
+        $partition = $partitions[rand @partitions];
+        vlog2 "selecting random partition $partition";
+    }
 
     unless($connection->exists_topic_partition($topic, $partition)){
         quit "CRITICAL", "topic '$topic' has no partition '$partition', try --list-partitions to see list of configured Kafka partitions to check";
