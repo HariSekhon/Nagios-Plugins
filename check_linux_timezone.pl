@@ -80,16 +80,16 @@ if(-f $zoneinfo_file){
     my $linecount = 0;
     while(<$fh1>){
         unless($_ eq <$fh2>){
-            quit "CRITICAL", "localtime file '$localtime_file' does not match timezone file '$zoneinfo_file'! $msg";
+            quit "CRITICAL", "$msg, localtime file '$localtime_file' does not match timezone file '$zoneinfo_file'!";
         }
         $linecount++;
         # the largest file under /usr/share/zoneinfo is 119 lines /usr/share/zoneinfo/right/Atlantic/Madeira
         if($linecount > 150){
-            quit "CRITICAL", "localtime file '$localtime_file' exceeded 150 lines, aborting check! $msg";
+            quit "CRITICAL", "$msg, localtime file '$localtime_file' exceeded 150 lines, aborting check!";
         }
     }
     if(<$fh2>){
-        quit "CRITICAL", "localtime file '$localtime_file' does not match timezone file '$zoneinfo_file' (zoneinfo file is larger)! $msg";
+        quit "CRITICAL", "$msg, localtime file '$localtime_file' does not match timezone file '$zoneinfo_file' (zoneinfo file is larger)!";
     }
     close $fh2;
 } else {
