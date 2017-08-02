@@ -15,7 +15,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check a Linux Server's timezone is set as expected";
 
-$VERSION = "0.8.0";
+$VERSION = "0.8.1";
 
 use strict;
 use warnings;
@@ -88,9 +88,10 @@ if(-f $zoneinfo_file){
             }
         }
         $linecount++;
-        if($linecount > 10){
+        if($linecount > 500){
             warning;
-            $msg = "localtime file '$localtime_file' exceeded 10 lines, aborting check! $msg";
+            $msg = "localtime file '$localtime_file' exceeded 500 lines, aborting check! $msg";
+            last;
         }
     }
     close $fh2;
