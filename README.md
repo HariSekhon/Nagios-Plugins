@@ -65,6 +65,10 @@ docker run harisekhon/nagios-plugins
 ```
 Run any given plugin by suffixing it to the ```docker run``` command:
 ```
+docker run harisekhon/nagios-plugins <program> <args>
+```
+eg.
+```
 docker run harisekhon/nagios-plugins check_ssl_cert.pl --help
 ```
 
