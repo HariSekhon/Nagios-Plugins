@@ -12,15 +12,11 @@
 
 $DESCRIPTION = "Nagios Plugin to check Kafka brokers are fully working end-to-end by acting as both a producer and a consumer and checking that a unique generated message passes through the broker cluster successfully
 
-Requires >= Kafka-0.8010 Perl library, several improvements were made to the library at my request in order to support this program (0.8009 added taint security mode support, version 0.8009_1 added metadata retrieval)
-
 Written for Kafka 0.8 onwards due to incompatible changes between Kafka 0.7 and 0.8.
 
-Tested on Kafka 0.8.1, 0.8.2, 0.9.0.1
-
-See also Python port 'check_kafka.py'
-
 Perfdata is for publishing and consuming the unique test message, total time includes setup, connection and message activities etc.
+
+If partition is not specified it'll randomize the partition selection, but this could result in state flapping in between different runs that may select a malfunctioning partition one time and working one the other time so ideally you should specify the --partition explicitly and implement a separate check per partition.
 
 Limitations (these all currently have tickets open to fix in the underlying API):
 
@@ -28,6 +24,12 @@ Limitations (these all currently have tickets open to fix in the underlying API)
 - an invalid partition number will result in a non-intuitive error \": topic = '<topic>'\", as due to the underlying API
 - required acks doesn't seem to have any negative effect when given an integer higher than the available brokers or replication factor
 - first run if given a topic that doesn't already exist will cause the error \"Error: There are no known brokers: topic = '<topic>'\"
+
+Requires >= Kafka-0.8010 Perl library, several improvements were made to the library at my request in order to support this program (0.8009 added taint security mode support, version 0.8009_1 added metadata retrieval)
+
+See also Python port 'check_kafka.py'
+
+Tested on Kafka 0.8.1, 0.8.2, 0.9.0.1
 ";
 
 $VERSION = "0.3";
