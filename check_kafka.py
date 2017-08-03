@@ -23,6 +23,10 @@ through the brokers
 Thresholds apply to max produce / consume message timings which are also output as perfdata for graphing.
 Total time includes setup, connection and message timings etc.
 
+If partition is not specified it'll randomize the partition selection, but this could result in state flapping
+in between different runs that may select a malfunctioning partition one time and working one the other time
+so ideally you should specify the --partition explicitly and implement a separate check per partition.
+
 See also Perl version check_kafka.pl of which this is a port of since one of the underlying Perl library's
 dependencies developed an autoload bug (now auto-patched in the automated build of this project).
 
