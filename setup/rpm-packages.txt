@@ -27,6 +27,9 @@ git
 # ethtool for ./check_linux_interface.pl
 ethtool
 
+# for ping mode of find_active_server.py
+iputils
+
 perl-DBD-MySQL
 
 # for check_ssl_cert.pl
