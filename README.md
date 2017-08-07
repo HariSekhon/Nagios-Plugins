@@ -166,6 +166,7 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 - `check_travis_ci_last_build.py` - Travis CI repo's last build status - includes showing build number, build duration with optional thresholds, start/stop date & time, if there are currently any builds in progress and perfdata for graphing last build time and number of builds in progress. Verbose mode gives the commit details as well such as commit id and message
 
 ##### Infrastructure
+
 - ```check_ssl_cert.pl``` - SSL expiry, chain of trust (including intermediate certs important for certain mobile devices), SNI, domain, wildcard and multi-domain support validation
 - ```check_whois.pl``` - check domain expiry days left and registration details match expected
 - ```check_puppet.rb``` - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
