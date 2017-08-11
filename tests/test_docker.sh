@@ -21,12 +21,13 @@ srcdir="$(cd "$(dirname "$0")" && pwd)"
 cd "$srcdir/.."
 
 . "bash-tools/docker.sh"
+. "bash-tools/utils.sh"
 
 section "Docker Image"
 
 export DOCKER_IMAGE="harisekhon/nagios-plugins"
 
-if is_docker_available; then
+if is_CI && is_docker_available; then
     [ -n "${NO_PULL:-}" ] ||
         docker pull "$DOCKER_IMAGE"
     set +e
