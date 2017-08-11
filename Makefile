@@ -314,3 +314,7 @@ docker-mount:
 .PHONY: mount
 mount:
 	make docker-mount
+
+.PHONY: push
+push:
+	git push
