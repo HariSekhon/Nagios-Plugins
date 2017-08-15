@@ -37,5 +37,5 @@ if is_CI && is_docker_available; then
     hr
     docker run --rm -e "DEBUG=$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl -H google.com
     echo
-    docker run --rm -e "DEBUG=$DEBUG" -e "NO_GIT=1" "$DOCKER_IMAGE" tests/help.sh
+    docker run --rm -e "DEBUG=$DEBUG" -e "NO_GIT=1" -e TRAVIS="${TRAVIS:-}" "$DOCKER_IMAGE" tests/help.sh
 fi
