@@ -70,7 +70,7 @@ for x in $(echo *.pl *.py *.rb */*.pl */*.py */*.rb 2>/dev/null); do
     isExcluded "$x" && continue
     # this is taking too much time and failing Travis CI builds
     if is_travis; then
-        [ $(($RANDOM % 3)) = 0 ] || continue
+        [ $(($RANDOM % 5)) = 0 ] || continue
     fi
     echo "$x:"
     test_help "$x" 2>&1 >> "$log"
