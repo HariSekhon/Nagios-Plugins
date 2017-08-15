@@ -75,7 +75,7 @@ class CheckTravisCILastBuild(NagiosPlugin):
     def add_options(self):
         self.add_opt('-r', '--repo',
                      help="Travis repo ($TRAVIS_REPO, 'user/repo' eg. 'HariSekhon/nagios-plugins'" + \
-                          ", this is case sensitive due to the Travis CI API)")
+                          ", this is case sensitive due to the Travis API)")
         self.add_thresholds()
 
     def process_args(self):
