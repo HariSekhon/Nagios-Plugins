@@ -21,7 +21,7 @@ See also: check_yum.py (the original, also part of the Advanced Nagios Plugins C
 Tested on CentOS 5 / 6 / 7
 ";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -177,15 +177,17 @@ sub get_all_updates(){
     foreach(@output2){
         vlog3 "Section:\n$_\n";
     }
-    if(scalar(@output2) > 2 or scalar(@output2) < 2 or $output2[1] =~ /Setting up repositories/ or $output2[1] =~ /Loaded plugins: /){
-        quit "UNKNOWN", "Yum output signature does not match current known format. Output format may have changed. $nagios_plugins_support_msg";
-    }
     if(scalar @output2 == 1){
         $number_packages = 0;
-    } else {
+    } elsif(scalar @output2 == 2){
+        if($output2[1] =~ /Setting up repositories/ or $output2[1] =~ /Loaded plugins: /){
+            quit "UNKNOWN", "Yum output signature does not match current known format. Output format may have changed. $nagios_plugins_support_msg";
+        }
         # avoid warning 'Use of implicit split to @_ is deprecated at check_yum.pl line 172.'
         my @packages = split("\n", $output2[1]);
         $number_packages = scalar @packages;
+    } else {
+        quit "UNKNOWN", "Yum output signature does not match current known format. Output format may have changed. $nagios_plugins_support_msg";
     }
 
     # Extra layer of checks. This is a security plugin so it's preferable to fail with an error rather than pass silently leaving you with an insecure system

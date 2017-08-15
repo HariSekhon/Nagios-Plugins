@@ -119,7 +119,16 @@ perl-libs:
 	$(SUDO2) $(CPANM) --notest Redis || $(SUDO2) $(CPANM) --notest DAMS/Redis-1.976.tar.gz
 
 	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
-	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' $$libfilepath || $(SUDO2) sed -i.bak "s/use strict;/use strict; use Socket;/" $$libfilepath
+	#
+	# This now fails with permission denied even with sudo to root on Mac OSX Sierra due to System Integrity Protection:
+	#
+	# csrutil status
+	#
+	# would need to disable to edit system InetBase as documented here:
+	#
+	# https://developer.apple.com/library/content/documentation/Security/Conceptual/System_Integrity_Protection_Guide/ConfiguringSystemIntegrityProtection/ConfiguringSystemIntegrityProtection.html
+	#
+	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' "$$libfilepath" || $(SUDO2) sed -i.bak "s/use strict;/use strict; use Socket;/" "$$libfilepath"
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins perl)"
 

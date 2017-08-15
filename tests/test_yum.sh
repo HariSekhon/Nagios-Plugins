@@ -60,13 +60,25 @@ if [ -n "${NOTESTS:-}" ]; then
     exit 0
 fi
 hr
-docker_exec check_yum.pl -C -v -t 30
+docker_exec check_yum.pl -C -v -t 60
 hr
-docker_exec check_yum.pl -C --all-updates -v -t 30 || :
+set +e
+docker_exec check_yum.pl -C --all-updates -v -t 60
+result=$?
+set -e
+if [ $result -ne 0 -a $result -ne 2 ]; then
+    exit 1
+fi
 hr
-docker_exec check_yum.py -C -v -t 30
+docker_exec check_yum.py -C -v -t 60
 hr
-docker_exec check_yum.py -C --all-updates -v -t 30 || :
+set +e
+docker_exec check_yum.py -C --all-updates -v -t 60
+result=$?
+set -e
+if [ $result -ne 0 -a $result -ne 2 ]; then
+    exit 1
+fi
 hr
 delete_container
 echo; echo
