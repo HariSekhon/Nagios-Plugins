@@ -58,7 +58,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.0'
+__version__ = '0.6.0'
 
 
 class CheckTravisCILastBuild(NagiosPlugin):
@@ -116,8 +116,20 @@ class CheckTravisCILastBuild(NagiosPlugin):
                   + " in returning latest builds information"
                  )
         # get latest finished build
+        last_build_number = None
         for _ in builds:
             # API returns most recent build first so just take the first one that is completed
+            # extra check to make sure we're getting the very latest build number and API hasn't changed
+            build_number = _['number']
+            if not isInt(build_number):
+                raise UnknownError('build number returned is not an integer!')
+            build_number = int(build_number)
+            if last_build_number is None:
+                last_build_number = int(build_number) + 1
+            if build_number >= last_build_number:
+                raise UnknownError('build number returned is out of sequence, cannot be >= last build returned' + \
+                                   '{0}'.format(support_msg_api()))
+            last_build_number = build_number
             if _['state'] == 'finished':
                 if build is None:
                     build = _
