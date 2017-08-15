@@ -120,6 +120,8 @@ class CheckTravisCILastBuild(NagiosPlugin):
             if _['state'] == 'finished':
                 if build is None:
                     build = _
+                    # don't break as we want to count builds in progress
+                    #break
             else:
                 self.builds_in_progress += 1
         if build is None:
