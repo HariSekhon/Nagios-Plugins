@@ -32,7 +32,7 @@ test_help(){
     fi
     echo "$optional_cmd $prog --help"
     set +e
-    $optional_cmd $prog --help # >/dev/null
+    $optional_cmd ./$prog --help # >/dev/null
     status=$?
     set -e
     [[ "$prog" = *.py ]] && [ $status = 0 ] && { echo "allowing python program $prog to have exit code zero instead of 3"; return 0; }
