@@ -117,6 +117,7 @@ class CheckTravisCILastBuild(NagiosPlugin):
                  )
         # get latest finished build
         for _ in builds:
+            # API returns most recent build first so just take the first one that is completed
             if _['state'] == 'finished':
                 if build is None:
                     build = _
