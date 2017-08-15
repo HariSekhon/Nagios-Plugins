@@ -42,6 +42,7 @@ startupwait=1
 DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
 DOCKER_CMD="tail -f /dev/null"
 check_whois="./check_whois.pl"
+using_docker=""
 
 # Mac JWhois 4.0 has more issues than CentOS JWhois 4.0 such as "error while checking domain 'google.com': [Unable to connect to remote host]" so use dockerized test on Mac too
 if ! which jwhois || is_mac; then
@@ -49,6 +50,7 @@ if ! which jwhois || is_mac; then
     launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
     docker exec -ti "$DOCKER_CONTAINER" ls -l /pl
     check_whois="docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/check_whois.pl"
+    using_docker=1
 fi
 
 # will do a small subset of random domains unless first arg passed to signify all
@@ -248,4 +250,4 @@ for domain in $domains_no_nameservers; do
     hr
 done
 
-delete_container
+[ -n "$using_docker" ] && delete_container
