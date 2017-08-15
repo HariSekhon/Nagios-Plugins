@@ -64,7 +64,7 @@ DISCLAIMER:
 # THERE IS A LOT OF REGEX. EVEN IF YOU ARE A REGEX MASTER YOU CANNOT PREDICT ALL SIDE EFFECTS
 # YOU MUST RELY ON THE ACCOMPANYING TESTS I HAVE WRITTEN IF YOU CHANGE ANYTHING AT ALL
 
-$VERSION = "0.11.4";
+$VERSION = "0.11.5";
 
 use strict;
 use warnings;
@@ -340,7 +340,7 @@ foreach(@output){
         $results{"expiry"} = "$day-$month-$year";
         vlog2("Expiry: $results{expiry}");
     } elsif(/^\s*Expires on\b\.*:\s*(\d{4})-([A-Za-z]{3})-(\d{1,2}).?\s*$/io or
-            /^(?:Expiration Date|paid-till)\s*:\s*(\d{4})\. ?(\d{2})\. ?(\d{2})\.?\s*$/io) {
+            /^(?:Expiration Date|paid-till)\s*:\s*(\d{4})(?:\.|-) ?(\d{2})(?:\.|-) ?(\d{2})\.?\s*/io) {
         ($day, $month, $year) = ($3, $2, $1);
         $results{"expiry"} = "$day-$month-$year";
         vlog2("Expiry: $results{expiry}");
