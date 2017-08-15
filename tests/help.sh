@@ -66,7 +66,7 @@ upload_logs(){
 
 trap upload_logs $TRAP_SIGNALS
 
-for x in $(echo *.pl *.py *.rb */*.pl */*.py */*.rb 2>/dev/null); do
+for x in $(ls *.pl *.py *.rb */*.pl */*.py */*.rb 2>/dev/null | sort); do
     isExcluded "$x" && continue
     # this is taking too much time and failing Travis CI builds
     if is_travis; then
