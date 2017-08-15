@@ -73,7 +73,7 @@ class CheckTravisCILastBuild(NagiosPlugin):
         self.builds_in_progress = 0
 
     def add_options(self):
-        self.add_opt('-r', '--repo',
+        self.add_opt('-r', '--repo', default=os.getenv('TRAVIS_REPO'),
                      help="Travis repo ($TRAVIS_REPO, 'user/repo' eg. 'HariSekhon/nagios-plugins'" + \
                           ", this is case sensitive due to the Travis API)")
         self.add_thresholds()
