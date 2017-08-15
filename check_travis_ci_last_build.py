@@ -37,27 +37,23 @@ import logging
 import os
 import sys
 import traceback
-try:
-    import requests
-except ImportError:
-    print(traceback.format_exc(), end='')
-    sys.exit(4)
 srcdir = os.path.abspath(os.path.dirname(__file__))
 libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log
-    from harisekhon.utils import CriticalError, UnknownError
+    from harisekhon.utils import UnknownError
     from harisekhon.utils import validate_chars, jsonpp
     from harisekhon.utils import isInt, qquit, plural, support_msg_api
     from harisekhon import NagiosPlugin
+    from harisekhon import RequestHandler
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4.1'
+__version__ = '0.5.0'
 
 
 class CheckTravisCILastBuild(NagiosPlugin):
@@ -89,20 +85,13 @@ class CheckTravisCILastBuild(NagiosPlugin):
 
     def run(self):
         url = 'https://api.travis-ci.org/repos/{repo}/builds'.format(repo=self.repo)
-        log.debug('GET %s', url)
-        try:
-            req = requests.get(url)
-        except requests.exceptions.RequestException as _:
-            raise CriticalError(_)
-        log.debug("response: %s %s", req.status_code, req.reason)
-        log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
-        if req.status_code != 200:
-            raise CriticalError("%s %s" % (req.status_code, req.reason))
+        request_handler = RequestHandler()
+        req = request_handler.get(url)
         if log.isEnabledFor(logging.DEBUG):
             log.debug("\n%s", jsonpp(req.content))
         try:
             self.parse_results(req.content)
-        except (KeyError, ValueError) as _:
+        except (KeyError, ValueError):
             exception = traceback.format_exc().split('\n')[-2]
             # this covers up the traceback info and makes it harder to debug
             #raise UnknownError('failed to parse expected json response from Travis CI API: {0}'.format(exception))
