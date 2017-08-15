@@ -39,7 +39,7 @@ NoSQL technologies:
 Linux & Infrastructure technologies:
 [Jenkins](https://jenkins.io/),
 [Travis CI](https://travis-ci.org/),
-SSL, DNS, Linux, [RHEL](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux) / [CentOS](https://www.centos.org/) yum security updates, [Git](https://git-scm.com/), [MySQL](https://www.mysql.com/) ... etc.
+SSL, DNS, Whois domain expiry checker, Linux, [RHEL](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux) / [CentOS](https://www.centos.org/) yum security updates, [Git](https://git-scm.com/), [MySQL](https://www.mysql.com/) ... etc.
 
 Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/harisekhon/nagios-plugins/issues) or [pull requests](https://github.com/harisekhon/nagios-plugins/pulls) (in which case GitHub will give you credit and mark you as a contributor to the project :) ).
 
