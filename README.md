@@ -453,13 +453,17 @@ The following enterprise monitoring systems are compatible with this project:
   * [Nagios Service Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service)
   * [NRPE - Nagios Remote Plugin Executor](https://assets.nagios.com/downloads/nagioscore/docs/nrpe/NRPE.pdf) - most plugins check network services like NoSQL datastores but you can use NRPE for plugins that check the local system eg. `check_linux_*` / `older/check_*raid*.py`)
 
-* [Icinga](https://www.icinga.org/) - a newer alternative to classic Nagios
+* [Icinga](https://www.icinga.org/) - popular Nagios fork and rewrite with more features, Icinga retains the all-important Nagios Plugin compatibility, but adds native distributed monitoring capability, rule based configuration, a REST API and native Graphite and InfluxDB support for graphing
 
-* [Sensu](https://sensuapp.org/) - another modern Nagios compatible alternative
+* [Sensu](https://sensuapp.org/) - another more featureful monitoring system, compatible with both Nagios and Zabbix plugins
 
-* [Shinken](http://www.shinken-monitoring.org/) - a Nagios core reimplementation in Python
+* [Shinken](http://www.shinken-monitoring.org/) - a Nagios reimplementation in Python which retains Nagios configuration compatibility
 
 * [Check_MK](http://mathias-kettner.com/check_mk.html) - Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html). See `check_mk_wrapper.py` which can run any Nagios Plugin and convert its output to Check_MK local check format.
+
+* [Groundwork Monitor](http://www.gwos.com/) - Nagios-based commercial monitoring distribution
+
+* [OpsView](https://www.opsview.com/) - Nagios-based commercial monitoring distribution
 
 * [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program.
 
