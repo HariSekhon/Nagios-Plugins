@@ -237,7 +237,7 @@ done
 
 echo "Testing Domains excluding nameservers:"
 for domain in $domains_no_nameservers; do
-    [ -z "$ALL" -a "$(($RANDOM % 20))" = 0 ] || continue
+    [ -z "$ALL" -a "$(($RANDOM % 2))" = 0 ] || continue
     set +eo pipefail
     output=`$check_whois -d $domain -w 10 -c 2 --no-nameservers -t 30 -v $verbose`
     result=$?
