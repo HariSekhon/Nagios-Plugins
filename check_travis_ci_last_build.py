@@ -23,7 +23,7 @@ Checks for the last finished build:
 - status = PASSED/FAILED
 - build number (integer)
 - build duration in seconds
-  - optional --warning/--critical thresholds for build duration
+  - optional --warning / --critical thresholds for build duration
 - build start and finished date & time.
 
 Perfdata is output for build time for the last finished build and number of current builds in progress.
