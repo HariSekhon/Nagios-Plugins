@@ -20,13 +20,14 @@ Supports a a wide variety of [compatible Enterprise Monitoring servers](https://
 
 Most enterprise monitoring systems come with basic generic checks, while this project extends their monitoring capabilities significantly further in to advanced infrastructure, application layer, APIs etc.
 
-It's a treasure trove of essentials for every single "DevOp" / sysadmin / engineer, with extensive goodies for people running Web Infrastructure,
+It's a treasure trove of essentials for every single "DevOp" / sysadmin / engineer, with extensive goodies for people running Linux & Web Infrastructure,
 [Hadoop](http://hadoop.apache.org/),
 [Kafka](http://kafka.apache.org/),
 [RabbitMQ](http://www.rabbitmq.com/),
 [Mesos](http://mesos.apache.org/),
-[Consul](https://www.consul.io/)
-and NoSQL technologies [Cassandra](http://cassandra.apache.org/),
+[Consul](https://www.consul.io/),
+NoSQL technologies:
+[Cassandra](http://cassandra.apache.org/),
 [HBase](https://hbase.apache.org/),
 [MongoDB](https://www.mongodb.com/),
 [Memcached](https://memcached.org/),
@@ -34,8 +35,11 @@ and NoSQL technologies [Cassandra](http://cassandra.apache.org/),
 [Couchbase](http://www.couchbase.com/),
 [Riak](http://basho.com/products/),
 [Solr / SolrCloud](http://lucene.apache.org/solr/),
-[Elasticsearch](https://www.elastic.co/products/elasticsearch)
-... etc.
+[Elasticsearch](https://www.elastic.co/products/elasticsearch),
+Linux & Infrastructure technologies:
+[Jenkins](https://jenkins.io/),
+[Travis CI](https://travis-ci.org/),
+SSL, DNS, Linux, [RHEL](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux) / [CentOS](https://www.centos.org/) yum security updates, [Git](https://git-scm.com/), [MySQL](https://www.mysql.com/) ... etc.
 
 Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/harisekhon/nagios-plugins/issues) or [pull requests](https://github.com/harisekhon/nagios-plugins/pulls) (in which case GitHub will give you credit and mark you as a contributor to the project :) ).
 
