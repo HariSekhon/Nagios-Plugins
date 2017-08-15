@@ -18,8 +18,13 @@
 
 Nagios Plugin to check Travis CI last build status for a given repository via the Travis API
 
-Shows status as PASSED/FAILED for last finished build along with build number, duration in seconds
-with optional --warning/--critical thresholds and build start and finished date & time.
+Checks for the last finished build:
+
+- status = PASSED/FAILED
+- build number (integer)
+- build duration in seconds
+  - optional --warning/--critical thresholds for build duration
+- build start and finished date & time.
 
 Perfdata is output for build time for the last finished build and number of current builds in progress.
 
@@ -69,7 +74,8 @@ class CheckTravisCILastBuild(NagiosPlugin):
 
     def add_options(self):
         self.add_opt('-r', '--repo',
-                     help="Travis repo (case sensitive, in form of 'user/repo' eg. 'HariSekhon/nagios-plugins')")
+                     help="Travis repo ($TRAVIS_REPO, 'user/repo' eg. 'HariSekhon/nagios-plugins'" + \
+                          ", this is case sensitive due to the Travis CI API)")
         self.add_thresholds()
 
     def process_args(self):
