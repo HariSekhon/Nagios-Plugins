@@ -35,8 +35,8 @@ cd "$srcdir/..";
 
 . bash-tools/all.sh
 
-is_travis || time tests/help.sh
-#time tests/help.sh
+# is_travis ||
+time tests/help.sh
 
 tests/test_docker.sh
 
