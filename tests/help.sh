@@ -69,9 +69,9 @@ trap upload_logs $TRAP_SIGNALS
 for x in $(ls *.pl *.py *.rb */*.pl */*.py */*.rb 2>/dev/null | sort); do
     isExcluded "$x" && continue
     # this is taking too much time and failing Travis CI builds
-    if is_travis; then
-        [ $(($RANDOM % 5)) = 0 ] || continue
-    fi
+    #if is_travis; then
+    #    [ $(($RANDOM % 5)) = 0 ] || continue
+    #fi
     echo "$x:"
     test_help "$x" 2>&1 >> "$log"
     hr
