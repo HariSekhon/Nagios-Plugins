@@ -63,6 +63,7 @@ ExtUtils::Config
 ExtUtils::Constant
 ExtUtils::Helpers
 ExtUtils::InstallPaths
+HTTP::Request
 IO::Pty
 IO::Socket::IP
 IO::Socket::SSL

@@ -35,9 +35,10 @@ cd "$srcdir/..";
 
 . bash-tools/all.sh
 
-is_travis || time tests/help.sh
-#time tests/help.sh
+time tests/help.sh
 
+# try to minimize time by skipping this as Travis CI is killing the build during testing after 50 mins
+is_travis ||
 tests/test_docker.sh
 
 for script in $(find tests -name 'test*.sh'); do

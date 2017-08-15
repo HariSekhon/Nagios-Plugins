@@ -20,13 +20,14 @@ Supports a a wide variety of [compatible Enterprise Monitoring servers](https://
 
 Most enterprise monitoring systems come with basic generic checks, while this project extends their monitoring capabilities significantly further in to advanced infrastructure, application layer, APIs etc.
 
-It's a treasure trove of essentials for every single "DevOp" / sysadmin / engineer, with extensive goodies for people running Web Infrastructure,
+It's a treasure trove of essentials for every single "DevOp" / sysadmin / engineer, with extensive goodies for people running Linux & Web Infrastructure,
 [Hadoop](http://hadoop.apache.org/),
 [Kafka](http://kafka.apache.org/),
 [RabbitMQ](http://www.rabbitmq.com/),
 [Mesos](http://mesos.apache.org/),
-[Consul](https://www.consul.io/)
-and NoSQL technologies [Cassandra](http://cassandra.apache.org/),
+[Consul](https://www.consul.io/),
+NoSQL technologies:
+[Cassandra](http://cassandra.apache.org/),
 [HBase](https://hbase.apache.org/),
 [MongoDB](https://www.mongodb.com/),
 [Memcached](https://memcached.org/),
@@ -34,8 +35,11 @@ and NoSQL technologies [Cassandra](http://cassandra.apache.org/),
 [Couchbase](http://www.couchbase.com/),
 [Riak](http://basho.com/products/),
 [Solr / SolrCloud](http://lucene.apache.org/solr/),
-[Elasticsearch](https://www.elastic.co/products/elasticsearch)
-... etc.
+[Elasticsearch](https://www.elastic.co/products/elasticsearch),
+Linux & Infrastructure technologies:
+[Jenkins](https://jenkins.io/),
+[Travis CI](https://travis-ci.org/),
+SSL Certificate expiry, advanced DNS record checks, Whois domain expiry checker, Linux, [RHEL](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux) / [CentOS](https://www.centos.org/) yum security updates, [Git](https://git-scm.com/), [MySQL](https://www.mysql.com/) ... etc.
 
 Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/harisekhon/nagios-plugins/issues) or [pull requests](https://github.com/harisekhon/nagios-plugins/pulls) (in which case GitHub will give you credit and mark you as a contributor to the project :) ).
 
@@ -453,13 +457,17 @@ The following enterprise monitoring systems are compatible with this project:
   * [Nagios Service Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service)
   * [NRPE - Nagios Remote Plugin Executor](https://assets.nagios.com/downloads/nagioscore/docs/nrpe/NRPE.pdf) - most plugins check network services like NoSQL datastores but you can use NRPE for plugins that check the local system eg. `check_linux_*` / `older/check_*raid*.py`)
 
-* [Icinga](https://www.icinga.org/) - a newer alternative to classic Nagios
+* [Icinga](https://www.icinga.org/) - popular Nagios fork and rewrite with more features, Icinga retains the all-important Nagios Plugin compatibility, but adds native distributed monitoring capability, rule based configuration, a REST API and native Graphite and InfluxDB support for graphing
 
-* [Sensu](https://sensuapp.org/) - another modern Nagios compatible alternative
+* [Sensu](https://sensuapp.org/) - another more featureful monitoring system, compatible with both Nagios and Zabbix plugins
 
-* [Shinken](http://www.shinken-monitoring.org/) - a Nagios core reimplementation in Python
+* [Shinken](http://www.shinken-monitoring.org/) - a Nagios reimplementation in Python which retains Nagios configuration compatibility
 
 * [Check_MK](http://mathias-kettner.com/check_mk.html) - Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html). See `check_mk_wrapper.py` which can run any Nagios Plugin and convert its output to Check_MK local check format.
+
+* [Groundwork Monitor](http://www.gwos.com/) - Nagios-based commercial monitoring distribution
+
+* [OpsView](https://www.opsview.com/) - Nagios-based commercial monitoring distribution
 
 * [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program.
 
