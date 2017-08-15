@@ -27,15 +27,18 @@ echo "
 # ============================================================================ #
 "
 
+# this repo should always be working
+./check_travis_ci_last_build.py -r HariSekhon/bash-tools
+hr
 set +e
 ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins
 check_exit_code 0 2
 hr
-echo "check warning threshold to induces failure"
+echo "check warning threshold to induce failure as builds should always take longer than 10 secs"
 ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v -w 10
 check_exit_code 1 2
 hr
-echo "check critical threshold to induces failure"
+echo "check critical threshold to induce failure as builds should always take longer than 10 secs"
 ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v -c 10
 check_exit_code 2
 hr
