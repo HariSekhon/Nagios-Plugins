@@ -47,7 +47,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6.1'
+__version__ = '0.6.2'
 
 
 class ConsulKeyCheck(KeyCheckNagiosPlugin):
@@ -78,7 +78,7 @@ class ConsulKeyCheck(KeyCheckNagiosPlugin):
             raise UnknownError("couldn't find field 'Value' in response from consul: '%s'. %s"
                                % (content, support_msg_api()))
         try:
-            value = base64.decodestring(value)
+            value = base64.decodebytes(value)
         except TypeError:
             raise UnknownError("invalid data returned for key '{0}' value = '{1}', failed to base64 decode"
                                .format(self.key, value))
