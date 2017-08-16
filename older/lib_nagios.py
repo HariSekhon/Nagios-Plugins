@@ -158,7 +158,7 @@ class NagiosTester(object):
         """runs a system command and returns a tuple containing
         the return code and the output as a single text block"""
 
-        if cmd == "" or cmd is None:
+        if not cmd:
             end(UNKNOWN, "Internal python error - " \
                        + "no cmd supplied for run function")
 
