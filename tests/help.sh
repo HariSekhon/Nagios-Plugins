@@ -24,9 +24,7 @@ cd "$srcdir/..";
 
 section "Testing --help for all programs"
 
-date
-help_start_time="$(date +%s)"
-echo
+help_start_time="$(start_timer)"
 
 test_help(){
     local prog="$1"
@@ -90,14 +88,7 @@ upload_logs
 
 srcdir="$srcdir_nagios_plugins_help"
 
-echo
-date
-echo
-help_end_time="$(date +%s)"
-# if start and end time are the same let returns exit code 1
-let help_time_taken=$help_end_time-$help_start_time || :
-echo "Help Checks Completed in $help_time_taken secs"
-echo
+time_taken "$help_start_time" "Help Checks Completed in $help_time_taken secs"
 section2 "All Perl / Python / Ruby programs found exited
 with expected exit code 3 for --help"
 echo
