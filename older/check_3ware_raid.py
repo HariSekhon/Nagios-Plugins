@@ -14,16 +14,6 @@
    system. May be remotely executed via any of the standard remote nagios
    execution mechanisms"""
 
-__author__  = "Hari Sekhon"
-__title__   = "Nagios Plugin for 3ware RAID"
-__version__ = '1.1.1'
-
-# Standard Nagios return codes
-OK       = 0
-WARNING  = 1
-CRITICAL = 2
-UNKNOWN  = 3
-
 import os
 import re
 import sys
@@ -35,6 +25,16 @@ except ImportError:
     print "Perhaps you are using a version of python older than 2.4?"
     sys.exit(CRITICAL)
 
+__author__  = "Hari Sekhon"
+__title__   = "Nagios Plugin for 3ware RAID"
+__version__ = '1.1.1'
+
+# Standard Nagios return codes
+OK       = 0
+WARNING  = 1
+CRITICAL = 2
+UNKNOWN  = 3
+
 SRCDIR = os.path.dirname(sys.argv[0])
 
 
@@ -43,7 +43,7 @@ def end(status, message, disks=False):
     arg as the message to output"""
 
     check = "RAID"
-    if disks == True:
+    if disks:
         check = "DISKS"
     if status == OK:
         print "%s OK: %s" % (check, message)
