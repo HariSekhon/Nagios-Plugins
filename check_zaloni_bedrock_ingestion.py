@@ -78,7 +78,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 
 
 class CheckZaloniBedrockIngestion(NagiosPlugin):
@@ -295,8 +295,7 @@ class CheckZaloniBedrockIngestion(NagiosPlugin):
             if status != 200:
                 return'{0}: {1}. '.format(response_dict['status']['responseCode'],
                                           response_dict['status']['responseMessage'])
-            else:
-                return ''
+            return ''
         except KeyError:
             log.warn('failed to extract responseCode/responseMessage for additional error information. ' +
                      support_msg_api())
