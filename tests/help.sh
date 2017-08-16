@@ -71,7 +71,7 @@ upload_logs(){
 trap upload_logs $TRAP_SIGNALS
 
 for x in $(ls *.pl *.py *.rb */*.pl */*.py */*.rb 2>/dev/null | sort); do
-    # this call is expensive, skip it when in CI which is using fresh checkouts
+    # this call is expensive, skip it when in CI as using fresh git checkouts
     if ! is_CI; then
         isExcluded "$x" && continue
     fi
