@@ -47,16 +47,16 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 class CheckGitBranchCheckout(NagiosPlugin):
 
-    def __init__(self):
-        # Python 2.x
-        super(CheckGitBranchCheckout, self).__init__()
-        # Python 3.x
-        # super().__init__()
+#    def __init__(self):
+#        # Python 2.x
+#        super(CheckGitBranchCheckout, self).__init__()
+#        # Python 3.x
+#        # super().__init__()
 
     def add_options(self):
         self.add_opt('-d', '--directory', action='store', help='Directory path to git working copy')
