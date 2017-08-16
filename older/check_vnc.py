@@ -103,7 +103,7 @@ class VncTester(NagiosTester):
         result, output = self.run(cmd)
 
         if result == 0:
-            if len(output) == 0:
+            if not output:
                 return (WARNING, "Test passed but no output was received " \
                                + "from vncsnapshot program, abnormal "     \
                                + "condition, please check.")
@@ -117,7 +117,7 @@ class VncTester(NagiosTester):
                 else:
                     return (OK, msg)
         else:
-            if len(output) == 0:
+            if not output:
                 return (CRITICAL, "Connection failed. " \
                                 + "There was no output from vncsnapshot")
             else:
