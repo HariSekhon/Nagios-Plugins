@@ -100,5 +100,4 @@ echo "Help Checks Completed in $help_time_taken secs"
 echo
 section2 "All Perl / Python / Ruby programs found exited
 with expected exit code 3 for --help"
-
 echo
