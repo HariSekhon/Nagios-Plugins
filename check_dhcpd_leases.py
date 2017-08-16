@@ -197,7 +197,7 @@ class DhcpdLeaseTester:
 
         self.check_unauthorized_leases()
 
-        if self.unauthorized == True:
+        if self.unauthorized:
             unauthorized_output = self.format_unauthorized_leases()
             output = unauthorized_output + " || " + output
             result = CRITICAL
@@ -249,7 +249,7 @@ class DhcpdLeaseTester:
                     hostname = self.get_hostname()
                     self.address_dict[ip][0] = hostname
 
-                if self.show_mac == True or security_checks_on:
+                if self.show_mac or security_checks_on:
                     mac = self.get_mac()
                     self.address_dict[ip][1] = mac
 
@@ -341,10 +341,10 @@ class DhcpdLeaseTester:
         """Takes the address dictionary in the form {"ip":("hostname","mac")}
         and formats the output, returns a string."""
 
-        if self.no_name == True:
+        if self.no_name:
             self.sort_by_ip = True
 
-        if self.sort_by_ip == True:
+        if self.sort_by_ip:
             address_keys_sorted = self.address_dict.keys()
             address_keys_sorted.sort()
         else:
@@ -365,7 +365,7 @@ class DhcpdLeaseTester:
                     msg += " - "
             if not self.compact_output:
                 for ip in address_keys_sorted:
-                    if self.no_name == True:
+                    if self.no_name:
                         msg += "%s" % ip
                     else:
                         hostname = self.address_dict[ip][0]
@@ -386,10 +386,10 @@ class DhcpdLeaseTester:
         {"ip":("hostname","mac","offending")}
         and formats the output, returns a string."""
 
-        if self.no_name == True:
+        if self.no_name:
             self.sort_by_ip = True
 
-        if self.sort_by_ip == True:
+        if self.sort_by_ip:
             unauthorized_keys_sorted = self.unauthorized_dict.keys()
             unauthorized_keys_sorted.sort()
         else:
@@ -404,7 +404,7 @@ class DhcpdLeaseTester:
             else:
                 msg = "%s Unauthorized Hosts! " % number_unauthorized
             for ip in unauthorized_keys_sorted:
-                if self.no_name == True:
+                if self.no_name:
                     msg += "%s" % ip
                 else:
                     hostname = self.unauthorized_dict[ip][0]
@@ -501,7 +501,7 @@ class DhcpdLeaseTester:
                 else:
                     hostname = "UNKNOWN"
 
-        if hostname == "" or hostname is None:
+        if not hostname:
             hostname = "UNKNOWN"
 
         return hostname
