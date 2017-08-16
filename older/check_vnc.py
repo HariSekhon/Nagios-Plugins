@@ -55,7 +55,7 @@ class VncTester(NagiosTester):
 #    def validate_port(self):
 #        """Exits with an error if the port is not valid"""
 #
-#        if self.port == None:
+#        if not self.port:
 #            self.port = ""
 #        else:
 #            try:
