@@ -53,7 +53,7 @@ export MNTDIR="/pl"
 docker_exec(){
     # this doesn't allocate TTY properly, blessing module bails out
     #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
-    docker exec -i nagiospluginshbasetest_hbase_1 /bin/bash <<-EOF
+    docker exec -i "${COMPOSE_PROJECT_NAME:-docker}_${DOCKER_SERVICE}_1" /bin/bash <<-EOF
     export JAVA_HOME=/usr
     $MNTDIR/$@
 EOF
@@ -77,7 +77,9 @@ test_hbase(){
     echo "setting up test tables"
     # tr occasionally errors out due to weird input chars, base64 for safety, but still remove chars liek '+' which will ruin --expected regex
     local uniq_val=$(< /dev/urandom base64 | tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)
-    docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
+    # gets ValueError: file descriptor cannot be a negative integer (-1), -T should be the workaround but hangs
+    #docker-compose exec -T "$DOCKER_SERVICE" /bin/bash <<-EOF
+    docker exec -i "${COMPOSE_PROJECT_NAME:-docker}_${DOCKER_SERVICE}_1" /bin/bash <<-EOF
     export JAVA_HOME=/usr
     /hbase/bin/hbase shell <<-EOF2
         create 't1', 'cf1', { 'REGION_REPLICATION' => 1 }
