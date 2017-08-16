@@ -14,14 +14,14 @@
 import os
 import sys
 import time
+from optparse import OptionParser
 import lib_nagios as nagios
 from lib_nagios import NagiosTester, which, end
 from lib_nagios import OK, WARNING, CRITICAL, UNKNOWN, DEFAULT_TIMEOUT
-from optparse import OptionParser
 
 __author__      = "Hari Sekhon"
 __title__       = "Nagios Plugin for VNC"
-__version__     = 0.6
+__version__     = '0.6.1'
 
 nagios.CHECK_NAME = "VNC"
 # The standard VNC port
