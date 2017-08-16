@@ -88,7 +88,7 @@ upload_logs
 
 srcdir="$srcdir_nagios_plugins_help"
 
-time_taken "$help_start_time" "Help Checks Completed in $help_time_taken secs"
+time_taken "$help_start_time" "Help Checks Completed in"
 section2 "All Perl / Python / Ruby programs found exited
 with expected exit code 3 for --help"
 echo
