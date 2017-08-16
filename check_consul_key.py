@@ -78,7 +78,9 @@ class ConsulKeyCheck(KeyCheckNagiosPlugin):
             raise UnknownError("couldn't find field 'Value' in response from consul: '%s'. %s"
                                % (content, support_msg_api()))
         try:
-            value = base64.decodebytes(value)
+            # decodestring might be deprecated but decodebytes isn't available on Python 2.7
+            #value = base64.decodebytes(value)
+            value = base64.decodestring(value)
         except TypeError:
             raise UnknownError("invalid data returned for key '{0}' value = '{1}', failed to base64 decode"
                                .format(self.key, value))
