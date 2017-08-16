@@ -18,7 +18,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin to check RAM used on Linux"
-__version__ = "0.3"
+__version__ = "0.3.1"
 
 # Standard Exit Codes for Nagios
 OK = 0
@@ -91,10 +91,9 @@ def check_ram(warning_threshold, critical_threshold, percent, verbosity, \
             print "RAM WARNING:",
             print "%s" % stats
             return WARNING
-        else:
-            print "RAM OK:",
-            print "%s" % stats
-            return OK
+        print "RAM OK:",
+        print "%s" % stats
+        return OK
     else:
         if total_free < critical_threshold:
             print "RAM CRITICAL:",
@@ -104,10 +103,9 @@ def check_ram(warning_threshold, critical_threshold, percent, verbosity, \
             print "RAM WARNING:",
             print "%s" % stats
             return WARNING
-        else:
-            print "RAM OK:",
-            print "%s" % stats
-            return OK
+        print "RAM OK:",
+        print "%s" % stats
+        return OK
 
 
 def main():
