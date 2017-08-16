@@ -18,15 +18,13 @@ set -euo pipefail
 srcdir_nagios_plugins_all="${srcdir:-}"
 srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-echo "
-# ========================== #
-# Running Nagios Plugins ALL
-# ========================== #
-"
-
 cd "$srcdir/..";
 
 . tests/utils.sh
+
+section "Running Nagios Plugins ALL"
+
+bash_tools_all_start_time="$(start_timer)"
 
 . tests/excluded.sh
 
@@ -55,6 +53,7 @@ for script in $(find tests -name 'test*.sh'); do
     fi
 done
 
-echo "Done"
-
 srcdir="$srcdir_nagios_plugins_all"
+
+time_taken "$bash_tools_all_start_time" "Nagios Plugins All Tested Completed in"
+section "Nagios Plugins Tests Successful"
