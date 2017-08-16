@@ -130,23 +130,21 @@ class SvnTester(NagiosTester):
                 return (WARNING, "Test passed but no output was received " \
                                + "from svn program, abnormal condition, "  \
                                + "please check.")
-            else:
-                if self.verbosity >= 1:
-                    return (OK, "svn repository online - directory listing: " \
-                              + "%s" % output.replace("\n", " ").strip())
-                return (OK, "svn repository online - " \
-                          + "directory listing successful")
+            if self.verbosity >= 1:
+                return (OK, "svn repository online - directory listing: " \
+                          + "%s" % output.replace("\n", " ").strip())
+            return (OK, "svn repository online - " \
+                      + "directory listing successful")
         else:
             if not output:
                 return (CRITICAL, "Connection failed. " \
                                 + "There was no output from svn")
-            else:
-                if output == "svn: Can't get password\n":
-                    output = "password required to access this repository but" \
-                           + " none was given or cached"
-                output = output.lstrip("svn: ")
-                return (CRITICAL, "Error connecting to svn server - %s " \
-                                        % output.replace("\n", " ").rstrip(" "))
+            if output == "svn: Can't get password\n":
+                output = "password required to access this repository but" \
+                       + " none was given or cached"
+            output = output.lstrip("svn: ")
+            return (CRITICAL, "Error connecting to svn server - %s " \
+                                    % output.replace("\n", " ").rstrip(" "))
 
 
 def main():
