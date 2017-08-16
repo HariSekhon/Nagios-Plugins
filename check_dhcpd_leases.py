@@ -14,7 +14,7 @@ be used to alert on the delegation of IPs to non-recognized MACs or Hostnames"""
 
 __author__  = "Hari Sekhon"
 __title__   = "Nagios Plugin for DHCPd Server Leases"
-__version__ = 0.8
+__version__ = '0.8.1'
 
 # Due to the limited of characters that Nagios accepts from a plugin, this
 # output will be cut short if you have a lot of dhcp clients, which is why
@@ -116,20 +116,20 @@ class DhcpdLeaseTester:
     def validate_variables(self):
         """Validates all variables as defined in self.__init__"""
 
-        if self.compact_output == None:
+        if self.compact_output is None:
             self.compact_output = False
-        if self.host_whitelist == None:
+        if self.host_whitelist is None:
             self.host_whitelist = ""
-        if self.host_blacklist == None:
+        if self.host_blacklist is None:
             self.host_blacklist = ""
-        if self.leasefile == None:
+        if self.leasefile is None:
             end(UNKNOWN, "No leasefile to test")
-        if self.mac_whitelist == None:
+        if self.mac_whitelist is None:
             self.mac_whitelist = ""
-        if self.mac_blacklist == None:
+        if self.mac_blacklist is None:
             self.mac_blacklist = ""
 
-        if self.timeout == None:
+        if self.timeout is None:
             self.timeout = TIMEOUT
 
         self.validate_normalize_macs("whitelist")
@@ -501,7 +501,7 @@ class DhcpdLeaseTester:
                 else:
                     hostname = "UNKNOWN"
 
-        if hostname == "" or hostname == None:
+        if hostname == "" or hostname is None:
             hostname = "UNKNOWN"
 
         return hostname
@@ -522,7 +522,7 @@ class DhcpdLeaseTester:
                 else:
                     mac = "UNKNOWN"
 
-        if mac == "" or mac == None:
+        if not mac:
             mac = "UNKNOWN"
 
         return mac
@@ -674,7 +674,7 @@ def main():
         parser.print_help()
         sys.exit(UNKNOWN)
 
-    if timeout == None:
+    if timeout is None:
         timeout = TIMEOUT
 
     try:
