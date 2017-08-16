@@ -33,7 +33,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.8.0"
+__version__ = "0.8.1"
 
 # Standard Nagios return codes
 OK = 0
@@ -393,8 +393,7 @@ class YumTester(object):
 
         if self.all_updates:
             return self.test_all_updates()
-        else:
-            return self.test_security_updates()
+        return self.test_security_updates()
 
 
     def test_all_updates(self):
