@@ -38,11 +38,11 @@ UNKNOWN  = 3
 TIMEOUT  = 30
 
 # Regex for lease comparison and dissection
-RE_BINDING_STATE_ACTIVE = re.compile("\s*binding state active;")
-RE_LEASE                = re.compile("lease")
-RE_HOSTNAME             = re.compile("client-hostname")
-RE_MAC                  = re.compile("hardware\sethernet")
-RE_IP_ADDRESS           = re.compile("(\d{1,3}.){3}\d{1,3}")
+RE_BINDING_STATE_ACTIVE = re.compile(r'\s*binding state active;')
+RE_LEASE                = re.compile(r'lease')
+RE_HOSTNAME             = re.compile(r'client-hostname')
+RE_MAC                  = re.compile(r'hardware\sethernet')
+RE_IP_ADDRESS           = re.compile(r'(\d{1,3}.){3}\d{1,3}')
 
 def end(status, message):
     """Exits the plugin with first arg as the return code and the second
