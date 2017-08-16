@@ -46,7 +46,7 @@ DEFAULT_TIMEOUT = 30
 support_msg = "Please make sure you have upgraded to the latest version from " + \
               "https://github.com/harisekhon/nagios-plugins. If the problem persists, " + \
               "please raise a ticket at https://github.com/harisekhon/nagios-plugins/issues "+ \
-	      "with the full -vvv output"
+              "with the full -vvv output"
 
 def end(status, message):
     """Exits the plugin with first arg as the return code and the second
@@ -161,7 +161,7 @@ class YumTester(object):
             returncode = process.returncode
             stdout = output[0]
 
-        if stdout is None or stdout == "":
+        if not returncode == 0 and ( stdout is None or stdout == "" ):
             end(UNKNOWN, "No output from utility '%s'" % cmd.split()[0])
 
         self.vprint(3, "Returncode: '%s'\nOutput: '%s'" \
@@ -358,7 +358,8 @@ class YumTester(object):
                 break
 
         if not summary_line_found:
-            end(WARNING, "Cannot find summary line in yum output. " + support_msg)
+          number_security_updates = 0
+          number_total_updates = 0
 
         try:
             number_security_updates = int(number_security_updates)
