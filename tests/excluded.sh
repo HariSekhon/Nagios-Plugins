@@ -19,6 +19,7 @@
 
 set -eu
 [ -n "${DEBUG:-}" ] && set -x
+srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 ${perl:-perl} -e 'use Net::ZooKeeper' &>/dev/null && zookeeper_built="true" || zookeeper_built=""
 
@@ -30,6 +31,7 @@ is_zookeeper_built(){
     fi
 }
 
+# This is a relatively expensive function do not overuse this
 isExcluded(){
     local prog="$1" 
     [[ "$prog" =~ ^\* ]] && return 0
@@ -40,7 +42,7 @@ isExcluded(){
     #[[ "$prog" = "check_kafka.pl" ]] && return 0
     [[ "$prog" =~ *TODO* ]] && return 0
     # Kafka module requires Perl >= 5.10, skip when running tests on 5.8 for CentOS 5 for which everything else works
-    if [ "$PERL_MAJOR_VERSION" = "5.8" ]; then
+    if [ "${PERL_MAJOR_VERSION:-}" = "5.8" ]; then
         [ "$prog" = "check_kafka.pl" ] && { echo "skipping check_kafka.pl on Perl 5.8 since the Kafka CPAN module requires Perl >= 5.10"; return 0; }
         [[ "$prog" =~ check_mongodb_.*.pl ]] && { echo "skipping check_mongodb_*.pl on Perl 5.8 since the MongoDB module requires Type::Tiny::XS which breaks for some unknown reason"; return 0; }
     fi
@@ -53,6 +55,7 @@ isExcluded(){
     if [ -n "${NO_GIT:-}" ]; then
         return 1
     elif which git &>/dev/null; then
+        # This is a relatively expensive call do not overuse this
         commit="$(git log "$prog" | head -n1 | grep 'commit')"
         if [ -z "$commit" ]; then
             return 0
