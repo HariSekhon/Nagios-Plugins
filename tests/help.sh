@@ -71,7 +71,10 @@ upload_logs(){
 trap upload_logs $TRAP_SIGNALS
 
 for x in $(ls *.pl *.py *.rb */*.pl */*.py */*.rb 2>/dev/null | sort); do
-    isExcluded "$x" && continue
+    # this call is expensive, skip it when in CI which is using fresh checkouts
+    if ! is_CI; then
+        isExcluded "$x" && continue
+    fi
     # this is taking too much time and failing Travis CI builds
     if is_travis; then
         [ $(($RANDOM % 3)) = 0 ] || continue
@@ -95,6 +98,7 @@ help_end_time="$(date +%s)"
 let help_time_taken=$help_end_time-$help_start_time || :
 echo "Help Checks Completed in $help_time_taken secs"
 echo
-section2 "All Perl / Python / Ruby programs found exited with expected code 3 for --help"
+section2 "All Perl / Python / Ruby programs found exited
+with expected exit code 3 for --help"
 
 echo
