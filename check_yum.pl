@@ -21,7 +21,7 @@ See also: check_yum.py (the original, also part of the Advanced Nagios Plugins C
 Tested on CentOS 5 / 6 / 7
 ";
 
-$VERSION = "0.3";
+$VERSION = "0.4.0";
 
 use strict;
 use warnings;
@@ -144,8 +144,8 @@ sub check_security_updates(){
 
 sub get_security_updates(){
     my ($result, @output) = cmd("$YUM $opts --security check-update", 0, 0, "get_returncode");
+    #open my $fh, "test_input.txt"; @output = split("\n", do { local $/ = <$fh>});
     check_yum_returncode($result, @output);
-    my $summary_line_found = 0;
     my $number_security_updates;
     my $number_total_updates;
     foreach(@output){
@@ -157,9 +157,14 @@ sub get_security_updates(){
             $number_security_updates = $1;
             $number_total_updates    = $2;
             last;
+        } elsif(/(\d+) package\(s\) needed for security, out of (\d+) available/){
+            $number_security_updates = $1;
+            $number_total_updates    = $2;
+            last;
         }
     }
-    defined($number_security_updates) and defined($number_total_updates) or quit "UNKNOWN", "failed to determine the number of security & total updates. Format may have changed. $nagios_plugins_support_msg";
+    defined($number_security_updates) or quit "UNKNOWN", "failed to determine the number of security updates. Format may have changed. $nagios_plugins_support_msg";
+    defined($number_total_updates)    or quit "UNKNOWN", "failed to determine the number of total updates. Format may have changed. $nagios_plugins_support_msg";
     my $number_other_updates = $number_total_updates - $number_security_updates;
     my @package_output = grep { $_ !~ / from .+ excluded / } @output;
     if(scalar(@package_output) > $number_total_updates + 25){
@@ -171,6 +176,7 @@ sub get_security_updates(){
 
 sub get_all_updates(){
     my ($result, @output) = cmd("$YUM $opts check-update", 0, 0, "get_returncode");
+    #open my $fh, "test_input.txt"; @output = split("\n", do { local $/ = <$fh>});
     check_yum_returncode($result, @output);
     my @output2 = split("\n\n", join("\n", @output));
     my $number_packages;
@@ -193,6 +199,7 @@ sub get_all_updates(){
     # Extra layer of checks. This is a security plugin so it's preferable to fail with an error rather than pass silently leaving you with an insecure system
     my $count = 0;
     foreach(@output){
+        next if / excluded /;
         $count++ if /^.+\.(i[3456]86|x86_64|noarch)\s+.+\s+.+$/;
     }
     if($count != $number_packages){
