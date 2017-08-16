@@ -304,7 +304,7 @@ class YumTester(object):
         # to fail on error rather than pass silently leaving you with an
         # insecure system
         count = 0
-        re_exclude = re.compile(r'\sexclude')
+        re_exclude = re.compile(r' excluded ')
         re_package_format = \
                 re.compile(r'^.+\.(i[3456]86|x86_64|noarch)\s+.+\s+.+$')
         # This is to work around a yum truncation issue effectively changing
