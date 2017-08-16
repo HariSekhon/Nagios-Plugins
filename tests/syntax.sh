@@ -24,9 +24,7 @@ cd "$srcdir/..";
 
 section "Perl Syntax Checks"
 
-date
-perl_sync_start_time="$(date +%s)"
-echo
+perl_sync_start_time="$(start_timer)"
 
 for x in *.pl */*.pl; do
     # this call is expensive, skip it when in CI as using fresh git checkouts
@@ -40,13 +38,6 @@ done
 
 srcdir="$srcdir_nagios_plugins_syntax"
 
-echo
-date
-echo
-perl_syntax_end_time="$(date +%s)"
-# if start and end time are the same let returns exit code 1
-let perl_syntax_time_taken=$perl_syntax_end_time-$perl_syntax_start_time || :
-echo "Help Checks Completed in $perl_syntax_time_taken secs"
-echo
+time_taken "$perl_syntax_start_time" "Help Checks Completed in $perl_syntax_time_taken secs"
 section2 "All Perl programs passed syntax check"
 echo
