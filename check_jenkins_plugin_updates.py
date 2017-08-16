@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 
 
 class CheckJenkinsPluginUpdates(RestNagiosPlugin):
@@ -72,8 +72,8 @@ class CheckJenkinsPluginUpdates(RestNagiosPlugin):
     # see https://wiki.jenkins-ci.org/display/JENKINS/Authenticating+scripted+clients
     # You can create an API token at:
     # http://jenkins/me/configure
-    def process_options(self):
-        super(CheckJenkinsPluginUpdates, self).process_options()
+#    def process_options(self):
+#        super(CheckJenkinsPluginUpdates, self).process_options()
 
     def run(self):
         server_url = '{proto}://{host}:{port}'.format(proto=self.protocol, host=self.host, port=self.port)
