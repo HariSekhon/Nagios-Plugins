@@ -56,7 +56,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.1.1'
 
 
 class CheckHBaseRegionBalance(NagiosPlugin):
@@ -107,7 +107,8 @@ class CheckHBaseRegionBalance(NagiosPlugin):
         self.msg += ' min_regions={0} max_regions={1}'.format(self.server_min_regions[1], self.server_max_regions[1])
 
     def calculate_imbalance(self):
-        max_imbalance = (self.server_max_regions[1] - self.server_min_regions[1]) / max(self.server_max_regions[1], 1) * 100
+        max_imbalance = (self.server_max_regions[1] - self.server_min_regions[1]) \
+                        / max(self.server_max_regions[1], 1) * 100
         return '{0:.2f}'.format(max_imbalance)
 
     def parse_output(self, content):
