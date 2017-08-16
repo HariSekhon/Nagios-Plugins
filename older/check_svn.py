@@ -13,10 +13,10 @@
 
 import sys
 import time
+from optparse import OptionParser
 import lib_nagios as nagios
 from lib_nagios import NagiosTester, which, end
 from lib_nagios import OK, WARNING, CRITICAL, UNKNOWN, DEFAULT_TIMEOUT
-from optparse import OptionParser
 
 __author__      = "Hari Sekhon"
 __title__       = "Nagios Plugin for Subversion"
@@ -134,11 +134,10 @@ class SvnTester(NagiosTester):
                 if self.verbosity >= 1:
                     return (OK, "svn repository online - directory listing: " \
                               + "%s" % output.replace("\n", " ").strip())
-                else:
-                    return (OK, "svn repository online - " \
-                              + "directory listing successful")
+                return (OK, "svn repository online - " \
+                          + "directory listing successful")
         else:
-            if len(output) == 0:
+            if not output:
                 return (CRITICAL, "Connection failed. " \
                                 + "There was no output from svn")
             else:
