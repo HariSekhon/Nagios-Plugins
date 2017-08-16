@@ -90,7 +90,7 @@ def _set_twcli_binary(path=None):
 
 def run(cmd):
     """runs a system command and returns stripped output"""
-    if cmd == "" or cmd == None:
+    if not cmd:
         end(UNKNOWN, "internal python error - " \
                    + "no cmd supplied for 3ware utility")
     try:
@@ -111,7 +111,7 @@ def run(cmd):
         end(UNKNOWN, "unable to communicate with 3ware utility - %s" % error)
 
 
-    if stdout == None or stdout == "":
+    if not stdout:
         end(UNKNOWN, "No output from 3ware utility")
 
     output = str(stdout).split("\n")
@@ -240,7 +240,7 @@ def test_drives(verbosity, warn_true=False, no_summary=False):
     controllers = []
     for line in lines:
         parts = line.split()
-        if len(parts):
+        if parts:
             controllers.append(parts[0])
 
     status = OK
