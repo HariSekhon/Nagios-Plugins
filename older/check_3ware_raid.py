@@ -23,7 +23,7 @@ try:
 except ImportError:
     print "Failed to import subprocess module.",
     print "Perhaps you are using a version of python older than 2.4?"
-    sys.exit(3)
+    sys.exit(4)
 
 __author__  = "Hari Sekhon"
 __title__   = "Nagios Plugin for 3ware RAID"
