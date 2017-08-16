@@ -24,7 +24,9 @@ cd "$srcdir/..";
 
 section "Running Nagios Plugins ALL"
 
-bash_tools_all_start_time="$(start_timer)"
+nagios_plugins_start_time="$(start_timer)"
+
+. tests/excluded.sh
 
 # would switch this to perl_syntax.sh from bash-tools but need to tie in exclusions first
 #tests/syntax.sh
@@ -53,5 +55,5 @@ done
 
 srcdir="$srcdir_nagios_plugins_all"
 
-time_taken "$bash_tools_all_start_time" "Nagios Plugins All Tested Completed in"
+time_taken "$nagios_plugins_start_time" "Nagios Plugins All Tested Completed in"
 section "Nagios Plugins Tests Successful"
