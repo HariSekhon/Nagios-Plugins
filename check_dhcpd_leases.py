@@ -277,7 +277,7 @@ class DhcpdLeaseTester:
         if self.host_blacklist:
             self.check_host_blacklist()
 
-        if len(self.unauthorized_dict) > 0:
+        if self.unauthorized_dict:
             self.unauthorized = True
 
 
