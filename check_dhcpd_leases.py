@@ -154,7 +154,7 @@ class DhcpdLeaseTester:
         maclist = [mac.replace(":","") for mac in maclist]
         maclist = [mac.upper() for mac in maclist]
 
-        re_mac_format = re.compile("^([\dA-Fa-f]{2}[:-]?){5}[\dA-Fa-f]{2}$")
+        re_mac_format = re.compile(r'^([\dA-Fa-f]{2}[:-]?){5}[\dA-Fa-f]{2}$')
 
         for mac in maclist:
             if not re_mac_format.match(mac):
@@ -289,7 +289,7 @@ class DhcpdLeaseTester:
         host_whitelist = host_whitelist.split()
         host_whitelist = [host.upper() for host in host_whitelist]
 
-        for ip in self.address_dict.keys():
+        for ip in self.address_dict:
             hostname = self.address_dict[ip][0]
             mac      = self.address_dict[ip][1]
             if hostname.upper() not in host_whitelist:
