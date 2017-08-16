@@ -244,7 +244,7 @@ By default only 1 line of output is printed")
         parser.print_help()
         sys.exit(UNKNOWN)
 
-    if timeout == None:
+    if not timeout:
         timeout = default_timeout
 
     try:
@@ -262,15 +262,15 @@ By default only 1 line of output is printed")
 
     sftp = which("sftp")
 
-    if sftp == None:
+    if not sftp:
         end(UNKNOWN,"sftp could not be found in the path")
     elif not os.access(sftp,os.X_OK):
         end(UNKNOWN, "%s is not executable" % sftp)
 
-    if server == None:
+    if not server:
         end(UNKNOWN, "You must enter a server name or ip address to connect to")
 
-    if port == None:
+    if not port:
         port = default_port
 
     try:
