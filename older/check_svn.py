@@ -20,7 +20,7 @@ from optparse import OptionParser
 
 __author__      = "Hari Sekhon"
 __title__       = "Nagios Plugin for Subversion"
-__version__     = 0.6
+__version__     = '0.6.1'
 
 nagios.CHECK_NAME = "SVN"
 
@@ -126,7 +126,7 @@ class SvnTester(NagiosTester):
         result, output = self.run(cmd)
 
         if result == 0:
-            if len(output) == 0:
+            if not output:
                 return (WARNING, "Test passed but no output was received " \
                                + "from svn program, abnormal condition, "  \
                                + "please check.")
