@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 class CheckJenkinsPluginUpdates(RestNagiosPlugin):
@@ -65,8 +65,8 @@ class CheckJenkinsPluginUpdates(RestNagiosPlugin):
         self.default_port = 8080
         self.msg = self.name
 
-    def add_options(self):
-        super(CheckJenkinsPluginUpdates, self).add_options()
+    #def add_options(self):
+    #    super(CheckJenkinsPluginUpdates, self).add_options()
 
     # can inherently accept AUTH token for password, see:
     # see https://wiki.jenkins-ci.org/display/JENKINS/Authenticating+scripted+clients
