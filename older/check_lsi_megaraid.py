@@ -13,15 +13,15 @@ controllers on the local machine. Uses the megarc.bin program written by LSI to
 get the status of all arrays on all local LSI MegaRAID controllers. Expects the
 megarc.bin program to be in the same directory as this plugin"""
 
-__author__ = "Hari Sekhon"
-__title__ = "Nagios Plugin for LSI MegaRAID"
-__version__ = "0.8.1"
-
 # pylint: disable=wrong-import-position
 import os
 import sys
 import commands
 from optparse import OptionParser
+
+__author__ = "Hari Sekhon"
+__title__ = "Nagios Plugin for LSI MegaRAID"
+__version__ = "0.8.2"
 
 # Standard Nagios return codes
 OK = 0
@@ -182,7 +182,7 @@ def test_raid(verbosity, no_summary=False):
                 raid_level = line.split()[3]
                 array_details[logical_drive].append(raid_level)
 
-        if len(array_details) == 0:
+        if not array_details:
             message += "No arrays found on controller %s. " % controller
             if status == OK:
                 status = WARNING
