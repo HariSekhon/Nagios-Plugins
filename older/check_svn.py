@@ -72,7 +72,7 @@ class SvnTester(NagiosTester):
     def validate_port(self):
         """Exits with an error if the port is not valid"""
 
-        if self.port == None:
+        if self.port is None:
             self.port = ""
         else:
             try:
@@ -87,12 +87,12 @@ class SvnTester(NagiosTester):
     def generate_uri(self):
         """Creates the uri and returns it as a string"""
 
-        if self.port == "" or self.port == None:
+        if not self.port:
             port = ""
         else:
             port = ":" + str(self.port)
 
-        if self.directory == None:
+        if self.directory is None:
             directory = ""
         else:
             directory = "/" + str(self.directory).lstrip("/")
