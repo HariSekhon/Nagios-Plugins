@@ -49,15 +49,16 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.2.1'
+
 
 class CheckMesosSlave(NagiosPlugin):
 
-    def __init__(self):
-        # Python 2.x
-        super(CheckMesosSlave, self).__init__()
-        # Python 3.x
-        # super().__init__()
+#    def __init__(self):
+#        # Python 2.x
+#        super(CheckMesosSlave, self).__init__()
+#        # Python 3.x
+#        # super().__init__()
 
     def add_options(self):
         self.add_hostoption(name='Mesos Master', default_host='localhost', default_port=5050)
