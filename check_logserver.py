@@ -287,7 +287,7 @@ class LogServerTester(object):
             end(CRITICAL, "error querying mysql server for log - %s" \
                                                         % mysql_error[1])
         result = cursor.fetchall()
-        if len(result) == 0:
+        if not result:
             end(CRITICAL, "No results returned from database query! " \
                         + "Possible database problem")
         try:
