@@ -14,12 +14,6 @@
 """Library to standardize Nagios Plugin development in Python
    Hari Sekhon 2008"""
 
-# Standard Nagios return codes
-OK = 0
-WARNING = 1
-CRITICAL = 2
-UNKNOWN = 3
-
 # pylint: disable=wrong-import-position
 import os
 import re
@@ -30,10 +24,16 @@ try:
 except ImportError:
     print "UNKNOWN: Failed to import python subprocess module.",
     print "Perhaps you are using a version of python older than 2.4?"
-    sys.exit(CRITICAL)
+    sys.exit(4)
 
 __author__ = "Hari Sekhon"
 __version__ = 0.4
+
+# Standard Nagios return codes
+OK = 0
+WARNING = 1
+CRITICAL = 2
+UNKNOWN = 3
 
 DEFAULT_TIMEOUT = 10
 CHECK_NAME = ""
