@@ -14,6 +14,12 @@ Your mileage may vary if you try to use it with something else. -h """
 
 # TODO: meant to rewrite this with Paramiko years ago but didn't get round to it...
 
+import os
+import signal
+import sys
+from subprocess import Popen, PIPE, STDOUT
+from optparse import OptionParser
+
 __author__  = "Hari Sekhon"
 __title__   = "Nagios Plugin for SFTP"
 __version__ = "0.5"
@@ -23,12 +29,6 @@ OK       = 0
 WARNING  = 1
 CRITICAL = 2
 UNKNOWN  = 3
-
-import os
-import signal
-import sys
-from subprocess import Popen, PIPE, STDOUT
-from optparse import OptionParser
 
 # Default option variables
 default_port    = 22
