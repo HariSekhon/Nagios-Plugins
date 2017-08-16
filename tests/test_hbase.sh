@@ -63,9 +63,7 @@ startupwait 50
 
 test_hbase(){
     local version="$1"
-    hr
-    echo "Setting up HBase $version test container"
-    hr
+    section2 "Setting up HBase $version test container"
     local DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HBASE_PORTS
     VERSION="$version" docker-compose up -d
@@ -78,7 +76,7 @@ test_hbase(){
     when_ports_available "$startupwait" "$HBASE_HOST" $hbase_ports
     echo "setting up test tables"
     # tr occasionally errors out due to weird input chars, base64 for safety, but still remove chars liek '+' which will ruin --expected regex
-    local uniq_val=$(< /dev/urandom base64 | tr -dc 'a-zA-Z0-9' | head -c32 || :)
+    local uniq_val=$(< /dev/urandom base64 | tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)
     docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
     export JAVA_HOME=/usr
     /hbase/bin/hbase shell <<-EOF2
