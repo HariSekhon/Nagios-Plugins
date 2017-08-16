@@ -33,7 +33,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.7.8"
+__version__ = "0.8.0"
 
 # Standard Nagios return codes
 OK = 0
@@ -158,10 +158,11 @@ class YumTester(object):
                                                   % (cmd.split()[0], error))
 
             output = process.communicate()
+            #output = [open('test_input.txt').read(), '']
             returncode = process.returncode
             stdout = output[0]
 
-        if stdout is None or stdout == "":
+        if not stdout:
             end(UNKNOWN, "No output from utility '%s'" % cmd.split()[0])
 
         self.vprint(3, "Returncode: '%s'\nOutput: '%s'" \
@@ -303,6 +304,7 @@ class YumTester(object):
         # to fail on error rather than pass silently leaving you with an
         # insecure system
         count = 0
+        re_exclude = re.compile(r'\sexclude')
         re_package_format = \
                 re.compile(r'^.+\.(i[3456]86|x86_64|noarch)\s+.+\s+.+$')
         # This is to work around a yum truncation issue effectively changing
@@ -312,6 +314,8 @@ class YumTester(object):
         #re_package_format_truncated = \
         #        re.compile("^[\w-]+-kmod-\d[\d\.-]+.*\s+.+\s+.+$")
         for line in output:
+            if re_exclude.search(line):
+                continue
             if re_package_format.match(line):
                 count += 1
         if count != number_packages:
