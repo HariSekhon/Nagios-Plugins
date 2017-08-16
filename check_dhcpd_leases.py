@@ -14,7 +14,7 @@ be used to alert on the delegation of IPs to non-recognized MACs or Hostnames"""
 
 __author__  = "Hari Sekhon"
 __title__   = "Nagios Plugin for DHCPd Server Leases"
-__version__ = '0.8.1'
+__version__ = '0.8.2'
 
 # Due to the limited of characters that Nagios accepts from a plugin, this
 # output will be cut short if you have a lot of dhcp clients, which is why
@@ -446,7 +446,7 @@ class DhcpdLeaseTester:
         # really be using a valid lease file. Parse leases will also catch
         # this in that no leases will be created and the result will be
         # technically true, there are no valid leases in an incorrect file
-        if not re.search("\n\s*lease .+{\s*\n", leases) \
+        if not re.search(r'\n\s*lease .+{\s*\n', leases) \
             and not \
                 re.search("(?i)\n#.*lease[s]? file .* written by.*\n", leases) \
             and not re.search("\n#.*dhcpd.leases.*\n", leases) \
