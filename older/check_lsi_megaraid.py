@@ -116,7 +116,7 @@ def run(args):
     if result != 0:
         if lines[0][-25:] == "No such file or directory":
             end(UNKNOWN, "Cannot find Lsi MegaRaid utility '%s'" % BIN)
-        elif len(lines) == 0:
+        elif not lines:
             end(UNKNOWN, "No output from Lsi MegaRaid utility")
         elif len(lines) < 13:
             print >> sys.stderr, "Error running '%s':" % cmd
