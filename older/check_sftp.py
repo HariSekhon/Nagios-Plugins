@@ -25,8 +25,8 @@ CRITICAL = 2
 UNKNOWN  = 3
 
 import os
-import sys
 import signal
+import sys
 from subprocess import Popen, PIPE, STDOUT
 from optparse import OptionParser
 
