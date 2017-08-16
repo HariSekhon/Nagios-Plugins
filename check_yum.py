@@ -33,7 +33,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.7.7"
+__version__ = "0.7.8"
 
 # Standard Nagios return codes
 OK = 0
@@ -125,7 +125,7 @@ class YumTester(object):
         """runs a system command and returns
         an array of lines of the output"""
 
-        if cmd == "" or cmd is None:
+        if not cmd:
             end(UNKNOWN, "Internal python error - " \
                        + "no cmd supplied for run function")
 
