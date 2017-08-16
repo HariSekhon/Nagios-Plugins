@@ -16,7 +16,7 @@
 
 __author__  = "Hari Sekhon"
 __title__   = "Nagios Plugin for 3ware RAID"
-__version__ = "1.1"
+__version__ = '1.1.1'
 
 # Standard Nagios return codes
 OK       = 0
@@ -27,13 +27,13 @@ UNKNOWN  = 3
 import os
 import re
 import sys
+from optparse import OptionParser
 try:
     from subprocess import Popen, PIPE, STDOUT
 except ImportError:
     print "Failed to import subprocess module.",
     print "Perhaps you are using a version of python older than 2.4?"
     sys.exit(CRITICAL)
-from optparse import OptionParser
 
 SRCDIR = os.path.dirname(sys.argv[0])
 
