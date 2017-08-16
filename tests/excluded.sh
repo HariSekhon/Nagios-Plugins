@@ -52,16 +52,14 @@ isExcluded(){
         echo "skipping $prog due to Net::ZooKeeper dependency not having been built (do 'make zookeeper' if intending to use this plugin)"
         return 0
     fi
-    if [ -n "${NO_GIT:-}" ]; then
-        return 1
-    elif which git &>/dev/null; then
-        # This is a relatively expensive call do not overuse this
+    [ -n "${NO_GIT:-}" ] && return 1
+    # this external git check is expensive, skip it when in CI as using fresh git checkouts
+    is_CI && return 1
+    if which git &>/dev/null; then
         commit="$(git log "$prog" | head -n1 | grep 'commit')"
         if [ -z "$commit" ]; then
             return 0
         fi
-        return 1
-    else
-        return 0
     fi
+    return 1
 }
