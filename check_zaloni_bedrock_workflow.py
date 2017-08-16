@@ -76,7 +76,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 
 
 class CheckZaloniBedrockWorkflow(NagiosPlugin):
@@ -195,7 +195,7 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
 
     def check_all_workflows(self):
         workflows = self.get_workflows()
-        if not workflows or len(workflows) == 0:
+        if not workflows:
             qquit('UNKNOWN', 'no workflows found')
         results = {}
         try:
