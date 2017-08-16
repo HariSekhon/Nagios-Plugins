@@ -7,7 +7,7 @@
 #  https://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
-#  
+#
 
 $DESCRIPTION = "Nagios Plugin to check given HBase table(s) via the JSP interface on the HBase Master
 

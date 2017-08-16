@@ -33,7 +33,7 @@ is_zookeeper_built(){
 
 # This is a relatively expensive function do not overuse this
 isExcluded(){
-    local prog="$1" 
+    local prog="$1"
     [[ "$prog" =~ ^\* ]] && return 0
     [[ "$prog" =~ ^\.\/\. ]] && return 0
     [[ "$prog" =~ ^\.[[:alnum:]] ]] && return 0

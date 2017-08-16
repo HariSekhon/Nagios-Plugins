@@ -142,7 +142,7 @@ if($days_left < 0){
     critical;
     $days_left = abs($days_left);
     $msg .= "Datameer LICENSE EXPIRED $days_left day$plural ago'. Expiry Date: '$expiry_date'";
-} else { 
+} else {
     $msg .= "$days_left day$plural remaining on Datameer license";
     $msg .= " ($license_type)" if($evaluation and $license_type eq $license_evaluation);
     $msg .= ". License Expires: '$expiry_date'";

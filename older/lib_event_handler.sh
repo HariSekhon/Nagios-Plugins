@@ -21,7 +21,7 @@ srcdir=`dirname $0`
 
 #
 # Now replacement or addition to standard stuff follows
-# 
+#
 
 # ============================================================================ #
 #                V A R I A B L E S   &   C O N S T A N T S                     #
@@ -36,7 +36,7 @@ srcdir=`dirname $0`
 
 source_nrpe(){
     local lib="lib_check_nrpe.sh"
-    . "$srcdir/$lib" || 
+    . "$srcdir/$lib" ||
         {   echo "Event Handler: FAILED to source $lib properly"
             mail -s "$HOSTNAME: Event Handler Error Sourcing Nrpe" $MAILTO < $LOGFILE
             die
@@ -45,7 +45,7 @@ source_nrpe(){
 
 source_nt(){
     local lib="lib_check_nt.sh"
-    . "$srcdir/$lib" || 
+    . "$srcdir/$lib" ||
         {   echo "Event Handler: FAILED to source $lib properly"
             mail -s "$HOSTNAME: Event Handler Error Sourcing Check_nt" $MAILTO < $LOGFILE
             die

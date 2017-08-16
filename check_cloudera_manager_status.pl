@@ -89,7 +89,7 @@ if(($cluster and $service) or defined($cm_mgmt)){
         if($verbose){
             $msg .= " role '$role'";
         } else {
-            $msg .= " role '" . $json->{"type"} . "'"; 
+            $msg .= " role '" . $json->{"type"} . "'";
         }
         $state = $json->{"roleState"};
     } else {

@@ -89,7 +89,7 @@ if(($cluster and $service) or $cm_mgmt){
         if($verbose){
             $msg .= " role '$role'";
         } else {
-            $msg .= " role '" . $json->{"type"} . "'"; 
+            $msg .= " role '" . $json->{"type"} . "'";
         }
     }
 } elsif($hostid){

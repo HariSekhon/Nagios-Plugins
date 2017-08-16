@@ -253,7 +253,7 @@ if(!is_critical){
         critical;
         $days_left = abs($days_left);
         $msg .= "Certificate EXPIRED $days_left day$plural ago for '$domain'. Expiry Date: '$end_date'";
-    } else { 
+    } else {
         $msg .= "$days_left day$plural remaining for '$domain'. Certificate Expires: '$end_date'";
         check_thresholds($days_left);
     }

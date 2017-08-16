@@ -2,7 +2,7 @@
 # nagios: -epn
 #
 #  Author: Hari Sekhon
-#  Date: 2013-06-03 21:43:25 +0100 (Mon, 03 Jun 2013) 
+#  Date: 2013-06-03 21:43:25 +0100 (Mon, 03 Jun 2013)
 #
 #  https://github.com/harisekhon/nagios-plugins
 #
@@ -89,7 +89,7 @@ if(grep { "STARTED" ne $_ } @states){
     foreach(@states){
         if($_ eq "STARTING" or $_ eq "INITIALIZING"){
             warning;
-        } else { 
+        } else {
             critical;
         }
     }

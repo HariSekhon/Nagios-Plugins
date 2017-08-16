@@ -85,13 +85,13 @@ sub get_disk_info($){
     my $disk_hash_ref = shift;
     my $diskname                        = get_field2($disk_hash_ref, "diskname");
     grep { $_ eq $diskname } keys %disks and quit "UNKNOWN", "duplicate disk names '$diskname' detected. $nagios_plugins_support_msg_api";
-    #$disks{$diskname}{"availablespace"} = get_field2($disk_hash_ref, "availablespace"); 
-    $disks{$diskname}{"powerstatus"}    = get_field2($disk_hash_ref, "powerstatus", "noquit"); 
-    $disks{$diskname}{"status"}         = get_field2($disk_hash_ref, "status"); 
-    $disks{$diskname}{"totalspace"}     = get_field2($disk_hash_ref, "totalspace"); 
+    #$disks{$diskname}{"availablespace"} = get_field2($disk_hash_ref, "availablespace");
+    $disks{$diskname}{"powerstatus"}    = get_field2($disk_hash_ref, "powerstatus", "noquit");
+    $disks{$diskname}{"status"}         = get_field2($disk_hash_ref, "status");
+    $disks{$diskname}{"totalspace"}     = get_field2($disk_hash_ref, "totalspace");
     $disks{$diskname}{"usedspace"}      = get_field2($disk_hash_ref, "usedspace", "noquit");
-    if(defined($disks{$diskname}{"usedspace"})){ 
-        $disks{$diskname}{"used_pc"}    = $disks{$diskname}{"usedspace"} / $disks{$diskname}{"totalspace"} * 100; 
+    if(defined($disks{$diskname}{"usedspace"})){
+        $disks{$diskname}{"used_pc"}    = $disks{$diskname}{"usedspace"} / $disks{$diskname}{"totalspace"} * 100;
     }
     if($disks{$diskname}{"status"} eq 0){
         $disks{$diskname}{"status"} = "ok";
@@ -138,7 +138,7 @@ foreach my $diskname (sort keys %disks){
     if( defined($disks{$diskname}{"powerstatus"}) and
         ( $verbose or
             ( $disks{$diskname}{"powerstatus"} ne "running" and $disks{$diskname}{"powerstatus"} ne "Active/idle")
-        ) 
+        )
       ){
         $msg .= ", $disks{$diskname}{powerstatus}"
     }

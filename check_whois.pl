@@ -566,7 +566,7 @@ foreach(my $i=0;$i<scalar @output;$i++){
                 $no_nameservers_listed = 1;
                 last;
             } else {
-                # exclusion for EU domains since there isn't 
+                # exclusion for EU domains since there isn't
                 # another idea that works for EU domains but this might match match genuine multiple nameservers eg:
                 # nameserver1 nameserver2 nameserver3 nameserver4 on a line from one of the many registrars so not risking it
                 #next if (scalar split(/\s+/, $line2) > 5);

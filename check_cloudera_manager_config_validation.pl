@@ -110,7 +110,7 @@ if($cm){
         if($verbose){
             $msg .= " role '$role'";
         } else {
-            $msg .= " role '$shortrole'"; 
+            $msg .= " role '$shortrole'";
         }
     }
 } elsif($hostid){

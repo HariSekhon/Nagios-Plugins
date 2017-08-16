@@ -152,7 +152,7 @@ unless($hdfs_space  or
 if($hdfs_space +
    $replication +
    $balance +
-   $node_count + 
+   $node_count +
    ($node_list?1:0) +
    $datanode_blocks +
    $datanode_block_balance +
@@ -494,7 +494,7 @@ if($balance){
         vlog3 sprintf("$heap_str max         %s %s => %s", $stats{"heap_max"}, $stats{"heap_max_units"}, $stats{"heap_max_bytes"});
         $stats{"heap_used_pc_calculated"} =  sprintf("%.2f", $stats{"heap_used_bytes"} / $stats{"heap_max_bytes"} * 100);
         vlog3 sprintf("$heap_str used calculated = %.2f%% (%s / %s)\n", $stats{heap_used_pc_calculated}, $stats{heap_used_bytes}, $stats{heap_max_bytes});
-        # we get given the % of comitted not the % of total heap, so this is not comparable for 
+        # we get given the % of comitted not the % of total heap, so this is not comparable for
         #if(abs(int($stats{"heap_used_pc_calculated"}) - $stats{"heap_used_of_comitted_pc"}) > 2){
         #    code_error "mismatch on calculated ($stats{heap_used_pc_calculated}) vs parsed % heap used ($stats{heap_used_of_comitted_pc})";
         #}

@@ -70,7 +70,7 @@ usage(){
     # Prints usage for event handler and then calls die to exit. No args.
     echo "GENERIC USAGE ERROR"
     die
-} 
+}
 
 # ============================================================================ #
 #              E R R O R   H A N D L I N G   F U N C T I O N S                 #
@@ -133,7 +133,7 @@ notify(){
 
 netsend(){
     # Sends a message on one recipient by windows pop up
-    # 
+    #
     # Usage:
     #
     # netsend hostname "X has gone wrong with Y"

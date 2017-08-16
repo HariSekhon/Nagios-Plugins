@@ -101,7 +101,7 @@ if($node_count < 1){
 my $max_diff_percentage = sprintf("%.2f", $max_node[1] - $min_node[1]);
 
 plural $node_count;
-$msg = "$max_diff_percentage% max imbalance between $node_count cassandra node$plural"; 
+$msg = "$max_diff_percentage% max imbalance between $node_count cassandra node$plural";
 check_thresholds($max_diff_percentage);
 $msg .= ", max node: $max_node[1]% [$max_node[0] ($max_node[2])], min node: $min_node[1]% [$min_node[0] ($min_node[2])]" if $verbose;
 $msg .= " | 'max_%_imbalance'=$max_diff_percentage%";

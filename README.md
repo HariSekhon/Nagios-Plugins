@@ -54,8 +54,8 @@ https://www.linkedin.com/in/harisekhon
 
 ### Quick Start ###
 
-1. a) Compile dependencies for executing locally by running ```make```  
-      OR  
+1. a) Compile dependencies for executing locally by running ```make```
+      OR
    b) Download pre-built via Docker
 2. Execute each program on the command line with ```--help``` to see its options
 
@@ -362,7 +362,7 @@ If you encounter the following error when trying to use ```check_kafka.pl```:
 
 ```Can't locate auto/NetAddr/IP/InetBase/AF_INET6.al in @INC```
 
-This is an upstream bug related to autoloader, which you can work around by editing ```NetAddr/IP/InetBase.pm``` and adding the following line explicitly near the top just after ```package NetAddr::IP::InetBase;```: 
+This is an upstream bug related to autoloader, which you can work around by editing ```NetAddr/IP/InetBase.pm``` and adding the following line explicitly near the top just after ```package NetAddr::IP::InetBase;```:
 
 ```use Socket;```
 

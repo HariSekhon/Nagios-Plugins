@@ -106,7 +106,7 @@ if($last_status_change > 86400){
     $human_time = sprintf("%.1f hours", $last_status_change / 3600);
 } else {
     $human_time = "$last_status_change secs";
-} 
+}
 
 $msg .= "node '$nodeIdentity' location '$locationIdentity' up='$isUp' stopped='$isStopped' local='$isLocal' last status change = $human_time ago ($last_status_change secs)";
 if($last_status_change < 0){

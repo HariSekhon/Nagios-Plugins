@@ -209,7 +209,7 @@ my $int_flags_fh = open_file("/sys/class/net/$interface/flags");
 my $int_flags = <$int_flags_fh>;
 chomp $int_flags;
 $int_flags = scalar trim($int_flags);
-isHex($int_flags) or quit "UNKNOWN", "failed to get hex flags from /sys/class/net/$interface/flags (got '$int_flags', failed regex validation)"; 
+isHex($int_flags) or quit "UNKNOWN", "failed to get hex flags from /sys/class/net/$interface/flags (got '$int_flags', failed regex validation)";
 if((hex $int_flags) & 0x100){
     $promisc = "on";
     warning;

@@ -119,7 +119,7 @@ if(defined($metrics)){
     }
     @metrics or usage "no valid metrics given";
     @metrics = uniq_array @metrics;
-    vlog_option "metrics", "[ " . join(" ", @metrics) . " ]"; 
+    vlog_option "metrics", "[ " . join(" ", @metrics) . " ]";
 }
 my $num_metrics = scalar @metrics;
 if($num_metrics != 1 and ( defined($warning) or defined($critical) ) ){

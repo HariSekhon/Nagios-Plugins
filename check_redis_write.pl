@@ -8,7 +8,7 @@
 #  https://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
-#  
+#
 
 our $DESCRIPTION = "Nagios Plugin to check a Redis server is up and read/writable via API
 

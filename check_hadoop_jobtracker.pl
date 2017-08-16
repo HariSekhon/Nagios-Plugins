@@ -107,7 +107,7 @@ if(defined($nodes)){
                                         } );
 } elsif($heap or $non_heap){
     $url = "http://$host:$port/$jobtracker_urn";
-    validate_thresholds(1, 1, { 
+    validate_thresholds(1, 1, {
                                 "simple"   => "upper",
                                 "positive" => 1,
                                 "integer"  => 0,
@@ -246,13 +246,13 @@ if(defined($nodes)){
 #        "map_task_capacity"     => "map_slots"
 #        "reduce_task_capacity"  => "reduce_slots",
 #        # not supplied in /metrics
-#        #"avg_tasks_node"        => 
+#        #"avg_tasks_node"        =>
 #        "blacklisted_nodes"     => "trackers_blacklisted",
 #    );
     @stats = qw/jobs_submitted map_slots reduce_slots running_maps running_reduces trackers trackers_blacklisted/;
     parse_stats();
     #foreach(qw/maps reduces total_submissions nodes map_task_capacity reduce_task_capacity avg_tasks_node blacklisted_nodes/){
-    $stats{"avg_tasks_node"} = ($stats{"map_slots"} + $stats{"reduce_slots"}) / $stats{"trackers"}; 
+    $stats{"avg_tasks_node"} = ($stats{"map_slots"} + $stats{"reduce_slots"}) / $stats{"trackers"};
 
     $status = "OK";
     #$msg = sprintf("%d MapReduce nodes available, %d blacklisted nodes", $stats{"nodes"}, $stats{"blacklisted_nodes"});

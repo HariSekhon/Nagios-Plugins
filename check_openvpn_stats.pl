@@ -86,7 +86,7 @@ foreach(sort keys %openvpn_users){
 $msg =~ s/, $//;
 my $user_count = scalar keys %openvpn_users;
 plural($user_count);
-$msg = sprintf("%d user$plural - $msg", $user_count); 
+$msg = sprintf("%d user$plural - $msg", $user_count);
 $msg .= " | openvpn_users=$user_count";
 $msg .= " 'bcast/mcast queue'=$stats{queue}" if defined($stats{"queue"});
 

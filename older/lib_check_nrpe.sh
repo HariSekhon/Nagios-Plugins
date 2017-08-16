@@ -13,7 +13,7 @@ export PATH=$PATH:/usr/lib64/nagios/plugins:/usr/lib/nagios/plugins:/usr/nagios/
 if ! which check_nrpe &>/dev/null; then
     echo "CRITICAL: check_nrpe was not found in path"
     exit $CRITICAL
-fi 
+fi
 check_nrpe=`which check_nrpe`
 
 

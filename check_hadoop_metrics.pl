@@ -18,7 +18,7 @@ JobTracker:     jvm
                 fairscheduler (specify -m 'pool:<name>:<map|reduce>:<metric_name>')
 
 TaskTracker:    jvm
-                mapred 
+                mapred
 
 HBase Master /
       RegionServer:     jvm

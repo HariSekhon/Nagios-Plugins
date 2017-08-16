@@ -8,7 +8,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# This wrapper is a quick way of making sure that 
+# This wrapper is a quick way of making sure that
 # there are no rogue dhcp servers on the network -h
 
 # I should really patch the C code and then make this wrapper
@@ -54,7 +54,7 @@ if [[ "$OFFERS" == [0-9] ]]; then
     # Test that the number of offers are not more than the number of DHCP servers
     # we have specified above in the DHCP_SERVERS variable. If there are more
     # and the result of the test was 0 (ie the check_dhcp plugin thinks that this
-    # is ok) then change it by outputting a warning and forcing the result to 
+    # is ok) then change it by outputting a warning and forcing the result to
     # a warning state
     if [ "$OFFERS" -gt "$DHCP_SERVERS" -a "$result" == "$OK" ]; then
         result=$WARNING

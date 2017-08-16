@@ -141,7 +141,7 @@ sub print_cmd {
         chomp $output;
         print "\ncmd:         $cmd\n\n";
         print "output:      <$output>\n";
-        print "return code: $result\n\n"; 
+        print "return code: $result\n\n";
     }
 }
 

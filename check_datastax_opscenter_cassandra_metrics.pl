@@ -7,7 +7,7 @@
 #  https://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
-#  
+#
 
 # http://www.datastax.com/documentation/opscenter/5.0/api/docs/metrics.html
 
@@ -108,7 +108,7 @@ $period = validate_int($period, "time period (last N minutes)", 1);
 #    }
 #    @metrics or usage "no valid metrics given";
 #    @metrics = uniq_array @metrics;
-#    vlog_option "metrics", "[ " . join(" ", @metrics) . " ]"; 
+#    vlog_option "metrics", "[ " . join(" ", @metrics) . " ]";
 #}
 #$metric = $metrics[0];
 validate_thresholds();

@@ -71,7 +71,7 @@ sub getent {
     my $db = $_[0];
     my $target;
     $target = $_[1] if $_[1];
-    ($db eq "passwd" or $db eq "group") or quit "UNKNOWN", "invalid arg passwd to getent function '$db'"; 
+    ($db eq "passwd" or $db eq "group") or quit "UNKNOWN", "invalid arg passwd to getent function '$db'";
     my %regex;
     $regex{"passwd"} = '^[^:]+:[*x]:\d+:\d+(?::[^:]*){3}$';
     $regex{"group"}  = '^[^:]+:[*x]:\d+:[^:]*$';

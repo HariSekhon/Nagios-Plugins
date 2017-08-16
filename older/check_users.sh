@@ -12,7 +12,7 @@
 
 version=0.2
 
-# This makes coding much safer as a varible typo is caught 
+# This makes coding much safer as a varible typo is caught
 # with an error rather than passing through
 set -u
 
@@ -131,7 +131,7 @@ if [ -n "$userlist" ]; then
         done
         for user in `echo $missing_users|tr " " "\n"|sort -u`; do
             errormsg="${errormsg}user '$user' not logged in. "
-        done 
+        done
     fi
 
     if [ -n "$unauthorized_users" ]; then
@@ -144,7 +144,7 @@ if [ -n "$userlist" ]; then
         done
         for user in `echo $blacklisted_users|tr " " "\n"|sort -u`; do
             errormsg="${errormsg}Unauthorized user '$user' is logged in! "
-        done 
+        done
     fi
 
     if [ -n "$whitelist_users" ]; then
@@ -157,7 +157,7 @@ if [ -n "$userlist" ]; then
         done
         for user in `echo $unwanted_users|tr " " "\n"|sort -u`; do
             errormsg="${errormsg}Unauthorized user '$user' detected! "
-        done 
+        done
     fi
 
     if [ "$simple" == "true" ]

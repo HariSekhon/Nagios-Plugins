@@ -167,7 +167,7 @@ $healthReport = "<blank>" unless $healthReport;
 
 if($state eq "RUNNING"){
     $state = "running";
-} else { 
+} else {
     critical;
 }
 $msg = "node $node state = '$state', healthReport = '$healthReport', $lag secs since last health report";

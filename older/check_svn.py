@@ -2,7 +2,7 @@
 #
 #  Author: Hari Sekhon
 #  Date: 2008-02-28 14:49:50 +0000 (Thu, 28 Feb 2008)
-# 
+#
 #  http://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
@@ -61,7 +61,7 @@ class SvnTester(NagiosTester):
         if self.http and self.https:
             end(UNKNOWN, "cannot choose both http and https, they are " \
                        + "mutually exclusive")
-        elif self.http:    
+        elif self.http:
             self.protocol = "http"
         elif self.https:
             self.protocol = "https"
@@ -207,7 +207,7 @@ def main():
     parser.add_option( "-l",
                        "--label",
                        dest="service",
-                       help="Change result prefix (Defaults to \"%s\")" 
+                       help="Change result prefix (Defaults to \"%s\")"
                                                   % nagios.CHECK_NAME)
 
     parser.add_option( "-t",

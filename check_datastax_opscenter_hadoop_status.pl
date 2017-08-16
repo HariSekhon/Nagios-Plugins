@@ -7,7 +7,7 @@
 #  https://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
-#  
+#
 
 # http://www.datastax.com/documentation/opscenter/5.0/api/docs/hadoop.html
 

@@ -7,7 +7,7 @@
 #  https://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
-#  
+#
 
 $DESCRIPTION = "Simple Nagios Plugin which calls 'riak-admin ringready' to check that all nodes agree on state
 

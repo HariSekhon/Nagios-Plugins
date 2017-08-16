@@ -8,7 +8,7 @@
 #  License: see accompanying LICENSE file
 #
 
-""" This script is intended to be used with the open source OpenSSH client 
+""" This script is intended to be used with the open source OpenSSH client
 program "sftp". It is also intended to test an OpenSSH sftp server.
 Your mileage may vary if you try to use it with something else. -h """
 
@@ -75,7 +75,7 @@ def end(status, message):
 
 
 def run(cmd, verbosity):
-    """takes a command as the single argument, runs it and returns 
+    """takes a command as the single argument, runs it and returns
     a tuple of the exitcode and the output"""
 
     if verbosity >= 2:
@@ -115,7 +115,7 @@ def test_sftp(sftp, server, port, user, sshkey, nostricthostkey, \
 
 
     # NumberOfPasswordPrompts=0 would also do here.
-    # PasswordAuthentication=no doesn't work though. 
+    # PasswordAuthentication=no doesn't work though.
     # Preferred Authentications limits it to publickey only
     cmd = "%(sftp)s \
 -oPort=%(port)s \
@@ -142,7 +142,7 @@ def test_sftp(sftp, server, port, user, sshkey, nostricthostkey, \
         end(CRITICAL, output2)
 
     if files:
-        test_files(output, files, verbosity) 
+        test_files(output, files, verbosity)
     if dirs:
         test_dirs(output, dirs, verbosity)
 
@@ -152,7 +152,7 @@ def test_sftp(sftp, server, port, user, sshkey, nostricthostkey, \
 
 
 def test_files(output, files, verbosity):
-    """takes the output of the sftp directory listing and a list of files and 
+    """takes the output of the sftp directory listing and a list of files and
     verifies the files exist in the listing of the output"""
 
     lines = output.split("\n")
@@ -174,7 +174,7 @@ def test_files(output, files, verbosity):
 
 
 def test_dirs(output, dirs, verbosity):
-    """takes the output of the sftp directory listing and a list of dirs and 
+    """takes the output of the sftp directory listing and a list of dirs and
     verifies the dirs exist in the listing of the output"""
 
     lines = output.split("\n")
@@ -200,31 +200,31 @@ def main():
 
     parser = OptionParser()
     parser.add_option("-H", dest="server", help="server name or ip address")
-    parser.add_option("-p", dest="port", 
+    parser.add_option("-p", dest="port",
         help="port number of the sftp service on the server (defaults to %s)" \
                                                                 % default_port)
-    parser.add_option("-U", dest="user", 
+    parser.add_option("-U", dest="user",
         help="user name to connect as (defaults to current user)")
-    parser.add_option("-P", dest="password", 
+    parser.add_option("-P", dest="password",
         help="password to use (not implemented yet)")
-    parser.add_option("-k", dest="sshkey", 
+    parser.add_option("-k", dest="sshkey",
         help="ssh private key to use for authentication")
-    parser.add_option("-f", action="append", dest="file", 
+    parser.add_option("-f", action="append", dest="file",
         help="test for the existence of a file. Can use multiple times to \
  check for the existence of multiple files")
-    parser.add_option("-d", action="append", dest="directory", 
+    parser.add_option("-d", action="append", dest="directory",
         help="test for the existence of a directory. Can use multiple times \
 to check for the existence of multiple directories")
-    parser.add_option("-s", action="store_true", dest="nostricthostkey", 
+    parser.add_option("-s", action="store_true", dest="nostricthostkey",
         help="disable strict host key checking. This will auto-accept the \
 remote host key. Otherwise you first have to add the ssh host key of the sftp \
 server to known hosts before running the test or it will fail (although by \
 default you will be prompted to accept the host key if it is run \
 interactively)")
-    parser.add_option("-t", dest="timeout", 
+    parser.add_option("-t", dest="timeout",
         help="sets a timeout after which the plugin will exit (defaults to %s)"\
                                                             % default_timeout)
-    parser.add_option("-v", action="count", dest="verbosity", 
+    parser.add_option("-v", action="count", dest="verbosity",
         help="adds verbosity. Use multiple times for cumulative effect. \
 By default only 1 line of output is printed")
 

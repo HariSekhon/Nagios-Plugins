@@ -134,7 +134,7 @@ my $slave_conn  = memcached_connect($slave) if ($couchbase and $slave);
 
 # using add instead of set here to intentionally fail if the key is already present which it shouldn't be
 my $memcached_write_cmd  = "add $key $flags $timeout $bytes\r\n$value\r\n";
-my $memcached_read_cmd   = "get $key\r\n"; 
+my $memcached_read_cmd   = "get $key\r\n";
 my $memcached_delete_cmd = "delete $key\r\n";
 vlog3 "sending write request: $memcached_write_cmd";
 my $write_start_time = time;

@@ -264,7 +264,7 @@ check_parsed(qw/
 # Apache 2.6.0 no longer outputs datanodes total or datanodes dead - must assume 0 dead datanodes if we can't find dead in output
 unless(defined($dfs{"datanodes_dead"})){
     # safety check
-    grep(/\bdead\b/i, @output) and quit "CRITICAL", "dead detected in output but dead datanode count not parsed. $nagios_plugins_support_msg"; 
+    grep(/\bdead\b/i, @output) and quit "CRITICAL", "dead detected in output but dead datanode count not parsed. $nagios_plugins_support_msg";
     # must be Apache 2.6+ with no dead datanodes
     $dfs{"datanodes_dead"} = 0;
 }

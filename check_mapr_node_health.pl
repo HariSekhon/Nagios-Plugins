@@ -29,7 +29,7 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
 # http://doc.mapr.com/display/MapR/node
 #
-# Node Health: 
+# Node Health:
 #
 # 0 = Healthy
 # 1 = Needs attention

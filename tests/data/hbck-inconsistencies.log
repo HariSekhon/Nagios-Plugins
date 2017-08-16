@@ -3,7 +3,7 @@ SLF4J: Found binding in [jar:file:/usr/hdp/2.3.2.0-2950/hadoop/lib/slf4j-log4j12
 SLF4J: Found binding in [jar:file:/usr/hdp/2.3.2.0-2950/zookeeper/lib/slf4j-log4j12-1.6.1.jar!/org/slf4j/impl/StaticLoggerBinder.class]
 SLF4J: See http://<fqdn>/codes.html#multiple_bindings for an explanation.
 SLF4J: Actual binding is of type [org.slf4j.impl.Log4jLoggerFactory]
-HBaseFsck command line options: 
+HBaseFsck command line options:
 2016-09-19 13:24:03,716 INFO  [main] util.HBaseFsck: Launching hbck
 2016-09-19 13:24:03,812 INFO  [main] zookeeper.RecoverableZooKeeper: Process identifier=hconnection-0x6d3c5255 connecting to ZooKeeper ensemble=<custom_scrubbed>:2181,<custom_scrubbed>:2181,<custom_scrubbed>:2181
 2016-09-19 13:24:03,828 INFO  [main] zookeeper.ZooKeeper: Client environment:zookeeper.version=3.4.6-2950--1, built on 09/30/2015 17:44 GMT

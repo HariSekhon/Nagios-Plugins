@@ -15,7 +15,7 @@ $DESCRIPTION = "Nagios Plugin to check IBM BigInsights File/Directory on HDFS or
 
 Checks:
 
-- File/directory existence 
+- File/directory existence
 - check whether the given path is a file or directory
 
 Directory Checks:
@@ -121,7 +121,7 @@ my $url_prefix = "$protocol://$host:$port";
 
 $status = "OK";
 
-# workaround to BigInsights returning contents instead of metadata for files 
+# workaround to BigInsights returning contents instead of metadata for files
 sub curl_biginsights_err_handler_minimal($){
     my $response = shift;
     my $content  = $response->content;

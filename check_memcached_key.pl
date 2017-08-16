@@ -110,7 +110,7 @@ vlog2 "OK connected in $connect_time secs\n";
 $conn->autoflush(1) or quit "UNKNOWN", "failed to set autoflush on socket: $!";
 vlog3 "set autoflush on";
 
-my $memcached_read_cmd   = "get $key\r\n"; 
+my $memcached_read_cmd   = "get $key\r\n";
 
 vlog3 "\nsending read request: $memcached_read_cmd";
 my $read_start_time = time;

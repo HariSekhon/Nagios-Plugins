@@ -75,7 +75,7 @@ if($all_metrics){
     }
     @metrics or usage "no valid metrics given";
     @metrics = uniq_array @metrics;
-    vlog_option "metrics", "[ " . join(" ", @metrics) . " ]"; 
+    vlog_option "metrics", "[ " . join(" ", @metrics) . " ]";
 }
 
 validate_thresholds();

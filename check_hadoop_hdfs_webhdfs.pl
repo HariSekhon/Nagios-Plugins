@@ -7,7 +7,7 @@
 #  https://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
-#  
+#
 
 our $DESCRIPTION = "Nagios Plugin to check HDFS files/directories or writable via WebHDFS API or HttpFS server
 
@@ -215,7 +215,7 @@ sub check_response($){
                 foreach(my $i = 0; $i < scalar @hosts; $i++){
                     unless(grep { $_ eq $hosts[$i] } @attempted_namenodes){
                         $namenode_index = $i;
-                        push(@attempted_namenodes, $hosts[$namenode_index]); 
+                        push(@attempted_namenodes, $hosts[$namenode_index]);
                     }
                 }
                 vlog2 "got Standby NameNode exception, failing over to other NameNode $hosts[$namenode_index]\n";

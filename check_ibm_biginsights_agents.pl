@@ -17,7 +17,7 @@ Checks:
 
 - stopped agents (includes dead) vs thresholds (default: w=0, c=1)
 - operational agents vs running agents (warning if differ)
-- outputs perfdata for graphing of running/operational/stopped/dead/live agents 
+- outputs perfdata for graphing of running/operational/stopped/dead/live agents
 
 Tested on IBM BigInsights Console 2.1.2.0";
 

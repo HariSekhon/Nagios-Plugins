@@ -8,7 +8,7 @@
 #  License: see accompanying LICENSE file
 #
 
-# This is a generic wrapper to allow you to make any service check into a 
+# This is a generic wrapper to allow you to make any service check into a
 # passive service check without the need for writing wrappers for every
 # check since that is a waste of time and effort. You can put everything
 # you need on one line in order to submit a passive service check for Nagios
@@ -23,7 +23,7 @@ version=0.8
 
 # This should be the IP address of your Nagios/NSCA server. Can use DNS name
 # but not generally as good to do that. If you DNS server is down, your passive
-# service check results will not reach the NSCA/Nagios server and will 
+# service check results will not reach the NSCA/Nagios server and will
 # therefore go stale causing warning/critical conditions.
 NAGIOS_SERVER="x.x.x.x"
 
@@ -35,8 +35,8 @@ SEND_NSCA="/usr/sbin/send_nsca"
 
 # This should be the path to your send_nsca.cfg or equivalent config. This
 # config is necessary to tell the send_nsca program how to connect to your
-# NSCA daemon on your Nagios server. It contains the port and the connection 
-# password. If you do not set this, this script will look for send_nsca.cfg 
+# NSCA daemon on your Nagios server. It contains the port and the connection
+# password. If you do not set this, this script will look for send_nsca.cfg
 # in the same directory as this script is located.
 SEND_NSCA_CONFIG=""
 
@@ -91,7 +91,7 @@ Optional:
 -c /path/to/send_nsca.cfg  The path to the nsca config file. By default it will
                            look for this in the same directory as this wrapper
                            program. If the send_nsca config file is named
-                           differently or located somewhere else, you must' 
+                           differently or located somewhere else, you must'
                            specify the path with this switch.
 -e                         exit with the return code of the plugin rather than
                            the return code of the sending to the NSCA daemon

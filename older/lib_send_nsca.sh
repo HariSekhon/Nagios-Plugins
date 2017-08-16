@@ -15,7 +15,7 @@ export PATH=$PATH:/usr/sbin:/usr/lib64/nagios/plugins:/usr/lib/nagios/plugins:/u
 if ! which send_nsca &>/dev/null; then
     echo "CRITICAL: send_nsca was not found in path"
     exit $CRITICAL
-fi 
+fi
 send_nsca=`which send_nsca`
 send_nsca_cfg="$srcdir/../send_nsca.cfg"
 

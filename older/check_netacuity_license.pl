@@ -62,7 +62,7 @@ while(<$fh>){
     if($_ =~ $license_expire_regex){
         if(defined($license_num)){
             if($1 < $license_num and $2 eq "days"){
-                $license_num = $1 
+                $license_num = $1
             }
         } else {
             $license_num   = $1;

@@ -126,7 +126,7 @@ set_timeout();
 # NUMSACTSVCCHECKS1M   number of scheduled active service checks occuring in last 1/5/15 minutes.
 # NUMPSVSVCCHECKS1M    number of passive service checks occuring in last 1/5/15 minutes.
 # NUMEXTCMDS1M         number of external commands processed in last 1/5/15 minutes.
-# 
+#
 # Note: Replace x's in MRTG variable names with 'MIN', 'MAX', 'AVG', or the
 #       the appropriate number (i.e. '1', '5', '15', or '60').
 #

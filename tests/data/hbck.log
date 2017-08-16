@@ -1,7 +1,7 @@
 OpenJDK 64-Bit Server VM warning: ignoring option PermSize=128m; support was removed in 8.0
 OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=128m; support was removed in 8.0
 2016-09-21 22:25:23,550 WARN  [main] util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-HBaseFsck command line options: 
+HBaseFsck command line options:
 2016-09-21 22:25:23,781 INFO  [main] util.HBaseFsck: Launching hbck
 2016-09-21 22:25:23,914 INFO  [main] zookeeper.RecoverableZooKeeper: Process identifier=hconnection-0x1460a8c0 connecting to ZooKeeper ensemble=localhost:2181
 2016-09-21 22:25:23,921 INFO  [main] zookeeper.ZooKeeper: Client environment:zookeeper.version=3.4.6-1569965, built on 02/20/2014 09:09 GMT
@@ -93,7 +93,7 @@ Table t1 is okay.
     Deployed on:  41101b0abfa9,16201,1474496415273
 Table t2 is okay.
     Number of regions: 0
-    Deployed on: 
+    Deployed on:
 Table hbase:namespace is okay.
     Number of regions: 1
     Deployed on:  41101b0abfa9,16201,1474496415273

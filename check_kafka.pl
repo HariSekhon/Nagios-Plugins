@@ -193,7 +193,7 @@ my $start_time = time;
 try {
     vlog2 "connecting to Kafka broker$broker_name";
     # default timeouts are 1.5 secs
-    $connection = Kafka::Connection->new( 
+    $connection = Kafka::Connection->new(
                                           #'broker'  => $broker_list, # XXX: TODO
                                           'host'        => $host,
                                           'port'        => $port,
@@ -355,7 +355,7 @@ try {
                     $found++;
                     vlog2 "found matching message: " . $message->payload;
                 }
-            # XXX: consider doing $check_invalid to ignore checking all messages for validity since we're only interested 
+            # XXX: consider doing $check_invalid to ignore checking all messages for validity since we're only interested
             } elsif($ignore_invalid_msgs){
                 vlog2 "ignoring invalid message at offset " . $message->offset . ", error: " . $message->error;
             } else {

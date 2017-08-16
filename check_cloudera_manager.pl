@@ -76,7 +76,7 @@ if($list_users){
     cm_query();
     check_cm_field("items");
     $msg = "users: ";
-    foreach(@{$json->{"items"}}){ 
+    foreach(@{$json->{"items"}}){
         foreach my $field (qw/name roles/){
             defined($_->{$field}) or quit "CRITICAL", "$field field not found in returned user items returned from '$url_prefix'. $nagios_plugins_support_msg_api";
         }
