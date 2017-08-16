@@ -71,7 +71,7 @@ class VncTester(NagiosTester):
         """Exits with an error if the passwd file is not given
         or if the file is non-existent or cannot be accessed for any reason"""
 
-        if self.passwdfile == None or self.passwdfile == "":
+        if not self.passwdfile:
             end(UNKNOWN, "You must supply a passwd file containing " \
                        + "the VNC password in order to connect. See --help " \
                        + "for details")
