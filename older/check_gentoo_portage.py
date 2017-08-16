@@ -31,7 +31,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Gentoo Portage"
-__version__ = "0.8.4"
+__version__ = "0.8.5"
 
 # Standard Nagios return codes
 OK = 0
@@ -196,7 +196,7 @@ class PortageTester(object):
         """runs a system command and returns a tuple containing
         the return code and an array of lines of the output"""
 
-        if cmd == "" or cmd is None:
+        if not cmd:
             end(UNKNOWN, "Internal python error - " \
                        + "no cmd supplied for run function")
         self.vprint(3, "running command: %s" % cmd)
