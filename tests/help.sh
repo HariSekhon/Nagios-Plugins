@@ -69,10 +69,7 @@ upload_logs(){
 trap upload_logs $TRAP_SIGNALS
 
 for x in $(ls *.pl *.py *.rb */*.pl */*.py */*.rb 2>/dev/null | sort); do
-    # this call is expensive, skip it when in CI as using fresh git checkouts
-    if ! is_CI; then
-        isExcluded "$x" && continue
-    fi
+    isExcluded "$x" && continue
     # this is taking too much time and failing Travis CI builds
     if is_travis; then
         [ $(($RANDOM % 3)) = 0 ] || continue
