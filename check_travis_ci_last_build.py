@@ -134,6 +134,7 @@ class CheckTravisCILastBuild(NagiosPlugin):
                 if build is None:
                     build = _
                     # don't break as we want to count builds in progress
+                    # and also check the build numbers keep descending so we have the first latest build
                     #break
             else:
                 self.builds_in_progress += 1
