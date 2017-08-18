@@ -203,6 +203,8 @@ apt-packages:
 apt-packages-remove:
 	cd lib && make apt-packages-remove
 	$(SUDO) apt-get purge -y `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/deb-packages-dev.txt`
+	$(SUDO) apt-get install -y libmariadbd-dev || :
+	$(SUDO) apt-get install -y libmysqlclient-dev || :
 
 .PHONY: yum-packages
 yum-packages:
