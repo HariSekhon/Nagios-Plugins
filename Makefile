@@ -131,6 +131,8 @@ perl-libs:
 	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' "$$libfilepath" || $(SUDO2) sed -i.bak "s/use strict;/use strict; use Socket;/" "$$libfilepath"
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins perl)"
+	@echo
+	@echo
 
 
 .PHONY: python
@@ -172,6 +174,8 @@ python-libs:
 	bash-tools/python_compile.sh
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins python)"
+	@echo
+	@echo
 
 .PHONY: elasticsearch2
 elasticsearch2:
@@ -249,6 +253,10 @@ zookeeper:
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	LD_RUN_PATH=/usr/local/lib $(SUDO) make
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	$(SUDO) make install
 	perl -e "use Net::ZooKeeper"
+	@echo
+	@echo "BUILD SUCCESSFUL (nagios-plugins perl zookeeper)"
+	@echo
+	@echo
 
 .PHONY: jar-plugins
 jar-plugins:
