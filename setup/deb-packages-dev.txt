@@ -29,6 +29,14 @@ libffi-dev
 #krb5-config
 libkrb5-dev
 
+# for DBD::mysql
+#
+# Ubuntu 12 Precise which is still used in Travis CI uses libmysqlclient-dev, but Debian 9 Stretch and Ubuntu 16 Xenial
+# use libmariadbd-dev so this must now be handled separately in Makefile to try installing
+# libmariadbd-dev and if failing then try falling back to libmysqlclient-dev
+#libmysqlclient-dev
+#libmariadbd-dev
+
 # needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 libssl-dev
 libsasl2-dev
