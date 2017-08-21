@@ -185,7 +185,7 @@ elasticsearch2:
 .PHONY: apk-packages
 apk-packages:
 	$(SUDO) apk update
-	$(SUDO) apk add `cat setup/apk-packages.txt setup/apk-packages-dev.txt | sed 's/#.*//; /^[[:space:]]*$$/d' | sort -u`
+	$(SUDO) apk add `sed 's/#.*//; /^[[:space:]]*$$/d' setup/apk-packages.txt setup/apk-packages-dev.txt`
 
 .PHONY: apk-packages-remove
 apk-packages-remove:
@@ -196,7 +196,7 @@ apk-packages-remove:
 .PHONY: apt-packages
 apt-packages:
 	$(SUDO) apt-get update
-	$(SUDO) apt-get install -y `cat setup/deb-packages.txt setup/deb-packages-dev.txt | sed 's/#.*//; /^[[:space:]]*$$/d' | sort -u`
+	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages.txt setup/deb-packages-dev.txt`
 	$(SUDO) apt-get install -y libmysqlclient-dev || :
 	$(SUDO) apt-get install -y libmariadbd-dev || :
 	# for check_whois.pl - looks like this has been removed from repos :-/
@@ -220,7 +220,7 @@ yum-packages:
 	rpm -q epel-release      || yum install -y epel-release || { wget -t 100 --retry-connrefused -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`grep -o '[[:digit:]]' /etc/*release | head -n1`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
 
 	# installing packages individually to catch package install failure, otherwise yum succeeds even if it misses a package
-	for x in `cat setup/rpm-packages.txt setup/rpm-packages-dev.txt | sed 's/#.*//; /^[[:space:]]*$$/d' | sort -u`; do rpm -q $$x || $(SUDO) yum install -y $$x; done
+	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages.txt setup/rpm-packages-dev.txt`; do rpm -q $$x || $(SUDO) yum install -y $$x; done
 
 	# breaks on CentOS 7.0 on Docker, fakesystemd conflicts with systemd, 7.2 works though
 	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel || :
