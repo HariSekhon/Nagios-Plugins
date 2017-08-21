@@ -27,6 +27,9 @@ git
 # ethtool for ./check_linux_interface.pl
 ethtool
 
+# used for tests
+curl
+
 # for ping mode of find_active_server.py
 iputils
 
