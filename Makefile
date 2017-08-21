@@ -197,9 +197,8 @@ apk-packages-remove:
 apt-packages:
 	$(SUDO) apt-get update
 	$(SUDO) apt-get install -y `cat setup/deb-packages.txt setup/deb-packages-dev.txt | sed 's/#.*//; /^[[:space:]]*$$/d' | sort -u`
-	# Ubuntu 12 Precise which is still used in Travis CI uses libmysqlclient-dev, but Debian 9 Stretch and Ubuntu 16 Xenial
-	# use libmariadbd-dev so this must now be handled separately as a failback
-	$(SUDO) apt-get install -y libmariadbd-dev || $(SUDO) apt-get install -y libmysqlclient-dev
+	$(SUDO) apt-get install -y libmysqlclient-dev || :
+	$(SUDO) apt-get install -y libmariadbd-dev || :
 	# for check_whois.pl - looks like this has been removed from repos :-/
 	$(SUDO) apt-get install -y jwhois || :
 
