@@ -48,6 +48,10 @@ endif
 .PHONY: build
 # space here prevents weird validation warning from check_makefile.sh => Makefile:40: warning: undefined variable `D'
 build :
+	@echo ====================
+	@echo Nagios Plugins Build
+	@echo ====================
+
 	make common
 	make perl-libs
 	make python-libs
@@ -78,6 +82,10 @@ system-packages:
 	
 .PHONY: perl
 perl:
+	@echo ===========================
+	@echo Nagios Plugins Build (Perl)
+	@echo ===========================
+
 	make common
 	make perl-libs
 
@@ -137,6 +145,10 @@ perl-libs:
 
 .PHONY: python
 python:
+	@echo =============================
+	@echo Nagios Plugins Build (Python)
+	@echo =============================
+
 	make common
 	make python-libs
 
