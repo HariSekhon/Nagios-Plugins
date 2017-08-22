@@ -45,6 +45,23 @@ else
 	SUDO = sudo
 endif
 
+# ===================
+# bootstrap commands:
+
+# Alpine:
+#
+#   apk add --no-cache git make && git clone https://github.com/harisekhon/nagios-plugins && cd nagios-plugins && make
+
+# Debian / Ubuntu:
+#
+#   apt-get update && apt-get install -y make git && git clone https://github.com/harisekhon/nagios-plugins && cd nagios-plugins && make
+
+# RHEL / CentOS:
+#
+#   yum install -y make git && git clone https://github.com/harisekhon/nagios-plugins && cd nagios-plugins && make
+
+# ===================
+
 .PHONY: build
 # space here prevents weird validation warning from check_makefile.sh => Makefile:40: warning: undefined variable `D'
 build :
