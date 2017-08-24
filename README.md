@@ -353,7 +353,13 @@ If you update often and want to just quickly git pull + submodule update but ski
 
 There is a full suite of Dockerized functional tests in the [tests/](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) directory as well as a high coverage percentage of unit tests for the underlying [Perl library](https://github.com/harisekhon/lib) and [Python library](https://githu.com/harisekhon/pylib).
 
-Running ```make test``` will trigger all tests, starting with the underlying libraries and then moving on to the Dockerized functional test suites.
+To trigger all tests run:
+
+```
+make test
+```
+
+which will start with the underlying libraries, then move on to top level integration tests and functional tests using docker containers if docker is available.
 
 ##### Bugs & Workarounds #####
 
