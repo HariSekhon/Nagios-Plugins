@@ -233,7 +233,7 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - [continuous integration](https://travis-ci.org/HariSekhon/nagios-plugins) with tests for success and failure scenarios:
   - unit tests for the custom supporting [perl](https://github.com/harisekhon/lib) and [python](https://github.com/harisekhon/pylib) libraries
   - integration tests of the top level programs using the libraries for things like option parsing
-  - [functional tests](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) for the top level programs using [Dockerized containers](https://hub.docker.com/u/harisekhon/) for each technology (eg. Cassandra, Elasticsearch, Hadoop, HBase, ZooKeeper, Memcached, Neo4j, MongoDB, MySQL, Riak, Redis...)
+  - [functional tests](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) for the top level programs using [Docker containers](https://hub.docker.com/u/harisekhon/) for each technology (eg. Cassandra, Elasticsearch, Hadoop, HBase, ZooKeeper, Memcached, Neo4j, MongoDB, MySQL, Riak, Redis...)
 - easy rapid development of new high quality robust Nagios plugins with minimal lines of code
 
 Several plugins have been merged together and replaced with symlinks to the unified plugins bookmarking their areas of functionality, similar to some plugins from the standard nagios plugins collection.
@@ -356,7 +356,7 @@ There is a full suite of Dockerized functional tests in the [tests/](https://git
 [Continuous Integration](https://travis-ci.org/HariSekhon/pytools) is run on this repo with tests for success and failure scenarios:
 - unit tests for the custom supporting [python library](https://github.com/harisekhon/pylib)
 - integration tests of the top level programs using the libraries for things like option parsing
-- [functional tests](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) for the top level programs using local test data and [Dockerized containers](https://hub.docker.com/u/harisekhon/)
+- [functional tests](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) for the top level programs using local test data and [Docker containers](https://hub.docker.com/u/harisekhon/)
 
 To trigger all tests run:
 
