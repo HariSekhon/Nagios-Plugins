@@ -354,7 +354,7 @@ If you update often and want to just quickly git pull + submodule update but ski
 There is a full suite of Dockerized functional tests in the [tests/](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) directory as well as a high coverage percentage of unit tests for the underlying [Perl library](https://github.com/harisekhon/lib) and [Python library](https://githu.com/harisekhon/pylib).
 
 [Continuous Integration](https://travis-ci.org/HariSekhon/pytools) is run on this repo with tests for success and failure scenarios:
-- unit tests for the custom supporting [python library](https://github.com/harisekhon/pylib)
+- unit tests for the custom supporting [perl](https://github.com/harisekhon/lib) and [python](https://github.com/harisekhon/pylib) libraries
 - integration tests of the top level programs using the libraries for things like option parsing
 - [functional tests](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) for the top level programs using local test data and [Docker containers](https://hub.docker.com/u/harisekhon/)
 
