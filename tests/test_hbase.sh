@@ -50,7 +50,7 @@ export MNTDIR="/pl"
 docker_exec(){
     # this doesn't allocate TTY properly, blessing module bails out
     #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
-    docker exec -i "${COMPOSE_PROJECT_NAME:-docker}_${DOCKER_SERVICE}_1" /bin/bash <<-EOF
+    docker exec -i "${COMPOSE_PROJECT_NAME:-docker/-}_${DOCKER_SERVICE}_1" /bin/bash <<-EOF
     export JAVA_HOME=/usr
     $MNTDIR/$@
 EOF
