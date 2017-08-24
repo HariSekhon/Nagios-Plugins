@@ -30,10 +30,7 @@ echo "
 # ============================================================================ #
 "
 
-#export HBASE_VERSIONS="${1:-latest 0.96 0.98 1.0 1.1 1.2}"
-# TODO: < 1.0 container versions don't work
-#export HBASE_VERSIONS="${@:-0.98 0.96}"
-export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-latest 1.0 1.1 1.2}}"
+export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-latest 0.96 0.98 1.0 1.1 1.2}}"
 
 HBASE_HOST="${DOCKER_HOST:-${HBASE_HOST:-${HOST:-localhost}}}"
 HBASE_HOST="${HBASE_HOST##*/}"
