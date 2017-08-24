@@ -232,6 +232,7 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - graph data ([PNP4Nagios](https://docs.pnp4nagios.org/) add-on auto-graphs the perfdata from these plugins)
 - [continuous integration](https://travis-ci.org/HariSekhon/nagios-plugins) with tests for success and failure scenarios:
   - unit tests for the custom supporting [perl](https://github.com/harisekhon/lib) and [python](https://github.com/harisekhon/pylib) libraries
+  - integration tests of the top level programs using the libraries for things like option parsing
   - [functional tests](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) for the top level programs using [Dockerized containers](https://hub.docker.com/u/harisekhon/) for each technology (eg. Cassandra, Elasticsearch, Hadoop, HBase, ZooKeeper, Memcached, Neo4j, MongoDB, MySQL, Riak, Redis...)
 - easy rapid development of new high quality robust Nagios plugins with minimal lines of code
 
