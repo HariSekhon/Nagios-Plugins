@@ -64,7 +64,7 @@ DISCLAIMER:
 # THERE IS A LOT OF REGEX. EVEN IF YOU ARE A REGEX MASTER YOU CANNOT PREDICT ALL SIDE EFFECTS
 # YOU MUST RELY ON THE ACCOMPANYING TESTS I HAVE WRITTEN IF YOU CHANGE ANYTHING AT ALL
 
-$VERSION = "0.11.5";
+$VERSION = "0.11.6";
 
 use strict;
 use warnings;
@@ -419,6 +419,7 @@ foreach(@output){
         $results{"created"} = "$1-$2-$3";
     } elsif (/(?:Updat.+?|Modified|Changed):?\s*(\d+[-\.\/](?:\d+|\w+)[-\.\/]\d+)/io or
              /^(?:[a-z]\s)?\[Record Last Modified\]\s+(.+?)\s*$/){
+        next if /Last update of WHOIS database/i;
         $results{"updated"} = $1;
     } elsif (/^\s*Domain Last Updated Date:\s+\w{3}\s+(\w{3})\s+(\d{1,2})\s+\d{1,2}:\d{1,2}:\d{1,2}\s+\w{3}\s+(\d{4})\s*$/io or
              /^\s*Last Updated\s*:\s*(\w+)\s+(\d{1,2})\s+(\d{4})\.?\s*$/io or
