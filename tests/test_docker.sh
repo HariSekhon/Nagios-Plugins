@@ -28,6 +28,7 @@ section "Docker Image"
 export DOCKER_IMAGE="harisekhon/nagios-plugins"
 
 if is_docker_available; then
+    [ -n "${NO_DOCKER:-}" ] && exit 0
     [ -n "${NO_PULL:-}" ] ||
         docker pull "$DOCKER_IMAGE"
     set +e
