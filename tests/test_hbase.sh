@@ -47,16 +47,19 @@ check_docker_available
 
 export MNTDIR="/pl"
 
+export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-docker}"
+export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME//-}"
+
 docker_exec(){
     # this doesn't allocate TTY properly, blessing module bails out
     #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
-    docker exec -i "${COMPOSE_PROJECT_NAME:-docker/-}_${DOCKER_SERVICE}_1" /bin/bash <<-EOF
+    docker exec -i "${COMPOSE_PROJECT_NAME}_${DOCKER_SERVICE}_1" /bin/bash <<-EOF
     export JAVA_HOME=/usr
     $MNTDIR/$@
 EOF
 }
 
-startupwait 50
+startupwait 100
 
 test_hbase(){
     local version="$1"
@@ -64,19 +67,24 @@ test_hbase(){
     local DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HBASE_PORTS
     VERSION="$version" docker-compose up -d
+    if [ "$version" = "0.96" ]; then
+        local HBASE_MASTER_PORT=60010
+        local HBASE_REGIONSERVER_PORT=60301
+        local HBASE_PORTS="$ZOOKEEPER_PORT $HBASE_STARGATE_PORT 8085 $HBASE_THRIFT_PORT 9095 60000 $HBASE_MASTER_PORT 60201 $HBASE_REGIONSERVER_PORT"
+    fi
     hbase_master_port="`docker-compose port "$DOCKER_SERVICE" "$HBASE_MASTER_PORT" | sed 's/.*://'`"
     hbase_regionserver_port="`docker-compose port "$DOCKER_SERVICE" "$HBASE_REGIONSERVER_PORT" | sed 's/.*://'`"
     hbase_stargate_port="`docker-compose port "$DOCKER_SERVICE" "$HBASE_STARGATE_PORT" | sed 's/.*://'`"
     hbase_thrift_port="`docker-compose port "$DOCKER_SERVICE" "$HBASE_THRIFT_PORT" | sed 's/.*://'`"
     zookeeper_port="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT" | sed 's/.*://'`"
-    hbase_ports=`{ for x in $HBASE_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
+    hbase_ports=`{ for x in $HBASE_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://' | sort -n`
     when_ports_available "$startupwait" "$HBASE_HOST" $hbase_ports
     echo "setting up test tables"
     # tr occasionally errors out due to weird input chars, base64 for safety, but still remove chars liek '+' which will ruin --expected regex
     local uniq_val=$(< /dev/urandom base64 | tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)
     # gets ValueError: file descriptor cannot be a negative integer (-1), -T should be the workaround but hangs
     #docker-compose exec -T "$DOCKER_SERVICE" /bin/bash <<-EOF
-    docker exec -i "${COMPOSE_PROJECT_NAME:-docker}_${DOCKER_SERVICE}_1" /bin/bash <<-EOF
+    docker exec -i "${COMPOSE_PROJECT_NAME}_${DOCKER_SERVICE}_1" /bin/bash <<-EOF
     export JAVA_HOME=/usr
     /hbase/bin/hbase shell <<-EOF2
         create 't1', 'cf1', { 'REGION_REPLICATION' => 1 }
@@ -90,12 +98,15 @@ test_hbase(){
 EOF2
     hbase org.apache.hadoop.hbase.util.RegionSplitter UniformSplitTable UniformSplit -c 100 -f cf1
     hbase org.apache.hadoop.hbase.util.RegionSplitter HexStringSplitTable HexStringSplit -c 100 -f cf1
+    echo "creating hbck.log"
     hbase hbck &>/tmp/hbck.log
+    echo "test setup finished"
     exit
 EOF
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
+    echo "starting tests for version $version"
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
@@ -286,9 +297,9 @@ EOF
     hr
     $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$hbase_regionserver_port" --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
     hr
-    $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$hbase_regionserver_port" --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics | sed 's/|.*$//' # too long exceeds Travis CI max log length due to the 100 region HexStringSplitTable multiplying out the available metrics
+    $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$hbase_regionserver_port" --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics -t 30 | sed 's/|.*$//' # too long exceeds Travis CI max log length due to the 100 region HexStringSplitTable multiplying out the available metrics
     hr
-    $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$hbase_regionserver_port" --all-metrics
+    $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$hbase_regionserver_port" --all-metrics -t 20
     #hr
     # XXX: both cause 500 internal server error
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$hbase_regionserver_port" --all-metrics
@@ -307,17 +318,17 @@ EOF
     #$perl -T ./check_hbase_tables_jsp.pl -P "$hbase_master_port"
 
     hr
-    check_hbase_table_region_balance.py -P "$hbase_thrift_port" -T t1
+    ./check_hbase_table_region_balance.py -P "$hbase_thrift_port" -T t1
     hr
-    check_hbase_table_region_balance.py -P "$hbase_thrift_port" -T EmptyTable
+    ./check_hbase_table_region_balance.py -P "$hbase_thrift_port" -T EmptyTable
     hr
-    check_hbase_table_region_balance.py -P "$hbase_thrift_port" -T DisabledTable
+    ./check_hbase_table_region_balance.py -P "$hbase_thrift_port" -T DisabledTable
     hr
     # all tables
-    check_hbase_table_region_balance.py -P "$hbase_thrift_port"
+    ./check_hbase_table_region_balance.py -P "$hbase_thrift_port"
     hr
     set +e
-    check_hbase_table_region_balance.py -P "$hbase_thrift_port" --list-tables
+    ./check_hbase_table_region_balance.py -P "$hbase_thrift_port" --list-tables
     check_exit_code 3
     set -e
     hr
