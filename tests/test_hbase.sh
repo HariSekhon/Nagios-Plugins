@@ -59,7 +59,7 @@ docker_exec(){
 EOF
 }
 
-startupwait 100
+startupwait 15
 
 test_hbase(){
     local version="$1"
