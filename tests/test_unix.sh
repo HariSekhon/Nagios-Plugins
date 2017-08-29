@@ -62,6 +62,8 @@ $perl -T ./check_ssh_login.pl -H localhost -u check_ssh_login_nagios_plugin_test
 [ $? -eq 2 ] || exit 1
 set -e
 hr
+localtime="$(readlink /etc/localtime | sed 's/.*zoneinfo\///')"
+[ -z "$localtime_symlink" ] && localtime="$(date %Z)"
 $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)"
 hr
 echo; echo
