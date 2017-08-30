@@ -13,10 +13,16 @@
 #                            RPM Package Requirements
 # ============================================================================ #
 
+perl
+python
+python-pip
+python-setuptools
+
 epel-release
-wget
 perl-libwww-perl
+perl-DBD-MySQL
 tar
+wget
 which
 
 # needed to fetch the library submodule at end of build
@@ -33,8 +39,6 @@ curl
 # for ping mode of find_active_server.py
 iputils
 
-perl-DBD-MySQL
-
 # for check_ssl_cert.pl
 openssl
 
@@ -43,9 +47,6 @@ python-pyasn1
 
 # for check_whois.pl
 jwhois
-
-python-setuptools
-python-pip
 
 python-jenkins
 
