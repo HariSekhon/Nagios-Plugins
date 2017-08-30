@@ -29,6 +29,7 @@ git
 make
 acf-openssl
 perl
+perl-doc
 perl-dbd-mysql
 py-mysqldb
 py2-pip
