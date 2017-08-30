@@ -13,6 +13,11 @@
 #                            Deb Package Requirements
 # ============================================================================ #
 
+perl
+python
+python-pip
+python-setuptools
+
 # needed to fetch the library submodule at end of build
 # and also for check_git_branch_checkout.pl and Git-Python / check_git_branch_checkout.py
 git
@@ -40,9 +45,6 @@ python-pyasn1
 
 # Class::Accessor pre-packaged
 #libclass-accessor-perl
-
-python-setuptools
-python-pip
 
 python-jenkins
 
