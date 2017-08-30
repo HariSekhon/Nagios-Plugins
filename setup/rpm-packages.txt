@@ -59,3 +59,6 @@ python-jenkins
 # one of these will be missing, handled in Makefile instead
 #yum-security
 #yum-plugin-security
+
+# for timezone checks
+tzdata
