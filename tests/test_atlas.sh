@@ -41,7 +41,12 @@ if [ -z "${ATLAS_HOST:-}" ]; then
     exit 0
 fi
 
-if which nc &>/dev/null && ! echo | nc -G 1 "$ATLAS_HOST" $ATLAS_PORT; then
+if ! which nc &>/dev/null; then
+    # Don't run in docker containers
+    echo "nc command not found, cannot check Atlas availability, skipping checks"
+    exit 0
+fi
+if ! echo | nc -G 1 "$ATLAS_HOST" $ATLAS_PORT; then
     echo "WARNING: Atlas host $ATLAS_HOST:$ATLAS_PORT not up, skipping Atlas checks"
     exit 0
 fi
