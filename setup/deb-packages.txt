@@ -59,3 +59,6 @@ python-jenkins
 
 # for 'make test'
 procps
+
+# for timezone checks
+tzdata
