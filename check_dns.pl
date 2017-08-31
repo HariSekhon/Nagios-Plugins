@@ -21,7 +21,7 @@ The regex if supplied is validated against each record returned and it is anchor
 
 # TODO: root name servers switch, determine root name servers for the specific TLD and go straight to them to bypass intermediate caching
 
-$VERSION = "0.8.2";
+$VERSION = "0.8.3";
 
 use strict;
 use warnings;
@@ -44,6 +44,7 @@ my $expected_result;
 my $expected_regex;
 my $expected_regex2;
 my $no_uniq_results;
+my $randomize_servers;
 
 %options = (
     "s|server=s"            => [ \$server,          "DNS server(s) to query, can be a comma separated list of servers" ],
@@ -51,10 +52,11 @@ my $no_uniq_results;
     "q|type=s"              => [ \$type,            "DNS query type (defaults to '$default_type' record)"  ],
     "e|expected-result=s"   => [ \$expected_result, "Expected results, comma separated" ],
     "R|expected-regex=s"    => [ \$expected_regex,  "Expected regex to validate against each returned result (anchored, so if testing partial TXT records you may need to use .* before and after the regex, and if differing TXT records are returned then use alternation '|' to support the different regex, see tests/test_dns.sh for an example)" ],
-    "no-uniq-results"       => [ \$no_uniq_results, "Test and display all results, not only unique results" ]
+    "A|randomize-servers"   => [ \$randomize_servers, "Randomize the order of DNS servers" ],
+    "N|no-uniq-results"     => [ \$no_uniq_results, "Test and display all results, not only unique results" ]
 );
 
-@usage_order = qw/server record type expected-result expected-regex/;
+@usage_order = qw/server record type expected-result expected-regex randomize-servers no-uniq-results/;
 get_options();
 
 $server or usage "server(s) not specified";
@@ -73,6 +75,12 @@ if($type eq "PTR"){
 vlog_option "server", join(",", @servers);
 vlog_option "record", $record;
 vlog_option "type",   $type;
+if($randomize_servers){
+    use List::Util 'shuffle';
+    vlog2 "randomizing nameserver list";
+    @servers = shuffle(@servers);
+    vlog_option "servers", join(",", @servers);
+}
 
 my @expected_results;
 if($expected_result){
