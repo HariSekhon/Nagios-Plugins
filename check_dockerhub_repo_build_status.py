@@ -115,7 +115,7 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
 
         status = result['status']
         log.info('status: %s', status)
-        if not isInt(status):
+        if not isInt(status, allow_negative=True):
             raise UnknownError('non-integer status returned by DockerHub API. {0}'.format(support_msg_api()))
 
         tag = result['dockertag_name']
