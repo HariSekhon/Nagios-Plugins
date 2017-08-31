@@ -33,6 +33,7 @@ BEGIN {
 }
 use HariSekhonUtils qw/:DEFAULT :regex/;
 use Data::Dumper;
+use List::Util 'shuffle';
 
 $status_prefix = "DNS";
 my $default_type = "A";
@@ -76,7 +77,6 @@ vlog_option "server", join(",", @servers);
 vlog_option "record", $record;
 vlog_option "type",   $type;
 if($randomize_servers){
-    use List::Util 'shuffle';
     vlog2 "randomizing nameserver list";
     @servers = shuffle(@servers);
     vlog_option "servers", join(",", @servers);
