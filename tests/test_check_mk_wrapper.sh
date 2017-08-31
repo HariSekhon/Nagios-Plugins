@@ -47,7 +47,7 @@ hr
 hr
 ./check_mk_wrapper.py $perl -T ./check_disk_write.pl -d .
 hr
-./check_mk_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^*/{print $2}')"
+./check_mk_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^\*/{print $2}')"
 hr
 echo "testing stripping of numbered Python interpreter"
 if which python2.7 &>/dev/null; then
@@ -57,7 +57,7 @@ elif which python2.6 &>/dev/null; then
 else
     python=python
 fi
-./check_mk_wrapper.py $python ./check_git_branch_checkout.py -d . -b "$(git branch | awk '/^*/{print $2}')" | tee /dev/stderr | grep -q '^0 check_git_branch_checkout.py'
+./check_mk_wrapper.py $python ./check_git_branch_checkout.py -d . -b "$(git branch | awk '/^\*/{print $2}')" | tee /dev/stderr | grep -q '^0 check_git_branch_checkout.py'
 hr
 echo "Testing failure detection of wrong git branch (perl)"
 ./check_mk_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch | tee /dev/stderr | grep -q '^2 check_git_branch_checkout.pl '

@@ -21,18 +21,56 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-echo "
-# ============================================================================ #
-#                                   D N S
-# ============================================================================ #
-"
+section "D N S"
 
-$perl -T ./check_dns.pl -s 4.2.2.1,4.2.2.2,4.2.2.3,4.2.2.4 -r google.com -q MX
+echo "determining local nameservers from /etc/resolv.conf"
+echo "(this is more likely to succeed in environments that egress filter external DNS calls)"
+echo
+set +eo pipefail
+nameservers="$(awk '/nameserver/{print $2}' /etc/resolv.conf | tr '\n' ',' | sed 's/,$//')"
+set -eo pipefail
+if [ -z "$nameservers" ]; then
+    nameservers="4.2.2.1,4.2.2.2,4.2.2.3,4.2.2.4"
+    echo "failed to determine nameservers, defaulting to: $nameservers"
+else
+    echo "nameservers: $nameservers"
+fi
+echo
+
 hr
-$perl -T ./check_dns.pl -s a.resolvers.level3.net,b.resolvers.level3.net,c.resolvers.level3.net,d.resolvers.level3.net -r google.com -q MX
+echo "A record resolve:"
+$perl -T ./check_dns.pl --server "$nameservers" --record google.com
 hr
-$perl -T ./check_dns.pl -s a.resolvers.level3.net,b.resolvers.level3.net,c.resolvers.level3.net,d.resolvers.level3.net -r google.com
+echo "PTR record resolve:"
+$perl -T ./check_dns.pl --server "$nameservers" --record 4.2.2.1 --type PTR
 hr
-$perl -T ./check_dns.pl -q TXT -s 8.8.8.8 -R '.*spf.*|[A-Za-z0-9+]+==' -r telenor.rs
+echo "check giving same IP record without --type PTR returns 'unknown' exit code"
+set +eo pipefail
+output=`$perl -T ./check_dns.pl --server "$nameservers" --record 4.2.2.1 2>&1`
+check_exit_code 3
+set -eo pipefail
+hr
+echo "randomizing servers:"
+$perl -T ./check_dns.pl --server "$nameservers" --record google.com --randomize-servers
+hr
+echo "MX record resolve:"
+$perl -T ./check_dns.pl --server "$nameservers" --record google.com --type MX
+hr
+echo "NS record resolve with randomized servers:"
+$perl -T ./check_dns.pl --server "$nameservers" --record google.com --type NS --randomize-servers
+hr
+$perl -T ./check_dns.pl --server "$nameservers" --record telenor.rs --type TXT --expected-regex '.*spf.*|[A-Za-z0-9+]+=='
+hr
+if [ "$nameservers" = "4.2.2.1,4.2.2.2,4.2.2.3,4.2.2.4" ]; then
+    echo "replacing default nameservers with their FQDNs to test the pre-resolve nameservers code path"
+    nameservers="a.resolvers.level3.net,b.resolvers.level3.net,c.resolvers.level3.net,d.resolvers.level3.net"
+    echo "nameservers: $nameservers"
+    hr
+fi
+echo "A record resolve with FDQN dns servers requiring pre-resolving:"
+$perl -T ./check_dns.pl --server "$nameservers" --record google.com --randomize-servers
+hr
+echo "MX record resolve with FQDN dns servers requiring pre-resolving:"
+$perl -T ./check_dns.pl --server "$nameservers" --record google.com --type MX
 
 echo; echo
