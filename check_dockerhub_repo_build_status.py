@@ -17,22 +17,11 @@
 
 """
 
-Nagios Plugin to check the last completed build status of a DockerHub repo
+Nagios Plugin to check the last completed build status of a DockerHub Automated build repo
 
 If you supply an invalid repository you will get a 404 NOT FOUND returned by the DockerHub API
 
-Limitations:
-
-1. Only works on DockerHub Automated Builds
-
-2. DockerHub API currently seems broken in that it returns a 404 NOT FOUND result for repos containing:
-
-    - a capital letter eg. harisekhon/Dockerfiles
-
-    or
-
-    - dashes eg.  harisekhon/bash-tools
-
+Only works on DockerHub Automated Builds
 """
 
 from __future__ import absolute_import
@@ -53,7 +42,8 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, validate_chars, jsonpp, sec2human, support_msg_api
+    from harisekhon.utils import log, validate_chars, isInt, jsonpp, sec2human
+    from harisekhon.utils import UnknownError, support_msg_api
     from harisekhon import NagiosPlugin
     from harisekhon import RequestHandler
 except ImportError as _:
@@ -74,6 +64,7 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
         self.request = RequestHandler()
         self.statuses = {
             '0': 'Success',
+            '10': 'Success',
             '-4': 'Cancelled',
             # Not sure why these different exit codes both show simply as Error in UI
             '-1': 'Error',
@@ -124,6 +115,8 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
 
         status = result['status']
         log.info('status: %s', status)
+        if not isInt(status):
+            raise UnknownError('non-integer status returned by DockerHub API. {0}'.format(support_msg_api()))
 
         tag = result['dockertag_name']
         log.info('tag: %s', tag)
