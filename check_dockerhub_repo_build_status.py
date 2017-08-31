@@ -94,7 +94,6 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
         #repo = urllib.quote_plus(repo)
         #self.repo = '{0}/{1}'.format(user, repo)
 
-        # XXX: DockerHub API is returning 404 NOT FOUND for harisekhon/Dockerfiles, harisekhon/bash-tools - whyyyy!!!!
         url = 'https://registry.hub.docker.com/v2/repositories/{repo}/buildhistory'.format(repo=self.repo)
 
         start_time = time.time()
