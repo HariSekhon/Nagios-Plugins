@@ -88,8 +88,6 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
             self.usage('--repo must contain a slash (/) in it - ' + \
                        'official repos are not supported as DockerHub doesn\'t expose their build info')
 
-        # need to urlencode chars for repos like harisekhon/bash-tools
-        # this doesn't help... bash-tools is returned as bash-tools
         #(user, repo) = self.repo.split('/', 1)
         #repo = urllib.quote_plus(repo)
         #self.repo = '{0}/{1}'.format(user, repo)
