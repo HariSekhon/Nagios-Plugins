@@ -234,7 +234,7 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
             status = 'Error'
         if status != 'Success':
             self.critical()
-        self.msg += "'{repo}' latest build status: '{status}', tag: '{tag}', build code: {build_code}"\
+        self.msg += "'{repo}' last completed build status: '{status}', tag: '{tag}', build code: {build_code}"\
                     .format(repo=self.repo, status=status, tag=tag, build_code=build_code)
         if self.verbose:
             self.msg += ', id: {0}'.format(_id)
