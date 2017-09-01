@@ -181,7 +181,8 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
             # Skip Queued / Building as we're only interested in latest completed build status
             if int(result['status']) in (0, 3):
                 if log.isEnabledFor(logging.DEBUG):
-                    log.debug("skipping queued/in progress build tag '%s', id: %s, build_code: %s", tag, _id, build_code)
+                    log.debug("skipping queued/in progress build tag '%s', id: %s, build_code: %s",
+                              tag, _id, build_code)
                 continue
             if self.tag and self.tag != tag:
                 if log.isEnabledFor(logging.DEBUG):
