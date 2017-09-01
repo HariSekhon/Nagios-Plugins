@@ -84,7 +84,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.4.1'
 
 
 class CheckDockerhubRepoBuildStatus(NagiosPlugin):
@@ -142,7 +142,7 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
             #   https://github.com/harisekhon/nagios-plugins/issues
             #
             self.tag = self.tag.lstrip(':')
-            validate_chars(self.tag, 'tag', 'A-Za-z0-9/\._-')
+            validate_chars(self.tag, 'tag', r'A-Za-z0-9/\._-')
             #if not self.tag:
             #    self.usage('--tag cannot be blank if given')
         self.max_pages = self.get_opt('pages')
