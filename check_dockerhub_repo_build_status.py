@@ -47,14 +47,12 @@ Caveats:
 
 - Only works on DockerHub Automated Builds (otherwise there are no actual DockerHub builds to test)
 
-- Queued builds show up as Success because the API does not distinguish between the two, so you may need to rely
-  on flapping detection in Nagios or similar system if triggering a lot of builds that keep failing
-
-- Builds in the 'Building' state are skipped, so if you've somehow triggered a lot of builds suddenly the check
-  may not find a completed one in the first page of API output and will throw an UNKNOWN error citing
-  "no completed builds found", you can tune using --max-pages to continue searching through more pages to find
-  the last completed build. By default it'll only search the latest page for efficiency as it's likely a mistake
-  if you can't find any completed build (success or error) within the last 10 builds
+- Builds in the 'Queued' and 'Building' states are skipped as it's only valid to check the latest completed build
+  so if you've somehow triggered a lot of builds suddenly the check may not find a completed one in the first page
+  of API output and will throw an UNKNOWN error citing "no completed builds found", you can tune using 
+  --max-pages to continue searching through more pages to find the last completed build. By default this program
+  will only search the latest page for efficiency as it's likely a mistake if you can't find any completed
+  build (success or error) within the last 10 builds
 
 """
 
@@ -86,7 +84,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class CheckDockerhubRepoBuildStatus(NagiosPlugin):
@@ -98,10 +96,8 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
         # super().__init__()
         self.request = RequestHandler()
         self.statuses = {
-            # Unfortunately Queued shows as status 0 too and there is no way to differentiate from the API
-            '0': 'Success',
+            '0': 'Queued',
             '3': 'Building',
-            # not sure why status 10 is also Success in the UI
             '10': 'Success',
             '-1': 'Error',
             '-4': 'Cancelled',
@@ -123,12 +119,15 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
 
     def process_options(self):
         self.repo = self.get_opt('repo')
-        validate_chars(self.repo, 'repo', 'A-Za-z0-9/_-')
-
+        #validate_chars(self.repo, 'repo', 'A-Za-z0-9/_-')
         # official repos don't have slashes in them but then you can't check their build statuses either
-        if '/' not in self.repo:
-            self.usage('--repo must contain a slash (/) in it - ' + \
-                       'official repos are not supported as DockerHub doesn\'t expose their build info')
+        #if '/' not in self.repo:
+        #    self.usage('--repo must contain a slash (/) in it - ' + \
+        #               'official repos are not supported as DockerHub doesn\'t expose their build info')
+        (namespace, repo) = self.repo.split('/', 1)
+        validate_chars(namespace, 'namespace', 'A-Za-z0-9_-')
+        validate_chars(repo, 'repo', 'A-Za-z0-9_-')
+        self.repo = '{0}/{1}'.format(namespace, repo)
 
         # not needed as dashes and underscores are all that validation above permits through and they
         # are returned as is and processed successfully by DockerHub API
@@ -176,15 +175,18 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
 
     def process_results(self, json_data):
         for result in json_data['results']:
-            if int(result['status']) == 3:
-                if log.isEnabledFor(logging.DEBUG):
-                    log.debug("skipping build in progress, id: %s, build_code: %s", result['id'], result['build_code'])
-                continue
             tag = result['dockertag_name']
+            build_code = result['build_code']
+            _id = result['id']
+            # Skip Queued / Building as we're only interested in latest completed build status
+            if int(result['status']) in (0, 3):
+                if log.isEnabledFor(logging.DEBUG):
+                    log.debug("skipping queued/in progress build tag '%s', id: %s, build_code: %s", tag, _id, build_code)
+                continue
             if self.tag and self.tag != tag:
                 if log.isEnabledFor(logging.DEBUG):
                     log.debug("skipping build tag '%s', id: %s, build_code: %s, does not match given --tag %s",
-                              tag, result['build_code'], result['id'], self.tag)
+                              tag, _id, build_code, self.tag)
                 continue
             self.process_result(result)
             return True
