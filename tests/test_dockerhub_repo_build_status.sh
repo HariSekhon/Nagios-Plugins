@@ -32,10 +32,10 @@ section "DockerHub Plugins"
 hr
 ./check_dockerhub_repo_build_status.py -r harisekhon/apache-drill -v
 hr
-# now check one which is likely to be broken
+# intentionally broken repo created specifically for this test
 set +e
-./check_dockerhub_repo_build_status.py -r harisekhon/alpine-github -v
-check_exit_code 0 2
+./check_dockerhub_repo_build_status.py -r harisekhon/ci_intentionally_broken_test_do_not_use -v
+check_exit_code 2
 set -e
 echo
 echo
