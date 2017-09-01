@@ -266,4 +266,6 @@ for domain in $domains_no_nameservers; do
     hr
 done
 
-[ -n "$using_docker" ] && delete_container
+if [ -n "$using_docker" ]; then
+    delete_container
+fi
