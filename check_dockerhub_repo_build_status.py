@@ -17,11 +17,19 @@
 
 """
 
-Nagios Plugin to check the last completed build status of a DockerHub Automated build repo
+Nagios Plugin to check the last completed build status of a DockerHub Automated Build repo
 
 If you supply an invalid repository you will get a 404 NOT FOUND returned by the DockerHub API
 
-Only works on DockerHub Automated Builds
+Caveats:
+
+- Only works on DockerHub Automated Builds (otherwise there are no actual DockerHub builds to test)
+- Queued builds show up as Success because the API does not distinguish between the two, so you may need to rely
+  on flapping detection in Nagios or similar system if triggering a lot of builds that keep failing
+- Builds in the 'Building' state are skipped, so if you've somehow triggered a lot of builds suddenly the check
+  may not find a completed one in the first page of API output and will throw an UNKNOWN error citing
+  "no completed builds found"
+
 """
 
 from __future__ import absolute_import
@@ -51,7 +59,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckDockerhubRepoBuildStatus(NagiosPlugin):
@@ -63,12 +71,13 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
         # super().__init__()
         self.request = RequestHandler()
         self.statuses = {
+            # Unfortunately Queued shows as status 0 too and there is no way to differentiate from the API
             '0': 'Success',
+            '3': 'Building',
+            # not sure why status 10 is also Success in the UI
             '10': 'Success',
-            '-4': 'Cancelled',
-            # Not sure why these different exit codes both show simply as Error in UI
             '-1': 'Error',
-            '3': 'Error'
+            '-4': 'Cancelled',
         }
         self.msg = 'DockerHub repo '
         self.repo = None
@@ -79,9 +88,10 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
         self.add_opt('-r', '--repo',
                      help="DockerHub repository to check, in form of '<user>/<repo>' eg. harisekhon/pytools")
 
-    def run(self):
+    def process_options(self):
         self.repo = self.get_opt('repo')
-        validate_chars(self.repo, 'repo', 'A-Za-z0-9/-')
+        validate_chars(self.repo, 'repo', 'A-Za-z0-9/_-')
+
 
         # official repos don't have slashes in them but then you can't check their build statuses either
         if '/' not in self.repo:
@@ -94,7 +104,7 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
         #repo = urllib.quote_plus(repo)
         #self.repo = '{0}/{1}'.format(user, repo)
 
-        # XXX: DockerHub API is returning 404 NOT FOUND for harisekhon/Dockerfiles, harisekhon/bash-tools - whyyyy!!!!
+    def run(self):
         url = 'https://registry.hub.docker.com/v2/repositories/{repo}/buildhistory'.format(repo=self.repo)
 
         start_time = time.time()
@@ -108,8 +118,14 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
         self.process_results(json_data)
 
     def process_results(self, json_data):
-        result = json_data['results'][0]
+        for result in json_data['results']:
+            if int(result['status']) == 3:
+                continue
+            self.process_result(result)
+            return
+        raise UnknownError('no completed builds found (in first page of API output)')
 
+    def process_result(self, result):
         _id = result['id']
         log.info('latest build id: %s', _id)
 
