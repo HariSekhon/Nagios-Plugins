@@ -49,7 +49,7 @@ Caveats:
 
 - Builds in the 'Queued' and 'Building' states are skipped as it's only valid to check the latest completed build
   so if you've somehow triggered a lot of builds suddenly the check may not find a completed one in the first page
-  of API output and will throw an UNKNOWN error citing "no completed builds found", you can tune using 
+  of API output and will throw an UNKNOWN error citing "no completed builds found", you can tune using
   --max-pages to continue searching through more pages to find the last completed build. By default this program
   will only search the latest page for efficiency as it's likely a mistake if you can't find any completed
   build (success or error) within the last 10 builds
