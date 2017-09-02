@@ -19,10 +19,12 @@
 
 Nagios Plugin to check the last completed build status of a DockerHub Automated Build repo
 
+Optionally specify a --tag to check latest build for such as specific version or OS build eg. 'version-1.1' or 'centos'
+
 Returns the following information for the last completed build:
 
 - status eg. Success / Error / Cancelled
-- tag eg. latest, version-1.2
+- tag eg. latest, version-1.2, alpine, centos etc.
 - build_code (this is what you see under /builds/<build_code> on the website)
 - build latency (how long between build creation and last updated time ie. how long the build took)
 - query time (time to query through the API and process the results)
@@ -38,9 +40,6 @@ Optionally also returns the following information in --verbose mode:
 
 If you supply an invalid repository you will get a 404 NOT FOUND returned by the DockerHub API
 
-Can optionally report on a specific --tag's latest build (eg. a specific tag version or build
-on a specific operating system eg. :centos).
-
 Can use --max-pages to search back further through the build history if necessary for a given tag
 
 Caveats:
@@ -52,7 +51,7 @@ Caveats:
   of API output and will throw an UNKNOWN error citing "no completed builds found", you can tune using
   --max-pages to continue searching through more pages to find the last completed build. By default this program
   will only search the latest page for efficiency as it's likely a mistake if you can't find any completed
-  build (success or error) within the last 10 builds
+  build (either Success or Error) within the last 10 builds
 
 """
 
