@@ -53,26 +53,32 @@ set_timeout();
 set_http_timeout($timeout - 1);
 
 $status = "OK";
+$msg = "no scan errors since restort on datanode $host";
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-my $blockScannerReport = curl "http://$host:$port/blockScannerReport", "datanode $host";
+my $blockScannerReportAll = curl "http://$host:$port/blockScannerReport", "datanode $host";
+my @blockScannerReport = split /\n/, $blockScannerReportAll; 
 
-my $block_count;
-if($blockScannerReport =~ /Total Blocks\s+:\s+(\d+)/){
-    $block_count = $1;
-#} elsif($blockScannerReport =~ /Periodic block scanner is not running\. Please check the datanode log if this is unexpected/){
-} elsif($blockScannerReport =~ /block scanner .*not running/i){
-    quit "UNKNOWN", "Periodic block scanner is not running. Please check the datanode log if this is unexpected. Perhaps you have dfs.block.scanner.volume.bytes.per.second = 0 in your hdfs-site.xml?";
-} else {
-    quit "CRITICAL", "failed to find total block count from blockScannerReport, $nagios_plugins_support_msg";
+if($blockScannerReportAll =~ /block scanner .*not running/i){
+            quit "UNKNOWN", "Periodic block scanner is not running. Please check the datanode log if this is unexpected. Perhaps you have dfs.block.scanner.volume.bytes.per.second = 0 in your hdfs-site.xml?";
+	}
+
+
+
+my $block_errors = 0;
+foreach my $blockScannerReport (@blockScannerReport) {
+	if($blockScannerReport =~ /Block scan errors since restart\s+:\s+(\d+)/){
+	    $block_errors += $1;
+	} 
 }
 
-$msg = "$block_count blocks on datanode $host";
+if ($block_errors>0) {
 
-check_thresholds($block_count);
+	$status = "WARN";
+	$msg = "$block_errors scan errors since restart on datanode $host";
 
-$msg .= " | block_count=$block_count";
-msg_perf_thresholds();
+}
+
 
 quit $status, $msg;
