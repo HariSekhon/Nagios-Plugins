@@ -73,7 +73,7 @@ class CheckHadoopHdfsDatanodesBlockBalance(NagiosPlugin):
     def add_options(self):
         self.add_hostoption(name='NameNode', default_host='localhost', default_port=50070)
         self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
-        self.add_thresholds(default_warning=20, default_critical=50, percent=True)
+        self.add_thresholds(default_warning=10, default_critical=30, percent=True)
 
     def process_options(self):
         self.no_args()
@@ -91,10 +91,10 @@ class CheckHadoopHdfsDatanodesBlockBalance(NagiosPlugin):
         start_time = time.time()
         req = self.request.get(url)
         query_time = time.time() - start_time
-        self.parse(req)
+        self.check_block_balance(req)
         self.msg += ' | query_time={0:f}s'.format(query_time)
 
-    def parse(self, req):
+    def check_block_balance(self, req):
         log.info('parsing response')
         try:
             json_data = json.loads(req.content)
