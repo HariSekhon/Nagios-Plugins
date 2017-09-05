@@ -29,11 +29,13 @@ Caveats:
 1. In Replication check cannot currently detect corrupt or under-replicated blocks since JSP doesn't offer this information
 2. There are no byte counters, so we can only use the human summary and multiply out, and being a multiplier of a summary figure it's marginally less accurate
 
-Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for Cloudera CDH 4.3 (2.0.0-cdh4.3.0), Hortonworks HDP 2.1 (2.4.0), HDP 2.2 (Apache 2.6.0) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2.
+Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for Cloudera CDH 4.3 (2.0.0-cdh4.3.0), Hortonworks HDP 2.1 (2.4.0), HDP 2.2 (Apache 2.6.0) and also tested on Apache Hadoop 2.5.2, 2.6.4
 
-If JSP output changes across versions, this plugin will need to be updated to parse the changes.";
+This plugin is for Hadoop <= 2.6 as the JSP pages were replaced in Hadoop 2.7
 
-$VERSION = "0.9.4";
+For corresponding checks for Hadoop 2.7 see newer adjacent python plugins";
+
+$VERSION = "0.9.5";
 
 use strict;
 use warnings;
@@ -95,6 +97,8 @@ env_creds(["HADOOP_NAMENODE", "HADOOP"], "Hadoop NameNode");
 );
 @usage_order = qw/host port hdfs-space replication balance datanode-blocks datanode-block-balance node-count node-list heap-usage non-heap-usage warning critical/;
 
+get_options();
+
 if($progname eq "check_hadoop_hdfs_space.pl"){
     vlog2 "checking HDFS % space used";
     $hdfs_space = 1;
@@ -108,16 +112,16 @@ if($progname eq "check_hadoop_hdfs_space.pl"){
     vlog2 "checking HDFS datanodes number available";
     $node_count = 1;
 } elsif($progname eq "check_hadoop_datanode_list.pl"){
-    vlog "checking HDFS datanode list";
+    vlog2 "checking HDFS datanode list";
 #} elsif($progname eq "check_hadoop_dead_datanodes.pl"){
 #    vlog "checking HDFS dead datanode list";
 } elsif($progname eq "check_hadoop_datanodes_blockcounts.pl"){
+    vlog2 "checking HDFS datanodes blockcounts";
     $datanode_blocks = 1;
 } elsif($progname eq "check_hadoop_datanodes_block_balance.pl"){
+    vlog2 "checking HDFS datanodes block balance";
     $datanode_block_balance = 1;
 }
-
-get_options();
 
 $host = validate_host($host, "NameNode");
 $port = validate_port($port, "NameNode");
