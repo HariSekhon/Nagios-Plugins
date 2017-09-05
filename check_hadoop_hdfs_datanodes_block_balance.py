@@ -71,7 +71,7 @@ class CheckHadoopHdfsDatanodesBlockBalance(NagiosPlugin):
         self.request = RequestHandler()
 
     def add_options(self):
-        self.add_hostoption(name='NameNode', default_host='localhost', default_port=50070)
+        self.add_hostoption(name='Hadoop NameNode', default_host='localhost', default_port=50070)
         self.add_opt('-S', '--ssl', action='store_true', help='Use SSL')
         self.add_thresholds(default_warning=10, default_critical=30, percent=True)
 
