@@ -80,6 +80,10 @@ test_hadoop(){
         hdfs dfs -rm -f /tmp/test.txt &>/dev/null
         echo "creating test hdfs file /tmp/test.txt"
         echo content | hdfs dfs -put - /tmp/test.txt
+        # if using wrong port like 50075 ot 50010 then you'll get this exception
+        # triggerBlockReport error: java.io.IOException: Failed on local exception: com.google.protobuf.InvalidProtocolBufferException: Protocol message end-group tag did not match expected tag.; Host Details : local host is: "94bab7680584/172.19.0.2"; destination host is: "localhost":50075;
+        # this doesn't help get Total Blocks in /blockScannerReport for ./check_hadoop_datanode_blockcount.pl, looks like that information is simply not exposed like that any more
+        #hdfs dfsadmin -triggerBlockReport localhost:50020
         echo "dumping fsck log"
         hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && tail -n30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
         exit
