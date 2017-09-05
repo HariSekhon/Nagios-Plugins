@@ -19,7 +19,7 @@
 
 Nagios Plugin to check the last completed build status of a DockerHub Automated Build repo
 
-Optionally specify a --tag to check latest build for such as specific version or OS build eg. 'version-1.1' or 'centos'
+Optionally specify a --tag to check latest build for a specific version or OS eg. 'version-1.1' or 'centos'
 
 Returns the following information for the last completed build:
 
