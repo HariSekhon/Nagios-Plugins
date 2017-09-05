@@ -1,0 +1,22 @@
+Connecting to namenode via http://37772acd876f:50070/fsck?ugi=root&path=%2F
+FSCK started by root (auth:SIMPLE) from /172.19.0.2 for path / at Tue Sep 05 12:50:56 UTC 2017
+.Status: HEALTHY
+ Total size:	8 B
+ Total dirs:	2
+ Total files:	1
+ Total symlinks:		0
+ Total blocks (validated):	1 (avg. block size 8 B)
+ Minimally replicated blocks:	1 (100.0 %)
+ Over-replicated blocks:	0 (0.0 %)
+ Under-replicated blocks:	0 (0.0 %)
+ Mis-replicated blocks:		0 (0.0 %)
+ Default replication factor:	1
+ Average block replication:	1.0
+ Corrupt blocks:		0
+ Missing replicas:		0 (0.0 %)
+ Number of data-nodes:		1
+ Number of racks:		1
+FSCK ended at Tue Sep 05 12:50:56 UTC 2017 in 1 milliseconds
+
+
+The filesystem under path '/' is HEALTHY
