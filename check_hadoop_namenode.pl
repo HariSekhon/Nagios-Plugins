@@ -33,7 +33,7 @@ Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for Clouder
 
 If JSP output changes across versions, this plugin will need to be updated to parse the changes.";
 
-$VERSION = "0.9.3";
+$VERSION = "0.9.4";
 
 use strict;
 use warnings;
@@ -473,7 +473,7 @@ if($balance){
         $regex = qr/Heap\s+Memory\s+used\s+(\d+(?:\.\d+)?)\s+(\w+)\s+is\s+(\d+(?:\.\d+)?)%\s+of\s+Commited\s+Heap\s+Memory\s+(\d+(?:\.\d+)?)\s+(\w+)\.\s+Max\s+Heap\s+Memory\s+is\s+(\d+(?:\.\d+)?)\s+(\w+)/;
         $heap_str = "Heap";
     } elsif($non_heap){
-        $regex = qr/Non Heap\s+Memory\s+used\s+(\d+(?:\.\d+)?)\s+(\w+)\s+is\s+(\d+(?:\.\d+)?)%\s+of\s+Commited\s+Non Heap\s+Memory\s+(\d+(?:\.\d+)?)\s+(\w+)\.\s+Max\s+Non Heap\s+Memory\s+is\s+(\d+(?:\.\d+)?)\s+(\w+)/;
+        $regex = qr/Non Heap\s+Memory\s+used\s+(\d+(?:\.\d+)?)\s+(\w+)\s+is\s+(\d+(?:\.\d+)?)%\s+of\s+Commited\s+Non Heap\s+Memory\s+(\d+(?:\.\d+)?)\s+(\w+)\.\s+Max\s+Non Heap\s+Memory\s+is\s+(-?\d+(?:\.\d+)?)\s+(\w+)/;
         $heap_str = "Non Heap";
     } else {
         code_error "failed to set regex based on heap or non-heap";
@@ -488,11 +488,20 @@ if($balance){
         $stats{"heap_max_units"}            = $7;
         $stats{"heap_used_bytes"}           = int(expand_units($stats{"heap_used"}, $stats{"heap_used_units"}, "Heap Used"));
         $stats{"heap_committed_bytes"}      = int(expand_units($stats{"heap_committed"}, $stats{"heap_committed_units"}, "Heap committed"));
-        $stats{"heap_max_bytes"}            = int(expand_units($stats{"heap_max"},  $stats{"heap_max_units"},  "Heap Max" ));
+        if($stats{"heap_max"} < 0){
+            $stats{"heap_max"} = 0;
+            $stats{"heap_max_bytes"}        = 0;
+        } else {
+            $stats{"heap_max_bytes"}        = int(expand_units($stats{"heap_max"},  $stats{"heap_max_units"},  "Heap Max" ));
+        }
         vlog3 sprintf("$heap_str used        %s %s => %s", $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_used_bytes"});
         vlog3 sprintf("$heap_str committed   %s %s => %s", $stats{"heap_committed"}, $stats{"heap_committed_units"}, $stats{"heap_committed_bytes"});
         vlog3 sprintf("$heap_str max         %s %s => %s", $stats{"heap_max"}, $stats{"heap_max_units"}, $stats{"heap_max_bytes"});
-        $stats{"heap_used_pc_calculated"} =  sprintf("%.2f", $stats{"heap_used_bytes"} / $stats{"heap_max_bytes"} * 100);
+        if($stats{"heap_max_bytes"} == 0){
+            $stats{"heap_used_pc_calculated"} =  0;
+        } else {
+            $stats{"heap_used_pc_calculated"} =  sprintf("%.2f", $stats{"heap_used_bytes"} / $stats{"heap_max_bytes"} * 100);
+        }
         vlog3 sprintf("$heap_str used calculated = %.2f%% (%s / %s)\n", $stats{heap_used_pc_calculated}, $stats{heap_used_bytes}, $stats{heap_max_bytes});
         # we get given the % of comitted not the % of total heap, so this is not comparable for
         #if(abs(int($stats{"heap_used_pc_calculated"}) - $stats{"heap_used_of_comitted_pc"}) > 2){
@@ -502,7 +511,7 @@ if($balance){
         code_error "failed to find Heap/Non-Heap Size in output from Namenode, code error or output from Namenode JSP has changed";
     }
     $status = "OK";
-    $msg    = sprintf("Namenode $heap_str %.2f%% Used (%s %s used, %s %s committed, %s %s total)", $stats{"heap_used_pc_calculated"}, $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_committed"}, $stats{"heap_committed_units"}, $stats{"heap_max"}, $stats{"heap_max_units"});
+    $msg    = sprintf("Namenode $heap_str %.2f%% Used (%s %s used, %s %s committed, %s %s max)", $stats{"heap_used_pc_calculated"}, $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_committed"}, $stats{"heap_committed_units"}, $stats{"heap_max"}, $stats{"heap_max_units"});
     check_thresholds($stats{"heap_used_pc_calculated"});
     $msg .= " | 'Namenode $heap_str % Used'=$stats{heap_used_pc_calculated}%" . msg_perf_thresholds(1) . "0;100 'Namenode $heap_str Used'=$stats{heap_used_bytes}B 'NameNode $heap_str Committed'=$stats{heap_committed_bytes}B";
 ###############
