@@ -278,6 +278,7 @@ sub check_parsed {
 
 
 #############
+
 if($balance){
     parse_dfshealth();
     $content = curl $url_live_nodes, "$url_name live nodes";
@@ -326,6 +327,7 @@ if($balance){
     $msg .= " | 'HDFS imbalance on space used %'=$largest_datanode_used_pc_diff%;$thresholds{warning}{upper};$thresholds{critical}{upper}";
 
 #####################
+
 } elsif($hdfs_space){
     parse_dfshealth();
     $status = "OK"; # ok unless check_thresholds says otherwise
@@ -336,6 +338,7 @@ if($balance){
     $msg .= " | 'HDFS Space Used'=$dfs{dfs_used_pc}%;$thresholds{warning}{upper};$thresholds{critical}{upper} 'HDFS Used Capacity'=$dfs{dfs_used}B;;0;$dfs{configured_capacity} 'HDFS Configured Capacity'=$dfs{configured_capacity}B 'Datanodes Available'=$dfs{datanodes_available}";
 
 ######################
+
 } elsif($replication){
     if($content =~ /(\d+) corrupt blocks/i or $content =~ />\s*Number of Corrupt Blocks\b$regex_td\s*(\d+)/i){
         $dfs{"corrupt_blocks"} = $1;
@@ -378,7 +381,8 @@ if($balance){
     }
     $msg .= " | 'under replicated blocks'=$dfs{under_replicated_blocks};$thresholds{warning}{upper};$thresholds{critical}{upper} 'corrupt blocks'=$dfs{corrupt_blocks} 'missing blocks'=$dfs{missing_blocks}";
 
-################
+#####################
+
 } elsif($node_count){
     $status = "OK";
     parse_dfshealth();
@@ -390,7 +394,9 @@ if($balance){
     $msg .= sprintf("%d datanodes available", $dfs{"datanodes_available"});
     check_thresholds($dfs{"datanodes_available"});
     $msg .= sprintf(" | datanodes_available=%d datanodes_dead=%d", $dfs{"datanodes_available"}, $dfs{"datanodes_dead"});
-################
+
+####################
+
 } elsif($node_list){
     my @missing_nodes;
     $content = curl $url_live_nodes, "$url_name live nodes";
@@ -464,7 +470,9 @@ if($balance){
 #        }
 #    }
 #    check_thresholds(scalar @missing_nodes);
-###############
+
+############################
+
 } elsif($heap or $non_heap){
     #if($content =~ /\bHeap\s+Size\s+is\s+(\d+(?:\.\d+)?)\s+(\wB)\s*\/\s*(\d+(?:\.\d+)?)\s+(\wB)\s+\((\d+(?:\.\d+)?)%\)/io){
     my $regex;
@@ -505,7 +513,9 @@ if($balance){
     $msg    = sprintf("Namenode $heap_str %.2f%% Used (%s %s used, %s %s committed, %s %s total)", $stats{"heap_used_pc_calculated"}, $stats{"heap_used"}, $stats{"heap_used_units"}, $stats{"heap_committed"}, $stats{"heap_committed_units"}, $stats{"heap_max"}, $stats{"heap_max_units"});
     check_thresholds($stats{"heap_used_pc_calculated"});
     $msg .= " | 'Namenode $heap_str % Used'=$stats{heap_used_pc_calculated}%" . msg_perf_thresholds(1) . "0;100 'Namenode $heap_str Used'=$stats{heap_used_bytes}B 'NameNode $heap_str Committed'=$stats{heap_committed_bytes}B";
-###############
+
+##########################
+
 } elsif($datanode_blocks){
     $content = curl $url_live_nodes, "$url_name live nodes";
     parse_datanode_blockcounts();
@@ -546,6 +556,9 @@ if($balance){
     msg_perf_thresholds();
     $msg .= " num_datanodes=$num_datanodes";
     $msg .= " num_datanodes_exceeding_block_thresholds=" . ($datanodes_critical_blocks + $datanodes_warning_blocks);
+
+#################################
+
 } elsif($datanode_block_balance){
     $content = curl $url_live_nodes, "$url_name live nodes";
     parse_datanode_blockcounts();
