@@ -142,6 +142,9 @@ EOF
         hr
         $perl -T ./check_hadoop_datanodes_blockcounts.pl -H $HADOOP_HOST -P "$hadoop_namenode_port"
         hr
+    else
+        ./check_hadoop_datanodes_block_balance.py -H $HADOOP_HOST -P "$hadoop_namenode_port" -w 5 -c 10
+        hr
     fi
     $perl -T ./check_hadoop_datanodes.pl -P "$hadoop_namenode_port"
     hr
