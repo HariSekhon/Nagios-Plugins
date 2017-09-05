@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the number of blocks on a Hadoop HDFS Datanode via it's blockScannerReport
 
-Tested on CDH 4.x and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
+Tested on CDH 4.x and Apache Hadoop 2.5.2, 2.6.4";
 
 $VERSION = "0.4";
 
@@ -65,7 +65,7 @@ if($blockScannerReport =~ /Total Blocks\s+:\s+(\d+)/){
 } elsif($blockScannerReport =~ /block scanner .*not running/i){
     quit "UNKNOWN", "Periodic block scanner is not running. Please check the datanode log if this is unexpected. Perhaps you have dfs.block.scanner.volume.bytes.per.second = 0 in your hdfs-site.xml?";
 } else {
-    quit "CRITICAL", "failed to find total block count from blockScannerReport, $nagios_plugins_support_msg";
+    quit "CRITICAL", "failed to find total block count from blockScannerReport. If this is Hadoop 2.7+ this information does not appear in the block scanner report any more, please use another method. If this is definitely Hadoop <= 2.6 then $nagios_plugins_support_msg";
 }
 
 $msg = "$block_count blocks on datanode $host";
