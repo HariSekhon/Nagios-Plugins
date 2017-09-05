@@ -36,7 +36,7 @@ $critical = $default_critical;
 
 %options = (
     "H|host=s"         => [ \$host,         "DataNode host to connect to" ],
-    "P|port=s"         => [ \$port,         "DataNode HTTP port (default: $default_port)" ],
+    "P|port=s"         => [ \$port,         "DataNode HTTP port (default: $default_port, specify 1022 for Kerberized clusters)" ],
     "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive, default: $default_warning)"  ],
     "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive, default: $default_critical)" ],
 );
