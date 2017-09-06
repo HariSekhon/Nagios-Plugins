@@ -25,7 +25,7 @@ follows that change.
 
 See adjacent check_hadoop_datanodes_block_balance.pl for older versions of Hadoop <= 2.6
 
-Tested on HDP 2.6.1 and Apache Hadoop 2.7.3
+Tested on HDP 2.6.1 and Apache Hadoop 2.5.2, 2.6.4, 2.7.3
 
 """
 
@@ -54,11 +54,11 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.4'
 
 
-class CheckHadoopHdfsDatanodesBlockBalance(RestNagiosPlugin):
+class CheckHadoopDatanodesBlockBalance(RestNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckHadoopHdfsDatanodesBlockBalance, self).__init__()
+        super(CheckHadoopDatanodesBlockBalance, self).__init__()
         # Python 3.x
         # super().__init__()
         self.name = ['Hadoop NameNode', 'Hadoop']
@@ -69,11 +69,11 @@ class CheckHadoopHdfsDatanodesBlockBalance(RestNagiosPlugin):
         self.msg = 'Message Not Defined'
 
     def add_options(self):
-        super(CheckHadoopHdfsDatanodesBlockBalance, self).add_options()
+        super(CheckHadoopDatanodesBlockBalance, self).add_options()
         self.add_thresholds(default_warning=10, default_critical=30, percent=True)
 
     def process_options(self):
-        super(CheckHadoopHdfsDatanodesBlockBalance, self).process_options()
+        super(CheckHadoopDatanodesBlockBalance, self).process_options()
         self.validate_thresholds()
 
     def parse_json(self, json_data):
@@ -125,4 +125,4 @@ class CheckHadoopHdfsDatanodesBlockBalance(RestNagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckHadoopHdfsDatanodesBlockBalance().main()
+    CheckHadoopDatanodesBlockBalance().main()
