@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop DataNodes via NameNode jmx
+$DESCRIPTION = "Nagios Plugin to check Hadoop DataNodes via NameNode JMX
 
 Configurable warning/critical thresholds for number of dead datanodes and configurable warning threshold for stale datanodes
 
