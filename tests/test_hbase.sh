@@ -427,6 +427,7 @@ EOF
     #delete_container
     docker-compose down
     echo
+    echo
 }
 
 
