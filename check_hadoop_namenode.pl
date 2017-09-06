@@ -35,7 +35,7 @@ This plugin is for Hadoop <= 2.6 as the JSP pages were replaced in Hadoop 2.7
 
 For corresponding checks for Hadoop 2.7 see newer adjacent python plugins";
 
-$VERSION = "0.9.5";
+$VERSION = "0.9.6";
 
 use strict;
 use warnings;
@@ -597,6 +597,9 @@ if($balance){
     $msg .= "$block_imbalance% block imbalance across $num_datanodes datanodes";
     $status = "OK";
     check_thresholds($block_imbalance);
+    if($verbose){
+        $msg .= " (min blocks = $min_blocks, max blocks = $max_blocks)";
+    }
     $msg .= " | block_imbalance=$block_imbalance%";
     msg_perf_thresholds();
     $msg .= " num_datanodes=$num_datanodes";
