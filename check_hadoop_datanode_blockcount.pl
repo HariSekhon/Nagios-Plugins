@@ -11,9 +11,11 @@
 
 $DESCRIPTION = "Nagios Plugin to check the number of blocks on a Hadoop HDFS Datanode via it's blockScannerReport
 
+Specify --port 1022 for Kerberized clusters
+
 Tested on CDH 4.x and Apache Hadoop 2.5.2, 2.6.4";
 
-$VERSION = "0.4";
+$VERSION = "0.5";
 
 use strict;
 use warnings;
@@ -34,18 +36,18 @@ my $default_critical = 500000;
 $warning  = $default_warning;
 $critical = $default_critical;
 
+env_creds(["HADOOP_DATANODE", "HADOOP"], "Hadoop Datanode");
+
 %options = (
-    "H|host=s"         => [ \$host,         "DataNode host to connect to" ],
-    "P|port=s"         => [ \$port,         "DataNode HTTP port (default: $default_port, specify 1022 for Kerberized clusters)" ],
-    "w|warning=s"      => [ \$warning,      "Warning  threshold or ran:ge (inclusive, default: $default_warning)"  ],
-    "c|critical=s"     => [ \$critical,     "Critical threshold or ran:ge (inclusive, default: $default_critical)" ],
+    %hostoptions,
+    %thresholdoptions,
 );
 
 @usage_order = qw/host port warning critical/;
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
+$host = validate_host($host);
+$port = validate_port($port);
 validate_thresholds(undef, undef, { "simple" => "upper", "integer" => 1, "positive" => 1});
 
 vlog2;
