@@ -109,6 +109,9 @@ EOF
     echo "./check_hadoop_namenode_version.py -v -e $version"
     ./check_hadoop_namenode_version.py -v -e "$version"
     hr
+    echo "./check_hadoop_datanode_version.py -v -e $version"
+    ./check_hadoop_datanode_version.py -v -e "$version"
+    hr
     while true; do
         echo "waiting for Yarn RM cluster page to come up to test version..."
         # intentionally being a bit loose here, if content has changed I would rather it be flagged as up and the plugin fail to parse which is more a more accurate error
