@@ -256,6 +256,12 @@ EOF
     echo "./check_hadoop_jmx.pl --all -P $HADOOP_YARN_NODE_MANAGER_PORT"
     $perl -T ./check_hadoop_jmx.pl --all -P "$HADOOP_YARN_NODE_MANAGER_PORT"
     hr
+    echo "./check_hadoop_namenode_failed_namedirs.py"
+    ./check_hadoop_namenode_failed_namedirs.py
+    hr
+    echo "./check_hadoop_namenode_failed_namedirs.py -v"
+    ./check_hadoop_namenode_failed_namedirs.py -v
+    hr
     echo "./check_hadoop_namenode_heap.pl"
     $perl -T ./check_hadoop_namenode_heap.pl
     hr
@@ -383,6 +389,7 @@ EOF
     hr
     echo "./check_hadoop_yarn_resource_manager_heap.pl"
     $perl -T ./check_hadoop_yarn_resource_manager_heap.pl
+    hr
     # returns -1 for NonHeapMemoryUsage max
     set +e
     echo "./check_hadoop_yarn_resource_manager_heap.pl --non-heap"
