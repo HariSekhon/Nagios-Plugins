@@ -186,6 +186,20 @@ EOF
     echo "docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --nodes-available -w 1 -c 1"
     docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --nodes-available -w 1 -c 1
     hr
+    echo "./check_hadoop_hdfs_corrupt_files.py"
+    ./check_hadoop_hdfs_corrupt_files.py
+    hr
+    # TODO: create a forced corrupt file and test failure and also -vv mode
+    #echo "./check_hadoop_hdfs_corrupt_files.py
+    #set +e
+    #./check_hadoop_hdfs_corrupt_files.py
+    #check_exit_code 2
+    #hr
+    #echo "./check_hadoop_hdfs_corrupt_files.py -vv"
+    #./check_hadoop_hdfs_corrupt_files.py -vv
+    #check_exit_code 2
+    # set-e
+    #hr
     # XXX: Hadoop doesn't expose this information in the same way any more via dfshealth.jsp so this plugin is end of life with Hadoop 2.6
     # XXX: this doesn't seem to even work on Hadoop 2.5.2 any more, use python version below instead
     #if [ "$version" = "2.5" -o "$version" = "2.6" ]; then
@@ -197,6 +211,17 @@ EOF
     # in real life these numbers should be set to millions depending on size of cluster and allocated NN heap space
     echo "./check_hadoop_hdfs_total_blocks.py -w 10 -c 20"
     ./check_hadoop_hdfs_total_blocks.py -w 10 -c 20
+    hr
+    echo "testing failure scenarios:"
+    echo "./check_hadoop_hdfs_total_blocks.py -w 0 -c 1"
+    set +e
+    ./check_hadoop_hdfs_total_blocks.py -w 0 -c 1
+    check_exit_code 1
+    hr
+    echo "./check_hadoop_hdfs_total_blocks.py -w 0 -c 0"
+    ./check_hadoop_hdfs_total_blocks.py -w 0 -c 0
+    check_exit_code 2
+    set -e
     hr
     # run inside Docker container so it can resolve redirect to DN
     echo "docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728"
