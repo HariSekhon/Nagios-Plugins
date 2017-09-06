@@ -173,6 +173,12 @@ EOF
     echo "./check_hadoop_datanodes_block_balance.py -w 5 -c 10 -v"
     ./check_hadoop_datanodes_block_balance.py -w 5 -c 10 -v
     hr
+    echo "./check_hadoop_hdfs_balance.py -w 5 -c 10"
+    ./check_hadoop_hdfs_balance.py -w 5 -c 10
+    hr
+    echo "./check_hadoop_hdfs_balance.py -w 5 -c 10 -v"
+    ./check_hadoop_hdfs_balance.py -w 5 -c 10 -v
+    hr
     echo "./check_hadoop_datanodes.pl"
     $perl -T ./check_hadoop_datanodes.pl
     hr
