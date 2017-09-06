@@ -114,8 +114,8 @@ class CheckHadoopDatanodesBlockBalance(RestNagiosPlugin):
             self.msg += " | block_imbalance={0}%".format(block_imbalance)
             self.msg += self.get_perf_thresholds()
             self.msg += " num_datanodes={0}".format(num_datanodes)
-            self.msg += " max_blocks={0}".format(max_blocks)
             self.msg += " min_blocks={0}".format(min_blocks)
+            self.msg += " max_blocks={0}".format(max_blocks)
         except KeyError as _:
             raise UnknownError("failed to parse json returned by NameNode at '{0}:{1}': {2}. {3}"\
                                .format(self.host, self.port, _, support_msg_api()))
