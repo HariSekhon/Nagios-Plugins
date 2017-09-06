@@ -31,9 +31,9 @@ Caveats:
 
 Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for Cloudera CDH 4.3 (2.0.0-cdh4.3.0), Hortonworks HDP 2.1 (2.4.0), HDP 2.2 (Apache 2.6.0) and also tested on Apache Hadoop 2.5.2, 2.6.4
 
-This plugin is for Hadoop <= 2.6 as the JSP pages were replaced in Hadoop 2.7
+THIS PLUGIN IS NOW DEPRECATED - it only works for Hadoop <= 2.6 as the JSP pages were replaced in Hadoop 2.7
 
-For corresponding checks for Hadoop 2.7 see newer adjacent perl and python plugins";
+See corresponding newer checks for Hadoop 2.7 in adjacent perl and python plugins";
 
 $VERSION = "0.9.6";
 
