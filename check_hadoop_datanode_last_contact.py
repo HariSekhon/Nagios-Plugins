@@ -69,7 +69,7 @@ class CheckHadoopDatanodeLastContact(RestNagiosPlugin):
     def add_options(self):
         super(CheckHadoopDatanodeLastContact, self).add_options()
         self.add_opt('-d', '--datanode', help='Datanode hostname to check for, must match exactly what the Namenode ' \
-                                         + 'sees in \'host:port\' form, use --list-nodes to see the list of datanodes')
+                                         + 'sees, use --list-nodes to see the list of datanodes')
         self.add_opt('-l', '--list-nodes', action='store_true', help='List datanodes and exit')
         self.add_thresholds(default_warning=30, default_critical=180)
 
@@ -92,9 +92,13 @@ class CheckHadoopDatanodeLastContact(RestNagiosPlugin):
                     print(datanode)
                 sys.exit(ERRORS['UNKNOWN'])
             last_contact_secs = None
+            found_datanode = False
             for datanode in live_nodes_data:
                 if datanode == self.datanode:
                     last_contact_secs = live_nodes_data[datanode]['lastContact']
+                    found_datanode = True
+            if not found_datanode:
+                raise UnknownError("datanode '{0}' was not found in list of live datanodes".format(self.datanode))
             if not isInt(last_contact_secs):
                 raise UnknownError("non-integer '{0}' returned for last contact seconds by namenode '{1}:{2}'"\
                                    .format(last_contact_secs, self.host, self.port))
