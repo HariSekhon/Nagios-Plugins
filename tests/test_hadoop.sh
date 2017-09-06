@@ -106,6 +106,9 @@ EOF
     #sleep 10
     local count=0
     local max_tries=20
+    echo "./check_hadoop_namenode_version.py -v -e $version"
+    ./check_hadoop_namenode_version.py -v -e "$version"
+    hr
     while true; do
         echo "waiting for Yarn RM cluster page to come up to test version..."
         # intentionally being a bit loose here, if content has changed I would rather it be flagged as up and the plugin fail to parse which is more a more accurate error
@@ -119,6 +122,7 @@ EOF
         fi
         sleep 1
     done
+    hr
     echo "./check_hadoop_yarn_resource_manager_version.pl -v -e $version"
     $perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "$version"
     hr
@@ -277,11 +281,11 @@ EOF
         echo "./check_hadoop_namenode.pl -v --datanode-blocks"
         $perl -T ./check_hadoop_namenode.pl -v --datanode-blocks
         hr
-        echo "./check_hadoop_namenode.pl -v --datanode-block-balance -w 5 -c 20"
-        $perl -T ./check_hadoop_namenode.pl -v --datanode-block-balance -w 5 -c 20
+        echo "./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20"
+        $perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20
         hr
-        echo "./check_hadoop_namenode.pl -v --datanode-block-balance -w 5 -c 20 -v"
-        $perl -T ./check_hadoop_namenode.pl -v --datanode-block-balance -w 5 -c 20 -v
+        echo "./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20 -v"
+        $perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20 -v
         hr
         echo "./check_hadoop_namenode.pl -v --node-count -w 1 -c 1"
         $perl -T ./check_hadoop_namenode.pl -v --node-count -w 1 -c 1
