@@ -186,15 +186,17 @@ EOF
     echo "docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --nodes-available -w 1 -c 1"
     docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --nodes-available -w 1 -c 1
     hr
-    # TODO: write replacement python plugin for this
     # XXX: Hadoop doesn't expose this information in the same way any more via dfshealth.jsp so this plugin is end of life with Hadoop 2.6
-    # XXX: this doesn't seem to even work on Hadoop 2.5.2 any more
+    # XXX: this doesn't seem to even work on Hadoop 2.5.2 any more, use python version below instead
     #if [ "$version" = "2.5" -o "$version" = "2.6" ]; then
         # would be much higher on a real cluster, no defaults as must be configured based on NN heap
         #echo "./check_hadoop_hdfs_blocks.pl -w 100 -c 200"
         #$perl -T ./check_hadoop_hdfs_blocks.pl -w 100 -c 200
         hr
     #fi
+    # in real life these numbers should be set to millions depending on size of cluster and allocated NN heap space
+    echo "./check_hadoop_hdfs_total_blocks.py -w 10 -c 20"
+    ./check_hadoop_hdfs_total_blocks.py -w 10 -c 20
     hr
     # run inside Docker container so it can resolve redirect to DN
     echo "docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728"
