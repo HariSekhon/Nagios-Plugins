@@ -98,6 +98,7 @@ class CheckHadoopDatanodeLastContact(RestNagiosPlugin):
             if not isInt(last_contact_secs):
                 raise UnknownError("non-integer '{0}' returned for last contact seconds by namenode '{1}:{2}'"\
                                    .format(last_contact_secs, self.host, self.port))
+            last_contact_secs = int(last_contact_secs)
             assert last_contact_secs >= 0
             self.ok()
             self.msg = "HDFS datanode '{0}' last contact with namenode was {1} sec{2} ago"\
