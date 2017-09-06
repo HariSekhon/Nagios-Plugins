@@ -83,7 +83,7 @@ class CheckHadoopDatanodesBlockBalance(RestNagiosPlugin):
             live_node_data = json.loads(live_nodes)
             num_datanodes = len(live_node_data)
             if num_datanodes < 1:
-                raise UnknownError("no datanodes returned by JMX API from namenode '{0}:{1}'"\
+                raise UnknownError("no live datanodes returned by JMX API from namenode '{0}:{1}'"\
                                    .format(self.host, self.port))
             max_blocks = 0
             min_blocks = None
