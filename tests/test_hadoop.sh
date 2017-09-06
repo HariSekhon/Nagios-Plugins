@@ -182,8 +182,8 @@ EOF
     echo "./check_hadoop_datanodes.pl"
     $perl -T ./check_hadoop_datanodes.pl
     hr
-    echo "./check_hadoop_datanode_last_contact.py -d $hostname:50010"
-    ./check_hadoop_datanode_last_contact.py -d "$hostname:50010"
+    echo "./check_hadoop_datanode_last_contact.py -d $hostname"
+    ./check_hadoop_datanode_last_contact.py -d "$hostname"
     hr
     echo "docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hadoop --hadoop-user root --hdfs-space -w 80 -c 90"
     docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hadoop --hadoop-user root --hdfs-space -w 80 -c 90
