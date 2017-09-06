@@ -95,7 +95,7 @@ class CheckHadoopHDFSBalance(RestNagiosPlugin):
                 if not isInt(used_space):
                     raise UnknownError('usedSpace is not an integer! {0}'.format(support_msg_api()))
                 used_space = int(used_space)
-                log.info("datanode '%s' used space = ", datanode, used_space)
+                log.info("datanode '%s' used space = %s", datanode, used_space)
                 if min_space is None or used_space < min_space:
                     min_space = used_space
                 if used_space > max_space:
@@ -105,12 +105,14 @@ class CheckHadoopHDFSBalance(RestNagiosPlugin):
                 log.info('min used space < 1, resetting divisor to 1 (% will likely be very high)')
                 divisor = 1
             assert max_space >= min_space
-            largest_imbalance_pc = float('{0:.2f}'.format((max_space - min_space) / divisor) * 100)
+            largest_imbalance_pc = float('{0:.2f}'.format(((max_space - min_space) / divisor) * 100))
             assert largest_imbalance_pc >= 0
             self.ok()
-            self.msg = '{0} HDFS imbalance on space used %'.format(largest_imbalance_pc)
+            self.msg = '{0}% HDFS imbalance on space used'.format(largest_imbalance_pc)
             self.check_thresholds(largest_imbalance_pc)
             self.msg += ' across {0:d} datanode{1}'.format(num_datanodes, plural(num_datanodes))
+            if self.verbose:
+                self.msg += ', min used space = {0}, max used space = {1}'.format(min_space, max_space)
             if self.verbose and (self.is_warning() or self.is_critical()):
                 self.msg += ' [imbalanced nodes: '
                 for datanode in live_node_data:
@@ -126,9 +128,9 @@ class CheckHadoopHDFSBalance(RestNagiosPlugin):
         except KeyError as _:
             raise UnknownError("failed to parse json returned by NameNode at '{0}:{1}': {2}. {3}"\
                                .format(self.host, self.port, _, support_msg_api()))
-        except ValueError as _:
-            raise UnknownError("invalid json returned for LiveNodes by Namenode '{0}:{1}': {2}"\
-                               .format(self.host, self.port, _))
+        #except ValueError as _:
+        #    raise UnknownError("invalid json returned for LiveNodes by Namenode '{0}:{1}': {2}"\
+        #                       .format(self.host, self.port, _))
 
 
 if __name__ == '__main__':
