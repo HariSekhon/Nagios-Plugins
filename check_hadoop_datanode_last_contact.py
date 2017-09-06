@@ -39,7 +39,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, isInt, validate_chars
+    from harisekhon.utils import log, isInt, validate_chars, plural
     from harisekhon.utils import UnknownError, ERRORS, support_msg_api
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
@@ -69,7 +69,7 @@ class CheckHadoopDatanodeLastContact(RestNagiosPlugin):
     def add_options(self):
         super(CheckHadoopDatanodeLastContact, self).add_options()
         self.add_opt('-d', '--datanode', help='Datanode hostname to check for, must match exactly what the Namenode ' \
-                                            + 'sees, use --list-nodes to see the list of datanodes')
+                                         + 'sees in \'host:port\' form, use --list-nodes to see the list of datanodes')
         self.add_opt('-l', '--list-nodes', action='store_true', help='List datanodes and exit')
         self.add_thresholds(default_warning=30, default_critical=180)
 
@@ -100,8 +100,8 @@ class CheckHadoopDatanodeLastContact(RestNagiosPlugin):
                                    .format(last_contact_secs, self.host, self.port))
             assert last_contact_secs >= 0
             self.ok()
-            self.msg = "HDFS datanode '{0}' last contact with namenode was {1} secs ago"\
-                       .format(datanode, last_contact_secs)
+            self.msg = "HDFS datanode '{0}' last contact with namenode was {1} sec{2} ago"\
+                       .format(datanode, last_contact_secs, plural(last_contact_secs))
             self.check_thresholds(last_contact_secs)
             self.msg += ' | datanode_last_contact_secs={0}'.format(last_contact_secs)
             self.msg += self.get_perf_thresholds()
