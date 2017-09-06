@@ -44,7 +44,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, plural
+    from harisekhon.utils import log, plural, isInt
     from harisekhon.utils import UnknownError, support_msg_api
     from harisekhon.utils import validate_host, validate_port
     from harisekhon import NagiosPlugin
@@ -54,7 +54,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckHadoopHdfsDatanodesBlockBalance(NagiosPlugin):
@@ -100,10 +100,16 @@ class CheckHadoopHdfsDatanodesBlockBalance(NagiosPlugin):
             json_data = json.loads(req.content)
             live_nodes = json_data['beans'][0]['LiveNodes']
             live_node_data = json.loads(live_nodes)
+            num_datanodes = len(live_node_data)
+            if num_datanodes < 1:
+                raise UnknownError("no datanodes returned by JMX API from namenode '{0}:{1}'".format(self.host, self.port))
             max_blocks = 0
             min_blocks = None
             for datanode in live_node_data:
                 blocks = live_node_data[datanode]['numBlocks']
+                if not isInt(blocks):
+                    raise UnknownError('numBlocks is not an integer! {0}'.format(support_msg_api()))
+                blocks = int(blocks)
                 log.info("datanode %s has %s blocks", datanode, blocks)
                 if blocks > max_blocks:
                     max_blocks = blocks
@@ -111,16 +117,18 @@ class CheckHadoopHdfsDatanodesBlockBalance(NagiosPlugin):
                     min_blocks = blocks
             log.info("max blocks on a single datanode = %s", max_blocks)
             log.info("min blocks on a single datanode = %s", min_blocks)
+            assert min_blocks is not None
             divisor = min_blocks
             if min_blocks < 1:
                 log.info("min blocks < 1, resetting divisor to 1 (% will be very high)")
                 divisor = 1
-            block_imbalance = "{0:.2f}".format((max_blocks - min_blocks) / divisor * 100)
-            num_datanodes = len(live_node_data)
-            self.msg = "{0}% block imbalance across {1} datanode{2} (% will be very high)"\
+            block_imbalance = float("{0:.2f}".format((max_blocks - min_blocks) / divisor * 100))
+            self.msg = '{0}% block imbalance across {1} datanode{2}'\
                        .format(block_imbalance, num_datanodes, plural(num_datanodes))
             self.ok()
             self.check_thresholds(block_imbalance)
+            if self.verbose:
+                self.msg += ' (min blocks = {0}, max blocks = {1})'.format(min_blocks, max_blocks)
             self.msg += " | block_imbalance={0}%".format(block_imbalance)
             self.msg += self.get_perf_thresholds()
             self.msg += " num_datanodes={0}".format(num_datanodes)
