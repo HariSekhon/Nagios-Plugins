@@ -33,7 +33,7 @@ Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for Clouder
 
 This plugin is for Hadoop <= 2.6 as the JSP pages were replaced in Hadoop 2.7
 
-For corresponding checks for Hadoop 2.7 see newer adjacent python plugins";
+For corresponding checks for Hadoop 2.7 see newer adjacent perl and python plugins";
 
 $VERSION = "0.9.6";
 
