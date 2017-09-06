@@ -79,7 +79,7 @@ class CheckHadoopHDFSCorruptFiles(RestNagiosPlugin):
             self.msg = 'HDFS has {0} corrupt file{1}'.format(num_corrupt_files, plural(num_corrupt_files))
             if num_corrupt_files > 0:
                 self.critical()
-            self.msg += ' | num_hdfs_corrupt_files={0}'.format(num_corrupt_files)
+            self.msg += ' | hdfs_corrupt_files={0}'.format(num_corrupt_files)
         except KeyError as _:
             raise UnknownError("failed to parse json returned by NameNode at '{0}:{1}': {2}. {3}"\
                                .format(self.host, self.port, _, support_msg_api()))
