@@ -282,7 +282,7 @@ EOF
     $perl -T ./check_hadoop_hdfs_space.pl
     hr
     echo "./check_hadoop_hdfs_space.py"
-    $perl -T ./check_hadoop_hdfs_space.py
+    ./check_hadoop_hdfs_space.py
     hr
     # XXX: these ports must be left as this plugin is generic and has no default port, nor does it pick up any environment variables more specific than $PORT
     echo "./check_hadoop_jmx.pl --all -P $HADOOP_NAMENODE_PORT"
