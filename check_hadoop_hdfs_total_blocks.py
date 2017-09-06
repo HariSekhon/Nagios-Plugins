@@ -21,7 +21,7 @@ Nagios Plugin to check the number of total blocks in HDFS via NameNode JMX
 
 This is important as it impacts NameNode heap space
 
-Compares the number of total blocks to --warning and --critical thresholds and outputs 
+Compares the number of total blocks to --warning and --critical thresholds and outputs
 graphing data for tracking the block growth over time, which is useful for NameNode capacity planning
 
 Tested on HDP 2.6.1 and Apache Hadoop 2.5.2, 2.6.4, 2.7.3
@@ -33,7 +33,6 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import json
 import os
 import sys
 import traceback
