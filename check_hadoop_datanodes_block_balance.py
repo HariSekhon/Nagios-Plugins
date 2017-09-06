@@ -92,7 +92,7 @@ class CheckHadoopDatanodesBlockBalance(RestNagiosPlugin):
                 if not isInt(blocks):
                     raise UnknownError('numBlocks is not an integer! {0}'.format(support_msg_api()))
                 blocks = int(blocks)
-                log.info("datanode %s has %s blocks", datanode, blocks)
+                log.info("datanode '%s' has %s blocks", datanode, blocks)
                 if blocks > max_blocks:
                     max_blocks = blocks
                 if min_blocks is None or blocks < min_blocks:
