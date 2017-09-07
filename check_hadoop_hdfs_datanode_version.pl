@@ -9,12 +9,14 @@
 #  License: see accompanying LICENSE file
 #
 
-our $DESCRIPTION = "Nagios Plugin to check a Hadoop HDFS DataNode's version via the NameNode's /jmx page
+our $DESCRIPTION = "Nagios Plugin to check a Hadoop HDFS DataNode's version via NameNode JMX API
 
-Tested on Apache Hadoop NameNode 2.5.2, 2.6.4, 2.7.2.
+DEPRECATED - use check_hadoop_datanode_version.py which goes directly to the DataNode's JMX API, is more efficient and easier to use as it doesn't need to specify a --node switch
+
+Tested on Apache Hadoop NameNode 2.5.2, 2.6.4, 2.7.3
 ";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -33,20 +35,22 @@ my $bean = "Hadoop:service=NameNode,name=NameNodeInfo";
 my $metrics = "LiveNodes";
 my $node;
 my $expected;
+my $list_nodes;
 
 %options = (
     %hostoptions,
-    "N|node=s"      => [ \$node,         "Node name to check" ],
-    "e|expected=s"  => [ \$expected,     "Expected version (regex, optional)" ],
+    "N|node=s"      => [ \$node,       "Node name to check" ],
+    "e|expected=s"  => [ \$expected,   "Expected version (regex, optional)" ],
+    "l|list-nodes"  => [ \$list_nodes, "List nodes and exit" ]
 );
 
-@usage_order = qw/host port expected/;
+@usage_order = qw/host port expected list-nodes/;
 get_options();
 
 $host   = validate_host($host);
 $host   = validate_resolvable($host);
 $port   = validate_port($port);
-my $url = "http://$host:$port/jmx";
+my $url = "http://$host:$port/jmx?qry=Hadoop:service=NameNode,name=NameNodeInfo";
 if(not defined($node)){
     usage "node not defined";
 }
@@ -89,6 +93,14 @@ if(!$json){
 }
 
 vlog3 Dumper($json);
+
+if($list_nodes){
+    print("DataNodes:\n\n");
+    foreach(sort keys %{$json}){
+        print("$_\n");
+    }
+    exit $ERRORS{"UNKNOWN"};
+}
 
 my @nodes = grep { $_ =~ /^$node(?::\d+)?$/ } keys %{$json};
 if(not @nodes){
