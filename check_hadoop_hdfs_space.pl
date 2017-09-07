@@ -15,7 +15,7 @@ See also check_hadoop_hdfs_space.py for a Python version or check_hadoop_dfs.pl 
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -51,7 +51,7 @@ set_timeout();
 
 $status = "OK";
 
-my $url = "http://$host:$port/jmx";
+my $url = "http://$host:$port/jmx?qry=Hadoop:service=NameNode,name=NameNodeInfo";
 
 my $content = curl $url;
 
