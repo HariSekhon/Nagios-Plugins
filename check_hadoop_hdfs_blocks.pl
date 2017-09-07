@@ -11,13 +11,21 @@
 
 # forked from check_hadoop_namenode.pl
 
-$DESCRIPTION = "Nagios Plugin to check the number of total blocks on the HDFS NameNode (works against either the Active or Standby NameNode in an HA configuration) via the Namenode JSP pages in order to detect when you need to tune JVM heap size up.
+$DESCRIPTION = "Nagios Plugin to check the number of total blocks via NameNode JSP
 
-See also check_hadoop_namenode.pl for heap size and block checks
+Works against either the Active or Standby NameNode in an HA configuration
 
-Tested on Hortonworks 2.2 (Apache 2.6.0) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
+Useful in track as it relates to Namenode JVM tuning which depends on metadata, primarily number of blocks.
 
-$VERSION = "0.9.3";
+DEPRECATED - does not work on Hadoop 2.7 as JSP was removed and replaced with AJAX calls
+
+See check_hadoop_hdfs_total_blocks.py for a replacement that works with Hadoop 2.5 - 2.7 using the JMX API
+
+See also check_hadoop_namenode_heap.pl for heap size checks
+
+Tested on Hortonworks HDP 2.2 (Hadoop 2.6.0) and Apache Hadoop 2.5.2, 2.6.4";
+
+$VERSION = "0.9.4";
 
 use strict;
 use warnings;
@@ -30,7 +38,7 @@ use HariSekhonUtils qw/:DEFAULT :regex/;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-my $namenode_urn             = "dfshealth.jsp";
+my $namenode_urn = "dfshealth.jsp";
 
 set_port_default(50070);
 
