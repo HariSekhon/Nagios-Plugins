@@ -9,11 +9,11 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check if a Hadoop NameNode is the Active/Standby one in an HA pair via JMX
+$DESCRIPTION = "Nagios Plugin to check if a Hadoop NameNode is the Active/Standby one in an HA pair via the NameNode's JMX API
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2. Added legacy support for Cloudera CDH 4.4.0 (Hadoop 2.0.0)";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -59,7 +59,10 @@ set_timeout();
 
 $status = "OK";
 
-my $url = "http://$host:$port/jmx";
+# use older bean as it works on older versions such as CDH4.4
+# more efficient to just hit this instead of retry on both
+#my $url = "http://$host:$port/jmx?qry=Hadoop:service=NameNode,name=NameNodeStatus";
+my $url = "http://$host:$port/jmx?qry=Hadoop:service=NameNode,name=FSNamesystem";
 
 my $content = curl $url;
 
@@ -69,28 +72,31 @@ try{
 catch{
     quit "invalid json returned by NameNode at '$url'";
 };
-vlog3(Dumper($json));
+#vlog3(Dumper($json));
 
 my @beans = get_field_array("beans");
 
-my $found_mbean = 0;
+#my $found_mbean = 0;
 my $state;
 foreach(@beans){
-    next unless get_field2($_, "name") eq "Hadoop:service=NameNode,name=NameNodeStatus";
-    $found_mbean = 1;
-    $state = get_field2($_, "State");
+    #next unless get_field2($_, "name") eq "Hadoop:service=NameNode,name=NameNodeStatus";
+    #$state = get_field2($_, "State");
+    next unless get_field2($_, "name") eq "Hadoop:service=NameNode,name=FSNamesystem";
+    $state = get_field2($_, 'tag\.HAState');
+    #$found_mbean = 1;
     last;
 }
-unless($found_mbean){
-    foreach(@beans){
-        # This is to be able to support CDH 4.4 which doesn't have the NameNodeStatus MBean
-        next unless get_field2($_, "name") eq "Hadoop:service=NameNode,name=FSNamesystem";
-        $found_mbean = 1;
-        $state = get_field2($_, 'tag\.HAState');
-        last;
-    }
-    quit "UNKNOWN", "failed to find namenode status mbean. $nagios_plugins_support_msg_api" unless $found_mbean;
-}
+#unless($found_mbean){
+#    foreach(@beans){
+#        # This is to be able to support older CDH 4.4 which doesn't have the NameNodeStatus MBean
+#        next unless get_field2($_, "name") eq "Hadoop:service=NameNode,name=FSNamesystem";
+#        $found_mbean = 1;
+#        $state = get_field2($_, 'tag\.HAState');
+#        last;
+#    }
+#    quit "UNKNOWN", "failed to find namenode status bean. $nagios_plugins_support_msg_api" unless $found_mbean;
+#}
+quit "UNKNOWN", "failed to find namenode state. $nagios_plugins_support_msg_api" unless defined($state);
 
 $msg = "namenode state '$state'";
 if($expected_state){
