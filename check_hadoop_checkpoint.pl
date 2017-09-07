@@ -13,13 +13,13 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop HDFS last checkpoint lag via NameNode JMX
+$DESCRIPTION = "Nagios Plugin to check Hadoop HDFS last checkpoint lag via NameNode JMX API
 
 Tests time since last HDFS checkpoint against warning/critical thresholds in seconds
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.3";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -46,8 +46,8 @@ env_creds(["HADOOP_NAMENODE", "HADOOP"], "Hadoop NameNode");
 
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
+$host = validate_host($host);
+$port = validate_port($port);
 validate_thresholds(1, 1, { "simple" => "upper", "positive" => 1, "integer" => 1});
 
 vlog2;
@@ -55,7 +55,7 @@ set_timeout();
 
 $status = "OK";
 
-my $url = "http://$host:$port/jmx";
+my $url = "http://$host:$port/jmx?qry=Hadoop:service=NameNode,name=FSNamesystem";
 
 my $content = curl $url;
 
