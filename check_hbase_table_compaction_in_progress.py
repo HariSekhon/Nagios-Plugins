@@ -58,7 +58,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.1'
+__version__ = '0.3'
 
 
 class CheckHBaseTableCompacting(NagiosPlugin):
@@ -142,8 +142,9 @@ class CheckHBaseTableCompacting(NagiosPlugin):
                         if cols[0].get_text().strip() == 'Compaction':
                             compaction_state = cols[1].get_text().strip()
                             # NONE when enabled, Unknown when disabled
-                            if compaction_state in ('NONE', 'Unknown'):
-                                return False
+                            for _ in ('NONE', 'Unknown'):
+                                if _ in compaction_state:
+                                    return False
                             return True
             qquit('UNKNOWN', 'parse error - failed to find Table Attributes section in JSP. ' + support_msg())
         except (AttributeError, TypeError):
