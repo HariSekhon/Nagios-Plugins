@@ -50,8 +50,10 @@ for script in $(find tests -name 'test*.sh'); do
     fi
     if is_CI; then
         [ $(($RANDOM % 3)) = 0 ] || continue
+        declare_if_inside_docker
         time $script || break
     else
+        declare_if_inside_docker
         time $script
     fi
 done
