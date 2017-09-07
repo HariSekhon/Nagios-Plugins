@@ -47,7 +47,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 class CheckHadoopDatanodeLastContact(RestNagiosPlugin):
@@ -94,7 +94,8 @@ class CheckHadoopDatanodeLastContact(RestNagiosPlugin):
             last_contact_secs = None
             found_datanode = False
             for datanode in live_nodes_data:
-                if datanode == self.datanode:
+                # it looks like sometimes Hadoop names the datanode with port and sometimes doesn't, might be version differences
+                if datanode == self.datanode or datanode.split(':')[0] == self.datanode:
                     last_contact_secs = live_nodes_data[datanode]['lastContact']
                     found_datanode = True
             if not found_datanode:
