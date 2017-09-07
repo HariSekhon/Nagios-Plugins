@@ -94,7 +94,9 @@ class CheckHadoopDatanodeLastContact(RestNagiosPlugin):
             last_contact_secs = None
             found_datanode = False
             for datanode in live_nodes_data:
-                # it looks like Hadoop 2.7 includes port whereas Hadoop 2.5 / 2.6 doesn't
+                # it looks like Hadoop 2.7 includes port whereas Hadoop 2.5 / 2.6 doesn't so allow user supplied string
+                # to include port and match against full if port is included, otherwise strip port and try again to
+                # match older versions or if user has not supplied port in datanode name
                 if datanode == self.datanode or datanode.split(':')[0] == self.datanode:
                     last_contact_secs = live_nodes_data[datanode]['lastContact']
                     found_datanode = True
