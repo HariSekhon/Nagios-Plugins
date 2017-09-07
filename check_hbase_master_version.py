@@ -52,7 +52,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckHBaseMasterVersion(VersionNagiosPlugin):
@@ -109,6 +109,8 @@ class CheckHBaseMasterVersion(VersionNagiosPlugin):
         except (AttributeError, TypeError):
             qquit('UNKNOWN', 'failed to find parse HBase output. {0}\n{1}'\
                              .format(support_msg(), traceback.format_exc()))
+        # strip things like -hadoop2 at end
+        version = version.split('-')[0]
         return version
 
     @staticmethod
