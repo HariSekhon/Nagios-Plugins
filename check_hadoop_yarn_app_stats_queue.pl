@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn queue for pending Apps via Resource Manager jmx
+$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn queue for pending Apps via Resource Manager JMX API
 
 Checks a given queue, 'default' if not specified. Can also list queues for convenience.
 
@@ -17,9 +17,9 @@ Optional thresholds on pending yarn apps in queue to aid in capacity planning, o
 
 Also displays active users in a queue, be aware however active users are only counted in leaf queues as of Hadoop 2.4.
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) with Capacity Scheduler queues and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) with Capacity Scheduler queues and Apache Hadoop 2.5.2, 2.6.4, 2.7.3";
 
-$VERSION = "0.5";
+$VERSION = "0.6";
 
 use strict;
 use warnings;
@@ -62,7 +62,8 @@ set_timeout();
 
 $status = "OK";
 
-my $url = "http://$host:$port/jmx";
+#my $url = "http://$host:$port/jmx?qry=Hadoop:service=ResourceManager,name=QueueMetrics*";
+my $url = "http://$host:$port/jmx?qry=Hadoop:*";
 
 my $content = curl $url;
 
@@ -72,7 +73,7 @@ try{
 catch{
     quit "invalid json returned by Yarn Resource Manager at '$url'";
 };
-vlog3(Dumper($json));
+#vlog3(Dumper($json));
 
 my @beans = get_field_array("beans");
 
