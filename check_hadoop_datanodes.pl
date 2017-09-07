@@ -9,15 +9,15 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop DataNodes via NameNode JMX
+$DESCRIPTION = "Nagios Plugin to check Hadoop DataNodes via NameNode JMX API
 
 Configurable warning/critical thresholds for number of dead datanodes and configurable warning threshold for stale datanodes
 
 See also check_hadoop_dfs.pl for another implementation of datanode checks from a few years back that parses dfsadmin instead.
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.3";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -57,7 +57,7 @@ set_timeout();
 
 $status = "OK";
 
-my $url = "http://$host:$port/jmx";
+my $url = "http://$host:$port/jmx?qry=Hadoop:service=NameNode,name=FSNamesystemState";
 
 my $content = curl $url;
 
@@ -67,7 +67,7 @@ try{
 catch{
     quit "invalid json returned by NameNode at '$url'";
 };
-vlog3(Dumper($json));
+#vlog3(Dumper($json));
 
 my @beans = get_field_array("beans");
 
