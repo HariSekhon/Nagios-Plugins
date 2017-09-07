@@ -102,16 +102,25 @@ EOF
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
-    #echo "waiting 10 secs for Yarn RM to come up to test version"
-    #sleep 10
-    local count=0
-    local max_tries=20
+    # docker-compose exec returns $'hostname\r' but not in shell
+    hostname="$(docker-compose exec "$DOCKER_SERVICE" hostname | tr -d '$\r')"
+    if [ -z "$hostname" ]; then
+        echo 'Failed to determine hostname of container via docker-compose exec, cannot continue with tests!'
+        exit 1
+    fi
     echo "./check_hadoop_namenode_version.py -v -e $version"
     ./check_hadoop_namenode_version.py -v -e "$version"
     hr
     echo "./check_hadoop_datanode_version.py -v -e $version"
     ./check_hadoop_datanode_version.py -v -e "$version"
     hr
+    echo "./check_hadoop_datanode_version.pl --node $hostname -v -e $version"
+    $perl -T ./check_hadoop_datanode_version.pl --node "$hostname" -v -e "$version"
+    hr
+    #echo "waiting 10 secs for Yarn RM to come up to test version"
+    #sleep 10
+    local count=0
+    local max_tries=20
     while true; do
         echo "waiting for Yarn RM cluster page to come up to test version..."
         # intentionally being a bit loose here, if content has changed I would rather it be flagged as up and the plugin fail to parse which is more a more accurate error
@@ -128,15 +137,6 @@ EOF
     hr
     echo "./check_hadoop_yarn_resource_manager_version.pl -v -e $version"
     $perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "$version"
-    hr
-    # docker-compose exec returns $'hostname\r' but not in shell
-    hostname="$(docker-compose exec "$DOCKER_SERVICE" hostname | tr -d '$\r')"
-    if [ -z "$hostname" ]; then
-        echo 'Failed to determine hostname of container via docker-compose exec, cannot continue with tests!'
-        exit 1
-    fi
-    echo "./check_hadoop_hdfs_datanode_version.pl --node $hostname -v -e $version"
-    $perl -T ./check_hadoop_hdfs_datanode_version.pl --node "$hostname" -v -e "$version"
     hr
     echo "docker_exec check_hadoop_balance.pl -w 5 -c 10 --hadoop-bin /hadoop/bin/hdfs --hadoop-user root -t 60"
     docker_exec check_hadoop_balance.pl -w 5 -c 10 --hadoop-bin /hadoop/bin/hdfs --hadoop-user root -t 60
