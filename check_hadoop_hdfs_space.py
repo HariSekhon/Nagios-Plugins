@@ -74,7 +74,7 @@ class CheckHadoopHDFSBalance(RestNagiosPlugin):
 
     def add_options(self):
         super(CheckHadoopHDFSBalance, self).add_options()
-        self.add_thresholds(default_warning=10, default_critical=30, percent=True)
+        self.add_thresholds(default_warning=80, default_critical=90, percent=True)
 
     def process_options(self):
         super(CheckHadoopHDFSBalance, self).process_options()
