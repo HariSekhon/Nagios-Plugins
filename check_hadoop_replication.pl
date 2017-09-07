@@ -9,15 +9,15 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop HDFS replication via NameNode JMX
+$DESCRIPTION = "Nagios Plugin to check Hadoop HDFS replication via NameNode JMX API
 
 Raises Critical on any missing or corrupt blocks, with configurable thresholds for under-replicated blocks. Also reports excess blocks and blocks pending replication
 
 See also check_hadoop_dfs.pl and check_hadoop_namenode.pl for earlier implementations of replication checking using dfsadmin and the old NameNode JSP respectively
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.3";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -53,7 +53,7 @@ set_timeout();
 
 $status = "OK";
 
-my $url = "http://$host:$port/jmx";
+my $url = "http://$host:$port/jmx?qry=Hadoop:service=NameNode,name=FSNamesystem";
 
 my $content = curl $url, "NameNode";
 
@@ -63,7 +63,7 @@ try{
 catch{
     quit "invalid json returned by NameNode at '$url'";
 };
-vlog3(Dumper($json));
+#vlog3(Dumper($json));
 
 my @beans = get_field_array("beans");
 
