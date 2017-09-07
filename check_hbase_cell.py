@@ -28,7 +28,7 @@ Checks:
 5. outputs the conect and query times to a given precision for reporting and graphing
 6. optionally outputs the cell's value for graphing purposes
 
-Tested on Apache HBase 1.0.3, 1.1.6, 1.2.2
+Tested on Apache HBase 1.0.3, 1.1.6, 1.2.2, 1.3.1
 
 """
 
@@ -75,7 +75,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.2'
+__version__ = '0.6'
 
 
 class CheckHBaseCell(NagiosPlugin):
@@ -102,7 +102,7 @@ class CheckHBaseCell(NagiosPlugin):
         self.ok()
 
     def add_options(self):
-        self.add_hostoption(name='HBase Thrift Server', default_host='localhost', default_port=9090)
+        self.add_hostoption(name='HBase Thrift', default_host='localhost', default_port=9090)
         self.add_opt('-T', '--table', help='Table to query')
         self.add_opt('-R', '--row', help='Row to query')
         self.add_opt('-C', '--column', help='Column family:qualifier to query')
