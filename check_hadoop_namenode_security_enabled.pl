@@ -9,11 +9,11 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check if a Hadoop NameNode has Security Enabled via JMX
+$DESCRIPTION = "Nagios Plugin to check if a Hadoop NameNode has Security Enabled via JMX API
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -45,7 +45,7 @@ set_timeout();
 
 $status = "OK";
 
-my $url = "http://$host:$port/jmx";
+my $url = "http://$host:$port/jmx?qry=Hadoop:service=NameNode,name=NameNodeStatus";
 
 my $content = curl $url;
 
