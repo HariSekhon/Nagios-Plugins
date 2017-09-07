@@ -42,7 +42,7 @@ tests/test_docker.sh
 
 for script in $(find tests -name 'test*.sh'); do
     if [ -n "${NOTESTS:-}" -a "$script" = "run_tests.sh" ]; then
-        echo "NOTESTS env var specified, skipping length dockerized tests"
+        echo "NOTESTS env var specified, skipping dockerized tests"
         continue
     fi
     if is_CI; then
