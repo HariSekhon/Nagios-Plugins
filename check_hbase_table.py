@@ -26,7 +26,7 @@ Checks:
 
 Raises Critical if the table is not enabled or does not exist
 
-Tested on Apache HBase 1.0.3, 1.1.6, 1.2.2
+Tested on Apache HBase 0.96, 0.98, 1.0, 1.1, 1.2, 1.3
 
 """
 
@@ -78,7 +78,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class CheckHBaseTable(NagiosPlugin):
@@ -97,7 +97,7 @@ class CheckHBaseTable(NagiosPlugin):
         self.ok()
 
     def add_options(self):
-        self.add_hostoption(name='HBase Thrift Server', default_host='localhost', default_port=9090)
+        self.add_hostoption(name='HBase Thrift', default_host='localhost', default_port=9090)
         self.add_opt('-T', '--table', help='Table to check is enabled')
         self.add_opt('-l', '--list', action='store_true', help='List tables and exit')
         self.add_thresholds(default_warning=1, default_critical=1)
