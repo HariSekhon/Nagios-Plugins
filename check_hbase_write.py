@@ -28,7 +28,7 @@ Checks:
 
 Raises Critical if the table is not enabled or does not exist or if the write fails
 
-Tested on Apache HBase 1.0.3, 1.1.6, 1.2.2
+Tested on Apache HBase 1.0.3, 1.1.6, 1.2.2, 1.3.1
 
 """
 
@@ -74,7 +74,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class CheckHBaseWrite(CheckHBaseCell):
@@ -98,7 +98,7 @@ class CheckHBaseWrite(CheckHBaseCell):
         self.ok()
 
     def add_options(self):
-        self.add_hostoption(name='HBase Thrift Server', default_host='localhost', default_port=9090)
+        self.add_hostoption(name='HBase Thrift', default_host='localhost', default_port=9090)
         self.add_opt('-T', '--table', help='Table to write to')
         self.add_thresholds(default_warning=20, default_critical=1000)
         self.add_opt('-p', '--precision', default=2, metavar='int',
