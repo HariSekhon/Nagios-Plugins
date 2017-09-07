@@ -28,7 +28,7 @@ Checks:
 See also check_hbase_region_balance.py which parses the HMaster UI instead of using the Thrift API
 and checks the balance of total regions across all RegionServers
 
-Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 1.0.3, 1.1.6, 1.2.1, 1.2.2
+Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 1.0.3, 1.1.6, 1.2.1, 1.2.2, 1.3.1
 
 """
 
@@ -71,7 +71,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.1'
+__version__ = '0.3'
 
 
 class CheckHBaseTableRegionBalance(NagiosPlugin):
@@ -90,7 +90,7 @@ class CheckHBaseTableRegionBalance(NagiosPlugin):
         self.table = None
 
     def add_options(self):
-        self.add_hostoption(name='HBase Thrift Server', default_host='localhost', default_port=9090)
+        self.add_hostoption(name='HBase Thrift', default_host='localhost', default_port=9090)
         self.add_opt('-T', '--table', help='Table to check')
         self.add_opt('-l', '--list-tables', action='store_true', help='List tables and exit')
         self.add_thresholds(default_warning=10, default_critical=20)
