@@ -9,11 +9,11 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop NameNode Heap/Non-Heap Used % via JMX
+$DESCRIPTION = "Nagios Plugin to check Hadoop NameNode Heap/Non-Heap Used % via JMX API
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.3";
 
-$VERSION = "0.2";
+$VERSION = "0.3";
 
 use strict;
 use warnings;
@@ -55,7 +55,7 @@ set_timeout();
 
 $status = "OK";
 
-my $url = "http://$host:$port/jmx";
+my $url = "http://$host:$port/jmx?qry=java.lang:type=Memory";
 
 my $content = curl $url;
 
@@ -65,7 +65,7 @@ try{
 catch{
     quit "invalid json returned by NameNode at '$url'";
 };
-vlog3(Dumper($json));
+#vlog3(Dumper($json));
 
 my @beans = get_field_array("beans");
 
