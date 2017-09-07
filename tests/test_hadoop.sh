@@ -144,6 +144,17 @@ EOF
     echo "./check_hadoop_checkpoint.pl"
     $perl -T ./check_hadoop_checkpoint.pl
     hr
+    echo "testing failure of checkpoint time:"
+    echo "./check_hadoop_checkpoint.pl -w 1000: -c 2:"
+    set +e
+    $perl -T ./check_hadoop_checkpoint.pl -w 1000: -c 2:
+    check_exit_code 1
+    hr
+    echo "./check_hadoop_checkpoint.pl -w 3000: -c 2000:"
+    $perl -T ./check_hadoop_checkpoint.pl -w 3000: -c 2000:
+    check_exit_code 2
+    set -e
+    hr
     # TODO: write replacement python plugin for this
     # XXX: Total Blocks are not available via blockScannerReport from Hadoop 2.7
     if [ "$version" = "2.5" -o "$version" = "2.6" ]; then
@@ -213,19 +224,30 @@ EOF
     #hr
     # XXX: Hadoop doesn't expose this information in the same way any more via dfshealth.jsp so this plugin is end of life with Hadoop 2.6
     # XXX: this doesn't seem to even work on Hadoop 2.5.2 any more, use python version below instead
-    #if [ "$version" = "2.5" -o "$version" = "2.6" ]; then
-        # would be much higher on a real cluster, no defaults as must be configured based on NN heap
-        #echo "./check_hadoop_hdfs_blocks.pl -w 100 -c 200"
-        #$perl -T ./check_hadoop_hdfs_blocks.pl -w 100 -c 200
+    if [ "$version" = "2.5" -o "$version" = "2.6" ]; then
+        # on a real cluster thresholds should be set to millions+, no defaults as must be configured based on NN heap allocated
+        echo "./check_hadoop_hdfs_total_blocks.pl -w 10 -c 20"
+        $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 10 -c 20
         hr
-    #fi
-    # in real life these numbers should be set to millions depending on size of cluster and allocated NN heap space
+        echo "testing failure scenarios:"
+        set +e
+        echo "./check_hadoop_hdfs_total_blocks.pl -w 0 -c 1"
+        ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 1
+        check_exit_code 1
+        hr
+        echo "./check_hadoop_hdfs_total_blocks.pl -w 0 -c 0"
+        ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 0
+        check_exit_code 2
+        set -e
+        hr
+    fi
+    # on a real cluster thresholds should be set to millions+, no defaults as must be configured based on NN heap allocated
     echo "./check_hadoop_hdfs_total_blocks.py -w 10 -c 20"
     ./check_hadoop_hdfs_total_blocks.py -w 10 -c 20
     hr
     echo "testing failure scenarios:"
-    echo "./check_hadoop_hdfs_total_blocks.py -w 0 -c 1"
     set +e
+    echo "./check_hadoop_hdfs_total_blocks.py -w 0 -c 1"
     ./check_hadoop_hdfs_total_blocks.py -w 0 -c 1
     check_exit_code 1
     hr
