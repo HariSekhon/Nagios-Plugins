@@ -9,13 +9,13 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn app memory via Resource Manager jmx
+$DESCRIPTION = "Nagios Plugin to check Hadoop Yarn app memory via Resource Manager JMX API
 
 Optional thresholds on % used memory to aid in capacity planning
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.3";
 
-$VERSION = "0.3";
+$VERSION = "0.4";
 
 use strict;
 use warnings;
@@ -41,8 +41,8 @@ env_creds(["HADOOP_YARN_RESOURCE_MANAGER", "HADOOP"], "Yarn Resource Manager");
 
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
+$host = validate_host($host);
+$port = validate_port($port);
 validate_thresholds(0, 0, { "simple" => "upper", "positive" => 1, "integer" => 0, "min" => 0, "max" => 100 });
 
 vlog2;
@@ -50,7 +50,7 @@ set_timeout();
 
 $status = "OK";
 
-my $url = "http://$host:$port/jmx";
+my $url = "http://$host:$port/jmx?qry=Hadoop:*";
 
 my $content = curl $url;
 
@@ -60,7 +60,7 @@ try{
 catch{
     quit "invalid json returned by Yarn Resource Manager at '$url'";
 };
-vlog3(Dumper($json));
+#vlog3(Dumper($json));
 
 my @beans = get_field_array("beans");
 
