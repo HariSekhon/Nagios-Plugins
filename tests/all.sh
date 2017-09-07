@@ -21,8 +21,11 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$srcdir/..";
 
 . tests/utils.sh
+. tests/docker.sh
 
 section "Running Nagios Plugins ALL"
+
+declare_if_inside_docker
 
 nagios_plugins_start_time="$(start_timer)"
 
