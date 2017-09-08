@@ -115,7 +115,7 @@ if [ -n "${NOTESTS:-}" ]; then
     print_port_mappings
 else
     untrap
-    echo "All Cassandra Tests Succeeded for versions: $test_versions"
+    echo "All Cassandra tests succeeded for versions: $test_versions"
 fi
 echo
 
