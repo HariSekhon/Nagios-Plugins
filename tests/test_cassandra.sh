@@ -42,21 +42,12 @@ startupwait 10
 
 check_docker_available
 
-print_port_mappings(){
-    echo
-    echo "Port Mappings for Debugging:"
-    echo
-    echo "export CASSANDRA_PORT=$CASSANDRA_PORT"
-    echo
-}
-
-trap 'result=$?; print_port_mappings; exit $result' $TRAP_SIGNALS
+trap_port_mappings cassandra
 
 docker_exec(){
     #docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
     docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
 }
-
 
 test_cassandra(){
     local version="$1"
@@ -106,18 +97,7 @@ test_cassandra(){
     echo; echo
 }
 
-for version in $(ci_sample $CASSANDRA_VERSIONS); do
-test_versions="$(ci_sample $CASSANDRA_VERSIONS)"
-    test_cassandra "$version"
-done
-
-if [ -n "${NOTESTS:-}" ]; then
-    print_port_mappings
-else
-    untrap
-    echo "All Cassandra tests succeeded for versions: $test_versions"
-fi
-echo
+run_test_versions Cassandra
 
 # ============================================================================ #
 #                                     E N D
