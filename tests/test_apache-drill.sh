@@ -40,17 +40,9 @@ export DOCKER_CONTAINER="nagios-plugins-apache-drill"
 
 check_docker_available
 
-print_port_mappings(){
-    echo
-    echo "Port Mappings for Debugging:"
-    echo
-    echo "export APACHE_DRILL_PORT=$APACHE_DRILL_PORT"
-    echo
-}
+trap_port_mappings apache_drill
 
-trap 'result=$?; print_port_mappings; exit $result' $TRAP_SIGNALS
-
-test_drill(){
+test_apache_drill(){
     local version="$1"
     hr
     echo "Setting up Apache Drill $version test container"
@@ -97,18 +89,5 @@ test_drill(){
 #launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 3181 4181
 
 startupwait 30
-test_versions="$(ci_sample $APACHE_DRILL_VERSIONS)"
-for version in $test_versions; do
-    test_drill "$version"
-done
 
-if [ -n "${NOTESTS:-}" ]; then
-    print_port_mappings
-else
-    untrap
-    echo "All Apache Drill tests succeeded for versions: $test_versions"
-fi
-echo
-
-#delete_container "$DOCKER_CONTAINER"
-echo
+run_test_versions "Apache Drill"
