@@ -44,6 +44,16 @@ startupwait 10
 
 check_docker_available
 
+print_port_mappings(){
+    echo
+    echo "Port Mappings for Debugging:"
+    echo
+    echo "export CONSUL_PORT=$CONSUL_PORT"
+    echo
+}
+
+trap 'result=$?; print_port_mappings; exit $result' $TRAP_SIGNALS
+
 docker_exec(){
     docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
 }
@@ -137,5 +147,15 @@ test_consul(){
 }
 
 for version in $(ci_sample $CONSUL_VERSIONS); do
-    test_consul $version
+test_versions="$(ci_sample $CONSUL_VERSIONS)"
+    test_consul "$version"
 done
+
+if [ -n "${NOTESTS:-}" ]; then
+    print_port_mappings
+else
+    untrap
+    echo "All Consul tests succeeded for versions: $test_versions"
+fi
+echo
+
