@@ -27,7 +27,7 @@ echo "
 # ============================================================================ #
 "
 
-export ALLUXIO_VERSIONS="${@:-${ALLUXIO_VERSIONS:-latest 1.0 1.1}}"
+export ALLUXIO_VERSIONS="${@:-${ALLUXIO_VERSIONS:-latest 2.0 1.1}}"
 
 ALLUXIO_HOST="${DOCKER_HOST:-${ALLUXIO_HOST:-${HOST:-localhost}}}"
 ALLUXIO_HOST="${ALLUXIO_HOST##*/}"
@@ -41,16 +41,7 @@ startupwait 15
 
 check_docker_available
 
-print_port_mappings(){
-    echo
-    echo "Port Mappings for Debugging:"
-    echo
-    echo "export ALLUXIO_MASTER_PORT=$ALLUXIO_MASTER_PORT"
-    echo "export ALLUXIO_WORKER_PORT=$ALLUXIO_WORKER_PORT"
-    echo
-}
-
-trap 'result=$?; print_port_mappings; exit $result' $TRAP_SIGNALS
+trap_port_mappings alluxio
 
 test_alluxio(){
     local version="$1"
@@ -92,15 +83,4 @@ test_alluxio(){
     echo
 }
 
-test_versions="$(ci_sample $ALLUXIO_VERSIONS)"
-for version in $test_versions; do
-    test_alluxio "$version"
-done
-
-if [ -n "${NOTESTS:-}" ]; then
-    print_port_mappings
-else
-    untrap
-    echo "All Alluxio tests succeeded for versions: $test_versions"
-fi
-echo
+run_test_versions alluxio
