@@ -58,7 +58,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class CheckHBaseTableCompacting(NagiosPlugin):
@@ -107,8 +107,7 @@ class CheckHBaseTableCompacting(NagiosPlugin):
         else:
             self.msg += 'has no compaction in progress'
 
-    @staticmethod
-    def parse_is_table_compacting(content):
+    def parse_is_table_compacting(self, content):
         soup = BeautifulSoup(content, 'html.parser')
         if log.isEnabledFor(logging.DEBUG):
             log.debug("BeautifulSoup prettified:\n{0}\n{1}".format(soup.prettify(), '='*80))
@@ -119,36 +118,53 @@ class CheckHBaseTableCompacting(NagiosPlugin):
                 if heading.get_text() == 'Table Attributes':
                     log.debug('found Table Attributes section header')
                     table = heading.find_next('table')
-                    log.debug('checking first following table')
-                    if log.isEnabledFor(logging.DEBUG):
-                        log.debug('table:\n%s\n%s', table.prettify(), '='*80)
-                    rows = table.findChildren('tr')
-                    if len(rows) < 3:
-                        qquit('UNKNOWN', 'parse error - less than the 3 expected rows in table attributes')
-                    col_names = rows[0].findChildren('th')
-                    if len(col_names) < 3:
-                        qquit('UNKNOWN', 'parse error - less than the 3 expected column headings')
-                    first_col = col_names[0].get_text().strip()
-                    if first_col != 'Attribute Name':
-                        qquit('UNKNOWN',
-                              'parse error - expected first column header to be \'{0}\' but got \'\' instead. '\
-                              .format('Attribute Name')
-                              + support_msg())
-                    for row in rows[1:]:
-                        cols = row.findChildren('td')
-                        if len(cols) < 3:
-                            qquit('UNKNOWN', 'parse error - less than the 3 expected columns in table attributes. '
-                                  + support_msg())
-                        if cols[0].get_text().strip() == 'Compaction':
-                            compaction_state = cols[1].get_text().strip()
-                            # NONE when enabled, Unknown when disabled
-                            for _ in ('NONE', 'Unknown'):
-                                if _ in compaction_state:
-                                    return False
-                            return True
+                    return self.parse_table(table)
             qquit('UNKNOWN', 'parse error - failed to find Table Attributes section in JSP. ' + support_msg())
         except (AttributeError, TypeError):
             qquit('UNKNOWN', 'failed to parse output. ' + support_msg())
+
+    @staticmethod
+    def parse_table(table):
+        """ Take a Beautiful soup table as argument and parse it for compaction information
+        return True if compacting or False otherwise """
+        log.debug('checking first following table')
+        if log.isEnabledFor(logging.DEBUG):
+            log.debug('table:\n%s\n%s', table.prettify(), '='*80)
+        rows = table.findChildren('tr')
+        if len(rows) < 3:
+            qquit('UNKNOWN', 'parse error - less than the 3 expected rows in table attributes')
+        col_names = rows[0].findChildren('th')
+        if len(col_names) < 3:
+            qquit('UNKNOWN', 'parse error - less than the 3 expected column headings')
+        first_col = col_names[0].get_text().strip()
+        if first_col != 'Attribute Name':
+            qquit('UNKNOWN',
+                  'parse error - expected first column header to be \'{0}\' but got \'\' instead. '\
+                  .format('Attribute Name')
+                  + support_msg())
+        # ===========
+        # fix for older versions of HBase < 1.0 that do not populate the table properly
+        # if table does not exist
+        found_compaction = False
+        for row in rows[1:]:
+            cols = row.findChildren('td')
+            if cols[0].get_text().strip() == 'Compaction':
+                found_compaction = True
+        if not found_compaction:
+            qquit('CRITICAL', 'Compaction table attribute not found, perhaps table does not exist?')
+        # ===========
+        for row in rows[1:]:
+            cols = row.findChildren('td')
+            if len(cols) < 3:
+                qquit('UNKNOWN', 'parse error - less than the 3 expected columns in table attributes:  ' + \
+                                 '{0}. {1}'.format(cols, support_msg()))
+            if cols[0].get_text().strip() == 'Compaction':
+                compaction_state = cols[1].get_text().strip()
+                # NONE when enabled, Unknown when disabled
+                for _ in ('NONE', 'Unknown'):
+                    if _ in compaction_state:
+                        return False
+                return True
 
 
 if __name__ == '__main__':
