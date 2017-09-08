@@ -22,7 +22,7 @@ Raises Critical if the table is not enabled or does not exist
 
 See also newer version check_table_table.py which also tests the number of column families
 
-Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 1.0.3, 1.1.6, 1.2.2, 1.3.1
+Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 0.96, 0.98, 1.0.3, 1.1.9, 1.2.6, 1.3.1
 
 """
 

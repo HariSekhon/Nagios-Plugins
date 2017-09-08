@@ -26,7 +26,7 @@ Checks:
 
 Raises Critical if the table is not enabled or does not exist
 
-Tested on Apache HBase 0.96, 0.98, 1.0, 1.1, 1.2, 1.3
+Tested on Apache HBase 0.96, 0.98, 1.0.3, 1.1.9, 1.2.6, 1.3.1
 
 """
 

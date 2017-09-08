@@ -30,7 +30,7 @@ Raises Warning if not all regions are assigned to RegionServers.
 This will not test if the table is actually enabled, for that you must use
 the adjacent programs check_hbase_table.py or the check_hbase_table_enabled.py
 
-Tested on Apache HBase 1.0.3, 1.1.6, 1.2.2, 1.3.1
+Tested on Apache HBase 0.96, 0.98, 1.0.3, 1.1.9, 1.2.6, 1.3.1
 
 """
 

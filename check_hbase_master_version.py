@@ -21,7 +21,7 @@ Nagios Plugin to check the deployed version of an HBase HMaster matches what's e
 This is also used in the accompanying test suite to ensure we're checking the right version of HBase
 for compatibility for all my other HBase nagios plugins.
 
-Tested on Apache HBase 1.0.3, 1.1.6, 1.2.2
+Tested on Apache HBase 0.96, 0.98, 1.0.3, 1.1.9, 1.2.6, 1.3.1
 
 """
 

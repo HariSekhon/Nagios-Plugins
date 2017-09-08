@@ -15,9 +15,9 @@ Checks the number of dead RegionServers against warning/critical thresholds and 
 
 Recommended to use check_hbase_regionservers.pl instead which uses the HBase Stargate Rest API since parsing the JSP is very brittle and could easily break between versions
 
-Written and tested on CDH 4.3 (HBase 0.94.6-cdh4.3.0), updated and tested on Apache HBase 1.0, 1.1, 1.2
+Written and tested on CDH 4.3 (HBase 0.94.6-cdh4.3.0) then updated for HBase 1.x
 
-Tested on Apache HBase 1.0.3, 1.1.6, 1.2.2
+Tested on Apache HBase 0.96, 0.98, 1.0.3, 1.1.9, 1.2.6, 1.3.1
 ";
 
 $VERSION = "0.4";

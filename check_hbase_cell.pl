@@ -27,7 +27,7 @@ See also:
 - check_hbase_cell.py -  uses a dedicated Thrift module for configurability.
 - check_hbase_cell_stargate.pl - uses the Stargate REST API
 
-Tested on CDH 4.3.0, 4.5.0 and Apache HBase 1.0.3, 1.1.6, 1.2.2
+Tested on CDH 4.3.0, 4.5.0 and Apache HBase 0.96, 0.98, 1.0.3, 1.1.9, 1.2.6, 1.3.1
 ";
 
 $VERSION = "0.3";
