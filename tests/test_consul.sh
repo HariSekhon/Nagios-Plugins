@@ -138,4 +138,4 @@ test_consul(){
     echo
 }
 
-run_test_versions consul
+run_test_versions Consul
