@@ -41,6 +41,17 @@ startupwait 15
 
 check_docker_available
 
+print_port_mappings(){
+    echo
+    echo "Port Mappings for Debugging:"
+    echo
+    echo "export ALLUXIO_MASTER_PORT=$ALLUXIO_MASTER_PORT"
+    echo "export ALLUXIO_WORKER_PORT=$ALLUXIO_WORKER_PORT"
+    echo
+}
+
+trap 'result=$?; print_port_mappings; exit $result' $TRAP_SIGNALS
+
 test_alluxio(){
     local version="$1"
     hr
@@ -48,10 +59,8 @@ test_alluxio(){
     hr
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ALLUXIO_MASTER_PORT $ALLUXIO_WORKER_PORT
     VERSION="$version" docker-compose up -d
-    alluxio_master_port="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_MASTER_PORT" | sed 's/.*://'`"
-    alluxio_worker_port="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_WORKER_PORT" | sed 's/.*://'`"
-    local ALLUXIO_MASTER_PORT="$alluxio_master_port"
-    local ALLUXIO_WORKER_PORT="$alluxio_worker_port"
+    local export ALLUXIO_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_MASTER_PORT" | sed 's/.*://'`"
+    local export ALLUXIO_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_WORKER_PORT" | sed 's/.*://'`"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -83,6 +92,15 @@ test_alluxio(){
     echo
 }
 
-for version in $(ci_sample $ALLUXIO_VERSIONS); do
-    test_alluxio $version
+test_versions="$(ci_sample $ALLUXIO_VERSIONS)"
+for version in $test_versions; do
+    test_alluxio "$version"
 done
+
+if [ -n "${NOTESTS:-}" ]; then
+    print_port_mappings
+else
+    untrap
+    echo "All Alluxio Tests Succeeded for versions: $test_versions"
+fi
+echo
