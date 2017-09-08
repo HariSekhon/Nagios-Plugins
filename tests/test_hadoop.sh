@@ -264,14 +264,14 @@ EOF
     echo "docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost"
     docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
     hr
-    for x in 2.5 2.6 2.7; do
-        echo "./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log"
-        $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log
-        hr
-        echo "./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log --stats"
-        $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log --stats
-        hr
-    done
+#    for x in 2.5 2.6 2.7; do
+#        echo "./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log"
+#        $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log
+#        hr
+#        echo "./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log --stats"
+#        $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log --stats
+#        hr
+#    done
     echo "docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log"
     docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log
     hr
@@ -469,6 +469,12 @@ EOF
     echo
 }
 
-for version in $(ci_sample $HADOOP_VERSIONS); do
+test_versions="$(ci_sample $HADOOP_VERSIONS)"
+for version in $test_versions; do
     test_hadoop $version
 done
+
+if [ -z "${NOTESTS:-}" ]; then
+    echo "All Hadoop Tests Succeeded for versions: $test_versions"
+fi
+echo
