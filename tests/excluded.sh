@@ -43,13 +43,31 @@ isExcluded(){
     [[ "$prog" =~ *TODO* ]] && return 0
     # Kafka module requires Perl >= 5.10, skip when running tests on 5.8 for CentOS 5 for which everything else works
     if [ "${PERL_MAJOR_VERSION:-}" = "5.8" ]; then
-        [ "$prog" = "check_kafka.pl" ] && { echo "skipping check_kafka.pl on Perl 5.8 since the Kafka CPAN module requires Perl >= 5.10"; return 0; }
-        [[ "$prog" =~ check_mongodb_.*.pl ]] && { echo "skipping check_mongodb_*.pl on Perl 5.8 since the MongoDB module requires Type::Tiny::XS which breaks for some unknown reason"; return 0; }
+        if [ "$prog" = "check_kafka.pl" ]; then
+            echo
+            echo "skipping check_kafka.pl on Perl 5.8 since the Kafka CPAN module requires Perl >= 5.10"
+            echo
+            return 0
+        fi
+        if [[ "$prog" =~ check_mongodb_.*.pl ]]; then
+            echo
+            echo "skipping check_mongodb_*.pl on Perl 5.8 since the MongoDB module requires Type::Tiny::XS which breaks for some unknown reason"
+            echo
+            return 0
+        fi
     fi
-    grep -q "use[[:space:]]\+utils" "$prog" && { echo "skipping $prog due to use of utils.pm from standard nagios plugins collection which may not be available"; return 0; }
+    if grep -q "use[[:space:]]\+utils" "$prog"; then
+        echo
+        echo "skipping $prog due to use of utils.pm from standard nagios plugins collection which may not be available"
+        echo
+        return 0
+    fi
     # ignore zookeeper plugins if Net::ZooKeeper module is not available
-    if grep -q "Net::ZooKeeper" "$prog" && ! is_zookeeper_built; then
+    # [u] is a clever hack to not skip myself
+    if grep -q "[u]se.*Net::ZooKeeper.*;" "$prog" && ! is_zookeeper_built; then
+        echo
         echo "skipping $prog due to Net::ZooKeeper dependency not having been built (do 'make zookeeper' if intending to use this plugin)"
+        echo
         return 0
     fi
     [ -n "${NO_GIT:-}" ] && return 1
