@@ -106,7 +106,7 @@ if [ -n "${NOTESTS:-}" ]; then
     print_port_mappings
 else
     untrap
-    echo "All Apache Drill Tests Succeeded for versions: $test_versions"
+    echo "All Apache Drill tests succeeded for versions: $test_versions"
 fi
 echo
 
