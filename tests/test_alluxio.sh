@@ -83,4 +83,4 @@ test_alluxio(){
     echo
 }
 
-run_test_versions alluxio
+run_test_versions Alluxio
