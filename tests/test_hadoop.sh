@@ -272,6 +272,12 @@ EOF
 #        $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log --stats
 #        hr
 #    done
+    echo "./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log"
+    $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log
+    hr
+    echo "./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log --stats"
+    $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log --stats
+    hr
     echo "docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log"
     docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log
     hr
