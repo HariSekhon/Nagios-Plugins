@@ -49,6 +49,19 @@ startupwait 30
 
 check_docker_available
 
+print_port_mappings(){
+    echo
+    echo "Port Mappings for Debugging:"
+    echo
+    echo "export HADOOP_NAMENODE_PORT=$HADOOP_NAMENODE_PORT"
+    echo "export HADOOP_DATANODE_PORT=$HADOOP_DATANODE_PORT"
+    echo "export HADOOP_YARN_RESOURCE_MANAGER_PORT=$HADOOP_YARN_RESOURCE_MANAGER_PORT"
+    echo "export HADOOP_YARN_NODE_MANAGER_PORT=$HADOOP_YARN_NODE_MANAGER_PORT"
+    echo
+}
+
+trap 'result=$?; print_port_mappings; exit $result' $TRAP_SIGNALS
+
 docker_exec(){
     #docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
     docker exec "nagiosplugins_${DOCKER_SERVICE}_1" $MNTDIR/$@
@@ -480,7 +493,10 @@ for version in $test_versions; do
     test_hadoop $version
 done
 
-if [ -z "${NOTESTS:-}" ]; then
+if [ -n "${NOTESTS:-}" ]; then
+    print_port_mappings
+else
+    untrap
     echo "All Hadoop Tests Succeeded for versions: $test_versions"
 fi
 echo
