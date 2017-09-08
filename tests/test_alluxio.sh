@@ -101,6 +101,6 @@ if [ -n "${NOTESTS:-}" ]; then
     print_port_mappings
 else
     untrap
-    echo "All Alluxio Tests Succeeded for versions: $test_versions"
+    echo "All Alluxio tests succeeded for versions: $test_versions"
 fi
 echo
