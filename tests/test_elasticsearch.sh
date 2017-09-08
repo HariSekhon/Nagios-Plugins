@@ -38,6 +38,8 @@ export ELASTICSEARCH_INDEX="${ELASTICSEARCH_INDEX:-test}"
 
 check_docker_available
 
+trap_port_mappings elasticsearch
+
 startupwait 20
 
 test_elasticsearch(){
@@ -153,6 +155,4 @@ test_elasticsearch(){
     docker-compose down
 }
 
-for version in $(ci_sample $ELASTICSEARCH_VERSIONS); do
-    test_elasticsearch $version
-done
+run_test_versions Elasticsearch
