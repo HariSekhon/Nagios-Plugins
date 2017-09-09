@@ -21,11 +21,7 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-echo "
-# ============================================================================ #
-#                               T r a v i s   C I
-# ============================================================================ #
-"
+section "T r a v i s   C I"
 
 # this repo should always be working
 ./check_travis_ci_last_build.py -r HariSekhon/bash-tools
@@ -84,4 +80,7 @@ echo "checking nonexistent repo"
 ./check_travis_ci_last_build.py -r nonexistent/repo -v
 check_exit_code 3
 hr
-echo; echo
+echo
+echo "All Travis CI tests passed successfully"
+echo
+echo
