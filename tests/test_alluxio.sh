@@ -34,8 +34,8 @@ ALLUXIO_HOST="${ALLUXIO_HOST##*/}"
 ALLUXIO_HOST="${ALLUXIO_HOST%%:*}"
 export ALLUXIO_HOST
 
-export ALLUXIO_MASTER_PORT="${ALLUXIO_MASTER_PORT:-19999}"
-export ALLUXIO_WORKER_PORT="${ALLUXIO_WORKER_PORT:-30000}"
+export ALLUXIO_MASTER_PORT_DEFAULT="${ALLUXIO_MASTER_PORT:-19999}"
+export ALLUXIO_WORKER_PORT_DEFAULT="${ALLUXIO_WORKER_PORT:-30000}"
 
 startupwait 15
 
@@ -50,8 +50,8 @@ test_alluxio(){
     hr
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ALLUXIO_MASTER_PORT $ALLUXIO_WORKER_PORT
     VERSION="$version" docker-compose up -d
-    local export ALLUXIO_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_MASTER_PORT" | sed 's/.*://'`"
-    local export ALLUXIO_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_WORKER_PORT" | sed 's/.*://'`"
+    export ALLUXIO_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
+    export ALLUXIO_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
