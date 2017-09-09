@@ -81,7 +81,7 @@ set -e
 hr
 localtime="$(readlink /etc/localtime | sed 's/.*zoneinfo\///')"
 [ -z "$localtime" ] && localtime="$(date %Z)"
-echo "$perl -T ./check_timezone.pl -T "$localtime" -A "$(date +%Z)""
+echo "$perl -T ./check_timezone.pl -T '$localtime' -A '$(date +%Z)'"
 $perl -T ./check_timezone.pl -T "$localtime" -A "$(date +%Z)"
 hr
 echo
