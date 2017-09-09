@@ -42,7 +42,7 @@ startupwait 10
 
 check_docker_available
 
-trap_port_mappings cassandra
+trap_debug_env cassandra
 
 docker_exec(){
     #docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
