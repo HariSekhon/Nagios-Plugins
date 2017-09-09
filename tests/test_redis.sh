@@ -34,7 +34,7 @@ REDIS_HOST="${REDIS_HOST##*/}"
 REDIS_HOST="${REDIS_HOST%%:*}"
 export REDIS_HOST
 
-export REDIS_PORT="6379"
+export REDIS_PORT_DEFAULT="6379"
 
 #export REDIS_PASSWORD="testpass123"
 unset REDIS_PASSWORD
@@ -46,6 +46,8 @@ startupwait 5
 
 check_docker_available
 
+trap_debug_env
+
 # TODO: redis authenticated container testing
 test_redis(){
     local version="$1"
@@ -53,8 +55,7 @@ test_redis(){
     #DOCKER_OPTS="--requirepass $REDIS_PASSWORD"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $REDIS_PORT
     VERSION="$version" docker-compose up -d
-    redis_port="`docker-compose port "$DOCKER_SERVICE" "$REDIS_PORT" | sed 's/.*://'`"
-    local REDIS_PORT="$redis_port"
+    export REDIS_PORT="`docker-compose port "$DOCKER_SERVICE" "$REDIS_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$REDIS_HOST" "$REDIS_PORT"
     echo "creating test Redis key-value"
     echo set myKey hari | redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT"
@@ -67,9 +68,11 @@ test_redis(){
         local version=".*"
     fi
     hr
+    echo "$perl -T ./check_redis_version.pl -v"
     $perl -T ./check_redis_version.pl -v # TODO: change to regex and enable -e "^$version"
     hr
     # REDIS_HOST obtained via .travis.yml
+    echo "$perl -T ./check_redis_clients.pl -v"
     $perl -T ./check_redis_clients.pl -v
     hr
     # there is no redis.conf in the Docker container :-/
@@ -78,21 +81,29 @@ test_redis(){
     #wget -O /tmp/redis.conf https://raw.githubusercontent.com/antirez/redis/3.0/redis.conf
     > /tmp/.check_redis_config.conf
     #$perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v | grep -v -e '^debug:' | sed 's/.*extra config found on running server://;s/=/ /g' | tr ',' '\n' | grep -v requirepass | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tee /tmp/.check_redis_config.conf
+    echo "$perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v | grep -v -e '^debug:' | sed 's/.*extra config found on running server://;s/=/ /g' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tee /tmp/.check_redis_config.conf"
     $perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v | grep -v -e '^debug:' | sed 's/.*extra config found on running server://;s/=/ /g' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tee /tmp/.check_redis_config.conf
+    echo "$perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v -vv"
     $perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v -vv
     [ -z "${NODELETE:-1}" ] && #rm /tmp/.check_redis_config.conf
     hr
+    echo "$perl -T ./check_redis_key.pl -k myKey -e hari -v"
     $perl -T ./check_redis_key.pl -k myKey -e hari -v
     hr
+    echo "$perl -T ./check_redis_publish_subscribe.pl -v"
     $perl -T ./check_redis_publish_subscribe.pl -v
     hr
+    echo "$perl -T ./check_redis_stats.pl -v"
     $perl -T ./check_redis_stats.pl -v
     hr
+    echo "$perl -T ./check_redis_stats.pl -s connected_clients -c 1:1 -v"
     $perl -T ./check_redis_stats.pl -s connected_clients -c 1:1 -v
     hr
+    echo "$perl -T ./check_redis_write.pl -v"
     $perl -T ./check_redis_write.pl -v
     hr
     echo "checking for no code failure masking root cause in catch quit handler"
+    echo "$perl -T ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v | tee /dev/stderr | grep -v ' line ' || :"
     $perl -T ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v | tee /dev/stderr | grep -v ' line ' || :
     hr
     #delete_container
@@ -101,6 +112,4 @@ test_redis(){
     echo
 }
 
-for version in $(ci_sample $REDIS_VERSIONS); do
-    test_redis $version
-done
+run_test_versions Redis
