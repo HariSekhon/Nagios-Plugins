@@ -39,7 +39,7 @@ startupwait 15
 
 check_docker_available
 
-trap_debug_env tachyon 
+trap_debug_env tachyon
 
 test_tachyon(){
     local version="$1"
