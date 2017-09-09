@@ -36,12 +36,12 @@ HBASE_HOST="${DOCKER_HOST:-${HBASE_HOST:-${HOST:-localhost}}}"
 HBASE_HOST="${HBASE_HOST##*/}"
 HBASE_HOST="${HBASE_HOST%%:*}"
 export HBASE_HOST
-export HBASE_MASTER_PORT=16010
-export HBASE_REGIONSERVER_PORT=16301
-export HBASE_STARGATE_PORT=8080
-export HBASE_THRIFT_PORT=9090
-export ZOOKEEPER_PORT=2181
-export HBASE_PORTS="$ZOOKEEPER_PORT $HBASE_STARGATE_PORT 8085 $HBASE_THRIFT_PORT 9095 16000 $HBASE_MASTER_PORT 16201 $HBASE_REGIONSERVER_PORT"
+export HBASE_MASTER_PORT_DEFAULT=16010
+export HBASE_REGIONSERVER_PORT_DEFAULT=16301
+export HBASE_STARGATE_PORT_DEFAULT=8080
+export HBASE_THRIFT_PORT_DEFAULT=9090
+export ZOOKEEPER_PORT_DEFAULT=2181
+#export HBASE_PORTS="$ZOOKEEPER_PORT $HBASE_STARGATE_PORT 8085 $HBASE_THRIFT_PORT 9095 16000 $HBASE_MASTER_PORT 16201 $HBASE_REGIONSERVER_PORT"
 
 check_docker_available
 
@@ -53,27 +53,19 @@ export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME//-}"
 docker_exec(){
     # this doesn't allocate TTY properly, blessing module bails out
     #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
+    echo "docker exec -i '${COMPOSE_PROJECT_NAME}_${DOCKER_SERVICE}_1' /bin/bash <<-EOF
+    export JAVA_HOME=/usr
+    $MNTDIR/$@
+EOF"
     docker exec -i "${COMPOSE_PROJECT_NAME}_${DOCKER_SERVICE}_1" /bin/bash <<-EOF
     export JAVA_HOME=/usr
     $MNTDIR/$@
 EOF
 }
 
+trap_debug_env
+
 startupwait 15
-
-print_port_mappings(){
-    echo
-    echo "Port Mappings for Debugging:"
-    echo
-    echo "export HBASE_MASTER_PORT=$HBASE_MASTER_PORT"
-    echo "export HBASE_REGIONSERVER_PORT=$HBASE_REGIONSERVER_PORT"
-    echo "export HBASE_STARGATE_PORT=$HBASE_STARGATE_PORT"
-    echo "export HBASE_THRIFT_PORT=$HBASE_THRIFT_PORT"
-    echo "export ZOOKEEPER_PORT=$ZOOKEEPER_PORT"
-    echo
-}
-
-trap 'result=$?; print_port_mappings; exit $result' $TRAP_SIGNALS
 
 test_hbase(){
     local version="$1"
@@ -82,28 +74,28 @@ test_hbase(){
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HBASE_PORTS
     VERSION="$version" docker-compose up -d
     if [ "$version" = "0.96" -o "$version" = "0.98" ]; then
-        local export HBASE_MASTER_PORT=60010
-        local export HBASE_REGIONSERVER_PORT=60301
-        local export HBASE_PORTS="$ZOOKEEPER_PORT $HBASE_STARGATE_PORT 8085 $HBASE_THRIFT_PORT 9095 60000 $HBASE_MASTER_PORT 60201 $HBASE_REGIONSERVER_PORT"
+        local export HBASE_MASTER_PORT_DEFAULT=60010
+        local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
+        #local export HBASE_PORTS="$ZOOKEEPER_PORT $HBASE_STARGATE_PORT 8085 $HBASE_THRIFT_PORT 9095 60000 $HBASE_MASTER_PORT 60201 $HBASE_REGIONSERVER_PORT"
     fi
     echo "getting HBase dynamic port mappings"
     printf "getting HBase Master port => "
-    local export HBASE_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_MASTER_PORT" | sed 's/.*://'`"
+    export HBASE_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HBASE_MASTER_PORT"
     printf "getting HBase RegionServer port => "
-    local export HBASE_REGIONSERVER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_REGIONSERVER_PORT" | sed 's/.*://'`"
+    export HBASE_REGIONSERVER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_REGIONSERVER_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HBASE_REGIONSERVER_PORT"
     printf "getting HBase Stargate port => "
-    local export HBASE_STARGATE_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_STARGATE_PORT" | sed 's/.*://'`"
+    export HBASE_STARGATE_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_STARGATE_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HBASE_STARGATE_PORT"
     printf "getting HBase Thrift port => "
-    local export HBASE_THRIFT_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_THRIFT_PORT" | sed 's/.*://'`"
+    export HBASE_THRIFT_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_THRIFT_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HBASE_THRIFT_PORT"
     printf "getting HBase ZooKeeper port => "
-    local export ZOOKEEPER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT" | sed 's/.*://'`"
+    export ZOOKEEPER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$ZOOKEEPER_PORT"
     #local export HBASE_PORTS=`{ for x in $HBASE_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://' | sort -n`
-    local export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT $ZOOKEEPER_PORT"
+    export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT $ZOOKEEPER_PORT"
     when_ports_available "$startupwait" "$HBASE_HOST" $HBASE_PORTS
     echo "setting up test tables"
     # tr occasionally errors out due to weird input chars, base64 for safety, but still remove chars liek '+' which will ruin --expected regex
@@ -153,11 +145,9 @@ EOF
     check_exit_code 1
     set -e
     hr
-    echo "docker_exec check_hbase_hbck.py -f /tmp/hbck.log -a 30"
     docker_exec check_hbase_hbck.py -f /tmp/hbck.log -a 30
     hr
     set +e
-    echo "docker_exec check_hbase_hbck.py -f /tmp/hbck.log -a 1"
     docker_exec check_hbase_hbck.py -f /tmp/hbck.log -a 1
     check_exit_code 1
     set -e
@@ -330,6 +320,7 @@ EOF
     done
     hr
     # this is only a symlink to check_hbase_cell.pl so just check it's still there and working
+    echo "$perl -T ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e '$uniq_val'"
     $perl -T ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
 
 # ============================================================================ #
@@ -385,6 +376,9 @@ EOF
     $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --all-metrics -t 20
     #hr
     # XXX: both cause 500 internal server error
+    #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" --all-metrics
+    #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" -m compactionQueueLength
+    #hr
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --all-metrics
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" -m compactionQueueLength
     #hr
@@ -420,18 +414,17 @@ EOF
     check_exit_code 3
     set -e
     hr
-    echo "docker_exec check_hbase_table_rowcount.pl -T t1 --hbase-bin /hbase/bin/hbase -w 3:3 -c 3:3 -t 60"
     docker_exec check_hbase_table_rowcount.pl -T t1 --hbase-bin /hbase/bin/hbase -w 3:3 -c 3:3 -t 60
     hr
     if is_zookeeper_built; then
         # This also checks that check_hbase_write.py deleted correctly
-        echo "./check_hbase_table_rowcount.pl -T EmptyTable --hbase-bin /hbase/bin/hbase -w 0:0 -c 0:0 -t 30"
+        echo "$perl -T ./check_hbase_table_rowcount.pl -T EmptyTable --hbase-bin /hbase/bin/hbase -w 0:0 -c 0:0 -t 30"
         $perl -T ./check_hbase_table_rowcount.pl -T EmptyTable --hbase-bin /hbase/bin/hbase -w 0:0 -c 0:0 -t 30
         hr
-        echo "./check_zookeeper_znode.pl -H localhost -z /hbase -v -n --child-znodes"
+        echo "$perl -T ./check_zookeeper_znode.pl -H localhost -z /hbase -v -n --child-znodes"
         $perl -T ./check_zookeeper_znode.pl -H localhost -z /hbase -v -n --child-znodes
         hr
-        echo "./check_zookeeper_child_znodes.pl -H localhost -z /hbase/rs -v -w 1:1 -c 1:1"
+        echo "$perl -T ./check_zookeeper_child_znodes.pl -H localhost -z /hbase/rs -v -w 1:1 -c 1:1"
         $perl -T ./check_zookeeper_child_znodes.pl -H localhost -z /hbase/rs -v -w 1:1 -c 1:1
         # XXX: not present all the time
         $perl -T ./check_hbase_unassigned_regions_znode.pl
@@ -439,13 +432,10 @@ EOF
         # Use Docker hbase-dev, zookeeper will have been built in there
         echo "ZooKeeper not built - running ZooKeeper checks in docker container:"
         # This also checks that check_hbase_write.py deleted correctly
-        echo "docker_exec check_hbase_table_rowcount.pl -T EmptyTable --hbase-bin /hbase/bin/hbase -w 0:0 -c 0:0 -t 30"
         docker_exec check_hbase_table_rowcount.pl -T EmptyTable --hbase-bin /hbase/bin/hbase -w 0:0 -c 0:0 -t 30
         hr
-        echo "docker_exec check_zookeeper_znode.pl -H localhost -z /hbase -v -n --child-znodes"
         docker_exec check_zookeeper_znode.pl -H localhost -z /hbase -v -n --child-znodes
         hr
-        echo "docker_exec check_zookeeper_child_znodes.pl -H localhost -z /hbase/rs -v -w 1:1 -c 1:1"
         docker_exec check_zookeeper_child_znodes.pl -H localhost -z /hbase/rs -v -w 1:1 -c 1:1
         # XXX: not present all the time
         #docker_exec check_hbase_unassigned_regions_znode.pl -H localhost
@@ -539,15 +529,4 @@ EOF
     echo
 }
 
-test_versions="$(ci_sample $HBASE_VERSIONS)"
-for version in $test_versions; do
-    test_hbase $version
-done
-
-if [ -n "${NOTESTS:-}" ]; then
-    print_port_mappings
-else
-    untrap
-    echo "All HBase Tests Succeeded for versions: $test_versions"
-fi
-echo
+run_test_versions HBase
