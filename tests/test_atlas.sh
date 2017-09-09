@@ -24,17 +24,15 @@ cd "$srcdir/.."
 
 is_travis && exit 0
 
-echo "
-# ============================================================================ #
-#                                   A t l a s
-# ============================================================================ #
-"
+section "A t l a s"
 
 export SANDBOX_CLUSTER="Sandbox"
 export ATLAS_HOST="${ATLAS_HOST:-localhost}"
 export ATLAS_PORT="${ATLAS_PORT:-21000}"
 export ATLAS_USER="${ATLAS_USER:-holger_gov}"
 export ATLAS_PASSWORD="${ATLAS_PASSWORD:-holger_gov}"
+
+# TODO: switch to dockerized test
 
 if [ -z "${ATLAS_HOST:-}" ]; then
     echo "WARNING: \$ATLAS_HOST not set, skipping Atlas checks"
