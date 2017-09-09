@@ -18,7 +18,7 @@ A friend and ex-colleague of mine Tom Liakos @ Specific Media pointed out a long
 Tested on MySQL 5.0, 5.1, 5.5, 5.6, 5.7, 8.0
 ";
 
-$VERSION = "1.2.5";
+$VERSION = "1.3.0";
 
 use strict;
 use warnings;
@@ -46,6 +46,7 @@ my $mysql_instance  = $default_mysql_instance;
 my %mysql_config;
 my $ensure_skip_name_resolve = 0;
 my $warn_on_missing_variables = 0;
+my $ignore = "";
 
 # using regex here now
 my @config_file_only = (
@@ -57,6 +58,7 @@ my @config_file_only = (
     "log-slow-slave-statements",
     "master-(?:host|port|user|password|info-file)",
     "master-info-file",
+    "myisam_recover",
     "plugin-load",
     "relay-log",
     "relay-log-index",
@@ -100,6 +102,12 @@ my %mysql_modes = (
     "TRADITIONAL"   => "STRICT_TRANS_TABLES, STRICT_ALL_TABLES, NO_ZERO_IN_DATE, NO_ZERO_DATE, ERROR_FOR_DIVISION_BY_ZERO, NO_AUTO_CREATE_USER"
 );
 
+my %concurrent_insert = (
+    0 => "NEVER",
+    1 => "AUTO",
+    2 => "ALWAYS"
+);
+
 env_creds("MYSQL", "MySQL");
 
 %options = (
@@ -110,8 +118,9 @@ env_creds("MYSQL", "MySQL");
     "s|mysql-socket=s"          => [ \$mysql_socket,    "MySQL socket file through which to connect (defaults: " . join(", ", @default_mysql_sockets) . ")" ],
     "N|skip-name-resolve"       => [ \$ensure_skip_name_resolve, "Ensure that skip-name-resolve is specified in the config file" ],
     "M|warn-on-missing"         => [ \$warn_on_missing_variables, "Return warning when there my.cnf variables missing from running MySQL config. Default is just to list them but return OK unless there is an actual mismatch. Useful if you want to make sure they're all accounted for as sometimes they only appear in config file or the live name is different to the config file name" ],
+    "i|ignore=s"                => [ \$ignore,          "Config variables to ignore from my.cnf, comma separated (try to avoid using this)" ],
 );
-@usage_order = qw/config-file host port user password mysql-instance mysql-socket skip-name-resolve warn-on-missing/;
+@usage_order = qw/config-file host port user password mysql-instance mysql-socket skip-name-resolve warn-on-missing ignore/;
 
 get_options();
 
@@ -151,6 +160,10 @@ unless($config_file){
 }
 $config_file = validate_filename($config_file, "config file");
 $mysql_instance = validate_database($mysql_instance);
+my @ignore;
+if($ignore){
+    @ignore = split(/\s*,\s*/, $ignore);
+}
 
 vlog2;
 set_timeout();
@@ -203,6 +216,12 @@ sub parse_my_cnf {
             } elsif ($val =~ /^(\d+)G$/io){
                 vlog2 "converting $name from GB to bytes";
                 $mysql_config{$name} = $1 * 1024 * 1024 * 1024;
+            # MySQL concurrent_insert can be numeric or word, appears as word on server, so normalize here
+            } elsif ($name eq "concurrent_insert"){
+                if (grep $val, keys %concurrent_insert){
+                    vlog2 "converting concurrent_insert $val => $concurrent_insert{$val}";
+                    $mysql_config{$name} = $concurrent_insert{$val};
+                }
             }
         } else {
             $mysql_config{$name} = "ON";
@@ -384,6 +403,10 @@ foreach $mysql_variable_name (sort keys %mysql_config){
     if(grep { $mysql_variable_name =~ /^$_$/ } (keys %mysql_convert_names)){
         vlog2 "mapping '$mysql_variable_name' to '$mysql_convert_names{$mysql_variable_name}'";
         $mysql_online_variable_name = $mysql_convert_names{$mysql_variable_name};
+    }
+    if(grep /^$mysql_variable_name$/, @ignore){
+        vlog2 "ignoring $mysql_variable_name";
+        next;
     }
     $mysql_online_variable_name =~ s/-/_/g;
     if(defined($mysql_variables{$mysql_online_variable_name})){
