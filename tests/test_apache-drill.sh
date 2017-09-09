@@ -75,8 +75,10 @@ test_apache_drill(){
     hr
     #./check_apache_drill_version.py -v -e "$version"
     hr
+    echo "./check_apache_drill_status.py -v"
     ./check_apache_drill_status.py -v
     hr
+    echo "$perl -T ./check_apache_drill_metrics.pl -v"
     $perl -T ./check_apache_drill_metrics.pl -v
     hr
     #delete_container "$DOCKER_CONTAINER2"
