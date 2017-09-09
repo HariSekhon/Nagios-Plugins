@@ -41,7 +41,7 @@ if [ -z "${AMBARI_HOST:-}" ]; then
     exit 0
 fi
 
-trap_debug_env
+trap_debug_env ambari
 
 if which nc &>/dev/null && ! echo | nc -G 1 "$AMBARI_HOST" $AMBARI_PORT; then
     echo "WARNING: Ambari host $AMBARI_HOST:$AMBARI_PORT not up, skipping Ambari checks"
