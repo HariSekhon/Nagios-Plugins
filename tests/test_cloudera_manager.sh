@@ -24,11 +24,7 @@ cd "$srcdir/.."
 
 is_travis && exit 0
 
-echo "
-# ============================================================================ #
-#                        C l o u d e r a   M a n a g e r
-# ============================================================================ #
-"
+section "C l o u d e r a   M a n a g e r"
 
 export QUICKSTART_CLUSTER="Cloudera QuickStart"
 export CM_PORT="${CM_PORT:-7180}"
