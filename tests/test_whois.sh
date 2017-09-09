@@ -27,11 +27,7 @@ srcdir="$srcdir2"
 
 #[ `uname -s` = "Linux" ] || exit 0
 
-echo "
-# ============================================================================ #
-#                                   W h o i s
-# ============================================================================ #
-"
+section "W h o i s"
 
 export DOCKER_IMAGE="harisekhon/nagios-plugins:centos"
 export DOCKER_CONTAINER="nagios-plugins-whois-test"
@@ -226,6 +222,7 @@ for domain in $domains; do
     printf "%-20s  " "$domain:"
     # don't want people with 25 days left on their domains raising errors here, setting thresholds lower to always pass
     set +eo pipefail
+    echo "$check_whois -d $domain -w 10 -c 2 -t 30 -v $verbose"
     output=`$check_whois -d $domain -w 10 -c 2 -t 30 -v $verbose`
     result=$?
     echo "$output"
@@ -255,6 +252,7 @@ echo "Testing Domains excluding nameservers:"
 for domain in $domains_no_nameservers; do
     [ -z "$ALL" -a "$(($RANDOM % 2))" = 0 ] || continue
     set +eo pipefail
+    echo "$check_whois -d $domain -w 10 -c 2 --no-nameservers -t 30 -v $verbose"
     output=`$check_whois -d $domain -w 10 -c 2 --no-nameservers -t 30 -v $verbose`
     result=$?
     echo "$output"
