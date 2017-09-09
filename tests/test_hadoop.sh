@@ -261,19 +261,14 @@ EOF
     # run inside Docker container so it can resolve redirect to DN
     docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
     hr
-#    for x in 2.5 2.6 2.7; do
-#        echo "./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log"
-#        $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log
-#        hr
-#        echo "./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log --stats"
-#        $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log --stats
-#        hr
-#    done
-    echo "$perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log"
-    $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log
-    hr
-    echo "$perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log --stats"
-    $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log --stats
+    for x in 2.5 2.6 2.7; do
+        echo "./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log"
+        $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log
+        hr
+        echo "./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log --stats"
+        $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log --stats
+        hr
+    done
     hr
     docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log
     hr
