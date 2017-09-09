@@ -39,7 +39,7 @@ MYSQL_HOST="${MYSQL_HOST%%:*}"
 export MYSQL_HOST
 
 export MYSQL_DATABASE="${MYSQL_DATABASE:-mysql}"
-export MYSQL_PORT=3306
+export MYSQL_PORT_DEFAULT=3306
 export MYSQL_USER="root"
 export MYSQL_PASSWORD="test123"
 export MYSQL_ROOT_PASSWORD="$MYSQL_PASSWORD"
@@ -49,7 +49,7 @@ export MYSQL_CONFIG_FILE=mysqld.cnf
 
 check_docker_available
 
-trap_port_mappings mysql mariadb
+trap_debug_env mysql mariadb
 
 startupwait 10
 
@@ -72,7 +72,7 @@ test_db(){
     VERSION="$version" docker-compose up -d
     echo "Getting $name port mapping"
     echo -n "MySQL port => "
-    local export MYSQL_PORT="`docker-compose port "$DOCKER_SERVICE" "$MYSQL_PORT" | sed 's/.*://'`"
+    export MYSQL_PORT="`docker-compose port "$DOCKER_SERVICE" "$MYSQL_PORT_DEFAULT" | sed 's/.*://'`"
     if [ "${version%%.*}" -gt 5 ]; then
         local export MYSQL_CONFIG_PATH="/etc/mysql"
         local export MYSQL_CONFIG_FILE="my.cnf"
@@ -87,12 +87,17 @@ test_db(){
     echo "determined docker container to be '$docker_container'"
     echo "fetching my.cnf to local host"
     docker cp "$docker_container":"$MYSQL_CONFIG_PATH/$MYSQL_CONFIG_FILE" /tmp
-    echo "$perl -T ./check_mysql_config.pl -c \"/tmp/$MYSQL_CONFIG_FILE\" --warn-on-missing -v"
-    $perl -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v
-    rm -f "/tmp/$MYSQL_CONFIG_FILE"
     hr
-    echo "$perl -T ./check_mysql_query.pl -q \"SHOW TABLES IN information_schema\" -o CHARACTER_SETS -v"
-    $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema" -o CHARACTER_SETS -v
+    if [ "$name" = "MariaDB" ]; then
+        extra_opt="--ignore thread_cache_size"
+        # for some reason MariaDB's thread_cache_size is 128 in conf vs 100 in running service in Docker, so ignore it
+    fi
+    echo "$perl -T ./check_mysql_config.pl -c \"/tmp/$MYSQL_CONFIG_FILE\" --warn-on-missing -v $extra_opt"
+    $perl -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v $extra_opt
+    rm -vf "/tmp/$MYSQL_CONFIG_FILE"
+    hr
+    echo "$perl -T ./check_mysql_query.pl -q \"SHOW TABLES IN information_schema like 'C%'\" -o CHARACTER_SETS -v"
+    $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema like 'C%'" -o CHARACTER_SETS -v
     hr
     echo "$perl -T ./check_mysql_query.pl -d information_schema -q \"SELECT * FROM user_privileges LIMIT 1\"  -r \"'(root|mysql.sys)'@'(%|localhost)'\" -v"
     $perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -r "'(root|mysql.sys)'@'(%|localhost)'" -v
