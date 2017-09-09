@@ -34,7 +34,7 @@ CONSUL_HOST="${CONSUL_HOST##*/}"
 CONSUL_HOST="${CONSUL_HOST%%:*}"
 export CONSUL_HOST
 
-export CONSUL_PORT="${CONSUL_PORT:-8500}"
+export CONSUL_PORT_DEFAULT="${CONSUL_PORT:-8500}"
 
 export DOCKER_IMAGE="harisekhon/consul"
 
@@ -57,20 +57,18 @@ test_consul(){
     #local DOCKER_CMD="agent -dev -data-dir /tmp -client 0.0.0.0"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $CONSUL_PORT
     VERSION="$version" docker-compose up -d
-    consul_port="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT" | sed 's/.*://'`"
-    CONSUL_PORT_ORIG="$CONSUL_PORT"
-    local CONSUL_PORT="$consul_port"
+    export CONSUL_PORT="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT_DEFAULT" | sed 's/.*://'`"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    when_ports_available "$startupwait" "$CONSUL_HOST" "$consul_port"
+    when_ports_available "$startupwait" "$CONSUL_HOST" "$CONSUL_PORT"
     # give it some extra time to settle, otherwise get no peers found error
     sleep 2
     hr
     local testkey="nagios/consul/testkey1"
     echo "Writing random value to test key $testkey"
     local random_val=$RANDOM
-    curl -X PUT -d "$random_val" "http://$CONSUL_HOST:$consul_port/v1/kv/$testkey"
+    curl -X PUT -d "$random_val" "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$testkey"
     echo
     hr
     local expected_version="$version"
@@ -87,7 +85,7 @@ test_consul(){
     hr
     echo "Consul version $found_version"
     hr
-    ./check_consul_peer_count.py -P $consul_port
+    ./check_consul_peer_count.py
     hr
     ./check_consul_key.py -k /nagios/consul/testkey1 -r "^$random_val$" -v
     hr
@@ -109,7 +107,7 @@ test_consul(){
     ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 4 -v | tee /dev/stderr | grep --color=yes ^CRITICAL
     set -o pipefail
     hr
-    ./check_consul_write.py -P $consul_port -v
+    ./check_consul_write.py -v
     hr
     #delete_container
     docker-compose down
@@ -124,8 +122,7 @@ test_consul(){
     local DOCKER_SERVICE="$DOCKER_SERVICE-dev"
     local COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-docker-compose.yml"
     VERSION="$version" docker-compose up -d
-    CONSUL_PORT="$CONSUL_PORT_ORIG"
-    consul_port="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT" | sed 's/.*://'`"
+    export CONSUL_PORT="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT_DEFAULT" | sed 's/.*://'`"
     hr
     if [ "$version" = "latest" ]; then
         local expected_version=".*"
