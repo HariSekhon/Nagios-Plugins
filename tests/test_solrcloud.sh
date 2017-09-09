@@ -29,14 +29,14 @@ echo "
 # ============================================================================ #
 "
 
-export SOLR_VERSIONS="${@:-${SOLR_VERSIONS:-latest 4.10 5.5 6.0 6.1 6.2 6.3 6.4 6.5 6.6}}"
+export SOLRCLOUD_VERSIONS="${@:-${SOLRCLOUD_VERSIONS:-latest 4.10 5.5 6.0 6.1 6.2 6.3 6.4 6.5 6.6}}"
 
 SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
 export SOLR_HOST="${SOLR_HOST%%:*}"
 export SOLR_PORT_DEFAULT="${SOLR_PORT:-8983}"
 export SOLR_ZOOKEEPER_PORT_DEFAULT="${SOLR_ZOOKEEPER_PORT:-9983}"
-export SOLR_PORTS="$SOLRCLOUD_PORT_DEFAULT 8984 $SOLR_ZOOKEEPER_PORT"
+export SOLR_PORTS="$SOLR_PORT_DEFAULT 8984 $SOLR_ZOOKEEPER_PORT_DEFAULT"
 export ZOOKEEPER_HOST="$SOLR_HOST"
 
 export SOLR_HOME="/solr"
