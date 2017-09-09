@@ -66,6 +66,15 @@ test_spark(){
     echo "./check_spark_worker_version.py -e '$version'"
     ./check_spark_worker_version.py -e "$version"
     hr
+    echo "trying check_spark_cluster.pl up to 10 times to give cluster worker a chance to initialize:"
+    set +e
+    for x in {1..10}; do
+        echo -n "$x: "
+        $perl -T ./check_spark_cluster.pl -c 1: -v && break
+        sleep 1
+    done
+    set -e
+    hr
     echo "$perl -T ./check_spark_cluster.pl -c 1: -v"
     $perl -T ./check_spark_cluster.pl -c 1: -v
     hr
