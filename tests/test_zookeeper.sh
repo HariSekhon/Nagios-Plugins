@@ -36,7 +36,7 @@ export MNTDIR="/pl"
 
 check_docker_available
 
-trap_debug_env
+trap_debug_env zookeeper
 
 docker_exec(){
     echo "docker-compose exec '$DOCKER_SERVICE' $MNTDIR/$@"
