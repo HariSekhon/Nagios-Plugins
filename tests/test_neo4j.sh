@@ -54,6 +54,7 @@ test_neo4j_noauth(){
     export NEO4J_PORTS=`{ for x in $NEO4J_PORTS_DEFAULT; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
     when_ports_available $startupwait $NEO4J_HOST $NEO4J_PORTS
     echo "creating test Neo4J node"
+    # TODO: fix this it now gets connection refused as there is nothing listening 1337
     docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
     if [ "${NOTESTS:-}" ]; then
         exit 0
