@@ -34,8 +34,8 @@ export SOLR_VERSIONS="${@:-${SOLR_VERSIONS:-latest 4.10 5.5 6.0 6.1 6.2 6.3 6.4 
 SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
 export SOLR_HOST="${SOLR_HOST%%:*}"
-export SOLR_PORT=8983
-export SOLR_ZOOKEEPER_PORT="9983"
+export SOLR_PORT_DEFAULT="${SOLR_PORT:-8983}"
+export SOLR_ZOOKEEPER_PORT_DEFAULT="${SOLR_ZOOKEEPER_PORT:-9983}"
 export SOLR_PORTS="$SOLR_PORT 8984 $SOLR_ZOOKEEPER_PORT"
 export ZOOKEEPER_HOST="$SOLR_HOST"
 
@@ -47,6 +47,7 @@ startupwait 30
 check_docker_available
 
 docker_exec(){
+    echo "docker-compose exec '$DOCKER_SERVICE' $MNTDIR/$@"
     docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
 }
 
@@ -64,10 +65,8 @@ test_solrcloud(){
     #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SOLR_PORTS
     VERSION="$version" docker-compose up -d
-    solr_port="`docker-compose port "$DOCKER_SERVICE" "$SOLR_PORT" | sed 's/.*://'`"
-    local SOLR_PORT="$solr_port"
-    solr_zookeeper_port="`docker-compose port "$DOCKER_SERVICE" "$SOLR_ZOOKEEPER_PORT" | sed 's/.*://'`"
-    local SOLR_ZOOKEEPER_PORT="$solr_port"
+    export SOLR_PORT="`docker-compose port "$DOCKER_SERVICE" "$SOLR_PORT_DEFAULT" | sed 's/.*://'`"
+    export SOLR_ZOOKEEPER_PORT="`docker-compose port "$DOCKER_SERVICE" "$SOLR_ZOOKEEPER_PORT_DEFAULT" | sed 's/.*://'`"
     #solr_ports=`{ for x in $SOLR_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
     #local SOLR_PORTS="$solr_ports"
     when_ports_available "$startupwait" "$SOLR_HOST" "$SOLR_PORT" "$SOLR_ZOOKEEPER_PORT"
@@ -80,6 +79,7 @@ test_solrcloud(){
         local version=".*"
     fi
     hr
+    echo "./check_solr_version.py -e '$version'"
     ./check_solr_version.py -e "$version"
     hr
     #echo "sleeping for 20 secs to allow SolrCloud shard state to settle"
@@ -89,6 +89,7 @@ test_solrcloud(){
         $perl -T ./check_solrcloud_cluster_status.pl -v && break
         sleep 1
     done
+    echo "$perl -T ./check_solrcloud_cluster_status.pl -v"
     $perl -T ./check_solrcloud_cluster_status.pl -v
     hr
     docker_exec check_solrcloud_cluster_status_zookeeper.pl -H localhost -P 9983 -b / -v
@@ -105,11 +106,13 @@ test_solrcloud(){
     fi
     hr
     # FIXME: why is only 1 node up instead of 2
+    echo "$perl -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v"
     $perl -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
     hr
     docker_exec check_solrcloud_live_nodes_zookeeper.pl -H localhost -P 9983 -b / -w 1 -c 1 -v
     hr
     # docker is running slow
+    echo "$perl -T ./check_solrcloud_overseer.pl -t 60 -v"
     $perl -T ./check_solrcloud_overseer.pl -t 60 -v
     hr
     docker_exec check_solrcloud_overseer_zookeeper.pl -H localhost -P 9983 -b / -v
@@ -135,6 +138,4 @@ test_solrcloud(){
     echo
 }
 
-for version in $(ci_sample $SOLR_VERSIONS); do
-    test_solrcloud $version
-done
+run_test_versions SolrCloud
