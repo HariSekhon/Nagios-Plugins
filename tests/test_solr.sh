@@ -21,11 +21,7 @@ cd "$srcdir/.."
 
 . ./tests/utils.sh
 
-echo "
-# ============================================================================ #
-#                                    S o l r
-# ============================================================================ #
-"
+section "S o l r"
 
 export SOLR_VERSIONS="${@:-${SOLR_VERSIONS:-latest 3.1 3.6 4.10 5.5 6.0 6.1 6.2 6.3 6.4 6.5 6.6}}"
 
@@ -42,6 +38,8 @@ export SOLR_HOME=/solr
 startupwait 10
 
 check_docker_available
+
+trap_debug_env
 
 test_solr(){
     local version="$1"
@@ -67,23 +65,29 @@ test_solr(){
         fi
         # 4.x+
         hr
+        echo "./check_solr_version.py -e '$version'"
         ./check_solr_version.py -e "$version"
     else
         # TODO: check Solr v3 versions somehow
         :
     fi
     hr
+    echo "$perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000"
     $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
     hr
+    echo "$perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits"
     $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
     hr
+    echo "$perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000"
     $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
     hr
     num_expected_docs=4
     [ "${version:0:1}" -lt 4 ] && num_expected_docs=0
     # TODO: fix Solr 5 + 6 doc insertion and then tighten this up
+    echo "$perl -T ./check_solr_query.pl -n 0:4 -w 200 -v"
     $perl -T ./check_solr_query.pl -n 0:4 -w 200 -v
     hr
+    echo "$perl -T ./check_solr_write.pl -v -w 1000"
     $perl -T ./check_solr_write.pl -v -w 1000 # because Travis is slow
     hr
     #delete_container
@@ -92,6 +96,4 @@ test_solr(){
     echo
 }
 
-for version in $(ci_sample $SOLR_VERSIONS); do
-    test_solr $version
-done
+run_test_versions Solr
