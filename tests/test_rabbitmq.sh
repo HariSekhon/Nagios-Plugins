@@ -49,7 +49,7 @@ export TEST_VHOSTS="$RABBITMQ_VHOST / /test test2"
 
 check_docker_available
 
-trap_debug_env
+trap_debug_env rabbitmq
 
 # needs to be longer to allow RabbitMQ Cluster to settle
 startupwait 40
