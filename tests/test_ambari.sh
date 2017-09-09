@@ -97,6 +97,8 @@ echo "$perl -T check_ambari_services.pl"
 $perl -T check_ambari_services.pl
 check_exit_code 0 1 2
 hr
+echo
+echo "All Ambari tests completed successfully"
 untrap
 echo
 echo
