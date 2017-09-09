@@ -34,6 +34,8 @@ docker_exec(){
     docker-compose exec "$SERVICE" $MNTDIR/$*
 }
 
+valid_distros=(alpine centos debian ubuntu)
+
 # TODO: build specific versions to test for CentOS 6 + 7, Ubuntu 14.04 + 16.04, Debian Wheezy + Jessie, Alpine builds
 test_linux(){
     local distro="$1"
@@ -104,7 +106,7 @@ EOF
 
 if [ $# -gt 1 ]; then
     test_linux "$1" "$2"
-elif [ $# -gt 0 ]; then
+elif [[ $# -eq 1 && ${valid_distros[*]} =~ "$1" ]]; then
     test_linux "$1" "latest"
 else
     section "CentOS"
