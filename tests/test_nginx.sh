@@ -72,8 +72,10 @@ test_nginx(){
         local version=".*"
     fi
     hr
+    echo "./check_nginx_version.py -e '$version'"
     ./check_nginx_version.py -e "$version"
     hr
+    echo "$perl -T ./check_nginx_stats.pl -H "$NGINX_HOST" -u /status"
     $perl -T ./check_nginx_stats.pl -H "$NGINX_HOST" -u /status
     hr
     delete_container
@@ -81,8 +83,4 @@ test_nginx(){
     echo
 }
 
-for version in $(ci_sample $NGINX_VERSIONS); do
-    test_nginx $version
-done
-
-untrap
+run_test_versions Nginx
