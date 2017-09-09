@@ -65,8 +65,8 @@ test_linux(){
     hr
     # temporary fix until slow DockerHub automated builds trickle through ethtool in docker images
     #docker-compose exec "$SERVICE" sh <<EOF
-    docker exec "$SERVICE" sh <<EOF
-which yum && yum install -y ethtool && exit
+    docker exec -i "$SERVICE" sh <<EOF
+which yum && yum install -y ethtool net-tools && exit
 which apt-get && apt-get update && apt-get install -y ethtool && exit
 which apk && apk add ethtool && exit
 :
