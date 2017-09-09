@@ -24,8 +24,8 @@ cd "$srcdir/.."
 
 section "0 x d a t a   H 2 O"
 
-# TODO: updates for H2O 3.x
-export H2O_VERSIONS="${@:-${H2O_VERSIONS:-latest 2.6 2}}"
+# TODO: updates for H2O 3.x required
+export H2O_VERSIONS="${@:-${H2O_VERSIONS:-2.6 2}}"
 
 H2O_HOST="${DOCKER_HOST:-${H2O_HOST:-${HOST:-localhost}}}"
 H2O_HOST="${H2O_HOST##*/}"
@@ -47,7 +47,7 @@ test_h2o(){
     hr
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $H2O_PORT
     VERSION="$version" docker-compose up -d
-    local H2O_PORT="`docker-compose port "$DOCKER_SERVICE" "$H2O_PORT_DEFAULT" | sed 's/.*://'`"
+    export H2O_PORT="`docker-compose port "$DOCKER_SERVICE" "$H2O_PORT_DEFAULT" | sed 's/.*://'`"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
