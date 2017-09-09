@@ -73,11 +73,11 @@ test_apache_drill(){
     hr
     echo "found Apache Drill version $found_version"
     hr
-    #./check_apache_drill_version.py -P $port -v -e "$version"
+    #./check_apache_drill_version.py -v -e "$version"
     hr
-    ./check_apache_drill_status.py -P $port -v
+    ./check_apache_drill_status.py -v
     hr
-    $perl -T ./check_apache_drill_metrics.pl -P $port -v
+    $perl -T ./check_apache_drill_metrics.pl -v
     hr
     #delete_container "$DOCKER_CONTAINER2"
     docker-compose down
