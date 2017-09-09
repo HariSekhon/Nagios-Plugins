@@ -41,6 +41,8 @@ if [ -z "${AMBARI_HOST:-}" ]; then
     exit 0
 fi
 
+trap_debug_env
+
 if which nc &>/dev/null && ! echo | nc -G 1 "$AMBARI_HOST" $AMBARI_PORT; then
     echo "WARNING: Ambari host $AMBARI_HOST:$AMBARI_PORT not up, skipping Ambari checks"
     exit 0
@@ -55,34 +57,45 @@ fi
 [ "$AMBARI_CLUSTER" = "$SANDBOX_CLUSTER" ] && set +e
 echo "testing Ambari server $AMBARI_HOST"
 hr
+echo "$perl -T check_ambari_cluster_alerts_host_summary.pl"
 $perl -T check_ambari_cluster_alerts_host_summary.pl
 check_exit_code 0 1 2
 hr
+echo "$perl -T check_ambari_cluster_alerts_summary.pl"
 $perl -T check_ambari_cluster_alerts_summary.pl
 check_exit_code 0 1 2
 hr
+echo "$perl -T check_ambari_cluster_health_report.pl"
 $perl -T check_ambari_cluster_health_report.pl
 check_exit_code 0 1 2
 hr
+echo "$perl -T check_ambari_cluster_kerberized.pl"
 $perl -T check_ambari_cluster_kerberized.pl
 check_exit_code 0 2
 hr
+echo "$perl -T check_ambari_cluster_service_config_compatible.pl"
 $perl -T check_ambari_cluster_service_config_compatible.pl
 check_exit_code 0 1 2
 hr
+echo "$perl -T check_ambari_cluster_total_hosts.pl"
 $perl -T check_ambari_cluster_total_hosts.pl
 check_exit_code 0 1 2
 hr
+echo "$perl -T check_ambari_cluster_version.pl"
 $perl -T check_ambari_cluster_version.pl
 check_exit_code 0 1 2
 hr
+echo "$perl -T check_ambari_config_stale.pl"
 $perl -T check_ambari_config_stale.pl
 check_exit_code 0 1 2
 hr
+echo "$perl -T check_ambari_nodes.pl"
 $perl -T check_ambari_nodes.pl
 check_exit_code 0 1 2
 hr
+echo "$perl -T check_ambari_services.pl"
 $perl -T check_ambari_services.pl
 check_exit_code 0 1 2
 hr
-echo; echo
+echo
+echo
