@@ -267,3 +267,8 @@ done
 if [ -n "$using_docker" ]; then
     delete_container
 fi
+
+echo
+echo "All Whois tests passed successfully"
+echo
+echo
