@@ -30,8 +30,10 @@ check_docker_available
 export MNTDIR="/pl"
 
 docker_exec(){
-    echo "docker-compose exec '$SERVICE' $MNTDIR/$*"
-    docker-compose exec "$SERVICE" $MNTDIR/$*
+    #echo "docker-compose exec '$SERVICE' $MNTDIR/$*"
+    #docker-compose exec "$SERVICE" $MNTDIR/$*
+    echo "docker exec '$SERVICE' $MNTDIR/$*"
+    docker exec "$SERVICE" $MNTDIR/$*
 }
 
 valid_distros=(alpine centos debian ubuntu)
@@ -44,7 +46,7 @@ test_linux(){
     #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #DOCKER_CMD="tail -f /dev/null"
     #launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
-    export SERVICE="$distro-github"
+    export SERVICE="nagiosplugins_$distro-github_1"
     export COMPOSE_FILE="$srcdir/docker/$distro-github-docker-compose.yml"
     VERSION="$version" docker-compose up -d
     #docker exec "$DOCKER_CONTAINER" yum install -y net-tools
@@ -62,7 +64,8 @@ test_linux(){
     docker_exec check_linux_duplicate_IDs.pl
     hr
     # temporary fix until slow DockerHub automated builds trickle through ethtool in docker images
-    docker-compose exec "$SERVICE" sh <<EOF
+    #docker-compose exec "$SERVICE" sh <<EOF
+    docker exec "$SERVICE" sh <<EOF
 which yum && yum install -y ethtool && exit
 which apt-get && apt-get update && apt-get install -y ethtool && exit
 which apk && apk add ethtool && exit
