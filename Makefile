@@ -317,7 +317,8 @@ test:
 .PHONY: basic-test
 basic-test:
 	make lib-tests
-	bash-tools/all.sh
+	. tests/exclude.sh; bash-tools/all.sh
+	tests/help.sh
 
 .PHONY: install
 install:
