@@ -41,5 +41,8 @@ set +e
 check_exit_code 2
 echo "successfully detected failing repo build"
 set -e
+hr
+echo
+echo "DockerHub tests completed successfully"
 echo
 echo
