@@ -39,7 +39,7 @@ startupwait 10
 
 check_docker_available
 
-trap_debug_env
+trap_debug_env solr
 
 test_solr(){
     local version="$1"
