@@ -21,6 +21,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$srcdir/..";
 
 . ./tests/utils.sh
+. ./tests/excluded.sh
 
 section "Testing --help for all programs"
 
