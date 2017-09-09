@@ -22,11 +22,7 @@ cd "$srcdir/.."
 
 . "$srcdir/utils.sh"
 
-echo "
-# ============================================================================ #
-#                                   S p a r k
-# ============================================================================ #
-"
+section "S p a r k"
 
 export SPARK_VERSIONS="${@:-${SPARK_VERSIONS:-latest 1.3 1.4 1.5 1.6}}"
 
@@ -34,8 +30,8 @@ SPARK_HOST="${DOCKER_HOST:-${SPARK_HOST:-${HOST:-localhost}}}"
 SPARK_HOST="${SPARK_HOST##*/}"
 SPARK_HOST="${SPARK_HOST%%:*}"
 export SPARK_HOST
-export SPARK_MASTER_PORT="${SPARK_MASTER_PORT:-8080}"
-export SPARK_WORKER_PORT="${SPARK_WORKER_PORT:-8081}"
+export SPARK_MASTER_PORT_DEFAULT="${SPARK_MASTER_PORT:-8080}"
+export SPARK_WORKER_PORT_DEFAULT="${SPARK_WORKER_PORT:-8081}"
 
 export DOCKER_IMAGE="harisekhon/spark"
 export DOCKER_CONTAINER="nagios-plugins-spark-test"
@@ -43,6 +39,8 @@ export DOCKER_CONTAINER="nagios-plugins-spark-test"
 startupwait 15
 
 check_docker_available
+
+trap_debug_env spark
 
 test_spark(){
     local version="$1"
@@ -52,10 +50,8 @@ test_spark(){
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SPARK_MASTER_PORT $SPARK_WORKER_PORT
     docker-compose down &>/dev/null
     VERSION="$version" docker-compose up -d
-    spark_master_port="`docker-compose port "$DOCKER_SERVICE" "$SPARK_MASTER_PORT" | sed 's/.*://'`"
-    spark_worker_port="`docker-compose port "$DOCKER_SERVICE" "$SPARK_WORKER_PORT" | sed 's/.*://'`"
-    local SPARK_MASTER_PORT="$spark_master_port"
-    local SPARK_WORKER_PORT="$spark_worker_port"
+    export SPARK_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$SPARK_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
+    export SPARK_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$SPARK_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available $startupwait $SPARK_HOST $SPARK_MASTER_PORT $SPARK_WORKER_PORT
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
@@ -64,16 +60,22 @@ test_spark(){
         local version=".*"
     fi
     hr
+    echo "./check_spark_master_version.py -e '$version'"
     ./check_spark_master_version.py -e "$version"
     hr
+    echo "./check_spark_worker_version.py -e '$version'"
     ./check_spark_worker_version.py -e "$version"
     hr
+    echo "$perl -T ./check_spark_cluster.pl -c 1: -v"
     $perl -T ./check_spark_cluster.pl -c 1: -v
     hr
+    echo "$perl -T ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v"
     $perl -T ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v
     hr
+    echo "$perl -T ./check_spark_cluster_memory.pl -w 80 -c 90 -v"
     $perl -T ./check_spark_cluster_memory.pl -w 80 -c 90 -v
     hr
+    echo "$perl -T ./check_spark_worker.pl -w 80 -c 90 -v"
     $perl -T ./check_spark_worker.pl -w 80 -c 90 -v
     hr
     #delete_container
@@ -82,6 +84,4 @@ test_spark(){
     echo
 }
 
-for version in $SPARK_VERSIONS; do
-    test_spark $version
-done
+run_test_versions Spark
