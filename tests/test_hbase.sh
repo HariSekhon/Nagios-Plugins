@@ -45,6 +45,8 @@ export ZOOKEEPER_PORT_DEFAULT=2181
 
 check_docker_available
 
+trap_debug_env hbase
+
 export MNTDIR="/pl"
 
 export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-docker}"
@@ -62,8 +64,6 @@ EOF"
     $MNTDIR/$@
 EOF
 }
-
-trap_debug_env
 
 startupwait 15
 
