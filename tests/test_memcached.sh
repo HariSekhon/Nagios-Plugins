@@ -21,11 +21,7 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-echo "
-# ============================================================================ #
-#                               M e m c a c h e d
-# ============================================================================ #
-"
+section "M e m c a c h e d"
 
 export MEMCACHED_VERSIONS="${@:-${MEMCACHED_VERSIONS:-latest 1.4}}"
 
