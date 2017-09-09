@@ -21,9 +21,14 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-section "M y S Q L"
+if [ ${0##*/} = "test_mariadb.sh" ]; then
+    section "M a r i a D B"
+else
+    section "M y S Q L"
+fi
 
 export MYSQL_VERSIONS="${@:-${MYSQL_VERSIONS:-latest 5.5 5.6 5.7 8.0}}"
+export MARIADB_VERSIONS="${@:-${MYSQL_VERSIONS:-latest 5.5 10.1 10.2 10.3}}"
 
 MYSQL_HOST="${MYSQL_HOST:-${DOCKER_HOST:-${HOST:-localhost}}}"
 MYSQL_HOST="${MYSQL_HOST##*/}"
@@ -44,17 +49,28 @@ export MYSQL_CONFIG_FILE=mysqld.cnf
 
 check_docker_available
 
-trap_port_mappings mysql
+trap_port_mappings mysql mariadb
 
 startupwait 10
 
 test_mysql(){
-    local version="$1"
-    echo "Setting up MySQL $version test container"
+    test_db MySQL "$1"
+}
+
+test_mariadb(){
+    test_db MariaDB "$1"
+}
+
+test_db(){
+    local name="$1"
+    local version="$2"
+    local export DOCKER_SERVICE="$(tr 'A-Z' 'a-z' <<< "$name")"
+    local export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-docker-compose.yml"
+    echo "Setting up $name $version test container"
     #local DOCKER_OPTS="-e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MYSQL_PORT
     VERSION="$version" docker-compose up -d
-    echo "Getting MySQL port mapping"
+    echo "Getting $name port mapping"
     echo -n "MySQL port => "
     local export MYSQL_PORT="`docker-compose port "$DOCKER_SERVICE" "$MYSQL_PORT" | sed 's/.*://'`"
     if [ "${version%%.*}" -gt 5 ]; then
@@ -71,13 +87,14 @@ test_mysql(){
     echo "determined docker container to be '$docker_container'"
     echo "fetching my.cnf to local host"
     docker cp "$docker_container":"$MYSQL_CONFIG_PATH/$MYSQL_CONFIG_FILE" /tmp
+    echo "$perl -T ./check_mysql_config.pl -c \"/tmp/$MYSQL_CONFIG_FILE\" --warn-on-missing -v"
     $perl -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v
     rm -f "/tmp/$MYSQL_CONFIG_FILE"
     hr
+    echo "$perl -T ./check_mysql_query.pl -q \"SHOW TABLES IN information_schema\" -o CHARACTER_SETS -v"
     $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema" -o CHARACTER_SETS -v
     hr
-    #$perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
-    hr
+    echo "$perl -T ./check_mysql_query.pl -d information_schema -q \"SELECT * FROM user_privileges LIMIT 1\"  -r \"'(root|mysql.sys)'@'(%|localhost)'\" -v"
     $perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -r "'(root|mysql.sys)'@'(%|localhost)'" -v
     # TODO: add socket test - must mount on a compiled system, ie replace the docker image with a custom test one
     unset MYSQL_HOST
@@ -89,4 +106,8 @@ test_mysql(){
     echo
 }
 
-run_test_versions MySQL
+if [ ${0##*/} = "test_mariadb.sh" ]; then
+    run_test_versions MariaDB
+else
+    run_test_versions MySQL
+fi
