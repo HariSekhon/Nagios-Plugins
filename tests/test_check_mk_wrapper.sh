@@ -21,11 +21,7 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-echo "
-# ============================================================================ #
-#                        C h e c k   M K   W r a p p e r
-# ============================================================================ #
-"
+section "C h e c k   M K   W r a p p e r"
 
 # Try to make these local tests with no dependencies for simplicity
 
