@@ -28,6 +28,12 @@ endif
 #ifdef VIRTUAL_ENV
 #ifneq '$(VIRTUAL_ENV)$(CONDA_DEFAULT_ENV)$(TRAVIS)' ''
 # Looks like Perl travis builds are now using system Python
+ifndef VIRTUAL_ENV
+	VIRTUAL_ENV = ''
+endif
+ifndef CONDA_DEFAULT_ENV
+	CONDA_DEFAULT_ENV = ''
+endif
 ifneq '$(VIRTUAL_ENV)$(CONDA_DEFAULT_ENV)' ''
 	SUDO3 =
 else
@@ -311,7 +317,7 @@ lib-test:
 
 .PHONY: test
 test:
-	make lib-tests
+	make lib-test
 	tests/all.sh
 
 .PHONY: basic-test
