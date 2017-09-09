@@ -39,7 +39,7 @@ export MNTDIR="/pl"
 
 check_docker_available
 
-trap_debug_env
+trap_debug_env riak
 
 docker_exec(){
     echo "docker-compose exec --user riak '$DOCKER_SERVICE' $MNTDIR/$@"
