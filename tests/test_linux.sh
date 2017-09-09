@@ -67,7 +67,7 @@ test_linux(){
     #docker-compose exec "$SERVICE" sh <<EOF
     docker exec -i "$SERVICE" sh <<EOF
 which yum && yum install -y ethtool net-tools && exit
-which apt-get && apt-get update && apt-get install -y ethtool && exit
+which apt-get && apt-get update && apt-get install -y ethtool net-tools && exit
 which apk && apk add ethtool && exit
 :
 EOF
