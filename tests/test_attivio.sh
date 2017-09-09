@@ -24,11 +24,7 @@ cd "$srcdir/.."
 
 is_travis && exit 0
 
-echo "
-# ============================================================================ #
-#                                 A t t i v i o
-# ============================================================================ #
-"
+section "A t t i v i o"
 
 export ATTIVIO_AIE_PORT="${ATTIVIO_AIE_PORT:-17000}"
 export ATTIVIO_AIE_PERFMON_PORT="${ATTIVIO_AIE_PERFMON_PORT:-16960}"
