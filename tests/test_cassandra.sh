@@ -33,8 +33,8 @@ CASSANDRA_HOST="${DOCKER_HOST:-${CASSANDRA_HOST:-${HOST:-localhost}}}"
 CASSANDRA_HOST="${CASSANDRA_HOST##*/}"
 CASSANDRA_HOST="${CASSANDRA_HOST%%:*}"
 export CASSANDRA_HOST
-export CASSANDRA_PORT=9042
-export CASSANDRA_PORTS="7199 $CASSANDRA_PORT"
+export CASSANDRA_PORT_DEFAULT="${CASSANDRA_PORT:-9042}"
+export CASSANDRA_PORTS_DEFAULT="7199 $CASSANDRA_PORT"
 
 export MNTDIR="/pl"
 
@@ -55,8 +55,8 @@ test_cassandra(){
     #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $CASSANDRA_PORT
     VERSION="$version" docker-compose up -d
-    cassandra_port="`docker-compose port "$DOCKER_SERVICE" "$CASSANDRA_PORT" | sed 's/.*://'`"
-    cassandra_ports=`{ for x in $CASSANDRA_PORTS; do  docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
+    export CASSANDRA_PORT="`docker-compose port "$DOCKER_SERVICE" "$CASSANDRA_PORT_DEFAULT" | sed 's/.*://'`"
+    export CASSANDRA_PORTS=`{ for x in $CASSANDRA_PORTS_DEFAULT; do  docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
