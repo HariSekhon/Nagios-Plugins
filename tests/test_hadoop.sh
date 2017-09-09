@@ -35,10 +35,10 @@ export HADOOP_HOST
 #export HADOOP_DATANODE_HOST="$HADOOP_HOST"
 #export HADOOP_YARN_RESOURCE_MANAGER_HOST="$HADOOP_HOST"
 #export HADOOP_YARN_NODE_MANAGER_HOST="$HADOOP_HOST"
-export HADOOP_NAMENODE_PORT="50070"
-export HADOOP_DATANODE_PORT="50075"
-export HADOOP_YARN_RESOURCE_MANAGER_PORT="8088"
-export HADOOP_YARN_NODE_MANAGER_PORT="8042"
+export HADOOP_NAMENODE_PORT_DEFAULT="50070"
+export HADOOP_DATANODE_PORT_DEFAULT="50075"
+export HADOOP_YARN_RESOURCE_MANAGER_PORT_DEFAULT="8088"
+export HADOOP_YARN_NODE_MANAGER_PORT_DFAULT="8042"
 export HADOOP_PORTS="8042 8088 50010 50020 50070 50075 50090"
 
 export DOCKER_IMAGE="harisekhon/hadoop-dev"
@@ -49,21 +49,11 @@ startupwait 30
 
 check_docker_available
 
-print_port_mappings(){
-    echo
-    echo "Port Mappings for Debugging:"
-    echo
-    echo "export HADOOP_NAMENODE_PORT=$HADOOP_NAMENODE_PORT"
-    echo "export HADOOP_DATANODE_PORT=$HADOOP_DATANODE_PORT"
-    echo "export HADOOP_YARN_RESOURCE_MANAGER_PORT=$HADOOP_YARN_RESOURCE_MANAGER_PORT"
-    echo "export HADOOP_YARN_NODE_MANAGER_PORT=$HADOOP_YARN_NODE_MANAGER_PORT"
-    echo
-}
-
-trap 'result=$?; print_port_mappings; exit $result' $TRAP_SIGNALS
+trap_debug_env hadoop
 
 docker_exec(){
     #docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
+    echo "docker exec 'nagiosplugins_${DOCKER_SERVICE}_1' $MNTDIR/$@"
     docker exec "nagiosplugins_${DOCKER_SERVICE}_1" $MNTDIR/$@
 }
 
@@ -75,20 +65,20 @@ test_hadoop(){
     VERSION="$version" docker-compose up -d
     echo "getting Hadoop dynamic port mappings"
     printf "getting HDFS NN port => "
-    local export HADOOP_NAMENODE_PORT="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_NAMENODE_PORT" | sed 's/.*://'`"
+    export HADOOP_NAMENODE_PORT="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_NAMENODE_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HADOOP_NAMENODE_PORT"
     printf "getting HDFS DN port => "
-    local export HADOOP_DATANODE_PORT="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_DATANODE_PORT" | sed 's/.*://'`"
+    export HADOOP_DATANODE_PORT="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_DATANODE_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HADOOP_DATANODE_PORT"
     printf  "getting Yarn RM port => "
-    local export HADOOP_YARN_RESOURCE_MANAGER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_YARN_RESOURCE_MANAGER_PORT" | sed 's/.*://'`"
+    export HADOOP_YARN_RESOURCE_MANAGER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_YARN_RESOURCE_MANAGER_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HADOOP_YARN_RESOURCE_MANAGER_PORT"
     printf "getting Yarn NM port => "
-    local export HADOOP_YARN_NODE_MANAGER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_YARN_NODE_MANAGER_PORT" | sed 's/.*://'`"
+    export HADOOP_YARN_NODE_MANAGER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_YARN_NODE_MANAGER_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HADOOP_YARN_NODE_MANAGER_PORT"
     #local hadoop_ports=`{ for x in $HADOOP_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
-    local hadoop_ports="$HADOOP_NAMENODE_PORT $HADOOP_DATANODE_PORT $HADOOP_YARN_RESOURCE_MANAGER_PORT $HADOOP_YARN_NODE_MANAGER_PORT"
-    when_ports_available "$startupwait" "$HADOOP_HOST" $hadoop_ports
+    export HADOOP_PORTS="$HADOOP_NAMENODE_PORT $HADOOP_DATANODE_PORT $HADOOP_YARN_RESOURCE_MANAGER_PORT $HADOOP_YARN_NODE_MANAGER_PORT"
+    when_ports_available "$startupwait" "$HADOOP_HOST" $HADOOP_PORTS
     echo "setting up HDFS for tests"
     #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
     docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" /bin/bash <<-EOF
@@ -127,7 +117,7 @@ EOF
     echo "./check_hadoop_datanode_version.py -v -e $version"
     ./check_hadoop_datanode_version.py -v -e "$version"
     hr
-    echo "./check_hadoop_datanode_version.pl --node $hostname -v -e $version"
+    echo "$perl -T ./check_hadoop_datanode_version.pl --node $hostname -v -e $version"
     $perl -T ./check_hadoop_datanode_version.pl --node "$hostname" -v -e "$version"
     hr
     #echo "waiting 10 secs for Yarn RM to come up to test version"
@@ -148,22 +138,22 @@ EOF
         sleep 1
     done
     hr
-    echo "./check_hadoop_yarn_resource_manager_version.pl -v -e $version"
+    echo "$perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e $version"
     $perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "$version"
     hr
     echo "docker_exec check_hadoop_balance.pl -w 5 -c 10 --hadoop-bin /hadoop/bin/hdfs --hadoop-user root -t 60"
     docker_exec check_hadoop_balance.pl -w 5 -c 10 --hadoop-bin /hadoop/bin/hdfs --hadoop-user root -t 60
     hr
-    echo "./check_hadoop_checkpoint.pl"
+    echo "$perl -T ./check_hadoop_checkpoint.pl"
     $perl -T ./check_hadoop_checkpoint.pl
     hr
     echo "testing failure of checkpoint time:"
-    echo "./check_hadoop_checkpoint.pl -w 1000: -c 2:"
     set +e
+    echo "$perl -T ./check_hadoop_checkpoint.pl -w 1000: -c 2:"
     $perl -T ./check_hadoop_checkpoint.pl -w 1000: -c 2:
     check_exit_code 1
     hr
-    echo "./check_hadoop_checkpoint.pl -w 3000: -c 2000:"
+    echo "$perl -T ./check_hadoop_checkpoint.pl -w 3000: -c 2000:"
     $perl -T ./check_hadoop_checkpoint.pl -w 3000: -c 2000:
     check_exit_code 2
     set -e
@@ -171,23 +161,23 @@ EOF
     # TODO: write replacement python plugin for this
     # XXX: Total Blocks are not available via blockScannerReport from Hadoop 2.7
     if [ "$version" = "2.5" -o "$version" = "2.6" ]; then
-        echo "./check_hadoop_datanode_blockcount.pl"
+        echo "$perl -T ./check_hadoop_datanode_blockcount.pl"
         $perl -T ./check_hadoop_datanode_blockcount.pl
     fi
     hr
-    echo "./check_hadoop_datanode_jmx.pl --all-metrics"
+    echo "$perl -T ./check_hadoop_datanode_jmx.pl --all-metrics"
     $perl -T ./check_hadoop_datanode_jmx.pl --all-metrics
     hr
     # TODO: write replacement python plugins for this
     # XXX: Hadoop doesn't expose this information in the same way any more via dfshealth.jsp so these plugins are end of life with Hadoop 2.6
     if [ "$version" = "2.5" -o "$version" = "2.6" ]; then
-        echo "./check_hadoop_datanodes_block_balance.pl -w 5 -c 10"
+        echo "$perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10"
         $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
         hr
-        echo "./check_hadoop_datanodes_block_balance.pl -w 5 -c 10 -v"
+        echo "$perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10 -v"
         $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10 -v
         hr
-        echo "./check_hadoop_datanodes_blockcounts.pl"
+        echo "$perl -T ./check_hadoop_datanodes_blockcounts.pl"
         $perl -T ./check_hadoop_datanodes_blockcounts.pl
         hr
     fi
@@ -203,22 +193,18 @@ EOF
     echo "./check_hadoop_hdfs_balance.py -w 5 -c 10 -v"
     ./check_hadoop_hdfs_balance.py -w 5 -c 10 -v
     hr
-    echo "./check_hadoop_datanodes.pl"
+    echo "$perl -T ./check_hadoop_datanodes.pl"
     $perl -T ./check_hadoop_datanodes.pl
     hr
     echo "./check_hadoop_datanode_last_contact.py -d $hostname"
     ./check_hadoop_datanode_last_contact.py -d "$hostname"
     hr
-    echo "docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hadoop --hadoop-user root --hdfs-space -w 80 -c 90"
     docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hadoop --hadoop-user root --hdfs-space -w 80 -c 90
     hr
-    echo "docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --replication -w 1 -c 1"
     docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --replication -w 1 -c 1
     hr
-    echo "docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --balance -w 5 -c 10"
     docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --balance -w 5 -c 10
     hr
-    echo "docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --nodes-available -w 1 -c 1"
     docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --nodes-available -w 1 -c 1
     hr
     echo "./check_hadoop_hdfs_corrupt_files.py"
@@ -239,16 +225,16 @@ EOF
     # XXX: this doesn't seem to even work on Hadoop 2.5.2 any more, use python version below instead
     if [ "$version" = "2.5" -o "$version" = "2.6" ]; then
         # on a real cluster thresholds should be set to millions+, no defaults as must be configured based on NN heap allocated
-        echo "./check_hadoop_hdfs_total_blocks.pl -w 10 -c 20"
+        echo "$perl -T ./check_hadoop_hdfs_total_blocks.pl -w 10 -c 20"
         $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 10 -c 20
         hr
         echo "testing failure scenarios:"
         set +e
-        echo "./check_hadoop_hdfs_total_blocks.pl -w 0 -c 1"
+        echo "$perl -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 1"
         ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 1
         check_exit_code 1
         hr
-        echo "./check_hadoop_hdfs_total_blocks.pl -w 0 -c 0"
+        echo "$perl -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 0"
         ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 0
         check_exit_code 2
         set -e
@@ -270,11 +256,9 @@ EOF
     set -e
     hr
     # run inside Docker container so it can resolve redirect to DN
-    echo "docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728"
     docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728
     hr
     # run inside Docker container so it can resolve redirect to DN
-    echo "docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost"
     docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
     hr
 #    for x in 2.5 2.6 2.7; do
@@ -285,57 +269,50 @@ EOF
 #        $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log --stats
 #        hr
 #    done
-    echo "./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log"
+    echo "$perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log"
     $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log
     hr
-    echo "./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log --stats"
+    echo "$perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log --stats"
     $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck.log --stats
     hr
-    echo "docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log"
     docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log
     hr
-    echo "docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --stats"
     docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --stats
     hr
     echo "checking hdfs fsck failure scenarios:"
     set +e
-    echo "docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --last-fsck -w 1 -c 200000000"
     docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --last-fsck -w 1 -c 200000000
     check_exit_code 1
     hr
-    echo "docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --last-fsck -w 1 -c 1"
     docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --last-fsck -w 1 -c 1
     check_exit_code 2
     hr
-    echo "docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --max-blocks -w 1 -c 2"
     docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --max-blocks -w 1 -c 2
     hr
-    echo "docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --max-blocks -w 0 -c 1"
     docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --max-blocks -w 0 -c 1
     check_exit_code 1
     hr
-    echo "docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --max-blocks -w 0 -c 0"
     docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --max-blocks -w 0 -c 0
     check_exit_code 2
     set -e
     hr
-    echo "./check_hadoop_hdfs_space.pl"
+    echo "$perl -T ./check_hadoop_hdfs_space.pl"
     $perl -T ./check_hadoop_hdfs_space.pl
     hr
     echo "./check_hadoop_hdfs_space.py"
     ./check_hadoop_hdfs_space.py
     hr
     # XXX: these ports must be left as this plugin is generic and has no default port, nor does it pick up any environment variables more specific than $PORT
-    echo "./check_hadoop_jmx.pl --all -P $HADOOP_NAMENODE_PORT"
+    echo "$perl -T ./check_hadoop_jmx.pl --all -P $HADOOP_NAMENODE_PORT"
     $perl -T ./check_hadoop_jmx.pl --all -P "$HADOOP_NAMENODE_PORT"
     hr
-    echo "./check_hadoop_jmx.pl --all -P $HADOOP_DATANODE_PORT"
+    echo "$perl -T ./check_hadoop_jmx.pl --all -P $HADOOP_DATANODE_PORT"
     $perl -T ./check_hadoop_jmx.pl --all -P "$HADOOP_DATANODE_PORT"
     hr
-    echo "./check_hadoop_jmx.pl --all -P $HADOOP_YARN_RESOURCE_MANAGER_PORT"
+    echo "$perl -T ./check_hadoop_jmx.pl --all -P $HADOOP_YARN_RESOURCE_MANAGER_PORT"
     $perl -T ./check_hadoop_jmx.pl --all -P "$HADOOP_YARN_RESOURCE_MANAGER_PORT"
     hr
-    echo "./check_hadoop_jmx.pl --all -P $HADOOP_YARN_NODE_MANAGER_PORT"
+    echo "$perl -T ./check_hadoop_jmx.pl --all -P $HADOOP_YARN_NODE_MANAGER_PORT"
     $perl -T ./check_hadoop_jmx.pl --all -P "$HADOOP_YARN_NODE_MANAGER_PORT"
     hr
     echo "./check_hadoop_namenode_failed_namedirs.py"
@@ -344,72 +321,72 @@ EOF
     echo "./check_hadoop_namenode_failed_namedirs.py -v"
     ./check_hadoop_namenode_failed_namedirs.py -v
     hr
-    echo "./check_hadoop_namenode_heap.pl"
+    echo "$perl -T ./check_hadoop_namenode_heap.pl"
     $perl -T ./check_hadoop_namenode_heap.pl
     hr
-    echo "./check_hadoop_namenode_heap.pl --non-heap"
+    echo "$perl -T ./check_hadoop_namenode_heap.pl --non-heap"
     $perl -T ./check_hadoop_namenode_heap.pl --non-heap
     hr
-    echo "./check_hadoop_namenode_jmx.pl --all-metrics"
+    echo "$perl -T ./check_hadoop_namenode_jmx.pl --all-metrics"
     $perl -T ./check_hadoop_namenode_jmx.pl --all-metrics
     hr
     # TODO: write replacement python plugins for this
     # XXX: Hadoop doesn't expose this information in the same way any more via dfshealth.jsp so this plugin is end of life with Hadoop 2.6
     # gets 404 not found
     if [ "$version" = "2.5" -o "$version" = "2.6" ]; then
-        echo "./check_hadoop_namenode.pl -v --balance -w 5 -c 10"
+        echo "$perl -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10"
         $perl -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10
         hr
-        echo "./check_hadoop_namenode.pl -v --hdfs-space"
+        echo "$perl -T ./check_hadoop_namenode.pl -v --hdfs-space"
         $perl -T ./check_hadoop_namenode.pl -v --hdfs-space
         hr
-        echo "./check_hadoop_namenode.pl -v --replication -w 10 -c 20"
+        echo "$perl -T ./check_hadoop_namenode.pl -v --replication -w 10 -c 20"
         $perl -T ./check_hadoop_namenode.pl -v --replication -w 10 -c 20
         hr
-        echo "./check_hadoop_namenode.pl -v --datanode-blocks"
+        echo "$perl -T ./check_hadoop_namenode.pl -v --datanode-blocks"
         $perl -T ./check_hadoop_namenode.pl -v --datanode-blocks
         hr
-        echo "./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20"
+        echo "$perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20"
         $perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20
         hr
-        echo "./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20 -v"
+        echo "$perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20 -v"
         $perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20 -v
         hr
-        echo "./check_hadoop_namenode.pl -v --node-count -w 1 -c 1"
+        echo "$perl -T ./check_hadoop_namenode.pl -v --node-count -w 1 -c 1"
         $perl -T ./check_hadoop_namenode.pl -v --node-count -w 1 -c 1
         hr
         echo "checking node count (expecting warning < 2 nodes)"
         set +e
-        echo "./check_hadoop_namenode.pl -v --node-count -w 2 -c 1"
+        echo "$perl -T ./check_hadoop_namenode.pl -v --node-count -w 2 -c 1"
         $perl -t ./check_hadoop_namenode.pl -v --node-count -w 2 -c 1
         check_exit_code 1
         hr
         echo "checking node count (expecting critical < 2 nodes)"
-        echo "./check_hadoop_namenode.pl -v --node-count -w 2 -c 2"
+        echo "$perl -T ./check_hadoop_namenode.pl -v --node-count -w 2 -c 2"
         $perl -t ./check_hadoop_namenode.pl -v --node-count -w 2 -c 2
         check_exit_code 2
         set -e
         hr
-        echo "./check_hadoop_namenode.pl -v --node-list $hostname"
+        echo "$perl -T ./check_hadoop_namenode.pl -v --node-list $hostname"
         $perl -T ./check_hadoop_namenode.pl -v --node-list $hostname
         hr
-        echo "./check_hadoop_namenode.pl -v --heap-usage -w 80 -c 90"
+        echo "$perl -T ./check_hadoop_namenode.pl -v --heap-usage -w 80 -c 90"
         $perl -T ./check_hadoop_namenode.pl -v --heap-usage -w 80 -c 90
         hr
         echo "checking we can trigger warning on heap usage"
         set +e
-        echo "./check_hadoop_namenode.pl -v --heap-usage -w 1 -c 90"
+        echo "$perl -T ./check_hadoop_namenode.pl -v --heap-usage -w 1 -c 90"
         $perl -T ./check_hadoop_namenode.pl -v --heap-usage -w 1 -c 90
         check_exit_code 1
         hr
         echo "checking we can trigger critical on heap usage"
         set +e
-        echo "./check_hadoop_namenode.pl -v --heap-usage -w 0 -c 1"
+        echo "$perl -T ./check_hadoop_namenode.pl -v --heap-usage -w 0 -c 1"
         $perl -T ./check_hadoop_namenode.pl -v --heap-usage -w 0 -c 1
         check_exit_code 2
         set -e
         hr
-        echo "./check_hadoop_namenode.pl -v --non-heap-usage -w 80 -c 90"
+        echo "$perl -T ./check_hadoop_namenode.pl -v --non-heap-usage -w 80 -c 90"
         $perl -T ./check_hadoop_namenode.pl -v --non-heap-usage -w 80 -c 90
         hr
         # these won't trigger as NN has no max non-heap
@@ -425,61 +402,61 @@ EOF
 #        set -e
 #        hr
     fi
-    echo "./check_hadoop_namenode_safemode.pl"
+    echo "$perl -T ./check_hadoop_namenode_safemode.pl"
     $perl -T ./check_hadoop_namenode_safemode.pl
     hr
     set +o pipefail
-    echo "./check_hadoop_namenode_security_enabled.pl | grep -Fx "CRITICAL: namenode security enabled 'false'""
+    echo "$perl -T ./check_hadoop_namenode_security_enabled.pl | grep -Fx "CRITICAL: namenode security enabled 'false'""
     $perl -T ./check_hadoop_namenode_security_enabled.pl | grep -Fx "CRITICAL: namenode security enabled 'false'"
     set -o pipefail
     hr
-    echo "./check_hadoop_namenode_state.pl"
+    echo "$perl -T ./check_hadoop_namenode_state.pl"
     $perl -T ./check_hadoop_namenode_state.pl
     hr
-    echo "./check_hadoop_replication.pl"
+    echo "$perl -T ./check_hadoop_replication.pl"
     $perl -T ./check_hadoop_replication.pl
     hr
-    echo "./check_hadoop_yarn_app_stats.pl"
+    echo "$perl -T ./check_hadoop_yarn_app_stats.pl"
     $perl -T ./check_hadoop_yarn_app_stats.pl
     hr
-    echo "./check_hadoop_yarn_app_stats_queue.pl"
+    echo "$perl -T ./check_hadoop_yarn_app_stats_queue.pl"
     $perl -T ./check_hadoop_yarn_app_stats_queue.pl
     hr
-    echo "./check_hadoop_yarn_metrics.pl"
+    echo "$perl -T ./check_hadoop_yarn_metrics.pl"
     $perl -T ./check_hadoop_yarn_metrics.pl
     hr
-    echo "./check_hadoop_yarn_node_manager.pl"
+    echo "$perl -T ./check_hadoop_yarn_node_manager.pl"
     $perl -T ./check_hadoop_yarn_node_manager.pl
     hr
-    echo "./check_hadoop_yarn_node_managers.pl -w 1 -c 1"
+    echo "$perl -T ./check_hadoop_yarn_node_managers.pl -w 1 -c 1"
     $perl -T ./check_hadoop_yarn_node_managers.pl -w 1 -c 1
     hr
-    echo "./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname""
+    echo "$perl -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname""
     $perl -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname"
     hr
-    echo "./check_hadoop_yarn_queue_capacity.pl"
+    echo "$perl -T ./check_hadoop_yarn_queue_capacity.pl"
     $perl -T ./check_hadoop_yarn_queue_capacity.pl
     hr
-    echo "./check_hadoop_yarn_queue_capacity.pl --queue default"
+    echo "$perl -T ./check_hadoop_yarn_queue_capacity.pl --queue default"
     $perl -T ./check_hadoop_yarn_queue_capacity.pl --queue default
     hr
-    echo "./check_hadoop_yarn_queue_state.pl"
+    echo "$perl -T ./check_hadoop_yarn_queue_state.pl"
     $perl -T ./check_hadoop_yarn_queue_state.pl
     hr
-    echo "./check_hadoop_yarn_queue_state.pl --queue default"
+    echo "$perl -T ./check_hadoop_yarn_queue_state.pl --queue default"
     $perl -T ./check_hadoop_yarn_queue_state.pl --queue default
     hr
-    echo "./check_hadoop_yarn_resource_manager_heap.pl"
+    echo "$perl -T ./check_hadoop_yarn_resource_manager_heap.pl"
     $perl -T ./check_hadoop_yarn_resource_manager_heap.pl
     hr
     # returns -1 for NonHeapMemoryUsage max
     set +e
-    echo "./check_hadoop_yarn_resource_manager_heap.pl --non-heap"
+    echo "$perl -T ./check_hadoop_yarn_resource_manager_heap.pl --non-heap"
     $perl -T ./check_hadoop_yarn_resource_manager_heap.pl --non-heap
     check_exit_code 3
     set -e
     hr
-    echo "./check_hadoop_yarn_resource_manager_state.pl"
+    echo "$perl -T ./check_hadoop_yarn_resource_manager_state.pl"
     $perl -T ./check_hadoop_yarn_resource_manager_state.pl
     hr
     #delete_container
@@ -488,15 +465,4 @@ EOF
     echo
 }
 
-test_versions="$(ci_sample $HADOOP_VERSIONS)"
-for version in $test_versions; do
-    test_hadoop $version
-done
-
-if [ -n "${NOTESTS:-}" ]; then
-    print_port_mappings
-else
-    untrap
-    echo "All Hadoop Tests Succeeded for versions: $test_versions"
-fi
-echo
+run_test_versions Hadoop
