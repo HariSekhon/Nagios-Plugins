@@ -21,11 +21,7 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-echo "
-# ============================================================================ #
-#                                   U n i x
-# ============================================================================ #
-"
+section "U n i x"
 
 $perl -T ./check_disk_write.pl -d .
 hr
@@ -66,4 +62,7 @@ localtime="$(readlink /etc/localtime | sed 's/.*zoneinfo\///')"
 [ -z "$localtime" ] && localtime="$(date %Z)"
 $perl -T ./check_timezone.pl -T "$localtime" -A "$(date +%Z)"
 hr
-echo; echo
+echo
+echo "All Unix tests passed successfully"
+echo
+echo
