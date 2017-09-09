@@ -89,7 +89,7 @@ test_db(){
     local docker_container="$(docker-compose ps | sed -n '3s/ .*//p')"
     echo "determined docker container to be '$docker_container'"
     echo "fetching my.cnf to local host"
-    docker cp "$docker_container":"$MYSQL_CONFIG_PATH/$MYSQL_CONFIG_FILE" /tmp
+    docker cp -L "$docker_container":"$MYSQL_CONFIG_PATH/$MYSQL_CONFIG_FILE" /tmp
     hr
     extra_opt=""
     if [ "$name" = "MariaDB" ]; then
