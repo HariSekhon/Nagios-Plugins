@@ -44,7 +44,7 @@ startupwait 10
 
 check_docker_available
 
-trap_port_mappings consul
+trap_debug_env consul
 
 docker_exec(){
     docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
