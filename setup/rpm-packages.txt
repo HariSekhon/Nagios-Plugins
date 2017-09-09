@@ -32,6 +32,7 @@ git
 
 # ethtool for ./check_linux_interface.pl
 ethtool
+net-tools
 
 # used for tests
 curl
