@@ -23,6 +23,9 @@ cd "$srcdir/..";
 
 section "G e n t o o"
 
+echo "NOT READY YET", skipping...
+exit 0
+
 export DOCKER_IMAGE="gentoo/stage3-amd64"
 export DOCKER_CONTAINER="nagios-plugins-gentoo-test"
 
