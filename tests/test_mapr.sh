@@ -38,6 +38,8 @@ export MAPR_CLUSTER="${MAPR_CLUSTER:-$SANDBOX_CLUSTER}"
 export MAPR_VERSION="${MAPR_VERSION:-.*}"
 export NO_SSL="${NO_SSL-}"
 
+trap_debug_env mapr
+
 no_ssl=""
 if [ "$MAPR_CLUSTER" = "$SANDBOX_CLUSTER" -o -n "$NO_SSL" ]; then
     no_ssl="--no-ssl"
@@ -145,4 +147,7 @@ hr
 # when inheriting $MAPR_CLUSTER=demo.mapr.com it doesn't get back services, only when omitting --cluster / -C
 $perl -T check_mapr_services.pl $no_ssl -C ""
 hr
-echo; echo
+echo
+echo "All MapR tests completed successfully"
+echo
+echo
