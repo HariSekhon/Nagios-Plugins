@@ -21,11 +21,7 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-echo "
-# ============================================================================ #
-#                                   M y S Q L
-# ============================================================================ #
-"
+section "M y S Q L"
 
 export MYSQL_VERSIONS="${@:-${MYSQL_VERSIONS:-latest 5.5 5.6 5.7}}"
 
@@ -48,6 +44,8 @@ export MYSQL_CONFIG_FILE=mysqld.cnf
 
 check_docker_available
 
+trap_port_mappings mysql
+
 startupwait 10
 
 test_mysql(){
@@ -56,8 +54,10 @@ test_mysql(){
     #local DOCKER_OPTS="-e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MYSQL_PORT
     VERSION="$version" docker-compose up -d
-    mysql_port="`docker-compose port "$DOCKER_SERVICE" "$MYSQL_PORT" | sed 's/.*://'`"
-    local MYSQL_PORT="$mysql_port"
+    echo "Getting MySQL port mapping"
+    echo -n "MySQL port => "
+    local export MYSQL_PORT="`docker-compose port "$DOCKER_SERVICE" "$MYSQL_PORT" | sed 's/.*://'`"
+    echo "$MYSQL_PORT"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -74,7 +74,7 @@ test_mysql(){
     hr
     #$perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
     hr
-    $perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'%'" -v
+    $perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -r "'root'@'(%|localhost)'" -v
     # TODO: add socket test - must mount on a compiled system, ie replace the docker image with a custom test one
     unset MYSQL_HOST
     #$perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
@@ -85,6 +85,4 @@ test_mysql(){
     echo
 }
 
-for version in $(ci_sample $MYSQL_VERSIONS); do
-    test_mysql $version
-done
+run_test_versions MySQL
