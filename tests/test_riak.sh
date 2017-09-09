@@ -56,7 +56,8 @@ test_riak(){
     VERSION="$version" docker-compose up -d
     export RIAK_PORT="`docker-compose port "$DOCKER_SERVICE" "$RIAK_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$RIAK_HOST" "$RIAK_PORT"
-    sleep 2
+    echo "sleeping for 5 secs to allow process to settle"
+    sleep 5
     # Riak 2.x
     #echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
     #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type create myBucket '{"props":{"n_val":1}}' || :
