@@ -47,6 +47,7 @@ check_docker_available
 trap_debug_env consul
 
 docker_exec(){
+    echo "docker-compose exec $DOCKER_SERVICE $MNTDIR/$@"
     docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
 }
 
@@ -85,28 +86,36 @@ test_consul(){
     hr
     echo "Consul version $found_version"
     hr
+    echo "./check_consul_peer_count.py"
     ./check_consul_peer_count.py
     hr
+    echo "./check_consul_key.py -k /nagios/consul/testkey1 -r '^$random_val$' -v"
     ./check_consul_key.py -k /nagios/consul/testkey1 -r "^$random_val$" -v
     hr
     echo "writing deterministic test key to check thresholds"
     curl -X PUT -d "5" "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$testkey"
     echo
     hr
+    echo "./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 5 -v"
     ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 5 -v
     hr
+    echo "./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -c 5 -v"
     ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -c 5 -v
     hr
+    echo "./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 5 -c 5 -v"
     ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 5 -c 5 -v
     hr
     echo "checking threshold failures are caught correctly"
     hr
     set +o pipefail
+    echo "./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 5 -v | tee /dev/stderr | grep --color=yes ^WARNING"
     ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 5 -v | tee /dev/stderr | grep --color=yes ^WARNING
     hr
+    echo "./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 4 -v | tee /dev/stderr | grep --color=yes ^CRITICAL"
     ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 4 -v | tee /dev/stderr | grep --color=yes ^CRITICAL
     set -o pipefail
     hr
+    echo "./check_consul_write.py -v"
     ./check_consul_write.py -v
     hr
     #delete_container
