@@ -22,11 +22,7 @@ cd "$srcdir/.."
 
 . "$srcdir/utils.sh"
 
-echo "
-# ============================================================================ #
-#                            A p a c h e   M e s o s
-# ============================================================================ #
-"
+section "A p a c h e   M e s o s"
 
 # TODO: update plugins for > 0.24
 export MESOS_VERSIONS="${@:-${MESOS_VERSIONS:-${VERSIONS:-latest 0.23 0.24}}}"
