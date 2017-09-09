@@ -21,11 +21,7 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-echo "
-# ============================================================================ #
-#                              B l u e   T a l o n
-# ============================================================================ #
-"
+section "B l u e   T a l o n"
 
 export BLUE_TALON_HOST="${BLUE_TALON_HOST:-trial.bluetalon.com}"
 export BLUE_TALON_PORT="${BLUE_TALON_PORT:-443}"
