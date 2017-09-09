@@ -41,6 +41,8 @@ if [ -z "${ATLAS_HOST:-}" ]; then
     exit 0
 fi
 
+trap_debug_env atlas
+
 if ! which nc &>/dev/null; then
     # Don't run in docker containers
     echo "nc command not found, cannot check Atlas availability, skipping checks"
@@ -79,4 +81,6 @@ set -o pipefail
 ./check_atlas_entity.py -I "$id"
 hr
 echo "Atlas tests passed"
-echo; echo
+untrap
+echo
+echo
