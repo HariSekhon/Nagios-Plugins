@@ -72,6 +72,8 @@ if [ -n "${ATTIVIO_AIE_PERFMON_HOST:-}" ]; then
 else
     echo "WARNING: \$ATTIVIO_AIE_PERFMON_HOST not set, skipping Attivio AIE PerfMon metric checks"
 fi
+echo
+echo "All Attivio tests completed successfully"
 untrap
 echo
 echo
