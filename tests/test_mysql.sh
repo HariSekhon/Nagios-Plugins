@@ -44,8 +44,8 @@ export MYSQL_USER="root"
 export MYSQL_PASSWORD="test123"
 export MYSQL_ROOT_PASSWORD="$MYSQL_PASSWORD"
 
-export MYSQL_CONFIG_PATH=/etc/mysql/mysql.conf.d
-export MYSQL_CONFIG_FILE=mysqld.cnf
+#export MYSQL_CONFIG_PATH_DEFAULT=/etc/mysql/mysql.conf.d
+#export MYSQL_CONFIG_FILE_DEFAULT=mysqld.cnf
 
 check_docker_available
 
@@ -73,9 +73,12 @@ test_db(){
     echo "Getting $name port mapping"
     echo -n "MySQL port => "
     export MYSQL_PORT="`docker-compose port "$DOCKER_SERVICE" "$MYSQL_PORT_DEFAULT" | sed 's/.*://'`"
-    if [ "${version%%.*}" -gt 5 ]; then
-        local export MYSQL_CONFIG_PATH="/etc/mysql"
-        local export MYSQL_CONFIG_FILE="my.cnf"
+    if [ "$version" = "latest" -o "${version%%.*}" -gt 5 ]; then
+        export MYSQL_CONFIG_PATH="/etc/mysql/mysql.conf.d"
+        export MYSQL_CONFIG_FILE="mysqld.cnf"
+    else
+        export MYSQL_CONFIG_PATH="/etc/mysql"
+        export MYSQL_CONFIG_FILE="my.cnf"
     fi
     echo "$MYSQL_PORT"
     if [ -n "${NOTESTS:-}" ]; then
