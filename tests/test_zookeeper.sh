@@ -21,11 +21,7 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-echo "
-# ============================================================================ #
-#                           Z o o K e e p e r
-# ============================================================================ #
-"
+section "Z o o K e e p e r"
 
 export ZOOKEEPER_VERSIONS="${@:-${ZOOKEEPER_VERSIONS:-latest 3.3 3.4}}"
 
@@ -33,14 +29,17 @@ ZOOKEEPER_HOST="${DOCKER_HOST:-${ZOOKEEPER_HOST:-${HOST:-localhost}}}"
 ZOOKEEPER_HOST="${ZOOKEEPER_HOST##*/}"
 ZOOKEEPER_HOST="${ZOOKEEPER_HOST%%:*}"
 export ZOOKEEPER_HOST
-export ZOOKEEPER_PORT=2181
+export ZOOKEEPER_PORT_DEFAULT=2181
 export ZOOKEEPER_PORTS="$ZOOKEEPER_PORT 3181 4181"
 
 export MNTDIR="/pl"
 
 check_docker_available
 
+trap_debug_env
+
 docker_exec(){
+    echo "docker-compose exec '$DOCKER_SERVICE' $MNTDIR/$@"
     docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
 }
 
@@ -58,10 +57,9 @@ test_zookeeper(){
     #launch_container "$DOCKER_IMAGE2" "$DOCKER_CONTAINER2"
     #docker cp zoo.cfg "$DOCKER_CONTAINER2":"$MNTDIR/"
     VERSION="$version" docker-compose up -d
-    zookeeper_port="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT" | sed 's/.*://'`"
-    #local ZOOKEEPER_PORT="$zookeeper_port"
+    export ZOOKEEPER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT_DEFAULT" | sed 's/.*://'`"
     #local DOCKER_CONTAINER="$(docker-compose ps | sed -n '3s/ .*/p')"
-    when_ports_available "$startupwait" "$ZOOKEEPER_HOST" "$zookeeper_port"
+    when_ports_available "$startupwait" "$ZOOKEEPER_HOST" "$ZOOKEEPER_PORT"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -70,25 +68,29 @@ test_zookeeper(){
         expected_version=".*"
     fi
     hr
-    ./check_zookeeper_version.py -P "$zookeeper_port" -e "$expected_version"
+    echo "./check_zookeeper_version.py -e "$expected_version""
+    ./check_zookeeper_version.py -e "$expected_version"
     hr
     if [ "${version:0:3}" = "3.3" ]; then
-        $perl -T ./check_zookeeper.pl -P "$zookeeper_port" -s -w 50 -c 100 -v || :
+        echo "$perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v || :"
+        $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v || :
     else
-        $perl -T ./check_zookeeper.pl -P "$zookeeper_port" -s -w 50 -c 100 -v
+        echo "$perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v"
+        $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
     fi
     hr
-    docker_exec check_zookeeper_config.pl -H localhost -P $ZOOKEEPER_PORT -C "/zookeeper/conf/zoo.cfg" -v
+    echo "docker_exec check_zookeeper_config.pl -H localhost -C '/zookeeper/conf/zoo.cfg' -v"
+    docker_exec check_zookeeper_config.pl -H localhost -C "/zookeeper/conf/zoo.cfg" -v
     hr
-    docker_exec check_zookeeper_child_znodes.pl -H localhost -P $ZOOKEEPER_PORT -z / --no-ephemeral-check -v
+    echo "docker_exec check_zookeeper_child_znodes.pl -H localhost -z / --no-ephemeral-check -v"
+    docker_exec check_zookeeper_child_znodes.pl -H localhost -z / --no-ephemeral-check -v
     hr
-    docker_exec check_zookeeper_znode.pl -H localhost -P $ZOOKEEPER_PORT -z / -v -n --child-znodes
+    echo "docker_exec check_zookeeper_znode.pl -H localhost -z / -v -n --child-znodes"
+    docker_exec check_zookeeper_znode.pl -H localhost -z / -v -n --child-znodes
     hr
 
     #delete_container "$DOCKER_CONTAINER"
     docker-compose down
 }
 
-for version in $(ci_sample $ZOOKEEPER_VERSIONS); do
-    test_zookeeper $version
-done
+run_test_versions ZooKeeper
