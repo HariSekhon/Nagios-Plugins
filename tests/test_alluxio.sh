@@ -41,7 +41,7 @@ startupwait 15
 
 check_docker_available
 
-trap_port_mappings alluxio
+trap_debug_env alluxio
 
 test_alluxio(){
     local version="$1"
