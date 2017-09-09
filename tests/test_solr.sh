@@ -29,7 +29,7 @@ SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
 SOLR_HOST="${SOLR_HOST%%:*}"
 export SOLR_HOST
-export SOLR_PORT="${SOLR_PORT:-8983}"
+export SOLR_PORT_DEFAULT="${SOLR_PORT:-8983}"
 export SOLR_COLLECTION="${SOLR_COLLECTION:-test}"
 export SOLR_CORE="${SOLR_COLLECTION:-${SOLR_CORE:-test}}"
 
@@ -46,8 +46,7 @@ test_solr(){
     echo "Setting up Solr $version docker test container"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SOLR_PORT
     VERSION="$version" docker-compose up -d
-    solr_port="`docker-compose port "$DOCKER_SERVICE" "$SOLR_PORT" | sed 's/.*://'`"
-    local SOLR_PORT="$solr_port"
+    export SOLR_PORT="`docker-compose port "$DOCKER_SERVICE" "$SOLR_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available $startupwait $SOLR_HOST $SOLR_PORT
     if [[ "$version" = "latest" || ${version:0:1} > 3 ]]; then
         docker-compose exec "$DOCKER_SERVICE" solr create_core -c "$SOLR_CORE" || :
