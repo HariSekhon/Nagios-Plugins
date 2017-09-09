@@ -24,11 +24,7 @@ cd "$srcdir/.."
 
 is_travis && exit 0
 
-echo "
-# ============================================================================ #
-#                                  A m b a r i
-# ============================================================================ #
-"
+section "A m b a r i"
 
 export SANDBOX_CLUSTER="Sandbox"
 export AMBARI_PORT="${AMBARI_PORT:-8080}"
