@@ -91,6 +91,7 @@ test_db(){
     echo "fetching my.cnf to local host"
     docker cp "$docker_container":"$MYSQL_CONFIG_PATH/$MYSQL_CONFIG_FILE" /tmp
     hr
+    extra_opt=""
     if [ "$name" = "MariaDB" ]; then
         extra_opt="--ignore thread_cache_size"
         # for some reason MariaDB's thread_cache_size is 128 in conf vs 100 in running service in Docker, so ignore it
