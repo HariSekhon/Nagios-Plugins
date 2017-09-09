@@ -36,9 +36,11 @@ H2O_HOST="${H2O_HOST##*/}"
 H2O_HOST="${H2O_HOST%%:*}"
 export H2O_HOST
 echo "using docker address '$H2O_HOST'"
-export H2O_PORT="${H2O_PORT:-54321}"
+export H2O_PORT_DEFAULT="${H2O_PORT:-54321}"
 
 check_docker_available
+
+trap_debug_env h2o
 
 startupwait 10
 
@@ -49,26 +51,29 @@ test_h2o(){
     hr
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $H2O_PORT
     VERSION="$version" docker-compose up -d
-    h2o_port="`docker-compose port "$DOCKER_SERVICE" "$H2O_PORT" | sed 's/.*://'`"
+    local H2O_PORT="`docker-compose port "$DOCKER_SERVICE" "$H2O_PORT_DEFAULT" | sed 's/.*://'`"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
     when_ports_available $startupwait $H2O_HOST $H2O_PORT
     hr
-    $perl -T ./check_h2o_cluster.pl -P "$h2o_port"
+    echo "$perl -T ./check_h2o_cluster.pl"
+    $perl -T ./check_h2o_cluster.pl
     hr
-    $perl -T ./check_h2o_jobs.pl -P "$h2o_port"
+    echo "$perl -T ./check_h2o_jobs.pl"
+    $perl -T ./check_h2o_jobs.pl
     hr
-    $perl -T ./check_h2o_node_health.pl -P "$h2o_port"
+    echo "$perl -T ./check_h2o_node_health.pl"
+    $perl -T ./check_h2o_node_health.pl
     hr
-    $perl -T ./check_h2o_node_stats.pl -P "$h2o_port"
+    echo "$perl -T ./check_h2o_node_stats.pl"
+    $perl -T ./check_h2o_node_stats.pl
     hr
-    $perl -T ./check_h2o_nodes_last_contact.pl -P "$h2o_port"
+    echo "$perl -T ./check_h2o_nodes_last_contact.pl"
+    $perl -T ./check_h2o_nodes_last_contact.pl
     hr
     #delete_container
     docker-compose down
 }
 
-for version in $(ci_sample $H2O_VERSIONS); do
-    test_h2o $version
-done
+run_test_versions H2O
