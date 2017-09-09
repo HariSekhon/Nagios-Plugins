@@ -33,16 +33,22 @@ echo "
 export ATTIVIO_AIE_PORT="${ATTIVIO_AIE_PORT:-17000}"
 export ATTIVIO_AIE_PERFMON_PORT="${ATTIVIO_AIE_PERFMON_PORT:-16960}"
 
+trap_debug_env
+
 if [ -n "${ATTIVIO_AIE_HOST:-}" ]; then
     if which nc &>/dev/null && ! echo | nc -w 1 "$ATTIVIO_AIE_HOST" "$ATTIVIO_AIE_PORT"; then
         echo "WARNING: Attivio AIE host $ATTIVIO_AIE_HOST:$ATTIVIO_AIE_PORT not up, skipping Attivio AIE checks"
     else
+        echo "./check_attivio_aie_ingest_session_count.py -v"
         ./check_attivio_aie_ingest_session_count.py -v
         hr
+        echo "./check_attivio_aie_license_expiry.py -v"
         ./check_attivio_aie_license_expiry.py -v
         hr
+        echo "./check_attivio_aie_system_health.py -v"
         ./check_attivio_aie_system_health.py -v
         hr
+        echo "./check_attivio_aie_version.py -v"
         ./check_attivio_aie_version.py -v
         hr
     fi
@@ -54,9 +60,11 @@ if [ -n "${ATTIVIO_AIE_PERFMON_HOST:-}" ]; then
     if which nc &>/dev/null && ! echo | nc -w 1 "$ATTIVIO_AIE_PERFMON_HOST" "$ATTIVIO_AIE_PERFMON_PORT"; then
         echo "WARNING: Attivio AIE PerfMon host $ATTIVIO_AIE_PERFMON_HOST:$ATTIVIO_AIE_PERFMON_PORT not up, skipping Attivio AIE PerfMon checks"
     else
+        echo "./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -P "$ATTIVIO_AIE_PERFMON_PORT" -l |"
         ./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -P "$ATTIVIO_AIE_PERFMON_PORT" -l |
         tail -n +3 |
         while read metric; do
+            echo "./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -P "$ATTIVIO_AIE_PERFMON_PORT" -m "$metric" -v"
             ./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -P "$ATTIVIO_AIE_PERFMON_PORT" -m "$metric" -v
             hr
         done
@@ -64,5 +72,6 @@ if [ -n "${ATTIVIO_AIE_PERFMON_HOST:-}" ]; then
 else
     echo "WARNING: \$ATTIVIO_AIE_PERFMON_HOST not set, skipping Attivio AIE PerfMon metric checks"
 fi
+untrap
 echo
 echo
