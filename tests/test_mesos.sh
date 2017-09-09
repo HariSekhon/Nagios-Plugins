@@ -42,7 +42,7 @@ check_docker_available
 
 trap_debug_env mesos
 
-test_mesos_version(){
+test_mesos(){
     local version="${1:-latest}"
     hr
     echo "Setting up Mesos $version test container"
