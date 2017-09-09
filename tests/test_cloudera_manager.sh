@@ -42,7 +42,7 @@ if [ -z "${CM_HOST:-}" ]; then
     exit 0
 fi
 
-trap_debug_env
+trap_debug_env cm
 
 if which nc &>/dev/null && ! echo | nc -G 1 "$CM_HOST" $CM_PORT; then
     echo "WARNING: Cloudera Manager host $CM_HOST:$CM_PORT not up, skipping Cloudera Manager checks"
