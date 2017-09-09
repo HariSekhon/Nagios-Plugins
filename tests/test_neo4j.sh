@@ -42,9 +42,11 @@ export NEO4J_PORTS="$NEO4J_PORT 7473"
 
 check_docker_available
 
+trap_debug_env neo4j
+
 startupwait 10
 
-test_neo4j(){
+test_neo4j_noauth(){
     local version="$1"
     echo "Setting up Neo4J $version test container without authentication"
     #local DOCKER_OPTS="-e NEO4J_AUTH=none"
@@ -52,10 +54,9 @@ test_neo4j(){
     # otherwise repeated attempts create more nodes and break the NumberOfNodeIdsInUse upper threshold
     docker-compose down &>/dev/null
     VERSION="$version" docker-compose up -d
-    neo4j_port="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT" | sed 's/.*://'`"
-    local NEO4J_PORT="$neo4j_port"
-    neo4j_ports=`{ for x in $NEO4J_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
-    when_ports_available $startupwait $NEO4J_HOST $neo4j_ports
+    export NEO4J_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
+    export NEO4J_PORTS=`{ for x in $NEO4J_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
+    when_ports_available $startupwait $NEO4J_HOST $NEO4J_PORTS
     echo "creating test Neo4J node"
     docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
     if [ "${NOTESTS:-}" ]; then
@@ -110,18 +111,24 @@ test_neo4j_auth(){
         local version=".*"
     fi
     hr
+    echo "$perl -T ./check_neo4j_version.pl -v -e '^$version'"
     $perl -T ./check_neo4j_version.pl -v -e "^$version"
     hr
+    echo "$perl -T ./check_neo4j_readonly.pl -v"
     $perl -T ./check_neo4j_readonly.pl -v
     hr
+    echo "$perl -T ./check_neo4j_remote_shell_enabled.pl -v"
     $perl -T ./check_neo4j_remote_shell_enabled.pl -v
     hr
+    echo "$perl -T ./check_neo4j_stats.pl -v"
     $perl -T ./check_neo4j_stats.pl -v
     hr
     # TODO: why is this zero and not one??
+    echo "$perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v"
     $perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v
     hr
     # Neo4J on Travis doesn't seem to return anything resulting in "'attributes' field not returned by Neo4J" error
+    echo "$perl -T ./check_neo4j_store_sizes.pl -v"
     $perl -T ./check_neo4j_store_sizes.pl -v
     hr
     #delete_container "$DOCKER_CONTAINER-auth"
@@ -130,7 +137,10 @@ test_neo4j_auth(){
     echo
 }
 
-for version in $(ci_sample $NEO4J_VERSIONS); do
-    test_neo4j $version
-    test_neo4j_auth $version
-done
+test_neo4j(){
+    local version="$1"
+    test_neo4j_noauth "$version"
+    test_neo4j_auth   "$version"
+}
+
+run_test_versions Neo4J
