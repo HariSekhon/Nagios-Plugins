@@ -71,6 +71,7 @@ if nc -vzw 1 $BLUE_TALON_HOST $BLUE_TALON_PORT &>/dev/null; then
 else
     echo "WARNING: Blue Talon host $BLUE_TALON_HOST:$BLUE_TALON_PORT not available, skipping checks..."
 fi
+echo
 echo "All Blue Talon tests completed successfully"
 untrap
 echo
