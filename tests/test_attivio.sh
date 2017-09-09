@@ -33,7 +33,7 @@ echo "
 export ATTIVIO_AIE_PORT="${ATTIVIO_AIE_PORT:-17000}"
 export ATTIVIO_AIE_PERFMON_PORT="${ATTIVIO_AIE_PERFMON_PORT:-16960}"
 
-trap_debug_env
+trap_debug_env attivio
 
 if [ -n "${ATTIVIO_AIE_HOST:-}" ]; then
     if which nc &>/dev/null && ! echo | nc -w 1 "$ATTIVIO_AIE_HOST" "$ATTIVIO_AIE_PORT"; then
