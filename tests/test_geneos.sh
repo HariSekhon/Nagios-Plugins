@@ -21,11 +21,7 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-echo "
-# ============================================================================ #
-#                                  G e n e o s
-# ============================================================================ #
-"
+section "G e n e o s"
 
 # Try to make these local tests with no dependencies for simplicity
 
