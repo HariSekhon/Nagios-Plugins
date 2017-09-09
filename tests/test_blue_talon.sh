@@ -38,7 +38,7 @@ if [ -n "${BLUE_TALON_NO_SSL:-}" ]; then
     export PROTOCOL="https"
 fi
 
-trap_debug_env
+trap_debug_env blue_talon
 
 if nc -vzw 1 $BLUE_TALON_HOST $BLUE_TALON_PORT &>/dev/null; then
     # Blue Talon is hanging but the port is open (honeypot?)
