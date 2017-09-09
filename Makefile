@@ -303,7 +303,7 @@ jar-plugins:
 sonar:
 	sonar-scanner
 
-.PHONY: lib-tests
+.PHONY: lib-test
 lib-test:
 	cd lib && make test
 	rm -fr lib/cover_db || :
