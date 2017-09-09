@@ -23,7 +23,7 @@ cd "$srcdir/..";
 
 section "M y S Q L"
 
-export MYSQL_VERSIONS="${@:-${MYSQL_VERSIONS:-latest 5.5 5.6 5.7}}"
+export MYSQL_VERSIONS="${@:-${MYSQL_VERSIONS:-latest 5.5 5.6 5.7 8.0}}"
 
 MYSQL_HOST="${MYSQL_HOST:-${DOCKER_HOST:-${HOST:-localhost}}}"
 MYSQL_HOST="${MYSQL_HOST##*/}"
@@ -57,6 +57,10 @@ test_mysql(){
     echo "Getting MySQL port mapping"
     echo -n "MySQL port => "
     local export MYSQL_PORT="`docker-compose port "$DOCKER_SERVICE" "$MYSQL_PORT" | sed 's/.*://'`"
+    if [ "${version%%.*}" -gt 5 ]; then
+        local export MYSQL_CONFIG_PATH="/etc/mysql"
+        local export MYSQL_CONFIG_FILE="my.cnf"
+    fi
     echo "$MYSQL_PORT"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
@@ -74,7 +78,7 @@ test_mysql(){
     hr
     #$perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
     hr
-    $perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -r "'root'@'(%|localhost)'" -v
+    $perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -r "'(root|mysql.sys)'@'(%|localhost)'" -v
     # TODO: add socket test - must mount on a compiled system, ie replace the docker image with a custom test one
     unset MYSQL_HOST
     #$perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
