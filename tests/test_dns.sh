@@ -72,5 +72,8 @@ $perl -T ./check_dns.pl --server "$nameservers" --record google.com --randomize-
 hr
 echo "MX record resolve with FQDN dns servers requiring pre-resolving:"
 $perl -T ./check_dns.pl --server "$nameservers" --record google.com --type MX
-
-echo; echo
+hr
+echo
+echo "All DNS tests completed successfully"
+echo
+echo
