@@ -56,8 +56,8 @@ test_mesos(){
     fi
     when_ports_available "$startupwait" "$MESOS_HOST" "$MESOS_MASTER_PORT" "$MESOS_WORKER_PORT"
     hr
-    echo "$perl -T ./check_mesos_activated_slaves.pl -P "$mesos_master_port" -v"
-    $perl -T ./check_mesos_activated_slaves.pl -P "$mesos_master_port" -v
+    echo "$perl -T ./check_mesos_activated_slaves.pl -P "$MESOS_MASTER_PORT" -v"
+    $perl -T ./check_mesos_activated_slaves.pl -P "$MESOS_MASTER_PORT" -v
     hr
     echo "#$perl -T ./check_mesos_chronos_jobs.pl -P "$cronos_port" -v"
     #$perl -T ./check_mesos_chronos_jobs.pl -P "$cronos_port" -v
