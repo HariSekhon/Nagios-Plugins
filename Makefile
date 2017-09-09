@@ -303,12 +303,21 @@ jar-plugins:
 sonar:
 	sonar-scanner
 
-.PHONY: test
-test:
+.PHONY: lib-tests
+lib-test:
 	cd lib && make test
 	rm -fr lib/cover_db || :
 	cd pylib && make test
+
+.PHONY: test
+test:
+	make lib-tests
 	tests/all.sh
+
+.PHONY: basic-test
+basic-test:
+	make lib-tests
+	bash-tools/all.sh
 
 .PHONY: install
 install:
