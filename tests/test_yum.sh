@@ -27,11 +27,7 @@ cd "$srcdir/..";
 return 0 &>/dev/null || :
 exit 0
 
-echo "
-# ============================================================================ #
-#                                     Y u m
-# ============================================================================ #
-"
+section "Y u m"
 
 export DOCKER_IMAGE="harisekhon/centos-github"
 export DOCKER_CONTAINER="nagios-plugins-centos-test"
