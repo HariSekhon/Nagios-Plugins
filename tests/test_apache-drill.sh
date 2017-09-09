@@ -34,7 +34,7 @@ APACHE_DRILL_HOST="${DOCKER_HOST:-${APACHE_DRILL_HOST:-${HOST:-localhost}}}"
 APACHE_DRILL_HOST="${APACHE_DRILL_HOST##*/}"
 APACHE_DRILL_HOST="${APACHE_DRILL_HOST%%:*}"
 export APACHE_DRILL_HOST
-export APACHE_DRILL_PORT=8047
+export APACHE_DRILL_PORT_DEFAULT=8047
 
 export DOCKER_CONTAINER="nagios-plugins-apache-drill"
 
@@ -55,8 +55,8 @@ test_apache_drill(){
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    port="`docker-compose port "$DOCKER_SERVICE" "$APACHE_DRILL_PORT" | sed 's/.*://'`"
-    when_ports_available "$startupwait" "$APACHE_DRILL_HOST" "$port"
+    export APACHE_DRILL_PORT="`docker-compose port "$DOCKER_SERVICE" "$APACHE_DRILL_PORT_DEFAULT" | sed 's/.*://'`"
+    when_ports_available "$startupwait" "$APACHE_DRILL_HOST" "$APACHE_DRILL_PORT"
     if [ "$version" = "latest" ]; then
         local version="*"
     fi
