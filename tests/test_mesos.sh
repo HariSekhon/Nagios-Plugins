@@ -36,13 +36,15 @@ MESOS_HOST="${MESOS_HOST##*/}"
 MESOS_HOST="${MESOS_HOST%%:*}"
 export MESOS_HOST
 
-export MESOS_MASTER_PORT="${MESOS_MASTER_PORT:-5050}"
-export MESOS_WORKER_PORT="${MESOS_WORKER_PORT:-5051}"
+export MESOS_MASTER_PORT_DEFAULT="${MESOS_MASTER_PORT:-5050}"
+export MESOS_WORKER_PORT_DEFAULT="${MESOS_WORKER_PORT:-5051}"
 export MESOS_MASTER="$MESOS_HOST:$MESOS_MASTER_PORT"
 
 startupwait 20
 
 check_docker_available
+
+trap_debug_env mesos
 
 test_mesos_version(){
     local version="${1:-latest}"
@@ -51,36 +53,48 @@ test_mesos_version(){
     hr
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MESOS_MASTER_PORT $MESOS_WORKER_PORT
     VERSION="$version" docker-compose up -d
-    mesos_master_port="`docker-compose port "$DOCKER_SERVICE" "$MESOS_MASTER_PORT" | sed 's/.*://'`"
-    mesos_worker_port="`docker-compose port "$DOCKER_SERVICE" "$MESOS_WORKER_PORT" | sed 's/.*://'`"
+    export MESOS_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$MESOS_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
+    export MESOS_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$MESOS_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    when_ports_available "$startupwait" "$MESOS_HOST" "$mesos_master_port" "$mesos_worker_port"
+    when_ports_available "$startupwait" "$MESOS_HOST" "$MESOS_MASTER_PORT" "$MESOS_WORKER_PORT"
     hr
+    echo "$perl -T ./check_mesos_activated_slaves.pl -P "$mesos_master_port" -v"
     $perl -T ./check_mesos_activated_slaves.pl -P "$mesos_master_port" -v
     hr
+    echo "#$perl -T ./check_mesos_chronos_jobs.pl -P "$cronos_port" -v"
     #$perl -T ./check_mesos_chronos_jobs.pl -P "$cronos_port" -v
     hr
-    $perl -T ./check_mesos_deactivated_slaves.pl -P "$mesos_master_port" -v
+    echo "$perl -T ./check_mesos_deactivated_slaves.pl -v"
+    $perl -T ./check_mesos_deactivated_slaves.pl -v
     hr
-    $perl -T ./check_mesos_master_health.pl -P "$mesos_master_port" -v
+    echo "$perl -T ./check_mesos_master_health.pl -v"
+    $perl -T ./check_mesos_master_health.pl -v
     hr
-    $perl -T ./check_mesos_master_state.pl -P "$mesos_master_port" -v
+    echo "$perl -T ./check_mesos_master_state.pl -v"
+    $perl -T ./check_mesos_master_state.pl -v
     hr
-    $perl -T ./check_mesos_metrics.pl -P "$mesos_master_port" -v
+    echo "$perl -T ./check_mesos_metrics.pl -P "$MESOS_MASTER_PORT" -v"
+    $perl -T ./check_mesos_metrics.pl -P "$MESOS_MASTER_PORT" -v
     hr
-    $perl -T ./check_mesos_metrics.pl -P "$mesos_worker_port" -v
+    echo "$perl -T ./check_mesos_metrics.pl -P "$MESOS_WORKER_PORT" -v"
+    $perl -T ./check_mesos_metrics.pl -P "$MESOS_WORKER_PORT" -v
     hr
-    $perl -T ./check_mesos_master_metrics.pl -P "$mesos_master_port" -v
+    echo "$perl -T ./check_mesos_master_metrics.pl -v"
+    $perl -T ./check_mesos_master_metrics.pl -v
     hr
+    echo "set +e"
     set +e
-    slave="$(./check_mesos_slave.py -P "$mesos_master_port" -l | awk '/=/{print $1; exit}')"
+    slave="$(./check_mesos_slave.py -l | awk '/=/{print $1; exit}')"
+    echo "set -e"
     set -e
     echo "checking for mesos slave '$slave'"
-    ./check_mesos_slave.py -P "$mesos_master_port" -v -s "$slave"
+    echo "./check_mesos_slave.py -v -s "$slave""
+    ./check_mesos_slave.py -v -s "$slave"
     hr
-    $perl -T ./check_mesos_slave_metrics.pl -P "$mesos_worker_port" -v
+    echo "$perl -T ./check_mesos_slave_metrics.pl  -v"
+    $perl -T ./check_mesos_slave_metrics.pl  -v
     hr
     # Not implemented yet
     #$perl -T ./check_mesos_registered_framework.py -v
@@ -88,12 +102,11 @@ test_mesos_version(){
     # Not implemented yet
     #$perl -T ./check_mesos_slave_container_statistics.pl -v
     hr
-    $perl -T ./check_mesos_slave_state.pl -P "$mesos_worker_port" -v
+    echo "$perl -T ./check_mesos_slave_state.pl -v"
+    $perl -T ./check_mesos_slave_state.pl -v
     hr
     #delete_container
     docker-compose down
 }
 
-for version in $(ci_sample $MESOS_VERSIONS); do
-    test_mesos_version "$version"
-done
+run_test_versions Mesos
