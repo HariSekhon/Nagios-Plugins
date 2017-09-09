@@ -40,7 +40,7 @@ export DOCKER_CONTAINER="nagios-plugins-apache-drill"
 
 check_docker_available
 
-trap_port_mappings apache_drill
+trap_debug_env apache_drill
 
 test_apache_drill(){
     local version="$1"
