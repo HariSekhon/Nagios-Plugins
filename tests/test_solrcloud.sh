@@ -46,6 +46,8 @@ startupwait 30
 
 check_docker_available
 
+trap_debug_env solr zookeeper
+
 docker_exec(){
     echo "docker-compose exec '$DOCKER_SERVICE' $MNTDIR/$@"
     docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
