@@ -33,8 +33,8 @@ export NEO4J_HOST
 export NEO4J_USERNAME="${NEO4J_USERNAME:-${NEO4J_USERNAME:-neo4j}}"
 export NEO4J_PASSWORD="${NEO4J_PASSWORD:-${NEO4J_PASSWORD:-testpw}}"
 
-export NEO4J_PORT="7474"
-export NEO4J_PORTS="$NEO4J_PORT 7473"
+export NEO4J_PORT_DEFAULT="7474"
+export NEO4J_PORTS_DEFAULT="$NEO4J_PORT_DEFAULT 7473"
 
 check_docker_available
 
@@ -51,7 +51,7 @@ test_neo4j_noauth(){
     docker-compose down &>/dev/null || :
     VERSION="$version" docker-compose up -d
     export NEO4J_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
-    export NEO4J_PORTS=`{ for x in $NEO4J_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
+    export NEO4J_PORTS=`{ for x in $NEO4J_PORTS_DEFAULT; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
     when_ports_available $startupwait $NEO4J_HOST $NEO4J_PORTS
     echo "creating test Neo4J node"
     docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
