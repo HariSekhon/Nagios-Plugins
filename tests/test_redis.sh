@@ -42,7 +42,7 @@ startupwait 5
 
 check_docker_available
 
-trap_debug_env
+trap_debug_env redis
 
 # TODO: redis authenticated container testing
 test_redis(){
