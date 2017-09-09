@@ -24,11 +24,7 @@ cd "$srcdir2/..";
 # because including bash-tools/util.sh resets the srcdir
 srcdir="$srcdir2"
 
-echo "
-# ============================================================================ #
-#                                   N g i n x
-# ============================================================================ #
-"
+section "N g i n x"
 
 export NGINX_VERSIONS="${@:-${NGINX_VERSIONS:-latest 1.10 1.11.0}}"
 
