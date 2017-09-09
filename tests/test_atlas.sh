@@ -80,7 +80,8 @@ id="$(./check_atlas_entity.py -l | tail -n 1 | awk '{print $1}')"
 set -o pipefail
 ./check_atlas_entity.py -I "$id"
 hr
-echo "Atlas tests passed"
+echo
+echo "All Atlas tests completed successfully"
 untrap
 echo
 echo
