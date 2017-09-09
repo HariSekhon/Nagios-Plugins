@@ -43,6 +43,8 @@ export DOCKER_IMAGE="harisekhon/kafka"
 
 check_docker_available
 
+trap_debug_env kafka
+
 export KAFKA_TOPIC="nagios-plugins-kafka-test"
 
 # needs to be longer than 10 to allow Kafka to settle so topic creation works
@@ -83,67 +85,100 @@ test_kafka(){
         exit 1
     fi
     hr
+    echo "./check_kafka.py -H '$KAFKA_HOST' -P '$KAFKA_PORT' -T '$KAFKA_TOPIC' -v"
     ./check_kafka.py -H "$KAFKA_HOST" -P "$KAFKA_PORT" -T "$KAFKA_TOPIC" -v
     hr
+    echo "./check_kafka.py -H '$KAFKA_HOST' -P '$KAFKA_PORT' -v"
     ./check_kafka.py -H "$KAFKA_HOST" -P "$KAFKA_PORT" -v
     hr
+    echo "./check_kafka.py -H '$KAFKA_HOST' -v"
     ./check_kafka.py -H "$KAFKA_HOST" -v
     hr
+    echo "./check_kafka.py -B '$KAFKA_HOST' -v"
     ./check_kafka.py -B "$KAFKA_HOST" -v
     hr
+    echo "./check_kafka.py -B '$KAFKA_HOST:$KAFKA_PORT' -v"
     ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -v
     hr
+    echo "./check_kafka.py -B '$KAFKA_HOST' -P '$KAFKA_PORT' -v"
     ./check_kafka.py -B "$KAFKA_HOST" -P "$KAFKA_PORT" -v
     hr
+    echo "KAFKA_BROKERS='$KAFKA_HOST' ./check_kafka.py -v"
     KAFKA_BROKERS="$KAFKA_HOST" ./check_kafka.py -v
     hr
+    echo "KAFKA_BROKERS='$KAFKA_HOST:$KAFKA_PORT' ./check_kafka.py -P '999' -v"
     KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" ./check_kafka.py -P "999" -v
     hr
+    echo "./check_kafka.py -v"
     ./check_kafka.py -v
     hr
     set +e
+    echo "./check_kafka.py -B '$KAFKA_HOST' -P '999' -v"
     ./check_kafka.py -B "$KAFKA_HOST" -P "999" -v
     check_exit_code 2
     hr
+    echo "./check_kafka.py -B '$KAFKA_HOST:$KAFKA_PORT' -v --list-topics"
     ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -v --list-topics
     check_exit_code 3
     hr
+    echo "./check_kafka.py -B '$KAFKA_HOST:$KAFKA_PORT' -v -T '$KAFKA_TOPIC' --list-partitions"
     ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -v -T "$KAFKA_TOPIC" --list-partitions
     check_exit_code 3
     hr
+    echo "./check_kafka.py -B '$KAFKA_HOST:$KAFKA_PORT' -v --list-partitions"
     ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -v --list-partitions
     check_exit_code 3
     hr
+    echo "./check_kafka.py -B 'localhost:9999' -v -T '$KAFKA_TOPIC'"
     ./check_kafka.py -B "localhost:9999" -v -T "$KAFKA_TOPIC"
     check_exit_code 2
     hr
+    echo "./check_kafka.py -B 'localhost:9999' -v -T '$KAFKA_TOPIC' --list-partitions"
     ./check_kafka.py -B "localhost:9999" -v -T "$KAFKA_TOPIC" --list-partitions
     check_exit_code 2
     set -e
     hr
+    echo "./check_kafka.py -B '$KAFKA_HOST:$KAFKA_PORT' -T '$KAFKA_TOPIC' -v"
     ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -T "$KAFKA_TOPIC" -v
     hr
+#    ./check_kafka_topic_exists.py -B "$KAFKA_HOST:$KAFKA_PORT" -T "$KAFKA_TOPIC" -v
+#    hr
+#    set +e
+#    ./check_kafka_topic_exists.py -B "$KAFKA_HOST:$KAFKA_PORT" -T "nonexistenttopic" -v
+#    check_exit_code 2
+#    hr
+#    ./check_kafka_topic_exists.py -B "localhost:9999" -T "$KAFKA_TOPIC" -v
+#    check_exit_code 2
+    hr
     set +e
+    echo "$perl -T ./check_kafka.pl -v --list-topics"
     $perl -T ./check_kafka.pl -v --list-topics
     check_exit_code 3
     hr
+    echo "$perl -T ./check_kafka.pl -T '$KAFKA_TOPIC' -v --list-partitions"
     $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions
     check_exit_code 3
     hr
+    echo "$perl -T ./check_kafka.pl -v --list-partitions"
     $perl -T ./check_kafka.pl -v --list-partitions
     check_exit_code 3
     hr
+    echo "$perl -T ./check_kafka.pl -H localhost -P 9999 -v --list-partitions"
     $perl -T ./check_kafka.pl -H localhost -P 9999 -v --list-partitions
     check_exit_code 2
     hr
+    echo "$perl -T ./check_kafka.pl -H localhost -P 9999 -v"
     $perl -T ./check_kafka.pl -H localhost -P 9999 -v
     check_exit_code 2
     set -e
     hr
+    echo "KAFKA_BROKERS='$KAFKA_HOST:$KAFKA_PORT' KAFKA_HOST='' KAFKA_PORT='' $perl -T ./check_kafka.pl -T '$KAFKA_TOPIC' -v"
     KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" KAFKA_HOST="" KAFKA_PORT="" $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
     hr
+    echo "$perl -T ./check_kafka.pl -T '$KAFKA_TOPIC' -v"
     $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
     hr
+    echo "$perl -T ./check_kafka.pl -v"
     $perl -T ./check_kafka.pl -v
     hr
     #delete_container
@@ -151,6 +186,4 @@ test_kafka(){
     echo
 }
 
-for version in $(ci_sample $KAFKA_VERSIONS); do
-    test_kafka $version
-done
+run_test_versions Kafka
