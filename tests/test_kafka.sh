@@ -22,11 +22,7 @@ cd "$srcdir/.."
 
 . "$srcdir/utils.sh"
 
-echo "
-# ============================================================================ #
-#                                   K a f k a
-# ============================================================================ #
-"
+section "K a f k a"
 
 # TODO: latest container 2.11_0.10 doesn't work yet, no leader takes hold
 #export KAFKA_VERSIONS="${@:-2.11_0.10 2.11_0.10 latest}"
