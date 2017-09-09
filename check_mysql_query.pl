@@ -9,15 +9,15 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check arbitrary MySQL queries against regex matches or numerical ranges, with perfdata support
+$DESCRIPTION = "Nagios Plugin to check arbitrary MySQL queries against regex matches or numerical ranges, with perfdata support for graphing
 
-It looks like a similar plugin has now been added to the standard Nagios Plugins collection, although this one still has more features.
+It looks like a similar plugin has now been added to the standard Nagios Plugins collection, although this one still has more features
 
-Only the first row returned is considered for the result so your SQL query should take that in to account.
+Only the first row returned is considered for the result so your SQL query should take that in to account
 
 DO NOT ADD a semi-colon to the end of your query in Nagios, although this plugin can handle this fine and it works on the command line, in Nagios the command will end up being prematurely terminated and result in a null critical error that is hard to debug and that this plugin cannot catch since it's raised by the shell before this plugin is executed
 
-Tested on MySQL 5.0, 5.1, 5.5, 5.6, 5.7
+Tested on MySQL 5.0, 5.1, 5.5, 5.6, 5.7, 8.0
 ";
 
 # TODO: add retry switch if valid below threshold
