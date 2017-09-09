@@ -79,5 +79,7 @@ hr
 hr
 ./csv_wrapper.py $perl -T check_disk_write.pl --help | tee /dev/stderr | grep -q "^UNKNOWN,"
 hr
-echo "Success!"
-echo; echo
+echo
+echo "All CSV Wrapper tests completed successfully"
+echo
+echo
