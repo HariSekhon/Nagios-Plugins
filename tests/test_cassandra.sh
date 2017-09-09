@@ -46,6 +46,7 @@ trap_debug_env cassandra
 
 docker_exec(){
     #docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
+    echo "docker-compose exec $DOCKER_SERVICE $MNTDIR/$@"
     docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
 }
 
