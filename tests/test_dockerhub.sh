@@ -25,7 +25,7 @@ srcdir="$srcdir2"
 
 #[ `uname -s` = "Linux" ] || exit 0
 
-section "DockerHub Plugins"
+section "D o c k e r H u b "
 
 # test one of the more stable automated builds
 echo "testing repo expected to have successful build:"
