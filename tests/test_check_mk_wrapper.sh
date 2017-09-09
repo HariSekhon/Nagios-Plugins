@@ -112,6 +112,7 @@ hr
 echo "./check_mk_wrapper.py $perl -T check_disk_write.pl --help | tee /dev/stderr | grep -q '^3 '"
 ./check_mk_wrapper.py $perl -T check_disk_write.pl --help | tee /dev/stderr | grep -q '^3 '
 hr
+echo
 echo "All check_mk_wrapper tests passed succesfully"
 echo
 echo
