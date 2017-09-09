@@ -95,7 +95,8 @@ test_cassandra(){
     #delete_container
     docker-compose down
     hr
-    echo; echo
+    echo
+    echo
 }
 
 run_test_versions Cassandra
