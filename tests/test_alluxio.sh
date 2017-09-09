@@ -65,17 +65,24 @@ test_alluxio(){
         ./check_alluxio_master_version.py -v -e "$version" && break
         sleep 1
     done
+    hr
+    echo "./check_alluxio_master_version.py -v -e $version"
     ./check_alluxio_master_version.py -v -e "$version"
     hr
+    echo "echo ./check_alluxio_worker_version.py -v -e $version"
     ./check_alluxio_worker_version.py -v -e "$version"
     hr
+    echo "./check_alluxio_master.py -v"
     ./check_alluxio_master.py -v
     hr
     #docker exec -ti "$DOCKER_CONTAINER" ps -ef
+    echo "./check_alluxio_worker.py -v"
     ./check_alluxio_worker.py -v
     hr
+    echo "./check_alluxio_running_workers.py -v"
     ./check_alluxio_running_workers.py -v
     hr
+    echo "./check_alluxio_dead_workers.py -v"
     ./check_alluxio_dead_workers.py -v
     hr
     #delete_container
