@@ -24,11 +24,7 @@ cd "$srcdir/.."
 
 is_travis && exit 0
 
-echo "
-# ============================================================================ #
-#                                    M a p R
-# ============================================================================ #
-"
+section "M a p R"
 
 export SANDBOX_CLUSTER="demo.mapr.com"
 export MAPR_PORT="${MAPR_PORT:-8443}"
