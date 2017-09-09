@@ -34,9 +34,11 @@ MEMCACHED_HOST="${MEMCACHED_HOST##*/}"
 MEMCACHED_HOST="${MEMCACHED_HOST%%:*}"
 export MEMCACHED_HOST
 
-export MEMCACHED_PORT=11211
+export MEMCACHED_PORT_DEFAULT="${MEMCACHED_PORT:-11211}"
 
 check_docker_available
+
+trap_debug_env memcached
 
 startupwait 1
 
@@ -45,22 +47,25 @@ test_memcached(){
     echo "Setting up Memcached $version test container"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MEMCACHED_PORT
     VERSION="$version" docker-compose up -d
-    memcached_port="`docker-compose port "$DOCKER_SERVICE" "$MEMCACHED_PORT" | sed 's/.*://'`"
-    when_ports_available "$startupwait" "$MEMCACHED_HOST" "$memcached_port"
+    export MEMCACHED_PORT="`docker-compose port "$DOCKER_SERVICE" "$MEMCACHED_PORT_DEFAULT" | sed 's/.*://'`"
+    when_ports_available "$startupwait" "$MEMCACHED_HOST" "$MEMCACHED_PORT"
     hr
     echo "creating test Memcached key-value"
-    echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc "$MEMCACHED_HOST" "$memcached_port"
+    echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc "$MEMCACHED_HOST" "$MEMCACHED_PORT"
     echo done
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
     hr
     # MEMCACHED_HOST obtained via .travis.yml
-    $perl -T ./check_memcached_write.pl -P "$memcached_port" -v
+    echo "$perl -T ./check_memcached_write.pl -v"
+    $perl -T ./check_memcached_write.pl -v
     hr
-    $perl -T ./check_memcached_key.pl -P "$memcached_port" -k myKey -e hari -v
+    echo "$perl -T ./check_memcached_key.pl -k myKey -e hari -v"
+    $perl -T ./check_memcached_key.pl -k myKey -e hari -v
     hr
-    $perl -T ./check_memcached_stats.pl -P "$memcached_port" -w 15 -c 20 -v
+    echo "$perl -T ./check_memcached_stats.pl -w 15 -c 20 -v"
+    $perl -T ./check_memcached_stats.pl -w 15 -c 20 -v
     hr
     #delete_container
     docker-compose down
@@ -68,6 +73,4 @@ test_memcached(){
     echo
 }
 
-for version in $(ci_sample $MEMCACHED_VERSIONS); do
-    test_memcached $version
-done
+run_test_versions Memcached
