@@ -34,7 +34,7 @@ RIAK_HOST="${DOCKER_HOST:-${RIAK_HOST:-${HOST:-localhost}}}"
 RIAK_HOST="${RIAK_HOST##*/}"
 RIAK_HOST="${RIAK_HOST%%:*}"
 export RIAK_HOST
-export RIAK_PORT=8098
+export RIAK_PORT_DEFAULT=8098
 
 export DOCKER_IMAGE="harisekhon/riak-dev"
 export DOCKER_CONTAINER="nagios-plugins-riak-test"
@@ -43,7 +43,10 @@ export MNTDIR="/pl"
 
 check_docker_available
 
+trap_debug_env
+
 docker_exec(){
+    echo "docker-compose exec --user riak '$DOCKER_SERVICE' $MNTDIR/$@"
     docker-compose exec --user riak "$DOCKER_SERVICE" $MNTDIR/$@
 }
 
@@ -55,8 +58,7 @@ test_riak(){
     #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $RIAK_PORT
     VERSION="$version" docker-compose up -d
-    riak_port="`docker-compose port "$DOCKER_SERVICE" "$RIAK_PORT" | sed 's/.*://'`"
-    local RIAK_PORT="$riak_port"
+    export RIAK_PORT="`docker-compose port "$DOCKER_SERVICE" "$RIAK_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$RIAK_HOST" "$RIAK_PORT"
     sleep 2
     # Riak 2.x
@@ -77,27 +79,34 @@ test_riak(){
     #docker_exec check_riak_diag.pl --ignore-warnings -v
     # must attempt to check this locally if available - but may get "CRITICAL: 'riak-admin diag' returned 1 -  Node is not running!"
     if which riak-admin; then
+        echo "$perl -T check_riak_diag.pl --ignore-warnings -v || :"
         $perl -T check_riak_diag.pl --ignore-warnings -v || :
     fi
     hr
+    echo "$perl -T check_riak_key.pl -b myBucket -k myKey -e hari -v"
     $perl -T check_riak_key.pl -b myBucket -k myKey -e hari -v
     hr
     docker_exec check_riak_member_status.pl -v
     hr
     docker_exec check_riak_ringready.pl -v
     hr
+    echo "$perl -T check_riak_stats.pl --all -v"
     $perl -T check_riak_stats.pl --all -v
     hr
+    echo "$perl -T check_riak_stats.pl -s ring_num_partitions -c 64:64 -v"
     $perl -T check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
     hr
     if [ "${version:0:1}" != 1 ]; then
+        echo "$perl -T check_riak_stats.pl -s disk.0.size -c 1024: -v"
         $perl -T check_riak_stats.pl -s disk.0.size -c 1024: -v
     fi
     hr
+    echo "$perl -T check_riak_write.pl -v"
     $perl -T check_riak_write.pl -v
     hr
     docker_exec check_riak_write_local.pl -v
     hr
+    echo "$perl -T check_riak_version.pl -v"
     $perl -T check_riak_version.pl -v
 
     echo
@@ -110,10 +119,9 @@ test_riak(){
     echo; echo
 }
 
-for version in $(ci_sample $RIAK_VERSIONS); do
-    test_riak $version
-done
+run_test_versions Riak
 
+]
 # ============================================================================ #
 #                                     E N D
 # ============================================================================ #
