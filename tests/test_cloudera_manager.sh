@@ -42,6 +42,8 @@ if [ -z "${CM_HOST:-}" ]; then
     exit 0
 fi
 
+trap_debug_env
+
 if which nc &>/dev/null && ! echo | nc -G 1 "$CM_HOST" $CM_PORT; then
     echo "WARNING: Cloudera Manager host $CM_HOST:$CM_PORT not up, skipping Cloudera Manager checks"
     exit 0
@@ -56,24 +58,34 @@ fi
 [ "$CM_CLUSTER" = "$QUICKSTART_CLUSTER" ] && set +e
 
 hr
+echo "$perl -T check_cloudera_manager_version.pl -e \"$CM_VERSION\""
 $perl -T check_cloudera_manager_version.pl -e "$CM_VERSION"
 hr
+echo "$perl -T check_cloudera_manager.pl --api-ping"
 $perl -T check_cloudera_manager.pl --api-ping
 hr
+echo "$perl -T check_cloudera_manager.pl --list-clusters"
 $perl -T check_cloudera_manager.pl --list-clusters
 hr
+echo "$perl -T check_cloudera_manager.pl --list-users"
 $perl -T check_cloudera_manager.pl --list-users
 hr
+echo "$perl -T check_cloudera_manager.pl --list-hosts"
 $perl -T check_cloudera_manager.pl --list-hosts
 hr
+echo "$perl -T check_cloudera_manager.pl --list-services"
 $perl -T check_cloudera_manager.pl --list-services
 hr
+echo "$perl -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs"
 $perl -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs
 hr
+echo "$perl -T check_cloudera_manager_cluster_version.pl"
 $perl -T check_cloudera_manager_cluster_version.pl
 hr
+echo
 
 # ============================================================================ #
+echo
 
 # messes up geting these variables right which impacts the runs of the plugins further down
 if [ -n "${DEBUG:-}" ]; then
@@ -103,16 +115,26 @@ fi
 # ============================================================================ #
 
 hr
+echo "$perl -T check_cloudera_manager_config_stale.pl -S '$service'"
 $perl -T check_cloudera_manager_config_stale.pl -S "$service"
 hr
+echo "$perl -T check_cloudera_manager_config_validation.pl -S '$service'"
 $perl -T check_cloudera_manager_config_validation.pl -S "$service"
 hr
+echo "$perl -T check_cloudera_manager_health.pl -S '$service'"
 $perl -T check_cloudera_manager_health.pl -S "$service"
 hr
+echo "$perl -T check_cloudera_manager_license.pl"
 $perl -T check_cloudera_manager_license.pl
 hr
-$perl -T check_cloudera_manager_metrics.pl -S "$service" -a
+echo "$perl -T check_cloudera_manager_metrics.pl -S '$service' -a"
+$perl -T check_cloudera_manager_metrics.pl -S '$service' -a
 hr
+echo "$perl -T check_cloudera_manager_status.pl -S '$service'"
 $perl -T check_cloudera_manager_status.pl -S "$service"
 hr
-echo; echo
+echo
+echo "All Cloudera Manager tests passed successfully"
+untrap
+echo
+echo
