@@ -48,7 +48,7 @@ test_neo4j_noauth(){
     #local DOCKER_OPTS="-e NEO4J_AUTH=none"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $NEO4J_PORTS
     # otherwise repeated attempts create more nodes and break the NumberOfNodeIdsInUse upper threshold
-    docker-compose down &>/dev/null
+    docker-compose down &>/dev/null || :
     VERSION="$version" docker-compose up -d
     export NEO4J_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
     export NEO4J_PORTS=`{ for x in $NEO4J_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
@@ -92,7 +92,7 @@ test_neo4j_auth(){
     #local DOCKER_OPTS="-e NEO4J_AUTH=$NEO4J_USERNAME/$NEO4J_PASSWORD"
     local startupwait=20
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER-auth" $NEO4J_PORTS
-    docker-compose down &>/dev/null
+    docker-compose down &>/dev/null || :
     VERSION="$version" NEO4J_AUTH="$NEO4J_USERNAME/$NEO4J_PASSWORD" docker-compose up -d
     neo4j_port="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT" | sed 's/.*://'`"
     local NEO4J_PORT="$neo4j_port"
