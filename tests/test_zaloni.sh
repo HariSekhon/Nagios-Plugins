@@ -24,11 +24,7 @@ cd "$srcdir/.."
 
 is_travis && exit 0
 
-echo "
-# ============================================================================ #
-#                                  Z a l o n i
-# ============================================================================ #
-"
+section "Z a l o n i"
 
 export ZALONI_BEDROCK_PORT="${ZALONI_BEDROCK_PORT:-8080}"
 
@@ -75,5 +71,7 @@ else
     echo "WARNING: \$ZALONI_BEDROCK_HOST not set, skipping Zaloni checks"
 fi
 
+echo
+echo "All Zaloni tests passed successfully"
 echo
 echo
