@@ -24,47 +24,6 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 export COMPOSE_PROJECT_NAME="nagios-plugins"
 
-# Taint code doesn't use PERL5LIB, use -I instead
-I_lib=""
-
-perl="perl"
-
-if [ -n "${PERLBREW_PERL:-}" ]; then
-
-    PERL_VERSION="${PERLBREW_PERL}"
-    PERL_VERSION="${PERLBREW_PERL/perl-/}"
-
-    # For Travis CI which installs modules locally
-#    export PERL5LIB=$(echo \
-#        ${PERL5LIB:-.} \
-#        $PERLBREW_ROOT/perls/$PERLBREW_PERL/lib/site_perl/$PERL_VERSION/x86_64-linux \
-#        $PERLBREW_ROOT/perls/$PERLBREW_PERL/lib/site_perl/$PERL_VERSION/darwin-2level \
-#        $PERLBREW_ROOT/perls/$PERLBREW_PERL/lib/site_perl/$PERL_VERSION \
-#        $PERLBREW_ROOT/perls/$PERLBREW_PERL/lib/$PERL_VERSION/x86_64-linux \
-#        $PERLBREW_ROOT/perls/$PERLBREW_PERL/lib/$PERL_VERSION/darwin-2level \
-#        $PERLBREW_ROOT/perls/$PERLBREW_PERL/lib/$PERL_VERSION \
-#        | tr '\n' ':'
-#    )
-#
-#    for x in $(echo "$PERL5LIB" | tr ':' ' '); do
-#        I_lib+="-I $x "
-#    done
-
-    sudo=sudo
-    # gets this error when not specifying full perl path:
-        # Can't load '/home/travis/perl5/perlbrew/perls/5.16/lib/5.16.3/x86_64-linux/auto/re/re.so' for module re: /home/travis/perl5/perlbrew/perls/5.16/lib/5.16.3/x86_64-linux/auto/re/re.so: undefined symbol: PL_valid_types_IVX at /home/travis/perl5/perlbrew/perls/5.16/lib/5.16.3/XSLoader.pm line 68.
-        # at /home/travis/perl5/perlbrew/perls/5.16/lib/5.16.3/x86_64-linux/re.pm line 85.
-        # Compilation failed in require at /home/travis/perl5/perlbrew/perls/5.16/lib/5.16.3/File/Basename.pm line 44.
-        # BEGIN failed--compilation aborted at /home/travis/perl5/perlbrew/perls/5.16/lib/5.16.3/File/Basename.pm line 47.
-        # Compilation failed in require at ./check_riak_diag.pl line 25.
-        # BEGIN failed--compilation aborted at ./check_riak_diag.pl line 25.
-    #perl="$PERLBREW_ROOT/perls/$PERLBREW_PERL/bin/perl $I_lib"
-    PERL_MAJOR_VERSION="$($perl -v | $perl -ne '/This is perl (\d+), version (\d+),/ && print "$1.$2"')"
-else
-    sudo=""
-    PERL_MAJOR_VERSION="$($perl -v | $perl -ne '/This is perl (\d+), version (\d+),/ && print "$1.$2"')"
-fi
-
 check(){
     cmd=$1
     msg=$2
