@@ -36,7 +36,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, CriticalError, UnknownError
+    from harisekhon.utils import log, CriticalError, UnknownError, which
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
@@ -64,6 +64,8 @@ class CheckDockerImageChecksum(NagiosPlugin):
         self.no_args()
         docker_image = self.get_opt('docker_image')
         expected_id = self.get_opt('id')
+        if not which('docker'):
+            raise UnknownError("'docker' command not found in $PATH")
         process = subprocess.Popen(['docker', 'images', '{repo}'.format(repo=docker_image)],
                                    stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
