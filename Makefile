@@ -17,6 +17,7 @@ export PATH := $(PATH):/usr/local/bin
 CPANM = cpanm
 
 ifdef PERLBREW_PERL
+	@echo "Perlbrew environment detected, not calling sudo"
 	SUDO2 =
 else
 	SUDO2 = sudo
@@ -35,6 +36,7 @@ ifndef CONDA_DEFAULT_ENV
 	CONDA_DEFAULT_ENV = ''
 endif
 ifneq '$(VIRTUAL_ENV)$(CONDA_DEFAULT_ENV)' ''
+	@echo "Virtual Env / Conda detected, not calling sudo"
 	SUDO3 =
 else
 	SUDO3 = sudo -H
@@ -44,6 +46,7 @@ endif
 # EUID /  UID not exported in Make
 # USER not populated in Docker
 ifeq '$(shell id -u)' '0'
+	@echo "root UID detected, not calling sudo"
 	SUDO =
 	SUDO2 =
 	SUDO3 =
