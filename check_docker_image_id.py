@@ -88,7 +88,7 @@ class CheckDockerImageChecksum(NagiosPlugin):
     def parse(self, stdout):
         output = [_ for _ in stdout.split('\n') if _]
         if len(output) < 2:
-            raise CriticalError("docker image '{repo}' not found!".format(repo=self.docker_image))
+            raise CriticalError("docker image '{repo}' not found! Does not exist or has not been pulled yet?".format(repo=self.docker_image))
         col_start = len(self.docker_image)
         if len(output) > 2:
             tags = set([line[col_start:col_start + 10].strip() for line in output[1:]])
