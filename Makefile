@@ -110,7 +110,7 @@ system-packages:
 .PHONY: perl
 perl:
 	@echo ===========================
-	@echo Nagios Plugins Build (Perl)
+	@echo "Nagios Plugins Build (Perl)"
 	@echo ===========================
 
 	make common
@@ -173,7 +173,7 @@ perl-libs:
 .PHONY: python
 python:
 	@echo =============================
-	@echo Nagios Plugins Build (Python)
+	@echo "Nagios Plugins Build (Python)"
 	@echo =============================
 
 	make common
