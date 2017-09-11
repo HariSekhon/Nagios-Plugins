@@ -31,6 +31,11 @@ if is_docker_available; then
     [ -n "${NO_DOCKER:-}" ] && exit 0
     [ -n "${NO_PULL:-}" ] ||
         docker pull "$DOCKER_IMAGE"
+    hr
+    ./check_docker_image_id.py --docker-image "$DOCKER_IMAGE:latest"
+    hr
+    ./check_docker_image_id.py --docker-image "$DOCKER_IMAGE:latest" --id "$(docker images | awk "/^${DOCKER_IMAGE//\//\\/}.*latest/{print \$3; exit}")"
+    hr
     set +e
     echo "docker run --rm -e DEBUG='$DEBUG' '$DOCKER_IMAGE' check_ssl_cert.pl --help"
     docker run --rm -e DEBUG="$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl --help
