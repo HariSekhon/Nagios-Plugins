@@ -140,7 +140,7 @@ class CheckDockerImageChecksum(NagiosPlugin):
         return _id
 
     def check_size(self, docker_image_line):
-        match = re.search(r'(\d+(?:\.\d)+) ([KMG]B)$', docker_image_line)
+        match = re.search(r'(\d+(?:\.\d+)?) ([KMG]B)\s*$', docker_image_line)
         if match:
             size = match.group(1)
             units = match.group(2).strip()
