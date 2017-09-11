@@ -17,7 +17,7 @@
 
 """
 
-Nagios Plugin to check a docker image has the expected ID checksum
+Nagios Plugin to check a local docker image has been pulled with optional checks for checksum and size
 
 Optional --warning / --critical thresholds apply to the virtual size of the docker image
 
@@ -49,7 +49,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckDockerImageChecksum(NagiosPlugin):
@@ -72,6 +72,7 @@ class CheckDockerImageChecksum(NagiosPlugin):
     def process_options(self):
         self.no_args()
         self.docker_image = self.get_opt('docker_image')
+        validate_chars(self.docker_image, 'docker image', 'A-Za-z0-9/:-')
         self.expected_id = self.get_opt('id')
         if self.expected_id is not None:
             validate_chars(self.expected_id, 'expected id', 'A-Za-z0-9:-')
