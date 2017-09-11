@@ -49,7 +49,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 class CheckDockerImageChecksum(NagiosPlugin):
@@ -132,8 +132,9 @@ class CheckDockerImageChecksum(NagiosPlugin):
         self.msg += ", id = '{id}'".format(id=_id)
         if self.expected_id:
             log.debug('checking expected --id')
-            if not re.match(r'sha\d+:\w+', _id):
-                raise UnknownError("{msg} not in sha format as expected!".format(msg=self.msg))
+            if not re.match(r'(sha\d+:)?\w+', _id):
+                raise UnknownError("{msg} not in sha format as expected! {support}"\
+                                   .format(msg=self.msg, support=support_msg()))
             if _id != self.expected_id:
                 self.critical()
                 self.msg += " (expected id = '{0}')".format(self.expected_id)
