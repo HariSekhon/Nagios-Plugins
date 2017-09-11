@@ -16,7 +16,7 @@ export PATH := $(PATH):/usr/local/bin
 
 CPANM = cpanm
 
-ifdef# PERLBREW_PERL
+ifdef PERLBREW_PERL
 	# can't put this here otherwise gets error - "commands commence before first target.  Stop."
 	#@echo "Perlbrew environment detected, not calling sudo"
 	SUDO2 =
