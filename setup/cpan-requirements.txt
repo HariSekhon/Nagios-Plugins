@@ -111,3 +111,4 @@ URI::Escape
 XML::SAX
 XML::Simple
 YAML
+List::MoreUtils::XS
