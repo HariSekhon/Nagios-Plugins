@@ -49,7 +49,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class CheckDockerImageChecksum(NagiosPlugin):
@@ -115,12 +115,12 @@ class CheckDockerImageChecksum(NagiosPlugin):
                                ', '.join(tags)
                               )
         header_line = output[0]
-        image_header = header_line[name_len + 10:name_len + 10 + 20].strip()
+        docker_image_line = output[1]
+        image_header = ' '.join(header_line.split()[2:4])
         log.debug('image header column: %s', image_header)
         if image_header != 'IMAGE ID':
             raise UnknownError("3rd column in header '{0}' is not 'IMAGE ID' as expected, parsing failed!"\
                                .format(image_header))
-        docker_image_line = output[1]
         self.msg = "docker image '{repo}'".format(repo=self.docker_image)
         self.check_id(docker_image_line)
         self.check_size(docker_image_line)
