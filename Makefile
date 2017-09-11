@@ -30,12 +30,12 @@ endif
 #ifdef VIRTUAL_ENV
 #ifneq '$(VIRTUAL_ENV)$(CONDA_DEFAULT_ENV)$(TRAVIS)' ''
 # Looks like Perl travis builds are now using system Python
-ifndef VIRTUAL_ENV
-	VIRTUAL_ENV = ''
-endif
-ifndef CONDA_DEFAULT_ENV
-	CONDA_DEFAULT_ENV = ''
-endif
+#ifndef VIRTUAL_ENV
+#	VIRTUAL_ENV = ''
+#endif
+#ifndef CONDA_DEFAULT_ENV
+#	CONDA_DEFAULT_ENV = ''
+#endif
 ifneq '$(VIRTUAL_ENV)$(CONDA_DEFAULT_ENV)' ''
 	#@echo "Virtual Env / Conda detected, not calling sudo"
 	SUDO3 =
