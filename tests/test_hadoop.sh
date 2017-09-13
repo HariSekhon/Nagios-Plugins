@@ -196,6 +196,9 @@ EOF
     echo "$perl -T ./check_hadoop_datanodes.pl"
     $perl -T ./check_hadoop_datanodes.pl
     hr
+    echo "$perl -T ./check_hadoop_datanodes.pl --stale-threshold 0"
+    $perl -T ./check_hadoop_datanodes.pl --stale-threshold 0
+    hr
     echo "./check_hadoop_datanode_last_contact.py -d $hostname"
     ./check_hadoop_datanode_last_contact.py -d "$hostname"
     hr
