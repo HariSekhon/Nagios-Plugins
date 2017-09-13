@@ -90,7 +90,7 @@ if [ $? -ne 0 ]; then
     hr
     echo "above time check failed, retrying in case of mismatch between timezone and file"
     timezone_file="$(find /usr/share/zoneinfo -type f | xargs md5sum | grep $(md5sum /etc/localtime | awk '{print $1}') | head -n1 | awk '{print $2}')"
-    # Alpine doesn't have this by default - could 'apk add tzdata', otherwise just hack it back to
+    # Alpine doesn't have this by default - could 'apk add tzdata', otherwise just hack it back to /etc/localtime
     [ -z "$timezone_file" ] || timezone_file="/etc/localtime"
     # let the above shell pipeline fail and only set -e from here as the plugin will give better feedback if timezone_file is empty
     set -eo pipefail
