@@ -34,3 +34,4 @@ perl-dbd-mysql
 py-mysqldb
 py2-pip
 #ruby
+jwhois
