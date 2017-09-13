@@ -76,13 +76,25 @@ echo "Testing check_ssh_login.pl correctly fails on non-existent user against lo
 set +e
 echo "$perl -T ./check_ssh_login.pl -H localhost -u check_ssh_login_nagios_plugin_test -p test"
 $perl -T ./check_ssh_login.pl -H localhost -u check_ssh_login_nagios_plugin_test -p test
-[ $? -eq 2 ] || exit 1
+check_exit_code 2
 set -e
 hr
+set +e
 localtime="$(readlink /etc/localtime | sed 's/.*zoneinfo\///')"
-[ -z "$localtime" ] && localtime="$(date %Z)"
+set -e
+[ -z "$localtime" ] && localtime="$(date +%Z)"
 echo "$perl -T ./check_timezone.pl -T '$localtime' -A '$(date +%Z)'"
+set +eo pipefail
 $perl -T ./check_timezone.pl -T "$localtime" -A "$(date +%Z)"
+if [ $? -ne 0 ]; then
+    hr
+    echo "above time check failed, retrying in case of mismatch between timezone and file"
+    timezone_file="$(find /usr/share/zoneinfo -type f | xargs md5sum | grep $(md5sum /etc/localtime | awk '{print $1}') | head -n1 | awk '{print $2}')"
+    # let the above shell pipeline fail and only set -e from here as the plugin will give better feedback if timezone_file is empty
+    set -eo pipefail
+    echo "$perl -T ./check_timezone.pl --timezone \"$localtime\" --alternate \"$(date +%Z)\" --zoneinfo-file \"$timezone_file\""
+    $perl -T ./check_timezone.pl --timezone "$localtime" --alternate "$(date +%Z)" --zoneinfo-file "$timezone_file"
+fi
 hr
 echo
 echo "All Unix tests passed successfully"
