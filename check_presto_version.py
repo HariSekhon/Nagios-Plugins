@@ -57,6 +57,8 @@ class CheckPrestoVersion(RestVersionNagiosPlugin):
         self.path = '/v1/service/presto/general'
         self.json = True
         self.auth = False
+        # allow version suffixes like -t-0.2 for Teradata Presto distribution
+        self.lax_version = True
 
     # must override, cannot change to @staticmethod
     def parse_json(self, json_data):  # pylint: disable=no-self-use
