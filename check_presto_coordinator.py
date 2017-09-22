@@ -44,11 +44,11 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
 
-class CheckPrestoState(RestNagiosPlugin):
+class CheckPrestoCoordinator(RestNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckPrestoState, self).__init__()
+        super(CheckPrestoCoordinator, self).__init__()
         # Python 3.x
         # super().__init__()
         self.host = None
@@ -76,4 +76,4 @@ class CheckPrestoState(RestNagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckPrestoState().main()
+    CheckPrestoCoordinator().main()
