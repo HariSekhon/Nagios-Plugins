@@ -21,7 +21,9 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-if [ ${0##*/} = "test_mariadb.sh" ]; then
+test_mariadb_sh="test_mariadb.sh"
+
+if [ ${0##*/} = "$test_mariadb_sh" ]; then
     section "M a r i a D B"
 else
     section "M y S Q L"
@@ -64,16 +66,18 @@ test_mariadb(){
 test_db(){
     local name="$1"
     local version="$2"
-    local export DOCKER_SERVICE="$(tr 'A-Z' 'a-z' <<< "$name")"
-    local export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-docker-compose.yml"
+    name_lower="$(tr 'A-Z' 'a-z' <<< "$name")"
+    local export COMPOSE_FILE="$srcdir/docker/$name_lower-docker-compose.yml"
     echo "Setting up $name $version test container"
     #local DOCKER_OPTS="-e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MYSQL_PORT
     VERSION="$version" docker-compose up -d
+    local docker_container="$(docker-compose ps | sed -n '3s/ .*//p')"
+    echo "determined docker container to be '$docker_container'"
     echo "Getting $name port mapping"
-    echo -n "MySQL port => "
-    export MYSQL_PORT="`docker-compose port "$DOCKER_SERVICE" "$MYSQL_PORT_DEFAULT" | sed 's/.*://'`"
-    if [ "$version" = "latest" -o "${version%%.*}" -gt 5 ]; then
+    echo -n "$name port => "
+    export MYSQL_PORT="`docker port "$docker_container" "$MYSQL_PORT_DEFAULT" | sed 's/.*://'`"
+    if [ "$version" = "latest" ] || [ "${version%%.*}" -gt 5 ]; then
         export MYSQL_CONFIG_PATH="/etc/mysql/mysql.conf.d"
         export MYSQL_CONFIG_FILE="mysqld.cnf"
     else
@@ -86,10 +90,10 @@ test_db(){
     fi
     when_ports_available $startupwait $MYSQL_HOST $MYSQL_PORT
     hr
-    local docker_container="$(docker-compose ps | sed -n '3s/ .*//p')"
-    echo "determined docker container to be '$docker_container'"
     echo "fetching my.cnf to local host"
-    docker cp -L "$docker_container":"$MYSQL_CONFIG_PATH/$MYSQL_CONFIG_FILE" /tmp
+    # must require newer version of docker?
+    #docker cp -L "$docker_container":"$MYSQL_CONFIG_PATH/$MYSQL_CONFIG_FILE" /tmp
+    docker cp "$docker_container":"$MYSQL_CONFIG_PATH/$MYSQL_CONFIG_FILE" /tmp
     hr
     extra_opt=""
     if [ "$name" = "MariaDB" ]; then
@@ -115,7 +119,7 @@ test_db(){
     echo
 }
 
-if [ ${0##*/} = "test_mariadb.sh" ]; then
+if [ ${0##*/} = "$test_mariadb_sh" ]; then
     run_test_versions MariaDB
 else
     run_test_versions MySQL
