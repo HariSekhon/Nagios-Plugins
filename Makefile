@@ -92,9 +92,8 @@ quick:
 	QUICK=1 make build
 
 .PHONY: common
-common:
-	make system-packages
-	make submodules
+common: system-packages submodules
+	:
 
 .PHONY: submodules
 submodules:
@@ -321,13 +320,11 @@ lib-test:
 	cd pylib && make test
 
 .PHONY: test
-test:
-	make lib-test
+test: lib-test
 	tests/all.sh
 
 .PHONY: basic-test
-basic-test:
-	make lib-test
+basic-test: lib-test
 	. tests/excluded.sh; bash-tools/all.sh
 	tests/help.sh
 
@@ -336,13 +333,12 @@ install:
 	@echo "No installation needed, just add '$(PWD)' to your \$$PATH and Nagios commands.cfg"
 
 .PHONY: update
-update:
-	@make update2
-	@make
+update: update2 build
+	:
 
 .PHONY: update2
-update2:
-	make update-no-recompile
+update2: update-no-recompile
+	:
 
 .PHONY: update-no-recompile
 update-no-recompile:
@@ -353,8 +349,8 @@ update-no-recompile:
 update-submodules:
 	git submodule update --init --remote
 .PHONY: updatem
-updatem:
-	make update-submodules
+updatem: update-submodules
+	:
 
 .PHONY: clean
 clean:
@@ -373,16 +369,16 @@ docker-run:
 	docker run -ti --rm harisekhon/nagios-plugins ${ARGS}
 
 .PHONY: run
-run:
-	make docker-run
+run: docker-run
+	:
 
 .PHONY: docker-mount
 docker-mount:
 	docker run -ti --rm -v $$PWD:/pl harisekhon/nagios-plugins bash -c "cd /pl; exec bash"
 
 .PHONY: mount
-mount:
-	make docker-mount
+mount: docker-mount
+	:
 
 .PHONY: push
 push:
