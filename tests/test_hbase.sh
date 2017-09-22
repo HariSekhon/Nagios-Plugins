@@ -72,7 +72,6 @@ test_hbase(){
     if [ "$version" = "0.96" -o "$version" = "0.98" ]; then
         local export HBASE_MASTER_PORT_DEFAULT=60010
         local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
-        #local export HBASE_PORTS="$ZOOKEEPER_PORT $HBASE_STARGATE_PORT 8085 $HBASE_THRIFT_PORT 9095 60000 $HBASE_MASTER_PORT 60201 $HBASE_REGIONSERVER_PORT"
     fi
     echo "getting HBase dynamic port mappings"
     printf "getting HBase Master port => "
