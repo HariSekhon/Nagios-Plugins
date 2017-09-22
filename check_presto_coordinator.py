@@ -44,6 +44,7 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
 
+# pylint: disable=too-few-public-methods
 class CheckPrestoCoordinator(RestNagiosPlugin):
 
     def __init__(self):
@@ -51,16 +52,12 @@ class CheckPrestoCoordinator(RestNagiosPlugin):
         super(CheckPrestoCoordinator, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.host = None
-        self.port = None
+        self.name = 'Presto'
+        self.default_port = 8080
         self.auth = False
         self.json = True
         self.path = '/v1/service/presto/general'
         self.msg = 'Presto SQL node coordinator = '
-
-    def add_options(self):
-        self.add_hostoption(name='Presto', default_host='localhost', default_port=8080)
-        self.add_ssl_option()
 
     def parse_json(self, json_data):
         presto_service = None
