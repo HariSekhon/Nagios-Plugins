@@ -52,8 +52,8 @@ class CheckPrestoEnvironment(RestNagiosPlugin):
         super(CheckPrestoEnvironment, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.host = None
-        self.port = None
+        self.name = 'Presto'
+        self.default_port = 8080
         self.auth = False
         self.json = True
         self.path = '/v1/service/presto/general'
@@ -61,8 +61,7 @@ class CheckPrestoEnvironment(RestNagiosPlugin):
         self.expected = None
 
     def add_options(self):
-        self.add_hostoption(name='Presto', default_host='localhost', default_port=8080)
-        self.add_ssl_option()
+        super(CheckPrestoEnvironment, self).add_options()
         self.add_opt('-e', '--expected', help='Expected environment setting (regex)')
 
     def process_options(self):
