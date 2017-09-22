@@ -51,14 +51,19 @@ test_presto(){
         version=".*"
     fi
     hr
-    check_presto_version.py --expected "$version(-t.\d+.\d+)?"
+    echo "./check_presto_version.py --expected \"$version(-t.\d+.\d+)?\""
+    ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
     hr
-    check_presto_coordinator.py
+    echo "./check_presto_coordinator.py"
+    ./check_presto_coordinator.py
     hr
-    check_presto_environment.py --expected development
+    echo "./check_presto_environment.py --expected development"
+    ./check_presto_environment.py --expected development
     hr
+    echo "./check_presto_nodes_failed.py"
     check_presto_nodes_failed.py
     hr
+    echo "./check_presto_state.py"
     check_presto_state.py
     hr
     #delete_container
