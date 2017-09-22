@@ -278,7 +278,7 @@ class LogServerTester(object):
         self.vprint(2, "querying mysql database for log...")
         self.vprint(3, query % "'" + log_message + "'")
         try:
-            # Use the paremeter bit from the db api here because we can for the
+            # Use the parameter bit from the db api here because we can for the
             # value of log message, quoting is ok there
             # AS NOTED ABOVE, SECURITY IS HANDLED BY RESTRICTIVE REGEX OF
             # SAFE PARAMETERS IN MAIN FUNCTION -h
