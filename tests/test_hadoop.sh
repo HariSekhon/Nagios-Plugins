@@ -41,9 +41,9 @@ export HADOOP_YARN_RESOURCE_MANAGER_PORT_DEFAULT="8088"
 export HADOOP_YARN_NODE_MANAGER_PORT_DEFAULT="8042"
 #export HADOOP_PORTS="8042 8088 50010 50020 50070 50075 50090"
 
-export DOCKER_IMAGE="harisekhon/hadoop-dev"
-
-export MNTDIR="/pl"
+# not used any more, see instead tests/docker/hadoop-docker-compose.yml
+#export DOCKER_IMAGE="harisekhon/hadoop-dev"
+#export MNTDIR="/pl"
 
 startupwait 30
 
