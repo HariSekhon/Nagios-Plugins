@@ -206,9 +206,17 @@ python-libs:
 	if [ "$$(python -c 'import sys; sys.path.append("pylib"); import harisekhon; print(harisekhon.utils.getPythonVersion())')" = "2.6" ]; then $(SUDO2) pip install --upgrade "happybase==0.9"; fi
 
 	@echo
-	wget -O find_active_server.py.tmp https://raw.githubusercontent.com/HariSekhon/pytools/master/find_active_server.py
-	unalias mv 2>/dev/null; mv -vf find_active_server.py.tmp find_active_server.py
-	chmod +x find_active_server.py
+	unalias mv 2>/dev/null; \
+	for x in \
+		find_active_server.py \
+		find_active_hadoop_namenode.py \
+		find_active_hadoop_yarn_resource_manager.py \
+		find_active_hbase_master.py \
+		; do \
+		wget -O $$x.tmp https://raw.githubusercontent.com/HariSekhon/pytools/master/$$x && \
+		mv -vf $$x.tmp $$x; \
+		chmod +x $$x; \
+	done
 	@echo
 	bash-tools/python_compile.sh
 	@echo
