@@ -50,7 +50,7 @@ test_presto(){
     echo "giving Presto up to 20 secs for service to come up:"
     for x in {1..20}; do
         # endpoint initializes blank, wait until there is some content, eg. nodeId
-        echo "trying /v1/service/presto/general"
+        echo "trying http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general"
         curl -s "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" | grep -q nodeId && break
         #echo "./check_presto_state.py"
         #./check_presto_state.py && break
@@ -84,5 +84,10 @@ test_presto(){
     hr
     echo
 }
+
+if [ -z "${1:-}" ]; then
+    echo "Testing Facebook's latest presto release before Teradata's distribution:"
+    COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto latest
+fi
 
 run_test_versions presto
