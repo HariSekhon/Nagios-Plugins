@@ -1,5 +1,6 @@
 *.pyc
 *.log
+find_active_*.py
 zookeeper-*.tar.gz
 zookeeper-*/
 .sonar/
