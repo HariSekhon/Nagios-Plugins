@@ -139,7 +139,7 @@ There are over 350 programs in this repo so these are just some of the highlight
 - ```check_apache_drill_*``` - check Apache Drill status and metrics for a given node, apply thresholds to a given metric or return multiple or all metrics
 - `check_atlas_*.py` - Apache Atlas metadata server instance status, as well as metadata entity checks including entity existence, state=ACTIVE, expected type, expected tags are assigned to entity (eg. PII - important because Ranger ACLs to allow or deny access to data can be assigned based on tags)
 - ```check_hiveserver2_llap_*.py``` - HiveServer2 LLAP Interactive server status and uptime, peer count, check for a specific peer host fqdn via regex
-- ```check_presto_*.py``` - Presto SQL DB - checks status, coordinator, failed nodes, environment, version
+- ```check_presto_*.py``` - Presto SQL DB - checks status, if coordinator, number of current queries, number of failed nodes, environment, version
 - ```check_zookeeper.pl``` - ZooKeeper server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gather statistics
 - ```check_zookeeper_*znode*.pl``` - ZooKeeper znode checks using ZK Perl API, useful for HBase, Kafka, SolrCloud, Hadoop HDFS & Yarn HA (ZKFC) and any other ZooKeeper based service. Very versatile with multiple optional checks including data vs regex, json field extraction, ephemeral status, child znodes, znode last modified age
 
