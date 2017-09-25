@@ -23,7 +23,7 @@ cd "$srcdir/..";
 
 section "P r e s t o   S Q L"
 
-export PRESTO_VERSIONS="${@:-${PRESTO_VERSIONS:-latest 0.167 0.179}}"
+export PRESTO_VERSIONS="${@:-${PRESTO_VERSIONS:-latest 0.152 0.157 0.167 0.179}}"
 
 PRESTO_HOST="${DOCKER_HOST:-${PRESTO_HOST:-${HOST:-localhost}}}"
 PRESTO_HOST="${PRESTO_HOST##*/}"
@@ -45,12 +45,22 @@ test_presto(){
     VERSION="$version" docker-compose up -d
     export PRESTO_PORT="`docker-compose port "$DOCKER_SERVICE" "$PRESTO_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$PRESTO_HOST" "$PRESTO_PORT"
-    echo "sleeping for 5 secs to give API time to initialize properly"
-    sleep 5
+    #echo "sleeping for 5 secs to give API time to initialize properly"
+    #sleep 5
+    echo "giving Presto up to 20 secs for service to come up:"
+    for x in {1..20}; do
+        # endpoint initializes blank, wait until there is some content, eg. nodeId
+        echo "trying /v1/service/presto/general"
+        curl -s "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" | grep -q nodeId && break
+        #echo "./check_presto_state.py"
+        #./check_presto_state.py && break
+        sleep 1
+    done
     if [ "$version" = "latest" ]; then
         version=".*"
     fi
     hr
+    # presto service not found in list of endpoints initially even after it's come up
     echo "./check_presto_version.py --expected \"$version(-t.\d+.\d+)?\""
     ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
     hr
@@ -61,10 +71,13 @@ test_presto(){
     ./check_presto_environment.py --expected development
     hr
     echo "./check_presto_nodes_failed.py"
-    check_presto_nodes_failed.py
+    ./check_presto_nodes_failed.py
+    hr
+    echo "./check_presto_num_queries.py"
+    ./check_presto_num_queries.py
     hr
     echo "./check_presto_state.py"
-    check_presto_state.py
+    ./check_presto_state.py
     hr
     #delete_container
     docker-compose down
