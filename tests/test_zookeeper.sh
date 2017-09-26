@@ -47,7 +47,7 @@ startupwait 10
 
 test_zookeeper(){
     local version="$1"
-    echo "Setting up ZooKeeper $version test container"
+    section2 "Setting up ZooKeeper $version test container"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ZOOKEEPER_PORTS
     #docker cp "$DOCKER_CONTAINER":/zookeeper/conf/zoo.cfg .
     #hr
