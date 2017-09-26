@@ -19,12 +19,15 @@
 
 Nagios Plugin to check if a specific job / yarn application is running via the Yarn Resource Manager REST API
 
-Optional --warning / --critical thresholds apply to application elapsd time, and other optional validations include
---user and --queue to enforce against the application, as well as the minimum number of running containers and
-even duplicate jobs matching the same regex
+The --app name is a regex and the first matching job is checked
 
-The --app name is a regex and the first matching job to is checked and optionally can apply --warn-on-duplicate
-if multiple running jobs match the given regex
+Optional additional checks:
+
+- application is running as a specific --user
+- application is running on a specific --queue 
+- application has a minimum number of running containers
+- elapsed time - optional --warning / --critical thresholds apply
+- if multiple applications match the given app name regex
 
 Tested on HDP 2.6.1 and Apache Hadoop 2.5.2, 2.6.4, 2.7.3
 
