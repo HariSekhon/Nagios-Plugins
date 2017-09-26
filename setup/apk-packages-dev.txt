@@ -22,6 +22,7 @@ mariadb-dev
 #openssl-dev
 libressl-dev
 perl-dev
+postgresql-dev
 wget
 # needed to build Net::SSLeay
 zlib-dev
