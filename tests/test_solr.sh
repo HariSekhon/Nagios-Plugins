@@ -46,7 +46,10 @@ test_solr(){
     echo "Setting up Solr $version docker test container"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SOLR_PORT
     VERSION="$version" docker-compose up -d
+    echo "getting Solr dynamic port mappings"
+    printf "getting Solr HTTP port => "
     export SOLR_PORT="`docker-compose port "$DOCKER_SERVICE" "$SOLR_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$SOLR_PORT"
     when_ports_available $startupwait $SOLR_HOST $SOLR_PORT
     if [[ "$version" = "latest" || ${version:0:1} > 3 ]]; then
         docker-compose exec "$DOCKER_SERVICE" solr create_core -c "$SOLR_CORE" || :
