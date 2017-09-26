@@ -49,7 +49,7 @@ docker_exec(){
 
 test_consul(){
     local version="$1"
-    echo "Setting up Consul $version test container"
+    section2 "Setting up Consul $version test container"
     hr
     #local DOCKER_CMD="agent -dev -data-dir /tmp -client 0.0.0.0"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $CONSUL_PORT
@@ -119,7 +119,7 @@ test_consul(){
     echo
 
     hr
-    echo "Setting up Consul-dev $version test container"
+    section2 "Setting up Consul-dev $version test container"
     hr
     #local DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #local DOCKER_CMD=""
