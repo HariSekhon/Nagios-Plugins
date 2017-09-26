@@ -64,7 +64,7 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         super(CheckHadoopYarnAppRunning, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.name = ['Hadoop NameNode', 'Hadoop']
+        self.name = ['Hadoop Yarn Resource Manager', 'Hadoop']
         self.path = '/ws/v1/cluster/apps'
         self.default_port = 8088
         self.json = True
