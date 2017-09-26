@@ -101,6 +101,8 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         self.warn_on_dup_app = self.get_opt('warn_on_duplicate_app')
         self.list_apps = self.get_opt('list_apps')
 
+        if not self.app:
+            self.usage('--app regex not defined')
         validate_regex(self.app, 'app')
         if self.app_user is not None:
             validate_chars(self.app_user, 'app user', r'\w')
