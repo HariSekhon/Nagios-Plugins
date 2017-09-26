@@ -43,7 +43,7 @@ startupwait 10
 test_h2o(){
     local version="$1"
     hr
-    echo "Setting up H2O $version test container"
+    section2 "Setting up H2O $version test container"
     hr
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $H2O_PORT
     VERSION="$version" docker-compose up -d
