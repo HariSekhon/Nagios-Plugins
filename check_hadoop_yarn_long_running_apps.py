@@ -57,7 +57,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.4'
 
 
 class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
@@ -110,7 +110,9 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
 
     def parse_json(self, json_data):
         apps = json_data['apps']
-        app_list = apps['app']
+        app_list = []
+        if apps:
+            app_list = apps['app']
         host_info = ''
         if self.verbose:
             host_info = " at '{0}:{1}'".format(self.host, self.port)
