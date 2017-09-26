@@ -63,7 +63,7 @@ test_solrcloud(){
         four=""
         export SOLR_COLLECTION="gettingstarted"
     fi
-    echo "Setting up SolrCloud $version docker test container"
+    section2 "Setting up SolrCloud $version docker test container"
     #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SOLR_PORTS
     VERSION="$version" docker-compose up -d
