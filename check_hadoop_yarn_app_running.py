@@ -165,7 +165,7 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
             self.msg += " (< '{0}')".format(self.min_containers)
         self.msg += ", elapsed time = {0} secs".format(elapsed_time)
         self.check_thresholds(elapsed_time)
-        self.msg += ' | elapsed_time={0}{1}'.format(elapsed_time, self.get_perf_thresholds())
+        self.msg += ' | app_elapsed_time={0}{1}'.format(elapsed_time, self.get_perf_thresholds())
 
     @staticmethod
     def print_apps(app_list):
