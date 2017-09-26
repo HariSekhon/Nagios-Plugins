@@ -29,6 +29,8 @@ Use the --include regex to check for only specific types of jobs eg. Spark Shell
 
 Use the --exclude regex to exclude intentionally long running applications
 
+Applications called llap\d+ are implicitly skipped
+
 Tested on HDP 2.6.1 and Apache Hadoop 2.5.2, 2.6.4, 2.7.3
 
 """
@@ -139,9 +141,10 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
             elif self.implicitly_excluded.match(name):
                 log.info("skipping app '%s' by implicit exclude regex", name)
                 continue
-            elif queue == 'llap':
-                log.info("skipping app '%s' on llap queue", name)
-                continue
+            # might want to actually check jobs on the llap queue aren't taking too long
+            #elif queue == 'llap':
+            #    log.info("skipping app '%s' on llap queue", name)
+            #    continue
             matching_apps += 1
             elapsed_time = app['elapsedTime']
             assert isInt(elapsed_time)
