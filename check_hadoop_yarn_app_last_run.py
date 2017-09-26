@@ -103,7 +103,7 @@ class CheckHadoopYarnAppLastFinishedState(RestNagiosPlugin):
         self.list_apps = self.get_opt('list_apps')
 
         if not self.list_apps:
-            if self.app is None:
+            if not self.app:
                 self.usage('--app name is not defined')
             validate_regex(self.app, 'app')
         if self.app_user is not None:
