@@ -43,7 +43,9 @@ export HADOOP_YARN_NODE_MANAGER_PORT_DEFAULT="8042"
 
 # not used any more, see instead tests/docker/hadoop-docker-compose.yml
 #export DOCKER_IMAGE="harisekhon/hadoop-dev"
-#export MNTDIR="/pl"
+
+# still used by docker_exec() function below, must align with what is set in tests/docker/common.yml
+export MNTDIR="/pl"
 
 startupwait 30
 
@@ -413,6 +415,20 @@ EOF
     hr
     echo "$perl -T ./check_hadoop_replication.pl"
     $perl -T ./check_hadoop_replication.pl
+    hr
+    # TODO: add test job and re-run these to validate success scenarios
+    set +e
+    echo "./check_hadoop_yarn_app_running.py -a '.*'"
+    ./check_hadoop_yarn_app_running.py -a '.*'
+    check_exit_code 2
+    hr
+    echo "./check_hadoop_yarn_app_last_run.py -a '.*'"
+    ./check_hadoop_yarn_app_last_run.py -a '.*'
+    check_exit_code 2
+    hr
+    echo "./check_hadoop_yarn_long_running_apps.py"
+    ./check_hadoop_yarn_long_running_apps.py
+    set -e
     hr
     echo "$perl -T ./check_hadoop_yarn_app_stats.pl"
     $perl -T ./check_hadoop_yarn_app_stats.pl
