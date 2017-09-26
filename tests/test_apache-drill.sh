@@ -41,7 +41,7 @@ trap_debug_env apache_drill
 test_apache_drill(){
     local version="$1"
     hr
-    echo "Setting up Apache Drill $version test container"
+    section2 "Setting up Apache Drill $version test container"
     hr
     #echo "lauching drill container linked to zookeeper"
     #local DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper"
