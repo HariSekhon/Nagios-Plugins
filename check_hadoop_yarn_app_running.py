@@ -54,7 +54,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckHadoopYarnAppRunning(RestNagiosPlugin):
@@ -75,6 +75,7 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         self.queue = None
         self.min_containers = 0
         self.warn_on_dup_app = False
+        self.num_results = None
         self.list_apps = False
 
     def add_options(self):
@@ -82,7 +83,10 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         self.add_opt('-a', '--app', help='App / Job name to expect is running (anchored regex)')
         self.add_opt('-u', '--user', help='Expected user that yarn application should be running as (optional)')
         self.add_opt('-q', '--queue', help='Expected queue that yarn application should be running on (optional)')
-        self.add_opt('-m', '--min-containers', help='Expected minimum number of containers for application (optional)')
+        self.add_opt('-m', '--min-containers', metavar='N', default=0,
+                     help='Expected minimum number of containers for application (optional)')
+        self.add_opt('-n', '--num-results', metavar='N', default=1000,
+                     help='Number of results to return to search through (default: 1000)')
         self.add_opt('-d', '--warn-on-duplicate-app', action='store_true',
                      help='Warn when there is more than one matching application in the list (optional)')
         self.add_opt('-l', '--list-apps', action='store_true', help='List yarn apps and exit')
@@ -95,6 +99,7 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         self.app_user = self.get_opt('user')
         self.queue = self.get_opt('queue')
         self.min_containers = self.get_opt('min_containers')
+        self.num_results = self.get_opt('num_results')
         self.warn_on_dup_app = self.get_opt('warn_on_duplicate_app')
         self.list_apps = self.get_opt('list_apps')
 
@@ -106,8 +111,12 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         if self.min_containers is not None:
             validate_int(self.min_containers, 'min containers', 0, None)
             self.min_containers = int(self.min_containers)
+        self.num_results = self.get_opt('num_results')
+        validate_int(self.num_results, 'num results', 10, None)
 
         self.validate_thresholds(optional=True)
+
+        self.path += '?limit={0}'.format(self.num_results)
 
     def parse_json(self, json_data):
         apps = json_data['apps']
@@ -120,6 +129,7 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
                                .format(host_info))
         num_apps = len(app_list)
         log.info("processing {0:d} apps returned by Yarn Resource Manager{1}".format(num_apps, host_info))
+        assert num_apps <= self.num_results
         if self.list_apps:
             self.print_apps(app_list)
             sys.exit(ERRORS['UNKNOWN'])
