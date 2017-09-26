@@ -44,7 +44,7 @@ startupwait 10
 
 test_neo4j_noauth(){
     local version="$1"
-    echo "Setting up Neo4J $version test container without authentication"
+    section2 "Setting up Neo4J $version test container without authentication"
     #local DOCKER_OPTS="-e NEO4J_AUTH=none"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $NEO4J_PORTS
     # otherwise repeated attempts create more nodes and break the NumberOfNodeIdsInUse upper threshold
@@ -89,7 +89,7 @@ test_neo4j_noauth(){
 
 test_neo4j_auth(){
     local version="$1"
-    echo "Setting up Neo4J $version test container with authentication"
+    section2 "Setting up Neo4J $version test container with authentication"
     #local DOCKER_OPTS="-e NEO4J_AUTH=$NEO4J_USERNAME/$NEO4J_PASSWORD"
     local startupwait=20
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER-auth" $NEO4J_PORTS
