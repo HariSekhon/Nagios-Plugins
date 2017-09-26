@@ -99,12 +99,13 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         self.list_apps = self.get_opt('list_apps')
 
         validate_regex(self.app, 'app')
-        if self.user is not None:
-            validate_chars(self.user, 'user', r'\w')
+        if self.app_user is not None:
+            validate_chars(self.app_user, 'app user', r'\w')
         if self.queue is not None:
             validate_chars(self.queue, 'queue', r'\w-')
         if self.min_containers is not None:
             validate_int(self.min_containers, 'min containers', 0, None)
+            self.min_containers = int(self.min_containers)
 
         self.validate_thresholds(optional=True)
 
@@ -151,11 +152,11 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         if state == 'FINISHED':
             self.msg += ", final status = '{0}'".format(app['finalStatus'])
         self.msg += ", user = '{0}'".format(user)
-        if self.user is not None and user != self.user:
+        if self.app_user is not None and self.app_user != user:
             self.critical()
-            self.msg += " (expected '{0}')".format(self.user)
+            self.msg += " (expected '{0}')".format(self.app_user)
         self.msg += ", queue = '{0}'".format(queue)
-        if self.queue is not None and queue != self.queue:
+        if self.queue is not None and self.queue != queue:
             self.critical()
             self.msg += " (expected '{0}')".format(self.queue)
         self.msg += ", running containers = {0}".format(running_containers)
