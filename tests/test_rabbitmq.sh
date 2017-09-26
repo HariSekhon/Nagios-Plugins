@@ -56,7 +56,7 @@ startupwait 40
 
 test_rabbitmq(){
     local version="$1"
-    echo "Setting up RabbitMQ $version test containers"
+    section2 "Setting up RabbitMQ $version test containers"
     hr
     #local DOCKER_OPTS=""
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $RABBITMQ_PORT
