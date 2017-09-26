@@ -68,7 +68,7 @@ test_db(){
     local version="$2"
     name_lower="$(tr 'A-Z' 'a-z' <<< "$name")"
     local export COMPOSE_FILE="$srcdir/docker/$name_lower-docker-compose.yml"
-    echo "Setting up $name $version test container"
+    section2 "Setting up $name $version test container"
     #local DOCKER_OPTS="-e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MYSQL_PORT
     VERSION="$version" docker-compose up -d
