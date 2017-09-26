@@ -50,7 +50,7 @@ startupwait 20
 
 test_riak(){
     local version="$1"
-    echo "Setting up Riak $version test container"
+    section2 "Setting up Riak $version test container"
     #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $RIAK_PORT
     VERSION="$version" docker-compose up -d
