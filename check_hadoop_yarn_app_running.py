@@ -24,7 +24,7 @@ The --app name is a regex and the first matching job is checked
 Optional additional checks:
 
 - application is running as a specific --user
-- application is running on a specific --queue 
+- application is running on a specific --queue
 - application has a minimum number of running containers
 - elapsed time - optional --warning / --critical thresholds apply
 - if multiple applications match the given app name regex
