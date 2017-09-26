@@ -48,7 +48,7 @@ startupwait 20
 
 test_kafka(){
     local version="$1"
-    echo "Setting up Apache Kafka $version test container"
+    section2 "Setting up Apache Kafka $version test container"
     hr
     #local DOCKER_OPTS="-e ADVERTISED_HOSTNAME=$HOST"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $KAFKA_PORT
