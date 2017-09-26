@@ -111,12 +111,12 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         if self.min_containers is not None:
             validate_int(self.min_containers, 'min containers', 0, None)
             self.min_containers = int(self.min_containers)
+
         self.limit = self.get_opt('limit')
         validate_int(self.limit, 'num results', 10, None)
+        self.path += '?limit={0}'.format(self.limit)
 
         self.validate_thresholds(optional=True)
-
-        self.path += '?limit={0}'.format(self.limit)
 
     def parse_json(self, json_data):
         apps = json_data['apps']
@@ -207,15 +207,16 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
                 if width > widths[col]:
                     widths[col] = width
         total_width = 0
-        for heading in ('User', 'Queue', 'State', 'Final Status', 'Name', 'Id'):
+        columns = ('User', 'Queue', 'State', 'Final Status', 'Name', 'Id')
+        for heading in columns:
             total_width += widths[heading] + 2
         print('=' * total_width)
-        for heading in ('User', 'Queue', 'State', 'Final Status', 'Name', 'Id'):
+        for heading in columns:
             print('{0:{1}}  '.format(heading, widths[heading]), end='')
         print()
         print('=' * total_width)
         for app in app_list:
-            for col in ('User', 'Queue', 'State', 'Final Status', 'Name', 'Id'):
+            for col in columns:
                 print('{0:{1}}  '.format(app[cols[col]], widths[col]), end='')
             print()
 
