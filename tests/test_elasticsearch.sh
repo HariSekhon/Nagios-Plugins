@@ -44,7 +44,7 @@ startupwait 20
 
 test_elasticsearch(){
     local version="$1"
-    echo "Setting up Elasticsearch $version test container"
+    section2 "Setting up Elasticsearch $version test container"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ELASTICSEARCH_PORT
     VERSION="$version" docker-compose up -d
     export ELASTICSEARCH_PORT="`docker-compose port "$DOCKER_SERVICE" "$ELASTICSEARCH_PORT_DEFAULT" | sed 's/.*://'`"
