@@ -120,7 +120,7 @@ class CheckHadoopYarnAppLastFinishedState(RestNagiosPlugin):
     def parse_json(self, json_data):
         apps = json_data['apps']
         if not apps:
-            raise UnknownError('no completed Yarn apps found')
+            raise CriticalError('no completed Yarn apps found')
         app_list = apps['app']
         host_info = ''
         if self.verbose:
