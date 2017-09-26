@@ -42,7 +42,7 @@ trap_debug_env alluxio
 test_alluxio(){
     local version="$1"
     hr
-    echo "Setting up Alluxio $version test container"
+    section2 "Setting up Alluxio $version test container"
     hr
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ALLUXIO_MASTER_PORT $ALLUXIO_WORKER_PORT
     VERSION="$version" docker-compose up -d
