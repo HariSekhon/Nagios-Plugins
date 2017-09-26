@@ -171,7 +171,7 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         self.msg = "Yarn application '{0}' state = '{1}'".format(app['name'], state)
         if state != 'RUNNING':
             self.critical()
-        # state = FAILED also gets final status = FAILED, no point double printing
+        # state = FAILED / KILLED also gets final status = FAILED KILLED, no point double printing
         if state == 'FINISHED':
             self.msg += ", final status = '{0}'".format(app['finalStatus'])
         self.msg += ", user = '{0}'".format(user)
