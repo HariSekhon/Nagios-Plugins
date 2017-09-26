@@ -42,7 +42,7 @@ valid_distros=(alpine centos debian ubuntu)
 test_linux(){
     local distro="$1"
     local version="$2"
-    echo "Setting up Linux $distro $version test container"
+    section2 "Setting up Linux $distro $version test container"
     #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #DOCKER_CMD="tail -f /dev/null"
     #launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
