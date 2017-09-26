@@ -47,7 +47,7 @@ trap_debug_env redis
 # TODO: redis authenticated container testing
 test_redis(){
     local version="$1"
-    echo "Setting up Redis $version test container"
+    section2 "Setting up Redis $version test container"
     #DOCKER_OPTS="--requirepass $REDIS_PASSWORD"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $REDIS_PORT
     VERSION="$version" docker-compose up -d
