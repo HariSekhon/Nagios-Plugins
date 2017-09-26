@@ -47,9 +47,10 @@ if is_docker_available; then
     echo "./check_docker_image.py --docker-image $DOCKER_IMAGE:latest --critical $((300 * 1024 * 1024))"
     ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --critical $((300 * 1024 * 1024))
     check_exit_code 2
-    set -e
     hr
+    # This fails set -e, possibly because docker images command is interrupted by the abrupt exit of awk
     id="$(docker images | awk "/^${DOCKER_IMAGE//\//\\/}.*latest/{print \$3; exit}")"
+    set -e
     echo "testing against expected id of $id"
     echo "./check_docker_image.py --docker-image $DOCKER_IMAGE:latest --id $id"
     ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --id "$id"
