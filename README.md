@@ -213,6 +213,13 @@ These allow you to use any standard nagios plugin with other non-Nagios style mo
 ./check_elasticsearch_cluster_status.pl --host $(./find_active_server.py --http --port 9200 node1 node2 node3)
 ```
 
+There are now also simplified subclassed programs so you don't have to figure out the switches for more complex services like Hadoop and HBase, just provide hosts are arguments and they'll return the current active master!
+
+- `find_active_hadoop_namenode.py`
+- `find_active_hadoop_yarn_resource_manager.py`
+- `find_active_hbase_master.py`
+- `find_active_elasticsearch_node.py`
+
 ### Kerberos Security Support ###
 
 For HTTP based plugins Kerberos is implicitly supported by LWP as long as the LWP::Authen::Negotiate CPAN module is installed (part of the automated ```make``` build). This will look for a valid TGT in the environment and if found will use it for SPNego.
