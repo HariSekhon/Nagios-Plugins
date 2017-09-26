@@ -44,7 +44,7 @@ trap_debug_env tachyon
 test_tachyon(){
     local version="$1"
     hr
-    echo "Setting up Tachyon $version test container"
+    section2 "Setting up Tachyon $version test container"
     hr
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $TACHYON_MASTER_PORT $TACHYON_WORKER_PORT
     VERSION="$version" docker-compose up -d
