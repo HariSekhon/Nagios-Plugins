@@ -23,10 +23,8 @@ Optional --warning / --critical thresholds apply to application elapsd time, and
 --user and --queue to enforce against the application, as well as the minimum number of running containers and
 even duplicate jobs matching the same regex
 
-The --app name is a regex and the first matching job to is checked. There is a --warn-on-duplicate job
-names but this may not always be appropriate because if a job is killed and restarted this will trip so
-this logic is not enabled by default as it will depend on your situation as to whether you want this extra
-layer
+The --app name is a regex and the first matching job to is checked and optionally can apply --warn-on-duplicate
+if multiple running jobs match the given regex
 
 Tested on HDP 2.6.1 and Apache Hadoop 2.5.2, 2.6.4, 2.7.3
 
@@ -54,7 +52,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class CheckHadoopYarnAppRunning(RestNagiosPlugin):
@@ -114,7 +112,7 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
 
         self.limit = self.get_opt('limit')
         validate_int(self.limit, 'num results', 1, None)
-        self.path += '?limit={0}'.format(self.limit)
+        self.path += '?states=running&limit={0}'.format(self.limit)
 
         self.validate_thresholds(optional=True)
 
@@ -128,7 +126,7 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
             raise UnknownError("non-list returned for json_data[apps][app] by Yarn Resource Manager{0}"\
                                .format(host_info))
         num_apps = len(app_list)
-        log.info("processing {0:d} apps returned by Yarn Resource Manager{1}".format(num_apps, host_info))
+        log.info("processing {0:d} running apps returned by Yarn Resource Manager{1}".format(num_apps, host_info))
         assert num_apps <= self.limit
         if self.list_apps:
             self.print_apps(app_list)
