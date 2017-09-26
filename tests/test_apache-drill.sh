@@ -53,6 +53,7 @@ test_apache_drill(){
     fi
     export APACHE_DRILL_PORT="`docker-compose port "$DOCKER_SERVICE" "$APACHE_DRILL_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$APACHE_DRILL_HOST" "$APACHE_DRILL_PORT"
+    when_url_content "$startupwait" "http://$APACHE_DRILL_HOST:$APACHE_DRILL_PORT/status" "Running"
     if [ "$version" = "latest" ]; then
         local version="*"
     fi
@@ -86,6 +87,6 @@ test_apache_drill(){
 #echo "launching zookeeper container"
 #launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 3181 4181
 
-startupwait 30
+startupwait 50
 
 run_test_versions "Apache Drill"
