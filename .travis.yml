@@ -34,8 +34,8 @@ notifications:
 branches:
   only:
     - master
-env:
-  DOCKER_COMPOSE_VERSION: 1.14.0
+#env:
+#  - DOCKER_COMPOSE_VERSION=1.14.0
 
 before_install:
   - sudo rm /usr/local/bin/docker-compose

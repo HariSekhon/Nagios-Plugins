@@ -17,7 +17,7 @@
 
 Nagios Plugin to check Apache Drill's status page
 
-Tested on Apache Drill 0.7, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8
+Tested on Apache Drill 0.7, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10
 
 """
 
@@ -48,7 +48,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 class CheckApacheDrillStatus(StatusNagiosPlugin):
@@ -76,7 +76,7 @@ class CheckApacheDrillStatus(StatusNagiosPlugin):
             status = soup.find('div', {'class': 'alert alert-success'}).get_text().strip()
         except (AttributeError, TypeError):
             qquit('UNKNOWN', 'failed to parse Apache Drill status page. %s' % support_msg())
-        if re.match('Running!', status):
+        if re.match('Running!?$', status):
             self.ok()
         else:
             self.critical()
