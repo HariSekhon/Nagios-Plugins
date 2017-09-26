@@ -45,7 +45,7 @@ trap_debug_env spark
 test_spark(){
     local version="$1"
     hr
-    echo "Setting up Spark $version test container"
+    section2 "Setting up Spark $version test container"
     hr
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SPARK_MASTER_PORT $SPARK_WORKER_PORT
     docker-compose down &>/dev/null
