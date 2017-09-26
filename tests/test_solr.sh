@@ -43,7 +43,7 @@ trap_debug_env solr
 
 test_solr(){
     local version="$1"
-    echo "Setting up Solr $version docker test container"
+    section2 "Setting up Solr $version docker test container"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SOLR_PORT
     VERSION="$version" docker-compose up -d
     echo "getting Solr dynamic port mappings"
