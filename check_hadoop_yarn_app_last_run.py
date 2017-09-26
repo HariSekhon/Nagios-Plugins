@@ -56,7 +56,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 class CheckHadoopYarnAppLastFinishedState(RestNagiosPlugin):
@@ -119,6 +119,8 @@ class CheckHadoopYarnAppLastFinishedState(RestNagiosPlugin):
 
     def parse_json(self, json_data):
         apps = json_data['apps']
+        if not apps:
+            raise CriticalError('no Yarn apps running')
         app_list = apps['app']
         host_info = ''
         if self.verbose:
