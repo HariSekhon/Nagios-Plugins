@@ -19,10 +19,11 @@
 
 Nagios Plugin to check if a specific job / yarn application is running via the Yarn Resource Manager REST API
 
-Optional --warning / --critical thresholds apply to job time, and other optional validations include
---user and --queue to enforce against the job
+Optional --warning / --critical thresholds apply to application elapsd time, and other optional validations include
+--user and --queue to enforce against the application, as well as the minimum number of running containers and
+even duplicate jobs matching the same regex
 
-The --job-name is a regex and the first matching job to is checked. There is a --warn-on-duplicate job
+The --app name is a regex and the first matching job to is checked. There is a --warn-on-duplicate job
 names but this may not always be appropriate because if a job is killed and restarted this will trip so
 this logic is not enabled by default as it will depend on your situation as to whether you want this extra
 layer
@@ -53,10 +54,9 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
-# pylint: disable=too-few-public-methods
 class CheckHadoopYarnAppRunning(RestNagiosPlugin):
 
     def __init__(self):
@@ -83,7 +83,7 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         self.add_opt('-u', '--user', help='Expected user that yarn application should be running as (optional)')
         self.add_opt('-q', '--queue', help='Expected queue that yarn application should be running on (optional)')
         self.add_opt('-m', '--min-containers', help='Expected minimum number of containers for application (optional)')
-        self.add_opt('-d', '--warn-on-duplicate-app',
+        self.add_opt('-d', '--warn-on-duplicate-app', action='store_true',
                      help='Warn when there is more than one matching application in the list (optional)')
         self.add_opt('-l', '--list-apps', action='store_true', help='List yarn apps and exit')
         self.add_thresholds()
@@ -133,7 +133,16 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
             raise CriticalError("app '{0}' not found in list of apps returned by Yarn Resource Manager{1}"\
                                 .format(self.app, host_info))
         log.info('found matching app:\n\n%s\n', jsonpp(matched_app))
-        self.check_app(matched_app)
+        elapsed_time = self.check_app(matched_app)
+        if self.warn_on_dup_app:
+            log.info('checking for duplicate apps matching the same regex')
+            count = 0
+            for app in app_list:
+                if regex.match(app['name']):
+                    count += 1
+            if count > 1:
+                self.msg += ', {0} DUPLICATE APPS WITH MATCHING NAMES DETECTED!'.format(count)
+        self.msg += ' | app_elapsed_time={0}{1}'.format(elapsed_time, self.get_perf_thresholds())
 
     def check_app(self, app):
         state = app['state']
@@ -165,7 +174,7 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
             self.msg += " (< '{0}')".format(self.min_containers)
         self.msg += ", elapsed time = {0} secs".format(elapsed_time)
         self.check_thresholds(elapsed_time)
-        self.msg += ' | app_elapsed_time={0}{1}'.format(elapsed_time, self.get_perf_thresholds())
+        return elapsed_time
 
     @staticmethod
     def print_apps(app_list):
