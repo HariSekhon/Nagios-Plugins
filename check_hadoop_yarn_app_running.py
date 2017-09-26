@@ -171,9 +171,12 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         self.msg = "Yarn application '{0}' state = '{1}'".format(app['name'], state)
         if state != 'RUNNING':
             self.critical()
+        ##################
+        # This shouldn't be used any more now using more targeted query to only return running apps
         # state = FAILED / KILLED also gets final status = FAILED KILLED, no point double printing
         if state == 'FINISHED':
             self.msg += ", final status = '{0}'".format(app['finalStatus'])
+        ##################
         self.msg += ", user = '{0}'".format(user)
         if self.app_user is not None and self.app_user != user:
             self.critical()
