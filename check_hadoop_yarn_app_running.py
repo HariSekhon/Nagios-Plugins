@@ -113,7 +113,7 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
             self.min_containers = int(self.min_containers)
 
         self.limit = self.get_opt('limit')
-        validate_int(self.limit, 'num results', 10, None)
+        validate_int(self.limit, 'num results', 1, None)
         self.path += '?limit={0}'.format(self.limit)
 
         self.validate_thresholds(optional=True)
