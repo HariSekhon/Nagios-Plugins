@@ -50,7 +50,7 @@ trap_container
 
 test_nginx(){
     local version="$1"
-    echo "Setting up Nginx $version test container"
+    section2 "Setting up Nginx $version test container"
     if ! is_docker_container_running "$DOCKER_CONTAINER"; then
         docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
         echo "Starting Docker Nginx test container"
