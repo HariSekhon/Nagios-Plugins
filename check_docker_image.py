@@ -49,7 +49,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5'
+__version__ = '0.5.1'
 
 
 class CheckDockerImageChecksum(NagiosPlugin):
@@ -141,7 +141,7 @@ class CheckDockerImageChecksum(NagiosPlugin):
         return _id
 
     def check_size(self, docker_image_line):
-        match = re.search(r'(\d+(?:\.\d+)?) ([KMG]B)\s*$', docker_image_line)
+        match = re.search(r'(\d+(?:\.\d+)?)\s*([KMG]B)\s*$', docker_image_line)
         if match:
             size = match.group(1)
             units = match.group(2).strip()
