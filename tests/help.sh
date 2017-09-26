@@ -31,9 +31,9 @@ test_help(){
     local prog="$1"
     optional_cmd=""
     if [[ $prog =~ .*\.pl$ ]]; then
-        optional_cmd="$perl -T"
+        optional_cmd="$perl -T "
     fi
-    echo "$optional_cmd $prog --help"
+    echo "$optional_cmd./$prog --help"
     set +e
     $optional_cmd ./$prog --help # >/dev/null
     status=$?
@@ -75,7 +75,6 @@ for x in $(ls *.pl *.py *.rb */*.pl */*.py */*.rb 2>/dev/null | sort); do
     if is_travis; then
         [ $(($RANDOM % 3)) = 0 ] || continue
     fi
-    echo "$x:"
     test_help "$x" 2>&1 >> "$log"
     hr
 done
