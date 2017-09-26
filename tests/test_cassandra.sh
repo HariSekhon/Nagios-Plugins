@@ -48,7 +48,7 @@ docker_exec(){
 
 test_cassandra(){
     local version="$1"
-    echo "Setting up Cassandra $version test container"
+    section2 "Setting up Cassandra $version test container"
     #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $CASSANDRA_PORT
     VERSION="$version" docker-compose up -d
