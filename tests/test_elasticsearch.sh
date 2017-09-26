@@ -48,10 +48,10 @@ test_elasticsearch(){
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ELASTICSEARCH_PORT
     VERSION="$version" docker-compose up -d
     export ELASTICSEARCH_PORT="`docker-compose port "$DOCKER_SERVICE" "$ELASTICSEARCH_PORT_DEFAULT" | sed 's/.*://'`"
+    when_ports_available "$startupwait" "$ELASTICSEARCH_HOST" "$ELASTICSEARCH_PORT"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    when_ports_available "$startupwait" "$ELASTICSEARCH_HOST" "$ELASTICSEARCH_PORT"
     # Travis added this
     #echo "deleting twitter index as 5 unassigned shards are breaking tests"
     #curl -XDELETE "http://localhost:9200/twitter" || :
