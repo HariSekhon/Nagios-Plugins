@@ -140,8 +140,9 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
                 matched_app = app
                 break
         if not matched_app:
-            raise CriticalError("app '{0}' not found in list of apps returned by Yarn Resource Manager{1}"\
-                                .format(self.app, host_info))
+            raise CriticalError("no app found with name matching '{app}' in list of last {limit} apps "\
+                                .format(app=self.app, limit=self.limit) +
+                                "returned by Yarn Resource Manager{host_info}".format(host_info=host_info))
         log.info('found matching app:\n\n%s\n', jsonpp(matched_app))
         elapsed_time = self.check_app(matched_app)
         if self.warn_on_dup_app:
