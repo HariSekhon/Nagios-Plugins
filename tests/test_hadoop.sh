@@ -64,6 +64,8 @@ test_hadoop(){
     section2 "Setting up Hadoop $version test container"
     #DOCKER_OPTS="-v $srcdir2/..:$MNTDIR"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HADOOP_PORTS
+    # reset state as things like blocks counts and job states, no history, succeeded etc depend on state
+    VERSION="$version" docker-compose down
     VERSION="$version" docker-compose up -d
     echo "getting Hadoop dynamic port mappings"
     printf "getting HDFS NN port => "
@@ -101,6 +103,10 @@ test_hadoop(){
         exit
 EOF
     echo
+    # needed for version tests, also don't return container to user before it's ready if NOTESTS
+    echo "waiting for Yarn RM cluster page to come up..."
+    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_YARN_RESOURCE_MANAGER_PORT/ws/v1/cluster" hadoop
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -122,24 +128,6 @@ EOF
     hr
     echo "$perl -T ./check_hadoop_datanode_version.pl --node $hostname -v -e $version"
     $perl -T ./check_hadoop_datanode_version.pl --node "$hostname" -v -e "$version"
-    hr
-    #echo "waiting 10 secs for Yarn RM to come up to test version"
-    #sleep 10
-    local count=0
-    local max_tries=20
-    while true; do
-        echo "waiting for Yarn RM cluster page to come up to test version..."
-        # intentionally being a bit loose here, if content has changed I would rather it be flagged as up and the plugin fail to parse which is more a more accurate error
-        if curl -s "$HADOOP_HOST:$HADOOP_YARN_RESOURCE_MANAGER_PORT/ws/v1/cluster" | grep -qi hadoop; then
-            break
-        fi
-        let count+=1
-        if [ $count -ge 20 ]; then
-            echo "giving up after $max_tries tries"
-            break
-        fi
-        sleep 1
-    done
     hr
     echo "$perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e $version"
     $perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "$version"
@@ -393,12 +381,12 @@ EOF
         # these won't trigger as NN has no max non-heap
 #        echo "checking we can trigger warning on non-heap usage"
 #        set +e
-#        $perl -T ./check_hadoop_namenode.pl -P"$hadoop_namenode_port" -v --non-heap-usage -w 1 -c 90
+#        $perl -T ./check_hadoop_namenode.pl - P"$HADOOP_NAMENODE_PORT" -v --non-heap-usage -w 1 -c 90
 #        check_exit_code 1
 #        hr
 #        echo "checking we can trigger critical on non-heap usage"
 #        set +e
-#        $perl -T ./check_hadoop_namenode.pl -P"$hadoop_namenode_port" -v --non-heap-usage -w 0 -c 1
+#        $perl -T ./check_hadoop_namenode.pl -P "$HADOOP_NAMENODE_PORT" -v --non-heap-usage -w 0 -c 1
 #        check_exit_code 2
 #        set -e
 #        hr
@@ -417,19 +405,118 @@ EOF
     echo "$perl -T ./check_hadoop_replication.pl"
     $perl -T ./check_hadoop_replication.pl
     hr
-    # TODO: add test job and re-run these to validate success scenarios
+    # ================================================
     set +e
     echo "./check_hadoop_yarn_app_running.py -a '.*'"
     ./check_hadoop_yarn_app_running.py -a '.*'
+    check_exit_code 2
+    hr
+    echo "./check_hadoop_yarn_app_running.py -a '.*' -v"
+    ./check_hadoop_yarn_app_running.py -a '.*' -v
     check_exit_code 2
     hr
     echo "./check_hadoop_yarn_app_last_run.py -a '.*'"
     ./check_hadoop_yarn_app_last_run.py -a '.*'
     check_exit_code 2
     hr
+    echo "./check_hadoop_yarn_app_last_run.py -a '.*' -v"
+    ./check_hadoop_yarn_app_last_run.py -a '.*' -v
+    check_exit_code 2
+    hr
+    echo "./check_hadoop_yarn_app_running.py -l"
+    ./check_hadoop_yarn_app_running.py -l
+    check_exit_code 2
+    hr
+    echo "./check_hadoop_yarn_app_last_run.py -l"
+    ./check_hadoop_yarn_app_last_run.py -l
+    check_exit_code 2
+    hr
+    echo "./check_hadoop_yarn_long_running_apps.py -l"
+    ./check_hadoop_yarn_long_running_apps.py -l
+    check_exit_code 3
+    set -e
+    hr
     echo "./check_hadoop_yarn_long_running_apps.py"
     ./check_hadoop_yarn_long_running_apps.py
+    hr
+    echo "./check_hadoop_yarn_long_running_apps.py -v"
+    ./check_hadoop_yarn_long_running_apps.py -v
+    hr
+    # ================================================
+    echo "Running sample mapreduce job to test Yarn application /job based plugins against:"
+    docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" /bin/bash <<EOF &
+    echo
+    echo "running mapreduce job from sample jar"
+    echo
+    hadoop jar /hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar pi 5 20 &>/dev/null &
+    echo
+    echo "triggered mapreduce job"
+    echo
+    disown
+    exit
+EOF
+    hr
+    echo "waiting up to 20 secs for job to become available..."
+    for x in {1..20}; do
+        ./check_hadoop_yarn_app_running.py -a '.*' &>/dev/null && break
+        sleep 1
+    done
+    hr
+    set +e
+    echo "Checking app listings while there is an app running:"
+    echo
+    echo
+    echo "./check_hadoop_yarn_app_running.py -l"
+    ./check_hadoop_yarn_app_running.py -l
+    check_exit_code 3
+    echo
+    echo
+    hr
+    echo
+    echo
+    echo "./check_hadoop_yarn_long_running_apps.py -l"
+    ./check_hadoop_yarn_long_running_apps.py -l
+    check_exit_code 3
     set -e
+    echo
+    echo
+    hr
+    echo "./check_hadoop_yarn_app_running.py -a '.*' -v"
+    ./check_hadoop_yarn_app_running.py -a '.*' -v
+    hr
+    echo "./check_hadoop_yarn_app_running.py -a 'QuasiMonteCarlo'"
+    ./check_hadoop_yarn_app_running.py -a 'QuasiMonteCarlo'
+    hr
+    echo "./check_hadoop_yarn_long_running_apps.py --include=QuasiMonteCarlo"
+    ./check_hadoop_yarn_long_running_apps.py --include=QuasiMonteCarlo | tee /dev/stderr | grep -q "checked 1 out of"
+    hr
+    echo "./check_hadoop_yarn_long_running_apps.py --exclude=QuasiMonteCarlo"
+    ./check_hadoop_yarn_long_running_apps.py --exclude=QuasiMonteCarlo | tee /dev/stderr | grep -q "checked 0 out of"
+    hr
+    echo "./check_hadoop_yarn_long_running_apps.py --include=QuasiMonteCarlo --exclude='Quasi.*'"
+    ./check_hadoop_yarn_long_running_apps.py --include=QuasiMonteCarlo --exclude='Quasi.*' | tee /dev/stderr | grep -q "checked 0 out of"
+    hr
+    echo "waiting up to 60 secs for job to stop running"
+    for x in {1..60}; do
+        ./check_hadoop_yarn_app_running.py -a '.*' || break
+        sleep 1
+    done
+    hr
+    set +e
+    echo "Checking listing app history:"
+    echo
+    echo
+    echo "./check_hadoop_yarn_app_last_run.py -l"
+    ./check_hadoop_yarn_app_last_run.py -l
+    check_exit_code 3
+    set -e
+    echo "now testing last run status:"
+    echo "./check_hadoop_yarn_app_last_run.py -a '.*' -v"
+    ./check_hadoop_yarn_app_last_run.py -a '.*' -v
+    hr
+    echo "./check_hadoop_yarn_app_last_run.py -a 'QuasiMonteCarlo'"
+    ./check_hadoop_yarn_app_last_run.py -a 'QuasiMonteCarlo'
+    # ================================================
     hr
     echo "$perl -T ./check_hadoop_yarn_app_stats.pl"
     $perl -T ./check_hadoop_yarn_app_stats.pl
