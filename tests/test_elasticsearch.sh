@@ -50,6 +50,8 @@ test_elasticsearch(){
     export ELASTICSEARCH_PORT="`docker-compose port "$DOCKER_SERVICE" "$ELASTICSEARCH_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$ELASTICSEARCH_HOST" "$ELASTICSEARCH_PORT"
     hr
+    when_url_content "$startupwait" "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT" "lucene_version"
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
