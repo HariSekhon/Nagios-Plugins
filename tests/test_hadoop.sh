@@ -81,6 +81,7 @@ test_hadoop(){
     #local hadoop_ports=`{ for x in $HADOOP_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
     export HADOOP_PORTS="$HADOOP_NAMENODE_PORT $HADOOP_DATANODE_PORT $HADOOP_YARN_RESOURCE_MANAGER_PORT $HADOOP_YARN_NODE_MANAGER_PORT"
     when_ports_available "$startupwait" "$HADOOP_HOST" $HADOOP_PORTS
+    hr
     echo "setting up HDFS for tests"
     #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
     docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" /bin/bash <<-EOF
