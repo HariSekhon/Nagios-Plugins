@@ -34,17 +34,17 @@ export NEO4J_USERNAME="${NEO4J_USERNAME:-${NEO4J_USERNAME:-neo4j}}"
 export NEO4J_PASSWORD="${NEO4J_PASSWORD:-${NEO4J_PASSWORD:-testpw}}"
 
 export NEO4J_PORT_DEFAULT="7474"
-export NEO4J_PORTS_DEFAULT="$NEO4J_PORT_DEFAULT 7473"
+export NEO4J_PORTS_DEFAULT="$NEO4J_PORT_DEFAULT 7473 7687"
 
 check_docker_available
 
 trap_debug_env neo4j
 
-startupwait 10
+startupwait 20
 
 test_neo4j_noauth(){
     local version="$1"
-    section2 "Setting up Neo4J $version test container without authentication"
+    section2 "Setting up Neo4J $version test container without auth"
     #local DOCKER_OPTS="-e NEO4J_AUTH=none"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $NEO4J_PORTS
     # otherwise repeated attempts create more nodes and break the NumberOfNodeIdsInUse upper threshold
@@ -52,11 +52,17 @@ test_neo4j_noauth(){
     VERSION="$version" docker-compose up -d
     export NEO4J_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
     export NEO4J_PORTS=`{ for x in $NEO4J_PORTS_DEFAULT; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
-    when_ports_available $startupwait $NEO4J_HOST $NEO4J_PORTS
+    when_ports_available "$startupwait" "$NEO4J_HOST" $NEO4J_PORTS
+    hr
+    when_url_content "$startupwait" "http://$NEO4J_HOST:7687" "not a WebSocket handshake request: missing upgrade"
     hr
     echo "creating test Neo4J node"
-    # TODO: fix this it now gets connection refused as there is nothing listening 1337
-    docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
+    # now gets connection refused as there is nothing listening on 1337
+    #docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
+    # connects to 7687
+    docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" /var/lib/neo4j/bin/cypher-shell <<< 'CREATE (p:Person { name: "Hari Sekhon" });'
+    hr
+    when_url_content "$startupwait" "http://$NEO4J_HOST:$NEO4J_PORT/browser/" "Neo4j Browser"
     if [ "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -90,7 +96,7 @@ test_neo4j_noauth(){
 
 test_neo4j_auth(){
     local version="$1"
-    section2 "Setting up Neo4J $version test container with authentication"
+    section2 "Setting up Neo4J $version test container with auth"
     #local DOCKER_OPTS="-e NEO4J_AUTH=$NEO4J_USERNAME/$NEO4J_PASSWORD"
     local startupwait=20
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER-auth" $NEO4J_PORTS
