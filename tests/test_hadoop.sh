@@ -65,7 +65,7 @@ test_hadoop(){
     #DOCKER_OPTS="-v $srcdir2/..:$MNTDIR"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HADOOP_PORTS
     # reset state as things like blocks counts and job states, no history, succeeded etc depend on state
-    VERSION="$version" docker-compose down
+    docker-compose down &>/dev/null || :
     VERSION="$version" docker-compose up -d
     echo "getting Hadoop dynamic port mappings"
     printf "getting HDFS NN port => "
