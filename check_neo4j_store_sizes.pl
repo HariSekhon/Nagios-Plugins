@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the Neo4j data store sizes using the Neo4j REST API
 
-Tested on Neo4j 1.9.4, 2.0.3, 2.3.2, 3.0.0";
+Tested on Neo4j 1.9, 2.0, 2.3, 3.0, 3.1, 3.2";
 
 $VERSION = "0.2";
 
