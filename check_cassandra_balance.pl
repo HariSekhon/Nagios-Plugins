@@ -19,7 +19,7 @@ Can specify a remote host and port otherwise assumes to check via localhost
 
 Tested on Cassandra 1.2.9, 2.0.1, 2.0.9, 2.2.5, 3.0.8, 3.5, 3.6, 3.7";
 
-$VERSION = "0.5.3";
+$VERSION = "0.6.0";
 
 use strict;
 use warnings;
@@ -68,7 +68,15 @@ foreach(@output){
     # Only consider up nodes
     next if(/^D[NJLM]\s+/);
     next if($exclude_joining_leaving and /^U[JL]\s+/);
-    if(/^[^\s]+\s+([^\s]+)\s+[^\s]+(?:\s+[A-Za-z][A-Za-z])?\s+[^\s]+\s+(?:\d+\s+)?(?:(\d+(?:\.\d+)?\%|\?))\s+[^\s]+\s+([^\s]+)\s*$/){
+    #if(/^[^\s]+\s+([^\s]+)\s+[^\s]+(?:\s+[A-Za-z][A-Za-z])?\s+[^\s]+\s+(?:\d+\s+)?(?:(\d+(?:\.\d+)?\%|\?))\s+[^\s]+\s+([^\s]+)\s*$/){
+    # Cassandra 1.2
+    #        --          Address    Load                    Owns                         Host ID          Token      Rack
+    #        UN          127.0.0.1  14.02       KB          100.0%                       524fcc7b-da30... -883460... rack1
+    #if(/^[A-Za-z\s]{2}\s+([^\s]+)\s+[^\s]+\s+[A-Za-z]{2}\s+(?:\d+\s+)?(?:(\d+(?:\.\d+)?\%|\?))\s+[\w-]+\s+-?\d+\s+([^\s]+)\s*$/){
+    # Casandra 2.0
+    #        --          Address    Load      Tokens  Owns (effective)   Host ID         Rack
+    #        UN          127.0.0.1  40.99 KB  256     100.0%             4ab9df4b-a1...  rack1
+    if(/^[A-Za-z\s]{2}\s+([^\s]+)\s+.+?(?:(\d+(?:\.\d+)?\%|\?)).+\s+([^\s]+)\s*$/){
         $node_count++;
         my $node       = $1;
         my $percentage = $2;
