@@ -113,6 +113,8 @@ class CheckHadoopYarnAppLastFinishedState(RestNagiosPlugin):
 
         self.limit = self.get_opt('limit')
         validate_int(self.limit, 'num results', 1, None)
+        # Not limited to states here in case we miss one, instead will return all and
+        # then explicitly skip only RUNNING/ACCEPTED states
         self.path += '?limit={0}'.format(self.limit)
 
         self.validate_thresholds(optional=True)
