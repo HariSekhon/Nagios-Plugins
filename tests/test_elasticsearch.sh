@@ -49,6 +49,7 @@ test_elasticsearch(){
     VERSION="$version" docker-compose up -d
     export ELASTICSEARCH_PORT="`docker-compose port "$DOCKER_SERVICE" "$ELASTICSEARCH_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$ELASTICSEARCH_HOST" "$ELASTICSEARCH_PORT"
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
