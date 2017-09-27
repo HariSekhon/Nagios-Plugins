@@ -23,4 +23,4 @@ services:
       - 7473
       - 7474
     environment:
-      - NEO4J_AUTH=none
+      - NEO4J_AUTH=${NEO4J_AUTH:-none}
