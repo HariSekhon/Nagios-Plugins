@@ -36,7 +36,7 @@ check_docker_available
 
 trap_debug_env presto
 
-startupwait 10
+startupwait 20
 
 test_presto(){
     local version="$1"
@@ -45,17 +45,11 @@ test_presto(){
     VERSION="$version" docker-compose up -d
     export PRESTO_PORT="`docker-compose port "$DOCKER_SERVICE" "$PRESTO_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$PRESTO_HOST" "$PRESTO_PORT"
-    #echo "sleeping for 5 secs to give API time to initialize properly"
-    #sleep 5
-    echo "giving Presto up to 20 secs for service to come up:"
-    for x in {1..20}; do
-        # endpoint initializes blank, wait until there is some content, eg. nodeId
-        echo "trying http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general"
-        curl -s "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" | grep -q nodeId && break
-        #echo "./check_presto_state.py"
-        #./check_presto_state.py && break
-        sleep 1
-    done
+    hr
+    # endpoint initializes blank, wait until there is some content, eg. nodeId
+    # don't just run ./check_presto_state.py
+    when_url_content "$startupwait" "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" nodeId
+    hr
     if [ "$version" = "latest" ]; then
         version=".*"
     fi
