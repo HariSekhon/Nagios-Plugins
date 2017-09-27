@@ -42,6 +42,21 @@ trap_debug_env neo4j
 
 startupwait 20
 
+neo4j_setup(){
+    when_ports_available "$startupwait" "$NEO4J_HOST" $NEO4J_PORTS
+    hr
+    when_url_content "$startupwait" "http://$NEO4J_HOST:7687" "not a WebSocket handshake request: missing upgrade"
+    hr
+    echo "creating test Neo4J node"
+    # now gets connection refused as there is nothing listening on 1337
+    #docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
+    # connects to 7687
+    # needs NEO4J_USERNAME and NEO4J_PASSWORD environment variables for the authenticated service
+    docker exec -i -e NEO4J_USERNAME="$NEO4J_USERNAME" -e NEO4J_PASSWORD="$NEO4J_PASSWORD" "nagiosplugins_${DOCKER_SERVICE}_1" /var/lib/neo4j/bin/cypher-shell <<< 'CREATE (p:Person { name: "Hari Sekhon" });'
+    hr
+    when_url_content "$startupwait" "http://$NEO4J_HOST:$NEO4J_PORT/browser/" "Neo4j Browser"
+}
+
 test_neo4j_noauth(){
     local version="$1"
     section2 "Setting up Neo4J $version test container without auth"
@@ -52,24 +67,14 @@ test_neo4j_noauth(){
     VERSION="$version" docker-compose up -d
     export NEO4J_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
     export NEO4J_PORTS=`{ for x in $NEO4J_PORTS_DEFAULT; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
-    when_ports_available "$startupwait" "$NEO4J_HOST" $NEO4J_PORTS
+    neo4j_setup
     hr
-    when_url_content "$startupwait" "http://$NEO4J_HOST:7687" "not a WebSocket handshake request: missing upgrade"
-    hr
-    echo "creating test Neo4J node"
-    # now gets connection refused as there is nothing listening on 1337
-    #docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
-    # connects to 7687
-    docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" /var/lib/neo4j/bin/cypher-shell <<< 'CREATE (p:Person { name: "Hari Sekhon" });'
-    hr
-    when_url_content "$startupwait" "http://$NEO4J_HOST:$NEO4J_PORT/browser/" "Neo4j Browser"
     if [ "${NOTESTS:-}" ]; then
         exit 0
     fi
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
-    hr
     $perl -T ./check_neo4j_version.pl -v -e "^$version"
     hr
     $perl -T ./check_neo4j_readonly.pl -v
@@ -102,19 +107,16 @@ test_neo4j_auth(){
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER-auth" $NEO4J_PORTS
     docker-compose down &>/dev/null || :
     VERSION="$version" NEO4J_AUTH="$NEO4J_USERNAME/$NEO4J_PASSWORD" docker-compose up -d
-    neo4j_port="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT" | sed 's/.*://'`"
-    local NEO4J_PORT="$neo4j_port"
-    neo4j_ports=`{ for x in $NEO4J_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
-    when_ports_available $startupwait $NEO4J_HOST $neo4j_ports
-    echo "creating test Neo4J node"
-    docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
+    export NEO4J_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
+    export NEO4J_PORTS=`{ for x in $NEO4J_PORTS_DEFAULT; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
+    neo4j_setup
+    hr
     if [ "${NOTESTS:-}" ]; then
         exit 0
     fi
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
-    hr
     echo "$perl -T ./check_neo4j_version.pl -v -e '^$version'"
     $perl -T ./check_neo4j_version.pl -v -e "^$version"
     hr
