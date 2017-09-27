@@ -23,7 +23,7 @@ This version uses 'nodetool' which must be in the $PATH
 This is also used in the accompanying test suite to ensure we're checking the right version of Cassandra
 for compatibility for all my other Cassandra nagios plugins.
 
-Tested on Cassandra 1.2.9, 2.0.9, 2.1.14, 2.2.6, 3.0.6, 3.0.8, 3.5, 3.6, 3.7
+Tested on Cassandra 1.2, 2.0, 2.1, 2.2, 3.0, 3.5, 3.6, 3.7, 3.9, 3.10, 3.11
 
 """
 

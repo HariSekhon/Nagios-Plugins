@@ -17,7 +17,7 @@ Use --verbose mode to also output max & min node % token ownership and rack info
 
 Can specify a remote host and port otherwise assumes to check via localhost
 
-Tested on Cassandra 1.2.9, 2.0.1, 2.0.9, 2.2.5, 3.0.8, 3.5, 3.6, 3.7";
+Tested on Cassandra 1.2, 2.0, 2.1, 2.2, 3.0, 3.5, 3.6, 3.7, 3.9, 3.10, 3.11";
 
 $VERSION = "0.6.0";
 

@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check the Heap used on a single Cassandra node 
 
 Can specify a remote host and port otherwise it checks the local node's heap (for calling over NRPE on each Cassandra node)
 
-Tested on Cassandra 1.2.9, 2.0.1, 2.0.9, 2.2.5, 3.0.8, 3.5, 3.6, 3.7";
+Tested on Cassandra 1.2, 2.0, 2.1, 2.2, 3.0, 3.5, 3.6, 3.7, 3.9, 3.10, 3.11";
 
 $VERSION = "0.2.2";
 
