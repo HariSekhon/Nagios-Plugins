@@ -59,8 +59,8 @@ test_consul(){
         exit 0
     fi
     when_ports_available "$startupwait" "$CONSUL_HOST" "$CONSUL_PORT"
-    # give it some extra time to settle, otherwise get no peers found error
-    sleep 2
+    hr
+    when_url_content "$startupwait" "http://$CONSUL_HOST:$CONSUL_PORT/" "Consul by HashiCorp"
     hr
     local testkey="nagios/consul/testkey1"
     echo "Writing random value to test key $testkey"
