@@ -23,7 +23,7 @@ cd "$srcdir/..";
 
 section "N e o 4 J"
 
-export NEO4J_VERSIONS="${@:-${NEO4J_VERSIONS:-latest 2.3 3.0}}"
+export NEO4J_VERSIONS="${@:-${NEO4J_VERSIONS:-latest 2.3 3.0 3.1 3.2}}"
 
 NEO4J_HOST="${DOCKER_HOST:-${NEO4J_HOST:-${HOST:-localhost}}}"
 NEO4J_HOST="${NEO4J_HOST##*/}"
@@ -45,14 +45,21 @@ startupwait 20
 neo4j_setup(){
     when_ports_available "$startupwait" "$NEO4J_HOST" $NEO4J_PORTS
     hr
-    when_url_content "$startupwait" "http://$NEO4J_HOST:7687" "not a WebSocket handshake request: missing upgrade"
+    if [ "${version:0:1}" = "2" ]; then
+        :
+    else
+        when_url_content "$startupwait" "http://$NEO4J_HOST:7687" "not a WebSocket handshake request: missing upgrade"
+    fi
     hr
     echo "creating test Neo4J node"
-    # now gets connection refused as there is nothing listening on 1337
-    #docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
-    # connects to 7687
-    # needs NEO4J_USERNAME and NEO4J_PASSWORD environment variables for the authenticated service
-    docker exec -i -e NEO4J_USERNAME="$NEO4J_USERNAME" -e NEO4J_PASSWORD="$NEO4J_PASSWORD" "nagiosplugins_${DOCKER_SERVICE}_1" /var/lib/neo4j/bin/cypher-shell <<< 'CREATE (p:Person { name: "Hari Sekhon" });'
+    if [ "${version:0:3}" = "2.3" -o "${version:0:3}" = "3.0" ]; then
+        # port 1337 - gets connection refused in newer versions as there is nothing listening on 1337
+        docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
+    else
+        # connects to 7687
+        # needs NEO4J_USERNAME and NEO4J_PASSWORD environment variables for the authenticated service
+        docker exec -i -e NEO4J_USERNAME="$NEO4J_USERNAME" -e NEO4J_PASSWORD="$NEO4J_PASSWORD" "nagiosplugins_${DOCKER_SERVICE}_1" /var/lib/neo4j/bin/cypher-shell <<< 'CREATE (p:Person { name: "Hari Sekhon" });'
+    fi
     hr
     when_url_content "$startupwait" "http://$NEO4J_HOST:$NEO4J_PORT/browser/" "Neo4j Browser"
 }
