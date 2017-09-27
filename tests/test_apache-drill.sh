@@ -53,11 +53,12 @@ test_apache_drill(){
     fi
     export APACHE_DRILL_PORT="`docker-compose port "$DOCKER_SERVICE" "$APACHE_DRILL_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$APACHE_DRILL_HOST" "$APACHE_DRILL_PORT"
+    hr
     when_url_content "$startupwait" "http://$APACHE_DRILL_HOST:$APACHE_DRILL_PORT/status" "Running"
+    hr
     if [ "$version" = "latest" ]; then
         local version="*"
     fi
-    hr
     set +e
     #found_version="$(docker exec  "$DOCKER_CONTAINER" ls / | grep apache-drill | tee /dev/stderr | tail -n1 | sed 's/-[[:digit:]]*//')"
     #env | grep -i -e docker -e compose
