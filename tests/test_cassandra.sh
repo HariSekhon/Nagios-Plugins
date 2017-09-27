@@ -62,12 +62,25 @@ test_cassandra(){
         local version=".*"
     fi
     hr
-    docker-compose exec "$DOCKER_SERVICE" nodetool status
+    # doesn't always fail reliably as Cassandra 1.2 comes up faster than later versions
+    #set +e
+    #echo "checking nodetool failure after initial startup:"
+    #docker_exec check_cassandra_balance.pl
+    #check_exit_code 2
+    #set -e
+    #hr
+    echo "trying up to 20 times for nodetool status to succeed"
+    for x in {1..20}; do
+        docker-compose exec "$DOCKER_SERVICE" nodetool status && break
+        sleep 1
+    done
     hr
     docker_exec check_cassandra_version_nodetool.py -e "$version"
     hr
     # Dockerized Cassandra doesn't seem able to detect it's own token % - even when container has been running for a long time
     # TODO: add more specific command testing here to only except that scenario
+    docker_exec check_cassandra_balance.pl
+    hr
     docker_exec check_cassandra_balance.pl -v
     hr
     docker_exec check_cassandra_balance.pl --nodetool /cassandra/bin/nodetool -v
