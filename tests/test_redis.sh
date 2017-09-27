@@ -53,9 +53,11 @@ test_redis(){
     VERSION="$version" docker-compose up -d
     export REDIS_PORT="`docker-compose port "$DOCKER_SERVICE" "$REDIS_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$REDIS_HOST" "$REDIS_PORT"
+    hr
     echo "creating test Redis key-value"
     echo set myKey hari | redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT"
     echo done
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -63,7 +65,6 @@ test_redis(){
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
-    hr
     echo "$perl -T ./check_redis_version.pl -v"
     $perl -T ./check_redis_version.pl -v # TODO: change to regex and enable -e "^$version"
     hr
