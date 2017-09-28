@@ -32,7 +32,7 @@ H2O_HOST="${H2O_HOST##*/}"
 H2O_HOST="${H2O_HOST%%:*}"
 export H2O_HOST
 echo "using docker address '$H2O_HOST'"
-export H2O_PORT_DEFAULT="${H2O_PORT:-54321}"
+export H2O_PORT_DEFAULT=54321
 
 check_docker_available
 
