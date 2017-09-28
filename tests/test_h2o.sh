@@ -53,6 +53,8 @@ test_h2o(){
     fi
     when_ports_available $startupwait $H2O_HOST $H2O_PORT
     hr
+    when_url_content "$startupwait" "http://$H2O_HOST:$H2O_PORT/" "0xdata"
+    hr
     echo "$perl -T ./check_h2o_cluster.pl"
     $perl -T ./check_h2o_cluster.pl
     hr
