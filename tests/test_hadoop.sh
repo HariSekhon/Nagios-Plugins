@@ -84,14 +84,20 @@ test_hadoop(){
     export HADOOP_PORTS="$HADOOP_NAMENODE_PORT $HADOOP_DATANODE_PORT $HADOOP_YARN_RESOURCE_MANAGER_PORT $HADOOP_YARN_NODE_MANAGER_PORT"
     when_ports_available "$startupwait" "$HADOOP_HOST" $HADOOP_PORTS
     hr
+    # needed for version tests, also don't return container to user before it's ready if NOTESTS
+    # also, do this wait before HDFS setup to give datanodes time to come online to copy the file too
+    echo "waiting for Yarn RM cluster page to come up..."
+    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_YARN_RESOURCE_MANAGER_PORT/ws/v1/cluster" hadoop
+    hr
     echo "setting up HDFS for tests"
     #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
     docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" /bin/bash <<-EOF
+        set -eu
         export JAVA_HOME=/usr
         echo "leaving safe mode"
         hdfs dfsadmin -safemode leave
         echo "removing old hdfs file /tmp/test.txt if present"
-        hdfs dfs -rm -f /tmp/test.txt &>/dev/null
+        hdfs dfs -rm -f /tmp/test.txt &>/dev/null || :
         echo "creating test hdfs file /tmp/test.txt"
         echo content | hdfs dfs -put - /tmp/test.txt
         # if using wrong port like 50075 ot 50010 then you'll get this exception
@@ -100,17 +106,13 @@ test_hadoop(){
         #hdfs dfsadmin -triggerBlockReport localhost:50020
         echo "dumping fsck log"
         hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && tail -n30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
-        exit
+        exit 0
 EOF
     echo
-    # needed for version tests, also don't return container to user before it's ready if NOTESTS
-    echo "waiting for Yarn RM cluster page to come up..."
-    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_YARN_RESOURCE_MANAGER_PORT/ws/v1/cluster" hadoop
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    hr
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
