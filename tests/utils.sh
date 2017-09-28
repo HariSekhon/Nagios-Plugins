@@ -24,6 +24,8 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 export COMPOSE_PROJECT_NAME="nagios-plugins"
 
+export PROJECT="nagios-plugins"
+
 check(){
     cmd=$1
     msg=$2
