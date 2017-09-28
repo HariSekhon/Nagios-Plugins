@@ -30,7 +30,7 @@ PRESTO_HOST="${PRESTO_HOST##*/}"
 PRESTO_HOST="${PRESTO_HOST%%:*}"
 export PRESTO_HOST
 
-export PRESTO_PORT_DEFAULT="${PRESTO_PORT:-8080}"
+export PRESTO_PORT_DEFAULT=8080
 
 check_docker_available
 
