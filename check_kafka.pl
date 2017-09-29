@@ -27,7 +27,7 @@ Limitations (these all currently have tickets open to fix in the underlying API)
 
 Requires >= Kafka-0.8010 Perl library, several improvements were made to the library at my request in order to support this program (0.8009 added taint security mode support, version 0.8009_1 added metadata retrieval)
 
-See also Python port 'check_kafka.py'
+See also 'check_kafka.py' which is a newer adjacent Python port with better underlying library support and is now the preferred check
 
 Tested on Kafka 0.8.1, 0.8.2, 0.9.0.1
 ";
