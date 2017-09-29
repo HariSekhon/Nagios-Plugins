@@ -58,11 +58,14 @@ test_kafka(){
     #kafka_port="`docker-compose port "$DOCKER_SERVICE" "$KAFKA_PORT" | sed 's/.*://'`"
     #local KAFKA_PORT="$kafka_port"
     when_ports_available $startupwait $KAFKA_HOST $KAFKA_PORT
-    # echo sleeping 30 secs
-    #sleep 30
     hr
-    echo "creating Kafka test topic"
-    docker-compose exec "$DOCKER_SERVICE" kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic "$KAFKA_TOPIC" || :
+    echo "creating Kafka test topic:"
+    for i in {1..20}; do
+        echo "try $i / 10"
+        docker-compose exec "$DOCKER_SERVICE" kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic "$KAFKA_TOPIC" && break
+        echo
+        sleep 1
+    done
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
