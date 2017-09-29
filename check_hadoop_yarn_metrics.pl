@@ -17,9 +17,9 @@ Optional thresholds can be specified for a metric if specifying only one metric.
 
 Thresholds default to upper boundaries, but to make them lower boundaries use standard Nagios threshold syntax <lower>:<upper> eg 5: for a minimum of 5 (inclusive) with no upper boundary to apply to things like activeNodes or availableMB.
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0), HDP 2.6 (Hadoop 2.7.3) and Apache Hadoop 2.5, 2.6, 2.7";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -94,6 +94,10 @@ foreach(@metrics){
         quit "UNKNOWN", "metric '$_' not found. Check you have specified a valid metric by omitting --metrics to show all metrics. If you're sure you specified a valid metrics then $nagios_plugins_support_msg_api";
     }
 }
+foreach(sort keys %metrics){
+    vlog2 "$_ = $metrics{$_}";
+}
+vlog2;
 
 sub msg_metric($){
     my $key = shift;
