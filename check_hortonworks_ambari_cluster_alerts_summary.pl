@@ -1,0 +1,1 @@
+check_ambari_cluster_alerts_summary.pl

@@ -1,0 +1,1 @@
+check_ambari_cluster_service_config_compatible.pl
