@@ -15,7 +15,7 @@ Optional thresholds are applied to the number of running apps on the cluster.
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -69,6 +69,10 @@ my %stats;
 foreach (@stats){
     $stats{get_field2($_, "state")} = get_field2($_, "count");
 }
+foreach (sort keys %stats){
+    vlog2 "$_ = $stats{$_}";
+}
+vlog2;
 
 $msg = "yarn apps stats for cluster: ";
 my $msg2;
@@ -90,4 +94,5 @@ foreach(qw/RUNNING NEW NEW_SAVING SUBMITTED ACCEPTED FAILED KILLED FINISHED/){
 $msg =~ s/, $//;
 $msg .= " | $msg2";
 
+vlog2
 quit $status, $msg;
