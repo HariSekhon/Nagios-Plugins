@@ -27,15 +27,15 @@ It's a treasure trove of essentials for every single "DevOp" / sysadmin / engine
 [Mesos](http://mesos.apache.org/),
 [Consul](https://www.consul.io/),
 NoSQL technologies:
-[Cassandra](http://cassandra.apache.org/),
+[Elasticsearch](https://www.elastic.co/products/elasticsearch),
+[Solr / SolrCloud](http://lucene.apache.org/solr/),
 [HBase](https://hbase.apache.org/),
+[Cassandra](http://cassandra.apache.org/),
 [MongoDB](https://www.mongodb.com/),
 [Memcached](https://memcached.org/),
 [Redis](http://redis.io/),
 [Couchbase](http://www.couchbase.com/),
 [Riak](http://basho.com/products/),
-[Solr / SolrCloud](http://lucene.apache.org/solr/),
-[Elasticsearch](https://www.elastic.co/products/elasticsearch),
 Linux & Infrastructure technologies:
 [Jenkins](https://jenkins.io/),
 [Travis CI](https://travis-ci.org/),
@@ -178,6 +178,7 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 
 - ```check_ssl_cert.pl``` - SSL expiry, chain of trust (including intermediate certs important for certain mobile devices), SNI, domain, wildcard and multi-domain support validation
 - ```check_whois.pl``` - check domain expiry days left and registration details match expected
+- `check_docker.py` - checks docker image has been pulled with optional checks on checksum and size
 - ```check_puppet.rb``` - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
 - ```check_aws_s3_file.pl``` - check for the existence of any arbitrary file on AWS S3, eg. to check backups have happened or _SUCCESS placeholder files are present for a job
 - ```check_dns.pl``` - advanced DNS query checker supporting NS records for your public domain name, MX records for your mail servers, SOA, SRV, TXT as well as A and PTR records. Can optionally specify `--expected` literal or `--regex` results (which is anchored for security) for strict validation to ensure all records returned are expected and authorized. The record, type and result(s) are output along with the DNS query timing perfdata for graphing DNS performance
