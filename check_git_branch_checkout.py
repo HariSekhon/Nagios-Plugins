@@ -40,14 +40,14 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import qquit, log_option, validate_directory
+    from harisekhon.utils import CriticalError, log_option, validate_directory
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.1'
+__version__ = '0.3.0'
 
 
 class CheckGitBranchCheckout(NagiosPlugin):
@@ -74,13 +74,18 @@ class CheckGitBranchCheckout(NagiosPlugin):
             self.usage('Invalid branch name given, must be alphanumeric, may contain dashes')
         log_option('expected branch', expected_branch)
         repo = git.Repo(directory)
-        current_branch = repo.active_branch.name
+        try:
+            current_branch = repo.active_branch.name
+        # happens with detached HEAD checkout like Travis CI does
+        except TypeError as _:
+            raise CriticalError(_)
         if current_branch == expected_branch:
-            qquit('OK', "branch '{0}' currently checked out in directory '{1}'"
-                  .format(current_branch, directory))
+            self.ok()
+            self.msg = "branch '{0}' currently checked out in directory '{1}'"\
+                       .format(current_branch, directory)
         else:
-            qquit('CRITICAL', "branch '{0}' checked out, expecting '{1}' in directory '{2}'"
-                  .format(current_branch, expected_branch, directory))
+            raise CriticalError("branch '{0}' checked out, expecting '{1}' in directory '{2}'"
+                                .format(current_branch, expected_branch, directory))
 
 
 if __name__ == '__main__':
