@@ -52,11 +52,12 @@ __version__ = '0.3.0'
 
 class CheckGitBranchCheckout(NagiosPlugin):
 
-#    def __init__(self):
-#        # Python 2.x
-#        super(CheckGitBranchCheckout, self).__init__()
-#        # Python 3.x
-#        # super().__init__()
+    def __init__(self):
+        # Python 2.x
+        super(CheckGitBranchCheckout, self).__init__()
+        # Python 3.x
+        # super().__init__()
+        self.msg = 'CheckGitBranchCheckout msg not defined'
 
     def add_options(self):
         self.add_opt('-d', '--directory', action='store', help='Directory path to git working copy')
