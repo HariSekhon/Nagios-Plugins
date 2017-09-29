@@ -36,7 +36,7 @@ check_docker_available
 
 trap_debug_env presto
 
-startupwait 20
+startupwait 30
 
 test_presto(){
     local version="$1"
