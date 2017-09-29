@@ -59,7 +59,7 @@ test_linux(){
     hr
     docker_exec check_linux_auth.pl -u root -g root -v
     hr
-    docker_exec check_linux_context_switches.pl || : ; sleep 1; docker_exec check_linux_context_switches.pl -w 10000 -c 50000
+    docker_exec check_linux_context_switches.pl || : ; sleep 1; docker_exec check_linux_context_switches.pl -w 30000 -c 50000
     hr
     docker_exec check_linux_duplicate_IDs.pl
     hr
