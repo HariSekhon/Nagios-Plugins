@@ -13,7 +13,9 @@ $DESCRIPTION = "Nagios Plugin to check Hadoop Yarn queue capacity used % via the
 
 Optional thresholds may be applied but this is not recommended as queues may intermittently allocate all resources, this is more useful for monitoring with graphing and capacity planning since it outputs perfdata.
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
+This supports the Capacity Scheduler and will not work for the Fifo Scheduler due to the API exposing different information. It has also not been tested on the Fair Scheduler.
+
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0), HDP 2.6 (Hadoop 2.7.3) and Apache Hadoop 2.5, 2.6, 2.7";
 
 $VERSION = "0.1";
 
