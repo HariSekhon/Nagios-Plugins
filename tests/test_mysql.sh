@@ -77,23 +77,30 @@ test_db(){
     echo "Getting $name port mapping"
     echo -n "$name port => "
     export MYSQL_PORT="`docker port "$docker_container" "$MYSQL_PORT_DEFAULT" | sed 's/.*://'`"
-    if [ "$version" = "latest" ] || [ "${version%%.*}" -gt 5 ]; then
-        export MYSQL_CONFIG_PATH="/etc/mysql/mysql.conf.d"
-        export MYSQL_CONFIG_FILE="mysqld.cnf"
-    else
-        export MYSQL_CONFIG_PATH="/etc/mysql"
-        export MYSQL_CONFIG_FILE="my.cnf"
-    fi
-    echo "$MYSQL_PORT"
+    hr
+    when_ports_available $startupwait $MYSQL_HOST $MYSQL_PORT
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    when_ports_available $startupwait $MYSQL_HOST $MYSQL_PORT
-    hr
-    echo "fetching my.cnf to local host"
+    echo "finding my.cnf location"
+    set +o pipefail
+    MYSQL_CONFIG_FILE="my.cnf"
+    my_cnf="$(docker exec -ti "$docker_container" find /etc -name my.cnf -o -name mysqld.cnf | tail -n1 | tr -d '\r')"
+    set -o pipefail
+    echo "determined my.cnf location to be $my_cnf"
+    #if [ "$version" = "latest" ] || [ "${version%%.*}" -gt 5 ]; then
+    #    export MYSQL_CONFIG_PATH="/etc/mysql/mysql.conf.d"
+    #    export MYSQL_CONFIG_FILE="mysqld.cnf"
+    #else
+    #    export MYSQL_CONFIG_PATH="/etc/mysql"
+    #    export MYSQL_CONFIG_FILE="my.cnf"
+    #fi
+    echo "fetching $my_cnf to local host"
     # must require newer version of docker?
     #docker cp -L "$docker_container":"$MYSQL_CONFIG_PATH/$MYSQL_CONFIG_FILE" /tmp
-    docker cp "$docker_container":"$MYSQL_CONFIG_PATH/$MYSQL_CONFIG_FILE" /tmp
+    docker cp "$docker_container":"$my_cnf" "/tmp/$MYSQL_CONFIG_FILE"
+    echo "copied to /tmp/$MYSQL_CONFIG_FILE"
     hr
     extra_opt=""
     if [ "$name" = "MariaDB" ]; then
