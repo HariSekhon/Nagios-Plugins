@@ -119,6 +119,14 @@ test_db(){
     echo
 }
 
+# This will get called twice in each of 2 separate Travis CI builds, once for MySQL and once for MariaDB, so skip one build in each to save time
+if is_travis; then
+    if [ $(($RANDOM % 2)) = 0 ] then
+        echo "detected Travis CI, skipping build this time"
+        exit 0
+    fi
+fi
+
 if [ ${0##*/} = "$test_mariadb_sh" ]; then
     run_test_versions MariaDB
 else
