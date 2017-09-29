@@ -30,7 +30,7 @@ else
 fi
 
 export MYSQL_VERSIONS="${@:-${MYSQL_VERSIONS:-latest 5.5 5.6 5.7 8.0}}"
-export MARIADB_VERSIONS="${@:-${MYSQL_VERSIONS:-latest 5.5 10.1 10.2 10.3}}"
+export MARIADB_VERSIONS="${@:-${MARIADB_VERSIONS:-latest 5.5 10.1 10.2 10.3}}"
 
 MYSQL_HOST="${MYSQL_HOST:-${DOCKER_HOST:-${HOST:-localhost}}}"
 MYSQL_HOST="${MYSQL_HOST##*/}"
