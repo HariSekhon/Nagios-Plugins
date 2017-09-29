@@ -26,7 +26,7 @@ section "K a f k a"
 
 # TODO: latest container 2.11_0.10 doesn't work yet, no leader takes hold
 #export KAFKA_VERSIONS="${@:-2.11_0.10 2.11_0.10 latest}"
-export KAFKA_VERSIONS="${@:-${KAFKA_VERSIONS:-latest 2.10_0.8 2.11_0.8 2.10_0.9 2.11_0.9}}"
+export KAFKA_VERSIONS="${@:-${KAFKA_VERSIONS:-latest 2.10-0.8 2.11-0.8 2.10-0.9 2.11-0.9}}"
 
 KAFKA_HOST="${DOCKER_HOST:-${KAFKA_HOST:-${HOST:-localhost}}}"
 KAFKA_HOST="${KAFKA_HOST##*/}"
@@ -59,13 +59,21 @@ test_kafka(){
     #local KAFKA_PORT="$kafka_port"
     when_ports_available $startupwait $KAFKA_HOST $KAFKA_PORT
     hr
-    echo "creating Kafka test topic:"
-    for i in {1..20}; do
-        echo "try $i / 10"
-        docker-compose exec "$DOCKER_SERVICE" kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic "$KAFKA_TOPIC" && break
-        echo
-        sleep 1
-    done
+    echo "checking if Kafka topic already exists:"
+    set +o pipefail
+    if docker-compose exec "$DOCKER_SERVICE" kafka-topics.sh --zookeeper localhost:2181 --list 2>/dev/null | grep "^$KAFKA_TOPIC$"; then
+        echo "Kafka topic $KAFKA_TOPIC already exists, continuing"
+    else
+        set -o pipefail
+        echo "creating Kafka test topic:"
+        for i in {1..20}; do
+            echo "try $i / 10"
+            docker-compose exec "$DOCKER_SERVICE" kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic "$KAFKA_TOPIC" && break
+            echo
+            sleep 1
+        done
+    fi
+    set -o pipefail
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -79,7 +87,8 @@ test_kafka(){
     echo "found version $found_version"
     set -e
     # TODO: make container and official versions align
-    if [[ "${found_version//-/_}" != ${version//-/_}* ]]; then
+    #if [[ "${found_version//-/_}" != ${version//-/_}* ]]; then
+    if [[ "$found_version" != $version* ]]; then
         echo "Docker container version does not match expected version! (found '$found_version', expected '$version')"
         exit 1
     fi
