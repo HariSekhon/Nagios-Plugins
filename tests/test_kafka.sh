@@ -52,7 +52,7 @@ test_kafka(){
     hr
     #local DOCKER_OPTS="-e ADVERTISED_HOSTNAME=$HOST"
     #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $KAFKA_PORT
-    export ADVERTISED_HOSTNAME="$HOST"
+    export ADVERTISED_HOSTNAME="$KAFKA_HOST"
     VERSION="$version" docker-compose up -d
     # not mapping kafka port any more
     #kafka_port="`docker-compose port "$DOCKER_SERVICE" "$KAFKA_PORT" | sed 's/.*://'`"
