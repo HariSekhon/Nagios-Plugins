@@ -73,19 +73,19 @@ test_hbase(){
         local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
     fi
     echo "getting HBase dynamic port mappings"
-    printf "getting HBase Master port => "
+    printf "getting HBase Master port       => "
     export HBASE_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HBASE_MASTER_PORT"
     printf "getting HBase RegionServer port => "
     export HBASE_REGIONSERVER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_REGIONSERVER_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HBASE_REGIONSERVER_PORT"
-    printf "getting HBase Stargate port => "
+    printf "getting HBase Stargate port     => "
     export HBASE_STARGATE_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_STARGATE_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HBASE_STARGATE_PORT"
-    printf "getting HBase Thrift port => "
+    printf "getting HBase Thrift port       => "
     export HBASE_THRIFT_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_THRIFT_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HBASE_THRIFT_PORT"
-    printf "getting HBase ZooKeeper port => "
+    printf "getting HBase ZooKeeper port    => "
     export ZOOKEEPER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$ZOOKEEPER_PORT"
     #local export HBASE_PORTS=`{ for x in $HBASE_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://' | sort -n`
@@ -262,6 +262,9 @@ EOF
     echo "./check_hbase_regionserver_compaction_in_progress.py"
     ./check_hbase_regionserver_compaction_in_progress.py
     hr
+    echo "ensuring Stargate Server is properly online before running this test"
+    when_url_content "$startupwait" "http://$HBASE_HOST:$HBASE_STARGATE_PORT/" UniformSplitTable
+    hr
     echo "$perl -T ./check_hbase_regionservers.pl"
     $perl -T ./check_hbase_regionservers.pl
     hr
@@ -338,24 +341,24 @@ EOF
     set -e
 # ============================================================================ #
     hr
-    echo "./check_hbase_write_spray.py -T t1 -w 500 --precision 3"
-    ./check_hbase_write_spray.py -T t1 -w 500 --precision 3
+    echo "./check_hbase_write_spray.py -T t1 -w 500 --precision 3 -t 20"
+    ./check_hbase_write_spray.py -T t1 -w 500 --precision 3 -t 20
     hr
     # this will also be checked later by check_hbase_rowcount that it returns to zero rows, ie. delete succeeded
-    echo "./check_hbase_write_spray.py -T EmptyTable -w 500 --precision 3"
-    ./check_hbase_write_spray.py -T EmptyTable -w 500 --precision 3
+    echo "./check_hbase_write_spray.py -T EmptyTable -w 500 --precision 3 -t 20"
+    ./check_hbase_write_spray.py -T EmptyTable -w 500 --precision 3 -t 20
     hr
     # write to 100 regions...
-    echo "./check_hbase_write_spray.py -T HexStringSplitTable -w 500 --precision 3"
-    ./check_hbase_write_spray.py -T HexStringSplitTable -w 500 --precision 3
+    echo "./check_hbase_write_spray.py -T HexStringSplitTable -w 500 --precision 3 -t 20"
+    ./check_hbase_write_spray.py -T HexStringSplitTable -w 500 --precision 3 -t 20
     hr
     set +e
-    echo "./check_hbase_write_spray.py -T DisabledTable -t 2"
-    ./check_hbase_write_spray.py -T DisabledTable -t 2
+    echo "./check_hbase_write_spray.py -T DisabledTable -t 5"
+    ./check_hbase_write_spray.py -T DisabledTable -t 5
     check_exit_code 2
     hr
-    echo "./check_hbase_write_spray.py -T NonExistentTable"
-    ./check_hbase_write_spray.py -T NonExistentTable
+    echo "./check_hbase_write_spray.py -T NonExistentTable -t 5"
+    ./check_hbase_write_spray.py -T NonExistentTable -t 5
     check_exit_code 2
     set -e
 # ============================================================================ #
