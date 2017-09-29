@@ -32,7 +32,7 @@ fi
 export MYSQL_VERSIONS="${@:-${MYSQL_VERSIONS:-latest 5.5 5.6 5.7 8.0}}"
 export MARIADB_VERSIONS="${@:-${MARIADB_VERSIONS:-latest 5.5 10.1 10.2 10.3}}"
 
-MYSQL_HOST="${MYSQL_HOST:-${DOCKER_HOST:-${HOST:-localhost}}}"
+MYSQL_HOST="${DOCKER_HOST:-${HOST:-localhost}}"
 MYSQL_HOST="${MYSQL_HOST##*/}"
 MYSQL_HOST="${MYSQL_HOST%%:*}"
 # using 'localhost' causes mysql driver to try to shortcut to using local socket
@@ -76,9 +76,18 @@ test_db(){
     echo "determined docker container to be '$docker_container'"
     echo "Getting $name port mapping"
     echo -n "$name port => "
-    export MYSQL_PORT="`docker port "$docker_container" "$MYSQL_PORT_DEFAULT" | sed 's/.*://'`"
+    #for i in {1..10}; do
+        # MariaDB 5.5 container is slow to map this port
+        export MYSQL_PORT="`docker port "$docker_container" "$MYSQL_PORT_DEFAULT" | sed 's/.*://'`"
+    #    if [ -n "${MYSQL_PORT:-}" ]; then
+    #        break
+    #    fi
+    #    sleep 1
+    #done
+    echo "$MYSQL_PORT"
     hr
     when_ports_available $startupwait $MYSQL_HOST $MYSQL_PORT
+    sleep 2
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
@@ -117,7 +126,8 @@ test_db(){
     echo "$perl -T ./check_mysql_query.pl -d information_schema -q \"SELECT * FROM user_privileges LIMIT 1\"  -r \"'(root|mysql.sys)'@'(%|localhost)'\" -v"
     $perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -r "'(root|mysql.sys)'@'(%|localhost)'" -v
     # TODO: add socket test - must mount on a compiled system, ie replace the docker image with a custom test one
-    unset MYSQL_HOST
+    # this breaks subsequent iterations of this function
+    #unset MYSQL_HOST
     #$perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
     hr
     #delete_container
