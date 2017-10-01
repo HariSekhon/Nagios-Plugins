@@ -66,7 +66,7 @@ env_var("MYSQL_DATABASE", \$database);
     "d|database=s"  => [ \$database, "MySQL database (\$MYSQL_DATABASE)" ],
     "s|mysql-socket=s" => [ \$mysql_socket,    "MySQL socket file through which to connect (defaults: " . join(", ", @default_mysql_sockets) . ")" ],
     "q|query=s"     => [ \$query,    "MySQL query to execute" ],
-    "f|field=s"     => [ \$field,    "Field number/name to check the results of (defaults to '1')" ],
+    "f|field=s"     => [ \$field,    "Field name / number to check the results of (defaults to '1' for the first field)" ],
     "e|epoch"       => [ \$epoch,    "Subtract result from current time in epoch format from result (useful for timestamp based comparisons)" ],
     "m|message=s"   => [ \$message,  "Message to output after result. Can take a printf string with a single substitution (defaults to '$default_message')" ],
     "n|message-prepend" => [ \$message_pre, "Display message before rather than after result (prepend)" ],
@@ -90,7 +90,7 @@ if($host){
     unless($mysql_socket){
         foreach(@default_mysql_sockets){
             if( -e $_ ){
-                vlog3 "found mysql socket '$_'";
+                vlog2 "found mysql socket '$_'";
                 $mysql_socket = $_;
                 last;
             }
