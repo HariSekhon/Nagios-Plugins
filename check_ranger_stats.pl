@@ -18,7 +18,7 @@ $DESCRIPTION = "Nagios Plugin to check Ranger stats for number of policies and r
 
 If isolating to one type then optional thresholds may be applied.
 
-Tested on HDP 2.3 (Ranger 0.5) and HDP 2.6.1 (Ranger 0.7)";
+Tested on Hortonworks HDP 2.3 (Ranger 0.5) and HDP 2.6.1 (Ranger 0.7)";
 
 $VERSION = "0.1";
 
