@@ -27,12 +27,12 @@ Tests a policy found either either name or id with the following checks:
 - policy is recursive (optional)
 - policy last update time is less than N minutes --warning / --critical thresholds (to catch policy changes, optional)
 - repository name the policy belongs to (optional)
-- repository type the policy belongs to (optional)
+- repository type the policy belongs to (eg. hive, hdfs - optional)
 
 Will output repository name and type in verbose mode or outputs each one if a check is specified against it.
 
-Giving a policy ID is a much more efficient query but if you given a non-existent policy ID you will get a more generic
-404 Not Found critical error result
+Queries are targeted by --id and / or --name for efficiency but if you give a non-existent policy ID
+you will get a more generic 404 Not Found critical error result as that is what is returned by Ranger
 
 If specifying a policy --id (which you can find via --list-policies) and also specifying a policy --name
 then the name will be validated against the returned policy if one is found by targeted id query
@@ -65,7 +65,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckRangerPolicy(RestNagiosPlugin):
@@ -114,14 +114,12 @@ class CheckRangerPolicy(RestNagiosPlugin):
             if not self.policy_name and not self.policy_id:
                 self.usage('--policy name / --policy-id is not defined')
 
-        if self.policy_id and not self.list_policies:
-            self.path += '/{0}'.format(self.policy_id)
-
-        # TODO: iterate over pages...
-        # might be more efficient if your policy is found in the first few pages
-        # better solution would be to simply pass the policy ID to this plugin to limit the query
-        # causes time outs with 3000 policies
-        #self.path += '?pageSize=999999'
+        # TODO: should technically iterate over pages if --list...
+        if not self.list_policies:
+            if self.policy_id:
+                self.path += '/{0}'.format(self.policy_id)
+            if self.policy_name:
+                self.path += '?policyName={0}'.format(self.policy_name)
 
         self.validate_thresholds(simple='lower', optional=True)
 
@@ -135,17 +133,13 @@ class CheckRangerPolicy(RestNagiosPlugin):
         if not self.policy_id or self.list_policies:
             policy_list = json_data['vXPolicies']
         if not policy_list:
-            raise CriticalError('no Ranger policies found!')
+            raise CriticalError('Ranger policy not found! (check the --name is correct and that it really exists)')
         host_info = ''
         if self.verbose:
             host_info = " at '{0}:{1}'".format(self.host, self.port)
         if not isList(policy_list):
             raise UnknownError("non-list returned for json_data[vXPolicies] by Ranger{0}"\
                                .format(host_info))
-        ##########################
-        #num_apps = len(app_list)
-        #log.info("processing {0:d} running apps returned by Yarn Resource Manager{1}".format(num_apps, host_info))
-        #assert num_apps <= self.limit
         if self.list_policies:
             self.print_policies(policy_list)
             sys.exit(ERRORS['UNKNOWN'])
