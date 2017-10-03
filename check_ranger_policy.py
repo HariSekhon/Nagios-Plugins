@@ -32,7 +32,7 @@ Tests a policy found either either name or id with the following checks:
 Will output repository name and type in verbose mode or outputs each one if a check is specified against it.
 
 Queries are targeted by --id and / or --name for efficiency but if you give a non-existent policy ID
-you will get a more generic 404 Not Found critical error result as that is what is returned by Ranger
+you will get a more generic 404 Not Found r 400 Bad Request critical error result as that is what is returned by Ranger
 
 If specifying a policy --id (which you can find via --list-policies) and also specifying a policy --name
 then the name will be validated against the returned policy if one is found by targeted id query
