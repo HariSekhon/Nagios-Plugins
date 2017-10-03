@@ -29,6 +29,8 @@ Tests a policy found either either name or id with the following checks:
 - repository name the policy belongs to (optional)
 - repository type the policy belongs to (optional)
 
+Will output repository name and type in verbose mode or outputs each one if a check is specified against it.
+
 Giving a policy ID is a much more efficient query but if you given a non-existent policy ID you will get a more generic
 404 Not Found critical error result
 
