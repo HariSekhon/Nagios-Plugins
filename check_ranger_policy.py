@@ -19,12 +19,15 @@
 
 Nagios Plugin to check an Apache Ranger policy via Ranger Admin's REST API
 
-Checks a policy by name or id is:
+Tests a policy found either either name or id with the following checks:
 
-- present
-- enabled
-- has auditing (can optionally disable this check)
-- recursive (optional)
+- policy present
+- policy enabled
+- policy has auditing (can disable audit check)
+- policy is recursive (optional)
+- policy last update time is less than N minutes --warning / --critical thresholds (to catch policy changes, optional)
+- repository name the policy belongs to (optional)
+- repository type the policy belongs to (optional)
 
 Giving a policy ID is a much more efficient query but if you given a non-existent policy ID you will get a more generic
 404 Not Found critical error result
@@ -41,8 +44,11 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from datetime import datetime
+import math
 import os
 import sys
+import time
 import traceback
 srcdir = os.path.abspath(os.path.dirname(__file__))
 libdir = os.path.join(srcdir, 'pylib')
@@ -57,7 +63,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckRangerPolicy(RestNagiosPlugin):
@@ -77,6 +83,7 @@ class CheckRangerPolicy(RestNagiosPlugin):
         self.policy_id = None
         self.no_audit = False
         self.recursive = False
+        self.repo_details = {'repo_name': None, 'repo_type': None}
         self.list_policies = False
 
     def add_options(self):
@@ -85,8 +92,10 @@ class CheckRangerPolicy(RestNagiosPlugin):
         self.add_opt('-i', '--id', help='Policy ID to expect to find')
         self.add_opt('-a', '--no-audit', action='store_true', help='Do not require auditing to be enabled')
         self.add_opt('-r', '--recursive', action='store_true', help='Checks the policy is set to recursive')
+        self.add_opt('--repo-name', help='Repository name to expect policy to belong to')
+        self.add_opt('--repo-type', help='Repository type to expect policy to belong to')
         self.add_opt('-l', '--list-policies', action='store_true', help='List Ranger policies and exit')
-        #self.add_thresholds()
+        self.add_thresholds()
 
     def process_options(self):
         super(CheckRangerPolicy, self).process_options()
@@ -95,6 +104,8 @@ class CheckRangerPolicy(RestNagiosPlugin):
         self.policy_id = self.get_opt('id')
         self.no_audit = self.get_opt('no_audit')
         self.recursive = self.get_opt('recursive')
+        self.repo_details['repo_name'] = self.get_opt('repo_name')
+        self.repo_details['repo_type'] = self.get_opt('repo_type')
         self.list_policies = self.get_opt('list_policies')
 
         if not self.list_policies:
@@ -110,7 +121,7 @@ class CheckRangerPolicy(RestNagiosPlugin):
         # causes time outs with 3000 policies
         #self.path += '?pageSize=999999'
 
-        #self.validate_thresholds(optional=True)
+        self.validate_thresholds(simple='lower', optional=True)
 
     # TODO: extract msgDesc from json error response
 
@@ -174,6 +185,31 @@ class CheckRangerPolicy(RestNagiosPlugin):
         if self.recursive and not recursive:
             self.critical()
             self.msg += ' (expected True)'
+        opts = {
+            'repo_name': policy['repositoryName'],
+            'repo_type': policy['repositoryType']
+        }
+        for _ in ('name', 'type'):
+            detail = 'repo_{0}'.format(_)
+            expected_result = self.repo_details[detail]
+            result = opts['repo_{0}'.format(_)]
+            if self.verbose or expected_result:
+                self.msg += ", repo {0} = '{1}'".format(_, result)
+                if expected_result and expected_result != result:
+                    self.critical()
+                    self.msg += " (expected '{0}')".format(expected_result)
+        last_updated = policy['updateDate']
+        # in case it's null and was never updated skip this bit
+        if last_updated:
+            last_updated_datetime = datetime.strptime(last_updated, '%Y-%m-%dT%H:%M:%SZ')
+            self.msg += ", last updated = '{0}'".format(last_updated)
+            # looks like Ranger timestamp is in UTC, if it isn't it should be that's best practice for timestamps
+            timedelta = datetime.utcnow() - last_updated_datetime
+            # ensure we don't round down to zero mins and pass the check, round up in mins
+            mins_ago = int(math.ceil(timedelta.total_seconds() / 60.0))
+            mins_ago = '{0:d}'.format(mins_ago)
+            self.msg += ", {0} mins ago".format(mins_ago)
+            self.check_thresholds(mins_ago)
 
     @staticmethod
     def print_policies(policy_list):
