@@ -158,39 +158,39 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
 
 These programs check these message brokers end-to-end via their API, by acting as both a producer and a consumer and checking that a unique generated message passes through the broker cluster and is received by the consumer at the other side successfully. They report the publish, consumer and total timings taken, against which thresholds can be applied, and are also available as perfdata for graphing.
 
-- `check_kafka.pl / check_kafka.py` - [Kafka](https://kafka.apache.org/) brokers API write & read back with configurable topics/partition and producer behaviour for acks, sleep, retries, backoff, can also lists topics and partitions
-- `check_redis_publish_subscribe.pl` - [Redis](https://redis.io/) publish-subscribe API write & read back with configurable subscriber wait
-- `check_rabbitmq*.py` - [RabbitMQ](https://www.rabbitmq.com/) brokers AMQP API write & read back with configurable vhost, exchange, exchange type, queue, routing key, durability, RabbitMQ 'confirms' protocol extension & standard AMQP transactions support. Checks via the RabbitMQ management API include aliveness queue health test, built-in health checks, cluster name, vhost, exchange with optional validation of exchange type (direct, fanout, headers, topic) and durability (true/false), user auth and permissions tags, stats db event queue
+- ```check_kafka.pl / check_kafka.py``` - [Kafka](https://kafka.apache.org/) brokers API write & read back with configurable topics/partition and producer behaviour for acks, sleep, retries, backoff, can also lists topics and partitions
+- ```check_redis_publish_subscribe.pl``` - [Redis](https://redis.io/) publish-subscribe API write & read back with configurable subscriber wait
+- ```check_rabbitmq*.py` - [RabbitMQ](https://www.rabbitmq.com/) brokers AMQP API write & read back with configurable vhost, exchange, exchange type, queue, routing key, durability, RabbitMQ 'confirms' protocol extension & standard AMQP transactions support. Checks via the RabbitMQ management API include aliveness queue health test, built-in health checks, cluster name, vhost, exchange with optional validation of exchange type (direct, fanout, headers, topic) and durability (true/false), user auth and permissions tags, stats db event queue
 <!--
 Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagios-plugins-rabbitmq` package
 -->
 
 ##### CI - Continuous Integration systems - Jenkins, Travis CI & DockerHub Automated Builds
 
-- `check_jenkins_*.py` - [Jenkins](https://jenkins.io/) checks include job build status, color, health report score, build time, age since last completed build, if job is set to buildable, job count total or per view, number of running builds, queued builds, executors, node count, offline nodes, jenkins mode, is security enabled, if a given node is online and its number of executors, if a given plugin is enabled and if there are available plugin updates individually or overall, with perfdata for relevant metrics like build time, jobs/nodes/executors/plugins/plugin updates, running/queued build counts and query timings
-- `check_travis_ci_last_build.py` - [Travis CI](https://travis-ci.org/) repo's last build status - includes showing build number, build duration with optional thresholds, start/stop date & time, if there are currently any builds in progress and perfdata for graphing last build time and number of builds in progress. Verbose mode gives the commit details as well such as commit id and message
-- `check_dockerhub_repo_build_status.py` - [DockerHub](https://hub.docker.com/u/harisekhon/) Automated Build status check for a given DockerHub repository's latest build or latest build for a given tag. Returns status and tag of last build along with perfdata for graphing build latency (time between build creation and completion) and query timing. Optionally also returns in verbose mode what triggered the build (webhook, revision control change, API / website trigger), created and last updated date timestamps and build URL to investigate
+- ```check_jenkins_*.py``` - [Jenkins](https://jenkins.io/) checks include job build status, color, health report score, build time, age since last completed build, if job is set to buildable, job count total or per view, number of running builds, queued builds, executors, node count, offline nodes, jenkins mode, is security enabled, if a given node is online and its number of executors, if a given plugin is enabled and if there are available plugin updates individually or overall, with perfdata for relevant metrics like build time, jobs/nodes/executors/plugins/plugin updates, running/queued build counts and query timings
+- ```check_travis_ci_last_build.py``` - [Travis CI](https://travis-ci.org/) repo's last build status - includes showing build number, build duration with optional thresholds, start/stop date & time, if there are currently any builds in progress and perfdata for graphing last build time and number of builds in progress. Verbose mode gives the commit details as well such as commit id and message
+- ```check_dockerhub_repo_build_status.py``` - [DockerHub](https://hub.docker.com/u/harisekhon/) Automated Build status check for a given DockerHub repository's latest build or latest build for a given tag. Returns status and tag of last build along with perfdata for graphing build latency (time between build creation and completion) and query timing. Optionally also returns in verbose mode what triggered the build (webhook, revision control change, API / website trigger), created and last updated date timestamps and build URL to investigate
 
 ##### Infrastructure
 
 - ```check_ssl_cert.pl``` - SSL expiry, chain of trust (including intermediate certs important for certain mobile devices), SNI, domain, wildcard and multi-domain support validation
 - ```check_whois.pl``` - check domain expiry days left and registration details match expected
-- `check_docker.py` - checks docker image has been pulled with optional checks on checksum and size
-- ```check_puppet.rb``` - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
-- ```check_aws_s3_file.pl``` - check for the existence of any arbitrary file on AWS S3, eg. to check backups have happened or _SUCCESS placeholder files are present for a job
 - ```check_dns.pl``` - advanced DNS query checker supporting NS records for your public domain name, MX records for your mail servers, SOA, SRV, TXT as well as A and PTR records. Can optionally specify `--expected` literal or `--regex` results (which is anchored for security) for strict validation to ensure all records returned are expected and authorized. The record, type and result(s) are output along with the DNS query timing perfdata for graphing DNS performance
-- `check_disk_write.pl` - canary write test, catches partitions getting auto-remounted read-only by Linux when it detects underlying storage I/O errors (often caused by malfunctioning block devices, raid arrays, failing disks)
-- `check_git_branch_checkout.p*` - if deploying from a git checkout (eg. puppetmaster), make sure it stays on the expected branch otherwise you could auto-deploy the wrong stuff
-- `check_consul_*.py` - [Consul](https://www.consul.io/) API write / read back, arbitrary key-value content checks, number of cluster peers & version
+- ```check_mysql_query.pl``` - flexible free-form [MySQL](https://www.mysql.com/) SQL queries - can check almost anything - obsoleted a dozen custom MySQL plugins and prevented writing many more. Tested against many versions of [MySQL](https://www.mysql.com/) and [MariaDB](https://mariadb.org/). You may also be interested in [Percona's plugins](https://www.percona.com/doc/percona-monitoring-plugins/latest/index.html)
+- ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline. Tested against many versions of [MySQL](https://www.mysql.com/) and [MariaDB](https://mariadb.org/)
+- ```check_puppet.rb``` - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
+- ```check_disk_write.pl``` - canary write test, catches partitions getting auto-remounted read-only by Linux when it detects underlying storage I/O errors (often caused by malfunctioning block devices, raid arrays, failing disks)
+- ```check_docker.py``` - checks docker image has been pulled with optional checks on checksum and size
+- ```check_git_branch_checkout.p*``` - if deploying from a git checkout (eg. puppetmaster), make sure it stays on the expected branch otherwise you could auto-deploy the wrong stuff
+- ```check_aws_s3_file.pl``` - check for the existence of any arbitrary file on AWS S3, eg. to check backups have happened or _SUCCESS placeholder files are present for a job
+- ```check_consul_*.py``` - [Consul](https://www.consul.io/) API write / read back, arbitrary key-value content checks, number of cluster peers & version
 - ```check_mesos_*.pl``` - [Mesos](http://mesos.apache.org/) master health API, master & slaves state information including leader and versions, activated & deactivated slaves, number of Chronos jobs, master & slave metrics
-- ```check_mysql_query.pl``` - flexible free-form SQL queries - can check almost anything - obsoleted a dozen custom MySQL plugins and prevented writing many more. You may also be interested in [Percona's plugins](https://www.percona.com/doc/percona-monitoring-plugins/latest/index.html)
-- ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline
-- `check_linux_*` - checks RAM used, CPU context switches, system file descriptors, interface errors / promiscous mode / duplex / speed / MTU / stats, load normalized per CPU core (more useful than the default check_load plugin which would need different configs for heterogenous hardware), timezone settings, users / groups present (eg. PAM/LDAP integration is working), duplicate UID/GIDs (helps detects rogue uid 0 accounts and more common LDAP vs local id range overlap misconfigurations), groups.allow contains only specific groups
-- `older/check_*raid.py` - RAID controller / array checks for 3ware, LSI MegaRaid / Dell PERC controllers (they're rebranded from LSI), and Linux software MD Raid. I also recommend the widely used [Dell OpenManage Check](http://folk.uio.no/trondham/software/check_openmanage.html)
-- `check_ssh_login.pl` - performs a full SSH login with username & password, good for testing your Dell DRAC / HP iLO infrastructure is properly secured and accessible. Also works for your Linux servers and even Mac OSX
-- `check_*_version*` - checks running versions of software, primarily written to detect version inconsistency across clusters of servers and failed/partial upgrades across large automated infrastructures, as well as containerized images are using the versions we expect, which is also used to validate which versions of software programs in this repo are tested against
-`check_cluster_version.pl` can be used to tie together versions returned from many different servers (by passing it their outputs via Nagios macros) to ensure a cluster is all running the same version of software even if you don't enforce a particular `--expected` version on individual systems
-- ```check_yum.py / check_yum.pl``` - widely used yum security updates checker for RHEL 5 - 7 systems dating back to 2008. You'll find forks of this around including NagiosExchange but please re-unify on this central updated version. Also has a Perl version which is a newer straight port with nicer more concise code and better library backing as well as configurable self-timeout. For those running Debian-based systems like Ubuntu see `check_apt` from the `nagios-plugins-basic` package.
+- ```check_linux_*``` - checks RAM used, CPU context switches, system file descriptors, interface errors / promiscous mode / duplex / speed / MTU / stats, load normalized per CPU core (more useful than the default check_load plugin which would need different configs for heterogenous hardware), timezone settings, users / groups present (eg. PAM/LDAP integration is working), duplicate UID/GIDs (helps detects rogue uid 0 accounts and more common LDAP vs local id range overlap misconfigurations), groups.allow contains only specific groups
+- ```older/check_*raid.py``` - RAID controller / array checks for 3ware, LSI MegaRaid / Dell PERC controllers (they're rebranded from LSI), and Linux software MD Raid. I also recommend the widely used [Dell OpenManage Check](http://folk.uio.no/trondham/software/check_openmanage.html)
+- ```check_ssh_login.pl``` - performs a full SSH login with username & password, good for testing your Dell DRAC / HP iLO infrastructure is properly secured and accessible. Also works for your Linux servers and even Mac OSX
+- ```check_*_version*``` - checks running versions of software, primarily written to detect version inconsistency across clusters of servers and failed/partial upgrades across large automated infrastructures, as well as containerized images are using the versions we expect, which is also used to validate which versions of software programs in this repo are tested against
+```check_cluster_version.pl``` can be used to tie together versions returned from many different servers (by passing it their outputs via Nagios macros) to ensure a cluster is all running the same version of software even if you don't enforce a particular `--expected` version on individual systems
+- ```check_yum.py / check_yum.pl``` - widely used yum security updates checker for RHEL 5 - 7 systems dating back to 2008. You'll find forks of this around including NagiosExchange but please re-unify on this central updated version. Also has a Perl version which is a newer straight port with nicer more concise code and better library backing as well as configurable self-timeout. For those running Debian-based systems like Ubuntu see ```check_apt``` from the `nagios-plugins-basic` package.
 
 ... and there are many more plugins than we have space to list here, have a browse!
 
@@ -200,14 +200,14 @@ This code base is under active development and there are many more cool plugins 
 
 These allow you to use any standard nagios plugin with other non-Nagios style monitoring systems by prefixing the nagios plugin command with these programs, which will execute and translate the outputs:
 
-- `check_mk_wrapper.py` - executes and translates output from any standard nagios plugin to Check_MK local plugin format
-- `geneos_wrapper.py / csv_wrapper.py` - executes and translates output from any standard nagios plugin to Geneos / CSV format
+- ```check_mk_wrapper.py``` - executes and translates output from any standard nagios plugin to Check_MK local plugin format
+- ```geneos_wrapper.py / csv_wrapper.py``` - executes and translates output from any standard nagios plugin to Geneos / CSV format
 
 ### See Also
 
 The following is pulled from my [PyTools repo](https://github.com/harisekhon/pytools#hari-sekhon-pytools) (currently one of my favourites):
 
-- `find_active_server.py` - returns the first available healthy server or determines the active master in high availability setups. Configurable tests include socket, http, https, ping, url with optional regex content match and is multi-threaded for speed. Useful for pre-determining a server to be passed to tools that only take a single ```--host``` argument but for which the technology has later added multi-master support or active-standby masters (eg. Hadoop, HBase) or where you want to query cluster wide information available from any online peer (eg. Elasticsearch, RabbitMQ clusters). This is downloaded from my [PyTools repo](https://github.com/harisekhon/pytools#hari-sekhon-pytools) as part of the build and placed at the top level. It has the ability to extend any nagios plugin to support multiple hosts in a generic way if you don't have a front end load balancer to run the check through. Example usage:
+- ```find_active_server.py``` - returns the first available healthy server or determines the active master in high availability setups. Configurable tests include socket, http, https, ping, url with optional regex content match and is multi-threaded for speed. Useful for pre-determining a server to be passed to tools that only take a single ```--host``` argument but for which the technology has later added multi-master support or active-standby masters (eg. Hadoop, HBase) or where you want to query cluster wide information available from any online peer (eg. Elasticsearch, RabbitMQ clusters). This is downloaded from my [PyTools repo](https://github.com/harisekhon/pytools#hari-sekhon-pytools) as part of the build and placed at the top level. It has the ability to extend any nagios plugin to support multiple hosts in a generic way if you don't have a front end load balancer to run the check through. Example usage:
 
 ```
 ./check_elasticsearch_cluster_status.pl --host $(./find_active_server.py --http --port 9200 node1 node2 node3)
@@ -215,11 +215,11 @@ The following is pulled from my [PyTools repo](https://github.com/harisekhon/pyt
 
 There are now also simplified subclassed programs so you don't have to figure out the switches for more complex services like Hadoop and HBase, just provide hosts are arguments and they'll return the current active master!
 
-- `find_active_hadoop_namenode.py`
-- `find_active_hadoop_yarn_resource_manager.py`
-- `find_active_hbase_master.py`
-- `find_active_solrcloud_node.py`
-- `find_active_elasticsearch_node.py`
+- ```find_active_hadoop_namenode.py```
+- ```find_active_hadoop_yarn_resource_manager.py```
+- ```find_active_hbase_master.py```
+- ```find_active_solrcloud_node.py```
+- ```find_active_elasticsearch_node.py```
 
 ### Kerberos Security Support ###
 
