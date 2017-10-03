@@ -23,7 +23,7 @@ Checks a policy by name or id is:
 
 - present
 - enabled
-- has auditing (can disable audit check)
+- has auditing (can optionally disable this check)
 - recursive (optional)
 
 Giving a policy ID is a much more efficient query but if you given a non-existent policy ID you will get a more generic
@@ -81,7 +81,7 @@ class CheckRangerPolicy(RestNagiosPlugin):
 
     def add_options(self):
         super(CheckRangerPolicy, self).add_options()
-        self.add_opt('-o', '--name', help='Policy name to expect to find')
+        self.add_opt('-n', '--name', help='Policy name to expect to find')
         self.add_opt('-i', '--id', help='Policy ID to expect to find')
         self.add_opt('-a', '--no-audit', action='store_true', help='Do not require auditing to be enabled')
         self.add_opt('-r', '--recursive', action='store_true', help='Checks the policy is set to recursive')
@@ -195,7 +195,7 @@ class CheckRangerPolicy(RestNagiosPlugin):
             for col in cols:
                 if col == 'Description':
                     continue
-                if not col in widths:
+                if col not in widths:
                     widths[col] = 0
                 width = len(str(_[cols[col]]))
                 if width > widths[col]:
