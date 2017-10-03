@@ -211,7 +211,7 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
             widths[col] = len(col)
         for app in app_list:
             for col in cols:
-                if not col in widths:
+                if  col not in widths:
                     widths[col] = 0
                 width = len(str(app[cols[col]]))
                 if width > widths[col]:
