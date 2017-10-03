@@ -21,7 +21,7 @@ Nagios Plugin to check an Apache Ranger policy via Ranger Admin's REST API
 
 Tests a policy found either either name or id with the following checks:
 
-- policy present
+- policy exists
 - policy enabled
 - policy has auditing (can disable audit check)
 - policy is recursive (optional)
