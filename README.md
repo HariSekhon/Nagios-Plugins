@@ -133,9 +133,13 @@ There are over 350 programs in this repo so these are just some of the highlight
 - ```check_mapr*.pl``` - Hadoop cluster checks via [MapR](https://mapr.com/) Control System API - checks services and nodes, MapR-FS space (cluster and per volume), volume states, volume block replication, volume snapshots and mirroring, MapR-FS per disk space utilization on nodes, failed disks, CLDB heartbeats, MapR alarms, MapReduce mode and memory utilization, disk and role balancer metrics. These are noticeably faster than running equivalent maprcli commands (exceptions: disk/role balancer use maprcli).
 - ```check_ibm_biginsights_*.pl``` - Hadoop cluster checks via IBM BigInsights Console API - checks services, nodes, agents, BigSheets workbook runs, dfs paths and properties, HDFS space and block replication, BI console version, BI console applications deployed
 - ```check_apache_drill_*``` - check Apache Drill status and metrics for a given node, apply thresholds to a given metric or return multiple or all metrics
-- `check_atlas_*.py` - Apache Atlas metadata server instance status, as well as metadata entity checks including entity existence, state=ACTIVE, expected type, expected tags are assigned to entity (eg. PII - important because Ranger ACLs to allow or deny access to data can be assigned based on tags)
+- ```check_atlas_*.py``` - Apache Atlas metadata server instance status, as well as metadata entity checks including entity existence, state=ACTIVE, expected type, expected tags are assigned to entity (eg. PII - important because Ranger ACLs to allow or deny access to data can be assigned based on tags)
 - ```check_hiveserver2_llap_*.py``` - HiveServer2 LLAP Interactive server status and uptime, peer count, check for a specific peer host fqdn via regex
 - ```check_presto_*.py``` - [Presto SQL DB](https://prestodb.io/) - checks status, if coordinator, number of current queries, number of failed nodes, environment, version
+- ```check_ranger*``` - [Apache Ranger](https://ranger.apache.org/)
+  - policy checks - existence, enabled, has auditing enabled, is recursive, last updated vs thresholds (to catch changes), repository name and type that the policy belongs to
+  - repository checks - existence, active, type (eg. hive, hdfs), last updated vs thresholds (to catch changes)
+  - number of policies and repositories vs thresholds
 - ```check_zookeeper.pl``` - [ZooKeeper](https://zookeeper.apache.org/) server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gather statistics
 - ```check_zookeeper_*znode*.pl``` - ZooKeeper znode checks using ZK Perl API, useful for HBase, Kafka, SolrCloud, Hadoop HDFS & Yarn HA (ZKFC) and any other ZooKeeper based service. Very versatile with multiple optional checks including data vs regex, json field extraction, ephemeral status, child znodes, znode last modified age
 
