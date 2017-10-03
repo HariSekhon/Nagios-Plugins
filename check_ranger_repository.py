@@ -28,7 +28,7 @@ Tests a repository found either either name or id with the following checks:
 - repository type (eg. hive, hdfs)
 
 The query for this is targeted by --name and / or --id for efficiency but if you give a non-existent repository
-ID you will get a more generic 404 Not Found critical error result as that is what is returned by Ranger
+ID you will get a more generic 204 No Content critical error result as that is what is returned by Ranger
 
 If specifying both a repository --id (which you can find via --list-repositories) and also a repository --name
 then the name will be validated against the returned repository if one is found by targeted id query
