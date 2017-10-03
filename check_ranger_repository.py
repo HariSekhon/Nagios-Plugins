@@ -21,7 +21,7 @@ Nagios Plugin to check an Apache Ranger repository via Ranger Admin's REST API
 
 Tests a repository found either either name or id with the following checks:
 
-- repository present
+- repository exists
 - repository active (enabled)
 - repository last update time is less than N minutes --warning / --critical thresholds
   (to catch repository changes, optional)
