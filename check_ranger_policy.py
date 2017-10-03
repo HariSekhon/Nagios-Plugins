@@ -50,7 +50,6 @@ from datetime import datetime
 import math
 import os
 import sys
-import time
 import traceback
 srcdir = os.path.abspath(os.path.dirname(__file__))
 libdir = os.path.join(srcdir, 'pylib')
@@ -202,8 +201,8 @@ class CheckRangerPolicy(RestNagiosPlugin):
             # looks like Ranger timestamp is in UTC, if it isn't it should be that's best practice for timestamps
             timedelta = datetime.utcnow() - last_updated_datetime
             # ensure we don't round down to zero mins and pass the check, round up in mins
-            mins_ago = int(math.ceil(timedelta.total_seconds() / 60.0))
-            mins_ago = '{0:d}'.format(mins_ago)
+            mins_ago_int = int(math.ceil(timedelta.total_seconds() / 60.0))
+            mins_ago = '{0:d}'.format(mins_ago_int)
             self.msg += ", {0} mins ago".format(mins_ago)
             self.check_thresholds(mins_ago)
 
