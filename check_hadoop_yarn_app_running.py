@@ -55,7 +55,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5'
+__version__ = '0.5.1'
 
 
 class CheckHadoopYarnAppRunning(RestNagiosPlugin):
@@ -211,7 +211,7 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
             widths[col] = len(col)
         for app in app_list:
             for col in cols:
-                if  col not in widths:
+                if col not in widths:
                     widths[col] = 0
                 width = len(str(app[cols[col]]))
                 if width > widths[col]:
