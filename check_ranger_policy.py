@@ -26,6 +26,7 @@ Tests a policy found either either name or id with the following checks:
 - policy has auditing (can disable audit check)
 - policy is recursive (optional)
 - policy last update time is less than N minutes --warning / --critical thresholds (to catch policy changes, optional)
+  - (you can go to Ranger Admin UI -> Audit -> Admin to see what actual changes were made when this alert is triggered)
 - repository name the policy belongs to (optional)
 - repository type the policy belongs to (eg. hive, hdfs - optional)
 
