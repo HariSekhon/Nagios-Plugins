@@ -371,7 +371,6 @@ clean-zookeeper:
 deep-clean: clean clean-zookeeper
 	cd lib && make deep-clean
 	cd pylib && make deep-clean
-	$(SUDO) rm -fr /root/.cache /root/.cpanm ~/.cpanm ~/.cache 2>/dev/null
 
 .PHONY: docker-run
 docker-run:
