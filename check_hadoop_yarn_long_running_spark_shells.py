@@ -29,7 +29,7 @@ Thresholds --warning / --critical apply to Spark Shell elapsed times in seconds 
 (36000 secs), as you generally shouldn't be leaving your Spark Shell open for more than your working day and going
 home as those are resources that could be used by overnight batch jobs
 
-Detects both Scala Spark Shells and PySpark Shells.
+Detects both Spark Scala and PySpark Shells.
 
 See also check_hadoop_yarn_long_running_apps.py which is a more flexible base program of this that can be applied
 to any other Yarn application.
