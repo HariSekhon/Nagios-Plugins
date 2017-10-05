@@ -85,7 +85,7 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
         self.add_opt('-e', '--exclude', help='Exclude regex (anchored) to exclude apps/jobs with matching names')
         self.add_opt('-n', '--limit', default=1000, help='Limit number of results to search through (default: 1000)')
         self.add_opt('-l', '--list-apps', action='store_true', help='List yarn apps and exit')
-        self.add_thresholds()
+        self.add_thresholds(default_warning=43220, default_critical=86400)
 
     def process_options(self):
         super(CheckHadoopYarnLongRunningApps, self).process_options()
