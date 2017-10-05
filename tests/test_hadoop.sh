@@ -486,17 +486,17 @@ EOF
     echo "./check_hadoop_yarn_app_running.py -a '.*' -v"
     ./check_hadoop_yarn_app_running.py -a '.*' -v
     hr
-    echo "./check_hadoop_yarn_app_running.py -a 'QuasiMonteCarlo'"
-    ./check_hadoop_yarn_app_running.py -a 'QuasiMonteCarlo'
+    echo "./check_hadoop_yarn_app_running.py -a montecarlo"
+    ./check_hadoop_yarn_app_running.py -a montecarlo
     hr
-    echo "./check_hadoop_yarn_long_running_apps.py --include=QuasiMonteCarlo"
-    ./check_hadoop_yarn_long_running_apps.py --include=QuasiMonteCarlo | tee /dev/stderr | grep -q "checked 1 out of"
+    echo "./check_hadoop_yarn_long_running_apps.py --include=montecarlo"
+    ./check_hadoop_yarn_long_running_apps.py --include=montecarlo | tee /dev/stderr | grep -q "checked 1 out of"
     hr
-    echo "./check_hadoop_yarn_long_running_apps.py --exclude=QuasiMonteCarlo"
-    ./check_hadoop_yarn_long_running_apps.py --exclude=QuasiMonteCarlo | tee /dev/stderr | grep -q "checked 0 out of"
+    echo "./check_hadoop_yarn_long_running_apps.py --include='montecarlo.*' --exclude=monte"
+    ./check_hadoop_yarn_long_running_apps.py --include='montecarlo.*' --exclude=monte | tee /dev/stderr | grep -q "checked 0 out of"
     hr
-    echo "./check_hadoop_yarn_long_running_apps.py --include=QuasiMonteCarlo --exclude='Quasi.*'"
-    ./check_hadoop_yarn_long_running_apps.py --include=QuasiMonteCarlo --exclude='Quasi.*' | tee /dev/stderr | grep -q "checked 0 out of"
+    echo "./check_hadoop_yarn_long_running_apps.py --exclude=quasi"
+    ./check_hadoop_yarn_long_running_apps.py --exclude=quasi | tee /dev/stderr | grep -q "checked 0 out of"
     hr
     echo "waiting up to 60 secs for job to stop running"
     for x in {1..60}; do
@@ -516,8 +516,8 @@ EOF
     echo "./check_hadoop_yarn_app_last_run.py -a '.*' -v"
     ./check_hadoop_yarn_app_last_run.py -a '.*' -v
     hr
-    echo "./check_hadoop_yarn_app_last_run.py -a 'QuasiMonteCarlo'"
-    ./check_hadoop_yarn_app_last_run.py -a 'QuasiMonteCarlo'
+    echo "./check_hadoop_yarn_app_last_run.py -a montecarlo"
+    ./check_hadoop_yarn_app_last_run.py -a montecarlo
     # ================================================
     hr
     echo "$perl -T ./check_hadoop_yarn_app_stats.pl"
