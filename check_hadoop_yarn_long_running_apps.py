@@ -57,7 +57,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.7.0'
+__version__ = '0.8.0'
 
 
 class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
@@ -76,13 +76,19 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
         self.include = None
         self.exclude = None
         self.implicitly_excluded = re.compile(r'^llap\d+$')
+        self.queue = None
+        self.exclude_queue = None
         self.limit = None
         self.list_apps = False
 
     def add_options(self):
         super(CheckHadoopYarnLongRunningApps, self).add_options()
-        self.add_opt('-i', '--include', help='Include regex to only check apps/jobs with matching names')
-        self.add_opt('-e', '--exclude', help='Exclude regex to exclude apps/jobs with matching names')
+        self.add_opt('-i', '--include', help='Only check apps/jobs with names matching this regex (optional)')
+        self.add_opt('-e', '--exclude', help='Exclude apps/jobs with names matching this regex (optional)')
+        self.add_opt('-q', '--queue', help='Only check apps/jobs on queues matching this given regex (optional)')
+        self.add_opt('--exclude-queue', default='^llap$',
+                     help='Exclude apps/jobs on queues matching this given regex ' +
+                     '(optional, set blank to disable, default: ^llap$)')
         self.add_opt('-n', '--limit', default=1000, help='Limit number of results to search through (default: 1000)')
         self.add_opt('-l', '--list-apps', action='store_true', help='List yarn apps and exit')
         self.add_thresholds(default_warning=43220, default_critical=86400)
@@ -101,6 +107,16 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
         if self.exclude is not None:
             validate_regex(self.exclude, 'exclude')
             self.exclude = re.compile(self.exclude, re.I)
+
+        queue = self.get_opt('queue')
+        if queue:
+            validate_regex(queue, 'queue')
+            self.queue = re.compile(queue, re.I)
+
+        exclude_queue = self.get_opt('exclude_queue')
+        if exclude_queue:
+            validate_regex(exclude_queue, 'exclude queue')
+            self.exclude_queue = re.compile(exclude_queue, re.I)
 
         self.limit = self.get_opt('limit')
         validate_int(self.limit, 'num results', 1, None)
@@ -134,7 +150,7 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
 
     def app_selector(self, app):
         name = app['name']
-        #queue = app['queue']
+        queue = app['queue']
         if self.include is not None and not self.include.search(name):
             log.info("skipping app '%s' as doesn't match include regex", name)
             return False
@@ -144,10 +160,12 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
         elif self.implicitly_excluded.search(name):
             log.info("skipping app '%s' by implicit exclude regex", name)
             return False
-        # might want to actually check jobs on the llap queue aren't taking too long
-        #elif queue == 'llap':
-        #    log.info("skipping app '%s' on llap queue", name)
-        #    continue
+        elif self.queue is not None and not self.queue.search(queue):
+            log.info("skipping app '%s' as it is running on queue '%s', does not match queue regex", name, queue)
+            return False
+        elif self.exclude_queue is not None and self.exclude_queue.search(queue):
+            log.info("skipping app '%s' as it is running on queue '%s' which matches queue exclude regex", name, queue)
+            return False
         return True
 
     def check_app_elapsed_times(self, app_list):
@@ -155,6 +173,8 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
         max_elapsed = 0
         matching_apps = 0
         max_threshold_msg = ''
+        # save msg as check_thresholds appends to it which we want to reset in this case
+        msg = self.msg
         for app in app_list:
             if not self.app_selector(app):
                 continue
@@ -172,6 +192,8 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
                 max_threshold_msg = threshold_msg
         if max_threshold_msg:
             max_threshold_msg = ' ' + max_threshold_msg
+        # restore msg prefix as check_thresholds appends every threshold breach
+        self.msg = msg
         self.msg += '{0}, checked {1} out of {2} running apps'\
                    .format(num_apps_breaching_sla, matching_apps, len(app_list)) + \
                    ', max elapsed app time = {0} secs{1}'\
