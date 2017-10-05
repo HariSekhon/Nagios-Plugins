@@ -16,44 +16,36 @@ export PATH := $(PATH):/usr/local/bin
 
 CPANM = cpanm
 
+SUDO := sudo
+SUDO_PIP := sudo -H
+SUDO_PERL := sudo
+
 ifdef PERLBREW_PERL
 	# can't put this here otherwise gets error - "commands commence before first target.  Stop."
 	#@echo "Perlbrew environment detected, not calling sudo"
-	SUDO2 =
-else
-	SUDO2 = sudo
+	SUDO_PERL =
 endif
 
 # Travis has custom python install earlier in $PATH even in Perl builds so need to install PyPI modules locally to non-system python otherwise they're not found by programs.
 # Perms not set correctly on custom python install in Travis perl build so workaround is done to chown to travis user in .travis.yml
 # Better than modifying $PATH to put /usr/bin first which is likely to affect many other things including potentially not finding the perlbrew installation first
-#ifdef VIRTUAL_ENV
-#ifneq '$(VIRTUAL_ENV)$(CONDA_DEFAULT_ENV)$(TRAVIS)' ''
-# Looks like Perl travis builds are now using system Python
-#ifndef VIRTUAL_ENV
-#	VIRTUAL_ENV = ''
-#endif
-#ifndef CONDA_DEFAULT_ENV
-#	CONDA_DEFAULT_ENV = ''
-#endif
-ifneq '$(VIRTUAL_ENV)$(CONDA_DEFAULT_ENV)' ''
+# Looks like Perl travis builds are now using system Python - do not use TRAVIS env
+ifdef VIRTUAL_ENV
 	#@echo "Virtual Env / Conda detected, not calling sudo"
-	SUDO3 =
-else
-	SUDO3 = sudo -H
+	SUDO_PIP :=
+endif
+ifdef CONDA_DEFAULT_ENV
+	SUDO_PIP :=
 endif
 
-# must come after to reset SUDO2/SUDO3 to blank if root
+# must come after to reset SUDO_PERL/SUDO_PIP to blank if root
 # EUID /  UID not exported in Make
 # USER not populated in Docker
 ifeq '$(shell id -u)' '0'
 	#@echo "root UID detected, not calling sudo"
-	SUDO =
-	SUDO2 =
-	SUDO3 =
-else
-	SUDO = sudo
-endif
+	SUDO :=
+	SUDO_PERL :=
+	SUDO_PIP :=
 
 # ===================
 # bootstrap commands:
@@ -145,13 +137,13 @@ perl-libs:
 	
 	# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
 	
-	which cpanm || { yes "" | $(SUDO2) cpan App::cpanminus; }
+	which cpanm || { yes "" | $(SUDO_PERL) cpan App::cpanminus; }
 	# on Perl 5.10 List::MoreUtils::XS has starte failing to install first time, workaround is too run this twice
-	for x in 1 2; do yes "" | $(SUDO2) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < setup/cpan-requirements.txt`; done
+	for x in 1 2; do yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < setup/cpan-requirements.txt`; done
 	
 	# newer versions of the Redis module require Perl >= 5.10, this will install the older compatible version for RHEL5/CentOS5 servers still running Perl 5.8 if the latest module fails
 	# the backdated version might not be the perfect version, found by digging around in the git repo
-	$(SUDO2) $(CPANM) --notest Redis || $(SUDO2) $(CPANM) --notest DAMS/Redis-1.976.tar.gz
+	$(SUDO_PERL) $(CPANM) --notest Redis || $(SUDO_PERL) $(CPANM) --notest DAMS/Redis-1.976.tar.gz
 
 	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
 	#
@@ -163,7 +155,7 @@ perl-libs:
 	#
 	# https://developer.apple.com/library/content/documentation/Security/Conceptual/System_Integrity_Protection_Guide/ConfiguringSystemIntegrityProtection/ConfiguringSystemIntegrityProtection.html
 	#
-	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' "$$libfilepath" || $(SUDO2) sed -i.bak "s/use strict;/use strict; use Socket;/" "$$libfilepath"
+	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' "$$libfilepath" || $(SUDO_PERL) sed -i.bak "s/use strict;/use strict; use Socket;/" "$$libfilepath"
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins perl)"
 	@echo
@@ -185,25 +177,25 @@ python-libs:
 
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
-	$(SUDO) easy_install -U setuptools || $(SUDO3) easy_install -U setuptools || :
+	$(SUDO) easy_install -U setuptools || $(SUDO_PIP) easy_install -U setuptools || :
 	$(SUDO) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	# upgrade required to get install to work properly on Debian
 	$(SUDO) pip install --upgrade pip
-	$(SUDO3) pip install --upgrade -r requirements.txt
+	$(SUDO_PIP) pip install --upgrade -r requirements.txt
 	# in requirements.txt now
-	#$(SUDO3) pip install cassandra-driver scales blist lz4 python-snappy
+	#$(SUDO_PIP) pip install cassandra-driver scales blist lz4 python-snappy
 	# prevents https://urllib3.readthedocs.io/en/latest/security.html#insecureplatformwarning
-	$(SUDO3) pip install --upgrade ndg-httpsclient
+	$(SUDO_PIP) pip install --upgrade ndg-httpsclient
 	#. tests/utils.sh; $(SUDO) $$perl couchbase-csdk-setup
-	#$(SUDO3) pip install couchbase
+	#$(SUDO_PIP) pip install couchbase
 	
 	# install MySQLdb python module for check_logserver.py / check_syslog_mysql.py
 	# fails if MySQL isn't installed locally
-	$(SUDO3) pip install MySQL-python
+	$(SUDO_PIP) pip install MySQL-python
 	
 	# must downgrade happybase library to work on Python 2.6
-	if [ "$$(python -c 'import sys; sys.path.append("pylib"); import harisekhon; print(harisekhon.utils.getPythonVersion())')" = "2.6" ]; then $(SUDO2) pip install --upgrade "happybase==0.9"; fi
+	if [ "$$(python -c 'import sys; sys.path.append("pylib"); import harisekhon; print(harisekhon.utils.getPythonVersion())')" = "2.6" ]; then $(SUDO_PIP) pip install --upgrade "happybase==0.9"; fi
 
 	@echo
 	unalias mv 2>/dev/null; \
@@ -228,8 +220,8 @@ python-libs:
 
 .PHONY: elasticsearch2
 elasticsearch2:
-	$(SUDO3) pip install --upgrade 'elasticsearch>=2.0.0,<3.0.0'
-	$(SUDO3) pip install --upgrade 'elasticsearch-dsl>=2.0.0,<3.0.0'
+	$(SUDO_PIP) pip install --upgrade 'elasticsearch>=2.0.0,<3.0.0'
+	$(SUDO_PIP) pip install --upgrade 'elasticsearch-dsl>=2.0.0,<3.0.0'
 
 .PHONY: apk-packages
 apk-packages:
@@ -373,6 +365,12 @@ clean:
 .PHONY: clean-zookeeper
 clean-zookeeper:
 	rm -fr zookeeper-$(ZOOKEEPER_VERSION).tar.gz zookeeper-$(ZOOKEEPER_VERSION)
+
+.PHONY: deep-clean
+deep-clean: clean clean-zookeeper
+	cd lib && make deep-clean
+	cd pylib && make deep-clean
+	$(SUDO) rm -fr /root/.cache /root/.cpanm ~/.cpanm ~/.cache 2>/dev/null
 
 .PHONY: docker-run
 docker-run:
