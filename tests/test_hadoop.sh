@@ -486,8 +486,8 @@ EOF
     echo "./check_hadoop_yarn_app_running.py -a '.*' -v"
     ./check_hadoop_yarn_app_running.py -a '.*' -v
     hr
-    echo "./check_hadoop_yarn_app_running.py -a montecarlo"
-    ./check_hadoop_yarn_app_running.py -a montecarlo
+    echo "./check_hadoop_yarn_app_running.py -a 'monte.*carlo'"
+    ./check_hadoop_yarn_app_running.py -a 'monte.*carlo'
     hr
     echo "./check_hadoop_yarn_long_running_apps.py --include=montecarlo"
     ./check_hadoop_yarn_long_running_apps.py --include=montecarlo | tee /dev/stderr | grep -q "checked 1 out of"
