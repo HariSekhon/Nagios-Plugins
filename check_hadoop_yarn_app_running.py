@@ -55,7 +55,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.1'
+__version__ = '0.6.0'
 
 
 class CheckHadoopYarnAppRunning(RestNagiosPlugin):
@@ -81,7 +81,7 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
 
     def add_options(self):
         super(CheckHadoopYarnAppRunning, self).add_options()
-        self.add_opt('-a', '--app', help='App / Job name to expect is running (anchored regex)')
+        self.add_opt('-a', '--app', help='App / Job name to expect is running (case insensitive regex)')
         self.add_opt('-u', '--user', help='Expected user that yarn application should be running as (optional)')
         self.add_opt('-q', '--queue', help='Expected queue that yarn application should be running on (optional)')
         self.add_opt('-m', '--min-containers', metavar='N', default=0,
@@ -140,9 +140,9 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
             self.print_apps(app_list)
             sys.exit(ERRORS['UNKNOWN'])
         matched_app = None
-        regex = re.compile('^' + self.app + '$')
+        regex = re.compile(self.app, re.I)
         for app in app_list:
-            if regex.match(app['name']):
+            if regex.search(app['name']):
                 matched_app = app
                 break
         if not matched_app:

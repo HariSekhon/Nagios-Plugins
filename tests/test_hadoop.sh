@@ -195,13 +195,13 @@ EOF
     echo "./check_hadoop_datanode_last_contact.py -d $hostname"
     ./check_hadoop_datanode_last_contact.py -d "$hostname"
     hr
-    docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hadoop --hadoop-user root --hdfs-space -w 80 -c 90
+    docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hadoop --hadoop-user root --hdfs-space -w 80 -c 90 -t 20
     hr
-    docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --replication -w 1 -c 1
+    docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --replication -w 1 -c 1 -t 20
     hr
-    docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --balance -w 5 -c 10
+    docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --balance -w 5 -c 10 -t 20
     hr
-    docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --nodes-available -w 1 -c 1
+    docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --nodes-available -w 1 -c 1 -t 20
     hr
     echo "./check_hadoop_hdfs_corrupt_files.py"
     ./check_hadoop_hdfs_corrupt_files.py
@@ -450,7 +450,7 @@ EOF
     echo
     echo "running mapreduce job from sample jar"
     echo
-    hadoop jar /hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar pi 5 20 &>/dev/null &
+    hadoop jar /hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar pi 10 20 &>/dev/null &
     echo
     echo "triggered mapreduce job"
     echo
@@ -486,17 +486,41 @@ EOF
     echo "./check_hadoop_yarn_app_running.py -a '.*' -v"
     ./check_hadoop_yarn_app_running.py -a '.*' -v
     hr
-    echo "./check_hadoop_yarn_app_running.py -a 'QuasiMonteCarlo'"
-    ./check_hadoop_yarn_app_running.py -a 'QuasiMonteCarlo'
+    echo "./check_hadoop_yarn_app_running.py -a 'monte.*carlo'"
+    ./check_hadoop_yarn_app_running.py -a 'monte.*carlo'
     hr
-    echo "./check_hadoop_yarn_long_running_apps.py --include=QuasiMonteCarlo"
-    ./check_hadoop_yarn_long_running_apps.py --include=QuasiMonteCarlo | tee /dev/stderr | grep -q "checked 1 out of"
+    echo "./check_hadoop_yarn_long_running_apps.py --include=montecarlo"
+    ./check_hadoop_yarn_long_running_apps.py --include=montecarlo | tee /dev/stderr | grep -q "checked 1 out of"
     hr
-    echo "./check_hadoop_yarn_long_running_apps.py --exclude=QuasiMonteCarlo"
-    ./check_hadoop_yarn_long_running_apps.py --exclude=QuasiMonteCarlo | tee /dev/stderr | grep -q "checked 0 out of"
+    echo "./check_hadoop_yarn_long_running_apps.py"
+    ./check_hadoop_yarn_long_running_apps.py
     hr
-    echo "./check_hadoop_yarn_long_running_apps.py --include=QuasiMonteCarlo --exclude='Quasi.*'"
-    ./check_hadoop_yarn_long_running_apps.py --include=QuasiMonteCarlo --exclude='Quasi.*' | tee /dev/stderr | grep -q "checked 0 out of"
+    echo "./check_hadoop_yarn_long_running_spark_shells.py"
+    ./check_hadoop_yarn_long_running_spark_shells.py
+    hr
+    echo "./check_hadoop_yarn_long_running_apps.py -w 2"
+    set +e
+    ./check_hadoop_yarn_long_running_apps.py -c 2
+    check_exit_code 2
+    set -e
+    hr
+    echo "./check_hadoop_yarn_long_running_apps.py"
+    ./check_hadoop_yarn_long_running_apps.py | tee /dev/stderr | grep -q "checked 1 out of"
+    hr
+    echo "./check_hadoop_yarn_long_running_apps.py --queue nonexistentqueue"
+    ./check_hadoop_yarn_long_running_apps.py --queue nonexistentqueue | tee /dev/stderr | grep -q "checked 0 out of"
+    hr
+    echo "./check_hadoop_yarn_long_running_apps.py --include='te.*carl'"
+    ./check_hadoop_yarn_long_running_apps.py --include='te.*carl' | tee /dev/stderr | grep -q "checked 1 out of"
+    hr
+    echo "./check_hadoop_yarn_long_running_apps.py --include=montecarlo --exclude=m.nte"
+    ./check_hadoop_yarn_long_running_apps.py --include=montecarlo --exclude=m.nte | tee /dev/stderr | grep -q "checked 0 out of"
+    hr
+    echo "./check_hadoop_yarn_long_running_apps.py --include=montecarlo --exclude-queue default"
+    ./check_hadoop_yarn_long_running_apps.py --include=montecarlo --exclude-queue default | tee /dev/stderr | grep -q "checked 0 out of"
+    hr
+    echo "./check_hadoop_yarn_long_running_apps.py --exclude=quasi"
+    ./check_hadoop_yarn_long_running_apps.py --exclude=quasi | tee /dev/stderr | grep -q "checked 0 out of"
     hr
     echo "waiting up to 60 secs for job to stop running"
     for x in {1..60}; do
@@ -516,8 +540,8 @@ EOF
     echo "./check_hadoop_yarn_app_last_run.py -a '.*' -v"
     ./check_hadoop_yarn_app_last_run.py -a '.*' -v
     hr
-    echo "./check_hadoop_yarn_app_last_run.py -a 'QuasiMonteCarlo'"
-    ./check_hadoop_yarn_app_last_run.py -a 'QuasiMonteCarlo'
+    echo "./check_hadoop_yarn_app_last_run.py -a montecarlo"
+    ./check_hadoop_yarn_app_last_run.py -a montecarlo
     # ================================================
     hr
     echo "$perl -T ./check_hadoop_yarn_app_stats.pl"

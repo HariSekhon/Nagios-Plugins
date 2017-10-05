@@ -51,9 +51,14 @@ test_solr(){
     export SOLR_PORT="`docker-compose port "$DOCKER_SERVICE" "$SOLR_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$SOLR_PORT"
     when_ports_available $startupwait $SOLR_HOST $SOLR_PORT
+    hr
+    when_url_content "$startupwait" "http://$SOLR_HOST:$SOLR_PORT/solr/" "Solr Admin"
+    hr
     if [[ "$version" = "latest" || ${version:0:1} > 3 ]]; then
+        echo "attempting to create Solr Core"
         docker-compose exec "$DOCKER_SERVICE" solr create_core -c "$SOLR_CORE" || :
         # TODO: fix this on Solr 5.x+
+        echo "attempting to create Solr Collection"
         docker-compose exec "$DOCKER_SERVICE" "$SOLR_HOME/bin/post" -c "$SOLR_CORE" "$SOLR_HOME/example/exampledocs/money.xml" || :
     fi
     hr

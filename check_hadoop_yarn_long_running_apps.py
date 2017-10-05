@@ -15,7 +15,7 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
-"""
+r"""
 
 Nagios Plugin to detect too long running applications via the Yarn Resource Manager REST API
 
@@ -57,7 +57,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4.1'
+__version__ = '0.8.0'
 
 
 class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
@@ -72,20 +72,26 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
         self.default_port = 8088
         self.json = True
         self.auth = False
-        self.msg = 'Yarn Message Not Defined'
+        self.msg = 'Yarn apps breaching SLAs = '
         self.include = None
         self.exclude = None
         self.implicitly_excluded = re.compile(r'^llap\d+$')
+        self.queue = None
+        self.exclude_queue = None
         self.limit = None
         self.list_apps = False
 
     def add_options(self):
         super(CheckHadoopYarnLongRunningApps, self).add_options()
-        self.add_opt('-i', '--include', help='Include regex (anchored) to only check apps/jobs with matching names')
-        self.add_opt('-e', '--exclude', help='Exclude regex (anchored) to exclude apps/jobs with matching names')
+        self.add_opt('-i', '--include', help='Only check apps/jobs with names matching this regex (optional)')
+        self.add_opt('-e', '--exclude', help='Exclude apps/jobs with names matching this regex (optional)')
+        self.add_opt('-q', '--queue', help='Only check apps/jobs on queues matching this given regex (optional)')
+        self.add_opt('--exclude-queue', default='^llap$',
+                     help='Exclude apps/jobs on queues matching this given regex ' +
+                     '(optional, set blank to disable, default: ^llap$)')
         self.add_opt('-n', '--limit', default=1000, help='Limit number of results to search through (default: 1000)')
         self.add_opt('-l', '--list-apps', action='store_true', help='List yarn apps and exit')
-        self.add_thresholds()
+        self.add_thresholds(default_warning=43220, default_critical=86400)
 
     def process_options(self):
         super(CheckHadoopYarnLongRunningApps, self).process_options()
@@ -97,10 +103,20 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
 
         if self.include is not None:
             validate_regex(self.include, 'include')
-            self.include = re.compile('^' + self.include + '$')
+            self.include = re.compile(self.include, re.I)
         if self.exclude is not None:
             validate_regex(self.exclude, 'exclude')
-            self.exclude = re.compile('^' + self.exclude + '$')
+            self.exclude = re.compile(self.exclude, re.I)
+
+        queue = self.get_opt('queue')
+        if queue:
+            validate_regex(queue, 'queue')
+            self.queue = re.compile(queue, re.I)
+
+        exclude_queue = self.get_opt('exclude_queue')
+        if exclude_queue:
+            validate_regex(exclude_queue, 'exclude queue')
+            self.exclude_queue = re.compile(exclude_queue, re.I)
 
         self.limit = self.get_opt('limit')
         validate_int(self.limit, 'num results', 1, None)
@@ -109,6 +125,12 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
         self.validate_thresholds(optional=True)
 
     def parse_json(self, json_data):
+        app_list = self.get_app_list(json_data)
+        (num_apps_breaching_sla, max_elapsed) = self.check_app_elapsed_times(app_list)
+        self.msg += ' | num_apps_breaching_SLA={0} max_elapsed_app_time={1}{2}'\
+                    .format(num_apps_breaching_sla, max_elapsed, self.get_perf_thresholds())
+
+    def get_app_list(self, json_data):
         apps = json_data['apps']
         app_list = []
         if apps:
@@ -124,29 +146,39 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
         if self.list_apps:
             self.print_apps(app_list)
             sys.exit(ERRORS['UNKNOWN'])
-        self.check_app_elapsed_times(app_list)
+        return app_list
+
+    def app_selector(self, app):
+        name = app['name']
+        queue = app['queue']
+        if self.include is not None and not self.include.search(name):
+            log.info("skipping app '%s' as doesn't match include regex", name)
+            return False
+        elif self.exclude is not None and self.exclude.search(name):
+            log.info("skipping app '%s' by exclude regex", name)
+            return False
+        elif self.implicitly_excluded.search(name):
+            log.info("skipping app '%s' by implicit exclude regex", name)
+            return False
+        elif self.queue is not None and not self.queue.search(queue):
+            log.info("skipping app '%s' as it is running on queue '%s', does not match queue regex", name, queue)
+            return False
+        elif self.exclude_queue is not None and self.exclude_queue.search(queue):
+            log.info("skipping app '%s' as it is running on queue '%s' which matches queue exclude regex", name, queue)
+            return False
+        return True
 
     def check_app_elapsed_times(self, app_list):
         num_apps_breaching_sla = 0
         max_elapsed = 0
         matching_apps = 0
         max_threshold_msg = ''
+        # save msg as check_thresholds appends to it which we want to reset in this case
+        msg = self.msg
         for app in app_list:
+            if not self.app_selector(app):
+                continue
             name = app['name']
-            queue = app['queue']
-            if self.include is not None and not self.include.match(name):
-                log.info("skipping app '%s' as doesn't match include regex", name)
-                continue
-            elif self.exclude is not None and self.exclude.match(name):
-                log.info("skipping app '%s' by exclude regex", name)
-                continue
-            elif self.implicitly_excluded.match(name):
-                log.info("skipping app '%s' by implicit exclude regex", name)
-                continue
-            # might want to actually check jobs on the llap queue aren't taking too long
-            #elif queue == 'llap':
-            #    log.info("skipping app '%s' on llap queue", name)
-            #    continue
             matching_apps += 1
             elapsed_time = app['elapsedTime']
             assert isInt(elapsed_time)
@@ -160,12 +192,13 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
                 max_threshold_msg = threshold_msg
         if max_threshold_msg:
             max_threshold_msg = ' ' + max_threshold_msg
-        self.msg = 'Yarn apps breaching SLAs = {0}, checked {1} out of {2} running apps'\
+        # restore msg prefix as check_thresholds appends every threshold breach
+        self.msg = msg
+        self.msg += '{0}, checked {1} out of {2} running apps'\
                    .format(num_apps_breaching_sla, matching_apps, len(app_list)) + \
                    ', max elapsed app time = {0} secs{1}'\
                    .format(max_elapsed, max_threshold_msg)
-        self.msg += ' | num_apps_breaching_SLA={0} max_elapsed_app_time={1}{2}'\
-                    .format(num_apps_breaching_sla, max_elapsed, self.get_perf_thresholds())
+        return (num_apps_breaching_sla, max_elapsed)
 
     @staticmethod
     def print_apps(app_list):
