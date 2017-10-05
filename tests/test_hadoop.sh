@@ -495,7 +495,7 @@ EOF
     echo "./check_hadoop_yarn_long_running_apps.py"
     ./check_hadoop_yarn_long_running_apps.py
     hr
-    echo "./check_hadoop_yarn_long_spark_shells.py"
+    echo "./check_hadoop_yarn_long_running_spark_shells.py"
     ./check_hadoop_yarn_long_running_spark_shells.py
     hr
     echo "./check_hadoop_yarn_long_running_apps.py -w 2"
