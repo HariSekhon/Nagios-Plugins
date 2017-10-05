@@ -46,6 +46,7 @@ ifeq '$(shell id -u)' '0'
 	SUDO :=
 	SUDO_PERL :=
 	SUDO_PIP :=
+endif
 
 # ===================
 # bootstrap commands:
