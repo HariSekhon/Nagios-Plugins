@@ -77,6 +77,9 @@ test_solrcloud(){
     #solr_ports=`{ for x in $SOLR_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
     #local SOLR_PORTS="$solr_ports"
     when_ports_available "$startupwait" "$SOLR_HOST" "$SOLR_PORT" "$SOLR_ZOOKEEPER_PORT"
+    hr
+    when_url_content "$startupwait" "http://$SOLR_HOST:$SOLR_PORT/solr/" "Solr Admin"
+    hr
     local DOCKER_CONTAINER="$(docker-compose ps | sed -n '3s/ .*//p')"
     echo "container is $DOCKER_CONTAINER"
     if [ -n "${NOTESTS:-}" ]; then
