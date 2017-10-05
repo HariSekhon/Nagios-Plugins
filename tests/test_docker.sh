@@ -35,8 +35,8 @@ if is_docker_available; then
     echo "./check_docker_image.py --docker-image $DOCKER_IMAGE:latest"
     ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest"
     hr
-    echo "./check_docker_image.py --docker-image $DOCKER_IMAGE:latest --warning $((800 * 1024 * 1024))"
-    ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --warning $((800 * 1024 * 1024))
+    echo "./check_docker_image.py --docker-image $DOCKER_IMAGE:latest --warning $((900 * 1024 * 1024))"
+    ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --warning $((900 * 1024 * 1024))
     hr
     echo "checking thresholds fail as expected:"
     set +e
