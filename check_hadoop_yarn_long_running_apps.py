@@ -57,7 +57,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.0'
+__version__ = '0.6.0'
 
 
 class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
@@ -81,8 +81,8 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
 
     def add_options(self):
         super(CheckHadoopYarnLongRunningApps, self).add_options()
-        self.add_opt('-i', '--include', help='Include regex (anchored) to only check apps/jobs with matching names')
-        self.add_opt('-e', '--exclude', help='Exclude regex (anchored) to exclude apps/jobs with matching names')
+        self.add_opt('-i', '--include', help='Include regex to only check apps/jobs with matching names')
+        self.add_opt('-e', '--exclude', help='Exclude regex to exclude apps/jobs with matching names')
         self.add_opt('-n', '--limit', default=1000, help='Limit number of results to search through (default: 1000)')
         self.add_opt('-l', '--list-apps', action='store_true', help='List yarn apps and exit')
         self.add_thresholds(default_warning=43220, default_critical=86400)
@@ -97,10 +97,10 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
 
         if self.include is not None:
             validate_regex(self.include, 'include')
-            self.include = re.compile('^' + self.include + '$')
+            self.include = re.compile(self.include, re.I)
         if self.exclude is not None:
             validate_regex(self.exclude, 'exclude')
-            self.exclude = re.compile('^' + self.exclude + '$')
+            self.exclude = re.compile(self.exclude, re.I)
 
         self.limit = self.get_opt('limit')
         validate_int(self.limit, 'num results', 1, None)
@@ -134,13 +134,13 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
         for app in app_list:
             name = app['name']
             queue = app['queue']
-            if self.include is not None and not self.include.match(name, re.I):
+            if self.include is not None and not self.include.search(name):
                 log.info("skipping app '%s' as doesn't match include regex", name)
                 continue
-            elif self.exclude is not None and self.exclude.match(name, re.I):
+            elif self.exclude is not None and self.exclude.search(name):
                 log.info("skipping app '%s' by exclude regex", name)
                 continue
-            elif self.implicitly_excluded.match(name, re.I):
+            elif self.implicitly_excluded.search(name):
                 log.info("skipping app '%s' by implicit exclude regex", name)
                 continue
             # might want to actually check jobs on the llap queue aren't taking too long
