@@ -92,6 +92,10 @@ test_hbase(){
     export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT $ZOOKEEPER_PORT"
     when_ports_available "$startupwait" "$HBASE_HOST" $HBASE_PORTS
     hr
+    when_url_content "$startupwait" "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" hbase
+    hr
+    when_url_content "$startupwait" "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/rs-status" hbase
+    hr
     echo "setting up test tables"
     # tr occasionally errors out due to weird input chars, base64 for safety, but still remove chars liek '+' which will ruin --expected regex
     local uniq_val=$(< /dev/urandom base64 | tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)
