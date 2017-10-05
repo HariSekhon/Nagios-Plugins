@@ -57,7 +57,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4.1'
+__version__ = '0.5.0'
 
 
 class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
@@ -134,13 +134,13 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
         for app in app_list:
             name = app['name']
             queue = app['queue']
-            if self.include is not None and not self.include.match(name):
+            if self.include is not None and not self.include.match(name, re.I):
                 log.info("skipping app '%s' as doesn't match include regex", name)
                 continue
-            elif self.exclude is not None and self.exclude.match(name):
+            elif self.exclude is not None and self.exclude.match(name, re.I):
                 log.info("skipping app '%s' by exclude regex", name)
                 continue
-            elif self.implicitly_excluded.match(name):
+            elif self.implicitly_excluded.match(name, re.I):
                 log.info("skipping app '%s' by implicit exclude regex", name)
                 continue
             # might want to actually check jobs on the llap queue aren't taking too long
