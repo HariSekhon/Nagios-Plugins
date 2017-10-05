@@ -221,22 +221,22 @@ EOF
         echo "./check_rabbitmq_vhost.py --vhost '$x' --no-tracing"
         ./check_rabbitmq_vhost.py --vhost "$x" --no-tracing
         hr
-        echo "./check_rabbitmq_exchange.py --vhost '$x' --exchange amq.direct         --type direct   --durable true"
+        echo "./check_rabbitmq_exchange.py --vhost '$x' --exchange amq.direct   --type direct   --durable true"
         ./check_rabbitmq_exchange.py --vhost "$x" --exchange amq.direct         --type direct   --durable true
         hr
-        echo "./check_rabbitmq_exchange.py --vhost '$x' --exchange amq.fanout         --type fanout   --durable true"
+        echo "./check_rabbitmq_exchange.py --vhost '$x' --exchange amq.fanout   --type fanout   --durable true"
         ./check_rabbitmq_exchange.py --vhost "$x" --exchange amq.fanout         --type fanout   --durable true
         hr
-        echo "./check_rabbitmq_exchange.py --vhost '$x' --exchange amq.headers        --type headers  --durable true"
+        echo "./check_rabbitmq_exchange.py --vhost '$x' --exchange amq.headers  --type headers  --durable true"
         ./check_rabbitmq_exchange.py --vhost "$x" --exchange amq.headers        --type headers  --durable true
         hr
-        echo "./check_rabbitmq_exchange.py --vhost '$x' --exchange amq.match          --type headers  --durable true"
+        echo "./check_rabbitmq_exchange.py --vhost '$x' --exchange amq.match    --type headers  --durable true"
         ./check_rabbitmq_exchange.py --vhost "$x" --exchange amq.match          --type headers  --durable true
         hr
         echo "./check_rabbitmq_exchange.py --vhost '$x' --exchange amq.rabbitmq.trace --type topic    --durable true"
         ./check_rabbitmq_exchange.py --vhost "$x" --exchange amq.rabbitmq.trace --type topic    --durable true
         hr
-        echo "./check_rabbitmq_exchange.py --vhost '$x' --exchange amq.topic          --type topic    --durable true"
+        echo "./check_rabbitmq_exchange.py --vhost '$x' --exchange amq.topic    --type topic    --durable true"
         ./check_rabbitmq_exchange.py --vhost "$x" --exchange amq.topic          --type topic    --durable true
         hr
     done

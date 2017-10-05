@@ -23,8 +23,8 @@ Tests a repository found either either name or id with the following checks:
 
 - repository exists
 - repository active (enabled)
-- repository last update time is less than N minutes --warning / --critical thresholds
-  (to catch repository changes, optional)
+- repository last update time is less than N minutes --warning / --critical thresholds (to catch repo changes, optional)
+  - (you can go to Ranger Admin UI -> Audit -> Admin to see what actual changes were made when this alert is triggered)
 - repository type (eg. hive, hdfs)
 
 The query for this is targeted by --name and / or --id for efficiency but if you give a non-existent repository

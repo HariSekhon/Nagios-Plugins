@@ -34,8 +34,9 @@ notifications:
 branches:
   only:
     - master
-#env:
+env:
 #  - DOCKER_COMPOSE_VERSION=1.14.0
+  - PYTHONUNBUFFERED=1
 
 before_install:
   - sudo rm /usr/local/bin/docker-compose
