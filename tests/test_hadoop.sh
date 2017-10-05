@@ -492,8 +492,11 @@ EOF
     echo "./check_hadoop_yarn_long_running_apps.py --include=montecarlo"
     ./check_hadoop_yarn_long_running_apps.py --include=montecarlo | tee /dev/stderr | grep -q "checked 1 out of"
     hr
-    echo "./check_hadoop_yarn_long_running_apps.py --include='montecarlo.*' --exclude=monte"
-    ./check_hadoop_yarn_long_running_apps.py --include='montecarlo.*' --exclude=monte | tee /dev/stderr | grep -q "checked 0 out of"
+    echo "./check_hadoop_yarn_long_running_apps.py --include='te.*carl'"
+    ./check_hadoop_yarn_long_running_apps.py --include='te.*carl' | tee /dev/stderr | grep -q "checked 1 out of"
+    hr
+    echo "./check_hadoop_yarn_long_running_apps.py --include=montecarlo --exclude=m.nte"
+    ./check_hadoop_yarn_long_running_apps.py --include=montecarlo --exclude=m.nte | tee /dev/stderr | grep -q "checked 0 out of"
     hr
     echo "./check_hadoop_yarn_long_running_apps.py --exclude=quasi"
     ./check_hadoop_yarn_long_running_apps.py --exclude=quasi | tee /dev/stderr | grep -q "checked 0 out of"
