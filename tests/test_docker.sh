@@ -26,17 +26,37 @@ cd "$srcdir/.."
 section "Docker Image"
 
 export DOCKER_IMAGE="harisekhon/nagios-plugins"
+export DOCKER_IMAGES=(harisekhon/tools harisekhon/pytools harisekhon/nagios-plugins:centos harisekhon/nagios-plugins:debian harisekhon/nagios-plugins:ubuntu harisekhon/nagios-plugins:alpine)
+if is_CI; then
+    export DOCKER_IMAGES="$(ci_sample ${DOCKER_IMAGES[*]})"
+fi
 
 if is_docker_available; then
     [ -n "${NO_DOCKER:-}" ] && exit 0
-    [ -n "${NO_PULL:-}" ] ||
+    if [ -z "${NO_PULL:-}" ]; then
         docker pull "$DOCKER_IMAGE"
+        for image in ${DOCKER_IMAGES[*]}; do
+            docker pull "$image"
+        done
+    fi
     hr
     echo "./check_docker_image.py --docker-image $DOCKER_IMAGE:latest"
     ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest"
     hr
-    echo "./check_docker_image.py --docker-image $DOCKER_IMAGE:latest --warning $((900 * 1024 * 1024))"
-    ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --warning $((900 * 1024 * 1024))
+    for image in ${DOCKER_IMAGES[*]}; do
+        max_size=$((600 * 1024 * 1024))
+        if grep nagios <<< "$image"; then
+            max_size=$((800 * 1024 * 1024))
+        fi
+        if ! grep ':' <<< "$image"; then
+            image="$image:latest"
+        fi
+        echo "./check_docker_image.py --docker-image $image --warning $max_size"
+        ./check_docker_image.py --docker-image "$image" --warning "$max_size"
+        hr
+    done
+    echo "./check_docker_image.py --docker-image $DOCKER_IMAGE:latest --warning $((800 * 1024 * 1024))"
+    ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --warning $((800 * 1024 * 1024))
     hr
     echo "checking thresholds fail as expected:"
     set +e
