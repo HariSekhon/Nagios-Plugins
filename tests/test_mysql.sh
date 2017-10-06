@@ -95,7 +95,7 @@ test_db(){
     echo "finding my.cnf location"
     set +o pipefail
     MYSQL_CONFIG_FILE="my.cnf"
-    my_cnf="$(docker exec -ti "$docker_container" find /etc -name my.cnf -o -name mysqld.cnf | tail -n1 | tr -d '\r')"
+    my_cnf="$(docker exec -ti "$docker_container" find /etc -name my.cnf -o -name mysqld.cnf | head -n1 | tr -d '\r')"
     set -o pipefail
     echo "determined my.cnf location to be $my_cnf"
     #if [ "$version" = "latest" ] || [ "${version%%.*}" -gt 5 ]; then
@@ -108,7 +108,9 @@ test_db(){
     echo "fetching $my_cnf to local host"
     # must require newer version of docker?
     #docker cp -L "$docker_container":"$MYSQL_CONFIG_PATH/$MYSQL_CONFIG_FILE" /tmp
-    docker cp "$docker_container":"$my_cnf" "/tmp/$MYSQL_CONFIG_FILE"
+    # doesn't let you specify a file path only dir otherwise gives annoying and inflexible error "not a directory"
+    docker cp "$docker_container":"$my_cnf" "/tmp/"
+    mv -vf "/tmp/${my_cnf##*/}" "/tmp/$MYSQL_CONFIG_FILE"
     echo "copied to /tmp/$MYSQL_CONFIG_FILE"
     hr
     extra_opt=""
