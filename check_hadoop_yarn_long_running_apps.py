@@ -57,7 +57,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.8.0'
+__version__ = '0.8.1'
 
 
 class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
@@ -98,6 +98,9 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
 
         self.include = self.get_opt('include')
         self.exclude = self.get_opt('exclude')
+        self.process_options_common()
+
+    def process_options_common(self):
         self.limit = self.get_opt('limit')
         self.list_apps = self.get_opt('list_apps')
 
@@ -126,7 +129,11 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
 
     def parse_json(self, json_data):
         app_list = self.get_app_list(json_data)
-        (num_apps_breaching_sla, max_elapsed) = self.check_app_elapsed_times(app_list)
+        (num_apps_breaching_sla, matching_apps, max_elapsed, max_threshold_msg) = self.check_app_elapsed_times(app_list)
+        self.msg += '{0}, checked {1} out of {2} running apps'\
+                   .format(num_apps_breaching_sla, matching_apps, len(app_list)) + \
+                   ', max elapsed app time = {0} secs{1}'\
+                   .format(max_elapsed, max_threshold_msg)
         self.msg += ' | num_apps_breaching_SLA={0} max_elapsed_app_time={1}{2}'\
                     .format(num_apps_breaching_sla, max_elapsed, self.get_perf_thresholds())
 
@@ -194,11 +201,7 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
             max_threshold_msg = ' ' + max_threshold_msg
         # restore msg prefix as check_thresholds appends every threshold breach
         self.msg = msg
-        self.msg += '{0}, checked {1} out of {2} running apps'\
-                   .format(num_apps_breaching_sla, matching_apps, len(app_list)) + \
-                   ', max elapsed app time = {0} secs{1}'\
-                   .format(max_elapsed, max_threshold_msg)
-        return (num_apps_breaching_sla, max_elapsed)
+        return (num_apps_breaching_sla, matching_apps, max_elapsed, max_threshold_msg)
 
     @staticmethod
     def print_apps(app_list):

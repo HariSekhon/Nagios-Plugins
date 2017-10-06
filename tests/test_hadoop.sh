@@ -433,6 +433,10 @@ EOF
     ./check_hadoop_yarn_app_last_run.py -l
     check_exit_code 2
     hr
+    echo "./check_hadoop_yarn_queue_apps.py -l"
+    ./check_hadoop_yarn_queue_apps.py -l
+    check_exit_code 3
+    hr
     echo "./check_hadoop_yarn_long_running_apps.py -l"
     ./check_hadoop_yarn_long_running_apps.py -l
     check_exit_code 3
@@ -476,6 +480,12 @@ EOF
     hr
     echo
     echo
+    echo "./check_hadoop_yarn_queue_apps.py -l"
+    ./check_hadoop_yarn_queue_apps.py -l
+    check_exit_code 3
+    hr
+    echo
+    echo
     echo "./check_hadoop_yarn_long_running_apps.py -l"
     ./check_hadoop_yarn_long_running_apps.py -l
     check_exit_code 3
@@ -502,6 +512,22 @@ EOF
     set +e
     ./check_hadoop_yarn_long_running_apps.py -c 2
     check_exit_code 2
+    set -e
+    hr
+    echo "./check_hadoop_yarn_queue_apps.py"
+    ./check_hadoop_yarn_queue_apps.py
+    hr
+    echo "./check_hadoop_yarn_queue_apps.py --allow monte"
+    ./check_hadoop_yarn_queue_apps.py --allow monte
+    hr
+    set +e
+    echo "./check_hadoop_yarn_queue_apps.py --disallow monte"
+    ./check_hadoop_yarn_queue_apps.py --disallow monte
+    check_exit_code 1
+    hr
+    echo "./check_hadoop_yarn_queue_apps.py --disallow nonmatching"
+    ./check_hadoop_yarn_queue_apps.py --allow nonmatching
+    check_exit_code 1
     set -e
     hr
     echo "./check_hadoop_yarn_long_running_apps.py"
