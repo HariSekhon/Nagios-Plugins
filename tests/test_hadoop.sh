@@ -151,8 +151,8 @@ EOF
     hr
     echo "testing failure of checkpoint time:"
     set +e
-    echo "$perl -T ./check_hadoop_checkpoint.pl -w 1000: -c 2:"
-    $perl -T ./check_hadoop_checkpoint.pl -w 1000: -c 2:
+    echo "$perl -T ./check_hadoop_checkpoint.pl -w 1000: -c 1:"
+    $perl -T ./check_hadoop_checkpoint.pl -w 1000: -c 1:
     check_exit_code 1
     hr
     echo "$perl -T ./check_hadoop_checkpoint.pl -w 3000: -c 2000:"
@@ -463,7 +463,7 @@ EOF
     echo
     echo "running mapreduce job from sample jar"
     echo
-    hadoop jar /hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar pi 10 20 &>/dev/null &
+    hadoop jar /hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar pi 20 20 &>/dev/null &
     echo
     echo "triggered mapreduce job"
     echo
