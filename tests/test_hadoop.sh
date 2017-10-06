@@ -86,8 +86,17 @@ test_hadoop(){
     hr
     # needed for version tests, also don't return container to user before it's ready if NOTESTS
     # also, do this wait before HDFS setup to give datanodes time to come online to copy the file too
-    echo "waiting for Yarn RM cluster page to come up..."
-    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_YARN_RESOURCE_MANAGER_PORT/ws/v1/cluster" hadoop
+    echo "waiting for NN dfshealth page to come up:"
+    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_NAMENODE_PORT/dfshealth.html" 'NameNode Journal Status'
+    hr
+    echo "waiting for RM cluster page to come up:"
+    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_YARN_RESOURCE_MANAGER_PORT/ws/v1/cluster" ResourceManager
+    hr
+    echo "waiting for NM node page to come up:"
+    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_YARN_NODE_MANAGER_PORT/node" 'Node Manager Version'
+    hr
+    echo "waiting for DN page to come up:"
+    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_DATANODE_PORT" 'Datanode on'
     hr
     echo "setting up HDFS for tests"
     #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
