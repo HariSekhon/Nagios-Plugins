@@ -90,7 +90,7 @@ test_hadoop(){
     when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_NAMENODE_PORT/dfshealth.html" 'NameNode Journal Status'
     hr
     echo "waiting for RM cluster page to come up:"
-    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_YARN_RESOURCE_MANAGER_PORT/ws/v1/cluster" ResourceManager
+    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_YARN_RESOURCE_MANAGER_PORT/ws/v1/cluster" resourceManager
     hr
     echo "waiting for NM node page to come up:"
     when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_YARN_NODE_MANAGER_PORT/node" 'Node Manager Version'
