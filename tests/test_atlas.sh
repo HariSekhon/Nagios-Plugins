@@ -41,20 +41,14 @@ fi
 
 trap_debug_env atlas
 
-if ! which nc &>/dev/null; then
-    # Don't run in docker containers
-    echo "nc command not found, cannot check Atlas availability, skipping checks"
-    exit 0
-fi
-if ! echo | nc -G 1 "$ATLAS_HOST" $ATLAS_PORT; then
+if ! when_ports_available 5 "$ATLAST_HOST" "$ATLAS_PORT"; then
     echo "WARNING: Atlas host $ATLAS_HOST:$ATLAS_PORT not up, skipping Atlas checks"
     exit 0
 fi
 
-#if which curl &>/dev/null && ! curl -sL "$ATLAS_HOST:$ATLAS_PORT" | grep -qi atlas; then
-#    echo "WARNING: Atlas host $ATLAS_HOST:$ATLAS_PORT did not contain atlas in html, may be some other service bound to the port, skipping..."
-#    exit 0
-#fi
+hr
+when_url_content "$ATLAS_HOST:$ATLAS_PORT" atlas
+hr
 
 # Sandbox often has some broken stuff, we're testing the code works, not the cluster
 #[ "$ATLAS_CLUSTER" = "$SANDBOX_CLUSTER" ] && set +e
