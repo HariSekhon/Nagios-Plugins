@@ -46,7 +46,6 @@ test_tachyon(){
     hr
     section2 "Setting up Tachyon $version test container"
     hr
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $TACHYON_MASTER_PORT $TACHYON_WORKER_PORT
     VERSION="$version" docker-compose up -d
     export TACHYON_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$TACHYON_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
     export TACHYON_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$TACHYON_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
@@ -63,26 +62,22 @@ test_tachyon(){
         ./check_tachyon_master_version.py -v -e "$version" && break
         sleep 1
     done
-    echo "./check_tachyon_master_version.py -v -e '$version'"
-    ./check_tachyon_master_version.py -v -e "$version"
+    run ./check_tachyon_master_version.py -v -e "$version"
     hr
-    echo "./check_tachyon_worker_version.py -v -e '$version'"
-    ./check_tachyon_worker_version.py -v -e "$version"
+    run ./check_tachyon_worker_version.py -v -e "$version"
     hr
-    echo "./check_tachyon_master.py -v"
-    ./check_tachyon_master.py -v
+    run ./check_tachyon_master.py -v
     hr
     #docker exec -ti "$DOCKER_CONTAINER" ps -ef
-    echo "./check_tachyon_worker.py -v"
-    ./check_tachyon_worker.py -v
+    run ./check_tachyon_worker.py -v
     hr
-    echo "./check_tachyon_running_workers.py -v"
-    ./check_tachyon_running_workers.py -v
+    run ./check_tachyon_running_workers.py -v
     hr
-    echo "./check_tachyon_dead_workers.py -v"
-    ./check_tachyon_dead_workers.py -v
+    run ./check_tachyon_dead_workers.py -v
     hr
-    #delete_container
+    echo "Completed $run_count Tachyon tests"
+    hr
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     echo
 }
