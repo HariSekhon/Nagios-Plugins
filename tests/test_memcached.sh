@@ -54,16 +54,15 @@ test_memcached(){
     fi
     hr
     # MEMCACHED_HOST obtained via .travis.yml
-    echo "$perl -T ./check_memcached_write.pl -v"
-    $perl -T ./check_memcached_write.pl -v
+    run $perl -T ./check_memcached_write.pl -v
     hr
-    echo "$perl -T ./check_memcached_key.pl -k myKey -e hari -v"
-    $perl -T ./check_memcached_key.pl -k myKey -e hari -v
+    run $perl -T ./check_memcached_key.pl -k myKey -e hari -v
     hr
-    echo "$perl -T ./check_memcached_stats.pl -w 15 -c 20 -v"
-    $perl -T ./check_memcached_stats.pl -w 15 -c 20 -v
+    run $perl -T ./check_memcached_stats.pl -w 15 -c 20 -v
     hr
+    echo "Completed $run_count Memcached tests"
     #delete_container
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
     echo
