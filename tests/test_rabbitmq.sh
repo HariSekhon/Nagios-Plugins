@@ -58,8 +58,6 @@ test_rabbitmq(){
     local version="$1"
     section2 "Setting up RabbitMQ $version test containers"
     hr
-    #local DOCKER_OPTS=""
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $RABBITMQ_PORT
     local VERSION="$version"
     VERSION="${VERSION#latest-}"
     # if one container is already still up it'll result in inconsistent state error when the other tries to join cluster, causing rabbit2 joining node container to crash
@@ -283,7 +281,6 @@ EOF
     fi
     echo "Completed $run_count RabbitMQ tests"
     hr
-    #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     echo
