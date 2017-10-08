@@ -67,8 +67,6 @@ neo4j_setup(){
 test_neo4j_noauth(){
     local version="$1"
     section2 "Setting up Neo4J $version test container without auth"
-    #local DOCKER_OPTS="-e NEO4J_AUTH=none"
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $NEO4J_PORTS
     # otherwise repeated attempts create more nodes and break the NumberOfNodeIdsInUse upper threshold
     docker-compose down &>/dev/null || :
     VERSION="$version" docker-compose up -d
@@ -139,7 +137,6 @@ test_neo4j_auth(){
     # Neo4J on Travis doesn't seem to return anything resulting in "'attributes' field not returned by Neo4J" error
     run $perl -T ./check_neo4j_store_sizes.pl -v
     hr
-    #delete_container "$DOCKER_CONTAINER-auth"
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
