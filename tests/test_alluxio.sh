@@ -41,7 +41,6 @@ trap_debug_env alluxio
 
 test_alluxio(){
     local version="$1"
-    run_count=0
     hr
     section2 "Setting up Alluxio $version test container"
     hr
