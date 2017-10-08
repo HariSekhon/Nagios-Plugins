@@ -66,6 +66,7 @@ test_mariadb(){
 test_db(){
     local name="$1"
     local version="$2"
+    run_count=0
     name_lower="$(tr 'A-Z' 'a-z' <<< "$name")"
     local export COMPOSE_FILE="$srcdir/docker/$name_lower-docker-compose.yml"
     section2 "Setting up $name $version test container"
@@ -86,8 +87,10 @@ test_db(){
     #done
     echo "$MYSQL_PORT"
     hr
-    when_ports_available $startupwait $MYSQL_HOST $MYSQL_PORT
-    sleep 2
+    when_ports_available "$startupwait" "$MYSQL_HOST" $MYSQL_PORT
+    hr
+    # kind of an abuse of the protocol but good extra validation step
+    when_url_content "$startupwait" "http://$MYSQL_HOST:$MYSQL_PORT" mysql
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
@@ -118,21 +121,27 @@ test_db(){
         extra_opt="--ignore thread_cache_size"
         # for some reason MariaDB's thread_cache_size is 128 in conf vs 100 in running service in Docker, so ignore it
     fi
-    echo "$perl -T ./check_mysql_config.pl -c \"/tmp/$MYSQL_CONFIG_FILE\" --warn-on-missing -v $extra_opt"
-    $perl -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v $extra_opt
+    run $perl -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v $extra_opt
     rm -vf "/tmp/$MYSQL_CONFIG_FILE"
     hr
-    echo "$perl -T ./check_mysql_query.pl -q \"SHOW TABLES IN information_schema like 'C%'\" -o CHARACTER_SETS -v"
-    $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema like 'C%'" -o CHARACTER_SETS -v
+    #echo "$perl -T ./check_mysql_query.pl -q \"SHOW TABLES IN information_schema like 'C%'\" -o CHARACTER_SETS -v"
+    run $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema like 'C%'" -o CHARACTER_SETS -v
     hr
-    echo "$perl -T ./check_mysql_query.pl -d information_schema -q \"SELECT * FROM user_privileges LIMIT 1\"  -r \"'(root|mysql.sys)'@'(%|localhost)'\" -v"
-    $perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -r "'(root|mysql.sys)'@'(%|localhost)'" -v
+    run $perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -r "'(root|mysql.sys)'@'(%|localhost)'" -v
+    hr
+    run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "DROP table haritest" -r 1 -v
+    hr
+    run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "DELETE FRM haritest where 1=1" -r 1 -v
+
     # TODO: add socket test - must mount on a compiled system, ie replace the docker image with a custom test one
     # this breaks subsequent iterations of this function
     #unset MYSQL_HOST
     #$perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
     hr
+    echo "Completed $run_count $name tests"
+    hr
     #delete_container
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
     echo
