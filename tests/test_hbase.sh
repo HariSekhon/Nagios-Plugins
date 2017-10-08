@@ -66,8 +66,6 @@ startupwait 15
 test_hbase(){
     local version="$1"
     section2 "Setting up HBase $version test container"
-    local DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HBASE_PORTS
     VERSION="$version" docker-compose up -d
     if [ "$version" = "0.96" -o "$version" = "0.98" ]; then
         local export HBASE_MASTER_PORT_DEFAULT=60010
@@ -383,7 +381,6 @@ EOF
     hr
     echo "Completed $run_count HBase tests"
     hr
-    #delete_container
     # will return further above and not use this
     #[ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
