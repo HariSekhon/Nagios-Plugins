@@ -36,37 +36,32 @@ fi
 
 trap_debug_env blue_talon
 
-if nc -vzw 1 $BLUE_TALON_HOST $BLUE_TALON_PORT &>/dev/null; then
+if ! when_ports_available 5 "$BLUE_TALON_HOST" "$BLUE_TALON_PORT"; then
     # Blue Talon is hanging but the port is open (honeypot?)
-    curl -s -m 5 "$PROTOCOL://$BLUE_TALON_HOST":"$BLUE_TALON_PORT" ||
-        { echo "HTTP port not responding, skipping Blue Talon checks"; exit 0; }
-    echo "./check_blue_talon_masking_functions.py $BLUE_TALON_SSL -v -w 400 -c 1000"
-    ./check_blue_talon_masking_functions.py $BLUE_TALON_SSL -v -w 400 -c 1000
+    if ! when_url_content 5 "$PROTOCOL://$BLUE_TALON_HOST:$BLUE_TALON_PORT" '.*';  then
+        echo "HTTP port not responding, skipping Blue Talon checks"
+        exit 0
+    fi
+    run ./check_blue_talon_masking_functions.py $BLUE_TALON_SSL -v -w 400 -c 1000
     hr
-    echo "./check_blue_talon_policies.py $BLUE_TALON_SSL -v -w 100 -c 200"
-    ./check_blue_talon_policies.py $BLUE_TALON_SSL -v -w 100 -c 200
+    run ./check_blue_talon_policies.py $BLUE_TALON_SSL -v -w 100 -c 200
     hr
-    echo "./check_blue_talon_policy_deployment.py $BLUE_TALON_SSL -v -w 0:100000000 -c 0:20000000000"
-    ./check_blue_talon_policy_deployment.py $BLUE_TALON_SSL -v -w 0:100000000 -c 0:20000000000
+    run ./check_blue_talon_policy_deployment.py $BLUE_TALON_SSL -v -w 0:100000000 -c 0:20000000000
     hr
-    echo "./check_blue_talon_resource_domains.py $BLUE_TALON_SSL -v -w 10 -c 20"
-    ./check_blue_talon_resource_domains.py $BLUE_TALON_SSL -v -w 10 -c 20
+    run ./check_blue_talon_resource_domains.py $BLUE_TALON_SSL -v -w 10 -c 20
     hr
-    echo "./check_blue_talon_resources.py $BLUE_TALON_SSL -v -w 100 -c 200"
-    ./check_blue_talon_resources.py $BLUE_TALON_SSL -v -w 100 -c 200
+    run ./check_blue_talon_resources.py $BLUE_TALON_SSL -v -w 100 -c 200
     hr
-    echo "./check_blue_talon_rules.py $BLUE_TALON_SSL -v -w 100 -c 200"
-    ./check_blue_talon_rules.py $BLUE_TALON_SSL -v -w 100 -c 200
+    run ./check_blue_talon_rules.py $BLUE_TALON_SSL -v -w 100 -c 200
     hr
-    echo "./check_blue_talon_user_domains.py $BLUE_TALON_SSL -v -w 10 -c 20"
-    ./check_blue_talon_user_domains.py $BLUE_TALON_SSL -v -w 10 -c 20
+    run ./check_blue_talon_user_domains.py $BLUE_TALON_SSL -v -w 10 -c 20
     hr
-    echo "./check_blue_talon_version.py $BLUE_TALON_SSL -v"
-    ./check_blue_talon_version.py $BLUE_TALON_SSL -v
+    run ./check_blue_talon_version.py $BLUE_TALON_SSL -v
     hr
 else
     echo "WARNING: Blue Talon host $BLUE_TALON_HOST:$BLUE_TALON_PORT not available, skipping checks..."
 fi
+echo "Completed $run_count Blue Talon tests"
 echo
 echo "All Blue Talon tests completed successfully"
 untrap
