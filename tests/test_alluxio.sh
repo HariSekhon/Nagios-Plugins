@@ -76,6 +76,7 @@ test_alluxio(){
     run ./check_alluxio_dead_workers.py -v
     hr
     echo "Completed $run_count Alluxio tests"
+    hr
     #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
