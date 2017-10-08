@@ -43,10 +43,6 @@ test_apache_drill(){
     hr
     section2 "Setting up Apache Drill $version test container"
     hr
-    #echo "lauching drill container linked to zookeeper"
-    #local DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper"
-    #local DOCKER_CMD="supervisord -n"
-    #launch_container "$DOCKER_IMAGE2:$version" "$DOCKER_CONTAINER2" $APACHE_DRILL_PORT
     VERSION="$version" docker-compose up -d
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
@@ -79,15 +75,10 @@ test_apache_drill(){
     hr
     echo "Completed $run_count Apache Drill tests"
     hr
-    #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     echo
 }
-
-#startupwait 1
-#echo "launching zookeeper container"
-#launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER" 2181 3181 4181
 
 startupwait 50
 
