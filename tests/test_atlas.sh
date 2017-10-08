@@ -22,8 +22,6 @@ cd "$srcdir/.."
 
 . "$srcdir/utils.sh"
 
-is_travis && exit 0
-
 section "A t l a s"
 
 export SANDBOX_CLUSTER="Sandbox"
@@ -50,30 +48,30 @@ hr
 when_url_content "$ATLAS_HOST:$ATLAS_PORT" atlas
 hr
 
+run_count=0
+
 # Sandbox often has some broken stuff, we're testing the code works, not the cluster
 #[ "$ATLAS_CLUSTER" = "$SANDBOX_CLUSTER" ] && set +e
 #echo "testing Atlas server $ATLAS_HOST"
 hr
-./check_atlas_version.py
+run ./check_atlas_version.py
 hr
-./check_atlas_version.py -e '0\.'
+run ./check_atlas_version.py -e '0\.'
 hr
-./check_atlas_status.py -A
+run ./check_atlas_status.py -A
 hr
-set +e
-./check_atlas_entity.py -l
-check_exit_code 3
-set -e
+run_fail 3 ./check_atlas_entity.py -l
 hr
-./check_atlas_entity.py -E Sales -T DB
+run ./check_atlas_entity.py -E Sales -T DB
 hr
 set +o pipefail
 id="$(./check_atlas_entity.py -l | tail -n 1 | awk '{print $1}')"
 set -o pipefail
-./check_atlas_entity.py -I "$id"
+run ./check_atlas_entity.py -I "$id"
 hr
+echo "Completed $run_count Apache Atlas tests"
 echo
-echo "All Atlas tests completed successfully"
+echo "All Apache Atlas tests completed successfully"
 untrap
 echo
 echo
