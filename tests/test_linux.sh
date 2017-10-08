@@ -32,8 +32,7 @@ export MNTDIR="/pl"
 docker_exec(){
     #echo "docker-compose exec '$SERVICE' $MNTDIR/$*"
     #docker-compose exec "$SERVICE" $MNTDIR/$*
-    echo "docker exec '$SERVICE' $MNTDIR/$*"
-    docker exec "$SERVICE" $MNTDIR/$*
+    run docker exec "$SERVICE" $MNTDIR/$*
 }
 
 valid_distros=(alpine centos debian ubuntu)
@@ -103,7 +102,9 @@ EOF
         docker_exec check_yum.py -C --all-updates -v -t 30 || :
         hr
     fi
+    echo "Completed $run_count Linux tests"
     #delete_container
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     echo
 }
