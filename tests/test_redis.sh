@@ -65,12 +65,10 @@ test_redis(){
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
-    echo "$perl -T ./check_redis_version.pl -v"
-    $perl -T ./check_redis_version.pl -v # TODO: change to regex and enable -e "^$version"
+    run $perl -T ./check_redis_version.pl -v # TODO: change to regex and enable -e "^$version"
     hr
     # REDIS_HOST obtained via .travis.yml
-    echo "$perl -T ./check_redis_clients.pl -v"
-    $perl -T ./check_redis_clients.pl -v
+    run $perl -T ./check_redis_clients.pl -v
     hr
     # there is no redis.conf in the Docker container :-/
     #docker cp "$DOCKER_CONTAINER":/etc/redis.conf /tmp/redis.conf
@@ -78,32 +76,29 @@ test_redis(){
     #wget -O /tmp/redis.conf https://raw.githubusercontent.com/antirez/redis/3.0/redis.conf
     > /tmp/.check_redis_config.conf
     #$perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v | grep -v -e '^debug:' | sed 's/.*extra config found on running server://;s/=/ /g' | tr ',' '\n' | grep -v requirepass | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tee /tmp/.check_redis_config.conf
+    run++
     echo "$perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v | grep -v -e '^debug:' | sed 's/.*extra config found on running server://;s/=/ /g' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tee /tmp/.check_redis_config.conf"
     $perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v | grep -v -e '^debug:' | sed 's/.*extra config found on running server://;s/=/ /g' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tee /tmp/.check_redis_config.conf
-    echo "$perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v -vv"
-    $perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v -vv
-    [ -z "${NODELETE:-1}" ] && #rm /tmp/.check_redis_config.conf
+    run $perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v -vv
+    #[ -z "${NODELETE:-1}" ] && #rm /tmp/.check_redis_config.conf
     hr
-    echo "$perl -T ./check_redis_key.pl -k myKey -e hari -v"
-    $perl -T ./check_redis_key.pl -k myKey -e hari -v
+    run $perl -T ./check_redis_key.pl -k myKey -e hari -v
     hr
-    echo "$perl -T ./check_redis_publish_subscribe.pl -v"
-    $perl -T ./check_redis_publish_subscribe.pl -v
+    run $perl -T ./check_redis_publish_subscribe.pl -v
     hr
-    echo "$perl -T ./check_redis_stats.pl -v"
-    $perl -T ./check_redis_stats.pl -v
+    run $perl -T ./check_redis_stats.pl -v
     hr
-    echo "$perl -T ./check_redis_stats.pl -s connected_clients -c 1:1 -v"
-    $perl -T ./check_redis_stats.pl -s connected_clients -c 1:1 -v
+    run $perl -T ./check_redis_stats.pl -s connected_clients -c 1:1 -v
     hr
-    echo "$perl -T ./check_redis_write.pl -v"
-    $perl -T ./check_redis_write.pl -v
+    run $perl -T ./check_redis_write.pl -v
     hr
     echo "checking for no code failure masking root cause in catch quit handler"
-    echo "$perl -T ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v | tee /dev/stderr | grep -v ' line ' || :"
-    $perl -T ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v | tee /dev/stderr | grep -v ' line ' || :
+    run_grep ' line ' $perl -T ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v || :
+    hr
+    echo "Completed $run_count Redis tests"
     hr
     #delete_container
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
     echo
