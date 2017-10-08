@@ -75,4 +75,7 @@ if is_docker_available; then
     run docker run --rm -e DEBUG="$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl -H google.com
     echo
     run docker run --rm -e DEBUG="$DEBUG" -e NO_GIT=1 -e TRAVIS="${TRAVIS:-}" "$DOCKER_IMAGE" tests/help.sh
+    echo
+    echo "Completed $run_count Docker tests"
+    echo
 fi
