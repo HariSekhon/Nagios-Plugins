@@ -40,7 +40,6 @@ trap_debug_env apache_drill
 
 test_apache_drill(){
     local version="$1"
-    run_count=0
     hr
     section2 "Setting up Apache Drill $version test container"
     hr
