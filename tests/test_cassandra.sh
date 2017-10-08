@@ -101,6 +101,7 @@ test_cassandra(){
     docker_exec check_cassandra_tpstats.pl --nodetool /cassandra/bin/nodetool -v
     hr
     echo "Completed $run_count Cassandra tests"
+    hr
     #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
