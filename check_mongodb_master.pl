@@ -39,8 +39,8 @@ splice @usage_order, 6, 0, "expected-master";
 get_options();
 
 $hosts    = validate_mongo_hosts($host);
-$user     = validate_user($user);
-$password = validate_password($password) if $password;
+$user     = validate_user($user) if defined($user);
+$password = validate_password($password) if defined($password);
 if(scalar @hosts > 1){
     $expected_master or usage "must specify --expected-master if specifying more than one host to connect to in the replica set";
 }
