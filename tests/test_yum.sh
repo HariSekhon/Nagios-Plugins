@@ -41,7 +41,7 @@ fi
 
 docker_exec(){
     local cmd="$@"
-    docker exec "$DOCKER_CONTAINER" $MNTDIR/$*
+    run docker exec "$DOCKER_CONTAINER" $MNTDIR/$*
 }
 
 startupwait=0
@@ -76,5 +76,8 @@ if [ $result -ne 0 -a $result -ne 2 ]; then
     exit 1
 fi
 hr
+echo "Completed $run_count Yum tests"
+hr
+[ -n "${KEEPDOCKER:-}" ] ||
 delete_container
 echo; echo
