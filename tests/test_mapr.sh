@@ -33,12 +33,14 @@ export MAPR_PASSWORD="${MAPR_USER:-mapr}"
 export MAPR_CLUSTER="${MAPR_CLUSTER:-$SANDBOX_CLUSTER}"
 export MAPR_VERSION="${MAPR_VERSION:-.*}"
 export NO_SSL="${NO_SSL-}"
+PROTOCOL="https"
 
 trap_debug_env mapr
 
 no_ssl=""
 if [ "$MAPR_CLUSTER" = "$SANDBOX_CLUSTER" -o -n "$NO_SSL" ]; then
     no_ssl="--no-ssl"
+    PROTOCOL="http"
 fi
 
 if [ -z "${MAPR_HOST:-}" ]; then
@@ -46,13 +48,13 @@ if [ -z "${MAPR_HOST:-}" ]; then
     exit 0
 fi
 
-if which nc &>/dev/null && ! echo | nc -G 1 "$MAPR_HOST" $MAPR_PORT; then
+if ! when_ports_available 5 "$MAPR_HOST" "$MAPR_PORT"; then
     echo "WARNING: MapR Control System host $MAPR_HOST:$MAPR_PORT not up, skipping MapR Control System checks"
     exit 0
 fi
 
-if which curl &>/dev/null && ! curl -sL "$MAPR_HOST:$MAPR_PORT/mcs" | grep -qi mapr; then
-    echo "WARNING: MapR Control System host $MAPR_HOST:$MAPR_PORT did not contain mapr in html, may be some other service bound to the port, skipping..."
+if ! when_url_content 5 "$PROTOCOL://$MAPR_HOST:$MAPR_PORT/mcs" mapr; then
+    echo "WARNING: MapR Control System host $PROTOCOL://$MAPR_HOST:$MAPR_PORT/mcs did not contain mapr in html, may be some other service bound to the port, skipping..."
     exit 0
 fi
 
@@ -91,58 +93,59 @@ fi
 # ============================================================================ #
 
 hr
-$perl -T check_mapr-fs_space.pl $no_ssl
+run $perl -T check_mapr-fs_space.pl $no_ssl
 hr
-$perl -T check_mapr-fs_volume.pl $no_ssl
+run $perl -T check_mapr-fs_volume.pl $no_ssl
 hr
-$perl -T check_mapr-fs_volume_mirroring.pl $no_ssl -L $volume
+run $perl -T check_mapr-fs_volume_mirroring.pl $no_ssl -L $volume
 hr
-$perl -T check_mapr-fs_volume_replication.pl $no_ssl -L $volume
+run $perl -T check_mapr-fs_volume_replication.pl $no_ssl -L $volume
 hr
-$perl -T check_mapr-fs_volume_snapshots.pl $no_ssl -L $volume
+run $perl -T check_mapr-fs_volume_snapshots.pl $no_ssl -L $volume
 hr
-$perl -T check_mapr-fs_volume_space_used.pl $no_ssl -L $volume
+run $perl -T check_mapr-fs_volume_space_used.pl $no_ssl -L $volume
 hr
-$perl -T check_mapr_alarms.pl $no_ssl
+run $perl -T check_mapr_alarms.pl $no_ssl
 hr
-$perl -T check_mapr_cluster_version.pl $no_ssl -e "$MAPR_VERSION"
+run $perl -T check_mapr_cluster_version.pl $no_ssl -e "$MAPR_VERSION"
 hr
-$perl -T check_mapr_dashboard.pl $no_ssl
+run $perl -T check_mapr_dashboard.pl $no_ssl
 hr
-$perl -T check_mapr_dialhome.pl $no_ssl
-hr
-# must be run locally
-#$perl -T check_mapr_disk_balancer_metrics.pl
-hr
-$perl -T check_mapr_license.pl $no_ssl
-hr
-$perl -T check_mapr_mapreduce_mode.pl $no_ssl
-hr
-$perl -T check_mapr_memory_utilization.pl $no_ssl
-hr
-$perl -T check_mapr_node_alarms.pl $no_ssl
-hr
-$perl -T check_mapr_node_failed_disks.pl $no_ssl
-hr
-$perl -T check_mapr_node_health.pl $no_ssl
-hr
-$perl -T check_mapr_node_heartbeats.pl $no_ssl
-hr
-$perl -T check_mapr_node_mapr-fs_disks.pl $no_ssl -N $node
-hr
-$perl -T check_mapr_node_services.pl $no_ssl -N $node
-hr
-$perl -T check_mapr_nodes.pl $no_ssl
+run $perl -T check_mapr_dialhome.pl $no_ssl
 hr
 # must be run locally
-#$perl -T check_mapr_role_balancer.pl $no_ssl
+#run $perl -T check_mapr_disk_balancer_metrics.pl
+hr
+run $perl -T check_mapr_license.pl $no_ssl
+hr
+run $perl -T check_mapr_mapreduce_mode.pl $no_ssl
+hr
+run $perl -T check_mapr_memory_utilization.pl $no_ssl
+hr
+run $perl -T check_mapr_node_alarms.pl $no_ssl
+hr
+run $perl -T check_mapr_node_failed_disks.pl $no_ssl
+hr
+run $perl -T check_mapr_node_health.pl $no_ssl
+hr
+run $perl -T check_mapr_node_heartbeats.pl $no_ssl
+hr
+run $perl -T check_mapr_node_mapr-fs_disks.pl $no_ssl -N $node
+hr
+run $perl -T check_mapr_node_services.pl $no_ssl -N $node
+hr
+run $perl -T check_mapr_nodes.pl $no_ssl
 hr
 # must be run locally
-#$perl -T check_mapr_role_balancer_metrics.pl $no_ssl
+#run $perl -T check_mapr_role_balancer.pl $no_ssl
+hr
+# must be run locally
+#run $perl -T check_mapr_role_balancer_metrics.pl $no_ssl
 hr
 # when inheriting $MAPR_CLUSTER=demo.mapr.com it doesn't get back services, only when omitting --cluster / -C
-$perl -T check_mapr_services.pl $no_ssl -C ""
+run $perl -T check_mapr_services.pl $no_ssl -C ""
 hr
+echo "Completed $run_count MapR tests"
 echo
 echo "All MapR tests completed successfully"
 echo
