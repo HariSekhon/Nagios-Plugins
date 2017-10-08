@@ -40,8 +40,7 @@ if is_docker_available; then
         done
     fi
     hr
-    echo "./check_docker_image.py --docker-image $DOCKER_IMAGE:latest"
-    ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest"
+    run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest"
     hr
     for image in ${DOCKER_IMAGES[*]}; do
         max_size=$((600 * 1024 * 1024))
@@ -51,46 +50,29 @@ if is_docker_available; then
         if ! grep ':' <<< "$image"; then
             image="$image:latest"
         fi
-        echo "./check_docker_image.py --docker-image $image --warning $max_size"
-        ./check_docker_image.py --docker-image "$image" --warning "$max_size"
+        run ./check_docker_image.py --docker-image "$image" --warning "$max_size"
         hr
     done
-    echo "./check_docker_image.py --docker-image $DOCKER_IMAGE:latest --warning $((800 * 1024 * 1024))"
-    ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --warning $((800 * 1024 * 1024))
+    run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --warning $((800 * 1024 * 1024))
     hr
     echo "checking thresholds fail as expected:"
-    set +e
-    echo "./check_docker_image.py --docker-image $DOCKER_IMAGE:latest --warning $((300 * 1024 * 1024))"
-    ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --warning $((300 * 1024 * 1024))
-    check_exit_code 1
+    run_fail 1 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --warning $((300 * 1024 * 1024))
     hr
-    echo "./check_docker_image.py --docker-image $DOCKER_IMAGE:latest --critical $((300 * 1024 * 1024))"
-    ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --critical $((300 * 1024 * 1024))
-    check_exit_code 2
+    run_fail 2 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --critical $((300 * 1024 * 1024))
     hr
     # This fails set -e, possibly because docker images command is interrupted by the abrupt exit of awk
     id="$(docker images | awk "/^${DOCKER_IMAGE//\//\\/}.*latest/{print \$3; exit}")"
     set -e
     echo "testing against expected id of $id"
-    echo "./check_docker_image.py --docker-image $DOCKER_IMAGE:latest --id $id"
-    ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --id "$id"
+    run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --id "$id"
     hr
     echo "testing intentional id failure:"
-    echo "./check_docker_image.py --docker-image $DOCKER_IMAGE:latest --id wrongid"
-    set +e
-    ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --id "wrongid"
-    check_exit_code 2
+    run_fail 2 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --id "wrongid"
+    hr
+    run_fail 3 docker run --rm -e DEBUG="$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl --help
     set -e
     hr
-    set +e
-    echo "docker run --rm -e DEBUG='$DEBUG' '$DOCKER_IMAGE' check_ssl_cert.pl --help"
-    docker run --rm -e DEBUG="$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl --help
-    check_exit_code 3
-    set -e
-    hr
-    echo "docker run --rm -e DEBUG='$DEBUG' '$DOCKER_IMAGE' check_ssl_cert.pl -H google.com"
-    docker run --rm -e DEBUG="$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl -H google.com
+    run docker run --rm -e DEBUG="$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl -H google.com
     echo
-    echo "docker run --rm -e DEBUG='$DEBUG' -e NO_GIT=1 -e TRAVIS='${TRAVIS:-}' '$DOCKER_IMAGE' tests/help.sh"
-    docker run --rm -e DEBUG="$DEBUG" -e NO_GIT=1 -e TRAVIS="${TRAVIS:-}" "$DOCKER_IMAGE" tests/help.sh
+    run docker run --rm -e DEBUG="$DEBUG" -e NO_GIT=1 -e TRAVIS="${TRAVIS:-}" "$DOCKER_IMAGE" tests/help.sh
 fi
