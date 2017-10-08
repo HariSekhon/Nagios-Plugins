@@ -470,6 +470,7 @@ EOF
     run $perl -T ./check_hadoop_yarn_resource_manager_state.pl
     hr
     echo "Completed $run_count Hadoop tests"
+    hr
     #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
