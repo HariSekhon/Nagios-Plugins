@@ -72,32 +72,28 @@ test_solr(){
         fi
         # 4.x+
         hr
-        echo "./check_solr_version.py -e '$version'"
-        ./check_solr_version.py -e "$version"
+        run ./check_solr_version.py -e "$version"
     else
         # TODO: check Solr v3 versions somehow
         :
     fi
     hr
-    echo "$perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000"
-    $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
+    run $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
     hr
-    echo "$perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits"
-    $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
+    run $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
     hr
-    echo "$perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000"
-    $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
+    run $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
     hr
     num_expected_docs=4
     [ "${version:0:1}" -lt 4 ] && num_expected_docs=0
     # TODO: fix Solr 5 + 6 doc insertion and then tighten this up
-    echo "$perl -T ./check_solr_query.pl -n 0:4 -w 200 -v"
-    $perl -T ./check_solr_query.pl -n 0:4 -w 200 -v
+    run $perl -T ./check_solr_query.pl -n 0:4 -w 200 -v
     hr
-    echo "$perl -T ./check_solr_write.pl -v -w 1000"
-    $perl -T ./check_solr_write.pl -v -w 1000 # because Travis is slow
+    run $perl -T ./check_solr_write.pl -v -w 1000 # because Travis is slow
     hr
-    #delete_container
+    echo "Completed $run_count Solr tests"
+    hr
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
     echo
