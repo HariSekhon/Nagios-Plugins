@@ -45,7 +45,6 @@ startupwait 20
 test_elasticsearch(){
     local version="$1"
     section2 "Setting up Elasticsearch $version test container"
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ELASTICSEARCH_PORT
     VERSION="$version" docker-compose up -d
     export ELASTICSEARCH_PORT="`docker-compose port "$DOCKER_SERVICE" "$ELASTICSEARCH_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$ELASTICSEARCH_HOST" "$ELASTICSEARCH_PORT"
@@ -152,7 +151,6 @@ test_elasticsearch(){
     hr
     echo "Completed $run_count Elasticsearch tests"
     hr
-    #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
 }
