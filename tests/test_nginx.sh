@@ -68,12 +68,13 @@ test_nginx(){
         local version=".*"
     fi
     hr
-    echo "./check_nginx_version.py -e '$version'"
-    ./check_nginx_version.py -e "$version"
+    run ./check_nginx_version.py -e "$version"
     hr
-    echo "$perl -T ./check_nginx_stats.pl -H "$NGINX_HOST" -u /status"
-    $perl -T ./check_nginx_stats.pl -H "$NGINX_HOST" -u /status
+    run $perl -T ./check_nginx_stats.pl -H "$NGINX_HOST" -u /status
     hr
+    echo "Completed $run_count Nginx tests"
+    hr
+    [ -n "${KEEPDOCKER:-}" ] ||
     delete_container
     hr
     echo
