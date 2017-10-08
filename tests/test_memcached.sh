@@ -41,7 +41,6 @@ startupwait 1
 test_memcached(){
     local version="$1"
     section2 "Setting up Memcached $version test container"
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MEMCACHED_PORT
     VERSION="$version" docker-compose up -d
     export MEMCACHED_PORT="`docker-compose port "$DOCKER_SERVICE" "$MEMCACHED_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$MEMCACHED_HOST" "$MEMCACHED_PORT"
@@ -62,7 +61,6 @@ test_memcached(){
     hr
     echo "Completed $run_count Memcached tests"
     hr
-    #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
