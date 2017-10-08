@@ -106,7 +106,6 @@ test_consul(){
     hr
     run ./check_consul_write.py -v
     hr
-    echo "Completed $run_count Consul tests"
     #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
@@ -129,7 +128,9 @@ test_consul(){
     #docker exec -i "$DOCKER_CONTAINER-dev" "$MNTDIR/check_consul_version.py" -e "$expected_version"
     docker_exec "check_consul_version.py" -e "$expected_version"
     hr
+    echo "Completed $run_count Consul tests"
     #delete_container "$DOCKER_CONTAINER-dev"
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     echo
 }
