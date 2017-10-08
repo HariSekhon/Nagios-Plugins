@@ -35,6 +35,7 @@ export CM_VERSION="${CM_VERSION:-.*}"
 PROTOCOL="http"
 if [ -n "${CM_SSL:-}" ]; then
     PROTOCOL="https"
+    # TODO: SSL env var support in plugins and set here
 fi
 
 if [ -z "${CM_HOST:-}" ]; then
