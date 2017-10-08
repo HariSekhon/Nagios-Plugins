@@ -129,6 +129,7 @@ test_consul(){
     docker_exec "check_consul_version.py" -e "$expected_version"
     hr
     echo "Completed $run_count Consul tests"
+    hr
     #delete_container "$DOCKER_CONTAINER-dev"
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
