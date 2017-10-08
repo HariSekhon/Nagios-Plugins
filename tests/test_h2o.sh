@@ -55,22 +55,19 @@ test_h2o(){
     hr
     when_url_content "$startupwait" "http://$H2O_HOST:$H2O_PORT/" "0xdata"
     hr
-    echo "$perl -T ./check_h2o_cluster.pl"
-    $perl -T ./check_h2o_cluster.pl
+    run $perl -T ./check_h2o_cluster.pl
     hr
-    echo "$perl -T ./check_h2o_jobs.pl"
-    $perl -T ./check_h2o_jobs.pl
+    run $perl -T ./check_h2o_jobs.pl
     hr
-    echo "$perl -T ./check_h2o_node_health.pl"
-    $perl -T ./check_h2o_node_health.pl
+    run $perl -T ./check_h2o_node_health.pl
     hr
-    echo "$perl -T ./check_h2o_node_stats.pl"
-    $perl -T ./check_h2o_node_stats.pl
+    run $perl -T ./check_h2o_node_stats.pl
     hr
-    echo "$perl -T ./check_h2o_nodes_last_contact.pl"
-    $perl -T ./check_h2o_nodes_last_contact.pl
+    run $perl -T ./check_h2o_nodes_last_contact.pl
     hr
+    echo "Completed $run_count H2O tests"
     #delete_container
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
 }
 
