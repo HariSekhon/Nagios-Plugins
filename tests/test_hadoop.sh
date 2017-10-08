@@ -61,8 +61,6 @@ docker_exec(){
 test_hadoop(){
     local version="$1"
     section2 "Setting up Hadoop $version test container"
-    #DOCKER_OPTS="-v $srcdir2/..:$MNTDIR"
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $HADOOP_PORTS
     # reset state as things like blocks counts and job states, no history, succeeded etc depend on state
     docker-compose down &>/dev/null || :
     VERSION="$version" docker-compose up -d
@@ -471,7 +469,6 @@ EOF
     hr
     echo "Completed $run_count Hadoop tests"
     hr
-    #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     echo
