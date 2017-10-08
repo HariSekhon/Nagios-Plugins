@@ -56,52 +56,41 @@ test_mesos(){
     fi
     when_ports_available "$startupwait" "$MESOS_HOST" "$MESOS_MASTER_PORT" "$MESOS_WORKER_PORT"
     hr
-    echo "$perl -T ./check_mesos_activated_slaves.pl -P "$MESOS_MASTER_PORT" -v"
-    $perl -T ./check_mesos_activated_slaves.pl -P "$MESOS_MASTER_PORT" -v
+    run $perl -T ./check_mesos_activated_slaves.pl -P "$MESOS_MASTER_PORT" -v
     hr
-    echo "#$perl -T ./check_mesos_chronos_jobs.pl -P "$cronos_port" -v"
-    #$perl -T ./check_mesos_chronos_jobs.pl -P "$cronos_port" -v
+    #run $perl -T ./check_mesos_chronos_jobs.pl -P "$cronos_port" -v
     hr
-    echo "$perl -T ./check_mesos_deactivated_slaves.pl -v"
-    $perl -T ./check_mesos_deactivated_slaves.pl -v
+    run $perl -T ./check_mesos_deactivated_slaves.pl -v
     hr
-    echo "$perl -T ./check_mesos_master_health.pl -v"
-    $perl -T ./check_mesos_master_health.pl -v
+    run $perl -T ./check_mesos_master_health.pl -v
     hr
-    echo "$perl -T ./check_mesos_master_state.pl -v"
-    $perl -T ./check_mesos_master_state.pl -v
+    run $perl -T ./check_mesos_master_state.pl -v
     hr
-    echo "$perl -T ./check_mesos_metrics.pl -P "$MESOS_MASTER_PORT" -v"
-    $perl -T ./check_mesos_metrics.pl -P "$MESOS_MASTER_PORT" -v
+    run $perl -T ./check_mesos_metrics.pl -P "$MESOS_MASTER_PORT" -v
     hr
-    echo "$perl -T ./check_mesos_metrics.pl -P "$MESOS_WORKER_PORT" -v"
-    $perl -T ./check_mesos_metrics.pl -P "$MESOS_WORKER_PORT" -v
+    run $perl -T ./check_mesos_metrics.pl -P "$MESOS_WORKER_PORT" -v
     hr
-    echo "$perl -T ./check_mesos_master_metrics.pl -v"
-    $perl -T ./check_mesos_master_metrics.pl -v
+    run $perl -T ./check_mesos_master_metrics.pl -v
     hr
-    echo "set +e"
     set +e
     slave="$(./check_mesos_slave.py -l | awk '/=/{print $1; exit}')"
-    echo "set -e"
     set -e
     echo "checking for mesos slave '$slave'"
-    echo "./check_mesos_slave.py -v -s "$slave""
-    ./check_mesos_slave.py -v -s "$slave"
+    run ./check_mesos_slave.py -v -s "$slave"
     hr
-    echo "$perl -T ./check_mesos_slave_metrics.pl  -v"
-    $perl -T ./check_mesos_slave_metrics.pl  -v
+    run $perl -T ./check_mesos_slave_metrics.pl  -v
     hr
     # Not implemented yet
-    #$perl -T ./check_mesos_registered_framework.py -v
+    #run $perl -T ./check_mesos_registered_framework.py -v
     hr
     # Not implemented yet
-    #$perl -T ./check_mesos_slave_container_statistics.pl -v
+    #run $perl -T ./check_mesos_slave_container_statistics.pl -v
     hr
-    echo "$perl -T ./check_mesos_slave_state.pl -v"
-    $perl -T ./check_mesos_slave_state.pl -v
+    run $perl -T ./check_mesos_slave_state.pl -v
     hr
+    echo "Completed $run_count Mesos tests"
     #delete_container
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
 }
 
