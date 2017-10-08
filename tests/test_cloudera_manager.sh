@@ -32,6 +32,10 @@ export CM_USER="${CM_USER:-admin}"
 export CM_PASSWORD="${CM_USER:-admin}"
 export CM_CLUSTER="${CM_CLUSTER:-$QUICKSTART_CLUSTER}"
 export CM_VERSION="${CM_VERSION:-.*}"
+PROTOCOL="http"
+if [ -n "${CM_SSL:-}" ]; then
+    PROTOCOL="https"
+fi
 
 if [ -z "${CM_HOST:-}" ]; then
     echo "WARNING: \$CM_HOST not set, skipping Cloudera Manager checks"
@@ -40,13 +44,13 @@ fi
 
 trap_debug_env cm
 
-if which nc &>/dev/null && ! echo | nc -G 1 "$CM_HOST" $CM_PORT; then
+if ! when_ports_available 5 "$CM_HOST" "$CM_PORT"; then
     echo "WARNING: Cloudera Manager host $CM_HOST:$CM_PORT not up, skipping Cloudera Manager checks"
     exit 0
 fi
 
-if which curl &>/dev/null && ! curl -sL localhost:7180/cmf/login | grep -qi cloudera; then
-    echo "WARNING: Cloudera Manager host $CM_HOST:$CM_PORT did not contain ambari in html, may be some other service bound to the port, skipping..."
+if when_url_content 5 "$PROTOCOL://$CM_HOST:$CM_PORT/cmf/login" cloudera; then
+    echo "WARNING: Cloudera Manager host $CM_HOST:$CM_PORT did not contain cloudera in html, may be some other service bound to the port, skipping..."
     exit 0
 fi
 
@@ -54,29 +58,21 @@ fi
 [ "$CM_CLUSTER" = "$QUICKSTART_CLUSTER" ] && set +e
 
 hr
-echo "$perl -T check_cloudera_manager_version.pl -e \"$CM_VERSION\""
-$perl -T check_cloudera_manager_version.pl -e "$CM_VERSION"
+run $perl -T check_cloudera_manager_version.pl -e "$CM_VERSION"
 hr
-echo "$perl -T check_cloudera_manager.pl --api-ping"
-$perl -T check_cloudera_manager.pl --api-ping
+run $perl -T check_cloudera_manager.pl --api-ping
 hr
-echo "$perl -T check_cloudera_manager.pl --list-clusters"
-$perl -T check_cloudera_manager.pl --list-clusters
+run $perl -T check_cloudera_manager.pl --list-clusters
 hr
-echo "$perl -T check_cloudera_manager.pl --list-users"
-$perl -T check_cloudera_manager.pl --list-users
+run $perl -T check_cloudera_manager.pl --list-users
 hr
-echo "$perl -T check_cloudera_manager.pl --list-hosts"
-$perl -T check_cloudera_manager.pl --list-hosts
+run $perl -T check_cloudera_manager.pl --list-hosts
 hr
-echo "$perl -T check_cloudera_manager.pl --list-services"
-$perl -T check_cloudera_manager.pl --list-services
+run $perl -T check_cloudera_manager.pl --list-services
 hr
-echo "$perl -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs"
-$perl -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs
+run $perl -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs
 hr
-echo "$perl -T check_cloudera_manager_cluster_version.pl"
-$perl -T check_cloudera_manager_cluster_version.pl
+run $perl -T check_cloudera_manager_cluster_version.pl
 hr
 echo
 
@@ -111,24 +107,19 @@ fi
 # ============================================================================ #
 
 hr
-echo "$perl -T check_cloudera_manager_config_stale.pl -S '$service'"
-$perl -T check_cloudera_manager_config_stale.pl -S "$service"
+run $perl -T check_cloudera_manager_config_stale.pl -S "$service"
 hr
-echo "$perl -T check_cloudera_manager_config_validation.pl -S '$service'"
-$perl -T check_cloudera_manager_config_validation.pl -S "$service"
+run $perl -T check_cloudera_manager_config_validation.pl -S "$service"
 hr
-echo "$perl -T check_cloudera_manager_health.pl -S '$service'"
-$perl -T check_cloudera_manager_health.pl -S "$service"
+run $perl -T check_cloudera_manager_health.pl -S "$service"
 hr
-echo "$perl -T check_cloudera_manager_license.pl"
-$perl -T check_cloudera_manager_license.pl
+run $perl -T check_cloudera_manager_license.pl
 hr
-echo "$perl -T check_cloudera_manager_metrics.pl -S '$service' -a"
-$perl -T check_cloudera_manager_metrics.pl -S '$service' -a
+run $perl -T check_cloudera_manager_metrics.pl -S '$service' -a
 hr
-echo "$perl -T check_cloudera_manager_status.pl -S '$service'"
-$perl -T check_cloudera_manager_status.pl -S "$service"
+run $perl -T check_cloudera_manager_status.pl -S "$service"
 hr
+echo "Completed $run_count Cloudera Manager tests"
 echo
 echo "All Cloudera Manager tests passed successfully"
 untrap
