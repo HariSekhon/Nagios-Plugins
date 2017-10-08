@@ -44,7 +44,6 @@ test_alluxio(){
     hr
     section2 "Setting up Alluxio $version test container"
     hr
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ALLUXIO_MASTER_PORT $ALLUXIO_WORKER_PORT
     VERSION="$version" docker-compose up -d
     export ALLUXIO_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
     export ALLUXIO_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
@@ -77,7 +76,6 @@ test_alluxio(){
     hr
     echo "Completed $run_count Alluxio tests"
     hr
-    #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     echo
