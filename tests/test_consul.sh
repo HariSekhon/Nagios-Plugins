@@ -50,8 +50,6 @@ test_consul(){
     local version="$1"
     section2 "Setting up Consul $version test container"
     hr
-    #local DOCKER_CMD="agent -dev -data-dir /tmp -client 0.0.0.0"
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $CONSUL_PORT
     VERSION="$version" docker-compose up -d
     export CONSUL_PORT="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT_DEFAULT" | sed 's/.*://'`"
     if [ -n "${NOTESTS:-}" ]; then
@@ -130,7 +128,6 @@ test_consul(){
     hr
     echo "Completed $run_count Consul tests"
     hr
-    #delete_container "$DOCKER_CONTAINER-dev"
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     echo
