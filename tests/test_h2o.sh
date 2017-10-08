@@ -66,6 +66,7 @@ test_h2o(){
     run $perl -T ./check_h2o_nodes_last_contact.pl
     hr
     echo "Completed $run_count H2O tests"
+    hr
     #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
