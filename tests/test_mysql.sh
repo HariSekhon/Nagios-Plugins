@@ -69,8 +69,6 @@ test_db(){
     name_lower="$(tr 'A-Z' 'a-z' <<< "$name")"
     local export COMPOSE_FILE="$srcdir/docker/$name_lower-docker-compose.yml"
     section2 "Setting up $name $version test container"
-    #local DOCKER_OPTS="-e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD"
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MYSQL_PORT
     VERSION="$version" docker-compose up -d
     local docker_container="$(docker-compose ps | sed -n '3s/ .*//p')"
     echo "determined docker container to be '$docker_container'"
@@ -142,7 +140,7 @@ test_db(){
     #$perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
     hr
     echo "Completed $run_count $name tests"
-    #delete_container
+    hr
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
