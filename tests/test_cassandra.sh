@@ -48,8 +48,6 @@ docker_exec(){
 test_cassandra(){
     local version="$1"
     section2 "Setting up Cassandra $version test container"
-    #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $CASSANDRA_PORT
     VERSION="$version" docker-compose up -d
     export CASSANDRA_PORT="`docker-compose port "$DOCKER_SERVICE" "$CASSANDRA_PORT_DEFAULT" | sed 's/.*://'`"
     export CASSANDRA_PORTS=`{ for x in $CASSANDRA_PORTS_DEFAULT; do  docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
@@ -102,7 +100,6 @@ test_cassandra(){
     hr
     echo "Completed $run_count Cassandra tests"
     hr
-    #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
