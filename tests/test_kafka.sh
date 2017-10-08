@@ -50,8 +50,6 @@ test_kafka(){
     local version="$1"
     section2 "Setting up Apache Kafka $version test container"
     hr
-    #local DOCKER_OPTS="-e ADVERTISED_HOSTNAME=$HOST"
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $KAFKA_PORT
     export ADVERTISED_HOSTNAME="$KAFKA_HOST"
     VERSION="$version" docker-compose up -d
     # not mapping kafka port any more
@@ -152,7 +150,6 @@ test_kafka(){
     hr
     echo "Completed $run_count Kafka tests"
     hr
-    #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     echo
