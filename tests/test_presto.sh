@@ -55,25 +55,22 @@ test_presto(){
     fi
     hr
     # presto service not found in list of endpoints initially even after it's come up
-    echo "./check_presto_version.py --expected \"$version(-t.\d+.\d+)?\""
-    ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
+    run ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
     hr
-    echo "./check_presto_coordinator.py"
-    ./check_presto_coordinator.py
+    run ./check_presto_coordinator.py
     hr
-    echo "./check_presto_environment.py --expected development"
-    ./check_presto_environment.py --expected development
+    run ./check_presto_environment.py --expected development
     hr
-    echo "./check_presto_nodes_failed.py"
-    ./check_presto_nodes_failed.py
+    run ./check_presto_nodes_failed.py
     hr
-    echo "./check_presto_num_queries.py"
-    ./check_presto_num_queries.py
+    run ./check_presto_num_queries.py
     hr
-    echo "./check_presto_state.py"
-    ./check_presto_state.py
+    run ./check_presto_state.py
+    hr
+    echo "Completed $run_count Presto tests"
     hr
     #delete_container
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
     echo
