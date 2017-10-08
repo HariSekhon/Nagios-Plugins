@@ -82,8 +82,7 @@ test_elasticsearch(){
         local version=".*"
     fi
     echo
-    echo "$perl -T ./check_elasticsearch.pl -v --es-version "$version""
-    $perl -T ./check_elasticsearch.pl -v --es-version "$version"
+    run $perl -T ./check_elasticsearch.pl -v --es-version "$version"
     hr
     # Listing checks return UNKNOWN
     set +e
@@ -98,88 +97,62 @@ test_elasticsearch(){
     #result=$?
     #[ $result = 3 ] || exit $result
     hr
-    echo "$perl -T ./check_elasticsearch_index_exists.pl --list-indices"
-    $perl -T ./check_elasticsearch_index_exists.pl --list-indices
+    run $perl -T ./check_elasticsearch_index_exists.pl --list-indices
     result=$?
     [ $result = 3 ] || exit $result
     set -e
     hr
-    echo "$perl -T ./check_elasticsearch_cluster_disk_balance.pl -v"
-    $perl -T ./check_elasticsearch_cluster_disk_balance.pl -v
+    run $perl -T ./check_elasticsearch_cluster_disk_balance.pl -v
     hr
-    echo "$perl -T ./check_elasticsearch_cluster_shards.pl -v"
-    $perl -T ./check_elasticsearch_cluster_shards.pl -v # --unassigned-shards 5,5 # travis now has 5 unassigned shards for some reason
+    run $perl -T ./check_elasticsearch_cluster_shards.pl -v # --unassigned-shards 5,5 # travis now has 5 unassigned shards for some reason
     hr
-    echo "$perl -T ./check_elasticsearch_cluster_shard_balance.pl -v"
-    $perl -T ./check_elasticsearch_cluster_shard_balance.pl -v
+    run $perl -T ./check_elasticsearch_cluster_shard_balance.pl -v
     hr
-    echo "$perl -T ./check_elasticsearch_cluster_stats.pl -v"
-    $perl -T ./check_elasticsearch_cluster_stats.pl -v
+    run $perl -T ./check_elasticsearch_cluster_stats.pl -v
     hr
-    set +e
-    echo "$perl -T ./check_elasticsearch_cluster_status.pl -v"
-    $perl -T ./check_elasticsearch_cluster_status.pl -v
     # travis has yellow status
-    result=$?
-    [ $result = 0 -o $result = 1 ] || exit $result
-    set -e
+    run_fail "0 1" $perl -T ./check_elasticsearch_cluster_status.pl -v
     hr
-    echo "$perl -T ./check_elasticsearch_cluster_status_nodes_shards.pl -v"
-    $perl -T ./check_elasticsearch_cluster_status_nodes_shards.pl -v
+    run $perl -T ./check_elasticsearch_cluster_status_nodes_shards.pl -v
     hr
-    echo "$perl -T ./check_elasticsearch_data_nodes.pl -w 1 -v"
-    $perl -T ./check_elasticsearch_data_nodes.pl -w 1 -v
+    run $perl -T ./check_elasticsearch_data_nodes.pl -w 1 -v
     hr
-    echo "$perl -T ./check_elasticsearch_doc_count.pl -v"
-    $perl -T ./check_elasticsearch_doc_count.pl -v
+    run $perl -T ./check_elasticsearch_doc_count.pl -v
     hr
     # _cat/fielddata API is no longer outputs lines for 0b fielddata nodes in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
-    echo "$perl -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v"
-    $perl -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
+    run $perl -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
     hr
-    echo "$perl -T ./check_elasticsearch_index_exists.pl -v"
-    $perl -T ./check_elasticsearch_index_exists.pl -v
+    run $perl -T ./check_elasticsearch_index_exists.pl -v
     hr
-    echo "$perl -T ./check_elasticsearch_index_age.pl -v -w 0:1"
-    $perl -T ./check_elasticsearch_index_age.pl -v -w 0:1
+    run $perl -T ./check_elasticsearch_index_age.pl -v -w 0:1
     #hr
-    #echo "perl -T ./check_elasticsearch_index_health.pl -v"
-    #perl -T ./check_elasticsearch_index_health.pl -v
+    #run perl -T ./check_elasticsearch_index_health.pl -v
     hr
-    echo "$perl -T ./check_elasticsearch_index_replicas.pl -w 0 -v"
-    $perl -T ./check_elasticsearch_index_replicas.pl -w 0 -v
+    run $perl -T ./check_elasticsearch_index_replicas.pl -w 0 -v
     hr
-    echo "$perl -T ./check_elasticsearch_index_settings.pl -v"
-    $perl -T ./check_elasticsearch_index_settings.pl -v
+    run $perl -T ./check_elasticsearch_index_settings.pl -v
     hr
-    echo "$perl -T ./check_elasticsearch_index_shards.pl -v"
-    $perl -T ./check_elasticsearch_index_shards.pl -v
+    run $perl -T ./check_elasticsearch_index_shards.pl -v
     hr
-    echo "$perl -T ./check_elasticsearch_index_stats.pl -v"
-    $perl -T ./check_elasticsearch_index_stats.pl -v
+    run $perl -T ./check_elasticsearch_index_stats.pl -v
     hr
-    echo "$perl -T ./check_elasticsearch_master_node.pl -v"
-    $perl -T ./check_elasticsearch_master_node.pl -v
+    run $perl -T ./check_elasticsearch_master_node.pl -v
     hr
-    echo "$perl -T ./check_elasticsearch_nodes.pl -v -w 1"
-    $perl -T ./check_elasticsearch_nodes.pl -v -w 1
+    run $perl -T ./check_elasticsearch_nodes.pl -v -w 1
     hr
-    echo "$perl -T ./check_elasticsearch_node_disk_percent.pl -N '$ELASTICSEARCH_NODE' -v -w 90 -c 95"
-    $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 90 -c 95
+    run $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 90 -c 95
     hr
-    echo "$perl -T ./check_elasticsearch_node_shards.pl -N '$ELASTICSEARCH_NODE' -v"
-    $perl -T ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
+    run $perl -T ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
     hr
-    echo "$perl -T ./check_elasticsearch_node_stats.pl -N '$ELASTICSEARCH_NODE' -v"
-    $perl -T ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
+    run $perl -T ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
     hr
-    echo "$perl -T ./check_elasticsearch_pending_tasks.pl -v"
-    $perl -T ./check_elasticsearch_pending_tasks.pl -v
+    run $perl -T ./check_elasticsearch_pending_tasks.pl -v
     hr
-    echo "$perl -T ./check_elasticsearch_shards_state_detail.pl -v"
-    $perl -T ./check_elasticsearch_shards_state_detail.pl -v
+    run $perl -T ./check_elasticsearch_shards_state_detail.pl -v
     hr
+    echo "Completed $run_count Elasticsearch tests"
     #delete_container
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
 }
 
