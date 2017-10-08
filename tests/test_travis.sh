@@ -24,79 +24,46 @@ cd "$srcdir/..";
 section "T r a v i s   C I"
 
 # this repo should always be working
-echo "./check_travis_ci_last_build.py -r HariSekhon/bash-tools"
-./check_travis_ci_last_build.py -r HariSekhon/bash-tools
+run ./check_travis_ci_last_build.py -r HariSekhon/bash-tools
 hr
-set +e
-echo "./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins"
-./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins
-check_exit_code 0 2
+run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins
 hr
 echo "check warning threshold to induce failure as builds should always take longer than 10 secs"
-echo "./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v -w 10"
-./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v -w 10
-check_exit_code 1 2
+run_fail "1 2" ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v -w 10
 hr
 echo "check critical threshold to induce failure as builds should always take longer than 10 secs"
-echo "./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v -c 10"
-./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v -c 10
-check_exit_code 2
+run_fail 2 ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v -c 10
 hr
-echo "./check_travis_ci_last_build.py -r HariSekhon/tools"
-./check_travis_ci_last_build.py -r HariSekhon/tools
-check_exit_code 0 2
+run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/tools
 hr
-echo "./check_travis_ci_last_build.py -r HariSekhon/spotify-tools"
-./check_travis_ci_last_build.py -r HariSekhon/spotify-tools
-check_exit_code 0 2
+run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/spotify-tools
 hr
-echo "./check_travis_ci_last_build.py -r HariSekhon/pytools"
-./check_travis_ci_last_build.py -r HariSekhon/pytools
-check_exit_code 0 2
+run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/pytools
 hr
-echo "./check_travis_ci_last_build.py -r HariSekhon/pylib"
-./check_travis_ci_last_build.py -r HariSekhon/pylib
-check_exit_code 0 2
+run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/pylib
 hr
-echo "./check_travis_ci_last_build.py -r HariSekhon/lib"
-./check_travis_ci_last_build.py -r HariSekhon/lib
-check_exit_code 0 2
+run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/lib
 hr
-echo "./check_travis_ci_last_build.py -r HariSekhon/lib-java"
-./check_travis_ci_last_build.py -r HariSekhon/lib-java
-check_exit_code 0 2
+run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/lib-java
 hr
-echo "./check_travis_ci_last_build.py -r HariSekhon/nagios-plugin-kafka"
-./check_travis_ci_last_build.py -r HariSekhon/nagios-plugin-kafka
-check_exit_code 0 2
+run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugin-kafka
 hr
-echo "./check_travis_ci_last_build.py -r HariSekhon/spark-apps"
-./check_travis_ci_last_build.py -r HariSekhon/spark-apps
-check_exit_code 0 2
+run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/spark-apps
 hr
 echo "checking no builds returned:"
-echo "./check_travis_ci_last_build.py -r harisekhon/nagios-plugins -v"
-./check_travis_ci_last_build.py -r harisekhon/nagios-plugins -v
-check_exit_code 3
+run_fail 3 ./check_travis_ci_last_build.py -r harisekhon/nagios-plugins -v
 hr
 echo "checking wrong repo name/format:"
-echo "./check_travis_ci_last_build.py -r test -v"
-./check_travis_ci_last_build.py -r test -v
-check_exit_code 3
+run_fail 3 ./check_travis_ci_last_build.py -r test -v
 hr
-echo "./check_travis_ci_last_build.py -r harisekhon/ -v"
-./check_travis_ci_last_build.py -r harisekhon/ -v
-check_exit_code 3
+run_fail 3 ./check_travis_ci_last_build.py -r harisekhon/ -v
 hr
-echo "./check_travis_ci_last_build.py -r /nagios-plugins -v"
-./check_travis_ci_last_build.py -r /nagios-plugins -v
-check_exit_code 3
+run_fail 3 ./check_travis_ci_last_build.py -r /nagios-plugins -v
 hr
 echo "checking nonexistent repo:"
-echo "./check_travis_ci_last_build.py -r nonexistent/repo -v"
-./check_travis_ci_last_build.py -r nonexistent/repo -v
-check_exit_code 3
+run_fail 3 ./check_travis_ci_last_build.py -r nonexistent/repo -v
 hr
+echo "Completed $run_count Travis CI tests"
 echo
 echo "All Travis CI tests passed successfully"
 echo
