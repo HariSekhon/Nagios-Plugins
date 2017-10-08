@@ -40,6 +40,7 @@ trap_debug_env apache_drill
 
 test_apache_drill(){
     local version="$1"
+    run_count=0
     hr
     section2 "Setting up Apache Drill $version test container"
     hr
@@ -73,13 +74,13 @@ test_apache_drill(){
     hr
     #./check_apache_drill_version.py -v -e "$version"
     hr
-    echo "./check_apache_drill_status.py -v"
-    ./check_apache_drill_status.py -v
+    run ./check_apache_drill_status.py -v
     hr
-    echo "$perl -T ./check_apache_drill_metrics.pl -v"
-    $perl -T ./check_apache_drill_metrics.pl -v
+    run $perl -T ./check_apache_drill_metrics.pl -v
     hr
-    #delete_container "$DOCKER_CONTAINER2"
+    echo "Completed $run_count Apache Drill tests"
+    #delete_container
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     echo
 }
