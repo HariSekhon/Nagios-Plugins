@@ -66,7 +66,6 @@ test_mariadb(){
 test_db(){
     local name="$1"
     local version="$2"
-    run_count=0
     name_lower="$(tr 'A-Z' 'a-z' <<< "$name")"
     local export COMPOSE_FILE="$srcdir/docker/$name_lower-docker-compose.yml"
     section2 "Setting up $name $version test container"
