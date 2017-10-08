@@ -103,6 +103,7 @@ EOF
         hr
     fi
     echo "Completed $run_count Linux tests"
+    hr
     #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
