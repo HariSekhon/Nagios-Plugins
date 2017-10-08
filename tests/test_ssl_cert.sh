@@ -23,23 +23,13 @@ cd "$srcdir/..";
 
 section "S S L   C e r t"
 
-echo "$perl -T ./check_ssl_cert.pl -H www.google.com -d www.google.com -w 2 -c 1 -v"
-$perl -T ./check_ssl_cert.pl -H www.google.com -d www.google.com -w 2 -c 1 -v # -t 20
+run $perl -T ./check_ssl_cert.pl -H www.google.com -d www.google.com -w 2 -c 1 -v # -t 20
 hr
-set +e
-echo "$perl -T ./check_ssl_cert.pl -H www.google.com -d wrongdomain.com -w 2 -c 1 -v"
-$perl -T ./check_ssl_cert.pl -H www.google.com -d wrongdomain.com -w 2 -c 1 -v # -t 20
-check_exit_code 2
-set -e
+run_fail 2 $perl -T ./check_ssl_cert.pl -H www.google.com -d wrongdomain.com -w 2 -c 1 -v # -t 20
 hr
-echo "$perl -T ./check_ssl_cert.pl -H signin.ebay.com --domain signin.ebay.com --subject-alternative-name signin.ebay.co.uk,signin.ebay.de -w 2 -c 1 -v"
-$perl -T ./check_ssl_cert.pl -H signin.ebay.com --domain signin.ebay.com --subject-alternative-name signin.ebay.co.uk,signin.ebay.de -w 2 -c 1 -v # -t 20
+run $perl -T ./check_ssl_cert.pl -H signin.ebay.com --domain signin.ebay.com --subject-alternative-name signin.ebay.co.uk,signin.ebay.de -w 2 -c 1 -v # -t 20
 hr
-set +e
-echo "$perl -T ./check_ssl_cert.pl -H signin.ebay.com -d signin.ebay.com --subject-alternative-name nonexistent.co.uk -w 2 -c 1 -v"
-$perl -T ./check_ssl_cert.pl -H signin.ebay.com -d signin.ebay.com --subject-alternative-name nonexistent.co.uk -w 2 -c 1 -v # -t 20
-check_exit_code 2
-set -e
+run_fail 2 $perl -T ./check_ssl_cert.pl -H signin.ebay.com -d signin.ebay.com --subject-alternative-name nonexistent.co.uk -w 2 -c 1 -v # -t 20
 hr
 echo
 echo "All SSL Cert tests passed successfully"
