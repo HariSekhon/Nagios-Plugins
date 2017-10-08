@@ -61,6 +61,7 @@ test_memcached(){
     run $perl -T ./check_memcached_stats.pl -w 15 -c 20 -v
     hr
     echo "Completed $run_count Memcached tests"
+    hr
     #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
