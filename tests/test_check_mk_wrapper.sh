@@ -25,35 +25,25 @@ section "C h e c k   M K   W r a p p e r"
 
 # Try to make these local tests with no dependencies for simplicity
 
-echo "./check_mk_wrapper.py --name 'basic test' echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^0 '"
-./check_mk_wrapper.py --name 'basic test' echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^0 '
+run ./check_mk_wrapper.py --name 'basic test' echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^0 '
 hr
-echo "./check_mk_wrapper.py -n 'basic test result' --shell --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000 | tee /dev/stderr | grep -q '^0 '"
-./check_mk_wrapper.py -n 'basic test result' --shell --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000 | tee /dev/stderr | grep -q '^0 '
+run ./check_mk_wrapper.py -n 'basic test result' --shell --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000 | tee /dev/stderr | grep -q '^0 '
 hr
-echo "./check_mk_wrapper.py -n 'basic test result trailing args' --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000 --shell | tee /dev/stderr | grep -q '^0 '"
-./check_mk_wrapper.py -n 'basic test result trailing args' --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000 --shell | tee /dev/stderr | grep -q '^0 '
+run ./check_mk_wrapper.py -n 'basic test result trailing args' --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000 --shell | tee /dev/stderr | grep -q '^0 '
 hr
-echo "./check_mk_wrapper.py -n 'basic test result 1' --result 1 'test 1 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^1 '"
-./check_mk_wrapper.py -n 'basic test result 1' --result 1 'test 1 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^1 '
+run ./check_mk_wrapper.py -n 'basic test result 1' --result 1 'test 1 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^1 '
 hr
-echo "./check_mk_wrapper.py -n 'basic test result 2' --result 2 'test 2 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^2 '"
-./check_mk_wrapper.py -n 'basic test result 2' --result 2 'test 2 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^2 '
+run ./check_mk_wrapper.py -n 'basic test result 2' --result 2 'test 2 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^2 '
 hr
-echo "./check_mk_wrapper.py -n 'basic test result 3' --result 3 'test 3 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^3 '"
-./check_mk_wrapper.py -n 'basic test result 3' --result 3 'test 3 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^3 '
+run ./check_mk_wrapper.py -n 'basic test result 3' --result 3 'test 3 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^3 '
 hr
-echo "./check_mk_wrapper.py -n 'basic test result 4' --result 4 'test 4 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^4 '"
-./check_mk_wrapper.py -n 'basic test result 4' --result 4 'test 4 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^4 '
+run ./check_mk_wrapper.py -n 'basic test result 4' --result 4 'test 4 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000' | tee /dev/stderr | grep -q '^4 '
 hr
-echo "./check_mk_wrapper.py -n 'basic shell test' --shell "echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'" | tee /dev/stderr | grep -q '^0 '"
-./check_mk_wrapper.py -n 'basic shell test' --shell "echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'" | tee /dev/stderr | grep -q '^0 '
+run ./check_mk_wrapper.py -n 'basic shell test' --shell "echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'" | tee /dev/stderr | grep -q '^0 '
 hr
-echo "./check_mk_wrapper.py $perl -T ./check_disk_write.pl -d ."
-./check_mk_wrapper.py $perl -T ./check_disk_write.pl -d .
+run ./check_mk_wrapper.py $perl -T ./check_disk_write.pl -d .
 hr
-echo "./check_mk_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b \"$(git branch | awk '/^\*/{print $2}')\""
-./check_mk_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^\*/{print $2}')"
+run ./check_mk_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^\*/{print $2}')"
 hr
 echo "testing stripping of numbered Python interpreter"
 if which python2.7 &>/dev/null; then
@@ -63,50 +53,37 @@ elif which python2.6 &>/dev/null; then
 else
     python=python
 fi
-echo "./check_mk_wrapper.py $python ./check_git_branch_checkout.py -d . -b "$(git branch | awk '/^\*/{print $2}')" | tee /dev/stderr | grep -q '^0 check_git_branch_checkout.py'"
-./check_mk_wrapper.py $python ./check_git_branch_checkout.py -d . -b "$(git branch | awk '/^\*/{print $2}')" | tee /dev/stderr | grep -q '^0 check_git_branch_checkout.py'
+run ./check_mk_wrapper.py $python ./check_git_branch_checkout.py -d . -b "$(git branch | awk '/^\*/{print $2}')" | tee /dev/stderr | grep -q '^0 check_git_branch_checkout.py'
 hr
 echo "Testing failure detection of wrong git branch (perl)"
-echo "./check_mk_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch | tee /dev/stderr | grep -q '^2 check_git_branch_checkout.pl '"
-./check_mk_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch | tee /dev/stderr | grep -q '^2 check_git_branch_checkout.pl '
+run ./check_mk_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch | tee /dev/stderr | grep -q '^2 check_git_branch_checkout.pl '
 hr
 echo "Testing failure detection of wrong git branch (python)"
-echo "./check_mk_wrapper.py python ./check_git_branch_checkout.py -d . -b nonexistentbranch | tee /dev/stderr | grep -q '^2 check_git_branch_checkout.py '"
-./check_mk_wrapper.py python ./check_git_branch_checkout.py -d . -b nonexistentbranch | tee /dev/stderr | grep -q '^2 check_git_branch_checkout.py '
+run ./check_mk_wrapper.py python ./check_git_branch_checkout.py -d . -b nonexistentbranch | tee /dev/stderr | grep -q '^2 check_git_branch_checkout.py '
 hr
 echo test > test.txt
-echo "./check_mk_wrapper.py $perl -T ./check_file_md5.pl -f test.txt -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'"
-./check_mk_wrapper.py $perl -T ./check_file_md5.pl -f test.txt -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
+run ./check_mk_wrapper.py $perl -T ./check_file_md5.pl -f test.txt -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
 hr
-echo "./check_mk_wrapper.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)""
-./check_mk_wrapper.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
+run ./check_mk_wrapper.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
 hr
 echo "Testing induced failures"
 hr
 # should return zero exit code regardless but raise non-OK statuses in STATUS field
-echo "./check_mk_wrapper.py --shell exit 0 | tee /dev/stderr | grep -q '^0 '"
-./check_mk_wrapper.py --shell exit 0 | tee /dev/stderr | grep -q '^0 '
+run ./check_mk_wrapper.py --shell exit 0 | tee /dev/stderr | grep -q '^0 '
 hr
-echo "./check_mk_wrapper.py --shell exit 1 | tee /dev/stderr | grep -q '^1 '"
-./check_mk_wrapper.py --shell exit 1 | tee /dev/stderr | grep -q '^1 '
+run ./check_mk_wrapper.py --shell exit 1 | tee /dev/stderr | grep -q '^1 '
 hr
-echo "./check_mk_wrapper.py --shell exit 2 | tee /dev/stderr | grep -q '^2 '"
-./check_mk_wrapper.py --shell exit 2 | tee /dev/stderr | grep -q '^2 '
+run ./check_mk_wrapper.py --shell exit 2 | tee /dev/stderr | grep -q '^2 '
 hr
-echo "./check_mk_wrapper.py --shell exit 3 | tee /dev/stderr | grep -q '^3 '"
-./check_mk_wrapper.py --shell exit 3 | tee /dev/stderr | grep -q '^3 '
+run ./check_mk_wrapper.py --shell exit 3 | tee /dev/stderr | grep -q '^3 '
 hr
-echo "./check_mk_wrapper.py --shell exit 5 | tee /dev/stderr | grep -q '^3 '"
-./check_mk_wrapper.py --shell exit 5 | tee /dev/stderr | grep -q '^3 '
+run ./check_mk_wrapper.py --shell exit 5 | tee /dev/stderr | grep -q '^3 '
 hr
-echo "./check_mk_wrapper.py nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q '^3 '"
-./check_mk_wrapper.py nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q '^3 '
+run ./check_mk_wrapper.py nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q '^3 '
 hr
-echo "./check_mk_wrapper.py --shell nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q '^3 '"
-./check_mk_wrapper.py --shell nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q '^3 '
+run ./check_mk_wrapper.py --shell nonexistentcommand arg1 arg2 | tee /dev/stderr | grep -q '^3 '
 hr
-echo "./check_mk_wrapper.py $perl -T check_disk_write.pl --help | tee /dev/stderr | grep -q '^3 '"
-./check_mk_wrapper.py $perl -T check_disk_write.pl --help | tee /dev/stderr | grep -q '^3 '
+run ./check_mk_wrapper.py $perl -T check_disk_write.pl --help | tee /dev/stderr | grep -q '^3 '
 hr
 echo
 echo "All Check_MK wrapper tests passed succesfully"
