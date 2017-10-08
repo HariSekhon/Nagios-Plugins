@@ -22,7 +22,7 @@ Tested on MySQL 5.0, 5.1, 5.5, 5.6, 5.7, 8.0 and MariaDB 5.5, 10.1, 10.2, 10.3
 
 # TODO: add retry switch if valid below threshold
 
-$VERSION = "1.1.6";
+$VERSION = "1.1.7";
 
 use strict;
 use warnings;
@@ -165,17 +165,29 @@ sub execute_query{
     my $result;
     if($field =~ /^\d+$/){
         my @data = $sth->fetchrow_array();
-        # TODO: better formatting
-        print "result row:  " if ($verbose >= 3);
-        foreach(@data){
-            print "$_ " if ($_ and $verbose >= 3);
+        if ($verbose >= 3){
+            # Data::Dumper makes this ugly as it dumps this out to dozens of lines of $VAR<N> = 'Y';
+            # deferred import of Data::Dumper to here so you don't need to have Data::Dumper installed if not running in debug mode / verbose >= 3
+            use Data::Dumper;
+            vlog3 "Result Row array:\n" . Dumper(@data);
+            # looks nicer and more concise but not as clear in quickly determining field numbers
+            #my $row_str = "Result row:  ";
+            #vlog3 "Result row:  " . Dumper(@data);
+            #foreach(@data){
+            #    $row_str .= "$_ " if $_;
+            #}
+            #vlog3 $row_str
         }
-        print "\n" if ($verbose >= 3);
         defined($data[$field-1]) or quit "CRITICAL", "couldn't find field $field in result from query \"$sql\"";
         $result = $data[$field-1];
     } else {
         my $data;
         $data = $sth->fetchrow_hashref();
+        if($verbose >= 3){
+            # deferred import of Data::Dumper to here so you don't need to have Data::Dumper installed if not running in debug mode / verbose >= 3
+            use Data::Dumper;
+            vlog3 "Result Row:  " . Dumper($data);
+        }
         unless(defined($$data{$field})){
             my $errstr = "couldn't find '$field' field in result from query \"$sql\" (fields returned: ";
             foreach(sort keys %$data){
