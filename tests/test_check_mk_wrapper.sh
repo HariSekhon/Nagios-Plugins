@@ -85,6 +85,7 @@ run ./check_mk_wrapper.py --shell nonexistentcommand arg1 arg2 | tee /dev/stderr
 hr
 run ./check_mk_wrapper.py $perl -T check_disk_write.pl --help | tee /dev/stderr | grep -q '^3 '
 hr
+echo "Completed $run_count Check_MK wrapper tests"
 echo
 echo "All Check_MK wrapper tests passed succesfully"
 echo
