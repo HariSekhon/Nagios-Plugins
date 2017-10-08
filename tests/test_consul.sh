@@ -104,7 +104,6 @@ test_consul(){
     hr
     run ./check_consul_write.py -v
     hr
-    #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     echo
@@ -114,7 +113,6 @@ test_consul(){
     hr
     #local DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
     #local DOCKER_CMD=""
-    #launch_container "$DOCKER_IMAGE-dev:$version" "$DOCKER_CONTAINER-dev"
     local DOCKER_SERVICE="$DOCKER_SERVICE-dev"
     local COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-docker-compose.yml"
     VERSION="$version" docker-compose up -d
