@@ -39,8 +39,7 @@ check_docker_available
 trap_debug_env zookeeper
 
 docker_exec(){
-    echo "docker-compose exec '$DOCKER_SERVICE' $MNTDIR/$@"
-    docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
+    run docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
 }
 
 startupwait 10
@@ -48,17 +47,8 @@ startupwait 10
 test_zookeeper(){
     local version="$1"
     section2 "Setting up ZooKeeper $version test container"
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $ZOOKEEPER_PORTS
-    #docker cp "$DOCKER_CONTAINER":/zookeeper/conf/zoo.cfg .
-    #hr
-    #echo "Setting up nagios-plugins test container with zkperl library"
-    #local DOCKER_OPTS="--link $DOCKER_CONTAINER:zookeeper -v $PWD:$MNTDIR"
-    #local DOCKER_CMD="tail -f /dev/null"
-    #launch_container "$DOCKER_IMAGE2" "$DOCKER_CONTAINER2"
-    #docker cp zoo.cfg "$DOCKER_CONTAINER2":"$MNTDIR/"
     VERSION="$version" docker-compose up -d
     export ZOOKEEPER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT_DEFAULT" | sed 's/.*://'`"
-    #local DOCKER_CONTAINER="$(docker-compose ps | sed -n '3s/ .*/p')"
     when_ports_available "$startupwait" "$ZOOKEEPER_HOST" "$ZOOKEEPER_PORT"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
@@ -68,28 +58,23 @@ test_zookeeper(){
         expected_version=".*"
     fi
     hr
-    echo "./check_zookeeper_version.py -e "$expected_version""
-    ./check_zookeeper_version.py -e "$expected_version"
+    run ./check_zookeeper_version.py -e "$expected_version"
     hr
     if [ "${version:0:3}" = "3.3" ]; then
-        echo "$perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v || :"
-        $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v || :
+        run $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v || :
     else
-        echo "$perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v"
-        $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
+        run $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
     fi
     hr
-    echo "docker_exec check_zookeeper_config.pl -H localhost -C '/zookeeper/conf/zoo.cfg' -v"
     docker_exec check_zookeeper_config.pl -H localhost -C "/zookeeper/conf/zoo.cfg" -v
     hr
-    echo "docker_exec check_zookeeper_child_znodes.pl -H localhost -z / --no-ephemeral-check -v"
     docker_exec check_zookeeper_child_znodes.pl -H localhost -z / --no-ephemeral-check -v
     hr
-    echo "docker_exec check_zookeeper_znode.pl -H localhost -z / -v -n --child-znodes"
     docker_exec check_zookeeper_znode.pl -H localhost -z / -v -n --child-znodes
     hr
-
-    #delete_container "$DOCKER_CONTAINER"
+    echo "Completed $run_count ZooKeeper tests"
+    hr
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
 }
 
