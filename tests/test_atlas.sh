@@ -48,8 +48,6 @@ hr
 when_url_content "$ATLAS_HOST:$ATLAS_PORT" atlas
 hr
 
-run_count=0
-
 # Sandbox often has some broken stuff, we're testing the code works, not the cluster
 #[ "$ATLAS_CLUSTER" = "$SANDBOX_CLUSTER" ] && set +e
 #echo "testing Atlas server $ATLAS_HOST"
