@@ -49,8 +49,7 @@ check_docker_available
 trap_debug_env solr zookeeper
 
 docker_exec(){
-    echo "docker-compose exec '$DOCKER_SERVICE' $MNTDIR/$@"
-    docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
+    run docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
 }
 
 test_solrcloud(){
@@ -89,8 +88,7 @@ test_solrcloud(){
         local version=".*"
     fi
     hr
-    echo "./check_solr_version.py -e '$version'"
-    ./check_solr_version.py -e "$version"
+    run ./check_solr_version.py -e "$version"
     hr
     #echo "sleeping for 20 secs to allow SolrCloud shard state to settle"
     #sleep 20
@@ -99,8 +97,7 @@ test_solrcloud(){
         $perl -T ./check_solrcloud_cluster_status.pl -v && break
         sleep 1
     done
-    echo "$perl -T ./check_solrcloud_cluster_status.pl -v"
-    $perl -T ./check_solrcloud_cluster_status.pl -v
+    run $perl -T ./check_solrcloud_cluster_status.pl -v
     hr
     docker_exec check_solrcloud_cluster_status_zookeeper.pl -H localhost -P 9983 -b / -v
     hr
@@ -116,14 +113,12 @@ test_solrcloud(){
     fi
     hr
     # FIXME: why is only 1 node up instead of 2
-    echo "$perl -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v"
-    $perl -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
+    run $perl -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
     hr
     docker_exec check_solrcloud_live_nodes_zookeeper.pl -H localhost -P 9983 -b / -w 1 -c 1 -v
     hr
     # docker is running slow
-    echo "$perl -T ./check_solrcloud_overseer.pl -t 60 -v"
-    $perl -T ./check_solrcloud_overseer.pl -t 60 -v
+    run $perl -T ./check_solrcloud_overseer.pl -t 60 -v
     hr
     docker_exec check_solrcloud_overseer_zookeeper.pl -H localhost -P 9983 -b / -v
     hr
@@ -142,7 +137,9 @@ test_solrcloud(){
         docker_exec check_zookeeper_config.pl -H localhost -P 9983 -C "$SOLR_HOME/example/cloud/node1/solr/zoo.cfg" --no-warn-extra -v
     fi
     hr
-    #delete_container
+    echo "Completed $run_count SolrCloud tests"
+    hr
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
     echo
