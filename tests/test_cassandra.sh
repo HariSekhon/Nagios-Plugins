@@ -42,8 +42,7 @@ trap_debug_env cassandra
 
 docker_exec(){
     #docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
-    echo "docker-compose exec $DOCKER_SERVICE $MNTDIR/$@"
-    docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
+    run docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
 }
 
 test_cassandra(){
@@ -101,7 +100,9 @@ test_cassandra(){
     hr
     docker_exec check_cassandra_tpstats.pl --nodetool /cassandra/bin/nodetool -v
     hr
+    echo "Completed $run_count Cassandra tests"
     #delete_container
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
     echo
