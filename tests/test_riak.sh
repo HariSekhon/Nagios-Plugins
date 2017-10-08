@@ -42,8 +42,7 @@ check_docker_available
 trap_debug_env riak
 
 docker_exec(){
-    echo "docker-compose exec --user riak '$DOCKER_SERVICE' $MNTDIR/$@"
-    docker-compose exec --user riak "$DOCKER_SERVICE" $MNTDIR/$@
+    run docker-compose exec --user riak "$DOCKER_SERVICE" $MNTDIR/$@
 }
 
 startupwait 20
@@ -80,36 +79,30 @@ test_riak(){
         $perl -T check_riak_diag.pl --ignore-warnings -v || :
     fi
     hr
-    echo "$perl -T check_riak_key.pl -b myBucket -k myKey -e hari -v"
-    $perl -T check_riak_key.pl -b myBucket -k myKey -e hari -v
+    run $perl -T check_riak_key.pl -b myBucket -k myKey -e hari -v
     hr
     docker_exec check_riak_member_status.pl -v
     hr
     docker_exec check_riak_ringready.pl -v
     hr
-    echo "$perl -T check_riak_stats.pl --all -v"
-    $perl -T check_riak_stats.pl --all -v
+    run $perl -T check_riak_stats.pl --all -v
     hr
-    echo "$perl -T check_riak_stats.pl -s ring_num_partitions -c 64:64 -v"
-    $perl -T check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
+    run $perl -T check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
     hr
     if [ "${version:0:1}" != 1 ]; then
-        echo "$perl -T check_riak_stats.pl -s disk.0.size -c 1024: -v"
-        $perl -T check_riak_stats.pl -s disk.0.size -c 1024: -v
+        run $perl -T check_riak_stats.pl -s disk.0.size -c 1024: -v
     fi
     hr
-    echo "$perl -T check_riak_write.pl -v"
-    $perl -T check_riak_write.pl -v
+    run $perl -T check_riak_write.pl -v
     hr
     docker_exec check_riak_write_local.pl -v
     hr
-    echo "$perl -T check_riak_version.pl -v"
-    $perl -T check_riak_version.pl -v
-
+    run $perl -T check_riak_version.pl -v
+    hr
+    echo "Completed $run_count Riak tests"
+    hr
     echo
-    #echo -n "Deleting container "
-    #docker rm -f "$DOCKER_CONTAINER"
-    #sleep 1
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     echo
     hr
