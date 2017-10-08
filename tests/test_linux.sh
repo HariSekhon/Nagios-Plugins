@@ -42,9 +42,6 @@ test_linux(){
     local distro="$1"
     local version="$2"
     section2 "Setting up Linux $distro $version test container"
-    #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
-    #DOCKER_CMD="tail -f /dev/null"
-    #launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
     export SERVICE="nagiosplugins_$distro-github_1"
     export COMPOSE_FILE="$srcdir/docker/$distro-github-docker-compose.yml"
     VERSION="$version" docker-compose up -d
@@ -104,7 +101,6 @@ EOF
     fi
     echo "Completed $run_count Linux tests"
     hr
-    #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     echo
