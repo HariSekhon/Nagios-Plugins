@@ -45,7 +45,6 @@ test_h2o(){
     hr
     section2 "Setting up H2O $version test container"
     hr
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $H2O_PORT
     VERSION="$version" docker-compose up -d
     export H2O_PORT="`docker-compose port "$DOCKER_SERVICE" "$H2O_PORT_DEFAULT" | sed 's/.*://'`"
     if [ -n "${NOTESTS:-}" ]; then
@@ -67,7 +66,6 @@ test_h2o(){
     hr
     echo "Completed $run_count H2O tests"
     hr
-    #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
 }
