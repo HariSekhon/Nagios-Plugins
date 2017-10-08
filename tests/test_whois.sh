@@ -51,7 +51,7 @@ if ! which jwhois &>/dev/null || is_mac; then
     echo "jwhois not found in \$PATH, attempting to use Dockerized test instead"
     launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
     docker exec -ti "$DOCKER_CONTAINER" ls -l /pl
-    check_whois="docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/check_whois.pl"
+    check_whois="run docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/check_whois.pl"
     using_docker=1
 fi
 
@@ -265,9 +265,11 @@ for domain in $domains_no_nameservers; do
 done
 
 if [ -n "$using_docker" ]; then
+    [ -n "${KEEPDOCKER:-}" ] ||
     delete_container
 fi
 
+echo "Completed $run_count Whois tests"
 echo
 echo "All Whois tests passed successfully"
 echo
