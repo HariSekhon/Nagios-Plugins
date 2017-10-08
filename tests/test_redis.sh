@@ -48,8 +48,6 @@ trap_debug_env redis
 test_redis(){
     local version="$1"
     section2 "Setting up Redis $version test container"
-    #DOCKER_OPTS="--requirepass $REDIS_PASSWORD"
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $REDIS_PORT
     VERSION="$version" docker-compose up -d
     export REDIS_PORT="`docker-compose port "$DOCKER_SERVICE" "$REDIS_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$REDIS_HOST" "$REDIS_PORT"
@@ -97,7 +95,6 @@ test_redis(){
     hr
     echo "Completed $run_count Redis tests"
     hr
-    #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
