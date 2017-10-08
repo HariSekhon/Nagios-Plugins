@@ -47,7 +47,6 @@ test_spark(){
     hr
     section2 "Setting up Spark $version test container"
     hr
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $SPARK_MASTER_PORT $SPARK_WORKER_PORT
     docker-compose down &>/dev/null
     VERSION="$version" docker-compose up -d
     export SPARK_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$SPARK_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
@@ -60,11 +59,9 @@ test_spark(){
         local version=".*"
     fi
     hr
-    echo "./check_spark_master_version.py -e '$version'"
-    ./check_spark_master_version.py -e "$version"
+    run ./check_spark_master_version.py -e "$version"
     hr
-    echo "./check_spark_worker_version.py -e '$version'"
-    ./check_spark_worker_version.py -e "$version"
+    run ./check_spark_worker_version.py -e "$version"
     hr
     echo "trying check_spark_cluster.pl up to 10 times to give cluster worker a chance to initialize:"
     set +e
@@ -75,19 +72,17 @@ test_spark(){
     done
     set -e
     hr
-    echo "$perl -T ./check_spark_cluster.pl -c 1: -v"
-    $perl -T ./check_spark_cluster.pl -c 1: -v
+    run $perl -T ./check_spark_cluster.pl -c 1: -v
     hr
-    echo "$perl -T ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v"
-    $perl -T ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v
+    run $perl -T ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v
     hr
-    echo "$perl -T ./check_spark_cluster_memory.pl -w 80 -c 90 -v"
-    $perl -T ./check_spark_cluster_memory.pl -w 80 -c 90 -v
+    run $perl -T ./check_spark_cluster_memory.pl -w 80 -c 90 -v
     hr
-    echo "$perl -T ./check_spark_worker.pl -w 80 -c 90 -v"
-    $perl -T ./check_spark_worker.pl -w 80 -c 90 -v
+    run $perl -T ./check_spark_worker.pl -w 80 -c 90 -v
     hr
-    #delete_container
+    echo "Completed $run_count Spark tests"
+    hr
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
     echo
