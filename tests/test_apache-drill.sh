@@ -78,6 +78,7 @@ test_apache_drill(){
     run $perl -T ./check_apache_drill_metrics.pl -v
     hr
     echo "Completed $run_count Apache Drill tests"
+    hr
     #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
