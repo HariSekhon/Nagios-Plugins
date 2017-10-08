@@ -89,6 +89,7 @@ test_mesos(){
     run $perl -T ./check_mesos_slave_state.pl -v
     hr
     echo "Completed $run_count Mesos tests"
+    hr
     #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
