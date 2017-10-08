@@ -151,6 +151,7 @@ test_elasticsearch(){
     run $perl -T ./check_elasticsearch_shards_state_detail.pl -v
     hr
     echo "Completed $run_count Elasticsearch tests"
+    hr
     #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
