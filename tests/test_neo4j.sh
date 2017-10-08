@@ -82,23 +82,24 @@ test_neo4j_noauth(){
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
-    $perl -T ./check_neo4j_version.pl -v -e "^$version"
+    run $perl -T ./check_neo4j_version.pl -v -e "^$version"
     hr
-    $perl -T ./check_neo4j_readonly.pl -v
+    run $perl -T ./check_neo4j_readonly.pl -v
     # TODO: SSL checks
-    #$perl -T ./check_neo4j_readonly.pl -v -S -P 7473
+    #run $perl -T ./check_neo4j_readonly.pl -v -S -P 7473
     hr
-    $perl -T ./check_neo4j_remote_shell_enabled.pl -v
+    run $perl -T ./check_neo4j_remote_shell_enabled.pl -v
     hr
-    $perl -T ./check_neo4j_stats.pl -v
+    run $perl -T ./check_neo4j_stats.pl -v
     hr
     # TODO: why is this zero and not one??
-    $perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v
+    run $perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v
     hr
     # Neo4J on Travis doesn't seem to return anything resulting in "'attributes' field not returned by Neo4J" error
-    $perl -T ./check_neo4j_store_sizes.pl -v
+    run $perl -T ./check_neo4j_store_sizes.pl -v
     hr
     #delete_container
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
     echo
@@ -124,27 +125,22 @@ test_neo4j_auth(){
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
-    echo "$perl -T ./check_neo4j_version.pl -v -e '^$version'"
-    $perl -T ./check_neo4j_version.pl -v -e "^$version"
+    run $perl -T ./check_neo4j_version.pl -v -e "^$version"
     hr
-    echo "$perl -T ./check_neo4j_readonly.pl -v"
-    $perl -T ./check_neo4j_readonly.pl -v
+    run $perl -T ./check_neo4j_readonly.pl -v
     hr
-    echo "$perl -T ./check_neo4j_remote_shell_enabled.pl -v"
-    $perl -T ./check_neo4j_remote_shell_enabled.pl -v
+    run $perl -T ./check_neo4j_remote_shell_enabled.pl -v
     hr
-    echo "$perl -T ./check_neo4j_stats.pl -v"
-    $perl -T ./check_neo4j_stats.pl -v
+    run $perl -T ./check_neo4j_stats.pl -v
     hr
     # TODO: why is this zero and not one??
-    echo "$perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v"
-    $perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v
+    run $perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v
     hr
     # Neo4J on Travis doesn't seem to return anything resulting in "'attributes' field not returned by Neo4J" error
-    echo "$perl -T ./check_neo4j_store_sizes.pl -v"
-    $perl -T ./check_neo4j_store_sizes.pl -v
+    run $perl -T ./check_neo4j_store_sizes.pl -v
     hr
     #delete_container "$DOCKER_CONTAINER-auth"
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
     echo
@@ -154,6 +150,7 @@ test_neo4j(){
     local version="$1"
     test_neo4j_noauth "$version"
     test_neo4j_auth   "$version"
+    echo "Completed $run_count Neo4J tests"
 }
 
 run_test_versions Neo4J
