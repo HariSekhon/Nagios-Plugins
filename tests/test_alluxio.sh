@@ -41,6 +41,7 @@ trap_debug_env alluxio
 
 test_alluxio(){
     local version="$1"
+    run_count=0
     hr
     section2 "Setting up Alluxio $version test container"
     hr
@@ -62,26 +63,22 @@ test_alluxio(){
         sleep 1
     done
     hr
-    echo "./check_alluxio_master_version.py -v -e $version"
-    ./check_alluxio_master_version.py -v -e "$version"
+    run ./check_alluxio_master_version.py -v -e "$version"
     hr
-    echo "echo ./check_alluxio_worker_version.py -v -e $version"
-    ./check_alluxio_worker_version.py -v -e "$version"
+    run ./check_alluxio_worker_version.py -v -e "$version"
     hr
-    echo "./check_alluxio_master.py -v"
-    ./check_alluxio_master.py -v
+    run ./check_alluxio_master.py -v
     hr
     #docker exec -ti "$DOCKER_CONTAINER" ps -ef
-    echo "./check_alluxio_worker.py -v"
-    ./check_alluxio_worker.py -v
+    run ./check_alluxio_worker.py -v
     hr
-    echo "./check_alluxio_running_workers.py -v"
-    ./check_alluxio_running_workers.py -v
+    run ./check_alluxio_running_workers.py -v
     hr
-    echo "./check_alluxio_dead_workers.py -v"
-    ./check_alluxio_dead_workers.py -v
+    run ./check_alluxio_dead_workers.py -v
     hr
+    echo "Completed $run_count Alluxio tests"
     #delete_container
+    [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     echo
 }
