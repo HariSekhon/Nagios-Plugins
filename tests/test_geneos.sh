@@ -75,6 +75,7 @@ run_grep '^UNKNOWN' geneos_wrapper.py --shell nonexistentcommand arg1 arg2
 hr
 run_grep '^UNKNOWN' geneos_wrapper.py $perl -T check_disk_write.pl --help
 hr
+echo "Completed $run_count Geneos tests"
 echo
 echo "All Geneos wrapper tests completed successfully"
 echo
