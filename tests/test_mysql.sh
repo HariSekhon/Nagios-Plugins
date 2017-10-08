@@ -131,7 +131,11 @@ test_db(){
     hr
     run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "DROP table haritest" -r 1 -v
     hr
-    run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "DELETE FRM haritest where 1=1" -r 1 -v
+    run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "DELETE FROM haritest where 1=1" -r 1 -v
+    hr
+    run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "SELECT * FROM (DROP TABLE haritest)" -r 1 -v
+    hr
+    run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "SELECT * FROM (DELETE FROM haritest where 1=1)" -r 1 -v
 
     # TODO: add socket test - must mount on a compiled system, ie replace the docker image with a custom test one
     # this breaks subsequent iterations of this function
@@ -139,7 +143,6 @@ test_db(){
     #$perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
     hr
     echo "Completed $run_count $name tests"
-    hr
     #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
