@@ -29,22 +29,17 @@ section "D o c k e r H u b "
 
 # test one of the more stable automated builds, but not one with too many tags as a Dockerfiles push all will result in > 10 queued builds
 echo "testing repo expected to have successful build:"
-echo "./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper"
-./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper
+run ./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper
 hr
-echo "testing repo for successful build with extended output information"
-echo "./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper -v"
-./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper -v
+echo "testing repo for successful build with extended output information:"
+run ./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper -v
 hr
-echo "testing detection of failing repo build"
+echo "testing detection of failing repo build:"
 # intentionally broken repo created specifically for this test
-set +e
-echo "./check_dockerhub_repo_build_status.py -r harisekhon/ci_intentionally_broken_test_do_not_use -v"
-./check_dockerhub_repo_build_status.py -r harisekhon/ci_intentionally_broken_test_do_not_use -v
-check_exit_code 2
-echo "successfully detected failing repo build"
-set -e
+run_fail 2 ./check_dockerhub_repo_build_status.py -r harisekhon/ci_intentionally_broken_test_do_not_use -v
 hr
+echo
+echo "Completed $run_count DockerHub tests"
 echo
 echo "DockerHub tests completed successfully"
 echo
