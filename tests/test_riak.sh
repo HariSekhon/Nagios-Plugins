@@ -50,8 +50,6 @@ startupwait 20
 test_riak(){
     local version="$1"
     section2 "Setting up Riak $version test container"
-    #DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $RIAK_PORT
     VERSION="$version" docker-compose up -d
     export RIAK_PORT="`docker-compose port "$DOCKER_SERVICE" "$RIAK_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$RIAK_HOST" "$RIAK_PORT"
