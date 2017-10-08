@@ -41,7 +41,6 @@ startupwait 30
 test_presto(){
     local version="$1"
     section2 "Setting up Presto $version test container"
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $PRESTO_PORT
     VERSION="$version" docker-compose up -d
     export PRESTO_PORT="`docker-compose port "$DOCKER_SERVICE" "$PRESTO_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$PRESTO_HOST" "$PRESTO_PORT"
@@ -69,7 +68,6 @@ test_presto(){
     hr
     echo "Completed $run_count Presto tests"
     hr
-    #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
