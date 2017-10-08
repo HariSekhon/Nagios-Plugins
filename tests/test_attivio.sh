@@ -29,8 +29,6 @@ export ATTIVIO_AIE_PERFMON_PORT="${ATTIVIO_AIE_PERFMON_PORT:-16960}"
 
 trap_debug_env attivio
 
-run_count=0
-
 if [ -n "${ATTIVIO_AIE_HOST:-}" ]; then
     if when_ports_available 5 "$ATTIVIO_AIE_HOST" "$ATTIVIO_AIE_PORT"; then
         echo "WARNING: Attivio AIE host $ATTIVIO_AIE_HOST:$ATTIVIO_AIE_PORT not up, skipping Attivio AIE checks"
