@@ -47,7 +47,6 @@ test_mesos(){
     hr
     section2 "Setting up Mesos $version test container"
     hr
-    #launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MESOS_MASTER_PORT $MESOS_WORKER_PORT
     VERSION="$version" docker-compose up -d
     export MESOS_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$MESOS_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
     export MESOS_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$MESOS_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
@@ -90,7 +89,6 @@ test_mesos(){
     hr
     echo "Completed $run_count Mesos tests"
     hr
-    #delete_container
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
 }
