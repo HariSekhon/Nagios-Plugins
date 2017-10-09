@@ -63,9 +63,16 @@ if is_docker_available; then
         run_fail 2 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:$tag" --critical $((300 * 1024 * 1024))
         hr
     done
+    echo "getting docker image id"
     # This fails set -e, possibly because docker images command is interrupted by the abrupt exit of awk
+    set +e
     id="$(docker images | awk "/^${DOCKER_IMAGE//\//\\/}.*latest/{print \$3; exit}")"
     set -e
+    if [ -z "$id" ]; then
+        echo "FAILED to get docker image id, debug pipeline"
+        exit 1
+    fi
+    hr
     echo "testing against expected id of $id"
     run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --id "$id"
     hr
