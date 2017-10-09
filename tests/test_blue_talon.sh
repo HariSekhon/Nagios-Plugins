@@ -37,10 +37,11 @@ fi
 trap_debug_env blue_talon
 
 # This always fails now the public test site must have been (re)moved
-if ! when_ports_available 3 "$BLUE_TALON_HOST" "$BLUE_TALON_PORT"; then
+if when_ports_available 3 "$BLUE_TALON_HOST" "$BLUE_TALON_PORT"; then
     # Blue Talon is hanging but the port is open (honeypot?)
     if ! when_url_content 3 "$PROTOCOL://$BLUE_TALON_HOST:$BLUE_TALON_PORT" '.*';  then
         echo "HTTP port not responding, skipping Blue Talon checks"
+        untrap
         exit 0
     fi
     run ./check_blue_talon_masking_functions.py $BLUE_TALON_SSL -v -w 400 -c 1000
@@ -61,6 +62,8 @@ if ! when_ports_available 3 "$BLUE_TALON_HOST" "$BLUE_TALON_PORT"; then
     hr
 else
     echo "WARNING: Blue Talon host $BLUE_TALON_HOST:$BLUE_TALON_PORT not available, skipping checks..."
+    untrap
+    exit 0
 fi
 echo "Completed $run_count Blue Talon tests"
 echo
