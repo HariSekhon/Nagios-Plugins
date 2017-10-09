@@ -83,8 +83,8 @@ class CheckHadoopYarnAppLastFinishedState(RestNagiosPlugin):
     def add_options(self):
         super(CheckHadoopYarnAppLastFinishedState, self).add_options()
         self.add_opt('-a', '--app', help='App / Job name to expect is running (case insensitive regex)')
-        self.add_opt('-u', '--user', help='Expected user that yarn application should be running as (optional)')
-        self.add_opt('-q', '--queue', help='Expected queue that yarn application should be running on (optional)')
+        self.add_opt('-u', '--user', help='Expected user that yarn application should have run as (optional)')
+        self.add_opt('-q', '--queue', help='Expected queue that yarn application should have run on (optional)')
         self.add_opt('-n', '--limit', metavar='N', default=1000,
                      help='Limit number of results to search through (default: 1000)')
         self.add_opt('-d', '--warn-on-duplicate-app', action='store_true',
