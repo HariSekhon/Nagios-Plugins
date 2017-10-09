@@ -46,7 +46,7 @@ hr
 run ./geneos_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^*/{print $2}')"
 hr
 echo "Testing failure detection of wrong git branch (perl)"
-run_grep '^OK' ./geneos_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch
+run_grep '^CRITICAL' ./geneos_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch
 hr
 echo "Testing failure detection of wrong git branch (python)"
 run_grep '^CRITICAL' ./geneos_wrapper.py ./check_git_branch_checkout.py -d . -b nonexistentbranch
