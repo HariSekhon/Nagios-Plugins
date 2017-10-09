@@ -39,6 +39,9 @@ if is_docker_available; then
         for image in ${DOCKER_IMAGES[*]}; do
             docker pull "$image"
         done
+        for tag in $DOCKER_IMAGE_TAGS; do
+            docker pull "$DOCKER_IMAGE:$tag"
+        done
     fi
     hr
     run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest"
@@ -46,7 +49,7 @@ if is_docker_available; then
     for image in ${DOCKER_IMAGES[*]}; do
         max_size=$((600 * 1024 * 1024))
 #        if grep nagios <<< "$image"; then
-#            max_size=$((800 * 1024 * 1024))
+#            max_size=$((600 * 1024 * 1024))
 #        fi
         if ! [[ "$image" =~ : ]]; then
             image="$image:latest"
