@@ -39,7 +39,7 @@ fi
 
 trap_debug_env atlas
 
-if ! when_ports_available 5 "$ATLAST_HOST" "$ATLAS_PORT"; then
+if ! when_ports_available 5 "$ATLAS_HOST" "$ATLAS_PORT"; then
     echo "WARNING: Atlas host $ATLAS_HOST:$ATLAS_PORT not up, skipping Atlas checks"
     exit 0
 fi
