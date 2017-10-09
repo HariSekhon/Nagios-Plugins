@@ -49,7 +49,6 @@ docker_exec(){
 test_consul(){
     local version="$1"
     section2 "Setting up Consul $version test container"
-    hr
     VERSION="$version" docker-compose up -d
     export CONSUL_PORT="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT_DEFAULT" | sed 's/.*://'`"
     if [ -n "${NOTESTS:-}" ]; then
