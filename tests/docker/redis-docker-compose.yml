@@ -21,3 +21,8 @@ services:
     image: redis:${VERSION:-latest}
     ports:
       - 6379
+    networks:
+      - redis
+
+networks:
+  redis:

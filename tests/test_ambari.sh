@@ -40,11 +40,17 @@ trap_debug_env ambari
 # should be available immediately if pre-running
 if ! when_ports_available 5 "$AMBARI_HOST" $AMBARI_PORT; then
     echo "WARNING: Ambari host $AMBARI_HOST:$AMBARI_PORT not up, skipping Ambari checks"
+    echo
+    echo
+    untrap
     exit 0
 fi
 
 if ! when_url_content 5 "http://$AMBARI_HOST:$AMBARI_PORT" ambari; then
     echo "WARNING: Ambari host $AMBARI_HOST:$AMBARI_PORT did not contain ambari in html, may be some other service bound to the port, skipping..."
+    echo
+    echo
+    untrap
     exit 0
 fi
 

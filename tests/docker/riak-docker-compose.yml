@@ -21,3 +21,8 @@ services:
     image: harisekhon/riak-dev:${VERSION:-latest}
     ports:
       - 8098
+    networks:
+      - riak
+
+networks:
+  riak:

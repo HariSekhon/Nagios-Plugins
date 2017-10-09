@@ -78,7 +78,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 class CheckHBaseTable(NagiosPlugin):
@@ -125,7 +125,8 @@ class CheckHBaseTable(NagiosPlugin):
         try:
             # cast port to int to avoid low level socket module TypeError for ports > 32000
             self.conn = happybase.Connection(host=self.host, port=int(self.port), timeout=10 * 1000)  # ms
-        except (socket.timeout, ThriftException, HBaseIOError) as _:
+        # socket.error is now a subclass of IOError, catch 'error: [Errno 104] Connection reset by peer'
+        except (IOError, socket.timeout, ThriftException, HBaseIOError) as _:
             qquit('CRITICAL', 'error connecting: {0}'.format(_))
 
     def get_tables(self):
@@ -134,7 +135,8 @@ class CheckHBaseTable(NagiosPlugin):
             if not isList(tables):
                 qquit('UNKNOWN', 'table list returned is not a list! ' + support_msg_api())
             return tables
-        except (socket.timeout, ThriftException, HBaseIOError) as _:
+        # socket.error is now a subclass of IOError, catch 'error: [Errno 104] Connection reset by peer'
+        except (IOError, socket.timeout, ThriftException, HBaseIOError) as _:
             qquit('CRITICAL', 'error while trying to get table list: {0}'.format(_))
 
     def check_table(self):
@@ -152,7 +154,8 @@ class CheckHBaseTable(NagiosPlugin):
                 qquit('CRITICAL', 'table \'{0}\' does not exist'.format(self.table))
             else:
                 qquit('CRITICAL', _)
-        except (socket.timeout, ThriftException) as _:
+        # socket.error is now a subclass of IOError, catch 'error: [Errno 104] Connection reset by peer'
+        except (IOError, socket.timeout, ThriftException) as _:
             qquit('CRITICAL', _)
 
         if log.isEnabledFor(logging.DEBUG):

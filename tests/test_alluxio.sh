@@ -23,7 +23,7 @@ cd "$srcdir/.."
 
 section "A l l u x i o"
 
-export ALLUXIO_VERSIONS="${@:-${ALLUXIO_VERSIONS:-latest 2.0 1.1}}"
+export ALLUXIO_VERSIONS="${@:-${ALLUXIO_VERSIONS:-latest 1.0 1.1 1.2 1.3 1.4 1.5 1.6}}"
 
 ALLUXIO_HOST="${DOCKER_HOST:-${ALLUXIO_HOST:-${HOST:-localhost}}}"
 ALLUXIO_HOST="${ALLUXIO_HOST##*/}"
@@ -45,6 +45,14 @@ test_alluxio(){
     VERSION="$version" docker-compose up -d
     export ALLUXIO_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
     export ALLUXIO_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
+    if [ -z "$ALLUXIO_MASTER_PORT" ]; then
+        echo "FAILED to get Alluxio Master port... did the container or Master process crash?"
+        exit 1
+    fi
+    if [ -z "$ALLUXIO_WORKER_PORT" ]; then
+        echo "FAILED to get Alluxio Worker port... did the container or Worker process crash?"
+        exit 1
+    fi
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi

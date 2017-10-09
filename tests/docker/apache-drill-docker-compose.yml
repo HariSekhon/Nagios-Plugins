@@ -24,6 +24,8 @@ services:
     command: ['supervisord', '-n']
     links:
       - apache-drill-zookeeper:zookeeper
+    networks:
+      - apache_drill
   apache-drill-zookeeper:
     extends:
       file: common.yml
@@ -33,3 +35,8 @@ services:
       - 2181
       - 3181
       - 4181
+    networks:
+      - apache_drill
+
+networks:
+  apache_drill:

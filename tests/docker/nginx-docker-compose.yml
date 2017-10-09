@@ -21,3 +21,8 @@ services:
     image: nginx:${VERSION:-latest}
     ports:
       - 80
+    networks:
+      - nginx
+
+networks:
+  nginx:

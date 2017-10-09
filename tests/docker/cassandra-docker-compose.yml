@@ -22,3 +22,8 @@ services:
     ports:
       - 9042
       - 7199
+    networks:
+      - cassandra
+
+networks:
+  cassandra:

@@ -22,3 +22,8 @@ services:
     ports:
       - 5050
       - 5051
+    networks:
+      - mesos
+
+networks:
+  mesos:

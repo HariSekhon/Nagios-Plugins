@@ -93,7 +93,7 @@ test_hadoop(){
     when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_YARN_NODE_MANAGER_PORT/node" 'Node Manager Version'
     hr
     echo "waiting for DN page to come up:"
-    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_DATANODE_PORT" 'Datanode on'
+    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_DATANODE_PORT" 'DataNode on'
     hr
     echo "setting up HDFS for tests"
     #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF

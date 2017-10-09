@@ -21,3 +21,8 @@ services:
     image: memcached:${VERSION:-latest}
     ports:
       - 11211
+    networks:
+      - memcached
+
+networks:
+  memcached:

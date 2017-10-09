@@ -18,3 +18,8 @@ services:
     image: harisekhon/presto:${VERSION:-latest}
     ports:
       - 8080
+    networks:
+      - presto
+
+networks:
+  presto:

@@ -25,3 +25,8 @@ services:
       - 9092:9092
     environment:
       - ADVERTISED_HOSTNAME=$ADVERTISED_HOSTNAME
+    networks:
+      - kafka
+
+networks:
+  kafka:

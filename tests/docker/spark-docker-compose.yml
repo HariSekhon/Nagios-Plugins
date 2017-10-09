@@ -22,3 +22,8 @@ services:
     ports:
       - 8080
       - 8081
+    networks:
+      - spark
+
+networks:
+  spark:

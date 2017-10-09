@@ -20,3 +20,8 @@ services:
       service: common
     image: harisekhon/centos-github:${VERSION:-latest}
     command: tail -f /dev/null
+    networks:
+      - centos_github
+
+networks:
+  centos_github:

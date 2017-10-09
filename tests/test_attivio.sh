@@ -62,9 +62,11 @@ if [ -n "${ATTIVIO_AIE_PERFMON_HOST:-}" ]; then
 else
     echo "WARNING: \$ATTIVIO_AIE_PERFMON_HOST not set, skipping Attivio AIE PerfMon metric checks"
 fi
-echo "Completed $run_count Attivio tests"
-echo
-echo "All Attivio tests completed successfully"
+if [ $run_count -gt 0 ]; then
+    echo "Completed $run_count Attivio tests"
+    echo
+    echo "All Attivio tests completed successfully"
+fi
 untrap
 echo
 echo

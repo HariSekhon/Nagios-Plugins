@@ -31,3 +31,8 @@ services:
       - 50070
       - 50075
       - 50090
+    networks:
+      - hadoop
+
+networks:
+  hadoop:

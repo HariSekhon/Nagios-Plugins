@@ -59,21 +59,21 @@ hr
 echo "Testing induced failures"
 hr
 # should return zero exit code regardless but raise non-OK statuses in STATUS field
-run_grep '^OK,' /csv_wrapper.py --shell exit 0
+run_grep '^OK,' ./csv_wrapper.py --shell exit 0
 hr
-run_grep '^WARNING,' /csv_wrapper.py --shell exit 1
+run_grep '^WARNING,' ./csv_wrapper.py --shell exit 1
 hr
-run_grep '^CRITICAL,' /csv_wrapper.py --shell exit 2
+run_grep '^CRITICAL,' ./csv_wrapper.py --shell exit 2
 hr
-run_grep '^UNKNOWN,' /csv_wrapper.py --shell exit 3
+run_grep '^UNKNOWN,' ./csv_wrapper.py --shell exit 3
 hr
-run_grep '^UNKNOWN,' /csv_wrapper.py --shell exit 5
+run_grep '^UNKNOWN,' ./csv_wrapper.py --shell exit 5
 hr
-run_grep '^UNKNOWN,' /csv_wrapper.py nonexistentcommand arg1 arg2
+run_grep '^UNKNOWN,' ./csv_wrapper.py nonexistentcommand arg1 arg2
 hr
-run_grep '^UNKNOWN,' /csv_wrapper.py --shell nonexistentcommand arg1 arg2
+run_grep '^UNKNOWN,' ./csv_wrapper.py --shell nonexistentcommand arg1 arg2
 hr
-run_grep '^UNKNOWN,' /csv_wrapper.py $perl -T check_disk_write.pl --help
+run_grep '^UNKNOWN,' ./csv_wrapper.py $perl -T check_disk_write.pl --help
 hr
 echo "Completed $run_count CSV wrapper tests"
 echo

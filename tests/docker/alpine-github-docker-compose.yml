@@ -20,3 +20,8 @@ services:
       service: common
     image: harisekhon/alpine-github:${VERSION:-latest}
     command: tail -f /dev/null
+    networks:
+      - alpine_github
+
+networks:
+  alpine_github:
