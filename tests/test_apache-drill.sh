@@ -40,9 +40,7 @@ trap_debug_env apache_drill
 
 test_apache_drill(){
     local version="$1"
-    hr
     section2 "Setting up Apache Drill $version test container"
-    hr
     VERSION="$version" docker-compose up -d
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
