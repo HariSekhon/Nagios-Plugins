@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check if a Hadoop NameNode is the Active/Standby one in an HA pair via the NameNode's JMX API
+$DESCRIPTION = "Nagios Plugin to check the Active / Standby state of a Hadoop NameNode via the it's JMX API
 
 Tip: run this against a load balancer in front of your NameNodes or in conjunction with find_active_hadoop_namenode.py to check that you always have an active master available
 
