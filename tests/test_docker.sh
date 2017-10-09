@@ -26,7 +26,8 @@ cd "$srcdir/.."
 section "Docker Image"
 
 export DOCKER_IMAGE="harisekhon/nagios-plugins"
-export DOCKER_IMAGES=(harisekhon/tools harisekhon/pytools harisekhon/nagios-plugins:centos harisekhon/nagios-plugins:debian harisekhon/nagios-plugins:ubuntu harisekhon/nagios-plugins:alpine)
+export DOCKER_IMAGE_TAGS="latest centos debian ubuntu alpine"
+export DOCKER_IMAGES=(harisekhon/tools harisekhon/pytools harisekhon/nagios-plugins)
 if is_CI; then
     export DOCKER_IMAGES="$(ci_sample ${DOCKER_IMAGES[*]})"
 fi
@@ -44,22 +45,24 @@ if is_docker_available; then
     hr
     for image in ${DOCKER_IMAGES[*]}; do
         max_size=$((600 * 1024 * 1024))
-        if grep nagios <<< "$image"; then
-            max_size=$((800 * 1024 * 1024))
-        fi
-        if ! grep ':' <<< "$image"; then
+#        if grep nagios <<< "$image"; then
+#            max_size=$((800 * 1024 * 1024))
+#        fi
+        if ! [[ "$image" =~ : ]]; then
             image="$image:latest"
         fi
         run ./check_docker_image.py --docker-image "$image" --warning "$max_size"
         hr
     done
-    run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --warning $((800 * 1024 * 1024))
-    hr
-    echo "checking thresholds fail as expected:"
-    run_fail 1 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --warning $((300 * 1024 * 1024))
-    hr
-    run_fail 2 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --critical $((300 * 1024 * 1024))
-    hr
+    for tag in $DOCKER_IMAGE_TAGS; do
+        run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((800 * 1024 * 1024))
+        hr
+        echo "checking thresholds fail as expected:"
+        run_fail 1 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((300 * 1024 * 1024))
+        hr
+        run_fail 2 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:$tag" --critical $((300 * 1024 * 1024))
+        hr
+    done
     # This fails set -e, possibly because docker images command is interrupted by the abrupt exit of awk
     id="$(docker images | awk "/^${DOCKER_IMAGE//\//\\/}.*latest/{print \$3; exit}")"
     set -e
@@ -74,9 +77,11 @@ if is_docker_available; then
     hr
     run docker run --rm -e DEBUG="$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl -H google.com
     echo
-    run docker run --rm -e DEBUG="$DEBUG" -e NO_GIT=1 -e TRAVIS="${TRAVIS:-}" "$DOCKER_IMAGE" tests/help.sh
     hr
     echo
     echo "Completed $run_count Docker tests"
     echo
+    echo "now checking all programs within the docker image run --help without missing dependencies:"
+    echo "docker run --rm -e DEBUG='$DEBUG' -e NO_GIT=1 -e TRAVIS='${TRAVIS:-}' '$DOCKER_IMAGE' tests/help.sh"
+    run docker run --rm -e DEBUG="$DEBUG" -e NO_GIT=1 -e TRAVIS="${TRAVIS:-}" "$DOCKER_IMAGE" tests/help.sh
 fi

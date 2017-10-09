@@ -48,7 +48,7 @@ for script in $(find tests -name 'test*.sh'); do
     if is_CI; then
         [ $(($RANDOM % 3)) = 0 ] || continue
         declare_if_inside_docker
-        time $script || break
+        time $script || :
     else
         declare_if_inside_docker
         time $script

@@ -13,6 +13,8 @@
 
 $DESCRIPTION = "Nagios Plugin to check the status of a given WANdisco Non-Stop Hadoop node via DConE REST API
 
+Checks node state is up, not stopped, and displays the secs since the last status change.
+
 Written and tested on Hortonworks HDP 2.1 and WANdisco Non-Stop Hadoop 1.9.8";
 
 $VERSION = "0.1";
@@ -92,6 +94,7 @@ my $lastStatusChange    = get_field2_float($xml, "lastStatusChange");
 $isUp      = ( $isUp and $isUp eq "true" ? "true" : "FALSE" );
 $isStopped = ( $isStopped and $isStopped ne "false" ? "TRUE" : "false" );
 $isLocal   = ( $isLocal and $isLocal eq "true" ? "true" : "false" );
+# TODO: add quorum field
 
 if ($isStopped eq "true" or $isUp ne "true"){
     critical;
