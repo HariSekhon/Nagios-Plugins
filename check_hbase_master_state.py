@@ -56,7 +56,7 @@ class CheckHBaseMasterState(RestNagiosPlugin):
         super(CheckHBaseMasterState, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.name = 'HBase'
+        self.name = 'HBase Master'
         self.default_port = 16010
         self.path = '/jmx?qry=Hadoop:service=HBase,name=Master,sub=Server'
         self.auth = False
