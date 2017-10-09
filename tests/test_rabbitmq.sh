@@ -57,7 +57,6 @@ startupwait 40
 test_rabbitmq(){
     local version="$1"
     section2 "Setting up RabbitMQ $version test containers"
-    hr
     local VERSION="$version"
     VERSION="${VERSION#latest-}"
     # if one container is already still up it'll result in inconsistent state error when the other tries to join cluster, causing rabbit2 joining node container to crash
