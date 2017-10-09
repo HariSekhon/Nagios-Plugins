@@ -20,3 +20,8 @@ services:
       service: common
     image: harisekhon/ubuntu-github:${VERSION:-latest}
     command: tail -f /dev/null
+    networks:
+      - ubuntu_github
+
+networks:
+  ubuntu_github:

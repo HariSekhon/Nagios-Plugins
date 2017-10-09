@@ -23,3 +23,8 @@ services:
       - 3306
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-"test123"}
+    networks:
+      - mysql
+
+networks:
+  mysql:

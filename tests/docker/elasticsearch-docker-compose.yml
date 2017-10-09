@@ -21,3 +21,8 @@ services:
     image: elasticsearch:${VERSION:-latest}
     ports:
       - 9200
+    networks:
+      - elasticsearch
+
+networks:
+  elasticsearch:

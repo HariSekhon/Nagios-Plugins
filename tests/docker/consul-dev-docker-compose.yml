@@ -23,3 +23,8 @@ services:
       - 8500
     command:
       consul agent -dev -data-dir /tmp -client 0.0.0.0
+    networks:
+      - consul_dev
+
+networks:
+  consul_dev:

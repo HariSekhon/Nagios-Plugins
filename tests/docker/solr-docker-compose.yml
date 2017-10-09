@@ -23,3 +23,8 @@ services:
     image: harisekhon/solr:${VERSION:-latest}
     ports:
       - 8983
+    networks:
+      - solr
+
+networks:
+  solr:

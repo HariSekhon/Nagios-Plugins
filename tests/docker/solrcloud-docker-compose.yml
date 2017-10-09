@@ -25,3 +25,8 @@ services:
       - 8983
       - 8984
       - 9983
+    networks:
+      - solrcloud
+
+networks:
+  solrcloud:

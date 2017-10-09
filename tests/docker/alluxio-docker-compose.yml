@@ -22,3 +22,8 @@ services:
     ports:
       - 19999
       - 30000
+    networks:
+      - alluxio
+
+networks:
+  alluxio:

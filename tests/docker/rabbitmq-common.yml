@@ -34,3 +34,8 @@ services:
     ports:
       - 5672
       - 15672
+    networks:
+      - rabbitmq
+
+networks:
+  rabbitmq:

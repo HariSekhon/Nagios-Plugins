@@ -34,3 +34,8 @@ services:
       - 60010
       - 60201
       - 60301
+    networks:
+      - hbase
+
+networks:
+  hbase:

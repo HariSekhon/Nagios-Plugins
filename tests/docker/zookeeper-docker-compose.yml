@@ -23,3 +23,8 @@ services:
       - 2181
       - 3181
       - 4181
+    networks:
+      - zookeeper
+
+networks:
+  zookeeper:
