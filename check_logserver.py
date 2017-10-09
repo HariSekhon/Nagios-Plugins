@@ -158,7 +158,7 @@ class LogServerTester(object):
             # from the next
             logserver_socket.send(self.log+"\n")
             logserver_socket.close()
-        except socket.error as socket_error:
+        except socket.error, socket.timeout as socket_error:
             if self.verbosity >= 1:
                 # You can only get a socket error on tcp, udp is stateless
                 # fire and forget so you won't get a socket error, hence
