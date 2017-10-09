@@ -36,9 +36,10 @@ fi
 
 trap_debug_env blue_talon
 
-if ! when_ports_available 5 "$BLUE_TALON_HOST" "$BLUE_TALON_PORT"; then
+# This always fails now the public test site must have been (re)moved
+if ! when_ports_available 3 "$BLUE_TALON_HOST" "$BLUE_TALON_PORT"; then
     # Blue Talon is hanging but the port is open (honeypot?)
-    if ! when_url_content 5 "$PROTOCOL://$BLUE_TALON_HOST:$BLUE_TALON_PORT" '.*';  then
+    if ! when_url_content 3 "$PROTOCOL://$BLUE_TALON_HOST:$BLUE_TALON_PORT" '.*';  then
         echo "HTTP port not responding, skipping Blue Talon checks"
         exit 0
     fi
