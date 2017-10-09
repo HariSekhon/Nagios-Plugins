@@ -40,8 +40,8 @@ my $expected_state;
 
 %options = (
     %hostoptions,
-    "active"        => [ \$active,  "Expect Active  (optional)" ],
-    "standby"       => [ \$standby, "Expect Standby (optional)" ],
+    "a|active"  => [ \$active,  "Expect Active  (optional)" ],
+    "s|standby" => [ \$standby, "Expect Standby (optional)" ],
 );
 splice @usage_order, 6, 0, qw/active standby/;
 
