@@ -73,7 +73,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 class CheckHBaseTableEnabled(NagiosPlugin):
@@ -98,7 +98,7 @@ class CheckHBaseTableEnabled(NagiosPlugin):
     def get_tables(self):
         try:
             return self.conn.tables()
-        except (socket.timeout, ThriftException, HBaseIOError) as _:
+        except (socket.error, socket.timeout, ThriftException, HBaseIOError) as _:
             qquit('CRITICAL', 'error while trying to get table list: {0}'.format(_))
 
     def run(self):
@@ -113,7 +113,7 @@ class CheckHBaseTableEnabled(NagiosPlugin):
             log.info('connecting to HBase Thrift Server at %s:%s', self.host, self.port)
             # cast port to int to avoid low level socket module TypeError for ports > 32000
             self.conn = happybase.Connection(host=self.host, port=int(self.port), timeout=10 * 1000)  # ms
-        except (socket.timeout, ThriftException, HBaseIOError) as _:
+        except (socket.error, socket.timeout, ThriftException, HBaseIOError) as _:
             qquit('CRITICAL', 'error connecting: {0}'.format(_))
         if self.get_opt('list'):
             tables = self.get_tables()
@@ -129,7 +129,7 @@ class CheckHBaseTableEnabled(NagiosPlugin):
                 qquit('CRITICAL', 'table \'{0}\' does not exist'.format(self.table))
             else:
                 qquit('CRITICAL', _)
-        except (socket.timeout, ThriftException) as _:
+        except (socket.error, socket.timeout, ThriftException) as _:
             qquit('CRITICAL', _)
 
         if not is_enabled:

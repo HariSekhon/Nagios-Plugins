@@ -108,7 +108,7 @@ class CheckHBaseTableRegionBalance(NagiosPlugin):
             log.info('connecting to HBase Thrift Server at %s:%s', host, port)
             # cast port to int to avoid low level socket module TypeError for ports > 32000
             self.conn = happybase.Connection(host=host, port=int(port), timeout=10 * 1000)  # ms
-        except (socket.timeout, ThriftException, HBaseIOError) as _:
+        except (socket.error, socket.timeout, ThriftException, HBaseIOError) as _:
             qquit('CRITICAL', 'error connecting: {0}'.format(_))
         tables = self.conn.tables()
         if len(tables) < 1:
@@ -151,7 +151,7 @@ class CheckHBaseTableRegionBalance(NagiosPlugin):
                 server = region['server_name']
                 self.server_region_counts[server] = self.server_region_counts.get(server, 0)
                 self.server_region_counts[server] += 1
-        except (socket.timeout, ThriftException, HBaseIOError) as _:
+        except (socket.error, socket.timeout, ThriftException, HBaseIOError) as _:
             qquit('CRITICAL', _)
         except KeyError as _:
             qquit('UNKNOWN', 'failed to process region information. ' + support_msg_api())

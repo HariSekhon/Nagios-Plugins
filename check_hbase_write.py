@@ -74,7 +74,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 class CheckHBaseWrite(CheckHBaseCell):
@@ -141,7 +141,7 @@ class CheckHBaseWrite(CheckHBaseCell):
                 qquit('CRITICAL', 'column family \'{0}\' does not exist'.format(self.column))
             else:
                 qquit('CRITICAL', _)
-        except (socket.timeout, ThriftException) as _:
+        except (socket.error, socket.timeout, ThriftException) as _:
             qquit('CRITICAL', _)
         total_time = (time.time() - initial_start) * 1000
         self.output(connect_time, total_time)

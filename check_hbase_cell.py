@@ -75,7 +75,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6'
+__version__ = '0.7'
 
 
 class CheckHBaseCell(NagiosPlugin):
@@ -163,7 +163,7 @@ class CheckHBaseCell(NagiosPlugin):
                 qquit('CRITICAL', 'column family \'{0}\' does not exist'.format(self.column))
             else:
                 qquit('CRITICAL', _)
-        except (socket.timeout, ThriftException) as _:
+        except (socket.error, socket.timeout, ThriftException) as _:
             qquit('CRITICAL', _)
         total_time = (time.time() - initial_start) * 1000
         self.output(connect_time, total_time)
@@ -183,7 +183,7 @@ class CheckHBaseCell(NagiosPlugin):
             if not isList(tables):
                 qquit('UNKNOWN', 'table list returned is not a list! ' + support_msg_api())
             return tables
-        except (socket.timeout, ThriftException, HBaseIOError) as _:
+        except (socket.error, socket.timeout, ThriftException, HBaseIOError) as _:
             qquit('CRITICAL', 'error while trying to get table list: {0}'.format(_))
 
     def get_table_conn(self):
