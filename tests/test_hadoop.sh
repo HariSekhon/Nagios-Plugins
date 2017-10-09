@@ -329,11 +329,11 @@ EOF
     run_grep "CRITICAL: namenode security enabled 'false'" $perl -T ./check_hadoop_namenode_security_enabled.pl
     set -o pipefail
     hr
-    run $perl -T ./check_hadoop_namenode_state.pl
+    run $perl -T ./check_hadoop_namenode_ha_state.pl
     hr
-    run $perl -T ./check_hadoop_namenode_state.pl --active
+    run $perl -T ./check_hadoop_namenode_ha_state.pl --active
     hr
-    run_fail 2 $perl -T ./check_hadoop_namenode_state.pl --standby
+    run_fail 2 $perl -T ./check_hadoop_namenode_ha_state.pl --standby
     hr
     run $perl -T ./check_hadoop_replication.pl
     hr
@@ -468,6 +468,12 @@ EOF
     hr
     # returns -1 for NonHeapMemoryUsage max
     run_fail 3 $perl -T ./check_hadoop_yarn_resource_manager_heap.pl --non-heap
+    hr
+    run ./check_hadoop_yarn_resource_manager_ha_state.py
+    hr
+    run ./check_hadoop_yarn_resource_manager_ha_state.py --active
+    hr
+    run_fail 2 ./check_hadoop_yarn_resource_manager_ha_state.py --standby
     hr
     run $perl -T ./check_hadoop_yarn_resource_manager_state.pl
     hr
