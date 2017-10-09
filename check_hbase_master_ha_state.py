@@ -61,7 +61,7 @@ class CheckHBaseMasterState(RestNagiosPlugin):
         self.path = '/jmx?qry=Hadoop:service=HBase,name=Master,sub=Server'
         self.auth = False
         self.json = True
-        self.msg = 'HBase Master status = '
+        self.msg = 'HBase Master HA state = '
         self.expect_active = None
         self.expect_standby = None
 
