@@ -40,7 +40,7 @@ check_docker_available
 
 trap_debug_env elasticsearch
 
-startupwait 20
+startupwait 30
 
 test_elasticsearch(){
     local version="$1"
