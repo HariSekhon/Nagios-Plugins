@@ -44,9 +44,7 @@ trap_debug_env mesos
 
 test_mesos(){
     local version="${1:-latest}"
-    hr
     section2 "Setting up Mesos $version test container"
-    hr
     VERSION="$version" docker-compose up -d
     export MESOS_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$MESOS_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
     export MESOS_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$MESOS_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
