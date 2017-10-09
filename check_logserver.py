@@ -16,7 +16,7 @@ end MySQL database to check that it was properly received"""
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin to check Syslog-NG/MySQL logservers"
-__version__ = "0.8.1"
+__version__ = "0.8.2"
 
 # Nagios Standard Exit Codes
 OK = 0
@@ -158,7 +158,7 @@ class LogServerTester(object):
             # from the next
             logserver_socket.send(self.log+"\n")
             logserver_socket.close()
-        except socket.error, socket_error:
+        except socket.error, socket.timeout as socket_error:
             if self.verbosity >= 1:
                 # You can only get a socket error on tcp, udp is stateless
                 # fire and forget so you won't get a socket error, hence
@@ -248,7 +248,7 @@ class LogServerTester(object):
                                             passwd=self.password,
                                             db=self.mysql_db,
                                             port=self.mysql_port)
-        except MySQLError, mysql_error:
+        except MySQLError as mysql_error:
             end(CRITICAL, "error connecting to database - %s" % mysql_error[1])
 
         self.vprint(2, "connected to database")
@@ -283,7 +283,7 @@ class LogServerTester(object):
             # AS NOTED ABOVE, SECURITY IS HANDLED BY RESTRICTIVE REGEX OF
             # SAFE PARAMETERS IN MAIN FUNCTION -h
             cursor.execute(query, (log_message,))
-        except MySQLError, mysql_error:
+        except MySQLError as mysql_error:
             end(CRITICAL, "error querying mysql server for log - %s" \
                                                         % mysql_error[1])
         result = cursor.fetchall()

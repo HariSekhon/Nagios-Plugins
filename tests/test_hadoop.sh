@@ -331,6 +331,10 @@ EOF
     hr
     run $perl -T ./check_hadoop_namenode_state.pl
     hr
+    run $perl -T ./check_hadoop_namenode_state.pl --active
+    hr
+    run_fail 2 $perl -T ./check_hadoop_namenode_state.pl --standby
+    hr
     run $perl -T ./check_hadoop_replication.pl
     hr
     # ================================================
