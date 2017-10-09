@@ -34,6 +34,9 @@ export ATLAS_PASSWORD="${ATLAS_PASSWORD:-holger_gov}"
 
 if [ -z "${ATLAS_HOST:-}" ]; then
     echo "WARNING: \$ATLAS_HOST not set, skipping Atlas checks"
+    echo
+    echo
+    untrap
     exit 0
 fi
 
@@ -41,6 +44,8 @@ trap_debug_env atlas
 
 if ! when_ports_available 5 "$ATLAS_HOST" "$ATLAS_PORT"; then
     echo "WARNING: Atlas host $ATLAS_HOST:$ATLAS_PORT not up, skipping Atlas checks"
+    echo
+    echo
     untrap
     exit 0
 fi
