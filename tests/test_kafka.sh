@@ -49,7 +49,6 @@ startupwait 20
 test_kafka(){
     local version="$1"
     section2 "Setting up Apache Kafka $version test container"
-    hr
     export ADVERTISED_HOSTNAME="$KAFKA_HOST"
     VERSION="$version" docker-compose up -d
     # not mapping kafka port any more
