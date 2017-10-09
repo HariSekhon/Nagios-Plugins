@@ -44,9 +44,7 @@ trap_debug_env spark
 
 test_spark(){
     local version="$1"
-    hr
     section2 "Setting up Spark $version test container"
-    hr
     docker-compose down &>/dev/null
     VERSION="$version" docker-compose up -d
     export SPARK_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$SPARK_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
