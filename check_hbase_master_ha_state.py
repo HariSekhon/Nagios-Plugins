@@ -17,7 +17,7 @@
 
 """
 
-Nagios Plugin to check the state of an HBase Master via it's JMX API
+Nagios Plugin to check the Active / Standby state of an HBase Master via it's JMX API
 
 Tip: run this against a load balancer in front of your HBase Masters or with
 find_active_hbase_master.py to check that you always have an active available
