@@ -51,7 +51,13 @@ if ! when_ports_available 5 "$ATLAS_HOST" "$ATLAS_PORT"; then
 fi
 
 hr
-when_url_content "$ATLAS_HOST:$ATLAS_PORT" atlas
+if ! when_url_content 5 "$ATLAS_HOST:$ATLAS_PORT" atlas; then
+    echo "WARNING: Atlas host $ATLAS_HOST:$ATLAS_PORT content not found, skipping Atlas checks"
+    echo
+    echo
+    untrap
+    exit 0
+fi
 hr
 
 # Sandbox often has some broken stuff, we're testing the code works, not the cluster
