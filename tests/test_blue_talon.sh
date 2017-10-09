@@ -41,6 +41,8 @@ if when_ports_available 3 "$BLUE_TALON_HOST" "$BLUE_TALON_PORT"; then
     # Blue Talon is hanging but the port is open (honeypot?)
     if ! when_url_content 3 "$PROTOCOL://$BLUE_TALON_HOST:$BLUE_TALON_PORT" '.*';  then
         echo "HTTP port not responding, skipping Blue Talon checks"
+        echo
+        echo
         untrap
         exit 0
     fi
@@ -62,6 +64,8 @@ if when_ports_available 3 "$BLUE_TALON_HOST" "$BLUE_TALON_PORT"; then
     hr
 else
     echo "WARNING: Blue Talon host $BLUE_TALON_HOST:$BLUE_TALON_PORT not available, skipping checks..."
+    echo
+    echo
     untrap
     exit 0
 fi
