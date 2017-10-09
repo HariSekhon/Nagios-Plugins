@@ -43,9 +43,7 @@ trap_debug_env tachyon
 
 test_tachyon(){
     local version="$1"
-    hr
     section2 "Setting up Tachyon $version test container"
-    hr
     VERSION="$version" docker-compose up -d
     export TACHYON_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$TACHYON_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
     export TACHYON_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$TACHYON_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
