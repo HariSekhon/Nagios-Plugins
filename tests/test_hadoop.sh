@@ -64,7 +64,7 @@ test_hadoop(){
     # reset state as things like blocks counts and job states, no history, succeeded etc depend on state
     docker-compose down &>/dev/null || :
     VERSION="$version" docker-compose up -d
-    echo "getting Hadoop dynamic port mappings"
+    echo "getting Hadoop dynamic port mappings:"
     printf "getting HDFS NN port => "
     export HADOOP_NAMENODE_PORT="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_NAMENODE_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HADOOP_NAMENODE_PORT"
