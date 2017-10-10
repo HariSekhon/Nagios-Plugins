@@ -75,7 +75,7 @@ test_hbase(){
         local export HBASE_MASTER_PORT_DEFAULT=60010
         local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
     fi
-    echo "getting HBase dynamic port mappings"
+    echo "getting HBase dynamic port mappings:"
     printf "getting HBase Master port       => "
     export HBASE_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HBASE_MASTER_PORT"
@@ -93,6 +93,7 @@ test_hbase(){
     echo "$ZOOKEEPER_PORT"
     #local export HBASE_PORTS=`{ for x in $HBASE_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://' | sort -n`
     export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT $ZOOKEEPER_PORT"
+    hr
     when_ports_available "$startupwait" "$HBASE_HOST" $HBASE_PORTS
     hr
     when_url_content "$startupwait" "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" hbase
