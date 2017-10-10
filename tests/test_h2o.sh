@@ -38,7 +38,7 @@ check_docker_available
 
 trap_debug_env h2o
 
-startupwait 10
+startupwait 20
 
 test_h2o(){
     local version="$1"
@@ -50,7 +50,7 @@ test_h2o(){
     fi
     when_ports_available $startupwait $H2O_HOST $H2O_PORT
     hr
-    when_url_content "$startupwait" "http://$H2O_HOST:$H2O_PORT/" "0xdata"
+    when_url_content "$startupwait" "http://$H2O_HOST:$H2O_PORT/" h2o
     hr
     run $perl -T ./check_h2o_cluster.pl
     hr
