@@ -42,7 +42,11 @@ test_memcached(){
     local version="$1"
     section2 "Setting up Memcached $version test container"
     VERSION="$version" docker-compose up -d
+    echo "getting Memcached dynamic port mapping:"
+    printf "Memcached port => "
     export MEMCACHED_PORT="`docker-compose port "$DOCKER_SERVICE" "$MEMCACHED_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$MEMCACHED_PORT"
+    hr
     when_ports_available "$startupwait" "$MEMCACHED_HOST" "$MEMCACHED_PORT"
     hr
     echo "creating test Memcached key-value"
