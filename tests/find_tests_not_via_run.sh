@@ -19,13 +19,14 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-grep 'check_' tests/test_*.sh |
-sed 's/#/.*/' |
+grep -Hn 'check_' tests/test_*.sh |
+sed 's/#.*//' |
 # could put these all in one big alternation regex but separately is easier to maintain
-egrep -v -e '\.sh:[[:space:]]*$' \
-         -e '\.sh:[[:space:]]*run(_grep|_fail)?[[:space:]]' \
-         -e '\.sh:[[:space:]]*docker_exec[[:space:]]' \
-         -e '\.sh:[[:space:]]*check_docker_available' \
-         -e '\.sh:[[:space:]]*check_exit_code[[:space:]]' \
-         -e ' && break' \
+egrep -v -e '\.sh:[[:digit:]]+:[[:space:]]*$' \
+         -e '\.sh:[[:digit:]]+:[[:space:]]*run(_grep|_fail)?[[:space:]]' \
+         -e '\.sh:[[:digit:]]+:[[:space:]]*docker_exec[[:space:]]' \
+         -e '\.sh:[[:digit:]]+:[[:space:]]*check_docker_available' \
+         -e '\.sh:[[:digit:]]+:[[:space:]]*check_exit_code[[:space:]]' \
+         -e '[[:space:]]+(&&|\|\|)[[:space:]]+break' \
+         -e '[[:space:]]*\|[[:space:]]*$' \
          -e '\$\('
