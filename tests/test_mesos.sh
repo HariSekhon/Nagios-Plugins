@@ -24,8 +24,8 @@ cd "$srcdir/.."
 
 section "A p a c h e   M e s o s"
 
-# TODO: update plugins for > 0.24
-export MESOS_VERSIONS="${@:-${MESOS_VERSIONS:-${VERSIONS:-latest 0.23 0.24}}}"
+# TODO: docker images for 0.25 and 0.26 need fixes
+export MESOS_VERSIONS="${@:-${MESOS_VERSIONS:-${VERSIONS:-latest 0.23 0.24 0.27 0.28}}}"
 
 MESOS_HOST="${DOCKER_HOST:-${MESOS_HOST:-${HOST:-localhost}}}"
 MESOS_HOST="${MESOS_HOST##*/}"
@@ -46,7 +46,7 @@ test_mesos(){
     local version="${1:-latest}"
     section2 "Setting up Mesos $version test container"
     VERSION="$version" docker-compose up -d
-    echo "getting Mesos dynamic port mappings"
+    echo "getting Mesos dynamic port mappings:"
     printf "getting Mesos Master port => "
     export MESOS_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$MESOS_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$MESOS_MASTER_PORT"
