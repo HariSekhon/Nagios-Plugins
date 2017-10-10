@@ -69,7 +69,7 @@ eg.
 docker run harisekhon/nagios-plugins check_ssl_cert.pl --help
 ```
 
-There are also `:centos`, `:debian` and `:ubuntu` tagged docker images available
+There are also `:centos` (`:latest`), `:alpine\, `:debian` and `:ubuntu` tagged docker images available
 
 #### Automated Build from Source
 
