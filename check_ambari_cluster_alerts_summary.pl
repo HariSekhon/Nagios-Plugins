@@ -15,7 +15,7 @@ Checks whether there are CRITICAL / WARNING / UNKNOWN alerts in Ambari and retur
 
 MAINTENANCE and OK counts are also output along with perfdata for tracking how this changes over time.
 
-Tested on Ambari 2.1.0, 2.1.2, 2.2.1 on Hortonworks HDP 2.2, 2.3, 2.4";
+Tested on Ambari 2.1.0, 2.1.2, 2.2.1, 2.5.1 on Hortonworks HDP 2.2, 2.3, 2.4, 2.6";
 
 $VERSION = "0.1";
 

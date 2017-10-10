@@ -20,7 +20,7 @@ or
 - optionally suppresses alerts in maintenance mode if using the switch --maintenance-ok
 - reports but does not raise critical for components which do not have running states such as HCatalog, Kerberos, Pig, Slider, Sqoop, Tez. You can extend this list at the top of the code (in which case please submit a ticket for the rest of us to get the update too)
 
-Tested on Ambari 1.4.4, 1.6.1, 1.7.0, 2.0.0, 2.1.0, 2.1.2, 2.2.1 on Hortonworks HDP 2.0, 2.1, 2.2, 2.3, 2.4";
+Tested on Ambari 1.4.4, 1.6.1, 1.7.0, 2.0.0, 2.1.0, 2.1.2, 2.2.1, 2.5.1 on Hortonworks HDP 2.0, 2.1, 2.2, 2.3, 2.4, 2.6";
 
 $VERSION = "0.7";
 

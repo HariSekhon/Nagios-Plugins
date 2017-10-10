@@ -15,7 +15,7 @@ Raises warning for any stale configs found. Lists services and in verbose mode l
 
 Optionally filter by any combination of node/service/component. Invalid service/component names will prompt you to use the --list switches but an invalid node name will result in a \"500 Server Error\" since that's what Ambari returns (actually causes NPE in Ambari - see Apache Jira AMBARI-6700)
 
-Tested on Ambari 1.6.1, 2.1.0, 2.1.2, 2.2.1 with Hortonworks HDP 2.1, 2.2. 2.3, 2.4";
+Tested on Ambari 1.6.1, 2.1.0, 2.1.2, 2.2.1, 2.5.1 with Hortonworks HDP 2.1, 2.2. 2.3, 2.4, 2.6";
 
 $VERSION = "0.4";
 

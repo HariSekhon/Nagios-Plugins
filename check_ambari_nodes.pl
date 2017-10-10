@@ -17,7 +17,7 @@ Checks:
 - all node states, with thresholds for number of unhealthy nodes (default w=0/c=0)
 - node health includes state of the host (always) and status of components (optionally disable with --host-state-only)
 
-Tested on Ambari 1.4.4, 1.6.1, 2.1.0, 2.1.2, 2.2.1 on Hortonworks HDP 2.0, 2.1, 2.2, 2.3, 2.4";
+Tested on Ambari 1.4.4, 1.6.1, 2.1.0, 2.1.2, 2.2.1, 2.5.1 on Hortonworks HDP 2.0, 2.1, 2.2, 2.3, 2.4, 2.6";
 
 $VERSION = "0.8";
 

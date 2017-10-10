@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check that an Ambari managed Hadoop cluster has
 
 Returns CRITICAL if security_type != KERBEROS
 
-Tested on Ambari 2.1.0, 2.1.2, 2.2.1 on Hortonworks HDP 2.2, 2.3, 2.4";
+Tested on Ambari 2.1.0, 2.1.2, 2.2.1, 2.5.1 on Hortonworks HDP 2.2, 2.3, 2.4, 2.6";
 
 $VERSION = "0.1";
 

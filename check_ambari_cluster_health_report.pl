@@ -17,7 +17,7 @@ Returns WARNING for INIT and maintenance states, but this is ignorable in Nagios
 
 HEARTBEAT_LOST returns UNKNOWN. Ambari also has it's own UNKNOWN, which returns the same.
 
-Tested on Ambari 2.1.0, 2.1.2, 2.2.1 on Hortonworks HDP 2.2, 2.3, 2.4";
+Tested on Ambari 2.1.0, 2.1.2, 2.2.1, 2.5.1 on Hortonworks HDP 2.2, 2.3, 2.4, 2.6";
 
 $VERSION = "0.1";
 
