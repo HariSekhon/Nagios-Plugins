@@ -346,8 +346,20 @@ EOF
     echo "Forced Failure Scenarios:"
     echo "sending kill signal to RegionServer"
     docker exec -ti "$DOCKER_CONTAINER" pkill -f RegionServer
-    echo "waiting 10 secs for RegionServer to go down"
-    sleep 10
+    # This doesn't work because the port still responds as open, even when the mapped port is down
+    # must be a result of docker networking
+    #when_ports_down 20  "$HBASE_HOST" "$HBASE_REGIONSERVER_PORT"
+    i=20
+    max_iterations=20
+    while docker exec "$DOCKER_CONTAINER" ps -ef | grep -q RegionServer; do
+        let i+=1
+        if [ $max_iterations -gt $max_iterations ]; then
+            echo "RegionServer process did not go down after $max_iterations secs!"
+            exit 1
+        fi
+        echo "waiting for RegionServer process to go down"
+        sleep 1
+    done
     hr
     run_fail 2 $perl -T ./check_hbase_regionservers.pl
     hr
