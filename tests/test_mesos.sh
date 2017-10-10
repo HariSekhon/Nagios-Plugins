@@ -33,7 +33,7 @@ MESOS_HOST="${MESOS_HOST%%:*}"
 export MESOS_HOST
 
 export MESOS_MASTER_PORT_DEFAULT=5050
-export MESOS_WORKER_PORT_DEFAULT=5051
+export MESOS_SLAVE_PORT_DEFAULT=5051
 export MESOS_MASTER="$MESOS_HOST:$MESOS_MASTER_PORT_DEFAULT"
 
 startupwait 30
@@ -50,19 +50,19 @@ test_mesos(){
     printf "getting Mesos Master port => "
     export MESOS_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$MESOS_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$MESOS_MASTER_PORT"
-    printf "getting Mesos Worker port => "
-    export MESOS_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$MESOS_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$MESOS_WORKER_PORT"
+    printf "getting Mesos Slave port => "
+    export MESOS_SLAVE_PORT="`docker-compose port "$DOCKER_SERVICE" "$MESOS_SLAVE_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$MESOS_SLAVE_PORT"
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    when_ports_available "$startupwait" "$MESOS_HOST" "$MESOS_MASTER_PORT" "$MESOS_WORKER_PORT"
+    when_ports_available "$startupwait" "$MESOS_HOST" "$MESOS_MASTER_PORT" "$MESOS_SLAVE_PORT"
     hr
     # could use state.json here but Slave doesn't have this so it's better differentiation
     when_url_content "$startupwait" "http://$MESOS_HOST:$MESOS_MASTER_PORT/" master
     hr
-    when_url_content "$startupwait" "http://$MESOS_HOST:$MESOS_WORKER_PORT/state.json" slave
+    when_url_content "$startupwait" "http://$MESOS_HOST:$MESOS_SLAVE_PORT/state.json" slave
     hr
     run_fail "0 2" $perl -T ./check_mesos_activated_slaves.pl -P "$MESOS_MASTER_PORT" -v
     hr
@@ -77,12 +77,12 @@ test_mesos(){
     echo "checking master metrics:"
     run $perl -T ./check_mesos_metrics.pl -P "$MESOS_MASTER_PORT" -v
     hr
-    echo "checking worker metrics:"
-    run $perl -T ./check_mesos_metrics.pl -P "$MESOS_WORKER_PORT" -v
+    echo "checking SLAVE metrics:"
+    run $perl -T ./check_mesos_metrics.pl -P "$MESOS_SLAVE_PORT" -v
     hr
     run $perl -T ./check_mesos_master_metrics.pl -v -P "$MESOS_MASTER_PORT"
     hr
-    run $perl -T ./check_mesos_slave_metrics.pl  -v -P "$MESOS_WORKER_PORT"
+    run $perl -T ./check_mesos_slave_metrics.pl  -v -P "$MESOS_SLAVE_PORT"
     hr
     set +e
     slave="$(./check_mesos_slave.py -l | awk '/=/{print $1; exit}')"
@@ -96,7 +96,7 @@ test_mesos(){
     # Not implemented yet
     #run $perl -T ./check_mesos_slave_container_statistics.pl -v
     hr
-    run $perl -T ./check_mesos_slave_state.pl -v -P "$MESOS_WORKER_PORT"
+    run $perl -T ./check_mesos_slave_state.pl -v -P "$MESOS_SLAVE_PORT"
     hr
     echo "Completed $run_count Mesos tests"
     hr
