@@ -64,13 +64,13 @@ test_mongo(){
     # not part of a replica set so this returns CRITICAL
     # TODO: more specific CLI runs to valid critical and output
     hr
-    $perl -T ./check_mongodb_master.pl || :
+    run_fail "0 2" $perl -T ./check_mongodb_master.pl
     hr
-    $perl -T ./check_mongodb_master_rest.pl
+    run_fail "0 2" $perl -T ./check_mongodb_master_rest.pl
     hr
     # Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
     if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
-        $perl -T ./check_mongodb_write.pl -v
+        run $perl -T ./check_mongodb_write.pl -v
     fi
     hr
     delete_container
@@ -112,14 +112,14 @@ EOF
     # not part of a replica set so this returns CRITICAL
     # TODO: more specific CLI runs to valid critical and output
     hr
-    $perl -T ./check_mongodb_master.pl || :
+    run_fail "0 2" $perl -T ./check_mongodb_master.pl
     hr
     # TODO: Fails - authentication not supported, basic auth doesn't seem to work
-    $perl -T ./check_mongodb_master_rest.pl -v || :
+    run_fail "0 2" $perl -T ./check_mongodb_master_rest.pl -v
     hr
     # Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
     if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
-        $perl -T ./check_mongodb_write.pl -v
+        run $perl -T ./check_mongodb_write.pl -v
     fi
     hr
     delete_container "$DOCKER_CONTAINER-auth"
