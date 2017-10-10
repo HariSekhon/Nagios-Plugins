@@ -52,8 +52,8 @@ if ! when_ports_available 5 "$CM_HOST" "$CM_PORT"; then
     exit 0
 fi
 
-if when_url_content 5 "$PROTOCOL://$CM_HOST:$CM_PORT/cmf/login" cloudera; then
-    echo "WARNING: Cloudera Manager host $CM_HOST:$CM_PORT did not contain cloudera in html, may be some other service bound to the port, skipping..."
+if when_url_content 5 "$PROTOCOL://$CM_HOST:$CM_PORT/cmf/login" Cloudera; then
+    echo "WARNING: Cloudera Manager host $CM_HOST:$CM_PORT did not contain Cloudera in html, may be some other service bound to the port, skipping..."
     echo
     echo
     exit 0
