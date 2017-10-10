@@ -20,7 +20,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$srcdir/..";
 
 grep -Hn 'check_' tests/test_*.sh |
-sed 's/#.*//' |
+sed 's/#.*// ; s/[[:space:]]>[[:space:]].*//' |
 # could put these all in one big alternation regex but separately is easier to maintain
 egrep -v -e '\.sh:[[:digit:]]+:[[:space:]]*$' \
          -e '\.sh:[[:digit:]]+:[[:space:]]*run(_grep|_fail)?[[:space:]]' \
@@ -28,5 +28,8 @@ egrep -v -e '\.sh:[[:digit:]]+:[[:space:]]*$' \
          -e '\.sh:[[:digit:]]+:[[:space:]]*check_docker_available' \
          -e '\.sh:[[:digit:]]+:[[:space:]]*check_exit_code[[:space:]]' \
          -e '[[:space:]]+(&&|\|\|)[[:space:]]+break' \
-         -e '[[:space:]]*\|[[:space:]]*$' \
-         -e '\$\('
+         -e '[[:space:]]\|([[:space:]]|"?$)' \
+         -e 'for x in ' \
+         -e 'echo "WARNING:'
+         # this fails to find tests which are using subshells to determine args like check_timezone.pl
+         #-e '\$\('
