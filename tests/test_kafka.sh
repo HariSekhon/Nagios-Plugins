@@ -102,9 +102,11 @@ test_kafka(){
     hr
     run ./check_kafka.py -B "$KAFKA_HOST" -P "$KAFKA_PORT" -v
     hr
-    run KAFKA_BROKERS="$KAFKA_HOST" ./check_kafka.py -v
+    KAFKA_BROKERS="$KAFKA_HOST" \
+    run ./check_kafka.py -v
     hr
-    run KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" ./check_kafka.py -P "999" -v
+    KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" \
+    run ./check_kafka.py -P "999" -v
     hr
     run ./check_kafka.py -v
     hr
@@ -141,7 +143,8 @@ test_kafka(){
     hr
     run_fail 2 $perl -T ./check_kafka.pl -H localhost -P 9999 -v
     hr
-    run KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" KAFKA_HOST="" KAFKA_PORT="" $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
+    KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" KAFKA_HOST="" KAFKA_PORT="" \
+    run $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
     hr
     run $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
     hr
