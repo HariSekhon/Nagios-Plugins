@@ -368,7 +368,8 @@ There are full multi-level suites of tests against this repository and its libra
 
 [Continuous Integration](https://travis-ci.org/HariSekhon/nagios-plugins) is run on this repo with tests for success and failure scenarios:
 - Unit Tests - over 1200 unit tests covering the [Perl library](https://github.com/harisekhon/lib) and [Python library](https://githu.com/harisekhon/pylib)
-- Integration tests of the top level programs using the libraries for things like option parsing
+- Integration tests checking dependency integration, usage `--help` generation etc.
+- Custom tests for various languages and build systems, linting, coding style, and other standardizations
 - Functional Tests - nearly 700 full functional [tests/](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) using dozens of [Docker Images](https://hub.docker.com/u/harisekhon/) for full API testing of the various technologies
 
 To trigger all tests run:
