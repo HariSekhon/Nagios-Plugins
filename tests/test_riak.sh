@@ -53,8 +53,9 @@ test_riak(){
     VERSION="$version" docker-compose up -d
     export RIAK_PORT="`docker-compose port "$DOCKER_SERVICE" "$RIAK_PORT_DEFAULT" | sed 's/.*://'`"
     when_ports_available "$startupwait" "$RIAK_HOST" "$RIAK_PORT"
-    echo "sleeping for 5 secs to allow process to settle"
-    sleep 5
+    hr
+    when_url_content "$startupwait" "http://$RIAK_HOST:$RIAK_PORT/ping" OK
+    hr
     # Riak 2.x
     #echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
     #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type create myBucket '{"props":{"n_val":1}}' || :
@@ -73,8 +74,7 @@ test_riak(){
     #docker_exec check_riak_diag.pl --ignore-warnings -v
     # must attempt to check this locally if available - but may get "CRITICAL: 'riak-admin diag' returned 1 -  Node is not running!"
     if which riak-admin; then
-        echo "$perl -T check_riak_diag.pl --ignore-warnings -v || :"
-        $perl -T check_riak_diag.pl --ignore-warnings -v || :
+        run_fail "0 2" $perl -T check_riak_diag.pl --ignore-warnings -v
     fi
     hr
     run $perl -T check_riak_key.pl -b myBucket -k myKey -e hari -v
@@ -108,46 +108,3 @@ test_riak(){
 }
 
 run_test_versions Riak
-
-
-# ============================================================================ #
-#                                     E N D
-# ============================================================================ #
-exit 0
-# ============================================================================ #
-# Old Travis checks not used any more
-
-echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
-$sudo riak-admin bucket-type create myBucket '{"props":{"n_val":1}}' || :
-$sudo riak-admin bucket-type activate myBucket
-$sudo riak-admin bucket-type update myBucket '{"props":{"n_val":1}}'
-echo "creating test Riak document"
-# don't use new bucket types yet
-#curl -XPUT localhost:$RIAK_PORT/types/myType/buckets/myBucket/keys/myKey -d 'hari'
-curl -XPUT $RIAK_HOST:$RIAK_PORT/buckets/myBucket/keys/myKey -d 'hari'
-echo "done"
-hr
-# needs sudo - uses wrong version of perl if not explicit path with sudo
-$sudo $perl -T ./check_riak_diag.pl --ignore-warnings -v
-hr
-$perl -T ./check_riak_key.pl -b myBucket -k myKey -e hari -v
-hr
-$sudo $perl -T ./check_riak_member_status.pl -v
-hr
-# needs sudo - riak must be started as root in Travis
-$sudo $perl -T ./check_riak_ringready.pl -v
-hr
-$perl -T ./check_riak_stats.pl --all -v
-hr
-$perl -T ./check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
-hr
-$perl -T ./check_riak_stats.pl -s disk.0.size -c 1024: -v
-hr
-$perl -T ./check_riak_write.pl -v
-hr
-# needs sudo - riak must be started as root in Travis
-$sudo $perl -T ./check_riak_write_local.pl -v
-hr
-$perl -T ./check_riak_version.pl
-
-echo; echo
