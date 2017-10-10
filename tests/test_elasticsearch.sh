@@ -46,7 +46,11 @@ test_elasticsearch(){
     local version="$1"
     section2 "Setting up Elasticsearch $version test container"
     VERSION="$version" docker-compose up -d
+    echo "getting Elasticsearch dynamic port mapping:"
+    printf "Elasticsearch port => "
     export ELASTICSEARCH_PORT="`docker-compose port "$DOCKER_SERVICE" "$ELASTICSEARCH_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$ELASTICSEARCH_PORT"
+    hr
     when_ports_available "$startupwait" "$ELASTICSEARCH_HOST" "$ELASTICSEARCH_PORT"
     hr
     when_url_content "$startupwait" "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT" "lucene_version"
