@@ -54,6 +54,7 @@ test_kafka(){
     # not mapping kafka port any more
     #kafka_port="`docker-compose port "$DOCKER_SERVICE" "$KAFKA_PORT" | sed 's/.*://'`"
     #local KAFKA_PORT="$kafka_port"
+    hr
     when_ports_available $startupwait $KAFKA_HOST $KAFKA_PORT
     hr
     echo "checking if Kafka topic already exists:"
