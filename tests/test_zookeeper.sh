@@ -48,7 +48,11 @@ test_zookeeper(){
     local version="$1"
     section2 "Setting up ZooKeeper $version test container"
     VERSION="$version" docker-compose up -d
+    echo "getting ZooKeeper dynammic port mapping:"
+    printf "ZooKeeper port => "
     export ZOOKEEPER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$ZOOKEEPER_PORT"
+    hr
     when_ports_available "$startupwait" "$ZOOKEEPER_HOST" "$ZOOKEEPER_PORT"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
