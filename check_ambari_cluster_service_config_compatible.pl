@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check an Ambari managed Cluster's desired servi
 
 Tested on Ambari 2.1.0, 2.1.2, 2.2.1, 2.5.1 on Hortonworks HDP 2.2, 2.3, 2.4, 2.6";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -85,12 +85,13 @@ foreach my $service (sort keys %desired_service_config_versions){
 }
 if(%incompat){
     critical;
-    $msg .= "not compatible: ";
+    $msg .= "not compatible - ";
     foreach my $service (sort keys %incompat){
-        $msg .= "$service cluster = " . strBool($incompat{$service}{"cluster_compat"})
-                     . ", stack = "   . strBool($incompat{$service}{"stack_compat"})
-                     . ", current = " . strBool($incompat{$service}{"current"});
+        $msg .= "$service: cluster compatible = " . strBool($incompat{$service}{"cluster_compat"})
+                     . ", compatible with current stack = "   . strBool($incompat{$service}{"stack_compat"})
+                     . ", is current = " . strBool($incompat{$service}{"current"}) . " - ";
     }
+    $msg =~ s/ - $//;
 } else {
     $msg .= "all compatible";
 }
