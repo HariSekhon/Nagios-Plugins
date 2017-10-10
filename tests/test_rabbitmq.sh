@@ -151,7 +151,6 @@ EOF
     local RABBITMQ_PORT="$RABBITMQ_HTTP_PORT"
     # ============================================================================ #
     hr
-    echo "check_rabbitmq_auth.py:"
     run ./check_rabbitmq_auth.py
     hr
     run ./check_rabbitmq_auth.py --tag 'admin.*'
@@ -196,15 +195,14 @@ EOF
     # ============================================================================ #
     hr
     set +e
-    echo "check_rabbitmq_aliveness raises critical for non-existent vhost object not found:"
+    echo "check raises critical for non-existent vhost object not found:"
     run_fail 2 ./check_rabbitmq_aliveness.py --vhost "nonexistentvhost"
     hr
     # ============================================================================ #
     hr
-    echo "check_rabbitmq_exchange:"
     run_fail 3 ./check_rabbitmq_vhost.py --list-vhosts
     hr
-    echo "check_rabbitmq_vhost.py raises critical for non-existent vhost:"
+    echo "check raises critical for non-existent vhost:"
     run_fail 2 ./check_rabbitmq_vhost.py --vhost 'nonexistentvhost'
     hr
     echo "and with tracing:"
@@ -218,20 +216,18 @@ EOF
     hr
     # ============================================================================ #
     hr
-    echo "check_rabbitmq_exchange:"
     run_fail 3 ./check_rabbitmq_exchange.py --list-exchanges
     hr
     run ./check_rabbitmq_exchange.py --exchange exchange1 -v
     hr
-    echo "checking check_rabbitmq_exchange.py non-existent vhost raises critical:"
+    echo "check non-existent vhost raises critical:"
     run_fail 2 ./check_rabbitmq_exchange.py --vhost 'nonexistentvhost' --exchange amq.direct
     hr
-    echo "checking check_rabbitmq_exchange.py non-existent exchange raises critical:"
+    echo "check non-existent exchange raises critical:"
     run_fail 2 ./check_rabbitmq_exchange.py --exchange 'nonexistentexchange'
     hr
     # ============================================================================ #
     hr
-    echo "check_rabbitmq_queue.py:"
     run_fail 3 ./check_rabbitmq_queue.py --list-queues
     hr
     run ./check_rabbitmq_queue.py --queue queue1 --durable true
@@ -262,12 +258,12 @@ EOF
         if [ "$version" = "latest" ] ||
             [ ${version:0:1} -gt 3 ] ||
             [ ${version:0:1} -eq 3 -a ${version:2:1} -ge 6 ]; then
-            echo "check_rabbitmq_healthchecks.py (RabbitMQ 3.6+ only):"
+            echo "(RabbitMQ 3.6+ only):"
             run ./check_rabbitmq_healthchecks.py
             hr
         fi
         hr
-        echo "check_rabbitmq_stats_db_event_queue.py (RabbitMQ 3.5+ only):"
+        echo "(RabbitMQ 3.5+ only):"
         run ./check_rabbitmq_stats_db_event_queue.py
         hr
         echo "check auth failure for stats db event queue check"
