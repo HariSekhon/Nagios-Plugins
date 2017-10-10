@@ -37,7 +37,7 @@ export MNTDIR="/pl"
 startupwait=1
 DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
 DOCKER_CMD="tail -f /dev/null"
-check_whois="./check_whois.pl"
+check_whois="run ./check_whois.pl"
 using_docker=""
 
 # Mac JWhois 4.0 has more issues than CentOS JWhois 4.0 such as "error while checking domain 'google.com': [Unable to connect to remote host]" so use dockerized test on Mac too
@@ -50,7 +50,7 @@ if ! which jwhois &>/dev/null || is_mac; then
     fi
     echo "jwhois not found in \$PATH, attempting to use Dockerized test instead"
     launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
-    docker exec -ti "$DOCKER_CONTAINER" ls -l /pl
+    #docker exec -ti "$DOCKER_CONTAINER" ls -l /pl
     check_whois="run docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/check_whois.pl"
     using_docker=1
 fi
@@ -220,9 +220,10 @@ for domain in $domains; do
     # for some reason .cn domains often fail on Travis, probably blacklisted
     is_CI && [[ -z "$ALL" && "$domain" =~ \.cn$ ]] && continue
     printf "%-20s  " "$domain:"
-    # don't want people with 25 days left on their domains raising errors here, setting thresholds lower to always pass
+    # counter is lost in subshell but we need to capture so increment here
+    run++
     set +eo pipefail
-    echo "$check_whois -d $domain -w 10 -c 2 -t 30 -v $verbose"
+    # don't want people with 25 days left on their domains raising errors here, setting thresholds lower to always pass
     output=`$check_whois -d $domain -w 10 -c 2 -t 30 -v $verbose`
     result=$?
     echo "$output"
@@ -251,8 +252,9 @@ done
 echo "Testing Domains excluding nameservers:"
 for domain in $domains_no_nameservers; do
     [ -z "$ALL" -a "$(($RANDOM % 2))" = 0 ] || continue
+    # counter is lost in subshell but we need to capture so increment here
+    run++
     set +eo pipefail
-    echo "$check_whois -d $domain -w 10 -c 2 --no-nameservers -t 30 -v $verbose"
     output=`$check_whois -d $domain -w 10 -c 2 --no-nameservers -t 30 -v $verbose`
     result=$?
     echo "$output"
@@ -267,8 +269,10 @@ done
 if [ -n "$using_docker" ]; then
     [ -n "${KEEPDOCKER:-}" ] ||
     delete_container
+    hr
 fi
 
+echo
 echo "Completed $run_count Whois tests"
 echo
 echo "All Whois tests passed successfully"
