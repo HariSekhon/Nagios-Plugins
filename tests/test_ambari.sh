@@ -46,8 +46,8 @@ if ! when_ports_available 5 "$AMBARI_HOST" $AMBARI_PORT; then
     exit 0
 fi
 
-if ! when_url_content 5 "http://$AMBARI_HOST:$AMBARI_PORT" ambari; then
-    echo "WARNING: Ambari host $AMBARI_HOST:$AMBARI_PORT did not contain ambari in html, may be some other service bound to the port, skipping..."
+if ! when_url_content 5 "http://$AMBARI_HOST:$AMBARI_PORT" Ambari; then
+    echo "WARNING: Ambari host $AMBARI_HOST:$AMBARI_PORT did not contain Ambari in html, may be some other service bound to the port, skipping..."
     echo
     echo
     untrap
@@ -58,45 +58,25 @@ fi
 [ "$AMBARI_CLUSTER" = "$SANDBOX_CLUSTER" ] && set +e
 echo "testing Ambari server $AMBARI_HOST"
 hr
-echo "$perl -T check_ambari_cluster_alerts_host_summary.pl"
-$perl -T check_ambari_cluster_alerts_host_summary.pl
-check_exit_code 0 1 2
+run_fail "0 1 2" $perl -T check_ambari_cluster_alerts_host_summary.pl
 hr
-echo "$perl -T check_ambari_cluster_alerts_summary.pl"
-$perl -T check_ambari_cluster_alerts_summary.pl
-check_exit_code 0 1 2
+run_fail "0 1 2" $perl -T check_ambari_cluster_alerts_summary.pl
 hr
-echo "$perl -T check_ambari_cluster_health_report.pl"
-$perl -T check_ambari_cluster_health_report.pl
-check_exit_code 0 1 2
+run_fail "0 1 2" $perl -T check_ambari_cluster_health_report.pl
 hr
-echo "$perl -T check_ambari_cluster_kerberized.pl"
-$perl -T check_ambari_cluster_kerberized.pl
-check_exit_code 0 2
+run_fail "0 2" $perl -T check_ambari_cluster_kerberized.pl
 hr
-echo "$perl -T check_ambari_cluster_service_config_compatible.pl"
-$perl -T check_ambari_cluster_service_config_compatible.pl
-check_exit_code 0 1 2
+run_fail "0 1 2" $perl -T check_ambari_cluster_service_config_compatible.pl
 hr
-echo "$perl -T check_ambari_cluster_total_hosts.pl"
-$perl -T check_ambari_cluster_total_hosts.pl
-check_exit_code 0 1 2
+run_fail "0 1 2" $perl -T check_ambari_cluster_total_hosts.pl
 hr
-echo "$perl -T check_ambari_cluster_version.pl"
-$perl -T check_ambari_cluster_version.pl
-check_exit_code 0 1 2
+run_fail "0 1 2" $perl -T check_ambari_cluster_version.pl
 hr
-echo "$perl -T check_ambari_config_stale.pl"
-$perl -T check_ambari_config_stale.pl
-check_exit_code 0 1 2
+run_fail "0 1 2" $perl -T check_ambari_config_stale.pl
 hr
-echo "$perl -T check_ambari_nodes.pl"
-$perl -T check_ambari_nodes.pl
-check_exit_code 0 1 2
+run_fail "0 1 2" $perl -T check_ambari_nodes.pl
 hr
-echo "$perl -T check_ambari_services.pl"
-$perl -T check_ambari_services.pl
-check_exit_code 0 1 2
+run_fail "0 1 2" $perl -T check_ambari_services.pl
 hr
 echo "Completed $run_count Ambari tests"
 echo
