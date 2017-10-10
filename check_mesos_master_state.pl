@@ -16,7 +16,7 @@ Outputs various details such as leader, version and activated/deactivated slaves
 
 Tested on Mesos 0.23 and 0.24";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -28,8 +28,9 @@ use HariSekhonUtils qw/:DEFAULT :time/;
 use Data::Dumper;
 use LWP::Simple '$ua';
 
-env_creds(["Mesos Master", "Mesos"], "Mesos");
 set_port_default(5050);
+
+env_creds(["Mesos Master", "Mesos"], "Mesos");
 
 %options = (
     %hostoptions,
