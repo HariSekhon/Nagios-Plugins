@@ -33,8 +33,9 @@ export NEO4J_HOST
 export NEO4J_USERNAME="${NEO4J_USERNAME:-${NEO4J_USERNAME:-neo4j}}"
 export NEO4J_PASSWORD="${NEO4J_PASSWORD:-${NEO4J_PASSWORD:-testpw}}"
 
-export NEO4J_PORT_DEFAULT="7474"
-export NEO4J_PORTS_DEFAULT="$NEO4J_PORT_DEFAULT 7473 7687"
+export NEO4J_PORT_DEFAULT=7474
+export NEO4J_HTTP_PORT_DEFAULT=7473
+export NEO4J_BOLT_PORT_DEFAULT=7687
 
 check_docker_available
 
@@ -43,7 +44,18 @@ trap_debug_env neo4j
 startupwait 20
 
 neo4j_setup(){
-    when_ports_available "$startupwait" "$NEO4J_HOST" $NEO4J_PORTS
+    echo "getting Neo4J dynammic port mappings:"
+    printf "Neo4J HTTP port => "
+    export NEO4J_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$NEO4J_PORT"
+    printf "Neo4J HTTPS port => "
+    export NEO4J_HTTPS_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$NEO4J_HTTPS_PORT"
+    printf "Neo4J Bolt port => "
+    export NEO4J_BOLT_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$NEO4J_BOLT_PORT"
+    hr
+    when_ports_available "$startupwait" "$NEO4J_HOST" "$NEO4J_PORT" "$NEO4J_HTTPS_PORT" "$NEO4J_BOLT_PORT"
     hr
     if [ "${version:0:1}" = "2" ]; then
         :
@@ -70,8 +82,6 @@ test_neo4j_noauth(){
     # otherwise repeated attempts create more nodes and break the NumberOfNodeIdsInUse upper threshold
     docker-compose down &>/dev/null || :
     VERSION="$version" docker-compose up -d
-    export NEO4J_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
-    export NEO4J_PORTS=`{ for x in $NEO4J_PORTS_DEFAULT; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
     neo4j_setup
     hr
     if [ "${NOTESTS:-}" ]; then
@@ -112,8 +122,6 @@ test_neo4j_auth(){
     local startupwait=20
     docker-compose down &>/dev/null || :
     VERSION="$version" NEO4J_AUTH="$NEO4J_USERNAME/$NEO4J_PASSWORD" docker-compose up -d
-    export NEO4J_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
-    export NEO4J_PORTS=`{ for x in $NEO4J_PORTS_DEFAULT; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
     neo4j_setup
     hr
     if [ "${NOTESTS:-}" ]; then
