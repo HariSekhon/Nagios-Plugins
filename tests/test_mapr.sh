@@ -53,8 +53,8 @@ if ! when_ports_available 5 "$MAPR_HOST" "$MAPR_PORT"; then
     exit 0
 fi
 
-if ! when_url_content 5 "$PROTOCOL://$MAPR_HOST:$MAPR_PORT/mcs" mapr; then
-    echo "WARNING: MapR Control System host $PROTOCOL://$MAPR_HOST:$MAPR_PORT/mcs did not contain mapr in html, may be some other service bound to the port, skipping..."
+if ! when_url_content 5 "$PROTOCOL://$MAPR_HOST:$MAPR_PORT/mcs" MapR; then
+    echo "WARNING: MapR Control System host $PROTOCOL://$MAPR_HOST:$MAPR_PORT/mcs did not contain MapR in html, may be some other service bound to the port, skipping..."
     exit 0
 fi
 
