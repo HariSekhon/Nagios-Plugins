@@ -65,7 +65,7 @@ test_apache_drill(){
     hr
     echo "found Apache Drill version $found_version"
     hr
-    #./check_apache_drill_version.py -v -e "$version"
+    #run ./check_apache_drill_version.py -v -e "$version"
     hr
     run ./check_apache_drill_status.py -v
     hr
