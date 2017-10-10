@@ -364,7 +364,7 @@ If you update often and want to just quickly git pull + submodule update but ski
 
 #### Testing
 
-There are full multi-level suites of tests against this repository and it's libraries.
+There are full multi-level suites of tests against this repository and its libraries.
 
 [Continuous Integration](https://travis-ci.org/HariSekhon/pytools) is run on this repo with tests for success and failure scenarios:
 - Unit Tests - over 1200 unit tests covering the [Perl library](https://github.com/harisekhon/lib) and [Python library](https://githu.com/harisekhon/pylib)
