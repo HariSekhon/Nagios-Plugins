@@ -455,7 +455,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 ### Further Utilities ###
 
-[Tools](https://github.com/harisekhon/tools) & [PyTools](https://github.com/harisekhon/pytools) repos - contains another 50+ programs including useful tools such as:
+[Tools](https://github.com/harisekhon/tools) & [PyTools](https://github.com/harisekhon/pytools) repos - contains another 75+ programs including useful tools such as:
 * Hive / Pig => Elasticsearch / SolrCloud indexers
 * Hadoop HDFS performance debugger, native checksum extractor, file retention policy script, HDFS file stats, XML & running Hadoop cluster config differ
 * ```watch_url.pl``` - debugs load balanced web farms via multiple queries to a URL - returns HTTP status codes, % success across all requests, timestamps, round trip times, and optionally the output
