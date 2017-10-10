@@ -66,6 +66,10 @@ startupwait 15
 test_hbase(){
     local version="$1"
     section2 "Setting up HBase $version test container"
+    # we kill RegionServer and Thrift server near the end to test failure scenarios so do not re-use these containers
+    if [ -z "${KEEPDOCKER:-}" ]; then
+        docker-compose down || :
+    fi
     VERSION="$version" docker-compose up -d
     if [ "$version" = "0.96" -o "$version" = "0.98" ]; then
         local export HBASE_MASTER_PORT_DEFAULT=60010
@@ -357,20 +361,23 @@ EOF
     run_fail 2 $perl -T ./check_hbase_regionservers_jsp.pl -w 2 -c 2
     hr
 # ============================================================================ #
-    echo "Thrift API checks will hang so these python plugins will self timeout after 10 secs with UNKNOWN when the sole RegionServer is down"
-    run_fail 3 ./check_hbase_table.py -T t1
+    echo "Thrift API checks will hang so these python plugins will self timeout with UNKNOWN when the sole RegionServer is down"
+    run_fail 3 ./check_hbase_table.py -T t1 -t 5
     hr
-    run_fail 3 ./check_hbase_table_enabled.py -T t1
+    run_fail 3 ./check_hbase_table_enabled.py -T t1 -t 5
     hr
-    run_fail 3 ./check_hbase_table_regions.py -T DisabledTable
+    run_fail 3 ./check_hbase_table_regions.py -T DisabledTable -t 5
     hr
-    run_fail 3 ./check_hbase_cell.py -T t1 -R r1 -C cf1:q1
+    run_fail 3 ./check_hbase_cell.py -T t1 -R r1 -C cf1:q1 -t 5
     hr
     echo "sending kill signal to ThriftServer"
     docker-compose exec "$DOCKER_SERVICE" pkill -f ThriftServer
-    echo "waiting 5 secs for ThriftServer to go down"
-    sleep 5
-    echo "Thrift API checks should now fail with exit code 2"
+    # leaving a race condition here intentionally as depending on timing it may trigger
+    # either connection refused or connection reset but the code has been upgraded to handle
+    # both as CRITICAL rather than falling through to the UNKNOWN status handler in the pylib framework
+    echo "waiting 2 secs for ThriftServer to go down"
+    sleep 2
+    echo "Thrift API checks should now fail with exit code 2:"
     run_fail 2 ./check_hbase_table.py -T t1
     hr
     run_fail 2 ./check_hbase_table_enabled.py -T t1
