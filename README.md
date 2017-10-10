@@ -462,7 +462,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 * tools for Ambari, Pig, Hive, Spark + IPython Notebook, Solr CLI
 * code reCaser for SQL / Pig / Neo4j / Hive HQL / Cassandra / MySQL / PostgreSQL / Impala / MSSQL / Oracle / Dockerfiles
 * ```scrub.pl``` - anonymizes configs / logs for posting online - replaces hostnames/domains/FQDNs, IPs, passwords/keys in Cisco/Juniper configs, custom extensible phrases like your name or your company name
-* ```validate_json/yaml/ini/xml/avro/parquet.py``` - validates JSON, YAML, Ini (Java properties), XML, Avro, Parquet including directory trees, standard input and even optionally 'single quoted json' and multi-record bulk JSON data formats as found in MongoDB and Hadoop / Big Data systems.
+* ```validate_json/yaml/ini/xml/avro/parquet.py``` - validates JSON, YAML, INI (Java properties), XML, Avro, Parquet including directory trees, standard input and even optionally 'single quoted json' and multi-record bulk JSON data formats as found in MongoDB and Hadoop / Big Data systems.
 * PySpark Avro / CSV / JSON / Parquet data converters
 * Ambari Blueprints tool & templates
 * AWS CloudFormation templates
