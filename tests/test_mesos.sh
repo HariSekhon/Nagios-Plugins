@@ -72,22 +72,23 @@ test_mesos(){
     hr
     run $perl -T ./check_mesos_master_health.pl -v
     hr
-    run $perl -T ./check_mesos_master_state.pl -v -P "$MESOS_MASTER_PORT"
+    run $perl -T ./check_mesos_master_state.pl -v
     hr
+    # must specify ports here as calling generic base plugin
     echo "checking master metrics:"
     run $perl -T ./check_mesos_metrics.pl -P "$MESOS_MASTER_PORT" -v
     hr
     echo "checking SLAVE metrics:"
     run $perl -T ./check_mesos_metrics.pl -P "$MESOS_SLAVE_PORT" -v
     hr
-    run $perl -T ./check_mesos_master_metrics.pl -v -P "$MESOS_MASTER_PORT"
+    run $perl -T ./check_mesos_master_metrics.pl -v
     hr
-    run $perl -T ./check_mesos_slave_metrics.pl  -v -P "$MESOS_SLAVE_PORT"
+    run $perl -T ./check_mesos_slave_metrics.pl  -v
     hr
     set +e
     slave="$(./check_mesos_slave.py -l | awk '/=/{print $1; exit}')"
     set -e
-    echo "checking for Mesos Slave '$slave' via Mesos Master API"
+    echo "checking for Mesos Slave '$slave' via Mesos Master API:"
     run ./check_mesos_slave.py -v -s "$slave" -P "$MESOS_MASTER_PORT"
     hr
     # Not implemented yet
