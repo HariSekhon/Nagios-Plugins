@@ -45,8 +45,14 @@ test_tachyon(){
     local version="$1"
     section2 "Setting up Tachyon $version test container"
     VERSION="$version" docker-compose up -d
+    echo "getting Tachyon dynamic port mappings:"
+    printf "Tachyon Master port => "
     export TACHYON_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$TACHYON_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$TACHYON_MASTER_PORT"
+    printf "Tachyon Worker port => "
     export TACHYON_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$TACHYON_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$TACHYON_WORKER_PORT"
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
