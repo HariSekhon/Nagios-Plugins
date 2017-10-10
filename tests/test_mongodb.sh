@@ -51,7 +51,7 @@ fi
 
 test_mongo(){
     local version="$1"
-    echo "Setting up MongoDB $version test container"
+    section2 "Setting up MongoDB $version test container"
     local DOCKER_CMD="--rest"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MONGO_PORTS
     when_ports_available $startupwait $MONGODB_HOST $MONGO_PORTS
@@ -73,6 +73,7 @@ test_mongo(){
         run $perl -T ./check_mongodb_write.pl -v
     fi
     hr
+    [ -n "${KEEPDOCKER:-}" ] ||
     delete_container
     echo
 }
@@ -86,7 +87,7 @@ export MONGODB_PASSWORD="testpw"
 
 test_mongo_auth(){
     local version="$1"
-    echo "Setting up MongoDB $version authenticated test container"
+    section2 "Setting up MongoDB $version authenticated test container"
     local DOCKER_CMD="mongod --auth --rest"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER-auth" $MONGO_PORTS
     when_ports_available $startupwait $MONGODB_HOST $MONGO_PORTS
@@ -122,10 +123,12 @@ EOF
         run $perl -T ./check_mongodb_write.pl -v
     fi
     hr
+    [ -n "${KEEPDOCKER:-}" ] ||
     delete_container "$DOCKER_CONTAINER-auth"
 }
 
 for version in $(ci_sample $MONGO_VERSIONS); do
     test_mongo $version
     test_mongo_auth $version
+    echo "Completed $run_count MongoDB tests"
 done
