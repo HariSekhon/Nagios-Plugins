@@ -50,7 +50,11 @@ test_consul(){
     local version="$1"
     section2 "Setting up Consul $version test container"
     VERSION="$version" docker-compose up -d
+    echo "getting Consul dynamic port mapping:"
+    printf "Consul port => "
     export CONSUL_PORT="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$CONSUL_PORT"
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
