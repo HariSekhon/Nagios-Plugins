@@ -366,7 +366,7 @@ If you update often and want to just quickly git pull + submodule update but ski
 
 There are full multi-level suites of tests against this repository and its libraries.
 
-[Continuous Integration](https://travis-ci.org/HariSekhon/pytools) is run on this repo with tests for success and failure scenarios:
+[Continuous Integration](https://travis-ci.org/HariSekhon/nagios-plugins) is run on this repo with tests for success and failure scenarios:
 - Unit Tests - over 1200 unit tests covering the [Perl library](https://github.com/harisekhon/lib) and [Python library](https://githu.com/harisekhon/pylib)
 - Integration tests of the top level programs using the libraries for things like option parsing
 - Functional Tests - nearly 700 full functional [tests/](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) using dozens of [Docker Images](https://hub.docker.com/u/harisekhon/) for full API testing of the various technologies
