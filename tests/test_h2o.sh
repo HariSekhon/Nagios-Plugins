@@ -44,7 +44,11 @@ test_h2o(){
     local version="$1"
     section2 "Setting up H2O $version test container"
     VERSION="$version" docker-compose up -d
+    echo "getting H2O dynamic port mapping:"
+    printf "H2O port => "
     export H2O_PORT="`docker-compose port "$DOCKER_SERVICE" "$H2O_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$H2O_PORT"
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
