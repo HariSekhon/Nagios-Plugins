@@ -41,6 +41,7 @@ startupwait 1
 test_memcached(){
     local version="$1"
     section2 "Setting up Memcached $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     echo "getting Memcached dynamic port mapping:"
     printf "Memcached port => "

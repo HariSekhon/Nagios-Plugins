@@ -45,6 +45,7 @@ trap_debug_env mesos
 test_mesos(){
     local version="${1:-latest}"
     section2 "Setting up Mesos $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     echo "getting Mesos dynamic port mappings:"
     printf "getting Mesos Master port => "

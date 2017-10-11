@@ -41,6 +41,7 @@ startupwait 30
 test_presto(){
     local version="$1"
     section2 "Setting up Presto $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     echo "getting Presto dynamic port mapping:"
     print "Presto port => "

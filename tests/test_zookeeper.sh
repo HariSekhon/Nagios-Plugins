@@ -47,6 +47,7 @@ startupwait 10
 test_zookeeper(){
     local version="$1"
     section2 "Setting up ZooKeeper $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     echo "getting ZooKeeper dynammic port mapping:"
     printf "ZooKeeper port => "

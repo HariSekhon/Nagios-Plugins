@@ -45,6 +45,7 @@ startupwait 30
 test_elasticsearch(){
     local version="$1"
     section2 "Setting up Elasticsearch $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     echo "getting Elasticsearch dynamic port mapping:"
     printf "Elasticsearch port => "

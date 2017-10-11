@@ -44,6 +44,7 @@ trap_debug_env tachyon
 test_tachyon(){
     local version="$1"
     section2 "Setting up Tachyon $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     echo "getting Tachyon dynamic port mappings:"
     printf "Tachyon Master port => "

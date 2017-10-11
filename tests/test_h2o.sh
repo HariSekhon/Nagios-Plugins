@@ -43,6 +43,7 @@ startupwait 20
 test_h2o(){
     local version="$1"
     section2 "Setting up H2O $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     echo "getting H2O dynamic port mapping:"
     printf "H2O port => "

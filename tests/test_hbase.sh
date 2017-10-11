@@ -70,6 +70,7 @@ test_hbase(){
     if [ -z "${KEEPDOCKER:-}" ]; then
         docker-compose down || :
     fi
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     if [ "$version" = "0.96" -o "$version" = "0.98" ]; then
         local export HBASE_MASTER_PORT_DEFAULT=60010

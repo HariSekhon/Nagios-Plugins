@@ -50,6 +50,7 @@ test_kafka(){
     local version="$1"
     section2 "Setting up Apache Kafka $version test container"
     export ADVERTISED_HOSTNAME="$KAFKA_HOST"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     # not mapping kafka port any more
     #kafka_port="`docker-compose port "$DOCKER_SERVICE" "$KAFKA_PORT" | sed 's/.*://'`"

@@ -69,6 +69,7 @@ test_db(){
     name_lower="$(tr 'A-Z' 'a-z' <<< "$name")"
     local export COMPOSE_FILE="$srcdir/docker/$name_lower-docker-compose.yml"
     section2 "Setting up $name $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     local docker_container="$(docker-compose ps | sed -n '3s/ .*//p')"
     echo "determined docker container to be '$docker_container'"

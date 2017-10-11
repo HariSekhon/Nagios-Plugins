@@ -46,6 +46,7 @@ test_spark(){
     local version="$1"
     section2 "Setting up Spark $version test container"
     docker-compose down &>/dev/null
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     export SPARK_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$SPARK_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
     export SPARK_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$SPARK_WORKER_PORT_DEFAULT" | sed 's/.*://'`"

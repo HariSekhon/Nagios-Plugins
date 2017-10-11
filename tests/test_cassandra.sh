@@ -48,6 +48,7 @@ docker_exec(){
 test_cassandra(){
     local version="$1"
     section2 "Setting up Cassandra $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     echo "getting Cassandra dynamic port mappings:"
     prinf "Cassandra CQL port => "

@@ -81,6 +81,7 @@ test_neo4j_noauth(){
     section2 "Setting up Neo4J $version test container without auth"
     # otherwise repeated attempts create more nodes and break the NumberOfNodeIdsInUse upper threshold
     docker-compose down &>/dev/null || :
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     neo4j_setup
     hr
@@ -121,6 +122,7 @@ test_neo4j_auth(){
     #local DOCKER_OPTS="-e NEO4J_AUTH=$NEO4J_USERNAME/$NEO4J_PASSWORD"
     local startupwait=20
     docker-compose down &>/dev/null || :
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" NEO4J_AUTH="$NEO4J_USERNAME/$NEO4J_PASSWORD" docker-compose up -d
     neo4j_setup
     hr

@@ -63,6 +63,7 @@ test_solrcloud(){
         export SOLR_COLLECTION="gettingstarted"
     fi
     section2 "Setting up SolrCloud $version docker test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     echo "getting SolrCloud dynamic port mappings:"
     printf "getting Solr HTTP port => "

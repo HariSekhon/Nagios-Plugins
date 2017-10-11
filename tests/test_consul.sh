@@ -49,6 +49,7 @@ docker_exec(){
 test_consul(){
     local version="$1"
     section2 "Setting up Consul $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     echo "getting Consul dynamic port mapping:"
     printf "Consul port => "
