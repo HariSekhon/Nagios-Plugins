@@ -19,7 +19,9 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-total=$(egrep -H -e '^[[:space:]]*run(_grep|_fail)?[[:space:]]' \
+total=$(egrep -Hn \
+      -e '^[[:space:]]*run(_grep|_fail)?[[:space:]]' \
+      -e '^[[:space:]]*run\+\+[[:space:]]*$' \
       -e '^[[:space:]]*docker_exec[[:space:]]' \
       tests/test_*.sh |
       tee /dev/stderr |
