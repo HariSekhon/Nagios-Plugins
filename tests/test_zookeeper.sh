@@ -66,7 +66,7 @@ test_zookeeper(){
     run ./check_zookeeper_version.py -e "$expected_version"
     hr
     if [ "${version:0:3}" = "3.3" ]; then
-        run $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v || :
+        run_fail 3 $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
     else
         run $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
     fi
