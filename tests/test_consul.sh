@@ -65,7 +65,19 @@ test_consul(){
     when_url_content "$startupwait" "http://$CONSUL_HOST:$CONSUL_PORT/" "Consul by HashiCorp"
     hr
     echo "waiting for leader election to avoid write key failure:"
-    when_url_content "$startupwait" "http://$CONSUL_HOST:$CONSUL_PORT/v1/status/leader" ":8300"
+    i=0
+    while true; do
+        let i+=1
+        echo -n "try $i:  "
+        if ./check_consul_leader_elected.py; then
+            break
+        fi
+        if [ $i -gt 10 ]; then
+            echo "Consul leader still not elected after 10 seconds!"
+            exit 1
+        fi
+        sleep 1
+    done
     hr
     local testkey="nagios/consul/testkey1"
     echo "Writing random value to test key $testkey"
@@ -86,6 +98,8 @@ test_consul(){
     fi
     hr
     echo "Consul version $found_version"
+    hr
+    run ./check_consul_leader_elected.py
     hr
     run ./check_consul_peer_count.py
     hr
