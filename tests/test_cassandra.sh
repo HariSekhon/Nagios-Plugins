@@ -60,7 +60,7 @@ test_cassandra(){
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    when_ports_available "$startupwait" "$CASSANDRA_HOST" $CASSANDRA_PORTS
+    when_ports_available "$startupwait" "$CASSANDRA_HOST" "$CASSANDRA_PORT" "$CASSANDRA_JMX_PORT"
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
