@@ -59,9 +59,13 @@ test_consul(){
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
+    hr
     when_ports_available "$startupwait" "$CONSUL_HOST" "$CONSUL_PORT"
     hr
     when_url_content "$startupwait" "http://$CONSUL_HOST:$CONSUL_PORT/" "Consul by HashiCorp"
+    hr
+    echo "waiting for leader election to avoid write key failure:"
+    when_url_content "$startupwait" "http://$CONSUL_HOST:$CONSUL_PORT/v1/status/leader" ":8300"
     hr
     local testkey="nagios/consul/testkey1"
     echo "Writing random value to test key $testkey"
