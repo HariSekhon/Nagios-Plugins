@@ -51,7 +51,7 @@ test_cassandra(){
     VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     echo "getting Cassandra dynamic port mappings:"
-    prinf "Cassandra CQL port => "
+    printf "Cassandra CQL port => "
     export CASSANDRA_PORT="`docker-compose port "$DOCKER_SERVICE" "$CASSANDRA_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$CASSANDRA_PORT"
     printf "Cassandra JMX port => "
