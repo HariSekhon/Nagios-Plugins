@@ -73,12 +73,9 @@ echo "Running Whois checks"
 # random domains including some I used to work for to try to get some variation in registrars
 domains="
 cloudera.com
-myspace.com
-bskyb.com
-sky.com
-bnpparibas.com
-specificmedia.com
+hortonworks.com
 experian.com
+experian.co.uk
 myspace.com.ee
 "
 # domains from tickets
