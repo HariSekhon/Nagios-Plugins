@@ -110,5 +110,6 @@ class ConsulPeerCount(NagiosPlugin):
         #self.msg += self.get_perf_thresholds(boundary='lower')
         self.msg += self.get_perf_thresholds(boundary='lower')
 
+
 if __name__ == '__main__':
     ConsulPeerCount().main()
