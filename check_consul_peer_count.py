@@ -44,13 +44,13 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6.1'
+__version__ = '0.7.0'
 
 
-class ConsulPeerCount(NagiosPlugin):
+class CheckConsulPeerCount(NagiosPlugin):
 
     def __init__(self):
-        super(ConsulPeerCount, self).__init__()
+        super(CheckConsulPeerCount, self).__init__()
         self.name = 'Consul'
         self.default_port = 8500
         self.host = None
@@ -112,4 +112,4 @@ class ConsulPeerCount(NagiosPlugin):
 
 
 if __name__ == '__main__':
-    ConsulPeerCount().main()
+    CheckConsulPeerCount().main()

@@ -47,13 +47,13 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6.2'
+__version__ = '0.7.0'
 
 
-class ConsulKeyCheck(KeyCheckNagiosPlugin):
+class CheckConsulKey(KeyCheckNagiosPlugin):
 
     def __init__(self):
-        super(ConsulKeyCheck, self).__init__()
+        super(CheckConsulKey, self).__init__()
         self.name = 'Consul'
         self.default_port = 8500
         self.request_handler = RequestHandler()
@@ -108,4 +108,4 @@ class ConsulKeyCheck(KeyCheckNagiosPlugin):
 
 
 if __name__ == '__main__':
-    ConsulKeyCheck().main()
+    CheckConsulKey().main()
