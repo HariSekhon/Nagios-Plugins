@@ -279,9 +279,10 @@ EOF
     # have to use --host and --port here as this is a generic program with specific environment variables like we're setting and don't want to set $HOST and $PORT
     run $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
     hr
-    run $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics -t 30 | sed 's/|.*$//' # too long exceeds Travis CI max log length due to the 100 region HexStringSplitTable multiplying out the available metrics
+    run $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics -t 20 | sed 's/|.*$//'
     hr
-    run $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --all-metrics -t 20
+    # too long exceeds Travis CI max log length due to the 100 region HexStringSplitTable multiplying out the available metrics
+    run $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --all-metrics -t 20 | sed 's/|.*$//'
     #hr
     # XXX: both cause 500 internal server error
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" --all-metrics
