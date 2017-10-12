@@ -35,6 +35,7 @@ export ATLAS_PASSWORD="${ATLAS_PASSWORD:-holger_gov}"
 trap_debug_env atlas
 
 echo "checking connection refused tests first:"
+echo
 run_fail 2 ./check_atlas_version.py -H localhost -P 210
 hr
 run_fail 2 ./check_atlas_version.py -e '0\.' -H localhost -P 210
