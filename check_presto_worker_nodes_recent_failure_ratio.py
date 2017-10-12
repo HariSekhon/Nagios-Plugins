@@ -73,7 +73,7 @@ class CheckPrestoWorkersFailureRatio(RestNagiosPlugin):
     def process_options(self):
         super(CheckPrestoWorkersFailureRatio, self).process_options()
         self.max_ratio = self.get_opt('max_ratio')
-        validate_float(self.max_ratio, 'max failure ratio', 0, 1.0)
+        validate_float(self.max_ratio, 'max recent failure ratio', 0, 1.0)
         self.max_ratio = float('{0:.2f}'.format(float(self.max_ratio)))
         self.validate_thresholds()
 
