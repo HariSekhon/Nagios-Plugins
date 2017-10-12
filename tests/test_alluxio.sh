@@ -76,16 +76,33 @@ test_alluxio(){
     hr
     run ./check_alluxio_master_version.py -v -e "$version"
     hr
+    echo "checking connection refused:"
+    run_fail 2 ./check_alluxio_master_version.py -v -e "$version" -P 199
+    hr
     run ./check_alluxio_worker_version.py -v -e "$version"
+    hr
+    echo "checking connection refused:"
+    run_fail 2 ./check_alluxio_worker_version.py -v -e "$version" -P 300
     hr
     run ./check_alluxio_master.py -v
     hr
-    #docker exec -ti "$DOCKER_CONTAINER" ps -ef
+    echo "checking connection refused:"
+    run_fail 2 ./check_alluxio_master.py -v -P 199
+    hr
     run ./check_alluxio_worker.py -v
+    hr
+    echo "checking connection refused:"
+    run_fail 2 ./check_alluxio_worker.py -v -P 300
     hr
     run ./check_alluxio_running_workers.py -v
     hr
+    echo "checking connection refused:"
+    run_fail 2 ./check_alluxio_running_workers.py -v -P 199
+    hr
     run ./check_alluxio_dead_workers.py -v
+    hr
+    echo "checking connection refused:"
+    run_fail 2 ./check_alluxio_dead_workers.py -v -P 199
     hr
     echo "Completed $run_count Alluxio tests"
     hr
