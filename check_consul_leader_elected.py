@@ -35,16 +35,16 @@ libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
+    from harisekhon.utils import isStr, CriticalError
     from harisekhon.nagiosplugin import RestNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6.1'
+__version__ = '0.7.0'
 
 
-# pylint: disable=too-few-public-methods
 class CheckConsulLeaderElected(RestNagiosPlugin):
 
     def __init__(self):
@@ -54,6 +54,19 @@ class CheckConsulLeaderElected(RestNagiosPlugin):
         self.path = '/v1/status/leader'
         self.auth = False
         self.msg = 'Consul Message Not Defined'
+        self.fail_msg = 'Consul leader not elected! Key writes may fail'
+        self.request.check_response_code = self.check_response_code(self.fail_msg)
+
+    # closure factory
+    @staticmethod
+    def check_response_code(msg):
+        def tmp(req):
+            if req.status_code != 200:
+                err = ''
+                if req.content and isStr(req.content) and len(req.content.split('\n')) < 2:
+                    err += ': ' + req.content
+                raise CriticalError("{0}: '{1}' {2}{3}".format(msg, req.status_code, req.reason, err))
+        return tmp
 
     def parse(self, req):
         content = req.content
@@ -61,7 +74,7 @@ class CheckConsulLeaderElected(RestNagiosPlugin):
             self.msg = 'Consul leader elected: {0}'.format(content)
         else:
             self.critical()
-            self.msg = 'Consul leader not elected! Key writes may fail'
+            self.msg = self.fail_msg
             if len(content.split('\n')) == 1:
                 self.msg += ", output received did not match expected regex: '{0}'".format(content)
 
