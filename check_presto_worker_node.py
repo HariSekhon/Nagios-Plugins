@@ -19,13 +19,13 @@
 
 Nagios Plugin to check for a specific Presto SQL worker node via the Coordinator API
 
-Checks:
+Checks worker node:
 
-    - worker node is found on Coordinator
-    - worker node's time since last response to coordinator
-    - worker node's recent failure ratio
-
-Thresholds apply to the time since last response to the coordinator
+    - is found on Coordinator
+    - time since last response to Coordinator vs threshold
+    - recent failures vs threshold
+    - recent failure ratio vs threshold
+    - shows uptime of the worker node
 
 """
 
@@ -70,6 +70,7 @@ class CheckPrestoWorker(RestNagiosPlugin):
         self.node = None
         self.max_age = None
         self.max_ratio = None
+        self.max_failures = None
         self.list_nodes = None
         self.msg = 'Presto msg not defined'
 
@@ -80,8 +81,10 @@ class CheckPrestoWorker(RestNagiosPlugin):
                           ', can omit http:// uri prefix and port suffix for convenience')
         self.add_opt('-a', '--max-age', metavar='secs', default=10,
                      help='Max age in secs since worker\'s last response to coordinator (default: 10)')
-        self.add_opt('-r', '--max-ratio', metavar='0.1', default=0.1,
-                     help='Max recent failure ratio (default: 10)')
+        self.add_opt('-r', '--max-ratio', metavar='0.0', default=0.0,
+                     help='Max recent failure ratio (default: 0.0)')
+        self.add_opt('-f', '--max-failures', metavar='0', default=0,
+                     help='Max number of recent failures to tolerate on the worker (default: 0)')
         self.add_opt('-l', '--list-nodes', action='store_true', help='List worker nodes and exit')
 
     def process_options(self):
@@ -94,8 +97,12 @@ class CheckPrestoWorker(RestNagiosPlugin):
         validate_float(self.max_age, 'max age', 0, 3600)
         self.max_age = int(self.max_age)
 
+        self.max_failures = self.get_opt('max_failures')
+        validate_float(self.max_failures, 'max recent failures', 0, None)
+        self.max_failures = float('{0:.2f}'.format(float(self.max_failures)))
+
         self.max_ratio = self.get_opt('max_ratio')
-        validate_float(self.max_ratio, 'max ratio', 0, 1.0)
+        validate_float(self.max_ratio, 'max recent failure ratio', 0, 1.0)
         self.max_ratio = float('{0:.2f}'.format(float(self.max_ratio)))
 
     @staticmethod
@@ -131,6 +138,16 @@ class CheckPrestoWorker(RestNagiosPlugin):
         return recent_failure_ratio
 
     @staticmethod
+    def get_recent_failures(node):
+        recent_failures = node['recentFailures']
+        if not isFloat(recent_failures):
+            raise UnknownError('recentFailures is not a float! {0}'.format(support_msg_api()))
+        recent_failures = float('{0:.2f}'.format(recent_failures))
+        if recent_failures < 0:
+            raise UnknownError('recentFailures < 0 ?!!! {0}'.format(support_msg_api()))
+        return recent_failures
+
+    @staticmethod
     def get_response_age(node):
         last_response_time = node['lastResponseTime']
         last_response_datetime = datetime.strptime(last_response_time, '%Y-%m-%dT%H:%M:%S.%fZ')
@@ -158,18 +175,27 @@ class CheckPrestoWorker(RestNagiosPlugin):
         if not node:
             raise CriticalError("Presto SQL worker node '{0}' not found on coordinator!".format(self.node))
         response_age = self.get_response_age(node)
+        recent_failures = self.get_recent_failures(node)
         recent_failure_ratio = self.get_recent_failure_ratio(node)
+        uptime = node['age']
         self.msg = "Presto SQL worker node '{0}' ".format(self.node)
         self.msg += 'last response to coordinator = {0:.2f} secs ago'.format(response_age)
         if response_age > self.max_age:
             self.critical()
             self.msg += ' (> {0})'.format(self.max_age)
+        self.msg += ', recent failures = {0:.2f}'.format(recent_failures)
+        if recent_failures > self.max_failures:
+            self.critical()
+            self.msg += ' (> {0})'.format(self.max_failures)
         self.msg += ', recent failure ratio = {0:.2f}'.format(recent_failure_ratio)
         if recent_failure_ratio > self.max_ratio:
             self.critical()
             self.msg += ' (> {0})'.format(self.max_ratio)
-        self.msg += ' | response_age={0}s;{1:.2f} recent_failure_ratio={2:.2f};{3:.2f}'\
-                    .format(response_age, self.max_age, recent_failure_ratio, self.max_ratio)
+        self.msg += ', uptime = {0}'.format(uptime)
+        self.msg += ' | '
+        self.msg += 'response_age={0}s;{1:.2f} '.format(response_age, self.max_age)
+        self.msg += 'recent_failures={0:.2f};{1:.2f} '.format(recent_failures, self.max_failures)
+        self.msg += 'recent_failure_ratio={0:.2f};{1:.2f} '.format(recent_failure_ratio, self.max_ratio)
 
 
 if __name__ == '__main__':
