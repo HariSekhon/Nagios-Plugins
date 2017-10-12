@@ -21,6 +21,8 @@ Nagios Plugin to check the seconds since last response for all Presto SQL worker
 
 Thresholds apply to the permitted number of worker nodes exceeding --max-age
 
+Tests show workers usually respond to coordinator node every second even when there are no queries issued
+
 In verbose mode outputs the list of worker nodes with last responses exceeding --max-age
 
 """
