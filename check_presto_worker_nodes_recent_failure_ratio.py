@@ -44,7 +44,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckPrestoWorkersFailureRatio(RestNagiosPlugin):
@@ -64,7 +64,7 @@ class CheckPrestoWorkersFailureRatio(RestNagiosPlugin):
 
     def add_options(self):
         super(CheckPrestoWorkersFailureRatio, self).add_options()
-        self.add_opt('-m', '--max-ratio', metavar='0.1', default=0.1,
+        self.add_opt('-r', '--max-ratio', metavar='0.1', default=0.1,
                      help='Max failure ratio on each node (default: 0.1)')
         self.add_thresholds(default_warning=0, default_critical=1)
 
@@ -72,7 +72,7 @@ class CheckPrestoWorkersFailureRatio(RestNagiosPlugin):
         super(CheckPrestoWorkersFailureRatio, self).process_options()
         self.max_ratio = self.get_opt('max_ratio')
         validate_float(self.max_ratio, 'max failure ratio', 0, 1.0)
-        self.max_ratio = float('{0:.2f}'.format(self.max_ratio))
+        self.max_ratio = float('{0:.2f}'.format(float(self.max_ratio)))
         self.validate_thresholds()
 
     def parse_json(self, json_data):
@@ -94,8 +94,8 @@ class CheckPrestoWorkersFailureRatio(RestNagiosPlugin):
                 max_ratio = recent_failure_ratio
             if recent_failure_ratio > self.max_ratio:
                 uri = node_item['uri']
-                uri = re_protocol.sub(uri, '')
-                nodes_failing += uri
+                re_protocol.sub(uri, '')
+                nodes_failing += [uri]
                 log.info("node '%s' recent failure ratio %f > max ratio %f",
                          node_item['uri'], recent_failure_ratio, self.max_ratio)
         num_nodes_failing = len(nodes_failing)
@@ -104,7 +104,7 @@ class CheckPrestoWorkersFailureRatio(RestNagiosPlugin):
         self.check_thresholds(num_nodes_failing)
         self.msg += ', max recent failure ratio = {0:.2f}'.format(max_ratio)
         if self.verbose and nodes_failing:
-            self.msg += str(nodes_failing)
+            self.msg += ' [{0}]'.format(','.join(nodes_failing))
         self.msg += ' | num_nodes_failing={0}{1} max_ratio={2:.2f}'\
                     .format(num_nodes_failing, self.get_perf_thresholds(), max_ratio)
 
