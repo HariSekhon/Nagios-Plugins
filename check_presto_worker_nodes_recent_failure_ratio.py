@@ -29,6 +29,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
+import re
 import sys
 import traceback
 srcdir = os.path.abspath(os.path.dirname(__file__))
@@ -79,6 +80,7 @@ class CheckPrestoWorkersFailureRatio(RestNagiosPlugin):
             raise UnknownError('non-list returned by Presto for nodes. {0}'.format(support_msg_api()))
         nodes_failing = []
         max_ratio = 0.0
+        re_protocol = re.compile('^https?://')
         for node_item in json_data:
             recent_failure_ratio = node_item['recentFailureRatio']
             if not isFloat(recent_failure_ratio):
@@ -91,7 +93,8 @@ class CheckPrestoWorkersFailureRatio(RestNagiosPlugin):
             if recent_failure_ratio > max_ratio:
                 max_ratio = recent_failure_ratio
             if recent_failure_ratio > self.max_ratio:
-                uri = node_item['uri'].lstrip('https?://')
+                uri = node_item['uri']
+                uri = re_protocol.sub(uri, '')
                 nodes_failing += uri
                 log.info("node '%s' recent failure ratio %f > max ratio %f",
                          node_item['uri'], recent_failure_ratio, self.max_ratio)
