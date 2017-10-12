@@ -25,60 +25,72 @@ cd "$srcdir/.."
 section "A t l a s"
 
 export SANDBOX_CLUSTER="Sandbox"
-export ATLAS_HOST="${ATLAS_HOST:-localhost}"
+#export ATLAS_HOST="${ATLAS_HOST:-localhost}"
 export ATLAS_PORT="${ATLAS_PORT:-21000}"
 export ATLAS_USER="${ATLAS_USER:-holger_gov}"
 export ATLAS_PASSWORD="${ATLAS_PASSWORD:-holger_gov}"
 
 # TODO: switch to dockerized test
 
-if [ -z "${ATLAS_HOST:-}" ]; then
-    echo "WARNING: \$ATLAS_HOST not set, skipping Atlas checks"
-    echo
-    echo
-    untrap
-    exit 0
-fi
-
 trap_debug_env atlas
 
-if ! when_ports_available 5 "$ATLAS_HOST" "$ATLAS_PORT"; then
-    echo "WARNING: Atlas host $ATLAS_HOST:$ATLAS_PORT not up, skipping Atlas checks"
-    echo
-    echo
-    untrap
-    exit 0
-fi
+echo "checking connection refused tests first:"
+run_fail 2 ./check_atlas_version.py -H localhost -P 210
+hr
+run_fail 2 ./check_atlas_version.py -e '0\.' -H localhost -P 210
+hr
+run_fail 2 ./check_atlas_status.py -A -H localhost -P 210
+hr
+run_fail 2 ./check_atlas_entity.py -l -H localhost -P 210
+hr
+run_fail 2 ./check_atlas_entity.py -E Sales -T DB -H localhost -P 210
+hr
+run_fail 2 ./check_atlas_entity.py -I "1" -H localhost -P 210
+hr
+echo
 
-hr
-if ! when_url_content 5 "$ATLAS_HOST:$ATLAS_PORT" atlas; then
-    echo "WARNING: Atlas host $ATLAS_HOST:$ATLAS_PORT content not found, skipping Atlas checks"
-    echo
-    echo
-    untrap
-    exit 0
-fi
-hr
+if [ -z "${ATLAS_HOST:-}" ]; then
+    echo "WARNING: \$ATLAS_HOST not set, skipping real Atlas checks"
+else
+    if ! when_ports_available 5 "$ATLAS_HOST" "$ATLAS_PORT"; then
+        echo "WARNING: Atlas host $ATLAS_HOST:$ATLAS_PORT not up, skipping Atlas checks"
+        echo
+        echo
+        untrap
+        exit 0
+    fi
 
-# Sandbox often has some broken stuff, we're testing the code works, not the cluster
-#[ "$ATLAS_CLUSTER" = "$SANDBOX_CLUSTER" ] && set +e
-#echo "testing Atlas server $ATLAS_HOST"
-hr
-run ./check_atlas_version.py
-hr
-run ./check_atlas_version.py -e '0\.'
-hr
-run ./check_atlas_status.py -A
-hr
-run_fail 3 ./check_atlas_entity.py -l
-hr
-run ./check_atlas_entity.py -E Sales -T DB
-hr
-set +o pipefail
-id="$(./check_atlas_entity.py -l | tail -n 1 | awk '{print $1}')"
-set -o pipefail
-run ./check_atlas_entity.py -I "$id"
-hr
+    hr
+    if ! when_url_content 5 "$ATLAS_HOST:$ATLAS_PORT" atlas; then
+        echo "WARNING: Atlas host $ATLAS_HOST:$ATLAS_PORT content not found, skipping Atlas checks"
+        echo
+        echo
+        untrap
+        exit 0
+    fi
+    hr
+
+    # Sandbox often has some broken stuff, we're testing the code works, not the cluster
+    #[ "$ATLAS_CLUSTER" = "$SANDBOX_CLUSTER" ] && set +e
+    #echo "testing Atlas server $ATLAS_HOST"
+    hr
+    run ./check_atlas_version.py
+    hr
+    run ./check_atlas_version.py -e '0\.'
+    hr
+    run ./check_atlas_status.py -A
+    hr
+    run_fail 3 ./check_atlas_entity.py -l
+    hr
+    run ./check_atlas_entity.py -E Sales -T DB
+    hr
+    set +o pipefail
+    id="$(./check_atlas_entity.py -l | tail -n 1 | awk '{print $1}')"
+    set -o pipefail
+    run ./check_atlas_entity.py -I "$id"
+    hr
+fi
+echo
 echo "Completed $run_count Apache Atlas tests"
 echo
 echo "All Apache Atlas tests completed successfully"
