@@ -69,6 +69,7 @@ hr
 echo "MX record resolve with FQDN dns servers requiring pre-resolving:"
 run $perl -T ./check_dns.pl --server "$nameservers" --record google.com --type MX
 hr
+echo
 echo "Completed $run_count DNS tests"
 echo
 echo "All DNS tests completed successfully"
