@@ -39,7 +39,7 @@ check_docker_available
 trap_debug_env zookeeper
 
 docker_exec(){
-    run docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
+    run docker-compose exec "$DOCKER_SERVICE" "$MNTDIR/$@"
 }
 
 startupwait 10

@@ -39,7 +39,7 @@ fi
 docker_exec(){
     local cmd="$@"
     echo "docker exec '$DOCKER_CONTAINER' $MNTDIR/$*"
-    docker exec "$DOCKER_CONTAINER" $MNTDIR/$*
+    docker exec "$DOCKER_CONTAINER" "$MNTDIR/$@"
 }
 
 #trap "docker rm -f $DOCKER_CONTAINER &>/dev/null" SIGINT SIGTERM EXIT

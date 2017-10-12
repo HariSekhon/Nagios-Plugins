@@ -54,7 +54,7 @@ trap_debug_env hadoop
 
 docker_exec(){
     #docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
-    run docker exec "nagiosplugins_${DOCKER_SERVICE}_1" $MNTDIR/$@
+    run docker exec "nagiosplugins_${DOCKER_SERVICE}_1" "$MNTDIR/$@"
 }
 
 test_hadoop(){

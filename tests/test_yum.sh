@@ -41,7 +41,7 @@ fi
 
 docker_exec(){
     local cmd="$@"
-    run docker exec "$DOCKER_CONTAINER" $MNTDIR/$*
+    run docker exec "$DOCKER_CONTAINER" "$MNTDIR/$@"
 }
 
 startupwait=0

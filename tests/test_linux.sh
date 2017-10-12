@@ -32,7 +32,7 @@ export MNTDIR="/pl"
 docker_exec(){
     #echo "docker-compose exec '$SERVICE' $MNTDIR/$*"
     #docker-compose exec "$SERVICE" $MNTDIR/$*
-    run docker exec "$SERVICE" $MNTDIR/$*
+    run docker exec "$SERVICE" "$MNTDIR/$@"
 }
 
 valid_distros=(alpine centos debian ubuntu)
