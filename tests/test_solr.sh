@@ -79,18 +79,30 @@ test_solr(){
         :
     fi
     hr
+    run_conn_refused ./check_solr_version.py -e "$version"
+    hr
     run $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
+    hr
+    run_conn_refused $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
     hr
     run $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
     hr
+    run_conn_refused $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
+    hr
     run $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
+    hr
+    run_conn_refused $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
     hr
     num_expected_docs=4
     [ "${version:0:1}" -lt 4 ] && num_expected_docs=0
     # TODO: fix Solr 5 + 6 doc insertion and then tighten this up
     run $perl -T ./check_solr_query.pl -n 0:4 -w 200 -v
     hr
+    run_conn_refused $perl -T ./check_solr_query.pl -n 0:4 -w 200 -v
+    hr
     run $perl -T ./check_solr_write.pl -v -w 1000 # because Travis is slow
+    hr
+    run_conn_refused $perl -T ./check_solr_write.pl -v -w 1000
     hr
     echo "Completed $run_count Solr tests"
     hr
