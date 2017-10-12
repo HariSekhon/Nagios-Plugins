@@ -23,7 +23,7 @@ Thresholds apply to the permitted number of worker nodes exceeding --max-age
 
 Tests show workers usually respond to coordinator node every second even when there are no queries issued
 
-In verbose mode outputs the list of worker nodes with last responses exceeding --max-age
+In verbose mode outputs the list of worker nodes with last responses > max age
 
 """
 
@@ -99,6 +99,8 @@ class CheckPrestoWorkersResponseLag(RestNagiosPlugin):
                 nodes_lagging += [uri]
                 log.info("node '%s' last response age %d secs > max age %s secs",
                          node_item['uri'], response_age, self.max_age)
+            else:
+                log.info("node '%s' last response age %d secs", node_item['uri'], response_age)
         num_nodes_lagging = len(nodes_lagging)
         self.msg = 'Presto SQL worker nodes with response timestamps older than {0:d} secs = {1:d}'\
                    .format(self.max_age, num_nodes_lagging)
