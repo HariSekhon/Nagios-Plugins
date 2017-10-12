@@ -72,6 +72,7 @@ class CheckPrestoWorkersResponseLag(RestNagiosPlugin):
         super(CheckPrestoWorkersResponseLag, self).process_options()
         self.max_age = self.get_opt('max_age')
         validate_int(self.max_age, 'max age', 0, 3600)
+        self.max_age = int(self.max_age)
         self.validate_thresholds()
 
     def parse_json(self, json_data):
@@ -92,7 +93,8 @@ class CheckPrestoWorkersResponseLag(RestNagiosPlugin):
                 log.info("node '%s' last response age %d secs > max age %s secs",
                          node_item['uri'], response_age, self.max_age)
         num_nodes_lagging = len(nodes_lagging)
-        self.msg = 'Presto SQL worker nodes with lagging response times = {0}'.format(num_nodes_lagging)
+        self.msg = 'Presto SQL worker nodes with response timestamps older than {0} secs = {1}'\
+                   .format(self.max_age, num_nodes_lagging)
         self.check_thresholds(num_nodes_lagging)
         self.msg += ', current max lag = {0:.2f} secs'.format(max_lag)
         if self.verbose and nodes_lagging:
