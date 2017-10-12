@@ -131,15 +131,25 @@ EOF
     fi
     run ./check_hadoop_namenode_version.py -v -e "$version"
     hr
+    run_conn_refused ./check_hadoop_namenode_version.py -v -e "$version"
+    hr
     run ./check_hadoop_datanode_version.py -v -e "$version"
+    hr
+    run_conn_refused ./check_hadoop_datanode_version.py -v -e "$version"
     hr
     run $perl -T ./check_hadoop_datanode_version.pl --node "$hostname" -v -e "$version"
     hr
+    run_conn_refused $perl -T ./check_hadoop_datanode_version.pl --node "$hostname" -v -e "$version"
+    hr
     run $perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "$version"
+    hr
+    run_conn_refused $perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "$version"
     hr
     docker_exec check_hadoop_balance.pl -w 5 -c 10 --hadoop-bin /hadoop/bin/hdfs --hadoop-user root -t 60
     hr
     run $perl -T ./check_hadoop_checkpoint.pl
+    hr
+    run_conn_refused $perl -T ./check_hadoop_checkpoint.pl
     hr
     echo "testing failure of checkpoint time:"
     run_fail 1 $perl -T ./check_hadoop_checkpoint.pl -w 1000: -c 1:
@@ -150,9 +160,13 @@ EOF
     # XXX: Total Blocks are not available via blockScannerReport from Hadoop 2.7
     if [ "$version" = "2.5" -o "$version" = "2.6" ]; then
         run $perl -T ./check_hadoop_datanode_blockcount.pl
+        hr
+        run_conn_refused $perl -T ./check_hadoop_datanode_blockcount.pl
     fi
     hr
     run $perl -T ./check_hadoop_datanode_jmx.pl --all-metrics
+    hr
+    run_conn_refused $perl -T ./check_hadoop_datanode_jmx.pl --all-metrics
     hr
     # TODO: write replacement python plugins for this
     # XXX: Hadoop doesn't expose this information in the same way any more via dfshealth.jsp so these plugins are end of life with Hadoop 2.6
@@ -161,22 +175,34 @@ EOF
         hr
         run $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10 -v
         hr
+        run_conn_refused $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
+        hr
         run $perl -T ./check_hadoop_datanodes_blockcounts.pl
+        hr
+        run_conn_refused $perl -T ./check_hadoop_datanodes_blockcounts.pl
         hr
     fi
     run ./check_hadoop_datanodes_block_balance.py -w 5 -c 10
     hr
     run ./check_hadoop_datanodes_block_balance.py -w 5 -c 10 -v
     hr
+    run_conn_refused ./check_hadoop_datanodes_block_balance.py -w 5 -c 10
+    hr
     run ./check_hadoop_hdfs_balance.py -w 5 -c 10
     hr
     run ./check_hadoop_hdfs_balance.py -w 5 -c 10 -v
+    hr
+    run_conn_refused ./check_hadoop_hdfs_balance.py -w 5 -c 10
     hr
     run $perl -T ./check_hadoop_datanodes.pl
     hr
     run $perl -T ./check_hadoop_datanodes.pl --stale-threshold 0
     hr
+    run_conn_refused $perl -T ./check_hadoop_datanodes.pl
+    hr
     run ./check_hadoop_datanode_last_contact.py -d "$hostname"
+    hr
+    run_conn_refused ./check_hadoop_datanode_last_contact.py -d "$hostname"
     hr
     docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hadoop --hadoop-user root --hdfs-space -w 80 -c 90 -t 20
     hr
@@ -205,14 +231,20 @@ EOF
         # on a real cluster thresholds should be set to millions+, no defaults as must be configured based on NN heap allocated
         run $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 10 -c 20
         hr
+        run_conn_refused $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 10 -c 20
+        hr
         echo "testing failure scenarios:"
         run_fail 1 $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 1
         hr
         run_fail 2 $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 0
         hr
+        run_conn_refused $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 1
+        hr
     fi
     # on a real cluster thresholds should be set to millions+, no defaults as must be configured based on NN heap allocated
     run ./check_hadoop_hdfs_total_blocks.py -w 10 -c 20
+    hr
+    run_conn_refused ./check_hadoop_hdfs_total_blocks.py -w 10 -c 20
     hr
     echo "testing failure scenarios:"
     run_fail 1 ./check_hadoop_hdfs_total_blocks.py -w 0 -c 1
@@ -224,6 +256,8 @@ EOF
     hr
     # run inside Docker container so it can resolve redirect to DN
     docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
+    hr
+    FAIL=2 docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost -P "$wrong_port"
     hr
     for x in 2.5 2.6 2.7; do
         run $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log
@@ -255,7 +289,11 @@ EOF
     hr
     run $perl -T ./check_hadoop_hdfs_space.pl
     hr
+    run_conn_refused $perl -T ./check_hadoop_hdfs_space.pl
+    hr
     run ./check_hadoop_hdfs_space.py
+    hr
+    run_conn_refused ./check_hadoop_hdfs_space.py
     hr
     # XXX: these ports must be left as this plugin is generic and has no default port, nor does it pick up any environment variables more specific than $PORT
     run $perl -T ./check_hadoop_jmx.pl --all -P "$HADOOP_NAMENODE_PORT"
@@ -266,15 +304,23 @@ EOF
     hr
     run $perl -T ./check_hadoop_jmx.pl --all -P "$HADOOP_YARN_NODE_MANAGER_PORT"
     hr
+    run_conn_refused $perl -T ./check_hadoop_jmx.pl --all
+    hr
     run ./check_hadoop_namenode_failed_namedirs.py
     hr
     run ./check_hadoop_namenode_failed_namedirs.py -v
+    hr
+    run_conn_refused ./check_hadoop_namenode_failed_namedirs.py
     hr
     run $perl -T ./check_hadoop_namenode_heap.pl
     hr
     run $perl -T ./check_hadoop_namenode_heap.pl --non-heap
     hr
+    run_conn_refused $perl -T ./check_hadoop_namenode_heap.pl
+    hr
     run $perl -T ./check_hadoop_namenode_jmx.pl --all-metrics
+    hr
+    run_conn_refused $perl -T ./check_hadoop_namenode_jmx.pl --all-metrics
     hr
     # TODO: write replacement python plugins for this
     # XXX: Hadoop doesn't expose this information in the same way any more via dfshealth.jsp so this plugin is end of life with Hadoop 2.6
@@ -325,12 +371,17 @@ EOF
 #        set -e
 #        hr
     fi
+    run_conn_refused $perl -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10
+    hr
     run $perl -T ./check_hadoop_namenode_safemode.pl
     hr
+    run_conn_refused $perl -T ./check_hadoop_namenode_safemode.pl
+    hr
     run_grep "CRITICAL: namenode security enabled 'false'" $perl -T ./check_hadoop_namenode_security_enabled.pl
-    set -o pipefail
     hr
     run $perl -T ./check_hadoop_namenode_ha_state.pl
+    hr
+    run_conn_refused $perl -T ./check_hadoop_namenode_ha_state.pl
     hr
     run $perl -T ./check_hadoop_namenode_ha_state.pl --active
     hr
@@ -338,15 +389,30 @@ EOF
     hr
     run $perl -T ./check_hadoop_replication.pl
     hr
+    run_conn_refused $perl -T ./check_hadoop_replication.pl
+    hr
     # ================================================
     run_fail 2 ./check_hadoop_yarn_app_running.py -a '.*'
     hr
+    run_conn_refused ./check_hadoop_yarn_app_running.py -a '.*'
+    hr
     run_fail 2 ./check_hadoop_yarn_app_running.py -a '.*' -v
     hr
+    # ================================================
     run_fail 2 ./check_hadoop_yarn_app_last_run.py -a '.*'
     hr
     run_fail 2 ./check_hadoop_yarn_app_last_run.py -a '.*' -v
     hr
+    run_conn_refused ./check_hadoop_yarn_app_last_run.py -a '.*'
+    hr
+    # ================================================
+    run ./check_hadoop_yarn_long_running_apps.py
+    hr
+    run ./check_hadoop_yarn_long_running_apps.py -v
+    hr
+    run_conn_refused ./check_hadoop_yarn_long_running_apps.py -v
+    hr
+    # ================================================
     run_fail 2 ./check_hadoop_yarn_app_running.py -l
     hr
     run_fail 2 ./check_hadoop_yarn_app_last_run.py -l
@@ -354,10 +420,6 @@ EOF
     run_fail 3 ./check_hadoop_yarn_queue_apps.py -l
     hr
     run_fail 3 ./check_hadoop_yarn_long_running_apps.py -l
-    hr
-    run ./check_hadoop_yarn_long_running_apps.py
-    hr
-    run ./check_hadoop_yarn_long_running_apps.py -v
     hr
     # ================================================
     echo "Running sample mapreduce job to test Yarn application /job based plugins against:"
@@ -458,36 +520,71 @@ EOF
     hr
     run $perl -T ./check_hadoop_yarn_app_stats.pl
     hr
+    run_conn_refused $perl -T ./check_hadoop_yarn_app_stats.pl
+    hr
+    # ================================================
     run $perl -T ./check_hadoop_yarn_app_stats_queue.pl
     hr
+    run_conn_refused $perl -T ./check_hadoop_yarn_app_stats_queue.pl
+    hr
+    # ================================================
     run $perl -T ./check_hadoop_yarn_metrics.pl
     hr
+    run_conn_refused $perl -T ./check_hadoop_yarn_metrics.pl
+    hr
+    # ================================================
     run $perl -T ./check_hadoop_yarn_node_manager.pl
     hr
+    run_conn_refused $perl -T ./check_hadoop_yarn_node_manager.pl
+    hr
+    # ================================================
     run $perl -T ./check_hadoop_yarn_node_managers.pl -w 1 -c 1
     hr
+    run_conn_refused $perl -T ./check_hadoop_yarn_node_managers.pl -w 1 -c 1
+    hr
+    # ================================================
     run $perl -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname"
     hr
+    run_conn_refused $perl -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname"
+    hr
+    # ================================================
     run $perl -T ./check_hadoop_yarn_queue_capacity.pl
     hr
     run $perl -T ./check_hadoop_yarn_queue_capacity.pl --queue default
     hr
+    run_conn_refused $perl -T ./check_hadoop_yarn_queue_capacity.pl
+    hr
+    # ================================================
     run $perl -T ./check_hadoop_yarn_queue_state.pl
     hr
     run $perl -T ./check_hadoop_yarn_queue_state.pl --queue default
     hr
+    run_conn_refused $perl -T ./check_hadoop_yarn_queue_state.pl
+    hr
+    # ================================================
     run $perl -T ./check_hadoop_yarn_resource_manager_heap.pl
     hr
+    run_conn_refused $perl -T ./check_hadoop_yarn_resource_manager_heap.pl
+    hr
+    # ================================================
     # returns -1 for NonHeapMemoryUsage max
     run_fail 3 $perl -T ./check_hadoop_yarn_resource_manager_heap.pl --non-heap
     hr
+    run_conn_refused $perl -T ./check_hadoop_yarn_resource_manager_heap.pl --non-heap
+    hr
+    # ================================================
     run ./check_hadoop_yarn_resource_manager_ha_state.py
     hr
     run ./check_hadoop_yarn_resource_manager_ha_state.py --active
     hr
     run_fail 2 ./check_hadoop_yarn_resource_manager_ha_state.py --standby
     hr
+    run_conn_refused ./check_hadoop_yarn_resource_manager_ha_state.py
+    hr
+    # ================================================
     run $perl -T ./check_hadoop_yarn_resource_manager_state.pl
+    hr
+    run_conn_refused $perl -T ./check_hadoop_yarn_resource_manager_state.pl
     hr
     echo "Completed $run_count Hadoop tests"
     hr
