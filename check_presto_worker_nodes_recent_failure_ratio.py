@@ -21,6 +21,8 @@ Nagios Plugin to check the recent failure ratio for all Presto SQL worker nodes 
 
 Thresholds apply to the permitted number of worker nodes with recent failure ratios exceeding --max-ratio
 
+In verbose mode outputs the list of nodes with recent failure ratios > max ratio threshold
+
 """
 
 from __future__ import absolute_import
@@ -97,6 +99,9 @@ class CheckPrestoWorkersFailureRatio(RestNagiosPlugin):
                 uri = re_protocol.sub('', uri)
                 nodes_failing += [uri]
                 log.info("node '%s' recent failure ratio %f > max ratio %f",
+                         node_item['uri'], recent_failure_ratio, self.max_ratio)
+            elif recent_failure_ratio:
+                log.info("node '%s' recent failures %f, but less than max ratio threshold of %f",
                          node_item['uri'], recent_failure_ratio, self.max_ratio)
         num_nodes_failing = len(nodes_failing)
         self.msg = 'Presto SQL worker nodes with recent failure ratio > {0:.2f} = {1:d}'\
