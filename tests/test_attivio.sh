@@ -30,7 +30,7 @@ export ATTIVIO_AIE_PERFMON_PORT="${ATTIVIO_AIE_PERFMON_PORT:-16960}"
 trap_debug_env attivio
 
 echo "running connection refused tests first:"
-
+echo
 run_fail 2 ./check_attivio_aie_ingest_session_count.py -v -H localhost -P 169
 hr -H localhost -P 169
 run_fail 2 ./check_attivio_aie_license_expiry.py -v -H localhost -P 169
