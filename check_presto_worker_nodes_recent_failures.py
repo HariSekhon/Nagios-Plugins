@@ -73,7 +73,7 @@ class CheckPrestoWorkersFailures(RestNagiosPlugin):
     def process_options(self):
         super(CheckPrestoWorkersFailures, self).process_options()
         self.max_failures = self.get_opt('max_failures')
-        validate_float(self.max_failures, 'max failures', 0, 1000)
+        validate_float(self.max_failures, 'max recent failures', 0, 1000)
         self.max_failures = float('{0:.2f}'.format(float(self.max_failures)))
         self.validate_thresholds()
 
