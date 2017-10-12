@@ -94,7 +94,7 @@ class CheckPrestoWorkersFailureRatio(RestNagiosPlugin):
                 max_ratio = recent_failure_ratio
             if recent_failure_ratio > self.max_ratio:
                 uri = node_item['uri']
-                re_protocol.sub(uri, '')
+                uri = re_protocol.sub('', uri)
                 nodes_failing += [uri]
                 log.info("node '%s' recent failure ratio %f > max ratio %f",
                          node_item['uri'], recent_failure_ratio, self.max_ratio)
