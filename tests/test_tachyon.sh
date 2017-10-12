@@ -80,6 +80,18 @@ test_tachyon(){
     hr
     run ./check_tachyon_dead_workers.py -v
     hr
+    run_conn_refused ./check_tachyon_master_version.py -v -e "$version"
+    hr
+    run_conn_refused ./check_tachyon_worker_version.py -v -e "$version"
+    hr
+    run_conn_refused ./check_tachyon_master.py -v
+    hr
+    run_conn_refused ./check_tachyon_worker.py -v
+    hr
+    run_conn_refused ./check_tachyon_running_workers.py -v
+    hr
+    run_conn_refused ./check_tachyon_dead_workers.py -v
+    hr
     echo "Completed $run_count Tachyon tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
