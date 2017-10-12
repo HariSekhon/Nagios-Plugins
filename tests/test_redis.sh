@@ -70,8 +70,12 @@ test_redis(){
     fi
     run $perl -T ./check_redis_version.pl -v # TODO: change to regex and enable -e "^$version"
     hr
+    run_conn_refused $perl -T ./check_redis_version.pl -v
+    hr
     # REDIS_HOST obtained via .travis.yml
     run $perl -T ./check_redis_clients.pl -v
+    hr
+    run_conn_refused $perl -T ./check_redis_clients.pl -v
     hr
     # there is no redis.conf in the Docker container :-/
     #docker cp "$DOCKER_CONTAINER":/etc/redis.conf /tmp/redis.conf
@@ -82,18 +86,31 @@ test_redis(){
     run++
     echo "$perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v | grep -v -e '^debug:' | sed 's/.*extra config found on running server://;s/=/ /g' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tee /tmp/.check_redis_config.conf"
     $perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v | grep -v -e '^debug:' | sed 's/.*extra config found on running server://;s/=/ /g' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tee /tmp/.check_redis_config.conf
-    run $perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v -vv
-    #[ -z "${NODELETE:-1}" ] && #rm /tmp/.check_redis_config.conf
+    run $perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -vv
+    hr
+    run_conn_refused $perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf
+    hr
+    [ -z "${NODELETE:-1}" ] && rm -v /tmp/.check_redis_config.conf
     hr
     run $perl -T ./check_redis_key.pl -k myKey -e hari -v
     hr
+    run_conn_refused $perl -T ./check_redis_key.pl -k myKey -e hari -v
+    hr
     run $perl -T ./check_redis_publish_subscribe.pl -v
+    hr
+    run_conn_refused $perl -T ./check_redis_publish_subscribe.pl -v
     hr
     run $perl -T ./check_redis_stats.pl -v
     hr
+    run_conn_refused $perl -T ./check_redis_stats.pl -v
+    hr
     run $perl -T ./check_redis_stats.pl -s connected_clients -c 1:1 -v
     hr
+    run_conn_refused $perl -T ./check_redis_stats.pl -s connected_clients -c 1:1 -v
+    hr
     run $perl -T ./check_redis_write.pl -v
+    hr
+    run_conn_refused $perl -T ./check_redis_write.pl -v
     hr
     echo "checking for no code failure masking root cause in catch quit handler"
     run_grep ' line ' $perl -T ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v || :
