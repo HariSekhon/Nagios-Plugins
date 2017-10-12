@@ -74,8 +74,14 @@ test_riak(){
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
+    run $perl -T check_riak_version.pl -v
+    hr
+    run_conn_refused $perl -T check_riak_version.pl -v
+    hr
     hr
     run $perl -T check_riak_api_ping.pl
+    hr
+    run_conn_refused $perl -T check_riak_api_ping.pl
     hr
     # riak-admin doesn't work in Dockerized environments, fails trying to stat '/proc/sys/net/core/wmem_default'
     #docker_exec check_riak_diag.pl --ignore-warnings -v
@@ -88,11 +94,15 @@ test_riak(){
     hr
     run $perl -T check_riak_key.pl -b myBucket -k myKey -e hari -v
     hr
+    run_conn_refused $perl -T check_riak_key.pl -b myBucket -k myKey -e hari -v
+    hr
     docker_exec check_riak_member_status.pl -v
     hr
     docker_exec check_riak_ringready.pl -v
     hr
     run $perl -T check_riak_stats.pl --all -v
+    hr
+    run_conn_refused $perl -T check_riak_stats.pl --all -v
     hr
     run $perl -T check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
     hr
@@ -102,9 +112,9 @@ test_riak(){
     hr
     run $perl -T check_riak_write.pl -v
     hr
-    docker_exec check_riak_write_local.pl -v
+    run_conn_refused $perl -T check_riak_write.pl -v
     hr
-    run $perl -T check_riak_version.pl -v
+    docker_exec check_riak_write_local.pl -v
     hr
     echo "Completed $run_count Riak tests"
     hr
