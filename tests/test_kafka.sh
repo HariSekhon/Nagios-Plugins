@@ -152,6 +152,10 @@ test_kafka(){
     hr
     run $perl -T ./check_kafka.pl -v
     hr
+    run_conn_refused $perl -T ./check_kafka.py -v
+    hr
+    run_conn_refused $perl -T ./check_kafka.pl -v
+    hr
     echo "Completed $run_count Kafka tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
