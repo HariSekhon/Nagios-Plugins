@@ -21,6 +21,8 @@ Nagios Plugin to check the seconds since last response for all Presto SQL worker
 
 Thresholds apply to the permitted number of worker nodes exceeding --max-age
 
+In verbose mode outputs the list of worker nodes with last responses exceeding --max-age
+
 """
 
 from __future__ import absolute_import
@@ -30,6 +32,7 @@ from __future__ import unicode_literals
 
 from datetime import datetime
 import os
+import re
 import sys
 import traceback
 srcdir = os.path.abspath(os.path.dirname(__file__))
@@ -37,14 +40,14 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, UnknownError, support_msg_api, isList, validate_float
+    from harisekhon.utils import log, UnknownError, support_msg_api, isList, validate_int
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckPrestoWorkersResponseLag(RestNagiosPlugin):
@@ -64,15 +67,15 @@ class CheckPrestoWorkersResponseLag(RestNagiosPlugin):
 
     def add_options(self):
         super(CheckPrestoWorkersResponseLag, self).add_options()
-        self.add_opt('-m', '--max-age', metavar='secs', default=10,
+        self.add_opt('-a', '--max-age', metavar='secs', default=10,
                      help='Max age in secs since workers last response to coordinator (default: 10)')
         self.add_thresholds(default_warning=0, default_critical=1)
 
     def process_options(self):
         super(CheckPrestoWorkersResponseLag, self).process_options()
         self.max_age = self.get_opt('max_age')
-        validate_float(self.max_age, 'max age', 0, 3600)
-        self.max_age = float('{0:.2f}'.format(self.max_age))
+        validate_int(self.max_age, 'max age', 0, 3600)
+        self.max_age = int(self.max_age)
         self.validate_thresholds()
 
     def parse_json(self, json_data):
@@ -80,25 +83,27 @@ class CheckPrestoWorkersResponseLag(RestNagiosPlugin):
             raise UnknownError('non-list returned by Presto for nodes. {0}'.format(support_msg_api()))
         nodes_lagging = []
         max_lag = 0
+        re_protocol = re.compile('^https?://')
         for node_item in json_data:
             last_response_time = node_item['lastResponseTime']
             last_response_datetime = datetime.strptime(last_response_time, '%Y-%m-%dT%H:%M:%S.%fZ')
             timedelta = datetime.utcnow() - last_response_datetime
-            response_age = timedelta.total_seconds()
+            response_age = int(timedelta.total_seconds())
             if response_age > max_lag:
                 max_lag = response_age
             if response_age > self.max_age:
-                uri = node_item['uri'].lstrip('http?://')
-                nodes_lagging += uri
+                uri = node_item['uri']
+                re_protocol.sub(uri, '')
+                nodes_lagging += [uri]
                 log.info("node '%s' last response age %d secs > max age %s secs",
                          node_item['uri'], response_age, self.max_age)
         num_nodes_lagging = len(nodes_lagging)
-        self.msg = 'Presto SQL worker nodes with response timestamps older than {0:.2f} secs = {1:d}'\
+        self.msg = 'Presto SQL worker nodes with response timestamps older than {0:d} secs = {1:d}'\
                    .format(self.max_age, num_nodes_lagging)
         self.check_thresholds(num_nodes_lagging)
         self.msg += ', current max lag = {0:.2f} secs'.format(max_lag)
         if self.verbose and nodes_lagging:
-            self.msg += str(nodes_lagging)
+            self.msg += ' [{0}]'.format(', '.join(nodes_lagging))
         self.msg += ' | num_nodes_lagging={0}{1} max_lag={2:.2f}'\
                     .format(num_nodes_lagging, self.get_perf_thresholds(), max_lag)
 
