@@ -42,7 +42,7 @@ trap_debug_env cassandra
 
 docker_exec(){
     #docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
-    run docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
+    run docker-compose exec "$DOCKER_SERVICE" "$MNTDIR/$@"
 }
 
 test_cassandra(){
@@ -75,10 +75,13 @@ test_cassandra(){
     echo "trying up to 20 times for nodetool status to succeed"
     for x in {1..20}; do
         docker-compose exec "$DOCKER_SERVICE" nodetool status && break
+        echo "===="
         sleep 1
     done
     hr
     docker_exec check_cassandra_version_nodetool.py -e "$version"
+    hr
+    FAIL=2 docker_exec check_cassandra_version_nodetool.py -e "fail-version"
     hr
     # Dockerized Cassandra doesn't seem able to detect it's own token % - even when container has been running for a long time
     # TODO: add more specific command testing here to only except that scenario
@@ -88,21 +91,36 @@ test_cassandra(){
     hr
     docker_exec check_cassandra_balance.pl --nodetool /cassandra/bin/nodetool -v
     hr
+    echo "checking connection refused:"
+    FAIL=2 docker_exec check_cassandra_balance.pl -v -P 719
+    hr
     docker_exec check_cassandra_heap.pl -w 70 -c 90 -v
     hr
     docker_exec check_cassandra_heap.pl --nodetool /cassandra/bin/nodetool -w 70 -c 90 -v
+    hr
+    echo "checking connection refused:"
+    FAIL=2 docker_exec check_cassandra_heap.pl -w 70 -c 90 -v -P 719
     hr
     docker_exec check_cassandra_netstats.pl -v
     hr
     docker_exec check_cassandra_netstats.pl --nodetool /cassandra/bin/nodetool -v
     hr
+    echo "checking connection refused:"
+    FAIL=2 docker_exec check_cassandra_netstats.pl -v -P 719
+    hr
     docker_exec check_cassandra_nodes.pl -v
     hr
     docker_exec check_cassandra_nodes.pl --nodetool /cassandra/bin/nodetool -v
     hr
+    echo "checking connection refused:"
+    FAIL=2 docker_exec check_cassandra_nodes.pl -v -P 719
+    hr
     docker_exec check_cassandra_tpstats.pl -v
     hr
     docker_exec check_cassandra_tpstats.pl --nodetool /cassandra/bin/nodetool -v
+    hr
+    echo "checking connection refused:"
+    FAIL=2 docker_exec check_cassandra_tpstats.pl -P 719
     hr
     echo "Completed $run_count Cassandra tests"
     hr
