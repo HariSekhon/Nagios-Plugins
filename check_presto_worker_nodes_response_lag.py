@@ -93,7 +93,7 @@ class CheckPrestoWorkersResponseLag(RestNagiosPlugin):
                 max_lag = response_age
             if response_age > self.max_age:
                 uri = node_item['uri']
-                re_protocol.sub(uri, '')
+                uri = re_protocol.sub('', uri)
                 nodes_lagging += [uri]
                 log.info("node '%s' last response age %d secs > max age %s secs",
                          node_item['uri'], response_age, self.max_age)
