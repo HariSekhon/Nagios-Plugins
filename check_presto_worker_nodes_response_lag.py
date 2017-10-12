@@ -64,7 +64,7 @@ class CheckPrestoWorkersResponseLag(RestNagiosPlugin):
 
     def add_options(self):
         super(CheckPrestoWorkersResponseLag, self).add_options()
-        self.add_opt('-m', '--max-age', default=10,
+        self.add_opt('-m', '--max-age', metavar='secs', default=10,
                      help='Max age in secs since workers last response to coordinator (default: 10)')
         self.add_thresholds(default_warning=0, default_critical=1)
 
