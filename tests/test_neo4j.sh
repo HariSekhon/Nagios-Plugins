@@ -94,6 +94,7 @@ test_neo4j_noauth(){
     run $perl -T ./check_neo4j_version.pl -v -e "^$version"
     hr
     run $perl -T ./check_neo4j_readonly.pl -v
+    hr
     # TODO: SSL checks
     #run $perl -T ./check_neo4j_readonly.pl -v -S -P 7473
     hr
@@ -107,7 +108,18 @@ test_neo4j_noauth(){
     # Neo4J on Travis doesn't seem to return anything resulting in "'attributes' field not returned by Neo4J" error
     run $perl -T ./check_neo4j_store_sizes.pl -v
     hr
-    #delete_container
+    run_conn_refused $perl -T ./check_neo4j_version.pl -v -e "^$version"
+    hr
+    run_conn_refused $perl -T ./check_neo4j_readonly.pl -v
+    hr
+    run_conn_refused $perl -T ./check_neo4j_remote_shell_enabled.pl -v
+    hr
+    run_conn_refused $perl -T ./check_neo4j_stats.pl -v
+    hr
+    run_conn_refused $perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v
+    hr
+    run_conn_refused $perl -T ./check_neo4j_store_sizes.pl -v
+    hr
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
