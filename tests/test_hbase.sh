@@ -137,7 +137,11 @@ EOF
     hr
     run ./check_hbase_master_version.py -e "$version"
     hr
+    run_conn_refused ./check_hbase_master_version.py -e "$version"
+    hr
     run ./check_hbase_regionserver_version.py -e "$version"
+    hr
+    run_conn_refused ./check_hbase_regionserver_version.py -e "$version"
     hr
     run ./check_hbase_hbck.py -f tests/data/hbck.log -a 0
     hr
@@ -160,6 +164,8 @@ EOF
     # Python plugins use env for -H $HBASE_HOST
     run ./check_hbase_table_enabled.py -T t1
     hr
+    run_conn_refused ./check_hbase_table_enabled.py -T t1
+    hr
     run ./check_hbase_table_enabled.py -T EmptyTable
     hr
     run_fail 2 ./check_hbase_table_enabled.py -T DisabledTable
@@ -171,6 +177,8 @@ EOF
     hr
     run ./check_hbase_table.py -T t1
     hr
+    run_conn_refused ./check_hbase_table.py -T t1
+    hr
     run ./check_hbase_table.py -T EmptyTable
     hr
     run_fail 2 ./check_hbase_table.py -T DisabledTable
@@ -179,6 +187,8 @@ EOF
 # ============================================================================ #
     hr
     run ./check_hbase_table_regions.py -T t1
+    hr
+    run_conn_refused ./check_hbase_table_regions.py -T t1
     hr
     run ./check_hbase_table_regions.py -T EmptyTable
     hr
@@ -201,6 +211,8 @@ EOF
     hr
     run ./check_hbase_table_compaction_in_progress.py -T t1
     hr
+    run_conn_refused ./check_hbase_table_compaction_in_progress.py -T t1
+    hr
     run ./check_hbase_table_compaction_in_progress.py -T EmptyTable
     hr
     run ./check_hbase_table_compaction_in_progress.py -T DisabledTable
@@ -209,6 +221,8 @@ EOF
 # ============================================================================ #
     hr
     run ./check_hbase_region_balance.py
+    hr
+    run_conn_refused ./check_hbase_region_balance.py
     hr
     run ./check_hbase_regions_stuck_in_transition.py
     hr
@@ -221,11 +235,18 @@ EOF
     hr
     run $perl -T ./check_hbase_regionservers.pl
     hr
+    run_conn_refused $perl -T ./check_hbase_regionservers.pl
+    hr
     run $perl -T ./check_hbase_regionservers_jsp.pl
+    hr
+    run_conn_refused $perl -T ./check_hbase_regionservers_jsp.pl
+    hr
 # ============================================================================ #
     for x in "$perl -T ./check_hbase_cell.pl" ./check_hbase_cell.py "$perl -T ./check_hbase_cell_stargate.pl"; do
         hr
         run eval $x -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+        hr
+        run_conn_refused eval $x -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
         hr
         run eval $x -T t1 -R r2 -C cf1:q1 --expected test --precision 3
         hr
@@ -255,6 +276,8 @@ EOF
     hr
     run ./check_hbase_write.py -T t1 -w 100 --precision 3
     hr
+    run_conn_refused ./check_hbase_write.py -T t1 -w 100 --precision 3
+    hr
     # this will also be checked later by check_hbase_rowcount that it returns to zero rows, ie. delete succeeded
     run ./check_hbase_write.py -T EmptyTable -w 100 --precision 3
     hr
@@ -264,6 +287,8 @@ EOF
 # ============================================================================ #
     hr
     run ./check_hbase_write_spray.py -T t1 -w 500 --precision 3 -t 20
+    hr
+    run_conn_refused ./check_hbase_write_spray.py -T t1 -w 500 --precision 3 -t 20
     hr
     # this will also be checked later by check_hbase_rowcount that it returns to zero rows, ie. delete succeeded
     run ./check_hbase_write_spray.py -T EmptyTable -w 500 --precision 3 -t 20
@@ -277,13 +302,15 @@ EOF
 # ============================================================================ #
     hr
     # have to use --host and --port here as this is a generic program with specific environment variables like we're setting and don't want to set $HOST and $PORT
-    run $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
+    run $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
     hr
-    run $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics -t 20 | sed 's/|.*$//'
+    run $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics -t 20 | sed 's/|.*$//'
     hr
     # too long exceeds Travis CI max log length due to the 100 region HexStringSplitTable multiplying out the available metrics
-    run $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --all-metrics -t 20 | sed 's/|.*$//'
+    run $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --all-metrics -t 20 | sed 's/|.*$//'
     #hr
+    run_conn_refused $perl -T ./check_hadoop_jmx.pl --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
+    hr
     # XXX: both cause 500 internal server error
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" --all-metrics
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" -m compactionQueueLength
@@ -306,12 +333,16 @@ EOF
     hr
     run ./check_hbase_table_region_balance.py -T t1
     hr
+    run_conn_refused ./check_hbase_table_region_balance.py -T t1
+    hr
     run ./check_hbase_table_region_balance.py -T EmptyTable
     hr
     run ./check_hbase_table_region_balance.py -T DisabledTable
     hr
     # all tables
     run ./check_hbase_table_region_balance.py
+    hr
+    run_conn_refused ./check_hbase_table_region_balance.py
     hr
     run_fail 3 ./check_hbase_table_region_balance.py --list-tables
     hr
@@ -321,9 +352,14 @@ EOF
         # This also checks that check_hbase_write.py deleted correctly
         run $perl -T ./check_hbase_table_rowcount.pl -T EmptyTable --hbase-bin /hbase/bin/hbase -w 0:0 -c 0:0 -t 30
         hr
-        run $perl -T ./check_zookeeper_znode.pl -H localhost -z /hbase -v -n --child-znodes
+        run $perl -T ./check_zookeeper_znode.pl -H "$HBASE_HOST" -z /hbase -v -n --child-znodes
         hr
-        run $perl -T ./check_zookeeper_child_znodes.pl -H localhost -z /hbase/rs -v -w 1:1 -c 1:1
+        run_conn_refused $perl -T ./check_zookeeper_znode.pl -z /hbase -v -n --child-znodes
+        hr
+        run $perl -T ./check_zookeeper_child_znodes.pl -H "$HBASE_HOST" -z /hbase/rs -v -w 1:1 -c 1:1
+        hr
+        run_conn_refused $perl -T ./check_zookeeper_child_znodes.pl -z /hbase/rs -v -w 1:1 -c 1:1
+        hr
         # XXX: not present all the time
         #$perl -T ./check_hbase_unassigned_regions_znode.pl
     else
@@ -334,7 +370,12 @@ EOF
         hr
         docker_exec check_zookeeper_znode.pl -H localhost -z /hbase -v -n --child-znodes
         hr
+        FAIL=2 docker_exec check_zookeeper_znode.pl -H localhost -z /hbase -v -n --child-znodes -P "$wrong_port"
+        hr
         docker_exec check_zookeeper_child_znodes.pl -H localhost -z /hbase/rs -v -w 1:1 -c 1:1
+        hr
+        FAIL=2 docker_exec check_zookeeper_child_znodes.pl -H localhost -z /hbase/rs -v -w 1:1 -c 1:1 -P "$wrong_port"
+        hr
         # XXX: not present all the time
         #docker_exec check_hbase_unassigned_regions_znode.pl -H localhost
     fi
