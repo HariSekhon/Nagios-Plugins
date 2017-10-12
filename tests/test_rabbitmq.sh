@@ -132,10 +132,14 @@ EOF
     hr
     run ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" --expected "$expected_version"
     hr
+    run_conn_refused ./check_rabbitmq_version.py --expected "$expected_version"
+    hr
     echo "check auth failure for version check:"
     run_fail 2 ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" -u wronguser --expected "$expected_version"
     hr
     run ./check_rabbitmq.py -v
+    hr
+    run_conn_refused ./check_rabbitmq.py -v
     hr
     echo "and via non-durable queue2:"
     run ./check_rabbitmq.py -v --queue queue2 --non-durable
@@ -164,6 +168,8 @@ EOF
     hr
     run ./check_rabbitmq_auth.py
     hr
+    run_conn_refused ./check_rabbitmq_auth.py
+    hr
     run ./check_rabbitmq_auth.py --tag 'admin.*'
     hr
     echo "checking auth failure:"
@@ -175,6 +181,8 @@ EOF
     # ============================================================================ #
     hr
     run ./check_rabbitmq_cluster_name.py
+    hr
+    run_conn_refused ./check_rabbitmq_cluster_name.py
     hr
     run ./check_rabbitmq_cluster_name.py -e 'rabbit@rabb.t\d'
     hr
@@ -209,9 +217,13 @@ EOF
     echo "check raises critical for non-existent vhost object not found:"
     run_fail 2 ./check_rabbitmq_aliveness.py --vhost "nonexistentvhost"
     hr
+    run_conn_refused ./check_rabbitmq_aliveness.py --vhost "/"
+    hr
     # ============================================================================ #
     hr
     run_fail 3 ./check_rabbitmq_vhost.py --list-vhosts
+    hr
+    run_conn_refused ./check_rabbitmq_vhost.py --list-vhosts
     hr
     echo "check raises critical for non-existent vhost:"
     run_fail 2 ./check_rabbitmq_vhost.py --vhost 'nonexistentvhost'
@@ -229,6 +241,8 @@ EOF
     hr
     run_fail 3 ./check_rabbitmq_exchange.py --list-exchanges
     hr
+    run_conn_refused ./check_rabbitmq_exchange.py --list-exchanges
+    hr
     run ./check_rabbitmq_exchange.py --exchange exchange1 -v
     hr
     echo "check non-existent vhost raises critical:"
@@ -240,6 +254,8 @@ EOF
     # ============================================================================ #
     hr
     run_fail 3 ./check_rabbitmq_queue.py --list-queues
+    hr
+    run_conn_refused ./check_rabbitmq_queue.py --list-queues
     hr
     run ./check_rabbitmq_queue.py --queue queue1 --durable true
     hr
@@ -259,6 +275,10 @@ EOF
 EOF
     hr
     # ============================================================================ #
+    hr
+    run_conn_refused ./check_rabbitmq_healthchecks.py
+    hr
+    run_conn_refused ./check_rabbitmq_stats_db_event_queue.py
     hr
     # 3.5+ only
     echo $version
