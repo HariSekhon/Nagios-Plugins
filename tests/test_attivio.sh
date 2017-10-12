@@ -29,7 +29,24 @@ export ATTIVIO_AIE_PERFMON_PORT="${ATTIVIO_AIE_PERFMON_PORT:-16960}"
 
 trap_debug_env attivio
 
-if [ -n "${ATTIVIO_AIE_HOST:-}" ]; then
+echo "running connection refused tests first:"
+
+run_fail 2 ./check_attivio_aie_ingest_session_count.py -v -H localhost -P 169
+hr -H localhost -P 169
+run_fail 2 ./check_attivio_aie_license_expiry.py -v -H localhost -P 169
+hr -H localhost -P 169
+run_fail 2 ./check_attivio_aie_system_health.py -v -H localhost -P 169
+hr -H localhost -P 169
+run_fail 2 ./check_attivio_aie_version.py -v -H localhost -P 169
+hr -H localhost -P 169
+run_fail 2 ./check_attivio_aie_metrics.py -m "fake" -v -H localhost -P 169
+hr
+
+echo
+
+if [ -z "${ATTIVIO_AIE_HOST:-}" ]; then
+    echo "WARNING: \$ATTIVIO_AIE_HOST not set, skipping real Attivio AIE checks"
+else
     if when_ports_available 5 "$ATTIVIO_AIE_HOST" "$ATTIVIO_AIE_PORT"; then
         echo "WARNING: Attivio AIE host $ATTIVIO_AIE_HOST:$ATTIVIO_AIE_PORT not up, skipping Attivio AIE checks"
     else
@@ -42,11 +59,11 @@ if [ -n "${ATTIVIO_AIE_HOST:-}" ]; then
         run ./check_attivio_aie_version.py -v
         hr
     fi
-else
-    echo "WARNING: \$ATTIVIO_AIE_HOST not set, skipping Attivio AIE checks"
 fi
 
-if [ -n "${ATTIVIO_AIE_PERFMON_HOST:-}" ]; then
+if [ -z "${ATTIVIO_AIE_PERFMON_HOST:-}" ]; then
+    echo "WARNING: \$ATTIVIO_AIE_PERFMON_HOST not set, skipping real Attivio AIE PerfMon metric checks"
+else
     if when_ports_available "$ATTIVIO_AIE_PERFMON_HOST" "$ATTIVIO_AIE_PERFMON_PORT"; then
         echo "./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -P "$ATTIVIO_AIE_PERFMON_PORT" -l |"
         ./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -P "$ATTIVIO_AIE_PERFMON_PORT" -l |
@@ -58,14 +75,11 @@ if [ -n "${ATTIVIO_AIE_PERFMON_HOST:-}" ]; then
     else
         echo "WARNING: Attivio AIE PerfMon host $ATTIVIO_AIE_PERFMON_HOST:$ATTIVIO_AIE_PERFMON_PORT not up, skipping Attivio AIE PerfMon checks"
     fi
-else
-    echo "WARNING: \$ATTIVIO_AIE_PERFMON_HOST not set, skipping Attivio AIE PerfMon metric checks"
 fi
-if [ $run_count -gt 0 ]; then
-    echo "Completed $run_count Attivio tests"
-    echo
-    echo "All Attivio tests completed successfully"
-fi
+echo
+echo "Completed $run_count Attivio tests"
+echo
+echo "All Attivio tests completed successfully"
 untrap
 echo
 echo
