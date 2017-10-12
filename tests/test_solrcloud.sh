@@ -88,6 +88,8 @@ test_solrcloud(){
     hr
     run ./check_solr_version.py -e "$version"
     hr
+    run_conn_refused ./check_solr_version.py -e "$version"
+    hr
     #echo "sleeping for 20 secs to allow SolrCloud shard state to settle"
     #sleep 20
     echo "will try cluster status up to $startupwait times to give cluster and collection chance to initialize properly"
@@ -96,6 +98,8 @@ test_solrcloud(){
         sleep 1
     done
     run $perl -T ./check_solrcloud_cluster_status.pl -v
+    hr
+    run_conn_refused $perl -T ./check_solrcloud_cluster_status.pl -v
     hr
     docker_exec check_solrcloud_cluster_status_zookeeper.pl -H localhost -P 9983 -b / -v
     hr
@@ -113,10 +117,14 @@ test_solrcloud(){
     # FIXME: why is only 1 node up instead of 2
     run $perl -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
     hr
+    run_conn_refused $perl -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
+    hr
     docker_exec check_solrcloud_live_nodes_zookeeper.pl -H localhost -P 9983 -b / -w 1 -c 1 -v
     hr
     # docker is running slow
     run $perl -T ./check_solrcloud_overseer.pl -t 60 -v
+    hr
+    run_conn_refused $perl -T ./check_solrcloud_overseer.pl -t 60 -v
     hr
     docker_exec check_solrcloud_overseer_zookeeper.pl -H localhost -P 9983 -b / -v
     hr
