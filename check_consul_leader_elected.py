@@ -42,7 +42,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.7.0'
+__version__ = '0.7.1'
 
 
 class CheckConsulLeaderElected(RestNagiosPlugin):
@@ -70,12 +70,13 @@ class CheckConsulLeaderElected(RestNagiosPlugin):
 
     def parse(self, req):
         content = req.content
-        if re.match(r'^"\d+\.\d+\.\d+\.\d+:\d+"$', str(content)):
+        if re.match(r'^"\d+\.\d+\.\d+\.\d+:\d+"$', content):
             self.msg = 'Consul leader elected: {0}'.format(content)
         else:
             self.critical()
             self.msg = self.fail_msg
-            if len(content.split('\n')) == 1:
+            content = content.strip('"')
+            if content and len(content.split('\n')) == 1:
                 self.msg += ", output received did not match expected regex: '{0}'".format(content)
 
 
