@@ -65,17 +65,30 @@ test_zookeeper(){
     hr
     run ./check_zookeeper_version.py -e "$expected_version"
     hr
+    run_conn_refused ./check_zookeeper_version.py -e "$expected_version"
+    hr
     if [ "${version:0:3}" = "3.3" ]; then
         run_fail 3 $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
     else
         run $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
     fi
     hr
+    run_conn_refused $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
+    hr
     docker_exec check_zookeeper_config.pl -H localhost -C "/zookeeper/conf/zoo.cfg" -v
+    hr
+    echo "checking connection refused:"
+    FAIL=2 docker_exec check_zookeeper_config.pl -H localhost -C "/zookeeper/conf/zoo.cfg" -v -P "$wrong_port"
     hr
     docker_exec check_zookeeper_child_znodes.pl -H localhost -z / --no-ephemeral-check -v
     hr
+    echo "checking connection refused:"
+    FAIL=2 docker_exec check_zookeeper_child_znodes.pl -H localhost -z / --no-ephemeral-check -v -P "$wrong_port"
+    hr
     docker_exec check_zookeeper_znode.pl -H localhost -z / -v -n --child-znodes
+    hr
+    echo "checking connection refused:"
+    FAIL=2 docker_exec check_zookeeper_znode.pl -H localhost -z / -v -n --child-znodes -P "$wrong_port"
     hr
     echo "Completed $run_count ZooKeeper tests"
     hr
