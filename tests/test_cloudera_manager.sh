@@ -38,92 +38,117 @@ if [ -n "${CM_SSL:-}" ]; then
     # TODO: SSL env var support in plugins and set here
 fi
 
-if [ -z "${CM_HOST:-}" ]; then
-    echo "WARNING: \$CM_HOST not set, skipping Cloudera Manager checks"
-    exit 0
-fi
-
 trap_debug_env cm
 
-if ! when_ports_available 5 "$CM_HOST" "$CM_PORT"; then
-    echo "WARNING: Cloudera Manager host $CM_HOST:$CM_PORT not up, skipping Cloudera Manager checks"
-    echo
-    echo
-    exit 0
-fi
+echo "checking connection refused tests first:"
+echo
+run_fail 2 $perl -T check_cloudera_manager_version.pl -e "$CM_VERSION" -H localhost -P 718
+hr
+run_fail 2 $perl -T check_cloudera_manager.pl --api-ping -H localhost -P 718
+hr
+run_fail 2 $perl -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs -H localhost -P 718
+hr
+run_fail 2 $perl -T check_cloudera_manager_cluster_version.pl -H localhost -P 718
+hr
+run_fail 2 $perl -T check_cloudera_manager_config_stale.pl -S "hdfs" -H localhost -P 718
+hr
+run_fail 2 $perl -T check_cloudera_manager_config_validation.pl -S "hdfs" -H localhost -P 718
+hr
+run_fail 2 $perl -T check_cloudera_manager_health.pl -S "hdfs" -H localhost -P 718
+hr
+run_fail 2 $perl -T check_cloudera_manager_license.pl -H localhost -P 718
+hr
+run_fail 2 $perl -T check_cloudera_manager_metrics.pl -S "hdfs" -a -H localhost -P 718
+hr
+run_fail 2 $perl -T check_cloudera_manager_status.pl -S "hdfs" -H localhost -P 718
+hr
 
-if when_url_content 5 "$PROTOCOL://$CM_HOST:$CM_PORT/cmf/login" Cloudera; then
-    echo "WARNING: Cloudera Manager host $CM_HOST:$CM_PORT did not contain Cloudera in html, may be some other service bound to the port, skipping..."
-    echo
-    echo
-    exit 0
-fi
-
-# QuickStart VM often has some broken stuff, we're testing the code works, not the cluster
-[ "$CM_CLUSTER" = "$QUICKSTART_CLUSTER" ] && set +e
-
-hr
-run $perl -T check_cloudera_manager_version.pl -e "$CM_VERSION"
-hr
-run $perl -T check_cloudera_manager.pl --api-ping
-hr
-run $perl -T check_cloudera_manager.pl --list-clusters
-hr
-run $perl -T check_cloudera_manager.pl --list-users
-hr
-run $perl -T check_cloudera_manager.pl --list-hosts
-hr
-run $perl -T check_cloudera_manager.pl --list-services
-hr
-run $perl -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs
-hr
-run $perl -T check_cloudera_manager_cluster_version.pl
-hr
 echo
 
-# ============================================================================ #
+if [ -z "${CM_HOST:-}" ]; then
+    echo "WARNING: \$CM_HOST not set, skipping real Cloudera Manager checks"
+else
+    if ! when_ports_available 5 "$CM_HOST" "$CM_PORT"; then
+        echo "WARNING: Cloudera Manager host $CM_HOST:$CM_PORT not up, skipping Cloudera Manager checks"
+        echo
+        echo
+        exit 0
+    fi
+
+    if when_url_content 5 "$PROTOCOL://$CM_HOST:$CM_PORT/cmf/login" Cloudera; then
+        echo "WARNING: Cloudera Manager host $CM_HOST:$CM_PORT did not contain Cloudera in html, may be some other service bound to the port, skipping..."
+        echo
+        echo
+        exit 0
+    fi
+
+    # QuickStart VM often has some broken stuff, we're testing the code works, not the cluster
+    [ "$CM_CLUSTER" = "$QUICKSTART_CLUSTER" ] && set +e
+
+    hr
+    run $perl -T check_cloudera_manager_version.pl -e "$CM_VERSION"
+    hr
+    run $perl -T check_cloudera_manager.pl --api-ping
+    hr
+    run_fail 3 $perl -T check_cloudera_manager.pl --list-clusters
+    hr
+    run_fail 3 $perl -T check_cloudera_manager.pl --list-users
+    hr
+    run_fail 3 $perl -T check_cloudera_manager.pl --list-hosts
+    hr
+    run_fail 3 $perl -T check_cloudera_manager.pl --list-services
+    hr
+    run_fail 3 $perl -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs
+    hr
+    run $perl -T check_cloudera_manager_cluster_version.pl
+    hr
+    echo
+
+    # ============================================================================ #
+    echo
+
+    # messes up geting these variables right which impacts the runs of the plugins further down
+    if [ -n "${DEBUG:-}" ]; then
+        DEBUG2="$DEBUG"
+        export DEBUG=""
+    fi
+
+    set +o pipefail
+
+    services="$(./check_cloudera_manager_config_stale.pl --list-services | tail -n +3)"
+
+    set -o pipefail
+
+    echo "Services:
+
+    $services
+    "
+
+    service="$(bash-tools/random_select.sh "$services")"
+
+    echo "Selected service: $service"
+
+    if [ -n "${DEBUG2:-}" ]; then
+        export DEBUG="$DEBUG2"
+    fi
+
+    # ============================================================================ #
+
+    hr
+    run $perl -T check_cloudera_manager_config_stale.pl -S "$service"
+    hr
+    run $perl -T check_cloudera_manager_config_validation.pl -S "$service"
+    hr
+    run $perl -T check_cloudera_manager_health.pl -S "$service"
+    hr
+    run $perl -T check_cloudera_manager_license.pl
+    hr
+    run $perl -T check_cloudera_manager_metrics.pl -S "$service" -a
+    hr
+    run $perl -T check_cloudera_manager_status.pl -S "$service"
+    hr
+fi
 echo
-
-# messes up geting these variables right which impacts the runs of the plugins further down
-if [ -n "${DEBUG:-}" ]; then
-    DEBUG2="$DEBUG"
-    export DEBUG=""
-fi
-
-set +o pipefail
-
-services="$(./check_cloudera_manager_config_stale.pl --list-services | tail -n +3)"
-
-set -o pipefail
-
-echo "Services:
-
-$services
-"
-
-service="$(bash-tools/random_select.sh "$services")"
-
-echo "Selected service: $service"
-
-if [ -n "${DEBUG2:-}" ]; then
-    export DEBUG="$DEBUG2"
-fi
-
-# ============================================================================ #
-
-hr
-run $perl -T check_cloudera_manager_config_stale.pl -S "$service"
-hr
-run $perl -T check_cloudera_manager_config_validation.pl -S "$service"
-hr
-run $perl -T check_cloudera_manager_health.pl -S "$service"
-hr
-run $perl -T check_cloudera_manager_license.pl
-hr
-run $perl -T check_cloudera_manager_metrics.pl -S '$service' -a
-hr
-run $perl -T check_cloudera_manager_status.pl -S "$service"
-hr
 echo "Completed $run_count Cloudera Manager tests"
 echo
 echo "All Cloudera Manager tests passed successfully"
