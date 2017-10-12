@@ -101,10 +101,10 @@ class CheckPrestoWorkersResponseLag(RestNagiosPlugin):
         self.msg = 'Presto SQL worker nodes with response timestamps older than {0:d} secs = {1:d}'\
                    .format(self.max_age, num_nodes_lagging)
         self.check_thresholds(num_nodes_lagging)
-        self.msg += ', current max lag = {0:.2f} secs'.format(max_lag)
+        self.msg += ', current max response lag = {0:.2f} secs'.format(max_lag)
         if self.verbose and nodes_lagging:
             self.msg += ' [{0}]'.format(', '.join(nodes_lagging))
-        self.msg += ' | num_nodes_lagging={0}{1} max_lag={2:.2f}'\
+        self.msg += ' | num_nodes_lagging={0}{1} max_response_age={2:.2f}s'\
                     .format(num_nodes_lagging, self.get_perf_thresholds(), max_lag)
 
 
