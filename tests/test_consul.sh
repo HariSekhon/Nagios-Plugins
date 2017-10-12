@@ -43,7 +43,7 @@ check_docker_available
 trap_debug_env consul
 
 docker_exec(){
-    run docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
+    run docker-compose exec "$DOCKER_SERVICE" "$MNTDIR/$@"
 }
 
 test_consul(){
@@ -62,7 +62,9 @@ test_consul(){
     hr
     when_ports_available "$startupwait" "$CONSUL_HOST" "$CONSUL_PORT"
     hr
-    when_url_content "$startupwait" "http://$CONSUL_HOST:$CONSUL_PORT/" "Consul by HashiCorp"
+    # older versions say Consul Agent
+    # newer versions say Consul by Hashicorp
+    when_url_content "$startupwait" "http://$CONSUL_HOST:$CONSUL_PORT/" "Consul (Agent|by HashiCorp)"
     hr
     echo "waiting for leader election to avoid write key failure:"
     i=0
