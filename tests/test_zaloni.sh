@@ -28,7 +28,18 @@ section "Z a l o n i"
 
 export ZALONI_BEDROCK_PORT="${ZALONI_BEDROCK_PORT:-8080}"
 
-if [ -n "${ZALONI_BEDROCK_HOST:-}" ]; then
+trap_debug_env Zaloni
+
+echo "running conection refused checks first:"
+echo
+run_conn_refused ./check_zaloni_bedrock_ingestion.py -l
+hr
+run_conn_refused ./check_zaloni_bedrock_workflow.py --all -v --min-runtime 0
+hr
+
+if [ -z "${ZALONI_BEDROCK_HOST:-}" ]; then
+    echo "WARNING: \$ZALONI_BEDROCK_HOST not set, skipping real Zaloni checks"
+else
     if which nc &>/dev/null && ! echo | nc -w 1 "$ZALONI_BEDROCK_HOST" "$ZALONI_BEDROCK_PORT"; then
         echo "WARNING: Zaloni Bedrock host $ZALONI_BEDROCK_HOST:$ZALONI_BEDROCK_PORT not up, skipping Zaloni checks"
     else
@@ -58,12 +69,11 @@ if [ -n "${ZALONI_BEDROCK_HOST:-}" ]; then
         run_fail "0 2" ./check_zaloni_bedrock_workflow.py --all -v --min-runtime 0
         hr
     fi
-else
-    echo "WARNING: \$ZALONI_BEDROCK_HOST not set, skipping Zaloni checks"
 fi
-
+echo
 echo "Completed $run_count Zaloni tests"
 echo
 echo "All Zaloni tests passed successfully"
+untrap
 echo
 echo
