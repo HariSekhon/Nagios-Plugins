@@ -67,6 +67,16 @@ test_h2o(){
     hr
     run $perl -T ./check_h2o_nodes_last_contact.pl
     hr
+    run_conn_refused $perl -T ./check_h2o_cluster.pl
+    hr
+    run_conn_refused $perl -T ./check_h2o_jobs.pl
+    hr
+    run_conn_refused $perl -T ./check_h2o_node_health.pl
+    hr
+    run_conn_refused $perl -T ./check_h2o_node_stats.pl
+    hr
+    run_conn_refused $perl -T ./check_h2o_nodes_last_contact.pl
+    hr
     echo "Completed $run_count H2O tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
