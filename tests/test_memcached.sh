@@ -60,9 +60,18 @@ test_memcached(){
     # MEMCACHED_HOST obtained via .travis.yml
     run $perl -T ./check_memcached_write.pl -v
     hr
+    echo "checking connection refused:"
+    run_fail 2 $perl -T ./check_memcached_write.pl -v -P 1111
+    hr
     run $perl -T ./check_memcached_key.pl -k myKey -e hari -v
     hr
+    echo "checking connection refused:"
+    run_fail 2 $perl -T ./check_memcached_key.pl -k myKey -e hari -v -P 1111
+    hr
     run $perl -T ./check_memcached_stats.pl -w 15 -c 20 -v
+    hr
+    echo "checking connection refused:"
+    run_fail 2 $perl -T ./check_memcached_stats.pl -w 15 -c 20 -v -P 1111
     hr
     echo "Completed $run_count Memcached tests"
     hr
