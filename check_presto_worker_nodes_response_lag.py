@@ -37,7 +37,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, UnknownError, support_msg_api, isList, validate_int
+    from harisekhon.utils import log, UnknownError, support_msg_api, isList, validate_float
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
@@ -71,8 +71,8 @@ class CheckPrestoWorkersResponseLag(RestNagiosPlugin):
     def process_options(self):
         super(CheckPrestoWorkersResponseLag, self).process_options()
         self.max_age = self.get_opt('max_age')
-        validate_int(self.max_age, 'max age', 0, 3600)
-        self.max_age = int(self.max_age)
+        validate_float(self.max_age, 'max age', 0, 3600)
+        self.max_age = float('{0:.2f}'.format(self.max_age))
         self.validate_thresholds()
 
     def parse_json(self, json_data):
@@ -93,7 +93,7 @@ class CheckPrestoWorkersResponseLag(RestNagiosPlugin):
                 log.info("node '%s' last response age %d secs > max age %s secs",
                          node_item['uri'], response_age, self.max_age)
         num_nodes_lagging = len(nodes_lagging)
-        self.msg = 'Presto SQL worker nodes with response timestamps older than {0} secs = {1}'\
+        self.msg = 'Presto SQL worker nodes with response timestamps older than {0:.2f} secs = {1:d}'\
                    .format(self.max_age, num_nodes_lagging)
         self.check_thresholds(num_nodes_lagging)
         self.msg += ', current max lag = {0:.2f} secs'.format(max_lag)
