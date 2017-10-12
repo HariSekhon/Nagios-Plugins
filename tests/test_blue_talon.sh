@@ -36,12 +36,31 @@ fi
 
 trap_debug_env blue_talon
 
+echo "checking connection refused tests first:"
+echo
+run_fail 2 ./check_blue_talon_masking_functions.py $BLUE_TALON_SSL -v -w 400 -c 1000 -H localhost -P 44
+hr -H localhost -P 44
+run_fail 2 ./check_blue_talon_policies.py $BLUE_TALON_SSL -v -w 100 -c 200 -H localhost -P 44
+hr -H localhost -P 44
+run_fail 2 ./check_blue_talon_policy_deployment.py $BLUE_TALON_SSL -v -w 0:100000000 -c 0:20000000000 -H localhost -P 44
+hr -H localhost -P 44
+run_fail 2 ./check_blue_talon_resource_domains.py $BLUE_TALON_SSL -v -w 10 -c 20 -H localhost -P 44
+hr -H localhost -P 44
+run_fail 2 ./check_blue_talon_resources.py $BLUE_TALON_SSL -v -w 100 -c 200 -H localhost -P 44
+hr -H localhost -P 44
+run_fail 2 ./check_blue_talon_rules.py $BLUE_TALON_SSL -v -w 100 -c 200 -H localhost -P 44
+hr -H localhost -P 44
+run_fail 2 ./check_blue_talon_user_domains.py $BLUE_TALON_SSL -v -w 10 -c 20 -H localhost -P 44
+hr -H localhost -P 44
+run_fail 2 ./check_blue_talon_version.py $BLUE_TALON_SSL -v -H localhost -P 44
+hr
+
 # This always fails now the public test site must have been (re)moved
 if when_ports_available 3 "$BLUE_TALON_HOST" "$BLUE_TALON_PORT"; then
     # Blue Talon is hanging but the port is open (honeypot?)
     if ! when_url_content 3 "$PROTOCOL://$BLUE_TALON_HOST:$BLUE_TALON_PORT" '.*';  then
-        echo "HTTP port not responding, skipping Blue Talon checks"
         echo
+        echo "WARNING: HTTP port not responding, skipping Blue Talon checks"
         echo
         untrap
         exit 0
@@ -63,11 +82,9 @@ if when_ports_available 3 "$BLUE_TALON_HOST" "$BLUE_TALON_PORT"; then
     run ./check_blue_talon_version.py $BLUE_TALON_SSL -v
     hr
 else
+    echo
     echo "WARNING: Blue Talon host $BLUE_TALON_HOST:$BLUE_TALON_PORT not available, skipping checks..."
     echo
-    echo
-    untrap
-    exit 0
 fi
 echo "Completed $run_count Blue Talon tests"
 echo
