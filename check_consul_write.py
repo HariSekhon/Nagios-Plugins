@@ -21,7 +21,7 @@ and finally delete cleanup of the generated key
 
 Thresholds apply to max write / read / delete timings
 
-Tested on Consul 0.6.3
+Tested on Consul 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9
 
 """
 
