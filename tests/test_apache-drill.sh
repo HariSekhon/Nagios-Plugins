@@ -74,7 +74,13 @@ test_apache_drill(){
     hr
     run ./check_apache_drill_status.py -v
     hr
+    echo "checking connection refused:"
+    run_fail 2 ./check_apache_drill_status.py -v -P 804
+    hr
     run $perl -T ./check_apache_drill_metrics.pl -v
+    hr
+    echo "checking connection refused:"
+    run_fail 2 $perl -T ./check_apache_drill_metrics.pl -v -P 804
     hr
     echo "Completed $run_count Apache Drill tests"
     hr
