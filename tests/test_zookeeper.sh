@@ -47,8 +47,13 @@ startupwait 10
 test_zookeeper(){
     local version="$1"
     section2 "Setting up ZooKeeper $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
+    echo "getting ZooKeeper dynammic port mapping:"
+    printf "ZooKeeper port => "
     export ZOOKEEPER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$ZOOKEEPER_PORT"
+    hr
     when_ports_available "$startupwait" "$ZOOKEEPER_HOST" "$ZOOKEEPER_PORT"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
@@ -61,7 +66,7 @@ test_zookeeper(){
     run ./check_zookeeper_version.py -e "$expected_version"
     hr
     if [ "${version:0:3}" = "3.3" ]; then
-        run $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v || :
+        run_fail 3 $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
     else
         run $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
     fi

@@ -50,8 +50,13 @@ startupwait 20
 test_riak(){
     local version="$1"
     section2 "Setting up Riak $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
+    echo "getting Riak dynamic port mapping:"
+    echo "Riak HTTP port => "
     export RIAK_PORT="`docker-compose port "$DOCKER_SERVICE" "$RIAK_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$RIAK_PORT"
+    hr
     when_ports_available "$startupwait" "$RIAK_HOST" "$RIAK_PORT"
     hr
     when_url_content "$startupwait" "http://$RIAK_HOST:$RIAK_PORT/ping" OK

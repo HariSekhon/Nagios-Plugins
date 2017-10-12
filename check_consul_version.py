@@ -23,7 +23,7 @@ This version uses the 'consul' command which must be in the $PATH
 This is also used in the accompanying test suite to ensure we're checking the right version of Consul
 for compatibility for all my other Consul nagios plugins.
 
-Tested on Consul 0.6.3
+Tested on Consul 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9
 
 """
 

@@ -18,7 +18,7 @@
 
 Nagios Plugin to check the number of peers in a Consul cluster
 
-Tested on Consul 0.6.3
+Tested on Consul 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9
 
 """
 
@@ -44,13 +44,13 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6.1'
+__version__ = '0.7.0'
 
 
-class ConsulPeerCount(NagiosPlugin):
+class CheckConsulPeerCount(NagiosPlugin):
 
     def __init__(self):
-        super(ConsulPeerCount, self).__init__()
+        super(CheckConsulPeerCount, self).__init__()
         self.name = 'Consul'
         self.default_port = 8500
         self.host = None
@@ -110,5 +110,6 @@ class ConsulPeerCount(NagiosPlugin):
         #self.msg += self.get_perf_thresholds(boundary='lower')
         self.msg += self.get_perf_thresholds(boundary='lower')
 
+
 if __name__ == '__main__':
-    ConsulPeerCount().main()
+    CheckConsulPeerCount().main()

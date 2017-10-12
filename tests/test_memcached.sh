@@ -41,8 +41,13 @@ startupwait 1
 test_memcached(){
     local version="$1"
     section2 "Setting up Memcached $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
+    echo "getting Memcached dynamic port mapping:"
+    printf "Memcached port => "
     export MEMCACHED_PORT="`docker-compose port "$DOCKER_SERVICE" "$MEMCACHED_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$MEMCACHED_PORT"
+    hr
     when_ports_available "$startupwait" "$MEMCACHED_HOST" "$MEMCACHED_PORT"
     hr
     echo "creating test Memcached key-value"
@@ -55,9 +60,18 @@ test_memcached(){
     # MEMCACHED_HOST obtained via .travis.yml
     run $perl -T ./check_memcached_write.pl -v
     hr
+    echo "checking connection refused:"
+    run_fail 2 $perl -T ./check_memcached_write.pl -v -P 1111
+    hr
     run $perl -T ./check_memcached_key.pl -k myKey -e hari -v
     hr
+    echo "checking connection refused:"
+    run_fail 2 $perl -T ./check_memcached_key.pl -k myKey -e hari -v -P 1111
+    hr
     run $perl -T ./check_memcached_stats.pl -w 15 -c 20 -v
+    hr
+    echo "checking connection refused:"
+    run_fail 2 $perl -T ./check_memcached_stats.pl -w 15 -c 20 -v -P 1111
     hr
     echo "Completed $run_count Memcached tests"
     hr

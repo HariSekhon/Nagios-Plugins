@@ -70,12 +70,13 @@ test_hbase(){
     if [ -z "${KEEPDOCKER:-}" ]; then
         docker-compose down || :
     fi
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     if [ "$version" = "0.96" -o "$version" = "0.98" ]; then
         local export HBASE_MASTER_PORT_DEFAULT=60010
         local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
     fi
-    echo "getting HBase dynamic port mappings"
+    echo "getting HBase dynamic port mappings:"
     printf "getting HBase Master port       => "
     export HBASE_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HBASE_MASTER_PORT"
@@ -93,6 +94,7 @@ test_hbase(){
     echo "$ZOOKEEPER_PORT"
     #local export HBASE_PORTS=`{ for x in $HBASE_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://' | sort -n`
     export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT $ZOOKEEPER_PORT"
+    hr
     when_ports_available "$startupwait" "$HBASE_HOST" $HBASE_PORTS
     hr
     when_url_content "$startupwait" "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" hbase
@@ -277,9 +279,10 @@ EOF
     # have to use --host and --port here as this is a generic program with specific environment variables like we're setting and don't want to set $HOST and $PORT
     run $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
     hr
-    run $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics -t 30 | sed 's/|.*$//' # too long exceeds Travis CI max log length due to the 100 region HexStringSplitTable multiplying out the available metrics
+    run $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics -t 20 | sed 's/|.*$//'
     hr
-    run $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --all-metrics -t 20
+    # too long exceeds Travis CI max log length due to the 100 region HexStringSplitTable multiplying out the available metrics
+    run $perl -T ./check_hadoop_jmx.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --all-metrics -t 20 | sed 's/|.*$//'
     #hr
     # XXX: both cause 500 internal server error
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" --all-metrics

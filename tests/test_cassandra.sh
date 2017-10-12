@@ -30,7 +30,7 @@ CASSANDRA_HOST="${CASSANDRA_HOST##*/}"
 CASSANDRA_HOST="${CASSANDRA_HOST%%:*}"
 export CASSANDRA_HOST
 export CASSANDRA_PORT_DEFAULT=9042
-export CASSANDRA_PORTS_DEFAULT="7199 $CASSANDRA_PORT_DEFAULT"
+export CASSANDRA_JMX_PORT_DEFAULT=7199
 
 export MNTDIR="/pl"
 
@@ -48,13 +48,19 @@ docker_exec(){
 test_cassandra(){
     local version="$1"
     section2 "Setting up Cassandra $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
+    echo "getting Cassandra dynamic port mappings:"
+    printf "Cassandra CQL port => "
     export CASSANDRA_PORT="`docker-compose port "$DOCKER_SERVICE" "$CASSANDRA_PORT_DEFAULT" | sed 's/.*://'`"
-    export CASSANDRA_PORTS=`{ for x in $CASSANDRA_PORTS_DEFAULT; do  docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
+    echo "$CASSANDRA_PORT"
+    printf "Cassandra JMX port => "
+    export CASSANDRA_JMX_PORT="`docker-compose port "$DOCKER_SERVICE" "$CASSANDRA_JMX_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$CASSANDRA_JMX_PORT"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    when_ports_available "$startupwait" "$CASSANDRA_HOST" $CASSANDRA_PORTS
+    when_ports_available "$startupwait" "$CASSANDRA_HOST" "$CASSANDRA_PORT" "$CASSANDRA_JMX_PORT"
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi

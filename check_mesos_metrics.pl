@@ -20,7 +20,7 @@ May specify optional thresholds if fetching a single metric.
 
 Tested on Mesos 0.23, 0.24, 0.25";
 
-$VERSION = "0.2";
+$VERSION = "0.2.1";
 
 use strict;
 use warnings;
@@ -82,12 +82,12 @@ my @metric_counters = qw(
 );
 
 if($progname =~ /master/){
-    env_creds(["Mesos Master", "Mesos"], "Mesos Master");
     set_port_default(5050);
+    env_creds(["Mesos Master", "Mesos"], "Mesos Master");
     $DESCRIPTION =~ s/metrics for either a Master or Slave/Master metrics/;
 } elsif($progname =~ /slave/){
-    env_creds(["Mesos Slave", "Mesos"], "Mesos Slave");
     set_port_default(5051);
+    env_creds(["Mesos Slave", "Mesos"], "Mesos Slave");
     $DESCRIPTION =~ s/metrics for either a Master or Slave/Slave metrics/;
 } else {
     env_creds("Mesos");

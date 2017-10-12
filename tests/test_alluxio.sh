@@ -42,9 +42,15 @@ trap_debug_env alluxio
 test_alluxio(){
     local version="$1"
     section2 "Setting up Alluxio $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
+    echo "getting Alluxio dynamic port mappings:"
+    printf "Alluxio Master port => "
     export ALLUXIO_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$ALLUXIO_MASTER_PORT"
+    printf "Alluxio Worker port => "
     export ALLUXIO_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$ALLUXIO_WORKER_PORT"
     if [ -z "$ALLUXIO_MASTER_PORT" ]; then
         echo "FAILED to get Alluxio Master port... did the container or Master process crash?"
         exit 1
@@ -53,6 +59,7 @@ test_alluxio(){
         echo "FAILED to get Alluxio Worker port... did the container or Worker process crash?"
         exit 1
     fi
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi

@@ -48,8 +48,13 @@ trap_debug_env redis
 test_redis(){
     local version="$1"
     section2 "Setting up Redis $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
+    echo "getting Redis dynamic port mapping:"
+    printf "Redis port => "
     export REDIS_PORT="`docker-compose port "$DOCKER_SERVICE" "$REDIS_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$REDIS_PORT"
+    hr
     when_ports_available "$startupwait" "$REDIS_HOST" "$REDIS_PORT"
     hr
     echo "creating test Redis key-value"

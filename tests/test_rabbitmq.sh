@@ -62,13 +62,24 @@ test_rabbitmq(){
     # if one container is already still up it'll result in inconsistent state error when the other tries to join cluster, causing rabbit2 joining node container to crash
     # so shut down any already existing containers for safety
     #docker-compose down
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$VERSION" docker-compose up -d
     local DOCKER_SERVICE="rabbit1"
     local DOCKER_SERVICE2="rabbit2"
+    echo "getting RabbitMQ dynamic port mappings:"
+    printf "RabbitMQ node 1 port => "
     export RABBITMQ_PORT="`docker-compose port "$DOCKER_SERVICE" "$RABBITMQ_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$RABBITMQ_PORT"
+    printf "RabbitMQ node 2 port => "
     export RABBITMQ_PORT2="`docker-compose port "$DOCKER_SERVICE2" "$RABBITMQ_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$RABBITMQ_PORT2"
+    printf "RabbitMQ node 1 HTTP port => "
     export RABBITMQ_HTTP_PORT="`docker-compose port "$DOCKER_SERVICE" "$RABBITMQ_HTTP_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$RABBITMQ_HTTP_PORT"
+    printf "RabbitMQ node 2 HTTP port => "
     export RABBITMQ_HTTP_PORT2="`docker-compose port "$DOCKER_SERVICE2" "$RABBITMQ_HTTP_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$RABBITMQ_HTTP_PORT2"
+    hr
     when_ports_available "$startupwait" "$RABBITMQ_HOST" "$RABBITMQ_PORT" "$RABBITMQ_HTTP_PORT" "$RABBITMQ_PORT2" "$RABBITMQ_HTTP_PORT2"
     hr
     echo "setting up RabbitMQ environment"

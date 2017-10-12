@@ -44,6 +44,7 @@ test_linux(){
     section2 "Setting up Linux $distro $version test container"
     export SERVICE="nagiosplugins_$distro-github_1"
     export COMPOSE_FILE="$srcdir/docker/$distro-github-docker-compose.yml"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     #docker exec "$DOCKER_CONTAINER" yum install -y net-tools
     if [ -n "${NOTESTS:-}" ]; then

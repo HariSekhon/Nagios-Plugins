@@ -45,8 +45,13 @@ startupwait 30
 test_elasticsearch(){
     local version="$1"
     section2 "Setting up Elasticsearch $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
+    echo "getting Elasticsearch dynamic port mapping:"
+    printf "Elasticsearch port => "
     export ELASTICSEARCH_PORT="`docker-compose port "$DOCKER_SERVICE" "$ELASTICSEARCH_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$ELASTICSEARCH_PORT"
+    hr
     when_ports_available "$startupwait" "$ELASTICSEARCH_HOST" "$ELASTICSEARCH_PORT"
     hr
     when_url_content "$startupwait" "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT" "lucene_version"
@@ -139,7 +144,13 @@ test_elasticsearch(){
     hr
     run $perl -T ./check_elasticsearch_nodes.pl -v -w 1
     hr
-    run $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 90 -c 95
+    run $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 99 -c 99
+    hr
+    echo "checking threshold failure warning:"
+    run_fail 1 $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 1 -c 99
+    hr
+    echo "checking threshold failure critical:"
+    run_fail 2 $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 1 -c 2
     hr
     run $perl -T ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
     hr

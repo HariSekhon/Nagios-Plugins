@@ -30,7 +30,6 @@ HADOOP_HOST="${HADOOP_HOST##*/}"
 HADOOP_HOST="${HADOOP_HOST%%:*}"
 export HADOOP_HOST
 # don't need these each script should fall back to using HADOOP_HOST secondary if present
-# TODO: make sure new script for block balance does this
 #export HADOOP_NAMENODE_HOST="$HADOOP_HOST"
 #export HADOOP_DATANODE_HOST="$HADOOP_HOST"
 #export HADOOP_YARN_RESOURCE_MANAGER_HOST="$HADOOP_HOST"
@@ -61,10 +60,11 @@ docker_exec(){
 test_hadoop(){
     local version="$1"
     section2 "Setting up Hadoop $version test container"
-    # reset state as things like blocks counts and job states, no history, succeeded etc depend on state
+    # reset state as things like checkpoint age, blocks counts and job states, no history, succeeded etc depend on state
     docker-compose down &>/dev/null || :
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
-    echo "getting Hadoop dynamic port mappings"
+    echo "getting Hadoop dynamic port mappings:"
     printf "getting HDFS NN port => "
     export HADOOP_NAMENODE_PORT="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_NAMENODE_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$HADOOP_NAMENODE_PORT"
@@ -79,6 +79,7 @@ test_hadoop(){
     echo "$HADOOP_YARN_NODE_MANAGER_PORT"
     #local hadoop_ports=`{ for x in $HADOOP_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
     export HADOOP_PORTS="$HADOOP_NAMENODE_PORT $HADOOP_DATANODE_PORT $HADOOP_YARN_RESOURCE_MANAGER_PORT $HADOOP_YARN_NODE_MANAGER_PORT"
+    hr
     when_ports_available "$startupwait" "$HADOOP_HOST" $HADOOP_PORTS
     hr
     # needed for version tests, also don't return container to user before it's ready if NOTESTS
@@ -372,9 +373,20 @@ EOF
     exit
 EOF
     hr
-    echo "waiting up to 20 secs for job to become available..."
-    for x in {1..20}; do
-        ./check_hadoop_yarn_app_running.py -a '.*' &>/dev/null && break
+    # Job can get stuck in Accepted state with no NM to run on if disk > 90% full it gets marked as bad dir
+    local max_job_wait=30
+    echo "waiting up to $max_job_wait secs for job to become enter running state..."
+    SECONDS=0
+    while true; do
+        echo "checking if job is running yet.."
+        if ./check_hadoop_yarn_app_running.py -a '.*' &>/dev/null; then
+            echo "job detected as runnning"
+            break
+        fi
+        if [ $SECONDS -gt $max_job_wait ]; then
+            echo "FAILED: MapReduce job was not detected as running after $max_job_wait secs (is disk >90% full?)"
+            exit 1
+        fi
         sleep 1
     done
     hr

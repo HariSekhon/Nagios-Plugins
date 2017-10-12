@@ -22,7 +22,9 @@ services:
     ports:
       - 8500
     command:
-      consul agent -dev -data-dir /tmp -client 0.0.0.0
+      # -dev flag >= 0.6 only
+      # use -server -bootstrap flag instead
+      consul agent -server -bootstrap -data-dir /tmp -client 0.0.0.0
     networks:
       - consul_dev
 

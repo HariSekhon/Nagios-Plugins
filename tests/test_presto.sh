@@ -41,8 +41,13 @@ startupwait 30
 test_presto(){
     local version="$1"
     section2 "Setting up Presto $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
+    echo "getting Presto dynamic port mapping:"
+    print "Presto port => "
     export PRESTO_PORT="`docker-compose port "$DOCKER_SERVICE" "$PRESTO_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$PRESTO_PORT"
+    hr
     when_ports_available "$startupwait" "$PRESTO_HOST" "$PRESTO_PORT"
     hr
     # endpoint initializes blank, wait until there is some content, eg. nodeId

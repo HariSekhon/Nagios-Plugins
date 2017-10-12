@@ -21,7 +21,7 @@ and finally delete cleanup of the generated key
 
 Thresholds apply to max write / read / delete timings
 
-Tested on Consul 0.6.3
+Tested on Consul 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9
 
 """
 
@@ -38,16 +38,16 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.nagiosplugin import KeyWriteNagiosPlugin
-    from check_consul_key import ConsulKeyCheck
+    from check_consul_key import CheckConsulKey
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6'
+__version__ = '0.7.0'
 
 
-class ConsulWriteCheck(ConsulKeyCheck, KeyWriteNagiosPlugin):
+class CheckConsulWrite(CheckConsulKey, KeyWriteNagiosPlugin):
 
     def write(self):
         url = 'http://%(host)s:%(port)s/v1/kv/%(key)s' % self.__dict__
@@ -63,4 +63,4 @@ class ConsulWriteCheck(ConsulKeyCheck, KeyWriteNagiosPlugin):
 
 
 if __name__ == '__main__':
-    ConsulWriteCheck().main()
+    CheckConsulWrite().main()

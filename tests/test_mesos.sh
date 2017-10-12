@@ -24,8 +24,8 @@ cd "$srcdir/.."
 
 section "A p a c h e   M e s o s"
 
-# TODO: update plugins for > 0.24
-export MESOS_VERSIONS="${@:-${MESOS_VERSIONS:-${VERSIONS:-latest 0.23 0.24}}}"
+# TODO: docker images for 0.25 and 0.26 need fixes
+export MESOS_VERSIONS="${@:-${MESOS_VERSIONS:-${VERSIONS:-latest 0.23 0.24 0.27 0.28}}}"
 
 MESOS_HOST="${DOCKER_HOST:-${MESOS_HOST:-${HOST:-localhost}}}"
 MESOS_HOST="${MESOS_HOST##*/}"
@@ -33,7 +33,7 @@ MESOS_HOST="${MESOS_HOST%%:*}"
 export MESOS_HOST
 
 export MESOS_MASTER_PORT_DEFAULT=5050
-export MESOS_WORKER_PORT_DEFAULT=5051
+export MESOS_SLAVE_PORT_DEFAULT=5051
 export MESOS_MASTER="$MESOS_HOST:$MESOS_MASTER_PORT_DEFAULT"
 
 startupwait 30
@@ -45,15 +45,27 @@ trap_debug_env mesos
 test_mesos(){
     local version="${1:-latest}"
     section2 "Setting up Mesos $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
+    echo "getting Mesos dynamic port mappings:"
+    printf "getting Mesos Master port => "
     export MESOS_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$MESOS_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
-    export MESOS_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$MESOS_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$MESOS_MASTER_PORT"
+    printf "getting Mesos Slave port => "
+    export MESOS_SLAVE_PORT="`docker-compose port "$DOCKER_SERVICE" "$MESOS_SLAVE_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$MESOS_SLAVE_PORT"
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    when_ports_available "$startupwait" "$MESOS_HOST" "$MESOS_MASTER_PORT" "$MESOS_WORKER_PORT"
+    when_ports_available "$startupwait" "$MESOS_HOST" "$MESOS_MASTER_PORT" "$MESOS_SLAVE_PORT"
     hr
-    run $perl -T ./check_mesos_activated_slaves.pl -P "$MESOS_MASTER_PORT" -v
+    # could use state.json here but Slave doesn't have this so it's better differentiation
+    when_url_content "$startupwait" "http://$MESOS_HOST:$MESOS_MASTER_PORT/" master
+    hr
+    when_url_content "$startupwait" "http://$MESOS_HOST:$MESOS_SLAVE_PORT/state.json" slave
+    hr
+    run_fail "0 2" $perl -T ./check_mesos_activated_slaves.pl -P "$MESOS_MASTER_PORT" -v
     hr
     #run $perl -T ./check_mesos_chronos_jobs.pl -P "$cronos_port" -v
     hr
@@ -63,19 +75,22 @@ test_mesos(){
     hr
     run $perl -T ./check_mesos_master_state.pl -v
     hr
+    # must specify ports here as calling generic base plugin
+    echo "checking master metrics:"
     run $perl -T ./check_mesos_metrics.pl -P "$MESOS_MASTER_PORT" -v
     hr
-    run $perl -T ./check_mesos_metrics.pl -P "$MESOS_WORKER_PORT" -v
+    echo "checking SLAVE metrics:"
+    run $perl -T ./check_mesos_metrics.pl -P "$MESOS_SLAVE_PORT" -v
     hr
     run $perl -T ./check_mesos_master_metrics.pl -v
+    hr
+    run $perl -T ./check_mesos_slave_metrics.pl  -v
     hr
     set +e
     slave="$(./check_mesos_slave.py -l | awk '/=/{print $1; exit}')"
     set -e
-    echo "checking for mesos slave '$slave'"
-    run ./check_mesos_slave.py -v -s "$slave"
-    hr
-    run $perl -T ./check_mesos_slave_metrics.pl  -v
+    echo "checking for Mesos Slave '$slave' via Mesos Master API:"
+    run ./check_mesos_slave.py -v -s "$slave" -P "$MESOS_MASTER_PORT"
     hr
     # Not implemented yet
     #run $perl -T ./check_mesos_registered_framework.py -v
@@ -83,7 +98,7 @@ test_mesos(){
     # Not implemented yet
     #run $perl -T ./check_mesos_slave_container_statistics.pl -v
     hr
-    run $perl -T ./check_mesos_slave_state.pl -v
+    run $perl -T ./check_mesos_slave_state.pl -v -P "$MESOS_SLAVE_PORT"
     hr
     echo "Completed $run_count Mesos tests"
     hr

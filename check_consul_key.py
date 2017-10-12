@@ -20,7 +20,7 @@ Nagios Plugin to check a given key in a Consul key-value store
 
 Optionally may match the contents against a given regex or numeric thresholds if the key contents are numeric
 
-Tested on Consul 0.6.3
+Tested on Consul 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9
 
 """
 
@@ -47,13 +47,13 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6.2'
+__version__ = '0.7.0'
 
 
-class ConsulKeyCheck(KeyCheckNagiosPlugin):
+class CheckConsulKey(KeyCheckNagiosPlugin):
 
     def __init__(self):
-        super(ConsulKeyCheck, self).__init__()
+        super(CheckConsulKey, self).__init__()
         self.name = 'Consul'
         self.default_port = 8500
         self.request_handler = RequestHandler()
@@ -108,4 +108,4 @@ class ConsulKeyCheck(KeyCheckNagiosPlugin):
 
 
 if __name__ == '__main__':
-    ConsulKeyCheck().main()
+    CheckConsulKey().main()

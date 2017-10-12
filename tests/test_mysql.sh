@@ -53,7 +53,7 @@ check_docker_available
 
 trap_debug_env mysql mariadb
 
-startupwait 10
+startupwait 20
 
 test_mysql(){
     test_db MySQL "$1"
@@ -69,10 +69,11 @@ test_db(){
     name_lower="$(tr 'A-Z' 'a-z' <<< "$name")"
     local export COMPOSE_FILE="$srcdir/docker/$name_lower-docker-compose.yml"
     section2 "Setting up $name $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     local docker_container="$(docker-compose ps | sed -n '3s/ .*//p')"
     echo "determined docker container to be '$docker_container'"
-    echo "Getting $name port mapping"
+    echo "getting $name dynamic port mapping:"
     echo -n "$name port => "
     #for i in {1..10}; do
         # MariaDB 5.5 container is slow to map this port
@@ -87,7 +88,7 @@ test_db(){
     when_ports_available "$startupwait" "$MYSQL_HOST" $MYSQL_PORT
     hr
     # kind of an abuse of the protocol but good extra validation step
-    when_url_content "$startupwait" "http://$MYSQL_HOST:$MYSQL_PORT" mysql
+    when_url_content "$startupwait" "http://$MYSQL_HOST:$MYSQL_PORT" "$name|$name_lower"
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
@@ -95,7 +96,7 @@ test_db(){
     echo "finding my.cnf location"
     set +o pipefail
     MYSQL_CONFIG_FILE="my.cnf"
-    my_cnf="$(docker exec -ti "$docker_container" find /etc -name my.cnf -o -name mysqld.cnf | head -n1 | tr -d '\r')"
+    my_cnf="$(docker exec -ti "$docker_container" find /etc -type f -name my.cnf -o -name mysqld.cnf | head -n1 | tr -d '\r')"
     set -o pipefail
     echo "determined my.cnf location to be $my_cnf"
     #if [ "$version" = "latest" ] || [ "${version%%.*}" -gt 5 ]; then
@@ -110,8 +111,10 @@ test_db(){
     #docker cp -L "$docker_container":"$MYSQL_CONFIG_PATH/$MYSQL_CONFIG_FILE" /tmp
     # doesn't let you specify a file path only dir otherwise gives annoying and inflexible error "not a directory"
     docker cp "$docker_container":"$my_cnf" "/tmp/"
-    mv -vf "/tmp/${my_cnf##*/}" "/tmp/$MYSQL_CONFIG_FILE"
-    echo "copied to /tmp/$MYSQL_CONFIG_FILE"
+    echo "copied to docker:$my_cnf => /tmp"
+    if [ "/tmp/${my_cnf##*/}" != "/tmp/$MYSQL_CONFIG_FILE" ]; then
+        mv -vf "/tmp/${my_cnf##*/}" "/tmp/$MYSQL_CONFIG_FILE"
+    fi
     hr
     extra_opt=""
     if [ "$name" = "MariaDB" ]; then

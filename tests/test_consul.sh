@@ -23,7 +23,7 @@ cd "$srcdir/.."
 
 section "C o n s u l"
 
-export CONSUL_VERSIONS="${@:-${CONSUL_VERSIONS:-latest 0.1 0.2 0.3 0.4 0.5 0.6 0.7}}"
+export CONSUL_VERSIONS="${@:-${CONSUL_VERSIONS:-latest 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9}}"
 
 CONSUL_HOST="${DOCKER_HOST:-${CONSUL_HOST:-${HOST:-localhost}}}"
 CONSUL_HOST="${CONSUL_HOST##*/}"
@@ -43,20 +43,43 @@ check_docker_available
 trap_debug_env consul
 
 docker_exec(){
-    run docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
+    run docker-compose exec "$DOCKER_SERVICE" "$MNTDIR/$@"
 }
 
 test_consul(){
     local version="$1"
     section2 "Setting up Consul $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
+    echo "getting Consul dynamic port mapping:"
+    printf "Consul port => "
     export CONSUL_PORT="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$CONSUL_PORT"
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
+    hr
     when_ports_available "$startupwait" "$CONSUL_HOST" "$CONSUL_PORT"
     hr
-    when_url_content "$startupwait" "http://$CONSUL_HOST:$CONSUL_PORT/" "Consul by HashiCorp"
+    # older versions say Consul Agent
+    # newer versions say Consul by Hashicorp
+    when_url_content "$startupwait" "http://$CONSUL_HOST:$CONSUL_PORT/" "Consul (Agent|by HashiCorp)"
+    hr
+    echo "waiting for leader election to avoid write key failure:"
+    i=0
+    while true; do
+        let i+=1
+        echo -n "try $i:  "
+        if ./check_consul_leader_elected.py; then
+            break
+        fi
+        if [ $i -gt 10 ]; then
+            echo "Consul leader still not elected after 10 seconds!"
+            exit 1
+        fi
+        sleep 1
+    done
     hr
     local testkey="nagios/consul/testkey1"
     echo "Writing random value to test key $testkey"
@@ -77,6 +100,8 @@ test_consul(){
     fi
     hr
     echo "Consul version $found_version"
+    hr
+    run ./check_consul_leader_elected.py
     hr
     run ./check_consul_peer_count.py
     hr

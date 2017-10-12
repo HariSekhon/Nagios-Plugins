@@ -41,15 +41,20 @@ trap_debug_env apache_drill
 test_apache_drill(){
     local version="$1"
     section2 "Setting up Apache Drill $version test container"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
-    if [ -n "${NOTESTS:-}" ]; then
-        exit 0
-    fi
+    echo "getting Apache Drill dynamic port mappings:"
+    printf "Apache Drill port => "
     export APACHE_DRILL_PORT="`docker-compose port "$DOCKER_SERVICE" "$APACHE_DRILL_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$APACHE_DRILL_PORT"
+    hr
     when_ports_available "$startupwait" "$APACHE_DRILL_HOST" "$APACHE_DRILL_PORT"
     hr
     when_url_content "$startupwait" "http://$APACHE_DRILL_HOST:$APACHE_DRILL_PORT/status" "Running"
     hr
+    if [ -n "${NOTESTS:-}" ]; then
+        exit 0
+    fi
     if [ "$version" = "latest" ]; then
         local version="*"
     fi

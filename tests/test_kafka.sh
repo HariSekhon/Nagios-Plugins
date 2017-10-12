@@ -50,10 +50,12 @@ test_kafka(){
     local version="$1"
     section2 "Setting up Apache Kafka $version test container"
     export ADVERTISED_HOSTNAME="$KAFKA_HOST"
+    VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     # not mapping kafka port any more
     #kafka_port="`docker-compose port "$DOCKER_SERVICE" "$KAFKA_PORT" | sed 's/.*://'`"
     #local KAFKA_PORT="$kafka_port"
+    hr
     when_ports_available $startupwait $KAFKA_HOST $KAFKA_PORT
     hr
     echo "checking if Kafka topic already exists:"
@@ -102,9 +104,11 @@ test_kafka(){
     hr
     run ./check_kafka.py -B "$KAFKA_HOST" -P "$KAFKA_PORT" -v
     hr
-    run KAFKA_BROKERS="$KAFKA_HOST" ./check_kafka.py -v
+    KAFKA_BROKERS="$KAFKA_HOST" \
+    run ./check_kafka.py -v
     hr
-    run KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" ./check_kafka.py -P "999" -v
+    KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" \
+    run ./check_kafka.py -P "999" -v
     hr
     run ./check_kafka.py -v
     hr
@@ -141,7 +145,8 @@ test_kafka(){
     hr
     run_fail 2 $perl -T ./check_kafka.pl -H localhost -P 9999 -v
     hr
-    run KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" KAFKA_HOST="" KAFKA_PORT="" $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
+    KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" KAFKA_HOST="" KAFKA_PORT="" \
+    run $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
     hr
     run $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
     hr
