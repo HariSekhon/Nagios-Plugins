@@ -60,7 +60,11 @@ test_spark(){
     hr
     run ./check_spark_master_version.py -e "$version"
     hr
+    run_conn_refused ./check_spark_master_version.py -e "$version"
+    hr
     run ./check_spark_worker_version.py -e "$version"
+    hr
+    run_conn_refused ./check_spark_worker_version.py -e "$version"
     hr
     echo "trying check_spark_cluster.pl up to 10 times to give cluster worker a chance to initialize:"
     set +e
@@ -73,11 +77,19 @@ test_spark(){
     hr
     run $perl -T ./check_spark_cluster.pl -c 1: -v
     hr
+    run_conn_refused $perl -T ./check_spark_cluster.pl -c 1: -v
+    hr
     run $perl -T ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v
+    hr
+    run_conn_refused $perl -T ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v
     hr
     run $perl -T ./check_spark_cluster_memory.pl -w 80 -c 90 -v
     hr
+    run_conn_refused $perl -T ./check_spark_cluster_memory.pl -w 80 -c 90 -v
+    hr
     run $perl -T ./check_spark_worker.pl -w 80 -c 90 -v
+    hr
+    run_conn_refused $perl -T ./check_spark_worker.pl -w 80 -c 90 -v
     hr
     echo "Completed $run_count Spark tests"
     hr
