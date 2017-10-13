@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check Nginx stats. Nginx will need to be config
 
 Tested on Nginx circa 2010/2011 and more recently version 1.9.11, 1.10.0, 1.11.0";
 
-$VERSION = "0.4.1";
+$VERSION = "0.5.0";
 
 use strict;
 use warnings;
@@ -26,9 +26,12 @@ use HariSekhonUtils qw/:DEFAULT :regex/;
 use LWP::UserAgent;
 use POSIX;
 
+set_port_default(80);
+
+env_creds('Nginx');
+
 my $conns_sec;
 my $contents;
-my $default_port = 80;
 my $diff_secs;
 my $last_accepted = 0;
 my $last_active = 0;
@@ -39,14 +42,12 @@ my $last_tstamp   = 0;
 my $last_waiting;
 my $last_writing;
 my $no_keepalives = 0;
-my $port = $default_port;
 my $requests_sec;
 my $state_file_empty = 0;
 my $url;
 
 %options = (
-    "H|host=s"         => [ \$host,          "Host to connect to" ],
-    "P|port=s"         => [ \$port,          "Port to connect to (defaults to $default_port)" ],
+    %hostoptions,
     "u|url=s"          => [ \$url,           "Nginx Status URL (usually something like /nginx_status - must be compiled with support and enabled in the nginx config using stub_status)" ],
     "no-keepalives"    => [ \$no_keepalives, "Use only when nginx config has 'keepalive_timeout 0' to enable an extra sanity check against the Handled/Request counts where Handled >= Requests must be true. A sanity check of Accepted >= Handled is performed regardless" ],
     "w|warning=s"      => [ \$warning,       "Warning  threshold or ran:ge (inclusive) for Active Connections count" ],
