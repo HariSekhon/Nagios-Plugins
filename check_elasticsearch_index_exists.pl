@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check a given index exists in Elasticsearch
 
 Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3, 2.4.1, 5.0.0";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -53,7 +53,7 @@ sub handler ($) {
    } elsif($response->code eq "404"){
        quit "CRITICAL", "$msg '$index' does not exist";
    } else {
-       quit "UNKNOWN", "unrecognized response code '" . $response->code . "' returned by Elasticsearch";
+       quit "CRITICAL", $response->code . ": " . $response->message;
    }
 }
 
