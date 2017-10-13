@@ -55,7 +55,7 @@ test_redis(){
     export REDIS_PORT="`docker-compose port "$DOCKER_SERVICE" "$REDIS_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$REDIS_PORT"
     hr
-    when_ports_available "$startupwait" "$REDIS_HOST" "$REDIS_PORT"
+    when_ports_available "$REDIS_HOST" "$REDIS_PORT"
     hr
     echo "creating test Redis key-value"
     #echo set myKey hari | redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT"
