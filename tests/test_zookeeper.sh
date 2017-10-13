@@ -54,7 +54,7 @@ test_zookeeper(){
     export ZOOKEEPER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$ZOOKEEPER_PORT"
     hr
-    when_ports_available "$startupwait" "$ZOOKEEPER_HOST" "$ZOOKEEPER_PORT"
+    when_ports_available "$ZOOKEEPER_HOST" "$ZOOKEEPER_PORT"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
