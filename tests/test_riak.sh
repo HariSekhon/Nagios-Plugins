@@ -61,6 +61,22 @@ test_riak(){
     hr
     when_url_content "http://$RIAK_HOST:$RIAK_PORT/ping" OK
     hr
+    echo "waiting for up to $startupwait secs for Riak to come fully up:"
+    SECONDS=0
+    count=1
+    while true; do
+        echo -n "try $count:  "
+        if $perl -T check_riak_write.pl -v; then
+            break
+        fi
+        if ! [ $SECONDS -le $startupwait ]; then
+            echo "FAIL: Riak not ready after $startupwait secs"
+            exit 1
+        fi
+        let count+=1
+        sleep 1
+    done
+    hr
     # Riak 2.x
     #echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
     #docker exec -ti -u riak "$DOCKER_CONTAINER" riak-admin bucket-type create myBucket '{"props":{"n_val":1}}' || :
@@ -69,6 +85,12 @@ test_riak(){
     echo "creating test Riak document"
     # don't use new bucket types yet
     #curl -XPUT localhost:8098/types/myType/buckets/myBucket/keys/myKey -d 'hari'
+    # This doesn't fail, returns
+    #
+    # Error:
+    # all_nodes_down
+    #
+    # relying on check_riak_write.pl iterating test above to latch until Riak is ready so this will succeed
     curl -XPUT "$RIAK_HOST:$RIAK_PORT/buckets/myBucket/keys/myKey" -d 'hari'
     echo "done"
     if [ -n "${NOTESTS:-}" ]; then
