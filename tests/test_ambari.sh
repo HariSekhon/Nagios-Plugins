@@ -34,25 +34,25 @@ trap_debug_env ambari
 
 echo "running connection refused tests first:"
 echo
-run_fail 2 $perl -T check_ambari_cluster_alerts_host_summary.pl -H localhost -P 808
+run_conn_refused $perl -T check_ambari_cluster_alerts_host_summary.pl
 hr
-run_fail 2 $perl -T check_ambari_cluster_alerts_summary.pl -H localhost -P 808
+run_conn_refused $perl -T check_ambari_cluster_alerts_summary.pl
 hr
-run_fail 2 $perl -T check_ambari_cluster_health_report.pl -H localhost -P 808
+run_conn_refused $perl -T check_ambari_cluster_health_report.pl
 hr
-run_fail 2 $perl -T check_ambari_cluster_kerberized.pl -H localhost -P 808
+run_conn_refused $perl -T check_ambari_cluster_kerberized.pl
 hr
-run_fail 2 $perl -T check_ambari_cluster_service_config_compatible.pl -H localhost -P 808
+run_conn_refused $perl -T check_ambari_cluster_service_config_compatible.pl
 hr
-run_fail 2 $perl -T check_ambari_cluster_total_hosts.pl -H localhost -P 808
+run_conn_refused $perl -T check_ambari_cluster_total_hosts.pl
 hr
-run_fail 2 $perl -T check_ambari_cluster_version.pl -H localhost -P 808
+run_conn_refused $perl -T check_ambari_cluster_version.pl
 hr
-run_fail 2 $perl -T check_ambari_config_stale.pl -H localhost -P 808
+run_conn_refused $perl -T check_ambari_config_stale.pl
 hr
-run_fail 2 $perl -T check_ambari_nodes.pl -H localhost -P 808
+run_conn_refused $perl -T check_ambari_nodes.pl
 hr
-run_fail 2 $perl -T check_ambari_services.pl -H localhost -P 808
+run_conn_refused $perl -T check_ambari_services.pl
 hr
 
 echo
