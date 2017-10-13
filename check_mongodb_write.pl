@@ -43,7 +43,7 @@ MongoDB Library Limitations:
     - Using a write-concern higher than the number of members of a Replica Set will result in a timeout error from the library (wtimeout which defaults to 1 second)
 ";
 
-$VERSION = "0.5.0";
+$VERSION = "0.6.0";
 
 # TODO: Read Preference straight pass thru qw/primary secondary primaryPreferred secondaryPreferred nearest/
 # TODO: check_mongodb_write_replication.pl link and enforce secondary Read Preference
@@ -207,10 +207,12 @@ vlog2 "got handle to collection '$collection'\n";
 my $write_start = time;
 my $returned_id;
 try {
-    $returned_id = $coll->insert( {
-                                    '_id'   => $id,
-                                    'value' => $value
-                                  } ) or quit "CRITICAL", "failed to insert document in to database '$database' collection '$collection': $!";
+    $returned_id = $coll->insert_one(
+        {
+            '_id'   => $id,
+            'value' => $value
+        }
+    ) or quit "CRITICAL", "failed to insert document in to database '$database' collection '$collection': $!";
 };
 catch{
     my $errmsg =  "failed to insert document in to database '$database' collection '$collection': $@";
