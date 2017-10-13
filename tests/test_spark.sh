@@ -48,9 +48,20 @@ test_spark(){
     docker-compose down &>/dev/null
     VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
+    echo "getting Spark dynamic port mappings:"
+    printf "Spark Master Port => "
     export SPARK_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$SPARK_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$SPARK_MASTER_PORT"
+    printf "Spark Worker Port => "
     export SPARK_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$SPARK_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
+    echo "$SPARK_WORKER_PORT"
+    hr
     when_ports_available "$SPARK_HOST" "$SPARK_MASTER_PORT" "$SPARK_WORKER_PORT"
+    hr
+    when_url_content "http://$SPARK_HOST:$SPARK_MASTER_PORT" "Spark Master"
+    hr
+    when_url_content "http://$SPARK_HOST:$SPARK_WORKER_PORT" "Spark Worker"
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
