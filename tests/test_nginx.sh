@@ -33,34 +33,33 @@ NGINX_HOST="${NGINX_HOST##*/}"
 NGINX_HOST="${NGINX_HOST%%:*}"
 export NGINX_HOST
 
-export NGINX_PORT="80"
+export NGINX_PORT_DEFAULT="80"
 
-export DOCKER_IMAGE="nginx"
-export DOCKER_CONTAINER="nagios-plugins-nginx-test"
+startupwait 5
 
-startupwait 1
-is_CI && let startupwait+=4
+check_docker_available
 
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping Nginx checks!!!'
-    exit 0
-fi
-
-trap_container
+trap_debug_env nginx
 
 test_nginx(){
     local version="$1"
     section2 "Setting up Nginx $version test container"
-    if ! is_docker_container_running "$DOCKER_CONTAINER"; then
-        docker rm -f "$DOCKER_CONTAINER" &>/dev/null || :
-        echo "Starting Docker Nginx test container"
-        docker create --name "$DOCKER_CONTAINER" -p $NGINX_PORT:$NGINX_PORT "$DOCKER_IMAGE:$version"
-        docker cp "$srcdir/conf/nginx/conf.d/default.conf" "$DOCKER_CONTAINER":/etc/nginx/conf.d/default.conf
-        docker start "$DOCKER_CONTAINER"
-        when_ports_available "$NGINX_HOST" "$NGINX_PORT"
-    else
-        echo "Docker Nginx test container already running"
-    fi
+    # docker-compose up to create docker_default network, otherwise just doing create and then start results in error:
+    # ERROR: for nginx  Cannot start service nginx: network docker_default not found
+    # ensure we start fresh otherwise the first nginx stats stub failure test will fail as it finds the old stub config
+    VERSION="$version" docker-compose down
+    VERSION="$version" docker-compose up -d
+    # Configure Nginx stats stub so watch_nginx_stats.pl now passes
+    VERSION="$version" docker-compose stop
+    echo "Now reconfiguring Nginx to support stats and restarting:"
+    docker cp "$srcdir/conf/nginx/conf.d/default.conf" "nagiosplugins_${DOCKER_SERVICE}_1":/etc/nginx/conf.d/default.conf
+    VERSION="$version" docker-compose start
+    echo "getting Nginx dynamic port mapping:"
+    printf "Nginx HTTP port => "
+    export NGINX_PORT="$(docker-compose port "$DOCKER_SERVICE" "$NGINX_PORT_DEFAULT" | sed 's/.*://')"
+    echo "$NGINX_PORT"
+    when_ports_available "$NGINX_HOST" "$NGINX_PORT"
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -70,12 +69,16 @@ test_nginx(){
     hr
     run ./check_nginx_version.py -e "$version"
     hr
-    run $perl -T ./check_nginx_stats.pl -H "$NGINX_HOST" -u /status
+    run_conn_refused ./check_nginx_version.py -e "$version"
+    hr
+    run $perl -T ./check_nginx_stats.pl -u /status
+    hr
+    run_conn_refused $perl -T ./check_nginx_stats.pl -u /status
     hr
     echo "Completed $run_count Nginx tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
-    delete_container
+    docker-compose down
     hr
     echo
 }
