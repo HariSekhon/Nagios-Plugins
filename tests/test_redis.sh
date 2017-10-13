@@ -58,7 +58,10 @@ test_redis(){
     when_ports_available "$startupwait" "$REDIS_HOST" "$REDIS_PORT"
     hr
     echo "creating test Redis key-value"
-    echo set myKey hari | redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT"
+    #echo set myKey hari | redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT"
+    docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" bash <<EOF
+        echo set myKey hari | redis-cli
+EOF
     echo done
     hr
     if [ -n "${NOTESTS:-}" ]; then
