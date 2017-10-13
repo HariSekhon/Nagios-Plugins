@@ -57,7 +57,7 @@ test_nginx(){
         docker create --name "$DOCKER_CONTAINER" -p $NGINX_PORT:$NGINX_PORT "$DOCKER_IMAGE:$version"
         docker cp "$srcdir/conf/nginx/conf.d/default.conf" "$DOCKER_CONTAINER":/etc/nginx/conf.d/default.conf
         docker start "$DOCKER_CONTAINER"
-        when_ports_available $startupwait $NGINX_HOST $NGINX_PORT
+        when_ports_available "$NGINX_HOST" "$NGINX_PORT"
     else
         echo "Docker Nginx test container already running"
     fi
