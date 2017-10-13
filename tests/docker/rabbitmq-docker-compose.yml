@@ -31,3 +31,6 @@ services:
     environment:
       - RABBITMQ_CLUSTER_SEED=rabbit1
       - RABBITMQ_RAM_NODE=1
+
+networks:
+  rabbitmq:

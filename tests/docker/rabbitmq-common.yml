@@ -36,6 +36,3 @@ services:
       - 15672
     networks:
       - rabbitmq
-
-networks:
-  rabbitmq:
