@@ -33,7 +33,7 @@ set_port_default(8080);
 # port 8080 is usually taken, CDH sets it to 18080
 #set_port_default(18080);
 
-env_creds(["Spark Master", "Spark"], "Spark Master");
+env_creds(["SPARK_MASTER", "SPARK"], "Spark Master");
 
 %options = (
     %hostoptions,
