@@ -57,9 +57,9 @@ test_riak(){
     export RIAK_PORT="`docker-compose port "$DOCKER_SERVICE" "$RIAK_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$RIAK_PORT"
     hr
-    when_ports_available "$startupwait" "$RIAK_HOST" "$RIAK_PORT"
+    when_ports_available "$RIAK_HOST" "$RIAK_PORT"
     hr
-    when_url_content "$startupwait" "http://$RIAK_HOST:$RIAK_PORT/ping" OK
+    when_url_content "http://$RIAK_HOST:$RIAK_PORT/ping" OK
     hr
     # Riak 2.x
     #echo "creating myBucket with n_val setting of 1 (to avoid warnings in riak-admin)"
