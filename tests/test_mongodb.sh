@@ -54,7 +54,7 @@ test_mongo(){
     section2 "Setting up MongoDB $version test container"
     local DOCKER_CMD="--rest"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MONGO_PORTS
-    when_ports_available $startupwait $MONGODB_HOST $MONGO_PORTS
+    when_ports_available "$MONGODB_HOST" $MONGO_PORTS
     if [ -n "${ENTER:-}" ]; then
         docker exec -ti "$DOCKER_CONTAINER" bash
     fi
@@ -91,7 +91,7 @@ test_mongo_auth(){
     section2 "Setting up MongoDB $version authenticated test container"
     local DOCKER_CMD="mongod --auth --rest"
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER-auth" $MONGO_PORTS
-    when_ports_available $startupwait $MONGODB_HOST $MONGO_PORTS
+    when_ports_available "$MONGODB_HOST" $MONGO_PORTS
     echo "setting up test user"
     docker exec -i "$DOCKER_CONTAINER-auth" mongo --host localhost <<EOF
 use admin
