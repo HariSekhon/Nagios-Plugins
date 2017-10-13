@@ -48,7 +48,7 @@ test_memcached(){
     export MEMCACHED_PORT="`docker-compose port "$DOCKER_SERVICE" "$MEMCACHED_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$MEMCACHED_PORT"
     hr
-    when_ports_available "$startupwait" "$MEMCACHED_HOST" "$MEMCACHED_PORT"
+    when_ports_available "$MEMCACHED_HOST" "$MEMCACHED_PORT"
     hr
     echo "creating test Memcached key-value"
     echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc "$MEMCACHED_HOST" "$MEMCACHED_PORT"
