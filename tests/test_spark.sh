@@ -50,7 +50,7 @@ test_spark(){
     VERSION="$version" docker-compose up -d
     export SPARK_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$SPARK_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
     export SPARK_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$SPARK_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
-    when_ports_available $startupwait $SPARK_HOST $SPARK_MASTER_PORT $SPARK_WORKER_PORT
+    when_ports_available "$SPARK_HOST" "$SPARK_MASTER_PORT" "$SPARK_WORKER_PORT"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
