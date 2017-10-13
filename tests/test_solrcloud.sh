@@ -73,9 +73,9 @@ test_solrcloud(){
     export SOLR_ZOOKEEPER_PORT="`docker-compose port "$DOCKER_SERVICE" "$SOLR_ZOOKEEPER_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$SOLR_ZOOKEEPER_PORT"
     hr
-    when_ports_available "$startupwait" "$SOLR_HOST" "$SOLR_PORT" "$SOLR_ZOOKEEPER_PORT"
+    when_ports_available "$SOLR_HOST" "$SOLR_PORT" "$SOLR_ZOOKEEPER_PORT"
     hr
-    when_url_content "$startupwait" "http://$SOLR_HOST:$SOLR_PORT/solr/" "Solr Admin"
+    when_url_content "http://$SOLR_HOST:$SOLR_PORT/solr/" "Solr Admin"
     hr
     local DOCKER_CONTAINER="$(docker-compose ps | sed -n '3s/ .*//p')"
     echo "container is $DOCKER_CONTAINER"
