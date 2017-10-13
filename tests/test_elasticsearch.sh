@@ -21,11 +21,7 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-echo "
-# ============================================================================ #
-#                           E l a s t i c s e a r c h
-# ============================================================================ #
-"
+section "E l a s t i c s e a r c h"
 
 export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-latest 1.4 1.5 1.6 1.7 2.0 2.2 2.3 2.4 5.0}}"
 
@@ -88,6 +84,10 @@ test_elasticsearch(){
     echo
     run $perl -T ./check_elasticsearch.pl -v --es-version "$version"
     hr
+    run_fail 2 $perl -T ./check_elasticsearch.pl -v --es-version "fail-version"
+    hr
+    run_conn_refused $perl -T ./check_elasticsearch.pl -v --es-version "$version"
+    hr
     # Listing checks return UNKNOWN
     set +e
     # _cat/fielddata API is no longer outputs lines for 0b fielddata nodes in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
@@ -97,54 +97,90 @@ test_elasticsearch(){
     # taking hostname not node name here, ip is $2, node name is $3
     export ELASTICSEARCH_NODE="$(DEBUG='' $perl -T ./check_elasticsearch_node_disk_percent.pl --list-nodes | grep -vi -e '^Elasticsearch Nodes' -e '^Hostname' -e '^[[:space:]]*$' | awk '{print $1; exit}' )"
     [ -n "$ELASTICSEARCH_NODE" ] || die "failed to determine Elasticsearch node name from API!"
-    echo "determined Elasticsearch node => $ELASTICSEARCH_NODE"
-    #result=$?
-    #[ $result = 3 ] || exit $result
-    hr
-    run $perl -T ./check_elasticsearch_index_exists.pl --list-indices
-    result=$?
-    [ $result = 3 ] || exit $result
     set -e
+    echo "determined Elasticsearch node => $ELASTICSEARCH_NODE"
+    hr
+    run_fail 3 $perl -T ./check_elasticsearch_index_exists.pl --list-indices
+    hr
+    run_conn_refused $perl -T ./check_elasticsearch_index_exists.pl --list-indices
     hr
     run $perl -T ./check_elasticsearch_cluster_disk_balance.pl -v
     hr
-    run $perl -T ./check_elasticsearch_cluster_shards.pl -v # --unassigned-shards 5,5 # travis now has 5 unassigned shards for some reason
+    run_conn_refused $perl -T ./check_elasticsearch_cluster_disk_balance.pl -v
+    hr
+    run $perl -T ./check_elasticsearch_cluster_shards.pl -v
+    hr
+    run_conn_refused $perl -T ./check_elasticsearch_cluster_shards.pl -v
     hr
     run $perl -T ./check_elasticsearch_cluster_shard_balance.pl -v
     hr
+    run_conn_refused $perl -T ./check_elasticsearch_cluster_shard_balance.pl -v
+    hr
     run $perl -T ./check_elasticsearch_cluster_stats.pl -v
+    hr
+    run_conn_refused $perl -T ./check_elasticsearch_cluster_stats.pl -v
     hr
     # travis has yellow status
     run_fail "0 1" $perl -T ./check_elasticsearch_cluster_status.pl -v
     hr
+    run_conn_refused $perl -T ./check_elasticsearch_cluster_status.pl -v
+    hr
     run $perl -T ./check_elasticsearch_cluster_status_nodes_shards.pl -v
+    hr
+    run_conn_refused $perl -T ./check_elasticsearch_cluster_status_nodes_shards.pl -v
     hr
     run $perl -T ./check_elasticsearch_data_nodes.pl -w 1 -v
     hr
+    run_conn_refused $perl -T ./check_elasticsearch_data_nodes.pl -w 1 -v
+    hr
     run $perl -T ./check_elasticsearch_doc_count.pl -v
+    hr
+    run_conn_refused $perl -T ./check_elasticsearch_doc_count.pl -v
     hr
     # _cat/fielddata API is no longer outputs lines for 0b fielddata nodes in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
     run $perl -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
     hr
+    run_conn_refused $perl -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
+    hr
     run $perl -T ./check_elasticsearch_index_exists.pl -v
+    hr
+    run_conn_refused $perl -T ./check_elasticsearch_index_exists.pl -v
     hr
     run $perl -T ./check_elasticsearch_index_age.pl -v -w 0:1
     #hr
+    run_conn_refused $perl -T ./check_elasticsearch_index_age.pl -v -w 0:1
+    #hr
     #run perl -T ./check_elasticsearch_index_health.pl -v
+    #hr
+    #run_conn_refused perl -T ./check_elasticsearch_index_health.pl -v
     hr
     run $perl -T ./check_elasticsearch_index_replicas.pl -w 0 -v
     hr
+    run_conn_refused $perl -T ./check_elasticsearch_index_replicas.pl -w 0 -v
+    hr
     run $perl -T ./check_elasticsearch_index_settings.pl -v
+    hr
+    run_conn_refused $perl -T ./check_elasticsearch_index_settings.pl -v
     hr
     run $perl -T ./check_elasticsearch_index_shards.pl -v
     hr
+    run_conn_refused $perl -T ./check_elasticsearch_index_shards.pl -v
+    hr
     run $perl -T ./check_elasticsearch_index_stats.pl -v
+    hr
+    run_conn_refused $perl -T ./check_elasticsearch_index_stats.pl -v
     hr
     run $perl -T ./check_elasticsearch_master_node.pl -v
     hr
+    run_conn_refused $perl -T ./check_elasticsearch_master_node.pl -v
+    hr
     run $perl -T ./check_elasticsearch_nodes.pl -v -w 1
     hr
+    run_conn_refused $perl -T ./check_elasticsearch_nodes.pl -v -w 1
+    hr
     run $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 99 -c 99
+    hr
+    run_conn_refused $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 99 -c 99
     hr
     echo "checking threshold failure warning:"
     run_fail 1 $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 1 -c 99
@@ -154,11 +190,19 @@ test_elasticsearch(){
     hr
     run $perl -T ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
     hr
+    run_conn_refused $perl -T ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
+    hr
     run $perl -T ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
+    hr
+    run_conn_refused $perl -T ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
     hr
     run $perl -T ./check_elasticsearch_pending_tasks.pl -v
     hr
+    run_conn_refused $perl -T ./check_elasticsearch_pending_tasks.pl -v
+    hr
     run $perl -T ./check_elasticsearch_shards_state_detail.pl -v
+    hr
+    run_conn_refused $perl -T ./check_elasticsearch_shards_state_detail.pl -v
     hr
     echo "Completed $run_count Elasticsearch tests"
     hr
