@@ -69,7 +69,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 class CheckRabbitMQ(PubSubNagiosPlugin):
@@ -88,7 +88,7 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
         # nameless exchange
         self.default_exchange = ''
         # will default to direct
-        self.default_exchange_type = None
+        self.default_exchange_type = 'direct'
         self.default_queue = None
         self.default_no_ack = True
         self.default_durable = True
@@ -319,7 +319,7 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
         if self.exchange:
             log.info("declaring exchange: '%s', type: '%s'", self.exchange, self.exchange_type)
             self.channel.exchange_declare(exchange=self.exchange,
-                                          type=self.exchange_type)
+                                          exchange_type=self.exchange_type)
             # if using nameless exchange this isn't necessary as routing key will send to queue
             log.info("binding queue '%s' to exchange '%s'", self.queue, self.exchange)
             self.channel.queue_bind(exchange=self.exchange,
