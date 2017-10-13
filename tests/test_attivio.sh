@@ -31,15 +31,15 @@ trap_debug_env attivio
 
 echo "running connection refused tests first:"
 echo
-run_fail 2 ./check_attivio_aie_ingest_session_count.py -v -H localhost -P 169
+run_conn_refused ./check_attivio_aie_ingest_session_count.py -v
 hr
-run_fail 2 ./check_attivio_aie_license_expiry.py -v -H localhost -P 169
+run_conn_refused ./check_attivio_aie_license_expiry.py -v
 hr
-run_fail 2 ./check_attivio_aie_system_health.py -v -H localhost -P 169
+run_conn_refused ./check_attivio_aie_system_health.py -v
 hr
-run_fail 2 ./check_attivio_aie_version.py -v -H localhost -P 169
+run_conn_refused ./check_attivio_aie_version.py -v
 hr
-run_fail 2 ./check_attivio_aie_metrics.py -m "fake" -v -H localhost -P 169
+run_conn_refused ./check_attivio_aie_metrics.py -m "fake" -v
 hr
 
 echo
