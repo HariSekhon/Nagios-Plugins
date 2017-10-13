@@ -76,33 +76,27 @@ test_alluxio(){
     hr
     run ./check_alluxio_master_version.py -v -e "$version"
     hr
-    echo "checking connection refused:"
-    run_fail 2 ./check_alluxio_master_version.py -v -e "$version" -P 199
+    run_conn_refused ./check_alluxio_master_version.py -v -e "$version"
     hr
     run ./check_alluxio_worker_version.py -v -e "$version"
     hr
-    echo "checking connection refused:"
-    run_fail 2 ./check_alluxio_worker_version.py -v -e "$version" -P 300
+    run_conn_refused ./check_alluxio_worker_version.py -v -e "$version"
     hr
     run ./check_alluxio_master.py -v
     hr
-    echo "checking connection refused:"
-    run_fail 2 ./check_alluxio_master.py -v -P 199
+    run_conn_refused ./check_alluxio_master.py -v
     hr
     run ./check_alluxio_worker.py -v
     hr
-    echo "checking connection refused:"
-    run_fail 2 ./check_alluxio_worker.py -v -P 300
+    run_conn_refused ./check_alluxio_worker.py -v
     hr
     run ./check_alluxio_running_workers.py -v
     hr
-    echo "checking connection refused:"
-    run_fail 2 ./check_alluxio_running_workers.py -v -P 199
+    run_conn_refused ./check_alluxio_running_workers.py -v
     hr
     run ./check_alluxio_dead_workers.py -v
     hr
-    echo "checking connection refused:"
-    run_fail 2 ./check_alluxio_dead_workers.py -v -P 199
+    run_conn_refused ./check_alluxio_dead_workers.py -v
     hr
     echo "Completed $run_count Alluxio tests"
     hr
