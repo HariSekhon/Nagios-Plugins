@@ -48,9 +48,9 @@ test_apache_drill(){
     export APACHE_DRILL_PORT="`docker-compose port "$DOCKER_SERVICE" "$APACHE_DRILL_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$APACHE_DRILL_PORT"
     hr
-    when_ports_available "$startupwait" "$APACHE_DRILL_HOST" "$APACHE_DRILL_PORT"
+    when_ports_available "$APACHE_DRILL_HOST" "$APACHE_DRILL_PORT"
     hr
-    when_url_content "$startupwait" "http://$APACHE_DRILL_HOST:$APACHE_DRILL_PORT/status" "Running"
+    when_url_content "http://$APACHE_DRILL_HOST:$APACHE_DRILL_PORT/status" "Running"
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
