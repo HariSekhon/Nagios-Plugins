@@ -52,7 +52,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckPrestoWorker(RestNagiosPlugin):
@@ -116,11 +116,6 @@ class CheckPrestoWorker(RestNagiosPlugin):
         return node_item['uri']
 
     def print_nodes(self, node_list):
-        max_node_width = 0
-        for _ in node_list:
-            width = len(self.get_node_name(_))
-            if width > max_node_width:
-                max_node_width = width
         print('Presto SQL Worker Nodes:\n')
         for _ in node_list:
             print(self.get_node_name(_))
