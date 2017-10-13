@@ -38,21 +38,21 @@ trap_debug_env blue_talon
 
 echo "checking connection refused tests first:"
 echo
-run_fail 2 ./check_blue_talon_masking_functions.py $BLUE_TALON_SSL -v -w 400 -c 1000 -H localhost -P 44
+run_conn_refused ./check_blue_talon_masking_functions.py $BLUE_TALON_SSL -v -w 400 -c 1000
 hr
-run_fail 2 ./check_blue_talon_policies.py $BLUE_TALON_SSL -v -w 100 -c 200 -H localhost -P 44
+run_conn_refused ./check_blue_talon_policies.py $BLUE_TALON_SSL -v -w 100 -c 200
 hr
-run_fail 2 ./check_blue_talon_policy_deployment.py $BLUE_TALON_SSL -v -w 0:100000000 -c 0:20000000000 -H localhost -P 44
+run_conn_refused ./check_blue_talon_policy_deployment.py $BLUE_TALON_SSL -v -w 0:100000000 -c 0:20000000000
 hr
-run_fail 2 ./check_blue_talon_resource_domains.py $BLUE_TALON_SSL -v -w 10 -c 20 -H localhost -P 44
+run_conn_refused ./check_blue_talon_resource_domains.py $BLUE_TALON_SSL -v -w 10 -c 20
 hr
-run_fail 2 ./check_blue_talon_resources.py $BLUE_TALON_SSL -v -w 100 -c 200 -H localhost -P 44
+run_conn_refused ./check_blue_talon_resources.py $BLUE_TALON_SSL -v -w 100 -c 200
 hr
-run_fail 2 ./check_blue_talon_rules.py $BLUE_TALON_SSL -v -w 100 -c 200 -H localhost -P 44
+run_conn_refused ./check_blue_talon_rules.py $BLUE_TALON_SSL -v -w 100 -c 200
 hr
-run_fail 2 ./check_blue_talon_user_domains.py $BLUE_TALON_SSL -v -w 10 -c 20 -H localhost -P 44
+run_conn_refused ./check_blue_talon_user_domains.py $BLUE_TALON_SSL -v -w 10 -c 20
 hr
-run_fail 2 ./check_blue_talon_version.py $BLUE_TALON_SSL -v -H localhost -P 44
+run_conn_refused ./check_blue_talon_version.py $BLUE_TALON_SSL -v
 hr
 
 # This always fails now the public test site must have been (re)moved
