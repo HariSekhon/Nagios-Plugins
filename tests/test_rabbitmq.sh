@@ -268,7 +268,7 @@ EOF
     echo "with durable queue where non-durable queue is found:"
     run_fail 2 ./check_rabbitmq_queue.py --queue queue2 --durable true
     hr
-    docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" <<EOF
+    docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" bash <<EOF
         rabbitmqctl sync_queue -p "$RABBITMQ_VHOST" queue2
 
         exit
