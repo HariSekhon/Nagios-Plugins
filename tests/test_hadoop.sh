@@ -501,11 +501,23 @@ EOF
     hr
     run_grep "checked 0 out of" ./check_hadoop_yarn_long_running_apps.py --exclude=quasi
     hr
-    echo "waiting up to 60 secs for job to stop running"
-    for x in {1..60}; do
-        ./check_hadoop_yarn_app_running.py -a '.*' || break
+    max_job_runtime=60
+    echo "waiting up to $max_job_runtime secs for job to stop running:"
+    SECONDS=0
+    set +e
+    while true; do
+        ./check_hadoop_yarn_app_running.py -a '.*'
+        # got an unknown status timeout which exited prematurely, so enforce an actual critical that the job isn't found
+        if [ $? -eq 2 ]; then
+            break
+        fi
+        if [ $SECONDS -gt $max_job_runtime ]; then
+            echo "FAIL: job did not complete after $max_job_runtime secs"
+            exit 1
+        fi
         sleep 1
     done
+    set -e
     hr
     set +e
     echo "Checking listing app history:"
