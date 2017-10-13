@@ -42,25 +42,25 @@ trap_debug_env cm
 
 echo "checking connection refused tests first:"
 echo
-run_fail 2 $perl -T check_cloudera_manager_version.pl -e "$CM_VERSION" -H localhost -P 718
+run_conn_refused $perl -T check_cloudera_manager_version.pl -e "$CM_VERSION"
 hr
-run_fail 2 $perl -T check_cloudera_manager.pl --api-ping -H localhost -P 718
+run_conn_refused $perl -T check_cloudera_manager.pl --api-ping
 hr
-run_fail 2 $perl -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs -H localhost -P 718
+run_conn_refused $perl -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs
 hr
-run_fail 2 $perl -T check_cloudera_manager_cluster_version.pl -H localhost -P 718
+run_conn_refused $perl -T check_cloudera_manager_cluster_version.pl
 hr
-run_fail 2 $perl -T check_cloudera_manager_config_stale.pl -S "hdfs" -H localhost -P 718
+run_conn_refused $perl -T check_cloudera_manager_config_stale.pl -S "hdfs"
 hr
-run_fail 2 $perl -T check_cloudera_manager_config_validation.pl -S "hdfs" -H localhost -P 718
+run_conn_refused $perl -T check_cloudera_manager_config_validation.pl -S "hdfs"
 hr
-run_fail 2 $perl -T check_cloudera_manager_health.pl -S "hdfs" -H localhost -P 718
+run_conn_refused $perl -T check_cloudera_manager_health.pl -S "hdfs"
 hr
-run_fail 2 $perl -T check_cloudera_manager_license.pl -H localhost -P 718
+run_conn_refused $perl -T check_cloudera_manager_license.pl
 hr
-run_fail 2 $perl -T check_cloudera_manager_metrics.pl -S "hdfs" -a -H localhost -P 718
+run_conn_refused $perl -T check_cloudera_manager_metrics.pl -S "hdfs" -a
 hr
-run_fail 2 $perl -T check_cloudera_manager_status.pl -S "hdfs" -H localhost -P 718
+run_conn_refused $perl -T check_cloudera_manager_status.pl -S "hdfs"
 hr
 
 echo
