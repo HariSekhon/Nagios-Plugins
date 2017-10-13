@@ -48,11 +48,11 @@ test_presto(){
     export PRESTO_PORT="`docker-compose port "$DOCKER_SERVICE" "$PRESTO_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$PRESTO_PORT"
     hr
-    when_ports_available "$startupwait" "$PRESTO_HOST" "$PRESTO_PORT"
+    when_ports_available "$PRESTO_HOST" "$PRESTO_PORT"
     hr
     # endpoint initializes blank, wait until there is some content, eg. nodeId
     # don't just run ./check_presto_state.py
-    when_url_content "$startupwait" "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" nodeId
+    when_url_content "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" nodeId
     hr
     if [ "$version" = "latest" ]; then
         version=".*"
