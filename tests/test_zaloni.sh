@@ -28,6 +28,11 @@ section "Z a l o n i"
 
 export ZALONI_BEDROCK_PORT="${ZALONI_BEDROCK_PORT:-8080}"
 
+if [ -z "${ZALONI_BEDROCK_PASSWORD:-}" ]; then
+    echo "WARNING: ZALONI_BEDROCK_PASSWORD not defined, defaulting to 'test'"
+    export ZALONI_BEDROCK_PASSWORD=test
+fi
+
 trap_debug_env Zaloni
 
 echo "running conection refused checks first:"
