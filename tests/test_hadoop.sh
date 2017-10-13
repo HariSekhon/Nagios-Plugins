@@ -519,7 +519,6 @@ EOF
     done
     set -e
     hr
-    set +e
     echo "Checking listing app history:"
     echo
     echo
