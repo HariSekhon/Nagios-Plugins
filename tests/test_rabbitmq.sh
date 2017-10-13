@@ -156,7 +156,7 @@ EOF
     echo "checking message never received (pub-sub against wrong queue that won't receive the message):"
     run_fail 2 ./check_rabbitmq.py -v --queue queue1 --routing-key queue2
     hr
-    echo "checking exchange1 precondition failure for type topic vs direct:"
+    echo "checking exchange1 precondition failure for type topic vs default direct:"
     run_fail 2 ./check_rabbitmq.py -v --exchange exchange1
     hr
     echo "checking queue2 precondition failure for durable vs non-durable:"
@@ -243,7 +243,7 @@ EOF
     hr
     run_conn_refused ./check_rabbitmq_exchange.py --list-exchanges
     hr
-    run ./check_rabbitmq_exchange.py --exchange exchange1 -v
+    run ./check_rabbitmq_exchange.py --exchange exchange1 -v --type topic
     hr
     echo "check non-existent vhost raises critical:"
     run_fail 2 ./check_rabbitmq_exchange.py --vhost 'nonexistentvhost' --exchange amq.direct
