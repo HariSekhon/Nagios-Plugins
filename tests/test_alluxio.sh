@@ -73,8 +73,8 @@ test_alluxio(){
     count=1
     while true; do
         echo "try $count: "
-        if ./check_alluxio_master_version.py -v -e "$version" &&
-           ./check_alluxio_worker_version.py -v -e "$version"; then
+        if ./check_alluxio_master_version.py -v -e "$version" -t 5 &&
+           ./check_alluxio_worker_version.py -v -e "$version" -t 5; then
             echo "Alluxio Master & Worker up after $SECONDS secs, continuing with tests"
             break
         fi
