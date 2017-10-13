@@ -36,17 +36,17 @@ trap_debug_env atlas
 
 echo "checking connection refused tests first:"
 echo
-run_fail 2 ./check_atlas_version.py -H localhost -P 210
+run_conn_refused ./check_atlas_version.py
 hr
-run_fail 2 ./check_atlas_version.py -e '0\.' -H localhost -P 210
+run_conn_refused ./check_atlas_version.py -e '0\.'
 hr
-run_fail 2 ./check_atlas_status.py -A -H localhost -P 210
+run_conn_refused ./check_atlas_status.py -A
 hr
-run_fail 2 ./check_atlas_entity.py -l -H localhost -P 210
+run_conn_refused ./check_atlas_entity.py -l
 hr
-run_fail 2 ./check_atlas_entity.py -E Sales -T DB -H localhost -P 210
+run_conn_refused ./check_atlas_entity.py -E Sales -T DB
 hr
-run_fail 2 ./check_atlas_entity.py -I "1" -H localhost -P 210
+run_conn_refused ./check_atlas_entity.py -I "1"
 hr
 echo
 
