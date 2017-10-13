@@ -80,7 +80,7 @@ test_rabbitmq(){
     export RABBITMQ_HTTP_PORT2="`docker-compose port "$DOCKER_SERVICE2" "$RABBITMQ_HTTP_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$RABBITMQ_HTTP_PORT2"
     hr
-    when_ports_available "$startupwait" "$RABBITMQ_HOST" "$RABBITMQ_PORT" "$RABBITMQ_HTTP_PORT" "$RABBITMQ_PORT2" "$RABBITMQ_HTTP_PORT2"
+    when_ports_available "$RABBITMQ_HOST" "$RABBITMQ_PORT" "$RABBITMQ_HTTP_PORT" "$RABBITMQ_PORT2" "$RABBITMQ_HTTP_PORT2"
     hr
 #    SECONDS=0
 #    echo "waiting up to $startupwait secs for RabbitMQ to become available"
