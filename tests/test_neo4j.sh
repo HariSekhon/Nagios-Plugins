@@ -55,12 +55,12 @@ neo4j_setup(){
     export NEO4J_BOLT_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$NEO4J_BOLT_PORT"
     hr
-    when_ports_available "$startupwait" "$NEO4J_HOST" "$NEO4J_PORT" "$NEO4J_HTTPS_PORT" "$NEO4J_BOLT_PORT"
+    when_ports_available "$NEO4J_HOST" "$NEO4J_PORT" "$NEO4J_HTTPS_PORT" "$NEO4J_BOLT_PORT"
     hr
     if [ "${version:0:1}" = "2" ]; then
         :
     else
-        when_url_content "$startupwait" "http://$NEO4J_HOST:7687" "not a WebSocket handshake request: missing upgrade"
+        when_url_content "http://$NEO4J_HOST:7687" "not a WebSocket handshake request: missing upgrade"
     fi
     hr
     echo "creating test Neo4J node"
@@ -73,7 +73,7 @@ neo4j_setup(){
         docker exec -i -e NEO4J_USERNAME="$NEO4J_USERNAME" -e NEO4J_PASSWORD="$NEO4J_PASSWORD" "nagiosplugins_${DOCKER_SERVICE}_1" /var/lib/neo4j/bin/cypher-shell <<< 'CREATE (p:Person { name: "Hari Sekhon" });'
     fi
     hr
-    when_url_content "$startupwait" "http://$NEO4J_HOST:$NEO4J_PORT/browser/" "Neo4j Browser"
+    when_url_content "http://$NEO4J_HOST:$NEO4J_PORT/browser/" "Neo4j Browser"
 }
 
 test_neo4j_noauth(){
