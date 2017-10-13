@@ -58,12 +58,12 @@ test_mesos(){
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    when_ports_available "$startupwait" "$MESOS_HOST" "$MESOS_MASTER_PORT" "$MESOS_SLAVE_PORT"
+    when_ports_available "$MESOS_HOST" "$MESOS_MASTER_PORT" "$MESOS_SLAVE_PORT"
     hr
     # could use state.json here but Slave doesn't have this so it's better differentiation
-    when_url_content "$startupwait" "http://$MESOS_HOST:$MESOS_MASTER_PORT/" master
+    when_url_content "http://$MESOS_HOST:$MESOS_MASTER_PORT/" master
     hr
-    when_url_content "$startupwait" "http://$MESOS_HOST:$MESOS_SLAVE_PORT/state.json" slave
+    when_url_content "http://$MESOS_HOST:$MESOS_SLAVE_PORT/state.json" slave
     hr
     run $perl -T ./check_mesos_activated_slaves.pl -P "$MESOS_MASTER_PORT" -v
     hr
