@@ -103,18 +103,15 @@ test_consul(){
     hr
     run ./check_consul_leader_elected.py
     hr
-    echo "checking connection refused:"
-    run_fail 2 ./check_consul_leader_elected.py -P 850
+    run_conn_refused ./check_consul_leader_elected.py
     hr
     run ./check_consul_peer_count.py
     hr
-    echo "checking connection refused:"
-    run_fail 2 ./check_consul_peer_count.py -P 850
+    run_conn_refused ./check_consul_peer_count.py
     hr
     run ./check_consul_key.py -k /nagios/consul/testkey1 -r "^$random_val$" -v
     hr
-    echo "checking connection refused:"
-    run_fail 2 ./check_consul_key.py -k /nagios/consul/testkey1 -r "^$random_val$" -v -P 850
+    run_conn_refused ./check_consul_key.py -k /nagios/consul/testkey1 -r "^$random_val$" -v
     hr
     echo "writing deterministic test key to check thresholds"
     curl -X PUT -d "5" "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$testkey"
@@ -137,8 +134,7 @@ test_consul(){
     hr
     run ./check_consul_write.py -v
     hr
-    echo "checking connection refused:"
-    run_fail 2 ./check_consul_write.py -v -P 850
+    run_conn_refused ./check_consul_write.py -v
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
