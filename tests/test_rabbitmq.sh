@@ -97,12 +97,17 @@ test_rabbitmq(){
 
         exit
 EOF
+    hr
     rabbitmqadmin="tests/bin/rabbitmqadmin"
-    if ! [ -x "$rabbitmqadmin" ]; then
-        mkdir -p "$(dirname "$rabbitmqadmin")"
+    if [ -x "$rabbitmqadmin" ]; then
+        echo "$rabbitmqadmin found"
+    else
+        mkdir -vp "$(dirname "$rabbitmqadmin")"
+        echo "downloading rabbitmqadmin from RabbitMQ instance"
         wget -O "$rabbitmqadmin" "http://$RABBITMQ_HOST:$RABBITMQ_HTTP_PORT/cli/rabbitmqadmin"
         chmod +x "$rabbitmqadmin"
     fi
+    hr
     rabbitmqadmin="$rabbitmqadmin -H $RABBITMQ_HOST -P $RABBITMQ_HTTP_PORT -u $RABBITMQ_USER -p $RABBITMQ_PASSWORD --vhost $RABBITMQ_VHOST"
     echo "Declaring exchanges, queues and bindings"
     $rabbitmqadmin declare exchange name=exchange1 type=topic durable=true
@@ -111,7 +116,7 @@ EOF
     $rabbitmqadmin declare queue name=queue2 durable=false
     $rabbitmqadmin declare binding source="exchange1" destination_type="queue" destination="queue1" routing_key=""
     $rabbitmqadmin declare binding source="exchange2" destination_type="queue" destination="queue2" routing_key=""
-    echo Done
+    hr
     echo "Setting up HA on queue2"
     $rabbitmqadmin declare policy name='ha-two' pattern='^queue2$' definition='{"ha-mode":"exactly", "ha-params":2, "ha-sync-mode":"automatic"}'
     docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" bash <<EOF
@@ -119,7 +124,7 @@ EOF
 
         exit
 EOF
-    echo "Done"
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -281,7 +286,8 @@ EOF
     run_conn_refused ./check_rabbitmq_stats_db_event_queue.py
     hr
     # 3.5+ only
-    echo $version
+    echo "version: $version"
+    hr
     if [ "$version" = "latest" ] ||
         [ ${version:0:1} -gt 3 ] ||
         [ ${version:0:1} -eq 3 -a ${version:2:1} -ge 5 ]; then
