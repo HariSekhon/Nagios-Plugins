@@ -80,21 +80,21 @@ test_hadoop(){
     #local hadoop_ports=`{ for x in $HADOOP_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
     export HADOOP_PORTS="$HADOOP_NAMENODE_PORT $HADOOP_DATANODE_PORT $HADOOP_YARN_RESOURCE_MANAGER_PORT $HADOOP_YARN_NODE_MANAGER_PORT"
     hr
-    when_ports_available "$startupwait" "$HADOOP_HOST" $HADOOP_PORTS
+    when_ports_available "$HADOOP_HOST" $HADOOP_PORTS
     hr
     # needed for version tests, also don't return container to user before it's ready if NOTESTS
     # also, do this wait before HDFS setup to give datanodes time to come online to copy the file too
     echo "waiting for NN dfshealth page to come up:"
-    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_NAMENODE_PORT/dfshealth.html" 'NameNode Journal Status'
+    when_url_content "$HADOOP_HOST:$HADOOP_NAMENODE_PORT/dfshealth.html" 'NameNode Journal Status'
     hr
     echo "waiting for RM cluster page to come up:"
-    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_YARN_RESOURCE_MANAGER_PORT/ws/v1/cluster" resourceManager
+    when_url_content "$HADOOP_HOST:$HADOOP_YARN_RESOURCE_MANAGER_PORT/ws/v1/cluster" resourceManager
     hr
     echo "waiting for NM node page to come up:"
-    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_YARN_NODE_MANAGER_PORT/node" 'Node Manager Version'
+    when_url_content "$HADOOP_HOST:$HADOOP_YARN_NODE_MANAGER_PORT/node" 'Node Manager Version'
     hr
     echo "waiting for DN page to come up:"
-    when_url_content "$startupwait" "$HADOOP_HOST:$HADOOP_DATANODE_PORT" 'DataNode on'
+    when_url_content "$HADOOP_HOST:$HADOOP_DATANODE_PORT" 'DataNode on'
     hr
     echo "setting up HDFS for tests"
     #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
