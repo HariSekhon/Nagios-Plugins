@@ -85,10 +85,10 @@ test_db(){
     #done
     echo "$MYSQL_PORT"
     hr
-    when_ports_available "$startupwait" "$MYSQL_HOST" $MYSQL_PORT
+    when_ports_available "$MYSQL_HOST" $MYSQL_PORT
     hr
     # kind of an abuse of the protocol but good extra validation step
-    when_url_content "$startupwait" "http://$MYSQL_HOST:$MYSQL_PORT" "$name|$name_lower"
+    when_url_content "http://$MYSQL_HOST:$MYSQL_PORT" "$name|$name_lower"
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
