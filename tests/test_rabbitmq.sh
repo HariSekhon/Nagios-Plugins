@@ -82,6 +82,26 @@ test_rabbitmq(){
     hr
     when_ports_available "$startupwait" "$RABBITMQ_HOST" "$RABBITMQ_PORT" "$RABBITMQ_HTTP_PORT" "$RABBITMQ_PORT2" "$RABBITMQ_HTTP_PORT2"
     hr
+#    SECONDS=0
+#    echo "waiting up to $startupwait secs for RabbitMQ to become available"
+#    while true; do
+#        # vhost doesn't exist yet - 404 Not Found, error: Object Not Found, reason: Not Found
+#        if ./check_rabbitmq_aliveness.py --vhost / -P "$RABBITMQ_HTTP_PORT" &&
+#           ./check_rabbitmq_aliveness.py --vhost / -P "$RABBITMQ_HTTP_PORT2"; then
+#            break
+#        fi
+#        # ! [] is better then [ -gt ] because if either variable breaks the test will fail correctly
+#        if ! [ $SECONDS -lt $startupwait ]; then
+#            echo "FAIL: giving up waiting for RabbitMQ to come up after $startupwait secs"
+#            exit 1
+#        fi
+#        sleep 1
+#    done
+    when_url_content "http://$RABBITMQ_HOST:$RABBITMQ_HTTP_PORT/" "RabbitMQ Management"
+    hr
+    echo "now checking for second node:"
+    when_url_content "http://$RABBITMQ_HOST:$RABBITMQ_HTTP_PORT2/" "RabbitMQ Management"
+    hr
     echo "setting up RabbitMQ environment"
     docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" bash <<EOF
         # RabbitMQ 3.4 docker image doesn't auto-create the mgmt user or vhost based on the env vars like 3.6 :-/
