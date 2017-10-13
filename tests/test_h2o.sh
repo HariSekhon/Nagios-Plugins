@@ -53,9 +53,9 @@ test_h2o(){
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    when_ports_available $startupwait $H2O_HOST $H2O_PORT
+    when_ports_available $H2O_HOST $H2O_PORT
     hr
-    when_url_content "$startupwait" "http://$H2O_HOST:$H2O_PORT/" h2o
+    when_url_content "http://$H2O_HOST:$H2O_PORT/" h2o
     hr
     run $perl -T ./check_h2o_cluster.pl
     hr
