@@ -83,7 +83,7 @@ test_rabbitmq(){
     when_ports_available "$startupwait" "$RABBITMQ_HOST" "$RABBITMQ_PORT" "$RABBITMQ_HTTP_PORT" "$RABBITMQ_PORT2" "$RABBITMQ_HTTP_PORT2"
     hr
     echo "setting up RabbitMQ environment"
-    docker-compose exec "$DOCKER_SERVICE" bash <<-EOF
+    docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" bash <<EOF
         # RabbitMQ 3.4 docker image doesn't auto-create the mgmt user or vhost based on the env vars like 3.6 :-/
         rabbitmqctl add_user "$RABBITMQ_USER" "$RABBITMQ_PASSWORD"
         rabbitmqctl set_user_tags "$RABBITMQ_USER" administrator
@@ -114,7 +114,7 @@ EOF
     echo Done
     echo "Setting up HA on queue2"
     $rabbitmqadmin declare policy name='ha-two' pattern='^queue2$' definition='{"ha-mode":"exactly", "ha-params":2, "ha-sync-mode":"automatic"}'
-    docker-compose exec "$DOCKER_SERVICE" bash <<-EOF
+    docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" bash <<EOF
         rabbitmqctl set_policy ha-two "^queue2$"  '{"ha-mode":"exactly", "ha-params":2, "ha-sync-mode":"automatic"}'
 
         exit
@@ -268,7 +268,7 @@ EOF
     echo "with durable queue where non-durable queue is found:"
     run_fail 2 ./check_rabbitmq_queue.py --queue queue2 --durable true
     hr
-    docker-compose exec "$DOCKER_SERVICE" bash <<-EOF
+    docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" <<EOF
         rabbitmqctl sync_queue -p "$RABBITMQ_VHOST" queue2
 
         exit
