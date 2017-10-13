@@ -95,11 +95,11 @@ test_hbase(){
     #local export HBASE_PORTS=`{ for x in $HBASE_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://' | sort -n`
     export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT $ZOOKEEPER_PORT"
     hr
-    when_ports_available "$startupwait" "$HBASE_HOST" $HBASE_PORTS
+    when_ports_available "$HBASE_HOST" $HBASE_PORTS
     hr
-    when_url_content "$startupwait" "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" hbase
+    when_url_content "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" hbase
     hr
-    when_url_content "$startupwait" "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/rs-status" hbase
+    when_url_content "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/rs-status" hbase
     hr
     echo "setting up test tables"
     # tr occasionally errors out due to weird input chars, base64 for safety, but still remove chars liek '+' which will ruin --expected regex
@@ -231,7 +231,7 @@ EOF
     run ./check_hbase_regionserver_compaction_in_progress.py
     hr
     echo "ensuring Stargate Server is properly online before running this test"
-    when_url_content "$startupwait" "http://$HBASE_HOST:$HBASE_STARGATE_PORT/" UniformSplitTable
+    when_url_content "http://$HBASE_HOST:$HBASE_STARGATE_PORT/" UniformSplitTable
     hr
     run $perl -T ./check_hbase_regionservers.pl
     hr
