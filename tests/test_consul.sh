@@ -60,11 +60,11 @@ test_consul(){
         exit 0
     fi
     hr
-    when_ports_available "$startupwait" "$CONSUL_HOST" "$CONSUL_PORT"
+    when_ports_available "$CONSUL_HOST" "$CONSUL_PORT"
     hr
     # older versions say Consul Agent
     # newer versions say Consul by Hashicorp
-    when_url_content "$startupwait" "http://$CONSUL_HOST:$CONSUL_PORT/" "Consul (Agent|by HashiCorp)"
+    when_url_content "http://$CONSUL_HOST:$CONSUL_PORT/" "Consul (Agent|by HashiCorp)"
     hr
     echo "waiting for leader election to avoid write key failure:"
     i=0
