@@ -96,7 +96,9 @@ test_riak(){
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    run $perl -T check_riak_version.pl -v
+    run $perl -T check_riak_version.pl -v -e "$version"
+    hr
+    run_fail 2 $perl -T check_riak_version.pl -v -e 'fail-version'
     hr
     run_conn_refused $perl -T check_riak_version.pl -v
     hr
