@@ -79,6 +79,8 @@ else
     hr
     run ./check_atlas_version.py -e '0\.'
     hr
+    run_fail 2 ./check_atlas_version.py -e 'fail-version'
+    hr
     run ./check_atlas_status.py -A
     hr
     run_fail 3 ./check_atlas_entity.py -l
