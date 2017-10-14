@@ -137,7 +137,11 @@ EOF
     hr
     run ./check_hbase_master_version.py -e "$version"
     hr
+    run_fail 2 ./check_hbase_master_version.py -e "fail-version"
+    hr
     run_conn_refused ./check_hbase_master_version.py -e "$version"
+    hr
+    run_fail 2 ./check_hbase_regionserver_version.py -e "fail-version"
     hr
     run ./check_hbase_regionserver_version.py -e "$version"
     hr
