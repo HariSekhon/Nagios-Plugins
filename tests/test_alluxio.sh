@@ -89,9 +89,13 @@ test_alluxio(){
     hr
     run ./check_alluxio_master_version.py -v -e "$version"
     hr
+    run_fail 2 ./check_alluxio_master_version.py -v -e "fail-version"
+    hr
     run_conn_refused ./check_alluxio_master_version.py -v -e "$version"
     hr
     run ./check_alluxio_worker_version.py -v -e "$version"
+    hr
+    run_fail 2 ./check_alluxio_worker_version.py -v -e "fail-version"
     hr
     run_conn_refused ./check_alluxio_worker_version.py -v -e "$version"
     hr
