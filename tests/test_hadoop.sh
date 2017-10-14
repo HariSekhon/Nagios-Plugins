@@ -131,9 +131,13 @@ EOF
     fi
     run ./check_hadoop_namenode_version.py -v -e "$version"
     hr
+    run_fail 2 ./check_hadoop_namenode_version.py -v -e "fail-version"
+    hr
     run_conn_refused ./check_hadoop_namenode_version.py -v -e "$version"
     hr
     run ./check_hadoop_datanode_version.py -v -e "$version"
+    hr
+    run_fail 2 ./check_hadoop_datanode_version.py -v -e "fail-version"
     hr
     run_conn_refused ./check_hadoop_datanode_version.py -v -e "$version"
     hr
@@ -142,6 +146,8 @@ EOF
     run_conn_refused $perl -T ./check_hadoop_datanode_version.pl --node "$hostname" -v -e "$version"
     hr
     run $perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "$version"
+    hr
+    run_fail 2 $perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "fail-version"
     hr
     run_conn_refused $perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "$version"
     hr
