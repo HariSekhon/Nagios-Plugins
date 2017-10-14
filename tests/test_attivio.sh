@@ -58,6 +58,8 @@ else
         hr
         run ./check_attivio_aie_version.py -v
         hr
+        run_fail 2 ./check_attivio_aie_version.py -v -e 'fail-version'
+        hr
     fi
 fi
 
