@@ -65,6 +65,8 @@ test_zookeeper(){
     hr
     run ./check_zookeeper_version.py -e "$expected_version"
     hr
+    run_fail 2 ./check_zookeeper_version.py -e "fail-version"
+    hr
     run_conn_refused ./check_zookeeper_version.py -e "$expected_version"
     hr
     if [ "${version:0:3}" = "3.3" ]; then
