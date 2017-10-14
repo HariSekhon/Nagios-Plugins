@@ -69,6 +69,8 @@ test_nginx(){
     hr
     run ./check_nginx_version.py -e "$version"
     hr
+    run_fail 2 ./check_nginx_version.py -e "fail-version"
+    hr
     run_conn_refused ./check_nginx_version.py -e "$version"
     hr
     run $perl -T ./check_nginx_stats.pl -u /status
