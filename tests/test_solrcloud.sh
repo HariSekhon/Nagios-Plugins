@@ -88,6 +88,8 @@ test_solrcloud(){
     hr
     run ./check_solr_version.py -e "$version"
     hr
+    run_fail 2 ./check_solr_version.py -e "fail-version"
+    hr
     run_conn_refused ./check_solr_version.py -e "$version"
     hr
     #echo "sleeping for 20 secs to allow SolrCloud shard state to settle"
