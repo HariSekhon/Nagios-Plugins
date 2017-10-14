@@ -83,7 +83,11 @@ test_tachyon(){
     hr
     run ./check_tachyon_master_version.py -v -e "$version"
     hr
+    run_fail 2 ./check_tachyon_master_version.py -v -e "fail-version"
+    hr
     run ./check_tachyon_worker_version.py -v -e "$version"
+    hr
+    run_fail 2 ./check_tachyon_worker_version.py -v -e "fail-version"
     hr
     run ./check_tachyon_master.py -v
     hr
