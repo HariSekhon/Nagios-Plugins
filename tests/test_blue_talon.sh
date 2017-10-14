@@ -81,6 +81,8 @@ if when_ports_available 3 "$BLUE_TALON_HOST" "$BLUE_TALON_PORT"; then
     hr
     run ./check_blue_talon_version.py $BLUE_TALON_SSL -v
     hr
+    run_fail 2 ./check_blue_talon_version.py $BLUE_TALON_SSL -v -e 'fail-version'
+    hr
 else
     echo
     echo "WARNING: Blue Talon host $BLUE_TALON_HOST:$BLUE_TALON_PORT not available, skipping checks..."
