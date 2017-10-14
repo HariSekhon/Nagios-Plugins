@@ -71,9 +71,13 @@ test_spark(){
     hr
     run ./check_spark_master_version.py -e "$version"
     hr
+    run_fail 2 ./check_spark_master_version.py -e "fail-version"
+    hr
     run_conn_refused ./check_spark_master_version.py -e "$version"
     hr
     run ./check_spark_worker_version.py -e "$version"
+    hr
+    run_fail 2 ./check_spark_worker_version.py -e "fail-version"
     hr
     run_conn_refused ./check_spark_worker_version.py -e "$version"
     hr
