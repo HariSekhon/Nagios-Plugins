@@ -74,6 +74,8 @@ test_solr(){
         # 4.x+
         hr
         run ./check_solr_version.py -e "$version"
+        hr
+        run_fail 2 ./check_solr_version.py -e "fail-version"
     else
         # TODO: check Solr v3 versions somehow
         :
