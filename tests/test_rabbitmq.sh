@@ -157,6 +157,8 @@ EOF
     hr
     run ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" --expected "$expected_version"
     hr
+    run_fail 2 ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" --expected "fail-version"
+    hr
     run_conn_refused ./check_rabbitmq_version.py --expected "$expected_version"
     hr
     echo "check auth failure for version check:"
