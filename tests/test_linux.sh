@@ -44,7 +44,9 @@ test_linux(){
     section2 "Setting up Linux $distro $version test container"
     export SERVICE="nagiosplugins_$distro-github_1"
     export COMPOSE_FILE="$srcdir/docker/$distro-github-docker-compose.yml"
-    VERSION="$version" docker-compose pull $docker_compose_quiet
+    if is_CI; then
+        VERSION="$version" docker-compose pull $docker_compose_quiet
+    fi
     VERSION="$version" docker-compose up -d
     #docker exec "$DOCKER_CONTAINER" yum install -y net-tools
     if [ -n "${NOTESTS:-}" ]; then
@@ -107,6 +109,7 @@ EOF
     echo
 }
 
+# TODO: check if next arg is distro, if so latest and then use next arg
 if [ $# -gt 1 ]; then
     test_linux "$1" "$2"
 elif [[ $# -eq 1 && ${valid_distros[*]} =~ "$1" ]]; then
