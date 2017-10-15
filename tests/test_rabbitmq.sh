@@ -154,7 +154,9 @@ EOF
     version="${version%-}"
     local expected_version="$version"
     if [ -z "$expected_version" -o "$expected_version" = "latest" ]; then
-        local expected_version=".*"
+        echo "latest version, fetching latest version from DockerHub master branch"
+        local expected_version="$(dockerhub_latest_version rabbitmq-cluster)"
+        echo "expecting version '$expected_version'"
     fi
     hr
     run ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" --expected "$expected_version"
