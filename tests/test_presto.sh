@@ -44,7 +44,7 @@ test_presto(){
     VERSION="$version" docker-compose pull $docker_compose_quiet
     VERSION="$version" docker-compose up -d
     echo "getting Presto dynamic port mapping:"
-    print "Presto port => "
+    printf "Presto port => "
     export PRESTO_PORT="`docker-compose port "$DOCKER_SERVICE" "$PRESTO_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$PRESTO_PORT"
     hr
@@ -61,15 +61,47 @@ test_presto(){
     # presto service not found in list of endpoints initially even after it's come up
     run ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
     hr
+    run_fail 2 ./check_presto_version.py --expected "fail-version"
+    hr
+    run_conn_refused ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
+    hr
     run ./check_presto_coordinator.py
+    hr
+    run_conn_refused ./check_presto_coordinator.py
+    hr
+    run ./check_presto_environment.py
     hr
     run ./check_presto_environment.py --expected development
     hr
+    run_conn_refused ./check_presto_environment.py --expected development
+    hr
     run ./check_presto_nodes_failed.py
+    hr
+    run_conn_refused ./check_presto_nodes_failed.py
     hr
     run ./check_presto_num_queries.py
     hr
+    run_conn_refused ./check_presto_num_queries.py
+    hr
+    run_fail 2 ./check_presto_num_worker_nodes.py -w 1
+    hr
+    run_conn_refused ./check_presto_num_worker_nodes.py -w 1
+    hr
     run ./check_presto_state.py
+    hr
+    run_conn_refused ./check_presto_state.py
+    hr
+    run ./check_presto_worker_nodes_response_lag.py
+    hr
+    run_conn_refused ./check_presto_worker_nodes_response_lag.py
+    hr
+    run ./check_presto_worker_nodes_recent_failure_ratio.py
+    hr
+    run_conn_refused ./check_presto_worker_nodes_recent_failure_ratio.py
+    hr
+    run ./check_presto_worker_nodes_recent_failures.py
+    hr
+    run_conn_refused ./check_presto_worker_nodes_recent_failures.py
     hr
     echo "Completed $run_count Presto tests"
     hr
