@@ -42,7 +42,9 @@ trap_debug_env alluxio
 test_alluxio(){
     local version="$1"
     section2 "Setting up Alluxio $version test container"
-    VERSION="$version" docker-compose pull $docker_compose_quiet
+    if is_CI; then
+        VERSION="$version" docker-compose pull $docker_compose_quiet
+    fi
     VERSION="$version" docker-compose up -d
     echo "getting Alluxio dynamic port mappings:"
     printf "Alluxio Master port => "
