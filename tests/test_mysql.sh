@@ -69,7 +69,9 @@ test_db(){
     name_lower="$(tr 'A-Z' 'a-z' <<< "$name")"
     local export COMPOSE_FILE="$srcdir/docker/$name_lower-docker-compose.yml"
     section2 "Setting up $name $version test container"
-    VERSION="$version" docker-compose pull $docker_compose_quiet
+    if is_CI; then
+        VERSION="$version" docker-compose pull $docker_compose_quiet
+    fi
     VERSION="$version" docker-compose up -d
     local docker_container="$(docker-compose ps | sed -n '3s/ .*//p')"
     echo "determined docker container to be '$docker_container'"
@@ -93,6 +95,7 @@ test_db(){
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
+    # TODO: add mysql version test
     echo "finding my.cnf location"
     set +o pipefail
     MYSQL_CONFIG_FILE="my.cnf"
