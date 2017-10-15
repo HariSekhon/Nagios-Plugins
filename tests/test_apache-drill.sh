@@ -41,7 +41,9 @@ trap_debug_env apache_drill
 test_apache_drill(){
     local version="$1"
     section2 "Setting up Apache Drill $version test container"
-    VERSION="$version" docker-compose pull $docker_compose_quiet
+    if is_CI; then
+        VERSION="$version" docker-compose pull $docker_compose_quiet
+    fi
     VERSION="$version" docker-compose up -d
     echo "getting Apache Drill dynamic port mappings:"
     printf "Apache Drill port => "
@@ -71,6 +73,8 @@ test_apache_drill(){
     echo "found Apache Drill version $found_version"
     hr
     #run ./check_apache_drill_version.py -v -e "$version"
+    hr
+    #run_fail 2 ./check_apache_drill_version.py -v -e "fail-version"
     hr
     run ./check_apache_drill_status.py -v
     hr
