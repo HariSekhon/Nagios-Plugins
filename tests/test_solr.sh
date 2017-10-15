@@ -44,7 +44,9 @@ trap_debug_env solr
 test_solr(){
     local version="$1"
     section2 "Setting up Solr $version docker test container"
-    VERSION="$version" docker-compose pull $docker_compose_quiet
+    if is_CI; then
+        VERSION="$version" docker-compose pull $docker_compose_quiet
+    fi
     VERSION="$version" docker-compose up -d
     echo "getting Solr dynamic port mapping:"
     printf "getting Solr HTTP port => "
