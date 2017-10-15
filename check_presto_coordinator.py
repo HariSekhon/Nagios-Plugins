@@ -52,7 +52,7 @@ class CheckPrestoCoordinator(RestNagiosPlugin):
         super(CheckPrestoCoordinator, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.name = 'Presto'
+        self.name = ['Presto Coordinator', 'Presto']
         self.default_port = 8080
         self.auth = False
         self.json = True

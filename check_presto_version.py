@@ -17,7 +17,7 @@
 
 """
 
-Nagios Plugin to check the version of a Presto SQL node
+Nagios Plugin to check the version of a Presto SQL Coordinator via it's API
 
 """
 
@@ -52,7 +52,7 @@ class CheckPrestoVersion(RestVersionNagiosPlugin):
         super(CheckPrestoVersion, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.name = 'Presto'
+        self.name = ['Presto Coordinator', 'Presto']
         self.default_port = 8080
         self.path = '/v1/service/presto/general'
         self.json = True

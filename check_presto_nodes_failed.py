@@ -17,7 +17,7 @@
 
 """
 
-Nagios Plugin to check for failed Presto nodes
+Nagios Plugin to check for failed Presto worker nodes via the Presto Coordinator API
 
 """
 
@@ -51,7 +51,7 @@ class CheckPrestoNodesFailed(RestNagiosPlugin):
         super(CheckPrestoNodesFailed, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.name = 'Presto'
+        self.name = ['Presto Coordinator', 'Presto']
         self.default_port = 8080
         self.auth = False
         self.json = True
