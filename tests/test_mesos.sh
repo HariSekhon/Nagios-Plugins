@@ -45,7 +45,9 @@ trap_debug_env mesos
 test_mesos(){
     local version="${1:-latest}"
     section2 "Setting up Mesos $version test container"
-    VERSION="$version" docker-compose pull $docker_compose_quiet
+    if is_CI; then
+        VERSION="$version" docker-compose pull $docker_compose_quiet
+    fi
     VERSION="$version" docker-compose up -d
     echo "getting Mesos dynamic port mappings:"
     printf "getting Mesos Master port => "
@@ -65,6 +67,8 @@ test_mesos(){
     hr
     when_url_content "http://$MESOS_HOST:$MESOS_SLAVE_PORT/state.json" slave
     hr
+    # TODO: add version test
+
     run $perl -T ./check_mesos_activated_slaves.pl -P "$MESOS_MASTER_PORT" -v
     hr
     run_conn_refused $perl -T ./check_mesos_activated_slaves.pl -v
