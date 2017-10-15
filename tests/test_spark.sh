@@ -46,7 +46,9 @@ test_spark(){
     local version="$1"
     section2 "Setting up Spark $version test container"
     docker-compose down &>/dev/null
-    VERSION="$version" docker-compose pull $docker_compose_quiet
+    if is_CI; then
+        VERSION="$version" docker-compose pull $docker_compose_quiet
+    fi
     VERSION="$version" docker-compose up -d
     echo "getting Spark dynamic port mappings:"
     printf "Spark Master Port => "
