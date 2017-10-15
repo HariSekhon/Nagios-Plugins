@@ -43,7 +43,9 @@ startupwait 20
 test_h2o(){
     local version="$1"
     section2 "Setting up H2O $version test container"
-    VERSION="$version" docker-compose pull $docker_compose_quiet
+    if is_CI; then
+        VERSION="$version" docker-compose pull $docker_compose_quiet
+    fi
     VERSION="$version" docker-compose up -d
     echo "getting H2O dynamic port mapping:"
     printf "H2O port => "
@@ -57,6 +59,7 @@ test_h2o(){
     hr
     when_url_content "http://$H2O_HOST:$H2O_PORT/" h2o
     hr
+    # TODO: h2o version test
     run $perl -T ./check_h2o_cluster.pl
     hr
     run $perl -T ./check_h2o_jobs.pl
