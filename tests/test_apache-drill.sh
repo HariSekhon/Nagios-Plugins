@@ -58,12 +58,14 @@ test_apache_drill(){
         exit 0
     fi
     if [ "$version" = "latest" ]; then
-        local version="*"
+        echo "latest version, fetching latest version from DockerHub master branch"
+        local version="$(dockerhub_latest_version apache-drill)"
+        echo "expecting version '$version'"
     fi
     set +e
     #found_version="$(docker exec  "$DOCKER_CONTAINER" ls / | grep apache-drill | tee /dev/stderr | tail -n1 | sed 's/-[[:digit:]]*//')"
     #env | grep -i -e docker -e compose
-    found_version="$(docker-compose exec "$DOCKER_SERVICE" ls / -1 --color=no | grep --color=no apache-drill | tee /dev/stderr | tail -n 1 | sed 's/apache-drill-//')"
+    found_version="$(docker-compose exec "$DOCKER_SERVICE" ls / -1 --color=no | grep --color=no apache-drill | tr -d '\r' | tee /dev/stderr | tail -n 1 | sed 's/apache-drill-//')"
     set -e
     if [[ "$found_version" != $version* ]]; then
         echo "Docker container version does not match expected version! (found '$found_version', expected '$version')"
