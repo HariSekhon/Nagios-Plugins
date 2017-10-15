@@ -67,7 +67,9 @@ test_alluxio(){
     fi
     when_ports_available "$ALLUXIO_HOST" "$ALLUXIO_MASTER_PORT" "$ALLUXIO_WORKER_PORT"
     if [ "$version" = "latest" ]; then
-        local version=".*"
+        echo "latest version, fetching latest version from DockerHub master branch"
+        local version="$(dockerhub_latest_version alluxio)"
+        echo "expecting version '$version'"
     fi
     hr
     echo "retrying for $startupwait secs to give Alluxio time to initialize"
