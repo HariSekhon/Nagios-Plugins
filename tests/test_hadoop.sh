@@ -62,7 +62,9 @@ test_hadoop(){
     section2 "Setting up Hadoop $version test container"
     # reset state as things like checkpoint age, blocks counts and job states, no history, succeeded etc depend on state
     docker-compose down &>/dev/null || :
-    VERSION="$version" docker-compose pull $docker_compose_quiet
+    if is_CI; then
+        VERSION="$version" docker-compose pull $docker_compose_quiet
+    fi
     VERSION="$version" docker-compose up -d
     echo "getting Hadoop dynamic port mappings:"
     printf "getting HDFS NN port => "
@@ -150,6 +152,8 @@ EOF
     run_fail 2 $perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "fail-version"
     hr
     run_conn_refused $perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "$version"
+    hr
+    # TODO: add node manager version test
     hr
     docker_exec check_hadoop_balance.pl -w 5 -c 10 --hadoop-bin /hadoop/bin/hdfs --hadoop-user root -t 60
     hr
