@@ -62,9 +62,11 @@ test_cassandra(){
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    when_ports_available "$CASSANDRA_HOST" "$CASSANDRA_PORT" "$CASSANDRA_JMX_PORT"
+    when_ports_available "$CASSANDRA_HOST" "$CASSANDRA_PORT" # "$CASSANDRA_JMX_PORT" binds to 127.0.0.1
     if [ "$version" = "latest" ]; then
-        local version=".*"
+        echo "latest version, fetching latest version from DockerHub master branch"
+        local version="$(dockerhub_latest_version cassandra-dev)"
+        echo "expecting version '$version'"
     fi
     hr
     # doesn't always fail reliably as Cassandra 1.2 comes up faster than later versions
