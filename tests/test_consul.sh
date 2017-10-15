@@ -91,10 +91,12 @@ test_consul(){
     hr
     local expected_version="$version"
     if [ "$version" = "latest" ]; then
-        local expected_version="*"
+        echo "latest version, fetching latest version from DockerHub master branch"
+        local version="$(dockerhub_latest_version consul)"
+        echo "expecting version '$version'"
     fi
     set +e
-    found_version=$(docker-compose exec "$DOCKER_SERVICE" consul version | head -n1 | tee /dev/stderr | sed 's/.*v//')
+    found_version=$(docker-compose exec "$DOCKER_SERVICE" consul version | tr -d '\r' | head -n1 | tee /dev/stderr | sed 's/.*v//')
     set -e
     if [[ "$found_version" != $expected_version* ]]; then
         echo "Docker container version does not match expected version! (found '$found_version', expected '$version')"
