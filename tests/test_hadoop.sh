@@ -123,7 +123,9 @@ EOF
         exit 0
     fi
     if [ "$version" = "latest" ]; then
-        local version=".*"
+        echo "latest version, fetching latest version from DockerHub master branch"
+        local version="$(dockerhub_latest_version hadoop-dev)"
+        echo "expecting version '$version'"
     fi
     # docker-compose exec returns $'hostname\r' but not in shell
     hostname="$(docker-compose exec "$DOCKER_SERVICE" hostname | tr -d '$\r')"
@@ -511,7 +513,7 @@ EOF
     hr
     run_grep "checked 0 out of" ./check_hadoop_yarn_long_running_apps.py --exclude=quasi
     hr
-    max_job_runtime=60
+    max_job_runtime=100
     echo "waiting up to $max_job_runtime secs for job to stop running:"
     SECONDS=0
     set +e
