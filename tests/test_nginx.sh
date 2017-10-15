@@ -78,6 +78,8 @@ test_nginx(){
     hr
     run $perl -T ./check_nginx_stats.pl -u /status
     hr
+    run_fail 2 $perl -T ./check_nginx_stats.pl -u /nonexistent
+    hr
     run_conn_refused $perl -T ./check_nginx_stats.pl -u /status
     hr
     echo "Completed $run_count Nginx tests"
