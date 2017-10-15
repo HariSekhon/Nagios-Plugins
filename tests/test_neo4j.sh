@@ -44,6 +44,12 @@ trap_debug_env neo4j
 startupwait 20
 
 neo4j_setup(){
+    # otherwise repeated attempts create more nodes and break the NumberOfNodeIdsInUse upper threshold
+    docker-compose down &>/dev/null || :
+    if is_CI; then
+        VERSION="$version" docker-compose pull $docker_compose_quiet
+    fi
+    VERSION="$version" docker-compose up -d
     echo "getting Neo4J dynammic port mappings:"
     printf "Neo4J HTTP port => "
     export NEO4J_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
@@ -79,10 +85,6 @@ neo4j_setup(){
 test_neo4j_noauth(){
     local version="$1"
     section2 "Setting up Neo4J $version test container without auth"
-    # otherwise repeated attempts create more nodes and break the NumberOfNodeIdsInUse upper threshold
-    docker-compose down &>/dev/null || :
-    VERSION="$version" docker-compose pull $docker_compose_quiet
-    VERSION="$version" docker-compose up -d
     neo4j_setup
     hr
     if [ "${NOTESTS:-}" ]; then
@@ -131,12 +133,7 @@ test_neo4j_noauth(){
 test_neo4j_auth(){
     local version="$1"
     section2 "Setting up Neo4J $version test container with auth"
-    #local DOCKER_OPTS="-e NEO4J_AUTH=$NEO4J_USERNAME/$NEO4J_PASSWORD"
-    local startupwait=20
-    docker-compose down &>/dev/null || :
-    VERSION="$version" docker-compose pull $docker_compose_quiet
-    VERSION="$version" NEO4J_AUTH="$NEO4J_USERNAME/$NEO4J_PASSWORD" docker-compose up -d
-    neo4j_setup
+    VERSION="$version" NEO4J_AUTH="$NEO4J_USERNAME/$NEO4J_PASSWORD" neo4j_setup
     hr
     if [ "${NOTESTS:-}" ]; then
         exit 0
