@@ -41,7 +41,9 @@ startupwait 1
 test_memcached(){
     local version="$1"
     section2 "Setting up Memcached $version test container"
-    VERSION="$version" docker-compose pull $docker_compose_quiet
+    if is_CI; then
+        VERSION="$version" docker-compose pull $docker_compose_quiet
+    fi
     VERSION="$version" docker-compose up -d
     echo "getting Memcached dynamic port mapping:"
     printf "Memcached port => "
@@ -57,6 +59,8 @@ test_memcached(){
         exit 0
     fi
     hr
+    # TODO: add memcached version test
+
     # MEMCACHED_HOST obtained via .travis.yml
     run $perl -T ./check_memcached_write.pl -v
     hr
