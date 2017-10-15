@@ -76,7 +76,10 @@ test_kafka(){
         exit 0
     fi
     if [ "$version" = "latest" ]; then
-        local version="*"
+        echo "latest version, fetching latest version from DockerHub master branch"
+        # TODO: improve this for Kafka specifically
+        local version="$(dockerhub_latest_version kafka)"
+        echo "expecting version '$version'"
     fi
     hr
     set +e
@@ -86,7 +89,7 @@ test_kafka(){
     set -e
     # TODO: make container and official versions align
     #if [[ "${found_version//-/_}" != ${version//-/_}* ]]; then
-    if [[ "$found_version" != $version* ]]; then
+    if [[ "$found_version" != "$version"* ]]; then
         echo "Docker container version does not match expected version! (found '$found_version', expected '$version')"
         exit 1
     fi
