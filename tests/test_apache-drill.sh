@@ -63,8 +63,6 @@ test_apache_drill(){
         echo "expecting version '$version'"
     fi
     set +e
-    #found_version="$(docker exec  "$DOCKER_CONTAINER" ls / | grep apache-drill | tee /dev/stderr | tail -n1 | sed 's/-[[:digit:]]*//')"
-    #env | grep -i -e docker -e compose
     found_version="$(docker-compose exec "$DOCKER_SERVICE" ls / -1 --color=no | grep --color=no apache-drill | tr -d '\r' | tee /dev/stderr | tail -n 1 | sed 's/apache-drill-//')"
     set -e
     if [[ "$found_version" != $version* ]]; then
