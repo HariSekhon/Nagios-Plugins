@@ -47,7 +47,10 @@ test_nginx(){
     # docker-compose up to create docker_default network, otherwise just doing create and then start results in error:
     # ERROR: for nginx  Cannot start service nginx: network docker_default not found
     # ensure we start fresh otherwise the first nginx stats stub failure test will fail as it finds the old stub config
-    VERSION="$version" docker-compose down
+    VERSION="$version" docker-compose down || :
+    if is_CI; then
+        VERSION="$version" docker-compose pull $docker_compose_quiet
+    fi
     VERSION="$version" docker-compose up -d
     # Configure Nginx stats stub so watch_nginx_stats.pl now passes
     VERSION="$version" docker-compose stop
