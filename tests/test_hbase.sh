@@ -134,7 +134,9 @@ EOF
     fi
     echo "starting tests for version $version"
     if [ "$version" = "latest" ]; then
-        local version=".*"
+        echo "latest version, fetching latest version from DockerHub master branch"
+        local version="$(dockerhub_latest_version hbase-dev)"
+        echo "expecting version '$version'"
     fi
     hr
     run ./check_hbase_master_version.py -e "$version"
