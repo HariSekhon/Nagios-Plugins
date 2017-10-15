@@ -48,7 +48,9 @@ trap_debug_env redis
 test_redis(){
     local version="$1"
     section2 "Setting up Redis $version test container"
-    VERSION="$version" docker-compose pull $docker_compose_quiet
+    if is_CI; then
+        VERSION="$version" docker-compose pull $docker_compose_quiet
+    fi
     VERSION="$version" docker-compose up -d
     echo "getting Redis dynamic port mapping:"
     printf "Redis port => "
@@ -71,7 +73,9 @@ EOF
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
-    run $perl -T ./check_redis_version.pl -v # TODO: change to regex and enable -e "^$version"
+    run $perl -T ./check_redis_version.pl -v # -e "$version"  TODO: change to regex and enable this with .* for latest
+    hr
+    run_fail 2 $perl -T ./check_redis_version.pl -v -e 'fail-version'
     hr
     run_conn_refused $perl -T ./check_redis_version.pl -v
     hr
