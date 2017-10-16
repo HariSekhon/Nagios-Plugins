@@ -189,6 +189,8 @@ EOF
     hr
     run ./check_presto_worker_node.py --node "$ip"
     hr
+    run_fail 2 ./check_presto_worker_node.py --node "nonexistentnode2"
+    hr
     echo "retrying worker nodes failed as this doesn't settle immediately after node addition:"
     retry 10 ./check_presto_worker_nodes_failed.py
     run++
