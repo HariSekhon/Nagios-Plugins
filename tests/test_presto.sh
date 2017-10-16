@@ -44,6 +44,7 @@ startupwait 30
 
 test_presto(){
     local version="$1"
+    run_count=0
     DOCKER_CONTAINER="${DOCKER_CONTAINER:-nagiosplugins_${DOCKER_SERVICE}_1}"
     if [ -z "${EXTERNAL_PRESTO:-}" ]; then
         section2 "Setting up Presto $version test container"
@@ -232,7 +233,7 @@ EOF
     hr
     run_fail "1 2" ./check_presto_worker_nodes_recent_failure_ratio.py
     hr
-    run_fail 2 ./check_presto_worker_nodes_recent_failures.py
+    run_fail "1 2" ./check_presto_worker_nodes_recent_failures.py
     hr
     echo "Completed $run_count Presto tests"
     hr
@@ -245,12 +246,20 @@ EOF
 if [ -n "${@:-}" ]; then
     for version in "$@"; do
         teradata_distribution=0
-        for teradata_version in $PRESTO_TERADATA_VERSIONS; do
-            if [ "$version" = "$teradata_version" ]; then
-                teradata_distribution=1
-                break
-            fi
-        done
+        if [ "$version" = "latest" ]; then
+            echo "Testing Facebook's latest presto release before Teradata's latest distribution:"
+            COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto latest
+            echo
+            hr
+            teradata_distribution=1
+        else
+            for teradata_version in $PRESTO_TERADATA_VERSIONS; do
+                if [ "$version" = "$teradata_version" ]; then
+                    teradata_distribution=1
+                    break
+                fi
+            done
+        fi
         if [ "$teradata_distribution" = "1" ]; then
             echo "Testing Teradata's Presto distribution '$version':"
             COMPOSE_FILE="$srcdir/docker/presto-docker-compose.yml" test_presto "$1"
@@ -259,6 +268,10 @@ if [ -n "${@:-}" ]; then
             COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto "$1"
         fi
     done
+    untrap
+    echo "All Presto tests succeeded for versions: $@"
+    echo
+    echo "Total Tests run: $total_run_count"
 else
     echo "Testing Facebook's latest presto release before Teradata distribution:"
     COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto latest
