@@ -23,7 +23,8 @@ cd "$srcdir/..";
 
 section "P r e s t o   S Q L"
 
-export PRESTO_VERSIONS="${@:-${PRESTO_VERSIONS:-latest 0.152 0.157 0.167 0.179}}"
+export PRESTO_TERADATA_VERSIONS="${@:-${PRESTO_VERSIONS:-latest 0.152 0.157 0.167 0.179}}"
+export PRESTO_VERSIONS="${@:-${PRESTO_VERSIONS:-$PRESTO_TERADATA_VERSIONS}}"
 
 PRESTO_HOST="${DOCKER_HOST:-${PRESTO_HOST:-${HOST:-localhost}}}"
 PRESTO_HOST="${PRESTO_HOST##*/}"
@@ -53,7 +54,7 @@ test_presto(){
         VERSION="$version" docker-compose down || :
         VERSION="$version" docker-compose up -d
         echo "getting Presto dynamic port mapping:"
-        printf "Presto port => "
+        printf "Presto Coordinator port => "
         export PRESTO_PORT="`docker-compose port "$DOCKER_SERVICE" "$PRESTO_PORT_DEFAULT" | sed 's/.*://'`"
         echo "$PRESTO_PORT"
         hr
@@ -202,12 +203,13 @@ EOF
     run_fail 2 ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
     hr
     echo "re-running failed worker node check against the coordinator API to detect failure of the worker we just killed:"
-    SECONDS=0
-    max_detect_secs=300
+    # usually detects in around 5-10 secs
+    max_detect_secs=60
     set +o pipefail
+    SECONDS=0
     while true; do
         # can't just test status code as gets 500 Internal Server Error within a few secs
-        if ./check_presto_worker_nodes_failed.py | tee /dev/stderr | grep -q 'WARNING: Presto SQL 1 node failed'; then
+        if ./check_presto_worker_nodes_failed.py | tee /dev/stderr | grep -q 'WARNING: Presto SQL 1 worker node failed'; then
             break
         fi
         if [ $SECONDS -gt $max_detect_secs ]; then
@@ -215,17 +217,20 @@ EOF
             echo "FAILED: Presto worker did not detect worker failure after $max_detect_secs secs!"
             exit 1
         fi
-        echo "waited $SECONDS secs, will retrying again until Presto coordinator detects worker failure..."
-        sleep 1
+        echo "waited $SECONDS secs, will try again until Presto coordinator detects worker failure..."
+        # sleeping is risky - API might change and hit 500 Internal Server Error bug as it only very briefly returns 1 failed node which we're relying on to to break this loop (will otherwise be caught by timeout and failed)
+        # sometimes misses the state change before the API breaks, do not enable
+        #sleep 0.5
     done
     set -o pipefail
-    hr
-    run_fail 1 ./check_presto_worker_nodes_failed.py
     # subsequent queries to the API expose a bug in the Presto API returning 500 Internal Server Error
     hr
-    run_fail 2 ./check_presto_worker_nodes_response_lag.py --max-age 5
+    # XXX: must permit error state 2 on checks below to pass 500 Internal Server Error caused by Presto Bug
+    run_fail "1 2" ./check_presto_worker_nodes_failed.py
     hr
-    run_fail 2 ./check_presto_worker_nodes_recent_failure_ratio.py
+    run_fail "0 2" ./check_presto_worker_nodes_response_lag.py --max-age 1
+    hr
+    run_fail "1 2" ./check_presto_worker_nodes_recent_failure_ratio.py
     hr
     run_fail 2 ./check_presto_worker_nodes_recent_failures.py
     hr
@@ -237,9 +242,29 @@ EOF
     echo
 }
 
-if [ -z "${1:-}" ]; then
-    echo "Testing Facebook's latest presto release before Teradata's distribution:"
+if [ -n "${@:-}" ]; then
+    for version in "$@"; do
+        teradata_distribution=0
+        for teradata_version in $PRESTO_TERADATA_VERSIONS; do
+            if [ "$version" = "$teradata_version" ]; then
+                teradata_distribution=1
+                break
+            fi
+        done
+        if [ "$teradata_distribution" = "1" ]; then
+            echo "Testing Teradata's Presto distribution '$version':"
+            COMPOSE_FILE="$srcdir/docker/presto-docker-compose.yml" test_presto "$1"
+        else
+            echo "Testing Facebook's Presto release '$version':"
+            COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto "$1"
+        fi
+    done
+else
+    echo "Testing Facebook's latest presto release before Teradata distribution:"
     COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto latest
+    echo
+    hr
+    echo
+    echo "Now testing Teradata's distribution:"
+    COMPOSE_FILE="$srcdir/docker/presto-docker-compose.yml" run_test_versions presto
 fi
-
-run_test_versions presto
