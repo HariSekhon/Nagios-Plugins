@@ -47,11 +47,11 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
 
-class CheckPrestoNodesFailed(RestNagiosPlugin):
+class CheckPrestoWorkerNodesFailed(RestNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckPrestoNodesFailed, self).__init__()
+        super(CheckPrestoWorkerNodesFailed, self).__init__()
         # Python 3.x
         # super().__init__()
         self.name = ['Presto Coordinator', 'Presto']
@@ -62,11 +62,11 @@ class CheckPrestoNodesFailed(RestNagiosPlugin):
         self.msg = 'Presto msg not defined'
 
     def add_options(self):
-        super(CheckPrestoNodesFailed, self).add_options()
+        super(CheckPrestoWorkerNodesFailed, self).add_options()
         self.add_thresholds(default_warning=0, default_critical=1)
 
     def process_options(self):
-        super(CheckPrestoNodesFailed, self).process_options()
+        super(CheckPrestoWorkerNodesFailed, self).process_options()
         self.validate_thresholds()
 
     def parse_json(self, json_data):
@@ -78,4 +78,4 @@ class CheckPrestoNodesFailed(RestNagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckPrestoNodesFailed().main()
+    CheckPrestoWorkerNodesFailed().main()
