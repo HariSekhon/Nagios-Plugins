@@ -267,6 +267,8 @@ if [ -n "${@:-}" ]; then
             echo "Testing Facebook's Presto release '$version':"
             COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto "$1"
         fi
+        # must call this manually as not using standard run_test_versions() function here which normally adds this
+        let total_run_count+=$run_count
     done
     untrap
     echo "All Presto tests succeeded for versions: $@"
