@@ -41,7 +41,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 # pylint: disable=too-few-public-methods
@@ -67,7 +67,9 @@ class CheckPrestoVersion(RestVersionNagiosPlugin):
             if service['type'] == 'presto':
                 presto_service = service
         if not presto_service:
-            raise UnknownError('presto service not found in list of services. {0}'.format(support_msg_api()))
+            raise UnknownError("'presto' service not found in list of services. " + \
+                               "Check you haven't run this against a presto worker node as this information isn't " + \
+                               "available via the worker API. Otherwise {0}".format(support_msg_api()))
         version = presto_service['properties']['node_version']
         return version
 
