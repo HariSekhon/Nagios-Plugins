@@ -21,7 +21,10 @@ Nagios Plugin to check the number of Presto SQL worker nodes via the Coordinator
 
 Coordinator nodes do not show up in the worker node count
 
-Thresholds apply to the minimum number of worker nodes to expect
+Will get a '404 Not Found' if you try to run it against a Presto Worker as this information
+is only available via the Presto Coordinator API
+
+Thresholds apply to the minimum number of Presto worker nodes to expect
 
 """
 
