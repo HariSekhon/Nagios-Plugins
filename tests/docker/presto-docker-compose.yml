@@ -18,6 +18,7 @@ services:
     image: harisekhon/presto:${VERSION:-latest}
     ports:
       - 8080
+      - 8081
     networks:
       - presto
 
