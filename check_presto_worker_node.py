@@ -52,7 +52,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 class CheckPrestoWorker(RestNagiosPlugin):
@@ -144,6 +144,10 @@ class CheckPrestoWorker(RestNagiosPlugin):
 
     @staticmethod
     def get_response_age(node):
+        if not 'lastResponseTime' in node:
+            raise UnknownError('lastResponseTime field not found in node data, if node was just started this may ' + \
+                               'not be populated until second run. If this error persists then {0}'\
+                               .format(support_msg_api()))
         last_response_time = node['lastResponseTime']
         last_response_datetime = datetime.strptime(last_response_time, '%Y-%m-%dT%H:%M:%S.%fZ')
         timedelta = datetime.utcnow() - last_response_datetime
