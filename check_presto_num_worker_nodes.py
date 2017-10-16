@@ -24,6 +24,18 @@ Coordinator nodes do not show up in the worker node count
 Will get a '404 Not Found' if you try to run it against a Presto Worker as this information
 is only available via the Presto Coordinator API
 
+Testing shows that a work will still be shown in this number even just after it's started failing,
+must use adjacent plugins to detect worker failure via response time lag to coordinator or recent failures
+/ recent failure ratio increases
+
+See also:
+
+    - check_presto_worker_node.py (includes response lag / recent failures / failure ratio for a specific worker node)
+    - check_presto_worker_nodes_failed.py
+    - check_presto_worker_nodes_recent_failure_ratio.py
+    - check_presto_worker_nodes_recent_failures.py
+    - check_presto_worker_nodes_response_lag.py
+
 Thresholds apply to the minimum number of Presto worker nodes to expect
 
 """
