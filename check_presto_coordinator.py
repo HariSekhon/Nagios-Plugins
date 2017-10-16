@@ -34,14 +34,14 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import UnknownError, support_msg_api
+    from harisekhon.utils import CriticalError
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 # pylint: disable=too-few-public-methods
@@ -65,7 +65,11 @@ class CheckPrestoCoordinator(RestNagiosPlugin):
             if service['type'] == 'presto':
                 presto_service = service
         if not presto_service:
-            raise UnknownError('presto service not found in list of services. {0}'.format(support_msg_api()))
+            # Originally raised UNKNOWN API error but this is the same circumstance for a Presto worker node
+            err_msg = "Not a Presto SQL Coordinator"
+            if self.verbose:
+                err_msg += "('presto' service not found in list of services, probably a presto worker node)"
+            raise CriticalError(err_msg)
         is_coordinator = presto_service['properties']['coordinator']
         self.msg += "'{0}'".format(is_coordinator)
         if is_coordinator != 'true':
