@@ -17,7 +17,7 @@
 
 """
 
-Nagios Plugin to check a Presto SQL node is configured as a coordinator
+Nagios Plugin to check a Presto SQL node is configured as a coordinator via the API
 
 """
 
