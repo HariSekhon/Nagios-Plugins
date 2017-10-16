@@ -22,6 +22,9 @@ Nagios Plugin to check for failed Presto worker nodes via the Presto Coordinator
 Will get a '404 Not Found' if you try to run it against a Presto Worker as this information
 is only available via the Presto Coordinator API
 
+A newly added worker node will show up temporarily in the list of failed nodes until it is properly initialized
+according to tests, so this can also be used to catch adding or restarting workers
+
 """
 
 from __future__ import absolute_import
