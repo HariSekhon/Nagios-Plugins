@@ -85,9 +85,9 @@ test_presto(){
     hr
     run_conn_refused ./check_presto_environment.py --expected development
     hr
-    run ./check_presto_nodes_failed.py
+    run ./check_presto_worker_nodes_failed.py
     hr
-    run_conn_refused ./check_presto_nodes_failed.py
+    run_conn_refused ./check_presto_worker_nodes_failed.py
     hr
     run ./check_presto_num_queries.py
     hr
@@ -164,7 +164,7 @@ EOF
     run ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
     hr
     # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_nodes_failed.py -P "$PRESTO_WORKER_PORT"
+    run_fail 2 ./check_presto_worker_nodes_failed.py -P "$PRESTO_WORKER_PORT"
     hr
     # will get a 404 Not Found against worker API
     run_fail 2 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
@@ -207,7 +207,7 @@ EOF
     set +o pipefail
     while true; do
         # can't just test status code as gets 500 Internal Server Error within a few secs
-        if ./check_presto_nodes_failed.py | tee /dev/stderr | grep -q 'WARNING: Presto SQL 1 node failed'; then
+        if ./check_presto_worker_nodes_failed.py | tee /dev/stderr | grep -q 'WARNING: Presto SQL 1 node failed'; then
             break
         fi
         if [ $SECONDS -gt $max_detect_secs ]; then
@@ -220,7 +220,7 @@ EOF
     done
     set -o pipefail
     hr
-    run_fail 1 ./check_presto_nodes_failed.py
+    run_fail 1 ./check_presto_worker_nodes_failed.py
     # subsequent queries to the API expose a bug in the Presto API returning 500 Internal Server Error
     hr
     run_fail 2 ./check_presto_worker_nodes_response_lag.py --max-age 5
