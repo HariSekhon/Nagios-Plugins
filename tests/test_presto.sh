@@ -23,7 +23,7 @@ cd "$srcdir/..";
 
 section "P r e s t o   S Q L"
 
-export PRESTO_TERADATA_VERSIONS="${@:-${PRESTO_VERSIONS:-latest 0.152 0.157 0.167 0.179}}"
+export PRESTO_TERADATA_VERSIONS="latest 0.152 0.157 0.167 0.179"
 export PRESTO_VERSIONS="${@:-${PRESTO_VERSIONS:-$PRESTO_TERADATA_VERSIONS}}"
 
 PRESTO_HOST="${DOCKER_HOST:-${PRESTO_HOST:-${HOST:-localhost}}}"
