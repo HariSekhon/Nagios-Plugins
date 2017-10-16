@@ -23,7 +23,8 @@ cd "$srcdir/..";
 
 section "P r e s t o   S Q L"
 
-export PRESTO_TERADATA_VERSIONS="latest 0.152 0.157 0.167 0.179"
+#export PRESTO_TERADATA_VERSIONS="latest 0.152 0.157 0.167 0.179"
+export PRESTO_TERADATA_VERSIONS="latest 0.167 0.179"
 export PRESTO_VERSIONS="${@:-${PRESTO_VERSIONS:-$PRESTO_TERADATA_VERSIONS}}"
 
 PRESTO_HOST="${DOCKER_HOST:-${PRESTO_HOST:-${HOST:-localhost}}}"
@@ -291,6 +292,7 @@ EOF
 }
 
 if [ -n "${*:-}" ]; then
+    presto_start_time="$(start_timer "Presto versions tests")"
     for version in $*; do
         teradata_distribution=0
         if [ "$version" = "latest" ]; then
@@ -323,14 +325,17 @@ if [ -n "${*:-}" ]; then
     echo "All Presto tests succeeded for versions: $@"
     echo
     echo "Total Tests run: $total_run_count"
+    time_taken "$presto_start_time" "All Presto version tests completed in"
 else
     echo "Testing Facebook's latest presto release before Teradata distribution version(s):"
+    presto_start_time="$(start_timer "Presto Facebook latest release test")" 
     COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto latest
     # must call this manually as not using standard run_test_versions() function here which normally adds this
     let total_run_count+=$run_count
+    time_taken "$presto_start_time" "Presto Facebook latest release test completed in"
     echo
     hr
     echo
     echo "Now testing Teradata's distribution:"
-    COMPOSE_FILE="$srcdir/docker/presto-docker-compose.yml" run_test_versions presto
+    COMPOSE_FILE="$srcdir/docker/presto-docker-compose.yml" run_test_versions Presto
 fi
