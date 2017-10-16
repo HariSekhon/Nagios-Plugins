@@ -103,6 +103,8 @@ test_presto(){
     hr
     run_conn_refused ./check_presto_state.py
     hr
+    run_fail 2 ./check_presto_worker_node.py --node "nonexistentnode"
+    hr
     run ./check_presto_worker_nodes_response_lag.py
     hr
     run_conn_refused ./check_presto_worker_nodes_response_lag.py
@@ -165,6 +167,32 @@ EOF
     hr
     run ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
     hr
+    echo "finding presto docker container IP for specific node registered checks:"
+    # hostname command not installed
+    #hostname="$(docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" hostname -f)"
+    # registering IP not hostname
+    #hostname="$(docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" tail -n1 /etc/hosts | awk '{print $2}')"
+    ip="$(docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" tail -n1 /etc/hosts | awk '{print $1}')"
+    echo "determined presto container IP = '$ip'"
+    hr
+    # doesn't show up as registered for a while, so run this test last and iterate for a little while
+    max_node_up_wait=20
+    echo "allowing to $max_node_up_wait secs for worker to be detected as online by the Presto Coordinator:"
+    retry $max_node_up_wait ./check_presto_num_worker_nodes.py -w 1
+    run++
+    hr
+    echo "lastResponseTime field is not immediately initialized in node data on coordinator, retrying for 10 secs to give node lastResponseTime a chance to be populated"
+    retry 10 ./check_presto_worker_node.py --node "http://$ip:$PRESTO_WORKER_PORT_DEFAULT"
+    run++
+    hr
+    run ./check_presto_worker_node.py --node "$ip:$PRESTO_WORKER_PORT_DEFAULT"
+    hr
+    run ./check_presto_worker_node.py --node "$ip"
+    hr
+    echo "retrying worker nodes failed as this doesn't settle immediately after node addition:"
+    retry 10 ./check_presto_worker_nodes_failed.py
+    run++
+    hr
     # will get a 404 Not Found against worker API
     run_fail 2 ./check_presto_worker_nodes_failed.py -P "$PRESTO_WORKER_PORT"
     hr
@@ -174,11 +202,17 @@ EOF
     # will get a 404 Not Found against worker API
     run_fail 2 ./check_presto_num_worker_nodes.py -w 1 -P "$PRESTO_WORKER_PORT"
     hr
+    run ./check_presto_worker_nodes_response_lag.py
+    hr
     # will get a 404 Not Found against worker API
     run_fail 2 ./check_presto_worker_nodes_response_lag.py -P "$PRESTO_WORKER_PORT"
     hr
+    run ./check_presto_worker_nodes_recent_failure_ratio.py
+    hr
     # will get a 404 Not Found against worker API
     run_fail 2 ./check_presto_worker_nodes_recent_failure_ratio.py -P "$PRESTO_WORKER_PORT"
+    hr
+    run ./check_presto_worker_nodes_recent_failures.py
     hr
     # will get a 404 Not Found against worker API
     run_fail 2 ./check_presto_worker_nodes_recent_failures.py -P "$PRESTO_WORKER_PORT"
@@ -210,7 +244,7 @@ EOF
     SECONDS=0
     while true; do
         # can't just test status code as gets 500 Internal Server Error within a few secs
-        if ./check_presto_worker_nodes_failed.py | tee /dev/stderr | grep -q 'WARNING: Presto SQL 1 worker node failed'; then
+        if ./check_presto_worker_nodes_failed.py | tee /dev/stderr | grep -q -e 'WARNING: Presto SQL 1 worker node failed' -e "500 Internal Server Error"; then
             break
         fi
         if [ $SECONDS -gt $max_detect_secs ]; then
@@ -219,12 +253,23 @@ EOF
             exit 1
         fi
         echo "waited $SECONDS secs, will try again until Presto coordinator detects worker failure..."
-        # sleeping is risky - API might change and hit 500 Internal Server Error bug as it only very briefly returns 1 failed node which we're relying on to to break this loop (will otherwise be caught by timeout and failed)
-        # sometimes misses the state change before the API breaks, do not enable
+        # sleeping can miss API might change and hit 500 Internal Server Error bug as it only very briefly returns 1 failed node
+        # sometimes misses the state change before the API breaks
+        # do not enable
         #sleep 0.5
     done
     set -o pipefail
     # subsequent queries to the API expose a bug in the Presto API returning 500 Internal Server Error
+    hr
+    # XXX: this still passes as worker is still found, only response time lag and recent failures / recent failure ratios will reliably detect worker failure, not drop in the number of nodes
+    run_fail "0 2" ./check_presto_num_worker_nodes.py -w 1
+    hr
+    run_fail 2 ./check_presto_worker_node.py --node "http://$ip:$PRESTO_WORKER_PORT_DEFAULT"
+    hr
+    run_fail 2 ./check_presto_worker_node.py --node "$ip:$PRESTO_WORKER_PORT_DEFAULT"
+    hr
+    run_fail 2 ./check_presto_worker_node.py --node "$ip"
+    hr
     hr
     # XXX: must permit error state 2 on checks below to pass 500 Internal Server Error caused by Presto Bug
     run_fail "1 2" ./check_presto_worker_nodes_failed.py
