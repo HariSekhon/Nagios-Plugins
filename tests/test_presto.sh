@@ -249,6 +249,8 @@ if [ -n "${@:-}" ]; then
         if [ "$version" = "latest" ]; then
             echo "Testing Facebook's latest presto release before Teradata's latest distribution:"
             COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto latest
+            # must call this manually as not using standard run_test_versions() function here which normally adds this
+            let total_run_count+=$run_count
             echo
             hr
             teradata_distribution=1
