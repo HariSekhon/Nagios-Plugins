@@ -40,6 +40,8 @@ time tests/help.sh
 #is_travis ||
 tests/test_docker.sh
 
+failed_tests=""
+
 for script in $(find tests -name 'test*.sh'); do
     if [ -n "${NOTESTS:-}" -a "$script" = "run_tests.sh" ]; then
         echo "NOTESTS env var specified, skipping dockerized tests"
@@ -48,12 +50,19 @@ for script in $(find tests -name 'test*.sh'); do
     if is_CI; then
         [ $(($RANDOM % 3)) = 0 ] || continue
         declare_if_inside_docker
-        time $script || :
+        time $script ||
+        failed_tests="$failed_tests
+$script"
     else
         declare_if_inside_docker
         time $script
     fi
 done
+
+if [ -n "$failed_tests" ]; then
+    echo "WARNING: the following tests failed:
+$failed_tests"
+fi
 
 srcdir="$srcdir_nagios_plugins_all"
 
