@@ -290,8 +290,8 @@ EOF
     echo
 }
 
-if [ -n "${@:-}" ]; then
-    for version in "$@"; do
+if [ -n "${*:-}" ]; then
+    for version in $*; do
         teradata_distribution=0
         if [ "$version" = "latest" ]; then
             echo "Testing Facebook's latest presto release before Teradata's latest distribution:"
@@ -324,8 +324,10 @@ if [ -n "${@:-}" ]; then
     echo
     echo "Total Tests run: $total_run_count"
 else
-    echo "Testing Facebook's latest presto release before Teradata distribution:"
+    echo "Testing Facebook's latest presto release before Teradata distribution version(s):"
     COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto latest
+    # must call this manually as not using standard run_test_versions() function here which normally adds this
+    let total_run_count+=$run_count
     echo
     hr
     echo
