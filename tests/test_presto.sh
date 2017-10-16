@@ -46,7 +46,7 @@ test_presto(){
     local version="$1"
     run_count=0
     DOCKER_CONTAINER="${DOCKER_CONTAINER:-nagiosplugins_${DOCKER_SERVICE}_1}"
-    if [ -z "${EXTERNAL_PRESTO:-}" ]; then
+    if [ -z "${NODOCKER:-}" ]; then
         section2 "Setting up Presto $version test container"
         if is_CI; then
             VERSION="$version" docker-compose pull $docker_compose_quiet
@@ -115,7 +115,7 @@ test_presto(){
     hr
     run_conn_refused ./check_presto_worker_nodes_recent_failures.py
     hr
-    if [ -n "${EXTERNAL_PRESTO:-}" ]; then
+    if [ -n "${NODOCKER:-}" ]; then
         echo "External Presto, skipping worker setup + teardown checks..."
         echo
         echo "Completed $run_count Presto tests"
@@ -237,7 +237,7 @@ EOF
     hr
     echo "Completed $run_count Presto tests"
     hr
-    [ -n "${KEEPDOCKER:-}" -o -n "${EXTERNAL_PRESTO:-}" ] ||
+    [ -n "${KEEPDOCKER:-}" -o -n "${NODOCKER:-}" ] ||
     docker-compose down
     hr
     echo
