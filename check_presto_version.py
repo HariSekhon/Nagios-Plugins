@@ -19,6 +19,9 @@
 
 Nagios Plugin to check the version of a Presto SQL Coordinator via it's API
 
+Will return unknown if you try running it against a Presto worker as this information
+isn't available via the Presto worker API
+
 """
 
 from __future__ import absolute_import
