@@ -21,6 +21,11 @@ Nagios Plugin to check the configured environment of a Presto SQL node via the A
 
 Works on both Presto Coordinator and Worker APIs
 
+Tested on:
+
+- Presto Facebook version 0.185
+- Presto Teradata distribution versions 0.167, 0.179
+
 """
 
 from __future__ import absolute_import

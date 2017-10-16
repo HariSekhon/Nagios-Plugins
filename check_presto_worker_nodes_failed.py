@@ -25,6 +25,11 @@ is only available via the Presto Coordinator API
 A newly added worker node will show up temporarily in the list of failed nodes until it is properly initialized
 according to tests, so this can also be used to catch adding or restarting workers
 
+Tested on:
+
+- Presto Facebook version 0.185
+- Presto Teradata distribution versions 0.167, 0.179
+
 """
 
 from __future__ import absolute_import

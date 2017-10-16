@@ -26,6 +26,11 @@ In verbose mode outputs the list of nodes with recent failure ratios > max ratio
 Will get a '404 Not Found' if you try to run it against a Presto Worker as this information
 is only available via the Presto Coordinator API
 
+Tested on:
+
+- Presto Facebook version 0.185
+- Presto Teradata distribution versions 0.167, 0.179
+
 """
 
 from __future__ import absolute_import

@@ -28,6 +28,11 @@ is only available via the Presto Coordinator API
 
 In verbose mode outputs the list of worker nodes with last responses > max age
 
+Tested on:
+
+- Presto Facebook version 0.185
+- Presto Teradata distribution versions 0.167, 0.179
+
 """
 
 from __future__ import absolute_import

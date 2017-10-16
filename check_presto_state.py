@@ -21,6 +21,11 @@ Nagios Plugin to check the state reported by a Presto SQL node
 
 Works on both Presto Coordinator and Worker APIs
 
+Tested on:
+
+- Presto Facebook version 0.185
+- Presto Teradata distribution versions 0.167, 0.179
+
 """
 
 from __future__ import absolute_import

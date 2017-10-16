@@ -27,6 +27,11 @@ Checks worker node:
     - recent failure ratio vs threshold
     - shows uptime of the worker node
 
+Tested on:
+
+- Presto Facebook version 0.185
+- Presto Teradata distribution versions 0.167, 0.179
+
 """
 
 from __future__ import absolute_import

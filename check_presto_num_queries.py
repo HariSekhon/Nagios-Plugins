@@ -30,7 +30,10 @@ to take longer to return, so watch the graph on query time from the perfdata tha
 Will get a '404 Not Found' if you try to run it against a Presto Worker as this information
 is only available via the Presto Coordinator API
 
-Tested on Presto Teradata Distribution 0.179
+Tested on:
+
+- Presto Facebook version 0.185
+- Presto Teradata distribution versions 0.167, 0.179
 
 """
 

@@ -38,6 +38,11 @@ See also:
 
 Thresholds apply to the minimum number of Presto worker nodes to expect
 
+Tested on:
+
+- Presto Facebook version 0.185
+- Presto Teradata distribution versions 0.167, 0.179
+
 """
 
 from __future__ import absolute_import
