@@ -27,6 +27,9 @@ doesn't expose this summary information anywhere that I can see (please let me k
 changes), but this plugin still completes in 500-700ms in my tests. Significant query history may cause this plugin
 to take longer to return, so watch the graph on query time from the perfdata that is output
 
+Will get a '404 Not Found' if you try to run it against a Presto Worker as this information
+is only available via the Presto Coordinator API
+
 Tested on Presto Teradata Distribution 0.179
 
 """
