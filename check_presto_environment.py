@@ -17,7 +17,9 @@
 
 """
 
-Nagios Plugin to check the configured environment of a Presto SQL node
+Nagios Plugin to check the configured environment of a Presto SQL node via the API
+
+Works on both Presto Coordinator and Worker APIs
 
 """
 
