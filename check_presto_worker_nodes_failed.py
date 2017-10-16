@@ -73,7 +73,7 @@ class CheckPrestoWorkerNodesFailed(RestNagiosPlugin):
         if not isList(json_data):
             raise UnknownError('non-list returned by Presto for nodes failed. {0}'.format(support_msg_api()))
         num_failed_nodes = len(json_data)
-        self.msg = 'Presto SQL {0} node{1} failed'.format(num_failed_nodes, plural(num_failed_nodes))
+        self.msg = 'Presto SQL {0} worker node{1} failed'.format(num_failed_nodes, plural(num_failed_nodes))
         self.check_thresholds(num_failed_nodes)
 
 
