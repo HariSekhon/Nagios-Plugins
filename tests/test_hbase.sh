@@ -61,7 +61,7 @@ EOF"
 EOF
 }
 
-startupwait 15
+startupwait 30
 
 test_hbase(){
     local version="$1"
@@ -282,7 +282,7 @@ EOF
 
 # ============================================================================ #
     hr
-    run ./check_hbase_write.py -T t1 -w 100 --precision 3
+    run ./check_hbase_write.py -T t1 -w 300 --precision 3
     hr
     run_conn_refused ./check_hbase_write.py -T t1 -w 100 --precision 3
     hr
@@ -401,12 +401,11 @@ EOF
     # This doesn't work because the port still responds as open, even when the mapped port is down
     # must be a result of docker networking
     #when_ports_down 20  "$HBASE_HOST" "$HBASE_REGIONSERVER_PORT"
-    i=20
-    max_iterations=20
+    SECONDS=0
+    max_kill_time=20
     while docker exec "$DOCKER_CONTAINER" ps -ef | grep -q RegionServer; do
-        let i+=1
-        if [ $max_iterations -gt $max_iterations ]; then
-            echo "RegionServer process did not go down after $max_iterations secs!"
+        if [ $SECONDS -gt $max_kill_time ]; then
+            echo "RegionServer process did not go down after $max_kill_time secs!"
             exit 1
         fi
         echo "waiting for RegionServer process to go down"
@@ -426,9 +425,10 @@ EOF
     hr
 # ============================================================================ #
     echo "Thrift API checks will hang so these python plugins will self timeout with UNKNOWN when the sole RegionServer is down"
-    run_fail 3 ./check_hbase_table.py -T t1 -t 5
+    # looks like this is cached and succeeds in 0.96 / 0.98
+    run_fail "0 3" ./check_hbase_table.py -T t1 -t 5
     hr
-    run_fail 3 ./check_hbase_table_enabled.py -T t1 -t 5
+    run_fail "0 3" ./check_hbase_table_enabled.py -T t1 -t 5
     hr
     run_fail 3 ./check_hbase_table_regions.py -T DisabledTable -t 5
     hr
