@@ -89,13 +89,15 @@ else
     hr
     run_fail "0 2" $perl -T check_ambari_cluster_kerberized.pl
     hr
-    run_fail "0 1 2" $perl -T check_ambari_cluster_service_config_compatible.pl
+    run_fail "0 2" $perl -T check_ambari_cluster_service_config_compatible.pl
     hr
-    run_fail "0 1 2" $perl -T check_ambari_cluster_total_hosts.pl
+    run_fail 0 $perl -T check_ambari_cluster_total_hosts.pl
     hr
-    run_fail "0 1 2" $perl -T check_ambari_cluster_version.pl
+    run_fail 0 $perl -T check_ambari_cluster_version.pl
     hr
-    run_fail "0 1 2" $perl -T check_ambari_config_stale.pl
+    run_fail 2 $perl -T check_ambari_cluster_version.pl --expected 'fail-version'
+    hr
+    run_fail "0 1" $perl -T check_ambari_config_stale.pl
     hr
     run_fail "0 1 2" $perl -T check_ambari_nodes.pl
     hr
