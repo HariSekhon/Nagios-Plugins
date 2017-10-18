@@ -91,9 +91,9 @@ else
     hr
     run_fail "0 2" $perl -T check_ambari_cluster_service_config_compatible.pl
     hr
-    run_fail 0 $perl -T check_ambari_cluster_total_hosts.pl
+    run $perl -T check_ambari_cluster_total_hosts.pl
     hr
-    run_fail 0 $perl -T check_ambari_cluster_version.pl
+    run $perl -T check_ambari_cluster_version.pl
     hr
     run_fail 2 $perl -T check_ambari_cluster_version.pl --expected 'fail-version'
     hr
