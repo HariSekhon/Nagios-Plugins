@@ -60,6 +60,8 @@ run_fail 3 ./check_travis_ci_last_build.py -r harisekhon/ -v
 hr
 run_fail 3 ./check_travis_ci_last_build.py -r /nagios-plugins -v
 hr
+run_fail 3 ./check_travis_ci_last_build.py -r tools -v
+hr
 echo "checking nonexistent repo:"
 run_fail 3 ./check_travis_ci_last_build.py -r nonexistent/repo -v
 hr
