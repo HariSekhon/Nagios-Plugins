@@ -21,7 +21,7 @@ See also: check_yum.py (the original, also part of the Advanced Nagios Plugins C
 Tested on CentOS 5 / 6 / 7
 ";
 
-$VERSION = "0.4.0";
+$VERSION = "0.5.0";
 
 use strict;
 use warnings;
@@ -34,6 +34,10 @@ use HariSekhonUtils;
 set_timeout_max(3600);
 
 my $YUM = "/usr/bin/yum";
+
+# workaround to avoid foreign locale parsing, from:
+# https://github.com/HariSekhon/nagios-plugins/issues/155
+$ENV{"LANG"} = "en_US";
 
 my $all_updates;
 my $warn_on_any_update;
