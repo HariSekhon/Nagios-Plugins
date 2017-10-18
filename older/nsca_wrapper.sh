@@ -223,7 +223,7 @@ which ${cmd%% *} >/dev/null 2>&1 || die "Command not found: ${cmd%% *}"
 output="`$cmd 2>&1`"
 result=$?
 [ "$quiet_mode" = "true" ] || echo "$output"
-output="`echo $output | sed 's/%/%%/g'`"
+output="`echo "$output" | sed 's/%/%%/g'`"
 
 if [ "$local_passive" = "true" ]; then
     nagios_result="PROCESS_SERVICE_CHECK_RESULT;$host;$service;$result;$output"
