@@ -102,6 +102,8 @@ else
     hr
     run $perl -T check_cloudera_manager_cluster_version.pl
     hr
+    run_fail 2 $perl -T check_cloudera_manager_cluster_version.pl --expected 'fail-version'
+    hr
     echo
 
     # ============================================================================ #
