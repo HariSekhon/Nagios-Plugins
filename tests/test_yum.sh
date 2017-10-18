@@ -23,9 +23,11 @@ cd "$srcdir/..";
 
 #[ `uname -s` = "Linux" ] || exit 0
 
-# XXX: NO LONGER USED, DONE AS PART OF LINUX CHECKS NOW
-return 0 &>/dev/null || :
-exit 0
+if [ -z "${FORCE_YUM_CHECKS:-}" ]; then
+    # XXX: NO LONGER USED, DONE AS PART OF LINUX CHECKS NOW
+    return 0 &>/dev/null || :
+    exit 0
+fi
 
 section "Y u m"
 
