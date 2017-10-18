@@ -31,23 +31,104 @@ PRESTO_HOST="${DOCKER_HOST:-${PRESTO_HOST:-${HOST:-localhost}}}"
 PRESTO_HOST="${PRESTO_HOST##*/}"
 PRESTO_HOST="${PRESTO_HOST%%:*}"
 export PRESTO_HOST
+export PRESTO_WORKER_HOST="$PRESTO_HOST"
 
 export PRESTO_PORT_DEFAULT=8080
-export PRESTO_PORT="$PRESTO_PORT_DEFAULT"
+export PRESTO_PORT="${PRESTO_PORT:-$PRESTO_PORT_DEFAULT}"
+# only for docker change default port
 export PRESTO_WORKER_PORT_DEFAULT=8081
-export PRESTO_WORKER_PORT="$PRESTO_WORKER_PORT_DEFAULT"
+export PRESTO_WORKER_PORT="${PRESTO_WORKER_PORT:-$PRESTO_PORT}"
 
-check_docker_available
+export PRESTO_ENVIRONMENT="${PRESTO_ENVIRONMENT:-development}"
+
+if [ -z "${NODOCKER:-}" ]; then
+    check_docker_available
+fi
 
 trap_debug_env presto
 
 startupwait 30
 
-test_presto(){
+presto_worker_tests(){
+    if ! [ "$PRESTO_HOST" != "$PRESTO_WORKER_HOST" -o "$PRESTO_PORT" != "$PRESTO_WORKER_PORT" ]; then
+        echo "Presto worker is not a separate host, skipping Presto Worker only checks"
+        return 0
+    fi
+    echo "Now starting Presto Worker tests:"
+    when_url_content "http://$PRESTO_HOST:$PRESTO_WORKER_PORT/v1/service/general/presto" environment # or "services" which is blank on worker
+    hr
+    # this info is not available via the Presto worker API
+    run_fail 3 ./check_presto_version.py --expected "$version(-t.\d+.\d+)?" -P "$PRESTO_WORKER_PORT"
+    hr
+    run_fail 2 ./check_presto_coordinator.py -P "$PRESTO_WORKER_PORT"
+    hr
+    run ./check_presto_environment.py -P "$PRESTO_WORKER_PORT"
+    hr
+    run ./check_presto_environment.py --expected development -P "$PRESTO_WORKER_PORT"
+    hr
+    run ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
+    hr
+    # doesn't show up as registered for a while, so run this test last and iterate for a little while
+    max_node_up_wait=20
+    echo "allowing to $max_node_up_wait secs for worker to be detected as online by the Presto Coordinator:"
+    retry $max_node_up_wait ./check_presto_num_worker_nodes.py -w 1
+    run++
+    hr
+    run_fail 3 ./check_presto_worker_node.py --list-nodes
+    hr
+    set +o pipefail
+    worker_node="$(./check_presto_worker_node.py --list-nodes | tail -n 1)"
+    set -o pipefail
+    echo "determined presto worker from live running config = '$worker_node'"
+    hr
+    echo "lastResponseTime field is not immediately initialized in node data on coordinator, retrying for 10 secs to give node lastResponseTime a chance to be populated"
+    retry 10 ./check_presto_worker_node.py --node "$worker_node"
+    run++
+    hr
+    # strip https?:// leaving host:port
+    worker_node="${worker_node/*\/}"
+    run ./check_presto_worker_node.py --node "$worker_node"
+    hr
+    # strip :port leaving just host
+    worker_node="${worker_node%:*}"
+    run ./check_presto_worker_node.py --node "$worker_node"
+    hr
+    run_fail 2 ./check_presto_worker_node.py --node "nonexistentnode2"
+    hr
+    echo "retrying worker nodes failed as this doesn't settle immediately after node addition:"
+    retry 10 ./check_presto_worker_nodes_failed.py
+    run++
+    hr
+    # will get a 404 Not Found against worker API
+    run_fail 2 ./check_presto_worker_nodes_failed.py -P "$PRESTO_WORKER_PORT"
+    hr
+    # will get a 404 Not Found against worker API
+    run_fail 2 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+    hr
+    # will get a 404 Not Found against worker API
+    run_fail 2 ./check_presto_num_worker_nodes.py -w 1 -P "$PRESTO_WORKER_PORT"
+    hr
+    run ./check_presto_worker_nodes_response_lag.py
+    hr
+    # will get a 404 Not Found against worker API
+    run_fail 2 ./check_presto_worker_nodes_response_lag.py -P "$PRESTO_WORKER_PORT"
+    hr
+    run ./check_presto_worker_nodes_recent_failure_ratio.py
+    hr
+    # will get a 404 Not Found against worker API
+    run_fail 2 ./check_presto_worker_nodes_recent_failure_ratio.py -P "$PRESTO_WORKER_PORT"
+    hr
+    run ./check_presto_worker_nodes_recent_failures.py
+    hr
+    # will get a 404 Not Found against worker API
+    run_fail 2 ./check_presto_worker_nodes_recent_failures.py -P "$PRESTO_WORKER_PORT"
+}
+
+test_presto2(){
     local version="$1"
     run_count=0
-    DOCKER_CONTAINER="${DOCKER_CONTAINER:-nagiosplugins_${DOCKER_SERVICE}_1}"
     if [ -z "${NODOCKER:-}" ]; then
+        DOCKER_CONTAINER="${DOCKER_CONTAINER:-$DOCKER_CONTAINER}"
         section2 "Setting up Presto $version test container"
         if is_CI; then
             VERSION="$version" docker-compose pull $docker_compose_quiet
@@ -59,15 +140,15 @@ test_presto(){
         printf "Presto Coordinator port => "
         export PRESTO_PORT="`docker-compose port "$DOCKER_SERVICE" "$PRESTO_PORT_DEFAULT" | sed 's/.*://'`"
         echo "$PRESTO_PORT"
-        hr
-        when_ports_available "$PRESTO_HOST" "$PRESTO_PORT"
-        hr
-        # endpoint initializes blank, wait until there is some content, eg. nodeId
-        # don't just run ./check_presto_state.py
-        when_url_content "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" nodeId
-        hr
     fi
-    if [ "$version" = "latest" ]; then
+    hr
+    when_ports_available "$PRESTO_HOST" "$PRESTO_PORT"
+    hr
+    # endpoint initializes blank, wait until there is some content, eg. nodeId
+    # don't just run ./check_presto_state.py
+    when_url_content "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" nodeId
+    hr
+    if [ "$version" = "latest" -o "$version" = "NODOCKER" ]; then
         version=".*"
     fi
     hr
@@ -84,9 +165,9 @@ test_presto(){
     hr
     run ./check_presto_environment.py
     hr
-    run ./check_presto_environment.py --expected development
+    run ./check_presto_environment.py --expected "$PRESTO_ENVIRONMENT"
     hr
-    run_conn_refused ./check_presto_environment.py --expected development
+    run_conn_refused ./check_presto_environment.py --expected "$PRESTO_ENVIRONMENT"
     hr
     run ./check_presto_worker_nodes_failed.py
     hr
@@ -119,6 +200,8 @@ test_presto(){
     run_conn_refused ./check_presto_worker_nodes_recent_failures.py
     hr
     if [ -n "${NODOCKER:-}" ]; then
+        presto_worker_tests
+        hr
         echo "External Presto, skipping worker setup + teardown checks..."
         echo
         echo "Completed $run_count Presto tests"
@@ -155,32 +238,15 @@ EOF
     export PRESTO_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$PRESTO_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$PRESTO_WORKER_PORT"
     hr
-    when_url_content "http://$PRESTO_HOST:$PRESTO_WORKER_PORT/v1/service/general/presto" environment # or "services" which is blank on worker
-    hr
-    # this info is not available via the Presto worker API
-    run_fail 3 ./check_presto_version.py --expected "$version(-t.\d+.\d+)?" -P "$PRESTO_WORKER_PORT"
-    hr
-    run_fail 2 ./check_presto_coordinator.py -P "$PRESTO_WORKER_PORT"
-    hr
-    run ./check_presto_environment.py -P "$PRESTO_WORKER_PORT"
-    hr
-    run ./check_presto_environment.py --expected development -P "$PRESTO_WORKER_PORT"
-    hr
-    run ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
+    presto_worker_tests
     hr
     echo "finding presto docker container IP for specific node registered checks:"
     # hostname command not installed
-    #hostname="$(docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" hostname -f)"
+    #hostname="$(docker exec -i "$DOCKER_CONTAINER" hostname -f)"
     # registering IP not hostname
-    #hostname="$(docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" tail -n1 /etc/hosts | awk '{print $2}')"
-    ip="$(docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" tail -n1 /etc/hosts | awk '{print $1}')"
+    #hostname="$(docker exec -i "$DOCKER_CONTAINER" tail -n1 /etc/hosts | awk '{print $2}')"
+    ip="$(docker exec -i "$DOCKER_CONTAINER" tail -n1 /etc/hosts | awk '{print $1}')"
     echo "determined presto container IP = '$ip'"
-    hr
-    # doesn't show up as registered for a while, so run this test last and iterate for a little while
-    max_node_up_wait=20
-    echo "allowing to $max_node_up_wait secs for worker to be detected as online by the Presto Coordinator:"
-    retry $max_node_up_wait ./check_presto_num_worker_nodes.py -w 1
-    run++
     hr
     echo "lastResponseTime field is not immediately initialized in node data on coordinator, retrying for 10 secs to give node lastResponseTime a chance to be populated"
     retry 10 ./check_presto_worker_node.py --node "http://$ip:$PRESTO_WORKER_PORT_DEFAULT"
@@ -189,36 +255,6 @@ EOF
     run ./check_presto_worker_node.py --node "$ip:$PRESTO_WORKER_PORT_DEFAULT"
     hr
     run ./check_presto_worker_node.py --node "$ip"
-    hr
-    run_fail 2 ./check_presto_worker_node.py --node "nonexistentnode2"
-    hr
-    echo "retrying worker nodes failed as this doesn't settle immediately after node addition:"
-    retry 10 ./check_presto_worker_nodes_failed.py
-    run++
-    hr
-    # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_worker_nodes_failed.py -P "$PRESTO_WORKER_PORT"
-    hr
-    # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
-    hr
-    # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_num_worker_nodes.py -w 1 -P "$PRESTO_WORKER_PORT"
-    hr
-    run ./check_presto_worker_nodes_response_lag.py
-    hr
-    # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_worker_nodes_response_lag.py -P "$PRESTO_WORKER_PORT"
-    hr
-    run ./check_presto_worker_nodes_recent_failure_ratio.py
-    hr
-    # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_worker_nodes_recent_failure_ratio.py -P "$PRESTO_WORKER_PORT"
-    hr
-    run ./check_presto_worker_nodes_recent_failures.py
-    hr
-    # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_worker_nodes_recent_failures.py -P "$PRESTO_WORKER_PORT"
     hr
     echo "Now killing Presto Worker:"
     # Presto Worker runs the same com.facebook.presto.server.PrestoServer class with a different node id
@@ -291,51 +327,31 @@ EOF
     echo
 }
 
-if [ -n "${*:-}" ]; then
-    presto_start_time="$(start_timer "Presto versions tests")"
-    for version in $*; do
-        teradata_distribution=0
-        if [ "$version" = "latest" ]; then
-            echo "Testing Facebook's latest presto release before Teradata's latest distribution:"
-            COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto latest
-            # must call this manually as not using standard run_test_versions() function here which normally adds this
-            let total_run_count+=$run_count
-            echo
-            hr
-            teradata_distribution=1
-        else
-            for teradata_version in $PRESTO_TERADATA_VERSIONS; do
-                if [ "$version" = "$teradata_version" ]; then
-                    teradata_distribution=1
-                    break
-                fi
-            done
-        fi
-        if [ "$teradata_distribution" = "1" ]; then
-            echo "Testing Teradata's Presto distribution '$version':"
-            COMPOSE_FILE="$srcdir/docker/presto-docker-compose.yml" test_presto "$1"
-        else
-            echo "Testing Facebook's Presto release '$version':"
-            COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto "$1"
-        fi
-        # must call this manually as not using standard run_test_versions() function here which normally adds this
-        let total_run_count+=$run_count
-    done
-    untrap
-    echo "All Presto tests succeeded for versions: $@"
-    echo
-    echo "Total Tests run: $total_run_count"
-    time_taken "$presto_start_time" "All Presto version tests completed in"
-else
-    echo "Testing Facebook's latest presto release before Teradata distribution version(s):"
-    presto_start_time="$(start_timer "Presto Facebook latest release test")"
-    COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto latest
-    # must call this manually as not using standard run_test_versions() function here which normally adds this
-    let total_run_count+=$run_count
-    time_taken "$presto_start_time" "Presto Facebook latest release test completed in"
-    echo
-    hr
-    echo
-    echo "Now testing Teradata's distribution:"
-    COMPOSE_FILE="$srcdir/docker/presto-docker-compose.yml" run_test_versions Presto
+if [ -n "${NODOCKER:-}" ]; then
+    PRESTO_VERSIONS="NODOCKER"
 fi
+
+test_presto(){
+    version="$1"
+    teradata_distribution=0
+    for teradata_version in $PRESTO_TERADATA_VERSIONS; do
+        if [ "$version" = "$teradata_version" ]; then
+            teradata_distribution=1
+            break
+        fi
+    done
+    if [ "$teradata_distribution" = "1" ]; then
+        echo "Testing Teradata's Presto distribution version:  '$version'"
+        COMPOSE_FILE="$srcdir/docker/presto-docker-compose.yml" test_presto2 "$1"
+        # must call this manually here as we're sneaking in an extra batch of tests that run_test_versions is generally not aware of
+        let total_run_count+=$run_count
+    fi
+    if [ -n "${NODOCKER:-}" ]; then
+        echo "Testing External Presto:"
+    else
+        echo "Testing Facebook's Presto release version:  '$version'"
+    fi
+    COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto2 "$1"
+}
+
+run_test_versions Presto
