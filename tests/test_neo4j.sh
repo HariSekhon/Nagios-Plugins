@@ -101,6 +101,8 @@ test_neo4j_main(){
     fi
     run $perl -T ./check_neo4j_version.pl -v -e "^$version"
     hr
+    run_fail 2 $perl -T ./check_neo4j_version.pl -v -e 'fail-version'
+    hr
     run $perl -T ./check_neo4j_readonly.pl -v
     hr
     # TODO: SSL checks
