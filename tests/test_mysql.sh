@@ -73,19 +73,10 @@ test_db(){
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d
-    local docker_container="$(docker-compose ps | sed -n '3s/ .*//p')"
-    echo "determined docker container to be '$docker_container'"
+    #local docker_container="$(docker-compose ps | sed -n '3s/ .*//p')"
+    #echo "determined docker container to be '$docker_container'"
     echo "getting $name dynamic port mapping:"
-    echo -n "$name port => "
-    #for i in {1..10}; do
-        # MariaDB 5.5 container is slow to map this port
-        export MYSQL_PORT="`docker port "$docker_container" "$MYSQL_PORT_DEFAULT" | sed 's/.*://'`"
-    #    if [ -n "${MYSQL_PORT:-}" ]; then
-    #        break
-    #    fi
-    #    sleep 1
-    #done
-    echo "$MYSQL_PORT"
+    docker_compose_port MYSQL_PORT "$name"
     hr
     when_ports_available "$MYSQL_HOST" $MYSQL_PORT
     hr
@@ -99,7 +90,7 @@ test_db(){
     echo "finding my.cnf location"
     set +o pipefail
     MYSQL_CONFIG_FILE="my.cnf"
-    my_cnf="$(docker exec -ti "$docker_container" find /etc -type f -name my.cnf -o -name mysqld.cnf | head -n1 | tr -d '\r')"
+    my_cnf="$(docker exec -ti "$DOCKER_CONTAINER" find /etc -type f -name my.cnf -o -name mysqld.cnf | head -n1 | tr -d '\r')"
     set -o pipefail
     echo "determined my.cnf location to be $my_cnf"
     #if [ "$version" = "latest" ] || [ "${version%%.*}" -gt 5 ]; then
@@ -113,10 +104,18 @@ test_db(){
     # must require newer version of docker?
     #docker cp -L "$docker_container":"$MYSQL_CONFIG_PATH/$MYSQL_CONFIG_FILE" /tmp
     # doesn't let you specify a file path only dir otherwise gives annoying and inflexible error "not a directory"
-    docker cp "$docker_container":"$my_cnf" "/tmp/"
+    docker cp "$DOCKER_CONTAINER":"$my_cnf" "/tmp/"
     echo "copied to docker:$my_cnf => /tmp"
     if [ "/tmp/${my_cnf##*/}" != "/tmp/$MYSQL_CONFIG_FILE" ]; then
         mv -vf "/tmp/${my_cnf##*/}" "/tmp/$MYSQL_CONFIG_FILE"
+    fi
+    if docker cp "$DOCKER_CONTAINER":/etc/mysql/conf.d/ /tmp/; then
+        echo "Found /etc/mysql/conf.d/, catting config to -> /tmp/$MYSQL_CONFIG_FILE"
+        cat /tmp/conf.d/* >> "/tmp/$MYSQL_CONFIG_FILE"
+    fi
+    if docker cp "$DOCKER_CONTAINER":/etc/mysql/mysql.conf.d/ /tmp/; then
+        echo "Found /etc/mysql/mysql.conf.d/, catting config to -> /tmp/$MYSQL_CONFIG_FILE"
+        cat /tmp/mysql.conf.d/* >> "/tmp/$MYSQL_CONFIG_FILE"
     fi
     hr
     extra_opt=""
