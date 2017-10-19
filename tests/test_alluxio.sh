@@ -47,8 +47,8 @@ test_alluxio(){
     fi
     VERSION="$version" docker-compose up -d
     echo "getting Alluxio dynamic port mappings:"
-    docker_compose_port ALLUXIO_MASTER_PORT "Alluxio Master"
-    docker_compose_port ALLUXIO_WORKER_PORT "Alluxio Worker"
+    docker_compose_port "Alluxio Master"
+    docker_compose_port "Alluxio Worker"
     hr
     when_ports_available "$ALLUXIO_HOST" "$ALLUXIO_MASTER_PORT" "$ALLUXIO_WORKER_PORT"
     hr
