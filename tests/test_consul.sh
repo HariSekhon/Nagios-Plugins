@@ -54,9 +54,7 @@ test_consul(){
     fi
     VERSION="$version" docker-compose up -d
     echo "getting Consul dynamic port mapping:"
-    printf "Consul port => "
-    export CONSUL_PORT="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$CONSUL_PORT"
+    docker_compose_port "Consul"
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
@@ -92,14 +90,14 @@ test_consul(){
     local expected_version="$version"
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
-        local version="$(dockerhub_latest_version consul)"
-        echo "expecting version '$version'"
+        local expected_version="$(dockerhub_latest_version consul)"
+        echo "expecting version '$expected_version'"
     fi
     set +e
     found_version=$(docker-compose exec "$DOCKER_SERVICE" consul version | tr -d '\r' | head -n1 | tee /dev/stderr | sed 's/.*v//')
     set -e
     if [[ "$found_version" != $expected_version* ]]; then
-        echo "Docker container version does not match expected version! (found '$found_version', expected '$version')"
+        echo "Docker container version does not match expected version! (found '$found_version', expected '$expected_version')"
         exit 1
     fi
     hr
