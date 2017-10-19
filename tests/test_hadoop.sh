@@ -69,8 +69,8 @@ test_hadoop(){
     echo "getting Hadoop dynamic port mappings:"
     docker_compose_port HADOOP_NAMENODE_PORT "HDFS NN"
     docker_compose_port HADOOP_DATANODE_PORT "HDFS DN"
-    docker_compose_port HADOOP_YARN_RESOURCE_MANAGER_PORT "HDFS RM"
-    docker_compose_port HADOOP_YARN_NODE_MANAGER_PORT "HDFS NM"
+    docker_compose_port HADOOP_YARN_RESOURCE_MANAGER_PORT "Yarn RM"
+    docker_compose_port HADOOP_YARN_NODE_MANAGER_PORT "Yarn NM"
     export HADOOP_PORTS="$HADOOP_NAMENODE_PORT $HADOOP_DATANODE_PORT $HADOOP_YARN_RESOURCE_MANAGER_PORT $HADOOP_YARN_NODE_MANAGER_PORT"
     hr
     when_ports_available "$HADOOP_HOST" $HADOOP_PORTS
