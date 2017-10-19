@@ -52,9 +52,7 @@ test_zookeeper(){
     fi
     VERSION="$version" docker-compose up -d
     echo "getting ZooKeeper dynammic port mapping:"
-    printf "ZooKeeper port => "
-    export ZOOKEEPER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$ZOOKEEPER_PORT"
+    docker_compose_port "ZooKeeper"
     hr
     when_ports_available "$ZOOKEEPER_HOST" "$ZOOKEEPER_PORT"
     if [ -n "${NOTESTS:-}" ]; then
@@ -62,7 +60,9 @@ test_zookeeper(){
     fi
     expected_version="$version"
     if [ "$expected_version" = "latest" ]; then
-        expected_version=".*"
+        echo "latest version, fetching latest version from DockerHub master branch"
+        local expected_version="$(dockerhub_latest_version zookeeper-dev)"
+        echo "expecting version '$expected_version'"
     fi
     hr
     run ./check_zookeeper_version.py -e "$expected_version"
