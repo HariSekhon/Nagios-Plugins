@@ -69,7 +69,7 @@ test_solr(){
     echo "Setup done, starting checks ..."
     if [[ "$version" = "latest" || ${version:0:1} > 3 ]]; then
         if [ "$version" = "latest" ]; then
-            local version=".*"
+            local version="$(dockerhub_latest_version solr)"
         fi
         # 4.x+
         hr
