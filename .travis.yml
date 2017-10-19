@@ -34,6 +34,7 @@ notifications:
 branches:
   only:
     - master
+
 env:
   - DOCKER_COMPOSE_VERSION=1.16.1 PYTHONUNBUFFERED=1
 
