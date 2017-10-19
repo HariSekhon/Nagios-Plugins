@@ -61,7 +61,9 @@ test_tachyon(){
     fi
     when_ports_available "$TACHYON_HOST" "$TACHYON_MASTER_PORT" "$TACHYON_WORKER_PORT"
     if [ "$version" = "latest" ]; then
-        local version=".*"
+        echo "latest version, fetching latest version from DockerHub master branch"
+        local version="$(dockerhub_latest_version tachyon)"
+        echo "expecting version '$version'"
     fi
     hr
     echo "retrying for $startupwait secs to give Tachyon time to initialize"
