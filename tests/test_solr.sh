@@ -49,9 +49,7 @@ test_solr(){
     fi
     VERSION="$version" docker-compose up -d
     echo "getting Solr dynamic port mapping:"
-    printf "getting Solr HTTP port => "
-    export SOLR_PORT="`docker-compose port "$DOCKER_SERVICE" "$SOLR_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$SOLR_PORT"
+    docker_compose_port SOLR_PORT "Solr HTTP"
     hr
     when_ports_available $SOLR_HOST $SOLR_PORT
     hr
