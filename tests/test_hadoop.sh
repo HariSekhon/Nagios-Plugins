@@ -67,19 +67,10 @@ test_hadoop(){
     fi
     VERSION="$version" docker-compose up -d
     echo "getting Hadoop dynamic port mappings:"
-    printf "getting HDFS NN port => "
-    export HADOOP_NAMENODE_PORT="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_NAMENODE_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$HADOOP_NAMENODE_PORT"
-    printf "getting HDFS DN port => "
-    export HADOOP_DATANODE_PORT="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_DATANODE_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$HADOOP_DATANODE_PORT"
-    printf  "getting Yarn RM port => "
-    export HADOOP_YARN_RESOURCE_MANAGER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_YARN_RESOURCE_MANAGER_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$HADOOP_YARN_RESOURCE_MANAGER_PORT"
-    printf "getting Yarn NM port => "
-    export HADOOP_YARN_NODE_MANAGER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HADOOP_YARN_NODE_MANAGER_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$HADOOP_YARN_NODE_MANAGER_PORT"
-    #local hadoop_ports=`{ for x in $HADOOP_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://'`
+    docker_compose_port HADOOP_NAMENODE_PORT "HDFS NN"
+    docker_compose_port HADOOP_DATANODE_PORT "HDFS DN"
+    docker_compose_port HADOOP_YARN_RESOURCE_MANAGER_PORT "HDFS RM"
+    docker_compose_port HADOOP_YARN_NODE_MANAGER_PORT "HDFS NM"
     export HADOOP_PORTS="$HADOOP_NAMENODE_PORT $HADOOP_DATANODE_PORT $HADOOP_YARN_RESOURCE_MANAGER_PORT $HADOOP_YARN_NODE_MANAGER_PORT"
     hr
     when_ports_available "$HADOOP_HOST" $HADOOP_PORTS
