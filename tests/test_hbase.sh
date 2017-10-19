@@ -79,23 +79,12 @@ test_hbase(){
         local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
     fi
     echo "getting HBase dynamic port mappings:"
-    printf "getting HBase Master port       => "
-    export HBASE_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$HBASE_MASTER_PORT"
-    printf "getting HBase RegionServer port => "
-    export HBASE_REGIONSERVER_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_REGIONSERVER_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$HBASE_REGIONSERVER_PORT"
-    printf "getting HBase Stargate port     => "
-    export HBASE_STARGATE_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_STARGATE_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$HBASE_STARGATE_PORT"
-    printf "getting HBase Thrift port       => "
-    export HBASE_THRIFT_PORT="`docker-compose port "$DOCKER_SERVICE" "$HBASE_THRIFT_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$HBASE_THRIFT_PORT"
-    printf "getting HBase ZooKeeper port    => "
-    export ZOOKEEPER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ZOOKEEPER_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$ZOOKEEPER_PORT"
-    #local export HBASE_PORTS=`{ for x in $HBASE_PORTS; do docker-compose port "$DOCKER_SERVICE" "$x"; done; } | sed 's/.*://' | sort -n`
-    export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT $ZOOKEEPER_PORT"
+    docker_compose_port HBASE_MASTER_PORT "HBase Master"
+    docker_compose_port HBASE_REGIONSERVER_PORT "HBase RegionServer"
+    docker_compose_port HBASE_STARGATE_PORT "HBase Stargate"
+    docker_compose_port HBASE_THRIFT_PORT "HBase Thrift"
+    #docker_compose_port ZOOKEEPER_PORT "HBase ZooKeeper"
+    export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT"
     hr
     when_ports_available "$HBASE_HOST" $HBASE_PORTS
     hr
