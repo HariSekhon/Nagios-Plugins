@@ -152,9 +152,6 @@ test_consul(){
     VERSION="$version" docker-compose up -d
     export CONSUL_PORT="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT_DEFAULT" | sed 's/.*://'`"
     hr
-    if [ "$version" = "latest" ]; then
-        local expected_version=".*"
-    fi
     #docker exec -i "$DOCKER_CONTAINER-dev" "$MNTDIR/check_consul_version.py" -e "$expected_version"
     docker_exec "check_consul_version.py" -e "$expected_version"
     hr
