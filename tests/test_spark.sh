@@ -68,7 +68,9 @@ test_spark(){
         exit 0
     fi
     if [ "$version" = "latest" ]; then
-        local version=".*"
+        echo "latest version, fetching latest version from DockerHub master branch"
+        local version="$(dockerhub_latest_version spark)"
+        echo "expecting version '$version'"
     fi
     hr
     run ./check_spark_master_version.py -e "$version"
