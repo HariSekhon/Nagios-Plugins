@@ -1,6 +1,7 @@
 *.pyc
 *.log
 find_active_*.py
+tests/bin/rabbitmqadmin
 zookeeper-*.tar.gz
 zookeeper-*/
 .sonar/
