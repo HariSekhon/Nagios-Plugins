@@ -79,10 +79,10 @@ test_hbase(){
         local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
     fi
     echo "getting HBase dynamic port mappings:"
-    docker_compose_port HBASE_MASTER_PORT "HBase Master"
-    docker_compose_port HBASE_REGIONSERVER_PORT "HBase RegionServer"
-    docker_compose_port HBASE_STARGATE_PORT "HBase Stargate"
-    docker_compose_port HBASE_THRIFT_PORT "HBase Thrift"
+    docker_compose_port "HBase Master"
+    docker_compose_port "HBase RegionServer"
+    docker_compose_port "HBase Stargate"
+    docker_compose_port "HBase Thrift"
     #docker_compose_port ZOOKEEPER_PORT "HBase ZooKeeper"
     export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT"
     hr
