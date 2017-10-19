@@ -137,9 +137,7 @@ test_presto2(){
         VERSION="$version" docker-compose down || :
         VERSION="$version" docker-compose up -d
         echo "getting Presto dynamic port mapping:"
-        printf "Presto Coordinator port => "
-        export PRESTO_PORT="`docker-compose port "$DOCKER_SERVICE" "$PRESTO_PORT_DEFAULT" | sed 's/.*://'`"
-        echo "$PRESTO_PORT"
+        docker_compose_port PRESTO_PORT "Presto Coordinator"
     fi
     hr
     when_ports_available "$PRESTO_HOST" "$PRESTO_PORT"
@@ -149,7 +147,14 @@ test_presto2(){
     when_url_content "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" nodeId
     hr
     if [ "$version" = "latest" -o "$version" = "NODOCKER" ]; then
-        version=".*"
+        if [ "$teradata_distribution" = 1 ]; then
+            echo "latest version, fetching latest version from DockerHub master branch"
+            local version="$(dockerhub_latest_version presto)"
+        else
+            # don't want to have to pull presto versions script from Dockerfiles repo
+            local version=".*"
+        fi
+        echo "expecting version '$version'"
     fi
     hr
     # presto service not found in list of endpoints initially even after it's come up
@@ -234,9 +239,7 @@ test_presto2(){
 EOF
     hr
     echo "getting Presto Worker dynamic port mapping:"
-    printf "Presto Worker port => "
-    export PRESTO_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$PRESTO_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$PRESTO_WORKER_PORT"
+    docker_compose_port "Presto Worker"
     hr
     presto_worker_tests
     hr
@@ -344,6 +347,8 @@ test_presto(){
         COMPOSE_FILE="$srcdir/docker/presto-docker-compose.yml" test_presto2 "$1"
         # must call this manually here as we're sneaking in an extra batch of tests that run_test_versions is generally not aware of
         let total_run_count+=$run_count
+        # reset this so it can be used in test_presto to detect now testing Facebook
+        teradata_distribution=0
     fi
     if [ -n "${NODOCKER:-}" ]; then
         echo "Testing External Presto:"
