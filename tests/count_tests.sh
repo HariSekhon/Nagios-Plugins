@@ -24,6 +24,7 @@ total=$(egrep -Hn \
       -e '^[[:space:]]*run\+\+[[:space:]]*$' \
       -e '^[[:space:]]*docker_exec[[:space:]]' \
       tests/test_*.sh |
+      grep -v 'run docker exec' |
       tee /dev/stderr |
       wc -l)
 
