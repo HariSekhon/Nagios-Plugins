@@ -65,7 +65,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.3.1'
 
 
 class CheckRangerPolicy(RestNagiosPlugin):
@@ -223,7 +223,6 @@ class CheckRangerPolicy(RestNagiosPlugin):
         for col in cols:
             widths[col] = len(col)
         for _ in policy_list:
-            print(jsonpp(_))
             for col in cols:
                 if col == 'Description':
                     continue
