@@ -47,25 +47,14 @@ test_alluxio(){
     fi
     VERSION="$version" docker-compose up -d
     echo "getting Alluxio dynamic port mappings:"
-    printf "Alluxio Master port => "
-    export ALLUXIO_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$ALLUXIO_MASTER_PORT"
-    printf "Alluxio Worker port => "
-    export ALLUXIO_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$ALLUXIO_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$ALLUXIO_WORKER_PORT"
-    if [ -z "$ALLUXIO_MASTER_PORT" ]; then
-        echo "FAILED to get Alluxio Master port... did the container or Master process crash?"
-        exit 1
-    fi
-    if [ -z "$ALLUXIO_WORKER_PORT" ]; then
-        echo "FAILED to get Alluxio Worker port... did the container or Worker process crash?"
-        exit 1
-    fi
+    docker_compose_port ALLUXIO_MASTER_PORT "Alluxio Master"
+    docker_compose_port ALLUXIO_WORKER_PORT "Alluxio Worker"
+    hr
+    when_ports_available "$ALLUXIO_HOST" "$ALLUXIO_MASTER_PORT" "$ALLUXIO_WORKER_PORT"
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    when_ports_available "$ALLUXIO_HOST" "$ALLUXIO_MASTER_PORT" "$ALLUXIO_WORKER_PORT"
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
         local version="$(dockerhub_latest_version alluxio)"
