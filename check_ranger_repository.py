@@ -60,7 +60,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 class CheckRangerRepository(RestNagiosPlugin):
@@ -194,7 +194,6 @@ class CheckRangerRepository(RestNagiosPlugin):
         for col in cols:
             widths[col] = len(col)
         for _ in repository_list:
-            print(jsonpp(_))
             for col in cols:
                 if col == 'Description':
                     continue
