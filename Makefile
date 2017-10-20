@@ -256,6 +256,8 @@ yum-packages:
 	# to fetch and untar ZooKeeper, plus wget epel rpm
 	rpm -q wget || yum install -y wget
 	
+	# epel-release is in the list of rpms to install via yum in setup/rpm-packages.txt but this is a more backwards compatible method of installing that will work on older versions of RHEL / CentOS as well so is left here for compatibility purposes
+	#
 	# python-pip requires EPEL, so try to get the correct EPEL rpm
 	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
 	# must instead do wget 
