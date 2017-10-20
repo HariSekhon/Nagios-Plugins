@@ -66,24 +66,11 @@ test_tachyon(){
         echo "expecting version '$version'"
     fi
     hr
-    echo "retrying for $startupwait secs to give Tachyon time to initialize"
-    SECONDS=0
-    count=1
-    while true; do
-        echo "try $count: "
-        if ./check_tachyon_master_version.py -v -e "$version" -t 5 &&
-           ./check_tachyon_worker_version.py -v -e "$version" -t 5; then
-            echo "Tachyon Master & Worker up after $SECONDS secs, continuing with tests"
-            break
-        fi
-        # ! [] is better then [ -gt ] because if either variable breaks the test will fail correctly
-        if ! [ $SECONDS -le $startupwait ]; then
-            echo "FAIL: Tachyon did not start up within $startupwait secs"
-            exit 1
-        fi
-        let count+=1
-        sleep 1
-    done
+    echo "waiting on Tachyon Master to give Tachyon time to properly initialize:"
+    retry "$startupwait" 2 ./check_tachyon_master_version.py -v -e "$version" -t 2
+    hr
+    echo "expect Tachyon Worker to also be up by this point:"
+    retry 10 2 ./check_tachyon_worker_version.py -v -e "$version" -t 2
     hr
     run ./check_tachyon_master_version.py -v -e "$version"
     hr
