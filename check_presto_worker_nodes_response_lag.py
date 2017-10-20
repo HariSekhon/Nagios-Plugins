@@ -113,7 +113,7 @@ class CheckPrestoWorkersResponseLag(RestNagiosPlugin):
             else:
                 log.info("node '%s' last response age %d secs", node_item['uri'], response_age)
         num_nodes_lagging = len(nodes_lagging)
-        self.msg = 'Presto SQL worker nodes with response timestamps older than {0:d} secs = {1:d}'\
+        self.msg = 'Presto SQL - worker nodes with response timestamps older than {0:d} secs = {1:d}'\
                    .format(self.max_age, num_nodes_lagging)
         self.check_thresholds(num_nodes_lagging)
         self.msg += ' out of {0:d} nodes'.format(num_nodes)
