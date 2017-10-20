@@ -20,7 +20,7 @@
 Nagios Plugin to check the current number of Presto queries on a Presto Coordinator via its API
 
 Warning / Critical thresholds apply to the number of current queries and it also outputs
-graph perfdata of the number of querie and query time to retrieve this information
+graph perfdata of the number of queries and query time to retrieve this information
 
 This isn't super efficent as it must get the full query list and parse for non-completed states as the Presto API
 doesn't expose this summary information anywhere that I can see (please let me know and I'll write an update if this
