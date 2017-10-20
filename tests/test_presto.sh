@@ -157,10 +157,17 @@ test_presto2(){
         echo "expecting version '$version'"
     fi
     hr
-    # presto service not found in list of endpoints initially even after it's come up
-    run ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
-    hr
-    run_fail 2 ./check_presto_version.py --expected "fail-version"
+    # presto service not found in list of endpoints initially even after it's come up, hence reason for when_url_content test above
+    if [ -n "${NODOCKER:-}" ]; then
+        # custom compiled presto has a version like 'dc91f48' which results in UNKNOWN: Presto Coordinator version unrecognized 'dc91f48'
+        run_fail "0 3" ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
+        hr
+        run_fail "2 3" ./check_presto_version.py --expected "fail-version"
+    else
+        run ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
+        hr
+        run_fail 2 ./check_presto_version.py --expected "fail-version"
+    fi
     hr
     run_conn_refused ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
     hr
