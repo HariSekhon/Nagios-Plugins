@@ -113,7 +113,7 @@ class CheckPrestoWorkersFailures(RestNagiosPlugin):
                 log.info("node '%s' recent failures %f, but less than max failures threshold of %f",
                          node_item['uri'], recent_failures, self.max_failures)
         num_nodes_failing = len(nodes_failing)
-        self.msg = 'Presto SQL worker nodes with recent failures > {0:.2f} = {1:d}'\
+        self.msg = 'Presto SQL - worker nodes with recent failures > {0:.2f} = {1:d}'\
                    .format(self.max_failures, num_nodes_failing)
         self.msg += ' out of {0:d} nodes'.format(num_nodes)
         if num_nodes < 1:
