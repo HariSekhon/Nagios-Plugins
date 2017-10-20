@@ -23,6 +23,8 @@ Thresholds apply to the permitted number of worker nodes with recent failures ex
 
 In verbose mode outputs the list of worker nodes with recent failures > max failure threshold
 
+Will raise Warning if no presto worker nodes are found
+
 Will get a '404 Not Found' if you try to run it against a Presto Worker as this information
 is only available via the Presto Coordinator API
 

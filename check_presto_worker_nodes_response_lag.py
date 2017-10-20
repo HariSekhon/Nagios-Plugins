@@ -23,6 +23,8 @@ Thresholds apply to the permitted number of worker nodes exceeding --max-age
 
 Tests show workers usually respond to coordinator node every second even when there are no queries issued
 
+Will raise Warning if no presto worker nodes are found
+
 Will get a '404 Not Found' if you try to run it against a Presto Worker as this information
 is only available via the Presto Coordinator API
 
