@@ -57,7 +57,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckPrestoWorkersResponseLag(RestNagiosPlugin):
@@ -94,6 +94,7 @@ class CheckPrestoWorkersResponseLag(RestNagiosPlugin):
         nodes_lagging = []
         max_lag = 0
         re_protocol = re.compile('^https?://')
+        num_nodes = len(json_data)
         for node_item in json_data:
             last_response_time = node_item['lastResponseTime']
             last_response_datetime = datetime.strptime(last_response_time, '%Y-%m-%dT%H:%M:%S.%fZ')
@@ -113,6 +114,10 @@ class CheckPrestoWorkersResponseLag(RestNagiosPlugin):
         self.msg = 'Presto SQL worker nodes with response timestamps older than {0:d} secs = {1:d}'\
                    .format(self.max_age, num_nodes_lagging)
         self.check_thresholds(num_nodes_lagging)
+        self.msg += ' out of {0:d} nodes'.format(num_nodes)
+        if num_nodes < 1:
+            self.warning()
+            self.msg += ' (< 1 worker found)'
         self.msg += ', current max response age = {0:.2f} secs'.format(max_lag)
         if self.verbose and nodes_lagging:
             self.msg += ' [{0}]'.format(', '.join(nodes_lagging))
