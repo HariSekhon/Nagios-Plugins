@@ -87,7 +87,7 @@ class CheckPrestoNumQueries(RestNagiosPlugin):
             raise UnknownError('non-list returned by Presto for queries. {0}'.format(support_msg_api()))
         current_queries = [query for query in json_data if query['state'] not in ('FINISHED', 'FAILED')]
         num_queries = len(current_queries)
-        self.msg = 'Presto SQL {0} queries'.format(num_queries)
+        self.msg = 'Presto SQL - {0} queries'.format(num_queries)
         self.check_thresholds(num_queries)
         self.msg += ' on coordinator'
         if self.verbose:
