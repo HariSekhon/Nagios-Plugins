@@ -33,7 +33,7 @@ export ALLUXIO_HOST
 export ALLUXIO_MASTER_PORT_DEFAULT=19999
 export ALLUXIO_WORKER_PORT_DEFAULT=30000
 
-startupwait 30
+startupwait 50
 
 check_docker_available
 
@@ -61,24 +61,11 @@ test_alluxio(){
         echo "expecting version '$version'"
     fi
     hr
-    echo "retrying for $startupwait secs to give Alluxio time to initialize"
-    SECONDS=0
-    count=1
-    while true; do
-        echo "try $count: "
-        if ./check_alluxio_master_version.py -v -e "$version" -t 5 &&
-           ./check_alluxio_worker_version.py -v -e "$version" -t 5; then
-            echo "Alluxio Master & Worker up after $SECONDS secs, continuing with tests"
-            break
-        fi
-        # ! [] is better then [ -gt ] because if either variable breaks the test will fail correctly
-        if ! [ $SECONDS -le $startupwait ]; then
-            echo "FAIL: Alluxio did not start up within $startupwait secs"
-            exit 1
-        fi
-        let count+=1
-        sleep 1
-    done
+    echo "waiting on Alluxio Master to give Alluxio time to properly initialize:"
+    retry "$startupwait" 2 ./check_alluxio_master_version.py -v -e "$version" -t 2
+    hr
+    echo "expect Alluxio Worker to also be up by this point:"
+    retry 10 2 ./check_alluxio_worker_version.py -v -e "$version" -t 2
     hr
     run ./check_alluxio_master_version.py -v -e "$version"
     hr
