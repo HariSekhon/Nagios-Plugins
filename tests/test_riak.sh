@@ -98,6 +98,13 @@ test_riak(){
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
+    if [ "$version" = "latest" ]; then
+        echo "latest version, fetching latest version from DockerHub master branch"
+        local version="$(dockerhub_latest_version riak-dev)"
+        echo "expecting version '$version'"
+        # TODO: fix and remove
+        version=".*"
+    fi
     run $perl -T check_riak_version.pl -v -e "$version"
     hr
     run_fail 2 $perl -T check_riak_version.pl -v -e 'fail-version'
