@@ -54,7 +54,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckPrestoWorkersFailures(RestNagiosPlugin):
@@ -91,6 +91,7 @@ class CheckPrestoWorkersFailures(RestNagiosPlugin):
         nodes_failing = []
         max_failures = 0.0
         re_protocol = re.compile('^https?://')
+        num_nodes = len(json_data)
         for node_item in json_data:
             recent_failures = node_item['recentFailures']
             if not isFloat(recent_failures):
@@ -112,6 +113,10 @@ class CheckPrestoWorkersFailures(RestNagiosPlugin):
         num_nodes_failing = len(nodes_failing)
         self.msg = 'Presto SQL worker nodes with recent failures > {0:.2f} = {1:d}'\
                    .format(self.max_failures, num_nodes_failing)
+        self.msg += ' out of {0:d} nodes'.format(num_nodes)
+        if num_nodes < 1:
+            self.warning()
+            self.msg += ' (< 1 worker found)'
         self.check_thresholds(num_nodes_failing)
         self.msg += ', max recent failures per node = {0:.2f}'.format(max_failures)
         if self.verbose and nodes_failing:
