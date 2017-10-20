@@ -199,15 +199,15 @@ test_presto2(){
     hr
     run_fail 2 ./check_presto_worker_node.py --node "nonexistentnode"
     hr
-    run ./check_presto_worker_nodes_response_lag.py
+    run_fail 1 ./check_presto_worker_nodes_response_lag.py
     hr
     run_conn_refused ./check_presto_worker_nodes_response_lag.py
     hr
-    run ./check_presto_worker_nodes_recent_failure_ratio.py
+    run_fail 1 ./check_presto_worker_nodes_recent_failure_ratio.py
     hr
     run_conn_refused ./check_presto_worker_nodes_recent_failure_ratio.py
     hr
-    run ./check_presto_worker_nodes_recent_failures.py
+    run_fail 1 ./check_presto_worker_nodes_recent_failures.py
     hr
     run_conn_refused ./check_presto_worker_nodes_recent_failures.py
     hr
