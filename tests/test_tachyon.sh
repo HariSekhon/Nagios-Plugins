@@ -23,9 +23,7 @@ cd "$srcdir/.."
 
 section "T a c h y o n"
 
-# Tachyon 0.7 doesn't always start up properly, but has passed all the plugin tests
-#export TACHYON_VERSIONS="${@:-${TACHYON_VERSIONS:-latest 0.7 0.8}}"
-export TACHYON_VERSIONS="${@:-${TACHYON_VERSIONS:-latest 0.8}}"
+export TACHYON_VERSIONS="${@:-${TACHYON_VERSIONS:-latest 0.7 0.8}}"
 
 TACHYON_HOST="${DOCKER_HOST:-${TACHYON_HOST:-${HOST:-localhost}}}"
 TACHYON_HOST="${TACHYON_HOST##*/}"
