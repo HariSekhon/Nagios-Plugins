@@ -115,7 +115,7 @@ class CheckPrestoWorkersFailureRatio(RestNagiosPlugin):
                 log.info("node '%s' recent failures ratio %f, but less than max ratio threshold of %f",
                          node_item['uri'], recent_failure_ratio, self.max_ratio)
         num_nodes_failing = len(nodes_failing)
-        self.msg = 'Presto SQL worker nodes with recent failure ratio > {0:.2f} = {1:d}'\
+        self.msg = 'Presto SQL - worker nodes with recent failure ratio > {0:.2f} = {1:d}'\
                    .format(self.max_ratio, num_nodes_failing)
         self.check_thresholds(num_nodes_failing)
         self.msg += ' out of {0:d} nodes'.format(num_nodes)
