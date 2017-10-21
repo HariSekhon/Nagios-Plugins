@@ -134,7 +134,7 @@ test_presto2(){
             VERSION="$version" docker-compose pull $docker_compose_quiet
         fi
         # reset container as we start a presto worker inside later so we don't want to start successive workers on compounding failed runs
-        VERSION="$version" docker-compose down || :
+        [ -n "${KEEPDOCKER:-}" ] || VERSION="$version" docker-compose down || :
         VERSION="$version" docker-compose up -d
         echo "getting Presto dynamic port mapping:"
         docker_compose_port PRESTO_PORT "Presto Coordinator"
@@ -193,6 +193,10 @@ test_presto2(){
     hr
     run_conn_refused ./check_presto_num_worker_nodes.py -w 1
     hr
+    run_fail "0 1 2" ./check_presto_queries.py
+    hr
+    run_fail 3 ./check_presto_queries.py --list
+    hr
     run ./check_presto_state.py
     hr
     run_conn_refused ./check_presto_state.py
@@ -243,7 +247,32 @@ test_presto2(){
     sed -i 's/coordinator=true/coordinator=false/' "\$CONF_DIR"/config.properties.worker
     sed -i 's/http-server.http.port=8080/http-server.http.port=8081/' "\$CONF_DIR"/config.properties.worker
     "\$BIN_DIR"/launcher --config="\$CONF_DIR"/config.properties.worker --node-config "\$CONF_DIR"/node.properties.worker --pid-file /var/run/worker-launcher.pid start
+    echo
+    echo "creating some sample queries to test check_presto_queries.py against:"
+    presto <<EOF2
+    select 1+1;
+    select 2+2;
+    select 3+3;
+    select failure;
+    select failure2;
+EOF2
 EOF
+    hr
+    run_fail 3 ./check_presto_queries.py --list
+    hr
+    run ./check_presto_queries.py --exclude 'failure'
+    hr
+    run_fail 1 ./check_presto_queries.py
+    hr
+    run_fail 2 ./check_presto_queries.py -c 1
+    hr
+    run ./check_presto_queries.py --include 'select 1\+1'
+    hr
+    run_fail 1 ./check_presto_queries.py --include 'failure'
+    hr
+    run_fail 2 ./check_presto_queries.py --include 'failure' -c 1
+    hr
+    run_fail 1 ./check_presto_queries.py --include 'nonexistentquery'
     hr
     echo "getting Presto Worker dynamic port mapping:"
     docker_compose_port "Presto Worker"
@@ -330,7 +359,8 @@ EOF
     hr
     echo "Completed $run_count Presto tests"
     hr
-    [ -n "${KEEPDOCKER:-}" -o -n "${NODOCKER:-}" ] ||
+    [ -z "${KEEPDOCKER:-}" ] || exit 0
+    [ -n "${NODOCKER:-}" ] ||
     docker-compose down
     hr
     echo
@@ -341,7 +371,7 @@ if [ -n "${NODOCKER:-}" ]; then
 fi
 
 test_presto(){
-    version="$1"
+    local version="$1"
     teradata_distribution=0
     for teradata_version in $PRESTO_TERADATA_VERSIONS; do
         if [ "$version" = "$teradata_version" ]; then
