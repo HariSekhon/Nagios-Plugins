@@ -87,8 +87,9 @@ class CheckPrestoQueries(RestNagiosPlugin):
 
     def add_options(self):
         super(CheckPrestoQueries, self).add_options()
-        self.add_opt('-i', '--include', help='Include regex for queries to check')
-        self.add_opt('-e', '--exclude', help='Exclude regex for queries to exclude (takes priority over --include')
+        self.add_opt('-i', '--include', metavar='regex', help='Include regex for queries to check')
+        self.add_opt('-e', '--exclude', metavar='regex', help='Exclude regex for queries to exclude' + \
+                                                              ' (takes priority over --include')
         self.add_opt('-n', '--num', metavar='N', default=100,
                      help="Check only the last N matching queries to ensure older errors don't keep alerting" + \
                           " (default: 100)")
