@@ -17,7 +17,7 @@
 
 """
 
-Nagios Plugin to check the last completed run a specific yarn application via the Yarn Resource Manager REST API
+Nagios Plugin to check the last completed run of a specific yarn application via the Yarn Resource Manager REST API
 
 Useful for checking the latest state of a given batch job eg. Finished Success, Failed, Killed etc
 
