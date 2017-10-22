@@ -57,14 +57,14 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, UnknownError, support_msg_api, isList, validate_regex, validate_int
+    from harisekhon.utils import log, ERRORS, UnknownError, support_msg_api, isList, validate_regex, validate_int
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckPrestoQueries(RestNagiosPlugin):
@@ -84,6 +84,7 @@ class CheckPrestoQueries(RestNagiosPlugin):
         self.exclude = None
         self.num = None
         self.min_queries = None
+        self.list = False
 
     def add_options(self):
         super(CheckPrestoQueries, self).add_options()
@@ -96,6 +97,7 @@ class CheckPrestoQueries(RestNagiosPlugin):
         self.add_opt('-m', '--min-queries', metavar='N', default=1,
                      help='Minimum number of matching queries to expect to find' + \
                           ', raises warning if below this number (default: 1)')
+        self.add_opt('-l', '--list', action='store_true', help='List queries and exit')
         self.add_thresholds(default_warning=0, default_critical=20)
 
     def process_options(self):
@@ -114,7 +116,50 @@ class CheckPrestoQueries(RestNagiosPlugin):
         self.min_queries = self.get_opt('min_queries')
         validate_int(self.min_queries, 'minimum queries', 0)
         self.min_queries = int(self.min_queries)
+        self.list = self.get_opt('list')
         self.validate_thresholds()
+
+    @staticmethod
+    def list_queries(query_list):
+        print('Presto SQL Queries:\n')
+        cols = {
+            'User': 'user', # must handle separately as it's actually ['session']['user']
+            'State': 'state',
+            'Memory Pool': 'memoryPool',
+            'Query': 'query',
+        }
+        widths = {}
+        for col in cols:
+            widths[col] = len(col)
+        for query_item in query_list:
+            for col in cols:
+                if col not in widths:
+                    widths[col] = 0
+                if col == 'User':
+                    val = query_item['session']['user']
+                else:
+                    val = query_item[cols[col]]
+                width = len(str(val))
+                if width > widths[col]:
+                    widths[col] = width
+        total_width = 0
+        columns = ('User', 'Memory Pool', 'State', 'Query')
+        for heading in columns:
+            total_width += widths[heading] + 2
+        print('=' * total_width)
+        for heading in columns:
+            print('{0:{1}}  '.format(heading, widths[heading]), end='')
+        print()
+        print('=' * total_width)
+        for query_item in query_list:
+            for col in columns:
+                if col == 'User':
+                    val = query_item['session']['user']
+                else:
+                    val = query_item[cols[col]]
+                print('{0:{1}}  '.format(val, widths[col]), end='')
+            print()
+        sys.exit(ERRORS['UNKNOWN'])
 
     def parse_json(self, json_data):
         if not isList(json_data):
@@ -137,6 +182,8 @@ class CheckPrestoQueries(RestNagiosPlugin):
             log.info('number of matching queries %d is less than query limit of %d', num_matching_queries, self.num)
             self.num = num_matching_queries
         last_n_matching_queries = matching_queries[0:self.num]
+        if self.list:
+            self.list_queries(last_n_matching_queries)
         failed_queries = [query_item for query_item in last_n_matching_queries if query_item['state'] == 'FAILED']
         if log.isEnabledFor(logging.INFO):
             for query_item in failed_queries:
