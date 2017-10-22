@@ -136,7 +136,7 @@ There are over 350 programs in this repo so these are just some of the highlight
 - ```check_atlas_*.py``` - [Apache Atlas](http://atlas.apache.org/) metadata server instance status, as well as metadata entity checks including entity existence, state=ACTIVE, expected type, expected tags are assigned to entity (eg. PII - important because Ranger ACLs to allow or deny access to data can be assigned based on tags)
 - ```check_hiveserver2_llap_*.py``` - [Apache Hive](https://hive.apache.org/) - HiveServer2 LLAP Interactive server status and uptime, peer count, check for a specific peer host fqdn via regex
 - ```check_presto_*.py``` - [Presto SQL DB](https://prestodb.io/)
-  - cluster checks (via coordinator API) - number of current queries, worker nodes, failed worker nodes, workers with response lag to coordinator, workers with recent failures and recent failure ratios vs thresholds, version
+  - cluster checks (via coordinator API) - number of current queries, failed queries, worker nodes, failed worker nodes, workers with response lag to coordinator, workers with recent failures and recent failure ratios vs thresholds, version
   - per node checks - status, if coordinator, environment
   - per worker checks (via coordinator API) - specific worker registered with coordinator, response age to coordinator, recent failures, recent failure ratio vs thresholds
 - ```check_ranger_*.pl/.py``` - [Apache Ranger](https://ranger.apache.org/) checks:
