@@ -34,7 +34,7 @@ export NEO4J_USERNAME="${NEO4J_USERNAME:-${NEO4J_USERNAME:-neo4j}}"
 export NEO4J_PASSWORD="${NEO4J_PASSWORD:-${NEO4J_PASSWORD:-testpw}}"
 
 export NEO4J_PORT_DEFAULT=7474
-export NEO4J_HTTP_PORT_DEFAULT=7473
+export NEO4J_HTTPS_PORT_DEFAULT=7473
 export NEO4J_BOLT_PORT_DEFAULT=7687
 
 check_docker_available
@@ -58,15 +58,9 @@ test_neo4j_main(){
     fi
     VERSION="$version" docker-compose up -d
     echo "getting Neo4J dynammic port mappings:"
-    printf "Neo4J HTTP port => "
-    export NEO4J_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$NEO4J_PORT"
-    printf "Neo4J HTTPS port => "
-    export NEO4J_HTTPS_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$NEO4J_HTTPS_PORT"
-    printf "Neo4J Bolt port => "
-    export NEO4J_BOLT_PORT="`docker-compose port "$DOCKER_SERVICE" "$NEO4J_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$NEO4J_BOLT_PORT"
+    docker_compose_port NEO4J_PORT "Neo4J HTTP"
+    docker_compose_port NEO4J_HTTPS_PORT "Neo4J HTTPS"
+    docker_compose_port "Neo4J Bolt"
     hr
     when_ports_available "$NEO4J_HOST" "$NEO4J_PORT" "$NEO4J_HTTPS_PORT" "$NEO4J_BOLT_PORT"
     hr
