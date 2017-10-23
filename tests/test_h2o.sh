@@ -48,18 +48,18 @@ test_h2o(){
     fi
     VERSION="$version" docker-compose up -d
     echo "getting H2O dynamic port mapping:"
-    printf "H2O port => "
-    export H2O_PORT="`docker-compose port "$DOCKER_SERVICE" "$H2O_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$H2O_PORT"
+    docker_compose_port "H2O"
+    hr
+    when_ports_available "$H2O_HOST" "$H2O_PORT"
+    hr
+    # 2.x h2o, 3.x H2O Flow
+    when_url_content "http://$H2O_HOST:$H2O_PORT/" "h2o|H2O"
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    when_ports_available $H2O_HOST $H2O_PORT
+    docker_compose_version_test h2o "$version"
     hr
-    when_url_content "http://$H2O_HOST:$H2O_PORT/" h2o
-    hr
-    # TODO: h2o version test
     run $perl -T ./check_h2o_cluster.pl
     hr
     run $perl -T ./check_h2o_jobs.pl
