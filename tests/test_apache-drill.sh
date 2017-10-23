@@ -46,9 +46,7 @@ test_apache_drill(){
     fi
     VERSION="$version" docker-compose up -d
     echo "getting Apache Drill dynamic port mappings:"
-    printf "Apache Drill port => "
-    export APACHE_DRILL_PORT="`docker-compose port "$DOCKER_SERVICE" "$APACHE_DRILL_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$APACHE_DRILL_PORT"
+    docker_compose_port "Apache Drill"
     hr
     when_ports_available "$APACHE_DRILL_HOST" "$APACHE_DRILL_PORT"
     hr
@@ -57,20 +55,7 @@ test_apache_drill(){
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    if [ "$version" = "latest" ]; then
-        echo "latest version, fetching latest version from DockerHub master branch"
-        local version="$(dockerhub_latest_version apache-drill)"
-        echo "expecting version '$version'"
-    fi
-    set +e
-    found_version="$(docker-compose exec "$DOCKER_SERVICE" ls / -1 --color=no | grep --color=no apache-drill | tr -d '\r' | tee /dev/stderr | tail -n 1 | sed 's/apache-drill-//')"
-    set -e
-    if [[ "$found_version" != $version* ]]; then
-        echo "Docker container version does not match expected version! (found '$found_version', expected '$version')"
-        exit 1
-    fi
-    hr
-    echo "found Apache Drill version $found_version"
+    docker_compose_version_test apache-drill "$version"
     hr
     #run ./check_apache_drill_version.py -v -e "$version"
     hr
