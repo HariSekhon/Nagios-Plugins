@@ -53,9 +53,7 @@ test_redis(){
     fi
     VERSION="$version" docker-compose up -d
     echo "getting Redis dynamic port mapping:"
-    printf "Redis port => "
-    export REDIS_PORT="`docker-compose port "$DOCKER_SERVICE" "$REDIS_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$REDIS_PORT"
+    docker_compose_port Redis
     hr
     when_ports_available "$REDIS_HOST" "$REDIS_PORT"
     hr
