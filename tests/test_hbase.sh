@@ -50,12 +50,12 @@ export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME//-}"
 docker_exec(){
     # this doesn't allocate TTY properly, blessing module bails out
     #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
-    echo "docker exec -i '${COMPOSE_PROJECT_NAME}_${DOCKER_SERVICE}_1' /bin/bash <<-EOF
+    echo "docker exec -i '$DOCKER_CONTAINER' /bin/bash <<-EOF
     export JAVA_HOME=/usr
     $MNTDIR/$@
 EOF"
     # TODO: check if this can output the here doc and if so remove above echo
-    run docker exec -i "${COMPOSE_PROJECT_NAME}_${DOCKER_SERVICE}_1" /bin/bash <<-EOF
+    run docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
     export JAVA_HOME=/usr
     $MNTDIR/$@
 EOF
@@ -97,7 +97,6 @@ test_hbase(){
     local uniq_val=$(< /dev/urandom base64 | tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)
     # gets ValueError: file descriptor cannot be a negative integer (-1), -T should be the workaround but hangs
     #docker-compose exec -T "$DOCKER_SERVICE" /bin/bash <<-EOF
-    local DOCKER_CONTAINER="${COMPOSE_PROJECT_NAME}_${DOCKER_SERVICE}_1"
     docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
     export JAVA_HOME=/usr
     /hbase/bin/hbase shell <<-EOF2
@@ -117,7 +116,6 @@ EOF2
     echo "test setup finished"
     exit
 EOF
-    #docker cp "${COMPOSE_PROJECT_NAME}_${DOCKER_SERVICE}_1":/tmp/hbck.log tests/data/hbase-hbck-$version.log
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
