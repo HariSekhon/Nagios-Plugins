@@ -53,16 +53,14 @@ test_cassandra(){
     fi
     VERSION="$version" docker-compose up -d
     echo "getting Cassandra dynamic port mappings:"
-    printf "Cassandra CQL port => "
-    export CASSANDRA_PORT="`docker-compose port "$DOCKER_SERVICE" "$CASSANDRA_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$CASSANDRA_PORT"
-    printf "Cassandra JMX port => "
-    export CASSANDRA_JMX_PORT="`docker-compose port "$DOCKER_SERVICE" "$CASSANDRA_JMX_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$CASSANDRA_JMX_PORT"
+    docker_compose_port CASSANDRA_PORT "Cassandra CQL"
+    docker_compose_port "Cassandra JMX"
+    hr
+    when_ports_available "$CASSANDRA_HOST" "$CASSANDRA_PORT" # "$CASSANDRA_JMX_PORT" binds to 127.0.0.1
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    when_ports_available "$CASSANDRA_HOST" "$CASSANDRA_PORT" # "$CASSANDRA_JMX_PORT" binds to 127.0.0.1
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
         local version="$(dockerhub_latest_version cassandra-dev)"
@@ -87,8 +85,6 @@ test_cassandra(){
     hr
     FAIL=2 docker_exec check_cassandra_version_nodetool.py -e "fail-version"
     hr
-    # Dockerized Cassandra doesn't seem able to detect it's own token % - even when container has been running for a long time
-    # TODO: add more specific command testing here to only except that scenario
     docker_exec check_cassandra_balance.pl
     hr
     docker_exec check_cassandra_balance.pl -v
