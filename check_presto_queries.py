@@ -47,6 +47,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from collections import OrderedDict
 import logging
 import os
 import re
@@ -133,15 +134,15 @@ class CheckPrestoQueries(RestNagiosPlugin):
 
     def list_queries(self, query_list):
         print('Presto SQL Queries:\n')
-        cols = {
-            'User': 'session.user', # must handle separately as it's actually ['session']['user']
-            'State': 'state',
-            'Error code': 'errorCode.code',
-            'Error name': 'errorCode.name',
-            'Error type': 'errorCode.type',
-            'Memory Pool': 'memoryPool',
-            'Query': 'query',
-        }
+        cols = OrderedDict([
+            ('User', 'session.user'),
+            ('State', 'state'),
+            ('Error code', 'errorCode.code'),
+            ('Error name', 'errorCode.name'),
+            ('Error type', 'errorCode.type'),
+            ('Memory Pool', 'memoryPool'),
+            ('Query', 'query'),
+        ])
         widths = {}
         for col in cols:
             widths[col] = len(col)
@@ -157,16 +158,15 @@ class CheckPrestoQueries(RestNagiosPlugin):
                 if width > widths[col]:
                     widths[col] = width
         total_width = 0
-        columns = ('User', 'State', 'Error code', 'Error type', 'Error name', 'Memory Pool', 'Query')
-        for heading in columns:
+        for heading in cols:
             total_width += widths[heading] + 2
         print('=' * total_width)
-        for heading in columns:
+        for heading in cols:
             print('{0:{1}}  '.format(heading, widths[heading]), end='')
         print()
         print('=' * total_width)
         for query_item in query_list:
-            for col in columns:
+            for col in cols:
                 val = self.get_field(query_item, cols[col])
                 print('{0:{1}}  '.format(val, widths[col]), end='')
             print()
