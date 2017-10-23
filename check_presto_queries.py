@@ -64,7 +64,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class CheckPrestoQueries(RestNagiosPlugin):
@@ -119,12 +119,26 @@ class CheckPrestoQueries(RestNagiosPlugin):
         self.list = self.get_opt('list')
         self.validate_thresholds()
 
-    @staticmethod
-    def list_queries(query_list):
+    def get_field(self, json_data, index):
+        remainder = None
+        if '.' in index:
+            (index, remainder) = index.split('.', 1)
+        if index == 'errorCode':
+            if index not in json_data:
+                return ''
+        json_data = json_data[index]
+        if remainder:
+            json_data = self.get_field(json_data, remainder)
+        return json_data
+
+    def list_queries(self, query_list):
         print('Presto SQL Queries:\n')
         cols = {
-            'User': 'user', # must handle separately as it's actually ['session']['user']
+            'User': 'session.user', # must handle separately as it's actually ['session']['user']
             'State': 'state',
+            'Error code': 'errorCode.code',
+            'Error name': 'errorCode.name',
+            'Error type': 'errorCode.type',
             'Memory Pool': 'memoryPool',
             'Query': 'query',
         }
@@ -135,15 +149,15 @@ class CheckPrestoQueries(RestNagiosPlugin):
             for col in cols:
                 if col not in widths:
                     widths[col] = 0
-                if col == 'User':
-                    val = query_item['session']['user']
-                else:
-                    val = query_item[cols[col]]
+                val = self.get_field(query_item, cols[col])
+                width = len(str(val))
+                if width > widths[col]:
+                    widths[col] = width
                 width = len(str(val))
                 if width > widths[col]:
                     widths[col] = width
         total_width = 0
-        columns = ('User', 'Memory Pool', 'State', 'Query')
+        columns = ('User', 'State', 'Error code', 'Error type', 'Error name', 'Memory Pool', 'Query')
         for heading in columns:
             total_width += widths[heading] + 2
         print('=' * total_width)
@@ -153,10 +167,7 @@ class CheckPrestoQueries(RestNagiosPlugin):
         print('=' * total_width)
         for query_item in query_list:
             for col in columns:
-                if col == 'User':
-                    val = query_item['session']['user']
-                else:
-                    val = query_item[cols[col]]
+                val = self.get_field(query_item, cols[col])
                 print('{0:{1}}  '.format(val, widths[col]), end='')
             print()
         sys.exit(ERRORS['UNKNOWN'])
