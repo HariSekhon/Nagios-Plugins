@@ -84,7 +84,7 @@ test_neo4j_main(){
             # API 1.25+
             auth_env="-e NEO4J_USERNAME=$NEO4J_USERNAME -e NEO4J_PASSWORD=$NEO4J_PASSWORD"
         fi
-        docker exec -i $auth_env "nagiosplugins_${DOCKER_SERVICE}_1" /var/lib/neo4j/bin/cypher-shell <<< 'CREATE (p:Person { name: "Hari Sekhon" });'
+        docker exec -i $auth_env "$DOCKER_CONTAINER" /var/lib/neo4j/bin/cypher-shell <<< 'CREATE (p:Person { name: "Hari Sekhon" });'
     fi
     hr
     if [ "${NOTESTS:-}" ]; then
