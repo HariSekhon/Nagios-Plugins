@@ -28,11 +28,14 @@ srcdir="$srcdir2"
 section "D o c k e r H u b "
 
 # test one of the more stable automated builds, but not one with too many tags as a Dockerfiles push all will result in > 10 queued builds
-echo "testing repo expected to have successful build:"
-run ./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper
+#echo "testing repo expected to have successful build:"
+#run ./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper
+echo "DockerHub has space failures all the time, must allow for broken build:"
+run_fail "0 2" ./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper
 hr
-echo "testing repo for successful build with extended output information:"
-run ./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper -v
+echo "testing repo with extended output information:"
+#run ./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper -v
+run_fail "0 2" ./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper -v
 hr
 echo "testing detection of failing repo build:"
 # intentionally broken repo created specifically for this test

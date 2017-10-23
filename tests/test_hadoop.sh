@@ -54,7 +54,7 @@ trap_debug_env hadoop
 
 docker_exec(){
     #docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
-    run docker exec "nagiosplugins_${DOCKER_SERVICE}_1" "$MNTDIR/$@"
+    run docker exec "$DOCKER_CONTAINER" "$MNTDIR/$@"
 }
 
 test_hadoop(){
@@ -91,7 +91,7 @@ test_hadoop(){
     hr
     echo "setting up HDFS for tests"
     #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
-    docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" /bin/bash <<-EOF
+    docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
         set -eu
         export JAVA_HOME=/usr
         echo "leaving safe mode"
@@ -426,7 +426,7 @@ EOF
     hr
     # ================================================
     echo "Running sample mapreduce job to test Yarn application /job based plugins against:"
-    docker exec -i "nagiosplugins_${DOCKER_SERVICE}_1" /bin/bash <<EOF &
+    docker exec -i "$DOCKER_CONTAINER" /bin/bash <<EOF &
     echo
     echo "running mapreduce job from sample jar"
     echo
