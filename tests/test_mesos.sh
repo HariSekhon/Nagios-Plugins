@@ -50,12 +50,8 @@ test_mesos(){
     fi
     VERSION="$version" docker-compose up -d
     echo "getting Mesos dynamic port mappings:"
-    printf "getting Mesos Master port => "
-    export MESOS_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$MESOS_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$MESOS_MASTER_PORT"
-    printf "getting Mesos Slave port => "
-    export MESOS_SLAVE_PORT="`docker-compose port "$DOCKER_SERVICE" "$MESOS_SLAVE_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$MESOS_SLAVE_PORT"
+    docker_compose_port "Mesos Master"
+    docker_compose_port "Mesos Slave"
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
@@ -67,8 +63,22 @@ test_mesos(){
     hr
     when_url_content "http://$MESOS_HOST:$MESOS_SLAVE_PORT/state.json" slave
     hr
-    # TODO: add version test
-
+    if [ "$version" = "latest" ]; then
+        echo "latest version, fetching latest version from DockerHub master branch"
+        local version="$(dockerhub_latest_version mesos)"
+        echo "expecting version '$version'"
+    fi
+    hr
+    found_version="$(docker-compose exec "$DOCKER_SERVICE" dpkg -l mesos | tail -n 1 | tr -d '\r' | awk '{print $3; exit}' | sed 's/-.*//')"
+    echo "found Mesos version '$found_version'"
+    hr
+    if [[ "$found_version" =~ $version* ]]; then
+        echo "$name docker version matches expected (found '$found_version', expected '$version')"
+    else
+        echo "Docker container version does not match expected version! (found '$found_version', expected '$version')"
+        exit 1
+    fi
+    hr
     run $perl -T ./check_mesos_activated_slaves.pl -P "$MESOS_MASTER_PORT" -v
     hr
     run_conn_refused $perl -T ./check_mesos_activated_slaves.pl -v
