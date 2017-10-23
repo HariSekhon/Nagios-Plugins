@@ -55,7 +55,7 @@ test_nginx(){
     # Configure Nginx stats stub so watch_nginx_stats.pl now passes
     VERSION="$version" docker-compose stop
     echo "Now reconfiguring Nginx to support stats and restarting:"
-    docker cp "$srcdir/conf/nginx/conf.d/default.conf" "nagiosplugins_${DOCKER_SERVICE}_1":/etc/nginx/conf.d/default.conf
+    docker cp "$srcdir/conf/nginx/conf.d/default.conf" "$DOCKER_CONTAINER":/etc/nginx/conf.d/default.conf
     VERSION="$version" docker-compose start
     echo "getting Nginx dynamic port mapping:"
     docker_compose_port Nginx
