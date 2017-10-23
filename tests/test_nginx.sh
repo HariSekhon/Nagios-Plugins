@@ -58,9 +58,8 @@ test_nginx(){
     docker cp "$srcdir/conf/nginx/conf.d/default.conf" "nagiosplugins_${DOCKER_SERVICE}_1":/etc/nginx/conf.d/default.conf
     VERSION="$version" docker-compose start
     echo "getting Nginx dynamic port mapping:"
-    printf "Nginx HTTP port => "
-    export NGINX_PORT="$(docker-compose port "$DOCKER_SERVICE" "$NGINX_PORT_DEFAULT" | sed 's/.*://')"
-    echo "$NGINX_PORT"
+    docker_compose_port Nginx
+    hr
     when_ports_available "$NGINX_HOST" "$NGINX_PORT"
     hr
     if [ -n "${NOTESTS:-}" ]; then
