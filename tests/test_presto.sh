@@ -322,7 +322,7 @@ EOF
     SECONDS=0
     while true; do
         # can't just test status code as gets 500 Internal Server Error within a few secs
-        if ./check_presto_worker_nodes_failed.py | tee /dev/stderr | grep -q -e 'WARNING: Presto SQL 1 worker node failed' -e "500 Internal Server Error"; then
+        if ./check_presto_worker_nodes_failed.py | tee /dev/stderr | grep -q -e 'WARNING: Presto SQL - 1 worker node failed' -e "500 Internal Server Error"; then
             break
         fi
         if [ $SECONDS -gt $max_detect_secs ]; then
