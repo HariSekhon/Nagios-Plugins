@@ -38,6 +38,11 @@ trap_debug_env elasticsearch
 
 startupwait 30
 
+# Elasticsearch 5.0 may fail to start up properly complaining about vm.max_map_count, fix is to do:
+#
+#  sudo sysctl -w vm.max_map_count=232144
+#  grep vm.max_map_count /etc/sysctl.d/99-elasticsearch.conf || echo vm.max_map_count=232144 >> /etc/sysctl.d/99-elasticsearch.conf
+
 test_elasticsearch(){
     local version="$1"
     section2 "Setting up Elasticsearch $version test container"
