@@ -26,7 +26,7 @@ srcdir="$srcdir2"
 
 section "H B a s e"
 
-export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-latest 0.96 0.98 1.0 1.1 1.2}}"
+export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-latest 0.96 0.98 1.0 1.1 1.2 1.3}}"
 
 HBASE_HOST="${DOCKER_HOST:-${HBASE_HOST:-${HOST:-localhost}}}"
 HBASE_HOST="${HBASE_HOST##*/}"
