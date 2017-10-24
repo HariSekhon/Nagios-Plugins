@@ -18,7 +18,7 @@ Written for CDH 4.x but version 0.3 onwards has been updated for Apache HBase 0.
 Tested on Apache HBase 0.96, 0.98, 1.0.3, 1.1.9, 1.2.6, 1.3.1
 ";
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -35,7 +35,7 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 set_port_default(8080);
 
 my $default_warning  = 0;
-my $default_critical = 0;
+my $default_critical = 1;
 
 $warning  = $default_warning;
 $critical = $default_critical;
