@@ -399,6 +399,10 @@ EOF
         sleep 1
     done
     hr
+    echo "waiting for Stargate info to get updated for downed RegionServer:"
+    retry 20 ! $perl -T ./check_hbase_regionservers.pl
+    hr
+    # default critical = 1 but will raise critical if there are no more live regionservers
     run_fail 2 $perl -T ./check_hbase_regionservers.pl
     hr
     # should still exit critical as there are no remaining regionservers live
