@@ -23,7 +23,7 @@ cd "$srcdir/..";
 
 section "E l a s t i c s e a r c h"
 
-export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-latest 1.4 1.5 1.6 1.7 2.0 2.2 2.3 2.4 5.0}}"
+export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-latest 1.3 1.4 1.5 1.6 1.7 2.0 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5}}"
 
 ELASTICSEARCH_HOST="${DOCKER_HOST:-${ELASTICSEARCH_HOST:-${HOST:-localhost}}}"
 ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST##*/}"
@@ -146,7 +146,10 @@ test_elasticsearch(){
     hr
     run_conn_refused $perl -T ./check_elasticsearch_index_exists.pl -v
     hr
-    run $perl -T ./check_elasticsearch_index_age.pl -v -w 0:1
+    # the field for this is not available in Elasticsearch 1.3
+    if [ "$version" != 1.3  ]; then
+        run $perl -T ./check_elasticsearch_index_age.pl -v -w 0:1
+    fi
     #hr
     run_conn_refused $perl -T ./check_elasticsearch_index_age.pl -v -w 0:1
     #hr
