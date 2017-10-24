@@ -269,7 +269,7 @@ EOF
 
 # ============================================================================ #
     hr
-    run ./check_hbase_write.py -T t1 -w 300 --precision 3
+    run ./check_hbase_write.py -T t1 -w 500 --precision 3
     hr
     run_conn_refused ./check_hbase_write.py -T t1 -w 100 --precision 3
     hr
