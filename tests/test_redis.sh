@@ -23,7 +23,7 @@ cd "$srcdir/..";
 
 section "R e d i s"
 
-export REDIS_VERSIONS="${@:-${REDIS_VERSIONS:-latest 3.2-alpine}}"
+export REDIS_VERSIONS="${@:-${REDIS_VERSIONS:-latest 2.8 3.0-alpine 3.2-alpine 4.0-alpine}}"
 
 REDIS_HOST="${DOCKER_HOST:-${REDIS_HOST:-${HOST:-localhost}}}"
 REDIS_HOST="${REDIS_HOST##*/}"
