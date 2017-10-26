@@ -29,8 +29,8 @@ Checks worker node:
 
 Tested on:
 
-- Presto Facebook version 0.185
-- Presto Teradata distribution versions 0.167, 0.179
+- Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185
+- Presto Teradata distribution versions:  0.152, 0.157, 0.167, 0.179
 
 """
 
