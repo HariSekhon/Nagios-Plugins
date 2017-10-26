@@ -59,7 +59,7 @@ test_redis(){
     hr
     echo "creating test Redis key-value"
     #echo set myKey hari | redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT"
-    docker exec -i "$DOCKER_CONTAINER" bash <<EOF
+    docker exec -i "$DOCKER_CONTAINER" sh <<EOF
         echo set myKey hari | redis-cli
 EOF
     echo done
