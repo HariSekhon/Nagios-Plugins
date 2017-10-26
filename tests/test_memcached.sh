@@ -23,7 +23,7 @@ cd "$srcdir/..";
 
 section "M e m c a c h e d"
 
-export MEMCACHED_VERSIONS="${@:-${MEMCACHED_VERSIONS:-latest 1.4}}"
+export MEMCACHED_VERSIONS="${@:-${MEMCACHED_VERSIONS:-latest 1.4 1.5}}"
 
 MEMCACHED_HOST="${DOCKER_HOST:-${MEMCACHED_HOST:-${HOST:-localhost}}}"
 MEMCACHED_HOST="${MEMCACHED_HOST##*/}"
@@ -63,7 +63,13 @@ test_memcached(){
         echo "expecting version '$version'"
     fi
     hr
-    found_version="$(docker-compose exec "$DOCKER_SERVICE" /usr/local/bin/memcached --version | tr -d '\r' | awk '{print $2}')"
+    # --version doesn't work in older versions eg. 1.4
+    set +e
+    found_version="$(docker-compose exec "$DOCKER_SERVICE" /usr/local/bin/memcached -V | tr -d '\r' | awk '{print $2}')"
+    set -e
+    if [ -z "$found_version" ]; then
+        echo "FAILED to find memcached version"
+    fi
     echo "found Memcached version '$found_version'"
     hr
     if [[ "$found_version" =~ $version* ]]; then
