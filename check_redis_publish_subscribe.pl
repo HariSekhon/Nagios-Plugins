@@ -20,7 +20,7 @@ Checks:
 4. Checks the message received is the same as the one published
 5. compares each operation's time taken against the warning/critical thresholds if given
 
-Tested on Redis 2.4.10, 2.8.19, 3.0.7, 3.2.0";
+Tested on Redis 2.4, 2.6, 2.8, 3.0, 3.2, 4.0";
 
 $VERSION = "0.6";
 

@@ -22,7 +22,7 @@ Checks:
 5. records the read timing to a given precision for reporting and graphing
 6. outputs the read timing and optionally the key's value for graphing purposes
 
-Tested on Redis 2.4.10, 2.8.19, 3.0.7, 3.2.0";
+Tested on Redis 2.4, 2.6, 2.8, 3.0, 3.2, 4.0";
 
 $VERSION = "0.5";
 

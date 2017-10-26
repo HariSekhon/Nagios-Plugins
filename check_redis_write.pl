@@ -21,7 +21,7 @@ Checks:
 5. records the write/read/delete timings to a given precision for reporting and graphing
 6. compares each operation's time taken against the warning/critical thresholds if given
 
-Tested on Redis 2.4.10, 2.8.19, 3.0.7, 3.2.0";
+Tested on Redis 2.4, 2.6, 2.8, 3.0, 3.2, 4.0";
 
 $VERSION = "0.6";
 

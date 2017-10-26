@@ -16,7 +16,7 @@ $DESCRIPTION = "Nagios Plugin to check a Redis server's client list
 3. Checks all connected client host addresses match expected address regex (optional)
 4. Checks the total number of connected clients against warning/critical thresholds (optional). There may be multiple client connections from each host and each one consumes a file descriptor on the server so it is the number of client connections rather than the number of hosts that are checked against thresholds
 
-Tested on Redis 2.4.10, 2.8.19, 3.0.7, 3.2.0";
+Tested on Redis 2.4, 2.6, 2.8, 3.0, 3.2, 4.0";
 
 $VERSION = "0.5.1";
 

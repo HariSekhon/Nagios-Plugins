@@ -9,7 +9,7 @@
 #  License: see accompanying LICENSE file
 #
 
-our $tested_on = "Tested on Redis 2.4.10, 2.8.19, 3.0.7, 3.2.0";
+our $tested_on = "Tested on Redis 2.4, 2.6, 2.8, 3.0, 3.2, 4.0";
 
 our $DESCRIPTION = "Nagios Plugin to check a Redis server's stats
 
