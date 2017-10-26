@@ -47,7 +47,8 @@ fi
 
 trap_debug_env presto
 
-startupwait 30
+# recent Facebook releases e.g 0.187 can take a long time eg. 70 secs to fully start up
+startupwait 90
 
 presto_worker_tests(){
     if ! [ "$PRESTO_HOST" != "$PRESTO_WORKER_HOST" -o "$PRESTO_PORT" != "$PRESTO_WORKER_PORT" ]; then
@@ -372,16 +373,27 @@ fi
 
 test_presto(){
     local version="$1"
-    teradata_distribution=0
-    for teradata_version in $PRESTO_TERADATA_VERSIONS; do
-        if [ "$version" = "$teradata_version" ]; then
-            teradata_distribution=1
-            break
-        fi
-    done
-    if [ "$teradata_distribution" = "1" ]; then
+    local teradata_distribution=0
+    local teradata_only=0
+    local facebook_only=0
+    if [[ "$version" =~ .*-teradata$ ]]; then
+        version="${version%-teradata}"
+        teradata_distribution=1
+        teradata_only=1
+    elif [[ "$version" =~ .*-facebook$ ]]; then
+        version="${version%-facebook}"
+        facebook_only=1
+    else
+        for teradata_version in $PRESTO_TERADATA_VERSIONS; do
+            if [ "$version" = "$teradata_version" ]; then
+                teradata_distribution=1
+                break
+            fi
+        done
+    fi
+    if [ "$teradata_distribution" = "1" -a $facebook_only -eq 0 ]; then
         echo "Testing Teradata's Presto distribution version:  '$version'"
-        COMPOSE_FILE="$srcdir/docker/presto-docker-compose.yml" test_presto2 "$1"
+        COMPOSE_FILE="$srcdir/docker/presto-docker-compose.yml" test_presto2 "$version"
         # must call this manually here as we're sneaking in an extra batch of tests that run_test_versions is generally not aware of
         let total_run_count+=$run_count
         # reset this so it can be used in test_presto to detect now testing Facebook
@@ -392,7 +404,9 @@ test_presto(){
     else
         echo "Testing Facebook's Presto release version:  '$version'"
     fi
-    COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto2 "$1"
+    if [ $teradata_only -eq 0 ]; then
+        COMPOSE_FILE="$srcdir/docker/presto-dev-docker-compose.yml" test_presto2 "$version"
+    fi
 }
 
 run_test_versions Presto
