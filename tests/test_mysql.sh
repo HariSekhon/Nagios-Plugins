@@ -132,9 +132,17 @@ test_db(){
     #echo "$perl -T ./check_mysql_query.pl -q \"SHOW TABLES IN information_schema like 'C%'\" -o CHARACTER_SETS -v"
     run $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema like 'C%'" -o CHARACTER_SETS -v
     hr
-    run_conn_refused $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema like 'C%'" -o CHARACTER_SETS -v
-    hr
     run $perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -r "'(root|mysql.sys)'@'(%|localhost)'" -v
+    hr
+    run_fail 2 $perl -T ./check_mysql_query.pl -q "SELECT FAILURE" -v
+    hr
+    echo "checking non SELECT / SHOW query triggers unknown usage result:"
+    run_fail 3 $perl -T ./check_mysql_query.pl -q "INVALID_QUERY" -v
+    hr
+    echo "checking invalid query hits MySQL error resulting in critical error:"
+    run_fail 2 $perl -T ./check_mysql_query.pl -q "SHOW INVALID_QUERY" -v
+    hr
+    run_conn_refused $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema like 'C%'" -o CHARACTER_SETS -v
     hr
     run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "DROP table haritest" -r 1 -v
     hr
