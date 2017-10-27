@@ -107,6 +107,9 @@ test_alluxio(){
         echo "Completed $run_count Alluxio tests"
         return
     fi
+    # there is a bug in Alluxio 1.1 + 1.2 properties support that prevents adding the config for reducing the worker detection timeout to 5 mins
+    # there is a bug in Aluxio 1.3 1.5 onwards that does not respect the worker timeout setting
+    if is_CI || ! [[ "$version" =~ ^1\.[12345]$ ]]; then
     echo "Now killing Alluxio worker for dead workers test:"
     set +e
     echo docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f WORKER_LOGGER
@@ -118,7 +121,7 @@ test_alluxio(){
     hr
     echo "Now waiting for dead worker to be detected by master:"
     # takes 300 secs to detect by default, but docker image config sets this down to a more reasonable 10 secs like Tachyon used to do
-    retry 20 ! ./check_alluxio_dead_workers.py -v
+    retry 310 ! ./check_alluxio_dead_workers.py -v
     hr
     run_fail 1 ./check_alluxio_dead_workers.py -v
     hr
@@ -128,6 +131,7 @@ test_alluxio(){
     hr
     run_fail 2 ./check_alluxio_running_workers.py -v -w 1
     hr
+    fi
     echo "Completed $run_count Alluxio tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
