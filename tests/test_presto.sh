@@ -359,7 +359,7 @@ EOF
     hr
     echo "Completed $run_count Presto tests"
     hr
-    [ -z "${KEEPDOCKER:-}" ] || exit 0
+    [ -z "${KEEPDOCKER:-}" ] || return 0
     [ -n "${NODOCKER:-}" ] ||
     docker-compose down
     hr
