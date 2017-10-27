@@ -105,7 +105,7 @@ test_spark(){
     run_conn_refused $perl -T ./check_spark_worker.pl -w 80 -c 90 -v
     hr
     echo "Now killing Spark Worker to check for worker failure detection:"
-    docker exec "$DOCKER_CONTAINER" pkill -f org.apache.spark.deploy.worker.Worker
+    docker exec "$DOCKER_CONTAINER" pkill -9 -f org.apache.spark.deploy.worker.Worker
     hr
     echo "Now waiting for 10 secs for Spark Worker failure to be detected:"
     retry 10 ! $perl -T ./check_spark_cluster_dead_workers.pl
