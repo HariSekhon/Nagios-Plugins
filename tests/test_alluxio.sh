@@ -108,8 +108,8 @@ test_alluxio(){
         return
     fi
     # there is a bug in Alluxio 1.1 + 1.2 properties support that prevents adding the config for reducing the worker detection timeout to 5 mins
-    # there is a bug in Aluxio 1.3 1.5 onwards that does not respect the worker timeout setting
-    if is_CI || ! [[ "$version" =~ ^1\.[12345]$ ]]; then
+    # there is a bug in Aluxio 1.3 - 1.5 that it does not respect the worker timeout setting
+    if is_CI || ! [[ "$version" =~ ^1\.[1-5]$ ]]; then
     echo "Now killing Alluxio worker for dead workers test:"
     set +e
     echo docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f WORKER_LOGGER
