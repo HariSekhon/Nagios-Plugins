@@ -109,7 +109,6 @@ test_tachyon(){
         echo "Completed $run_count Tachyon tests"
         return
     fi
-    # TODO: find way of reconfiguring Tachyon heartbeat threshold to be smaller than 300 secs
     echo "Now killing Tachyon worker for dead workers test:"
     set +e
     echo docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f WORKER_LOGGER
