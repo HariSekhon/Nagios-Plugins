@@ -115,7 +115,7 @@ test_spark(){
     echo "Now killing Spark Worker to check for worker failure detection:"
     docker exec "$DOCKER_CONTAINER" pkill -9 -f org.apache.spark.deploy.worker.Worker
     hr
-    echo "Now waiting for 10 secs for Spark Worker failure to be detected:"
+    echo "Now waiting for Spark Worker failure to be detected:"
     retry 10 ! $perl -T ./check_spark_cluster_dead_workers.pl
     hr
     echo "Completed $run_count Spark tests"
