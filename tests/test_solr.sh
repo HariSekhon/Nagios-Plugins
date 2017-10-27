@@ -85,7 +85,7 @@ test_solr(){
     hr
     run_conn_refused ./check_solr_version.py -e "$version"
     hr
-    # this API endpoint is not available before Solr 5 it seems
+    # cores / collection not loaded in these versions above
     if ! [[ "$version" =~ ^3|^4 ]]; then
         run $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
         hr
