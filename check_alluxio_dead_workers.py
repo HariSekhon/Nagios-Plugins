@@ -43,7 +43,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
 
 class CheckAlluxioDeadWorkers(CheckTachyonDeadWorkers):
@@ -54,6 +54,7 @@ class CheckAlluxioDeadWorkers(CheckTachyonDeadWorkers):
         # Python 3.x
         # super().__init__()
         self.software = 'Alluxio'
+        self.name = ['Alluxio Master', 'Alluxio']
 
 
 if __name__ == '__main__':
