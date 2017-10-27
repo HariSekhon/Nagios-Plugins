@@ -79,7 +79,7 @@ class CheckTachyonDeadWorkers(RestNagiosPlugin):
         soup = BeautifulSoup(req.content, 'html.parser')
         dead_workers = 0
         try:
-            log.info('parsing /workers page for number of dead workers')
+            log.info('parsing %s page for number of dead workers', self.path)
             dead_workers = len([_ for _ in soup.find(id='data2').find('tbody').find_all('tr') if _])
         except (AttributeError, TypeError):
             raise UnknownError('failed to parse {0} Master info for dead workers. UI may have changed. {1}'.
