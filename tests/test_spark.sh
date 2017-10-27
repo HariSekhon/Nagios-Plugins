@@ -86,19 +86,13 @@ test_spark(){
     run_conn_refused ./check_spark_worker_version.py -e "$version"
     hr
     echo "trying check_spark_cluster.pl up to 10 times to give cluster worker a chance to initialize:"
-    set +e
-    for x in {1..10}; do
-        echo -n "$x: "
-        $perl -T ./check_spark_cluster.pl -c 1: -v && break
-        sleep 1
-    done
-    set -e
+    retry 10 ./check_spark_cluster.pl -c 1: -v
     hr
     run $perl -T ./check_spark_cluster.pl -c 1: -v
     hr
     run_conn_refused $perl -T ./check_spark_cluster.pl -c 1: -v
     hr
-    run $perl -T ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v
+    run $perl -T ./check_spark_cluster_dead_workers.pl -w 0 -c 1 -v
     hr
     run_conn_refused $perl -T ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v
     hr
@@ -109,6 +103,12 @@ test_spark(){
     run $perl -T ./check_spark_worker.pl -w 80 -c 90 -v
     hr
     run_conn_refused $perl -T ./check_spark_worker.pl -w 80 -c 90 -v
+    hr
+    echo "Now killing Spark Worker to check for worker failure detection:"
+    docker exec "$DOCKER_CONTAINER" pkill -f org.apache.spark.deploy.worker.Worker
+    hr
+    echo "Now waiting for 10 secs for Spark Worker failure to be detected:"
+    retry 10 ! $perl -T ./check_spark_cluster_dead_workers.pl
     hr
     echo "Completed $run_count Spark tests"
     hr
