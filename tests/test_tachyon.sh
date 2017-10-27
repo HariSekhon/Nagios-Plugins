@@ -109,25 +109,32 @@ test_tachyon(){
         echo "Completed $run_count Tachyon tests"
         return
     fi
-    echo "Now killing Tachyon worker for dead workers test:"
-    set +e
-    echo docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f WORKER_LOGGER
-    # latches on to WORKER_LOGGER earlier in cmd line, works - do not try using just "worker" as that will match and kill the tail that keeps the container up
-    docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f WORKER_LOGGER
-    set -e
-    hr
-    echo "Now waiting for dead worker to be detected by master:"
-    echo "(detects heartbeat lag / expired after 10 secs)"
-    retry 20 ! ./check_tachyon_dead_workers.py -v
-    hr
-    run_fail 1 ./check_tachyon_dead_workers.py -v
-    hr
-    run_fail 2 ./check_tachyon_dead_workers.py -v -c 0
-    hr
-    run_fail 1 ./check_tachyon_running_workers.py -v -w 1 -c 0
-    hr
-    run_fail 2 ./check_tachyon_running_workers.py -v -w 1
-    hr
+    if [ "$version" = "0.7" ]; then
+        echo "Skipping Tachyon worker failure detection due to bug in Tachyon < 8.0:"
+        echo
+        echo "https://tachyon.atlassian.net/browse/ALLUXIO-1130"
+        echo
+    else
+        echo "Now killing Tachyon worker for dead workers test:"
+        set +e
+        echo docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f WORKER_LOGGER
+        # latches on to WORKER_LOGGER earlier in cmd line, works - do not try using just "worker" as that will match and kill the tail that keeps the container up
+        docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f WORKER_LOGGER
+        set -e
+        hr
+        echo "Now waiting for dead worker to be detected by master:"
+        echo "(detects heartbeat lag / expired after 10 secs)"
+        retry 20 ! ./check_tachyon_dead_workers.py -v
+        hr
+        run_fail 1 ./check_tachyon_dead_workers.py -v
+        hr
+        run_fail 2 ./check_tachyon_dead_workers.py -v -c 0
+        hr
+        run_fail 1 ./check_tachyon_running_workers.py -v -w 1 -c 0
+        hr
+        run_fail 2 ./check_tachyon_running_workers.py -v -w 1
+        hr
+    fi
     echo "Completed $run_count Tachyon tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
