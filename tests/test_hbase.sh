@@ -67,11 +67,11 @@ test_hbase(){
     local version="$1"
     section2 "Setting up HBase $version test container"
     # we kill RegionServer and Thrift server near the end to test failure scenarios so do not re-use these containers
-    if [ -z "${KEEPDOCKER:-}" ]; then
-        docker-compose down || :
-    fi
     if is_CI; then
         VERSION="$version" docker-compose pull $docker_compose_quiet
+    fi
+    if [ -z "${KEEPDOCKER:-}" ]; then
+        docker-compose down || :
     fi
     VERSION="$version" docker-compose up -d
     if [ "$version" = "0.96" -o "$version" = "0.98" ]; then
