@@ -55,8 +55,9 @@ test_solr(){
     hr
     when_url_content "http://$SOLR_HOST:$SOLR_PORT/solr/" "Solr Admin"
     hr
-    if [[ "$version" = "latest" || ${version:0:1} > 3 ]]; then
+    if [ "${version:0:1}" != "3" ]; then
         echo "attempting to create Solr Core"
+        # rpc error: code = 2 desc = oci runtime error: exec failed: container_linux.go:247: starting container process caused "exec: \"solr\": executable file not found in $PATH"
         docker-compose exec "$DOCKER_SERVICE" solr create_core -c "$SOLR_CORE" || :
         # TODO: fix this on Solr 5.x+
         echo "attempting to create Solr Collection"
@@ -67,7 +68,7 @@ test_solr(){
         exit 0
     fi
     echo "Setup done, starting checks ..."
-    if [[ "$version" = "latest" || ${version:0:1} > 3 ]]; then
+    if [ "${version:0:1}" != "3" ]; then
         if [ "$version" = "latest" ]; then
             local version="$(dockerhub_latest_version solr)"
         fi
@@ -84,28 +85,37 @@ test_solr(){
     run_conn_refused ./check_solr_version.py -e "$version"
     hr
     # this API endpoint is not available in 3.1
-    if [ "$version" != "3.1" ]; then
+    if [ "${version:0:1}" != "3" ]; then
         run $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
     fi
     hr
     run_conn_refused $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
     hr
-    run $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
+    # this API endpoint is not available in 3.1
+    if [ "${version:0:1}" != "3" ]; then
+        run $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
+    fi
     hr
     run_conn_refused $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
     hr
-    run $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
+    # we don't load the core above
+    if [ "${version:0:1}" != "3" ]; then
+        run $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
+    fi
     hr
     run_conn_refused $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
     hr
     num_expected_docs=4
-    [ "${version:0:1}" -lt 4 ] && num_expected_docs=0
-    # TODO: fix Solr 5 + 6 doc insertion and then tighten this up
-    run $perl -T ./check_solr_query.pl -n 0:4 -w 200 -v
-    hr
-    run_conn_refused $perl -T ./check_solr_query.pl -n 0:4 -w 200 -v
-    hr
-    run $perl -T ./check_solr_write.pl -v -w 1000 # because Travis is slow
+    # docs are not loaded in 3.1 test
+    [ "${version:0:1}" = "3" ] && num_expected_docs=0
+    # core not created in version 3.1 test
+    if [ "${version:0:1}" != "3" ]; then
+        run $perl -T ./check_solr_query.pl -n 0:$num_expected_docs -w 200 -v
+        hr
+        run $perl -T ./check_solr_write.pl -v -w 1000 # because Travis is slow
+        hr
+    fi
+    run_conn_refused $perl -T ./check_solr_query.pl -n 0:$num_expected_docs -w 200 -v
     hr
     run_conn_refused $perl -T ./check_solr_write.pl -v -w 1000
     hr
