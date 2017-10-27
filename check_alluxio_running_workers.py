@@ -18,9 +18,7 @@
 
 Nagios Plugin to check the number of live Alluxio workers via the Alluxio Master UI
 
-TODO: thresholds on number of live workers (coming soon)
-
-Tested on Alluxio 1.0.0, 1.0.1, 1.1.0
+Tested on Alluxio 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6
 
 """
 
@@ -43,7 +41,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class CheckAlluxioRunningWorkers(CheckTachyonRunningWorkers):
@@ -54,6 +52,7 @@ class CheckAlluxioRunningWorkers(CheckTachyonRunningWorkers):
         # Python 3.x
         # super().__init__()
         self.software = 'Alluxio'
+        self.name = ['Alluxio Master', 'Alluxio']
 
 
 if __name__ == '__main__':
