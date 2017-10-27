@@ -133,8 +133,8 @@ test_tachyon(){
         run_fail 1 ./check_tachyon_running_workers.py -v -w 1 -c 0
         hr
         run_fail 2 ./check_tachyon_running_workers.py -v -w 1
-        hr
     fi
+    hr
     echo "Completed $run_count Tachyon tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
