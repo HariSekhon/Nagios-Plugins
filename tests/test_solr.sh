@@ -85,7 +85,7 @@ test_solr(){
     hr
     run_conn_refused ./check_solr_version.py -e "$version"
     hr
-    # cores / collection not loaded in these versions above
+    # not available in Solr 3.x and collection not loaded in 4.10 above due to lack of bin/post command
     if ! [[ "$version" =~ ^3|^4 ]]; then
         run $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
         hr
