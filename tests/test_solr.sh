@@ -57,13 +57,14 @@ test_solr(){
     hr
     if [ "${version:0:1}" != "3" ]; then
         echo "attempting to create Solr Core"
+        # excluding from 3.1 test due to following error:
         # rpc error: code = 2 desc = oci runtime error: exec failed: container_linux.go:247: starting container process caused "exec: \"solr\": executable file not found in $PATH"
         docker-compose exec "$DOCKER_SERVICE" solr create_core -c "$SOLR_CORE" || :
-        # TODO: fix this on Solr 5.x+
+        hr
         echo "attempting to create Solr Collection"
         docker-compose exec "$DOCKER_SERVICE" "$SOLR_HOME/bin/post" -c "$SOLR_CORE" "$SOLR_HOME/example/exampledocs/money.xml" || :
+        hr
     fi
-    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -87,22 +88,22 @@ test_solr(){
     # this API endpoint is not available in 3.1
     if [ "${version:0:1}" != "3" ]; then
         run $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
+        hr
     fi
-    hr
     run_conn_refused $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
     hr
     # this API endpoint is not available in 3.1
     if [ "${version:0:1}" != "3" ]; then
         run $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
+        hr
     fi
-    hr
     run_conn_refused $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
     hr
     # we don't load the core above
     if [ "${version:0:1}" != "3" ]; then
         run $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
+        hr
     fi
-    hr
     run_conn_refused $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
     hr
     num_expected_docs=4
