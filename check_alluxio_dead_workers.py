@@ -18,8 +18,6 @@
 
 Nagios Plugin to check the number of dead Alluxio workers via the Alluxio Master UI
 
-TODO: thresholds on number of dead workers (coming soon)
-
 Tested on Alluxio 1.0.0, 1.0.1, 1.1.0
 
 """
