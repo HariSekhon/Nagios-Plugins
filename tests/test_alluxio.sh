@@ -90,9 +90,13 @@ test_alluxio(){
     hr
     run_conn_refused ./check_alluxio_worker.py -v
     hr
-    run ./check_alluxio_running_workers.py -v
+    run ./check_alluxio_running_workers.py -v -w 1
     hr
-    run_conn_refused ./check_alluxio_running_workers.py -v
+    run_fail 1 ./check_alluxio_running_workers.py -v -w 2
+    hr
+    run_fail 2 ./check_alluxio_running_workers.py -v -w 3 -c 2
+    hr
+    run_conn_refused ./check_alluxio_running_workers.py -v -w 1
     hr
     run ./check_alluxio_dead_workers.py -v
     hr
@@ -103,6 +107,7 @@ test_alluxio(){
         echo "Completed $run_count Alluxio tests"
         return
     fi
+    # TODO: find way of reconfiguring Alluxio heartbeat threshold to be smaller than 300 secs
     echo "Now killing Alluxio worker for dead workers test:"
     set +e
     echo docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f WORKER_LOGGER
@@ -116,9 +121,13 @@ test_alluxio(){
     echo "(takes 300 secs for last heartbeat to expire)"
     retry 310 ! ./check_alluxio_dead_workers.py -v
     hr
-    run_fail 2 ./check_alluxio_dead_workers.py -v
+    run_fail 1 ./check_alluxio_dead_workers.py -v
     hr
-    run_fail 2 ./check_alluxio_running_workers.py -v
+    run_fail 2 ./check_alluxio_dead_workers.py -v -c 0
+    hr
+    run_fail 1 ./check_alluxio_running_workers.py -v -w 1 -c 0
+    hr
+    run_fail 2 ./check_alluxio_running_workers.py -v -w 1
     hr
     echo "Completed $run_count Alluxio tests"
     hr
