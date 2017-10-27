@@ -21,7 +21,7 @@ Nagios Plugin to check the deployed version of Solr matches what's expected.
 This is also used in the accompanying test suite to ensure we're checking the right version of Solr
 for compatibility for all my other Solr / SolrCloud nagios plugins.
 
-Tested on Solr 4.10.4, 5.5.0, 6.0.0, 6.1.0, 6.2.0, 6.2.1, 6.3.0, 6.4.2, 6.5.1, 6.6.0";
+Tested on Solr 4.10, 5.5, 6.0, 6.1, 6.2, 6.2, 6.3, 6.4, 6.5, 6.6, 7.0, 7.1";
 
 """
 
@@ -30,6 +30,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import json
 import logging
 import os
 import sys
@@ -45,14 +46,14 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit, support_msg_api
+    from harisekhon.utils import log, qquit, support_msg_api, isJson
     from harisekhon import VersionNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 # pylint: disable=too-few-public-methods
 
@@ -78,14 +79,19 @@ class CheckSolrVersion(VersionNagiosPlugin):
         log.debug('content:\n%s\n%s\n%s', '='*80, req.content.strip(), '='*80)
         if req.status_code != 200:
             qquit('CRITICAL', '%s %s' % (req.status_code, req.reason))
-        soup = BeautifulSoup(req.content, 'html.parser')
-        if log.isEnabledFor(logging.DEBUG):
-            log.debug("BeautifulSoup prettified:\n{0}\n{1}".format(soup.prettify(), '='*80))
-        try:
-            version = soup.find('str', {'name':'solr-spec-version'}).text
-        except (AttributeError, TypeError) as _:
-            qquit('UNKNOWN', 'failed to find parse Solr output. {0}\n{1}'\
-                             .format(support_msg_api(), traceback.format_exc()))
+        # versions 7.0+
+        if isJson(req.content):
+            json_data = json.loads(req.content)
+            version = json_data['lucene']['solr-spec-version']
+        else:
+            soup = BeautifulSoup(req.content, 'html.parser')
+            if log.isEnabledFor(logging.DEBUG):
+                log.debug("BeautifulSoup prettified:\n{0}\n{1}".format(soup.prettify(), '='*80))
+            try:
+                version = soup.find('str', {'name':'solr-spec-version'}).text
+            except (AttributeError, TypeError) as _:
+                qquit('UNKNOWN', 'failed to find parse Solr output. {0}\n{1}'\
+                                 .format(support_msg_api(), traceback.format_exc()))
         return version
 
 
