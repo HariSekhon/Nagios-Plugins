@@ -45,6 +45,9 @@ test_tachyon(){
     if is_CI; then
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
+    if [ -z "${KEEPDOCKER:-}" ]; then
+        docker-compose down || :
+    fi
     VERSION="$version" docker-compose up -d
     echo "getting Tachyon dynamic port mappings:"
     docker_compose_port "Tachyon Master"
@@ -79,7 +82,7 @@ test_tachyon(){
     #docker exec -ti "$DOCKER_CONTAINER" ps -ef
     run ./check_tachyon_worker.py -v
     hr
-    run ./check_tachyon_running_workers.py -v
+    run ./check_tachyon_running_workers.py -v -w 1
     hr
     run ./check_tachyon_dead_workers.py -v
     hr
@@ -91,9 +94,40 @@ test_tachyon(){
     hr
     run_conn_refused ./check_tachyon_worker.py -v
     hr
-    run_conn_refused ./check_tachyon_running_workers.py -v
+    run ./check_tachyon_running_workers.py -v -w 1
+    hr
+    run_fail 1 ./check_tachyon_running_workers.py -v -w 2
+    hr
+    run_fail 2 ./check_tachyon_running_workers.py -v -w 3 -c 2
+    hr
+    run_conn_refused ./check_tachyon_running_workers.py -v -w 1
     hr
     run_conn_refused ./check_tachyon_dead_workers.py -v
+    hr
+    if [ -n "${KEEPDOCKER:-}" ]; then
+        echo
+        echo "Completed $run_count Tachyon tests"
+        return
+    fi
+    # TODO: find way of reconfiguring Tachyon heartbeat threshold to be smaller than 300 secs
+    echo "Now killing Tachyon worker for dead workers test:"
+    set +e
+    echo docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f WORKER_LOGGER
+    # latches on to WORKER_LOGGER earlier in cmd line, works - do not try using just "worker" as that will match and kill the tail that keeps the container up
+    docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f WORKER_LOGGER
+    set -e
+    hr
+    echo "Now waiting for dead worker to be detected by master:"
+    echo "(detects heartbeat lag / expired after 10 secs)"
+    retry 20 ! ./check_tachyon_dead_workers.py -v
+    hr
+    run_fail 1 ./check_tachyon_dead_workers.py -v
+    hr
+    run_fail 2 ./check_tachyon_dead_workers.py -v -c 0
+    hr
+    run_fail 1 ./check_tachyon_running_workers.py -v -w 1 -c 0
+    hr
+    run_fail 2 ./check_tachyon_running_workers.py -v -w 1
     hr
     echo "Completed $run_count Tachyon tests"
     hr
