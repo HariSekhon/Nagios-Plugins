@@ -74,12 +74,8 @@ test_cassandra(){
     #check_exit_code 2
     #set -e
     #hr
-    echo "trying up to 20 times for nodetool status to succeed"
-    for x in {1..20}; do
-        docker-compose exec "$DOCKER_SERVICE" nodetool status && break
-        echo "===="
-        sleep 1
-    done
+    echo "waiting for nodetool status to succeed:"
+    retry 40 docker-compose exec "$DOCKER_SERVICE" nodetool status
     hr
     docker_exec check_cassandra_version_nodetool.py -e "$version"
     hr
