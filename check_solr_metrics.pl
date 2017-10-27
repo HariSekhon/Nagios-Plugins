@@ -29,7 +29,7 @@ Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 6.
 # Replication status
 # Synthetic queries
 
-our $VERSION = "0.5.0";
+our $VERSION = "0.5.1";
 
 use strict;
 use warnings;
@@ -157,7 +157,7 @@ foreach (my $i = 1; $i < scalar @mbeans; $i+=2){
         if(%keys3){
             foreach (sort keys %keys3){
                 if($stat){
-                    next unless $_ =~ /\.$stat$/;
+                    next unless $_ =~ /^(.*\.)?$stat$/;
                 }
                 $stat_found = 1;
                 my $value = $keys3{$_};
