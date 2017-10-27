@@ -23,7 +23,7 @@ cd "$srcdir/.."
 
 section "S o l r"
 
-export SOLR_VERSIONS="${@:-${SOLR_VERSIONS:-latest 3.1 3.6 4.10 5.5 6.0 6.1 6.2 6.3 6.4 6.5 6.6}}"
+export SOLR_VERSIONS="${@:-${SOLR_VERSIONS:-latest 3.1 3.6 4.10 5.5 6.0 6.1 6.2 6.3 6.4 6.5 6.6 7.0 7.1}}"
 
 SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
