@@ -29,7 +29,7 @@ echo "
 # ============================================================================ #
 "
 
-export SOLRCLOUD_VERSIONS="${@:-${SOLRCLOUD_VERSIONS:-latest 4.10 5.5 6.0 6.1 6.2 6.3 6.4 6.5 6.6}}"
+export SOLRCLOUD_VERSIONS="${@:-${SOLRCLOUD_VERSIONS:-latest 4.10 5.5 6.0 6.1 6.2 6.3 6.4 6.5 6.6 7.0 7.1}}"
 
 SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
@@ -52,6 +52,7 @@ docker_exec(){
     run docker-compose exec "$DOCKER_SERVICE" "$MNTDIR/$@"
 }
 
+# TODO: separate solrcloud and solrcloud-dev checks
 test_solrcloud(){
     local version="$1"
     # SolrCloud 4.x needs some different args / locations
@@ -110,7 +111,11 @@ test_solrcloud(){
         # TODO: review why there is no solrcloud example config - this was the closest one I found via:
         # find /solr/ -name solrconfig.xml | while read filename; dirname=$(dirname $filename); do echo $dirname; /pl/check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C gettingstarted -d $dirname -v; echo; done
         set +o pipefail
-        docker_exec check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C "$SOLR_COLLECTION" -d "$SOLR_HOME/server/solr/configsets/data_driven_schema_configs/conf" -v | grep -F '1 file only found in ZooKeeper but not local directory (configoverlay.json)'
+        if [ "$version" = "latest" -o "${version:0:1}" -ge 7 ]; then
+            FAIL=2 docker_exec check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C "$SOLR_COLLECTION" -d "$SOLR_HOME/server/solr/configsets/sample_techproducts_configs/conf" -v
+        else
+            FAIL=2 docker_exec check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C "$SOLR_COLLECTION" -d "$SOLR_HOME/server/solr/configsets/data_driven_schema_configs/conf" -v #| grep -F '1 file only found in ZooKeeper but not local directory (configoverlay.json)'
+        fi
         set -o pipefail
     fi
     hr
