@@ -83,7 +83,10 @@ test_solr(){
     hr
     run_conn_refused ./check_solr_version.py -e "$version"
     hr
-    run $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
+    # this API endpoint is not available in 3.1
+    if [ "$version" != "3.1" ]; then
+        run $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
+    fi
     hr
     run_conn_refused $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
     hr
