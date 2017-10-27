@@ -21,7 +21,7 @@ Checks:
 4. Subject Alternative Names supported by certificate (optional)
 5. SNI - Server Name Identification - supply hostname identifier for servers that contain multiple certificates to tell the server which SSL certificate to use (optional)";
 
-$VERSION = "0.9.13";
+$VERSION = "0.9.14";
 
 use warnings;
 use strict;
@@ -103,28 +103,35 @@ set_timeout($timeout, sub { pkill("$openssl s_client -connect $host:$port", "-9"
 
 $openssl = which($openssl, 1);
 
-# OpenSSL 1.1 on Debian Stetch shows /usr/lib/ssl/ but in fact requires /usr/lib/ssl/certs/
-# so this now causes a certificate validation failure if using the inferred path location
-# as newer OpenSSL appears to no longer recurse for CA certs. Instead leave openssl to
-# use it's default location and only use -CApath if the user has specifically requested
-# changing the path, see:
+# OpenSSL 1.0 / 1.1 on Ubuntu Trust 14.04 / Debian 9 Stetch shows /usr/lib/ssl/ but in fact requires /usr/lib/ssl/certs/, which caused
+# cert validation failure if using the inferred path location as newer OpenSSL appears to no longer recurse for CA certs, see:
 #
 # https://github.com/HariSekhon/nagios-plugins/issues/163
 #
-#unless(defined($CApath)){
-#    @output = cmd("$openssl version -a");
-#    foreach(@output){
-#        if (/^OPENSSLDIR: "($filename_regex)"\s*\n?$/) {
-#            $CApath = $1;
-#            vlog2 "Found CApath from openssl binary as: $CApath\n";
-#            last;
-#        }
-#    }
-#    unless(defined($CApath)){
-#        usage "CApath to root certs was not specified and could not be found from openssl binary";
-#    }
-#    $CApath = validate_dir($CApath, "CA path");
-#}
+# Originally commented this block out to leave openssl to use its default location and only use -CApath if the user has specifically requested changing the path
+#
+# However it turns out that openssl 1.0 on Ubuntu Trusty 14.04 does not infer the cert path properly and results in:
+#
+# CRITICAL: Certificate validation failed, returned 20 (unable to get local issuer certificate)
+#
+# so re-enabled now and added specific handling for this case to append /certs/ to the CApath when this otherwise pointing to only /usr/lib/ssl
+unless(defined($CApath)){
+    @output = cmd("$openssl version -a");
+    foreach(@output){
+        if (/^OPENSSLDIR: "($filename_regex)"\s*\n?$/) {
+            $CApath = $1;
+            vlog2 "Found CApath from openssl binary as: $CApath\n";
+            last;
+        }
+    }
+    unless(defined($CApath)){
+        usage "CApath to root certs was not specified and could not be found from openssl binary";
+    }
+    if($CApath eq "/usr/lib/ssl"){
+        $CApath = "$CApath/certs/";
+    }
+    $CApath = validate_dir($CApath, "CA path");
+}
 
 vlog2;
 
