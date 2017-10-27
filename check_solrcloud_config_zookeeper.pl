@@ -22,7 +22,7 @@ Checks:
 - in verbose mode shows which files are differing or missing between local Solr config vs ZooKeeper SolrCloud config
 - outputs the time since last config change in ZooKeeper as well as the last config linking change in ZooKeeper
 
-Tested on ZooKeeper 3.4.5 / 3.4.6 with SolrCloud 4.7.2, 4.10.3, 5.4.0, 5.5.0, 6.0.0, 6.1.0, 6.2.0, 6.2.1, 6.3.0, 6.4.2, 6.5.1, 6.6.0
+Tested on ZooKeeper 3.4.5 / 3.4.6 with SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.0, 7.1
 
 API / BUGS / Limitations:
 

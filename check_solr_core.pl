@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check the stats of a Solr 4 core on the server 
 
 Optional thresholds on the core's index size, heap size, number of documents and query time
 
-Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.7.2, 4.10.3, 5.4.0, 5.5.0, 6.0.0, 6.1.0, 6.2.0, 6.2.1, 6.3.0, 6.4.2, 6.5.1, 6.6.0";
+Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.0, 7.1";
 
 our $VERSION = "0.3.1";
 

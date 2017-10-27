@@ -25,7 +25,7 @@ For a given SolrCloud Collection or all collections found if --collection is not
 
 See also adjacent plugin check_solrcloud_cluster_status_zookeeper.pl which does the same as this check but goes via ZooKeeper which is tecnically the more correct thing to do since if the supplied SolrCloud node is down you will only get a 'connect refused' type feedback and not the extend of the outage in the cluster.
 
-Tested on SolrCloud 4.7.2, 4.10.3, 5.4.0, 5.5.0, 6.0.0, 6.1.0, 6.2.0, 6.2.1, 6.3.0, 6.4.2, 6.5.1, 6.6.0";
+Tested on SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.0, 7.1";
 
 our $VERSION = "0.2.1";
 
