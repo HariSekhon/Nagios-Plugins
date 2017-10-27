@@ -33,7 +33,6 @@ import os
 import sys
 try:
     from bs4 import BeautifulSoup
-    import requests
 except ImportError as _:
     print(_)
     sys.exit(4)
@@ -41,9 +40,8 @@ libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit
-    from harisekhon.utils import validate_host, validate_port
-    from harisekhon import NagiosPlugin
+    from harisekhon.utils import log, UnknownError, support_msg
+    from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print('module import failed: %s' % _, file=sys.stderr)
     print("Did you remember to build the project by dead 'make'?", file=sys.stderr)
@@ -51,57 +49,50 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
 
-class CheckTachyonDeadWorkers(NagiosPlugin):
+class CheckTachyonDeadWorkers(RestNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
         super(CheckTachyonDeadWorkers, self).__init__()
         # Python 3.x
         # super().__init__()
+        self.name = ['Tachyon Master', 'Tachyon']
         self.software = 'Tachyon'
+        self.default_port = 19999
+        self.path = '/workers'
+        self.auth = False
+        self.json = False
+        self.msg = 'Tachyon msg not defined'
 
     def add_options(self):
-        self.add_hostoption(name='%s Master' % self.software,
-                            default_host='localhost',
-                            default_port=19999)
+        super(CheckTachyonDeadWorkers, self).add_options()
+        self.add_thresholds(default_warning=0, default_critical=1)
 
-    def run(self):
-        self.no_args()
-        host = self.get_opt('host')
-        port = self.get_opt('port')
-        validate_host(host)
-        validate_port(port)
+    def process_options(self):
+        super(CheckTachyonDeadWorkers, self).process_options()
+        self.validate_thresholds()
 
-        log.info('querying %s Master', self.software)
-        url = 'http://%(host)s:%(port)s/workers' % locals()
-        log.debug('GET %s', url)
-        try:
-            req = requests.get(url)
-        except requests.exceptions.RequestException as _:
-            qquit('CRITICAL', _)
-        log.debug("response: %s %s", req.status_code, req.reason)
-        log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
-        if req.status_code != 200:
-            qquit('CRITICAL', "%s %s" % (req.status_code, req.reason))
+    def parse(self, req):
         soup = BeautifulSoup(req.content, 'html.parser')
         dead_workers = 0
         try:
+            log.info('parsing /workers page for number of dead workers')
             dead_workers = len([_ for _ in soup.find(id='data2').find('tbody').find_all('tr') if _])
         except (AttributeError, TypeError):
-            qquit('UNKNOWN', 'failed to find parse %s Master info for dead workers' % self.software)
+            raise UnknownError('failed to parse {0} Master info for dead workers. UI may have changed. {1}'.
+                               format(self.software, support_msg()))
         try:
             dead_workers = int(dead_workers)
         except (ValueError, TypeError):
-            qquit('UNKNOWN', '{0} Master dead workers parsing returned non-integer: {1}'.
-                  format(self.software, dead_workers))
-        self.msg = '{0} dead workers = {1}'.format(self.software, dead_workers)  # pylint: disable=attribute-defined-outside-init
-        self.ok()
-        # TODO: thresholds on number of dead workers (coming soon)
-        if dead_workers:
-            self.critical()
+            raise UnknownError('{0} Master dead workers parsing returned non-integer: {1}. UI may have changed. {2}'.
+                               format(self.software, dead_workers, support_msg()))
+        self.msg = '{0} dead workers = {1}'.format(self.software, dead_workers)
+        self.check_thresholds(dead_workers)
+        self.msg += ' | '
+        self.msg += 'dead_workers={0}{1}'.format(dead_workers, self.get_perf_thresholds())
 
 
 if __name__ == '__main__':
