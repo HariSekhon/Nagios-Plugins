@@ -55,7 +55,7 @@ test_solr(){
     hr
     when_url_content "http://$SOLR_HOST:$SOLR_PORT/solr/" "Solr Admin"
     hr
-    if [ "${version:0:1}" != "3" ]; then
+    if [ "$version" != "3.1" ]; then
         echo "attempting to create Solr Core"
         # excluding from 3.1 test due to following error:
         # rpc error: code = 2 desc = oci runtime error: exec failed: container_linux.go:247: starting container process caused "exec: \"solr\": executable file not found in $PATH"
@@ -85,22 +85,21 @@ test_solr(){
     hr
     run_conn_refused ./check_solr_version.py -e "$version"
     hr
-    # this API endpoint is not available in 3.1
-    if [ "${version:0:1}" != "3" ]; then
+    # this API endpoint is not available before Solr 5 it seems
+    if ! [[ "$version" =~ ^3|^4 ]]; then
         run $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
         hr
     fi
     run_conn_refused $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
     hr
-    # this API endpoint is not available in 3.1
-    if [ "${version:0:1}" != "3" ]; then
+    if ! [[ "$version" =~ ^3|^4 ]]; then
         run $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
         hr
     fi
     run_conn_refused $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
     hr
-    # we don't load the core above
-    if [ "${version:0:1}" != "3" ]; then
+    # core / collection not created above in versions < 5
+    if ! [[ "$version" =~ ^3|^4 ]]; then
         run $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
         hr
     fi
@@ -108,9 +107,9 @@ test_solr(){
     hr
     num_expected_docs=4
     # docs are not loaded in 3.1 test
-    [ "${version:0:1}" = "3" ] && num_expected_docs=0
-    # core not created in version 3.1 test
-    if [ "${version:0:1}" != "3" ]; then
+    [ "$version" = "3.1" ] && num_expected_docs=0
+    # core / collection not created above in versions < 5
+    if ! [[ "$version" =~ ^3|^4 ]]; then
         run $perl -T ./check_solr_query.pl -n 0:$num_expected_docs -w 200 -v
         hr
         run $perl -T ./check_solr_write.pl -v -w 1000 # because Travis is slow
