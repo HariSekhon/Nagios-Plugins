@@ -49,6 +49,9 @@ test_spark(){
     if is_CI; then
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
+    if [ -z "${KEEPDOCKER:-}" ]; then
+        docker-compose down || :
+    fi
     VERSION="$version" docker-compose up -d
     echo "getting Spark dynamic port mappings:"
     printf "Spark Master Port => "
@@ -104,6 +107,11 @@ test_spark(){
     hr
     run_conn_refused $perl -T ./check_spark_worker.pl -w 80 -c 90 -v
     hr
+    if [ -n "${KEEPDOCKER:-}" ]; then
+        echo
+        echo "Completed $run_count Spark tests"
+        return
+    fi
     echo "Now killing Spark Worker to check for worker failure detection:"
     docker exec "$DOCKER_CONTAINER" pkill -9 -f org.apache.spark.deploy.worker.Worker
     hr
