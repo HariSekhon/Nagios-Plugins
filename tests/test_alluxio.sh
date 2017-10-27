@@ -107,31 +107,27 @@ test_alluxio(){
         echo "Completed $run_count Alluxio tests"
         return
     fi
-    # Wastes too much of my time running locally
-    if is_CI; then
-        # TODO: find way of reconfiguring Alluxio heartbeat threshold to be smaller than 300 secs
-        echo "Now killing Alluxio worker for dead workers test:"
-        set +e
-        echo docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f WORKER_LOGGER
-        # this doesn't find it, bug, probably too far along the cmd line
-        #docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f alluxio.worker.AlluxioWorker
-        # latches on to WORKER_LOGGER earlier in cmd line, works - do not try using just "worker" as that will match and kill the tail that keeps the container up
-        docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f WORKER_LOGGER
-        set -e
-        hr
-        echo "Now waiting for dead worker to be detected by master:"
-        echo "(takes 300 secs for last heartbeat to expire)"
-        retry 310 ! ./check_alluxio_dead_workers.py -v
-        hr
-        run_fail 1 ./check_alluxio_dead_workers.py -v
-        hr
-        run_fail 2 ./check_alluxio_dead_workers.py -v -c 0
-        hr
-        run_fail 1 ./check_alluxio_running_workers.py -v -w 1 -c 0
-        hr
-        run_fail 2 ./check_alluxio_running_workers.py -v -w 1
-        hr
-    fi
+    echo "Now killing Alluxio worker for dead workers test:"
+    set +e
+    echo docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f WORKER_LOGGER
+    # this doesn't find it, bug, probably too far along the cmd line
+    #docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f alluxio.worker.AlluxioWorker
+    # latches on to WORKER_LOGGER earlier in cmd line, works - do not try using just "worker" as that will match and kill the tail that keeps the container up
+    docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f WORKER_LOGGER
+    set -e
+    hr
+    echo "Now waiting for dead worker to be detected by master:"
+    # takes 300 secs to detect by default, but docker image config sets this down to a more reasonable 10 secs like Tachyon used to do
+    retry 20 ! ./check_alluxio_dead_workers.py -v
+    hr
+    run_fail 1 ./check_alluxio_dead_workers.py -v
+    hr
+    run_fail 2 ./check_alluxio_dead_workers.py -v -c 0
+    hr
+    run_fail 1 ./check_alluxio_running_workers.py -v -w 1 -c 0
+    hr
+    run_fail 2 ./check_alluxio_running_workers.py -v -w 1
+    hr
     echo "Completed $run_count Alluxio tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
