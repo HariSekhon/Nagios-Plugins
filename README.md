@@ -113,7 +113,7 @@ make clean-zookeeper
 
 All plugins come with `--help` which lists all options as well as giving a program description, often including a detailed account of what is checked in the code. You can also find example commands in the `tests/` directory.
 
-Some common options also support optional environment variables for convenience to reduce repeated switch usage or to hide them from being exposed in the process list. These are indicated in the `--help` descriptions in brackets next to each option eg. `$HOST`, `$PASSWORD` or more specific ones with higher precedence like `$ELASTICSEARCH_HOST`, `$REDIS_PASSWORD` etc.
+Environment variables are supported for convenience and also to hide credentials from being exposed in the process list eg. ```$PASSWORD```. These are indicated in the ```--help``` descriptions in brackets next to each option and often have more specific overrides with higher precedence eg. ```$ELASTICSEARCH_HOST``` takes priority over ```$HOST```, ```$REDIS_PASSWORD``` takes priority over ```$PASSWORD``` etc.
 
 Make sure to run the [automated build](https://github.com/harisekhon/nagios-plugins#automated-build-from-source) or install the required Perl CPAN / Python PyPI modules first before calling `--help`.
 
