@@ -35,6 +35,8 @@ set_threshold_defaults(1,0);
     %elasticsearch_index,
     #"R|replicas=s" => [ \$expected_replicas, "Expected replicas (default: w,c = 1,0)" ],
     %thresholdoptions,
+    %useroptions,
+    %ssloptions,
 );
 
 get_options();

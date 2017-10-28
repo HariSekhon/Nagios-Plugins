@@ -33,6 +33,8 @@ my $expected_shards;
     %hostoptions,
     %elasticsearch_index,
     "A|shards=s" => [ \$expected_shards, "Expected shards (optional)" ],
+    %useroptions,
+    %ssloptions,
 );
 
 get_options();

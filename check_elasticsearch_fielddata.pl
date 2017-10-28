@@ -39,6 +39,8 @@ my $list_nodes;
     "N|node=s"    => [ \$node,       "Node hostname or IP address of node for which to check fielddata volume" ],
     "list-nodes"  => [ \$list_nodes, "List nodes (this API no longer returns nodes without fielddata from 5.0 onwards, use --list from one of the adjacent plugins instead)" ],
     %thresholdoptions,
+    %useroptions,
+    %ssloptions,
 );
 push(@usage_order, qw/node list-nodes/);
 
