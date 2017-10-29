@@ -46,11 +46,11 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
 
-class CheckCouchdbDbExists(RestNagiosPlugin):
+class CheckCouchDBDatabaseExists(RestNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckCouchdbDbExists, self).__init__()
+        super(CheckCouchDBDatabaseExists, self).__init__()
         # Python 3.x
         # super().__init__()
         self.name = ['CouchDB', 'Couch']
@@ -62,12 +62,12 @@ class CheckCouchdbDbExists(RestNagiosPlugin):
         self.database = None
 
     def add_options(self):
-        super(CheckCouchdbDbExists, self).add_options()
+        super(CheckCouchDBDatabaseExists, self).add_options()
         self.add_opt('-d', '--database', help='Database to assert exists')
         self.add_opt('-l', '--list', action='store_true', default=False, help='List databases and exit')
 
     def process_options(self):
-        super(CheckCouchdbDbExists, self).process_options()
+        super(CheckCouchDBDatabaseExists, self).process_options()
         if not self.get_opt('list'):
             self.database = self.get_opt('database')
             # lowercase characters (a-z), digits (0-9), and any of the characters _, $, (, ), +, -, and /
@@ -95,4 +95,4 @@ class CheckCouchdbDbExists(RestNagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckCouchdbDbExists().main()
+    CheckCouchDBDatabaseExists().main()
