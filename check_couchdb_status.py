@@ -4,6 +4,7 @@
 #
 #  Author: Hari Sekhon
 #  Date: 2017-10-29 16:16:55 +0100 (Sun, 29 Oct 2017)
+#  Old Idea Date: 2014-01-18 14:49:57 +0000 (Sat, 18 Jan 2014)
 #
 #  https://github.com/harisekhon/nagios-plugins
 #
@@ -46,11 +47,11 @@ __version__ = '0.1'
 
 
 # pylint: disable=too-few-public-methods
-class CheckCouchdbDbExists(RestNagiosPlugin):
+class CheckCouchdbStatus(RestNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckCouchdbDbExists, self).__init__()
+        super(CheckCouchdbStatus, self).__init__()
         # Python 3.x
         # super().__init__()
         self.name = ['CouchDB', 'Couch']
@@ -68,4 +69,4 @@ class CheckCouchdbDbExists(RestNagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckCouchdbDbExists().main()
+    CheckCouchdbStatus().main()
