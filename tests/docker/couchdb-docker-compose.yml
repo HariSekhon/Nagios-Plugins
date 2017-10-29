@@ -18,6 +18,9 @@ services:
     extends:
       file: common.yml
       service: common
+    # official
+    #image: couchdb:${VERSION:-latest}
+    # semi-official, has 2.1 unlike official
     image: apache/couchdb:${VERSION:-latest}
     environment:
       COUCHDB_USER: "${COUCHDB_USER:-admin}"
