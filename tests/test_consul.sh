@@ -63,19 +63,8 @@ test_consul(){
     when_url_content "http://$CONSUL_HOST:$CONSUL_PORT/" "Consul (Agent|by HashiCorp)"
     hr
     echo "waiting for leader election to avoid write key failure:"
-    i=0
-    while true; do
-        let i+=1
-        echo -n "try $i:  "
-        if ./check_consul_leader_elected.py; then
-            break
-        fi
-        if [ $i -gt 10 ]; then
-            echo "Consul leader still not elected after 10 seconds!"
-            exit 1
-        fi
-        sleep 1
-    done
+    # typically takes ~ 7 secs
+    retry 15 ./check_consul_leader_elected.py
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
