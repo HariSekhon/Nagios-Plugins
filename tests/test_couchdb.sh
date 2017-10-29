@@ -23,6 +23,8 @@ cd "$srcdir/.."
 
 section "C o u c h D B"
 
+# 1.6 and 2.1 were getting the following error, seem to be behaving now:
+# ERROR: Get https://registry-1.docker.io/v2/: dial tcp: lookup registry-1.docker.io on 194.239.134.83:53: server misbehaving
 export COUCHDB_VERSIONS="${@:-${COUCHDB_VERSIONS:-latest 1.6 2.1}}"
 
 COUCHDB_HOST="${DOCKER_HOST:-${COUCHDB_HOST:-${HOST:-localhost}}}"
@@ -61,7 +63,10 @@ test_couchdb(){
     hr
     when_url_content "http://$COUCHDB_HOST:$COUCHDB_PORT/" "couchdb"
     hr
-    retry 10 ./check_couchdb_status.py
+    # this only seems to work in 2.x, not 1.6
+    if [ "${version:0:1}" -ge 2 ]; then
+        retry 10 ./check_couchdb_status.py
+    fi
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -75,7 +80,16 @@ test_couchdb(){
     fi
     run ./check_couchdb_version.py -e "$version"
     hr
-    run ./check_couchdb_status.py
+    run_fail 2 ./check_couchdb_version.py -e "fail-version"
+    hr
+    run_conn_refused ./check_couchdb_version.py -e "$version"
+    hr
+    # this only seems to work in 2.x, not 1.6
+    if [ "${version:0:1}" -ge 2 ]; then
+        run ./check_couchdb_status.py
+    fi
+    hr
+    run_conn_refused ./check_couchdb_status.py
     hr
     run_fail 3 ./check_couchdb_database_exists.py --list
     hr
@@ -83,7 +97,15 @@ test_couchdb(){
     hr
     run ./check_couchdb_database_exists.py --database "$COUCHDB_TEST_DB"
     hr
+    run_fail 2 ./check_couchdb_database_exists.py --database "nonexistentdatabase"
+    hr
+    run_conn_refused ./check_couchdb_database_exists.py --database "$COUCHDB_TEST_DB"
+    hr
     run ./check_couchdb_database_stats.py --database "$COUCHDB_TEST_DB"
+    hr
+    run_fail 2 ./check_couchdb_database_stats.py --database "nonexistentdatabase"
+    hr
+    run_conn_refused ./check_couchdb_database_stats.py --database "$COUCHDB_TEST_DB"
     hr
     # race condition, misses
     #echo "trigger compaction and check stat for compaction=1:"
