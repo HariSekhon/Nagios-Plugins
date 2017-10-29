@@ -68,9 +68,10 @@ class CheckCouchdbDbExists(RestNagiosPlugin):
 
     def process_options(self):
         super(CheckCouchdbDbExists, self).process_options()
-        # lowercase characters (a-z), digits (0-9), and any of the characters _, $, (, ), +, -, and /
-        self.database = self.get_opt('database')
-        validate_chars(self.database, 'database', r'a-z0-9_\$\(\)\+\-/')
+        if not self.get_opt('list'):
+            self.database = self.get_opt('database')
+            # lowercase characters (a-z), digits (0-9), and any of the characters _, $, (, ), +, -, and /
+            validate_chars(self.database, 'database', r'a-z0-9_\$\(\)\+\-/')
 
     def parse_json(self, json_data):
         if not isList(json_data):
@@ -78,9 +79,12 @@ class CheckCouchdbDbExists(RestNagiosPlugin):
         databases = json_data
         if self.get_opt('list'):
             print('CouchDB databases:\n')
-            for database in databases:
-                print('{0}'.format(database))
-                sys.exit(ERRORS['UNKNOWN'])
+            if databases:
+                for database in databases:
+                    print('{0}'.format(database))
+            else:
+                print('<none>')
+            sys.exit(ERRORS['UNKNOWN'])
         self.msg += "'{0}' ".format(self.database)
         if self.database in databases:
             self.ok()
