@@ -438,22 +438,17 @@ EOF
     exit
 EOF
     hr
-    # Job can get stuck in Accepted state with no NM to run on if disk > 90% full it gets marked as bad dir
-    local max_job_wait=30
-    echo "waiting up to $max_job_wait secs for job to become enter running state..."
-    SECONDS=0
-    while true; do
-        echo "checking if job is running yet.."
-        if ./check_hadoop_yarn_app_running.py -a '.*' &>/dev/null; then
-            echo "job detected as runnning"
-            break
-        fi
-        if [ $SECONDS -gt $max_job_wait ]; then
-            echo "FAILED: MapReduce job was not detected as running after $max_job_wait secs (is disk >90% full?)"
-            exit 1
-        fi
-        sleep 1
-    done
+    echo "waiting for job to enter running state:"
+    set +e
+    local max_wait_job_running_secs=30
+    # -a '.*' keeps getting expanded incorrectly in shell inside retry(), cannot quote inside retry() and escaping '.\*' or ".\*" doesn't work either it appears as those the backslash is passed in literally to the program
+    retry $max_wait_job_running_secs ./check_hadoop_yarn_app_running.py -a "monte"
+    if [ $? -ne 0 ]; then
+        # Job can get stuck in Accepted state with no NM to run on if disk > 90% full it gets marked as bad dir - Docker images have been updated to permit 100% / not check disk utilization so there is more chance of this working on machines with low disk space left, eg. your laptop
+        echo "FAILED: MapReduce job was not detected as running after $max_wait_job_running_secs secs (is disk >90% full?)"
+        exit 1
+    fi
+    set -e
     hr
     echo "Checking app listings while there is an app running:"
     echo
@@ -504,23 +499,9 @@ EOF
     hr
     run_grep "checked 0 out of" ./check_hadoop_yarn_long_running_apps.py --exclude=quasi
     hr
-    max_job_runtime=100
-    echo "waiting up to $max_job_runtime secs for job to stop running:"
-    SECONDS=0
-    set +e
-    while true; do
-        ./check_hadoop_yarn_app_running.py -a '.*'
-        # got an unknown status timeout which exited prematurely, so enforce an actual critical that the job isn't found
-        if [ $? -eq 2 ]; then
-            break
-        fi
-        if [ $SECONDS -gt $max_job_runtime ]; then
-            echo "FAIL: job did not complete after $max_job_runtime secs"
-            exit 1
-        fi
-        sleep 1
-    done
-    set -e
+    echo "waiting for job to stop running:"
+    # got an unknown status timeout which exited prematurely, so increase timeout
+    retry 100 ! ./check_hadoop_yarn_app_running.py -a 'monte' -t 100
     hr
     echo "Checking listing app history:"
     echo
