@@ -64,7 +64,7 @@ test_couchdb(){
     when_url_content "http://$COUCHDB_HOST:$COUCHDB_PORT/" "couchdb"
     hr
     # this only seems to work in 2.x, not 1.6
-    if [ "${version:0:1}" -ge 2 ]; then
+    if [ "${version:0:1}" != 1 ]; then
         retry 10 ./check_couchdb_status.py
     fi
     if [ -n "${NOTESTS:-}" ]; then
@@ -85,7 +85,7 @@ test_couchdb(){
     run_conn_refused ./check_couchdb_version.py -e "$version"
     hr
     # this only seems to work in 2.x, not 1.6
-    if [ "${version:0:1}" -ge 2 ]; then
+    if [ "${version:0:1}" != 1 ]; then
         run ./check_couchdb_status.py
     fi
     hr
