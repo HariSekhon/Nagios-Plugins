@@ -19,6 +19,9 @@ services:
       file: common.yml
       service: common
     image: apache/couchdb:${VERSION:-latest}
+    environment:
+      COUCHDB_USER: "${COUCHDB_USER:-admin}"
+      COUCHDB_PASSWORD: "${COUCHDB_PASSWORD:-password}"
     ports:
       - 5984
     networks:
