@@ -31,7 +31,7 @@ historically against graphs when compacts run
 
 Thresholds are optional and apply to the total number of documents for the given database
 
-Tested on CouchDB 2.1.0
+Tested on CouchDB 1.6.1 and 2.1.0
 
 """
 

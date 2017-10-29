@@ -20,7 +20,7 @@
 
 Nagios Plugin to check a given CouchDB server's status via its API
 
-Tested on CouchDB 2.1.0
+Tested on CouchDB 2.1.0 (does not work on 1.6 as there is no corresponding API endpoint)
 
 """
 

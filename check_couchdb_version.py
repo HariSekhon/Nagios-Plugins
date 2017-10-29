@@ -19,7 +19,7 @@
 
 Nagios Plugin to check the version of a CouchDB server its API
 
-Tested on CouchDB 2.1.0
+Tested on CouchDB 1.6.1 and 2.1.0
 
 """
 
