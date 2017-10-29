@@ -56,10 +56,6 @@ test_consul(){
     echo "getting Consul dynamic port mapping:"
     docker_compose_port "Consul"
     hr
-    if [ -n "${NOTESTS:-}" ]; then
-        exit 0
-    fi
-    hr
     when_ports_available "$CONSUL_HOST" "$CONSUL_PORT"
     hr
     # older versions say Consul Agent
@@ -80,6 +76,10 @@ test_consul(){
         fi
         sleep 1
     done
+    hr
+    if [ -n "${NOTESTS:-}" ]; then
+        exit 0
+    fi
     hr
     local testkey="nagios/consul/testkey1"
     echo "Writing random value to test key $testkey"
