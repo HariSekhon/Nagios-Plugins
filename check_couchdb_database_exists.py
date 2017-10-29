@@ -43,7 +43,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckCouchDBDatabaseExists(RestNagiosPlugin):
@@ -55,6 +55,7 @@ class CheckCouchDBDatabaseExists(RestNagiosPlugin):
         # super().__init__()
         self.name = ['CouchDB', 'Couch']
         self.default_port = 5984
+        # can HEAD /{db} to test for DB existence ever so slightly more efficient but won't get as nice error messages
         self.path = '/_all_dbs'
         self.auth = False
         self.json = True
@@ -68,10 +69,14 @@ class CheckCouchDBDatabaseExists(RestNagiosPlugin):
 
     def process_options(self):
         super(CheckCouchDBDatabaseExists, self).process_options()
-        if not self.get_opt('list'):
+        if self.get_opt('list'):
+            #self.path = '/_all_dbs'
+            pass
+        else:
             self.database = self.get_opt('database')
             # lowercase characters (a-z), digits (0-9), and any of the characters _, $, (, ), +, -, and /
             validate_chars(self.database, 'database', r'a-z0-9_\$\(\)\+\-/')
+            #self.path = '/{0}'.format(self.database)
 
     def parse_json(self, json_data):
         if not isList(json_data):
@@ -85,6 +90,8 @@ class CheckCouchDBDatabaseExists(RestNagiosPlugin):
             else:
                 print('<none>')
             sys.exit(ERRORS['UNKNOWN'])
+        # if using /{db}
+        #assert json_data['db_name'] == self.database
         self.msg += "'{0}' ".format(self.database)
         if self.database in databases:
             self.ok()
