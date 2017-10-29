@@ -34,7 +34,8 @@ export COUCHDB_PORT_DEFAULT=5984
 
 export COUCHDB_TEST_DB="nagios-plugins"
 
-export MNTDIR="/pl"
+export COUCHDB_USER="${COUCHDB_USER:-admin}"
+export COUCHDB_PASSWORD="${COUCHDB_PASSWORD:-password}"
 
 startupwait 10
 
@@ -66,7 +67,7 @@ test_couchdb(){
     fi
     hr
     echo "Setting up nagios-plugins database:"
-    curl -s -X PUT -H 'content-type: application/json' "$COUCHDB_HOST:$COUCHDB_PORT/$COUCHDB_TEST_DB" | tee /dev/stderr | grep --color -e '{"ok":true}' -e 'already exists'
+    curl -s -u "$COUCHDB_USER:$COUCHDB_PASSWORD" -X PUT -H 'content-type: application/json' "$COUCHDB_HOST:$COUCHDB_PORT/$COUCHDB_TEST_DB" | tee /dev/stderr | grep --color -e '{"ok":true}' -e 'already exists'
     # TODO: run curl call to set up DB
     hr
     if [ "$version" = "latest" ]; then
@@ -86,7 +87,7 @@ test_couchdb(){
     hr
     # race condition, misses
     #echo "trigger compaction and check stat for compaction=1:"
-    #curl -s -X POST -H 'content-type: application/json' "$COUCHDB_HOST:$COUCHDB_PORT/$COUCHDB_TEST_DB/_compact" | tee /dev/stderr | grep '{"ok":true}'
+    #curl -s -u "$COUCHDB_USER:$COUCHDB_PASSWORD" -X POST -H 'content-type: application/json' "$COUCHDB_HOST:$COUCHDB_PORT/$COUCHDB_TEST_DB/_compact" | tee /dev/stderr | grep '{"ok":true}'
     #sleep 1
     #run_grep 'compact_running=1' ./check_couchdb_database_stats.py --database "$COUCHDB_TEST_DB"
     hr
