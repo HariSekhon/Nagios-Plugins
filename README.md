@@ -29,6 +29,7 @@ It's a treasure trove of essentials for every single "DevOp" / sysadmin / engine
 [Cassandra](http://cassandra.apache.org/),
 [Solr / SolrCloud](http://lucene.apache.org/solr/),
 [Redis](http://redis.io/),
+[CouchDB](http://couchdb.apache.org/),
 [Consul](https://www.consul.io/),
 [Jenkins](https://jenkins.io/),
 [Travis CI](https://travis-ci.org/),
@@ -374,7 +375,7 @@ There are full multi-level suites of tests against this repository and its libra
 - Unit Tests - over 1200 unit tests covering the [Perl library](https://github.com/harisekhon/lib) and [Python library](https://githu.com/harisekhon/pylib)
 - Integration tests checking dependency integration, usage `--help` generation etc.
 - Custom tests for various languages and build systems, linting, coding style, and other standardizations
-- Functional Tests - over 700 full functional [tests/](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) using dozens of [Docker Images](https://hub.docker.com/u/harisekhon/) for full API testing of the various technologies
+- Functional Tests - nearly 800 full functional [tests/](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) using dozens of [Docker Images](https://hub.docker.com/u/harisekhon/) for full API testing of the various technologies
 
 To trigger all tests run:
 
