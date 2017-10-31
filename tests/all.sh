@@ -49,6 +49,8 @@ for script in $(find tests -name 'test*.sh'); do
     fi
     if is_CI; then
         [ $(($RANDOM % 3)) = 0 ] || continue
+        tests_run="$tests_run
+$script"
         declare_if_inside_docker
         time $script ||
         failed_tests="$failed_tests
@@ -59,7 +61,14 @@ $script"
     fi
 done
 
+if is_CI; then
+    echo
+    echo "Tests Run:
+$tests_run"
+fi
+
 if [ -n "$failed_tests" ]; then
+    echo
     echo "WARNING: the following tests failed:
 $failed_tests"
 fi
