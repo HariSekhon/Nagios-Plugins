@@ -35,7 +35,7 @@ THIS PLUGIN IS NOW DEPRECATED - it only works for Hadoop <= 2.6 as the JSP pages
 
 See corresponding newer checks for Hadoop 2.7 in adjacent perl and python plugins";
 
-$VERSION = "0.9.6";
+$VERSION = "0.10.0";
 
 use strict;
 use warnings;
@@ -309,6 +309,10 @@ if($balance){
     }
     my %datanodes_imbalance;
     my $largest_datanode_used_pc_diff = -1;
+    my $num_datanodes = scalar keys %datanodes_used_pc;
+    if($num_datanodes < 1){
+        $largest_datanode_used_pc_diff = 0;
+    }
     foreach(keys %datanodes_used_pc){
         $datanodes_imbalance{$_} = abs($dfs{"dfs_used_pc"} - $datanodes_used_pc{$_});
         $largest_datanode_used_pc_diff = $datanodes_imbalance{$_} if($datanodes_imbalance{$_} > $largest_datanode_used_pc_diff);
@@ -316,9 +320,16 @@ if($balance){
     ( $largest_datanode_used_pc_diff >= 0 ) or code_error "largest_datanode_used_pc_diff is less than 0, this is not possible";
     $largest_datanode_used_pc_diff = sprintf("%.2f", $largest_datanode_used_pc_diff);
     $status = "OK";
-    $msg = sprintf("%.2f%% HDFS imbalance on space used %% across %d datanodes", $largest_datanode_used_pc_diff, scalar keys %datanodes_used_pc);
+    $msg = sprintf("%.2f%% HDFS imbalance on space used %%", $largest_datanode_used_pc_diff);
     check_thresholds($largest_datanode_used_pc_diff);
-    if($verbose and (is_warning or is_critical)){
+    $msg .= sprintf(" across %d datanodes", $num_datanodes);
+    if($num_datanodes < 1){
+        warning();
+        $msg .= " (< 1)";
+    }
+    if($verbose and
+       $num_datanodes > 0 and
+       (is_warning or is_critical)){
         my $msg2 = " [imbalanced nodes: ";
         foreach(sort keys %datanodes_imbalance){
             if($datanodes_imbalance{$_} >= $thresholds{"warning"}{"upper"}){
@@ -576,7 +587,7 @@ if($balance){
     $content = curl $url_live_nodes, "$url_name live nodes";
     parse_datanode_blockcounts();
     unless(%datanode_blocks){
-        quit "UNKNOWN", "no datanode block counts were recorded, either there are no datanodes or there was a parsing error. $nagios_plugins_support_msg";
+        quit "UNKNOWN", "no datanode block counts were recorded, either there are no live datanodes or there was a parsing error. $nagios_plugins_support_msg";
     }
     my $max_blocks = 0;
     my $min_blocks;
