@@ -79,8 +79,7 @@ test_solr(){
         hr
         run_fail 2 ./check_solr_version.py -e "fail-version"
     else
-        # TODO: check Solr v3 versions somehow
-        :
+        docker_compose_version_test solr "$version"
     fi
     hr
     run_conn_refused ./check_solr_version.py -e "$version"
