@@ -44,7 +44,7 @@ docker_exec(){
 
 #trap "docker rm -f $DOCKER_CONTAINER &>/dev/null" SIGINT SIGTERM EXIT
 
-startupwait=0
+startupwait 0
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Gentoo checks!!!'
