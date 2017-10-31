@@ -79,7 +79,7 @@ test_cassandra(){
     hr
     docker_exec check_cassandra_version_nodetool.py -e "$version"
     hr
-    FAIL=2 docker_exec check_cassandra_version_nodetool.py -e "fail-version"
+    ERRCODE=2 docker_exec check_cassandra_version_nodetool.py -e "fail-version"
     hr
     docker_exec check_cassandra_balance.pl
     hr
@@ -88,35 +88,35 @@ test_cassandra(){
     docker_exec check_cassandra_balance.pl --nodetool /cassandra/bin/nodetool -v
     hr
     echo "checking connection refused:"
-    FAIL=2 docker_exec check_cassandra_balance.pl -v -P 719
+    ERRCODE=2 docker_exec check_cassandra_balance.pl -v -P 719
     hr
     docker_exec check_cassandra_heap.pl -w 70 -c 90 -v
     hr
     docker_exec check_cassandra_heap.pl --nodetool /cassandra/bin/nodetool -w 70 -c 90 -v
     hr
     echo "checking connection refused:"
-    FAIL=2 docker_exec check_cassandra_heap.pl -w 70 -c 90 -v -P 719
+    ERRCODE=2 docker_exec check_cassandra_heap.pl -w 70 -c 90 -v -P 719
     hr
     docker_exec check_cassandra_netstats.pl -v
     hr
     docker_exec check_cassandra_netstats.pl --nodetool /cassandra/bin/nodetool -v
     hr
     echo "checking connection refused:"
-    FAIL=2 docker_exec check_cassandra_netstats.pl -v -P 719
+    ERRCODE=2 docker_exec check_cassandra_netstats.pl -v -P 719
     hr
     docker_exec check_cassandra_nodes.pl -v
     hr
     docker_exec check_cassandra_nodes.pl --nodetool /cassandra/bin/nodetool -v
     hr
     echo "checking connection refused:"
-    FAIL=2 docker_exec check_cassandra_nodes.pl -v -P 719
+    ERRCODE=2 docker_exec check_cassandra_nodes.pl -v -P 719
     hr
     docker_exec check_cassandra_tpstats.pl -v
     hr
     docker_exec check_cassandra_tpstats.pl --nodetool /cassandra/bin/nodetool -v
     hr
     echo "checking connection refused:"
-    FAIL=2 docker_exec check_cassandra_tpstats.pl -P 719
+    ERRCODE=2 docker_exec check_cassandra_tpstats.pl -P 719
     hr
     echo "Completed $run_count Cassandra tests"
     hr

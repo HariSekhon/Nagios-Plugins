@@ -82,17 +82,17 @@ test_zookeeper(){
     docker_exec check_zookeeper_config.pl -H localhost -C "/zookeeper/conf/zoo.cfg" -v
     hr
     echo "checking connection refused:"
-    FAIL=2 docker_exec check_zookeeper_config.pl -H localhost -C "/zookeeper/conf/zoo.cfg" -v -P "$wrong_port"
+    ERRCODE=2 docker_exec check_zookeeper_config.pl -H localhost -C "/zookeeper/conf/zoo.cfg" -v -P "$wrong_port"
     hr
     docker_exec check_zookeeper_child_znodes.pl -H localhost -z / --no-ephemeral-check -v
     hr
     echo "checking connection refused:"
-    FAIL=2 docker_exec check_zookeeper_child_znodes.pl -H localhost -z / --no-ephemeral-check -v -P "$wrong_port"
+    ERRCODE=2 docker_exec check_zookeeper_child_znodes.pl -H localhost -z / --no-ephemeral-check -v -P "$wrong_port"
     hr
     docker_exec check_zookeeper_znode.pl -H localhost -z / -v -n --child-znodes
     hr
     echo "checking connection refused:"
-    FAIL=2 docker_exec check_zookeeper_znode.pl -H localhost -z / -v -n --child-znodes -P "$wrong_port"
+    ERRCODE=2 docker_exec check_zookeeper_znode.pl -H localhost -z / -v -n --child-znodes -P "$wrong_port"
     hr
     echo "Completed $run_count ZooKeeper tests"
     hr

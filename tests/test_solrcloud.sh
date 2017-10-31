@@ -112,9 +112,9 @@ test_solrcloud(){
         # find /solr/ -name solrconfig.xml | while read filename; dirname=$(dirname $filename); do echo $dirname; /pl/check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C gettingstarted -d $dirname -v; echo; done
         set +o pipefail
         if [ "$version" = "latest" -o "${version:0:1}" -ge 7 ]; then
-            FAIL=2 docker_exec check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C "$SOLR_COLLECTION" -d "$SOLR_HOME/server/solr/configsets/sample_techproducts_configs/conf" -v
+            ERRCODE=2 docker_exec check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C "$SOLR_COLLECTION" -d "$SOLR_HOME/server/solr/configsets/sample_techproducts_configs/conf" -v
         else
-            FAIL=2 docker_exec check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C "$SOLR_COLLECTION" -d "$SOLR_HOME/server/solr/configsets/data_driven_schema_configs/conf" -v #| grep -F '1 file only found in ZooKeeper but not local directory (configoverlay.json)'
+            ERRCODE=2 docker_exec check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C "$SOLR_COLLECTION" -d "$SOLR_HOME/server/solr/configsets/data_driven_schema_configs/conf" -v #| grep -F '1 file only found in ZooKeeper but not local directory (configoverlay.json)'
         fi
         set -o pipefail
     fi
