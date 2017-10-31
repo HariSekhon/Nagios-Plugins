@@ -43,7 +43,7 @@ tests/test_docker.sh
 tests_run=""
 failed_tests=""
 
-for script in $(find tests -name 'test*.sh'); do
+for script in $(find tests -name 'test*.sh' | sort); do
     if [ -n "${NOTESTS:-}" -a "$script" = "run_tests.sh" ]; then
         echo "NOTESTS env var specified, skipping dockerized tests"
         continue
