@@ -165,8 +165,8 @@ foreach(@output){
     } elsif(/^DFS Used:\s*(\d+)\s+\((.+)\)\s*$/i){
         $dfs{"dfs_used"}        = $1;
         $dfs{"dfs_used_human"}  = $2;
-    } elsif(/^DFS Used\%:\s*(\d+(?:\.\d+)?)\%\s*$/i){
-        $dfs{"dfs_used_pc"}            = $1;
+    } elsif(/^DFS Used\%:\s*(\d+(?:\.\d+)?|NaN)\%\s*$/i){
+        $dfs{"dfs_used_pc"} = $1;
     } elsif(/^Under replicated blocks:\s*(\d+)\s*$/i){
         $dfs{"under_replicated_blocks"} = $1;
     } elsif(/^Blocks with corrupt replicas:\s*(\d+)\s*$/i){
@@ -184,6 +184,7 @@ foreach(@output){
         $dfs{"datanodes_available"} = $1;
     } elsif(/Dead\s+datanodes\s+\((\d+)\)/){
         $dfs{"datanodes_dead"} = $1;
+        last;
     # Dead datanodes summary is below Live nodes list in recent versions
     #} elsif(/^Name:/){
     #    last;
@@ -284,9 +285,17 @@ $msg    = "NO TESTS DONE!!! Please choose something to test";
 
 if($hdfs_space){
     $status = "OK"; # ok unless check_thresholds says otherwise
+    # happens when there are no datanodes online
+    if($dfs{"dfs_used_pc"} eq "NaN"){
+        unknown();
+        $msg = sprintf("N/A%% HDFS space used");
+        # reset for graphing in case it breaks on non-numeric
+        $dfs{"dfs_used_pc"} = 0;
+    } else {
+        $msg = sprintf("%.2f%% HDFS space used", $dfs{"dfs_used_pc"});
+        check_thresholds($dfs{"dfs_used_pc"});
+    }
     plural $dfs{"datanodes_available"};
-    $msg = sprintf("%.2f%% HDFS space used", $dfs{"dfs_used_pc"});
-    check_thresholds($dfs{"dfs_used_pc"});
     $msg .= sprintf(" on %d available datanode$plural", $dfs{"datanodes_available"});
     if($dfs{"datanodes_available"} < 1){
         warning();
