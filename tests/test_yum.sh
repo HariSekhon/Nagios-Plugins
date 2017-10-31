@@ -46,7 +46,7 @@ docker_exec(){
     run docker exec "$DOCKER_CONTAINER" "$MNTDIR/$@"
 }
 
-startupwait=0
+startupwait 0
 
 echo "Setting up CentOS test container"
 DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
