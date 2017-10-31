@@ -40,6 +40,7 @@ time tests/help.sh
 #is_travis ||
 tests/test_docker.sh
 
+tests_run=""
 failed_tests=""
 
 for script in $(find tests -name 'test*.sh'); do
