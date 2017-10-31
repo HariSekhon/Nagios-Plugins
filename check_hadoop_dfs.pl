@@ -28,7 +28,7 @@ Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclai
 # 1. Min Configured Capacity per node (from node section output).
 # 2. Last Contact: convert the date to secs and check against thresholds.
 
-$VERSION = "0.7.7";
+$VERSION = "0.8.0";
 
 use strict;
 use warnings;
@@ -256,15 +256,20 @@ check_parsed(qw/
         under_replicated_blocks
         corrupt_blocks
         missing_blocks
-        datanodes_available
         /);
+        #datanodes_available
         #datanodes_total
         #datanodes_dead
 #############
+unless(defined($dfs{"datanodes_available"})){
+    # safety check
+    grep(/\bavailable\b/i, @output) and quit "CRITICAL", "'available' word detected in output but available datanode count was not parsed. $nagios_plugins_support_msg";
+    $dfs{"datanodes_available"} = 0;
+}
 # Apache 2.6.0 no longer outputs datanodes total or datanodes dead - must assume 0 dead datanodes if we can't find dead in output
 unless(defined($dfs{"datanodes_dead"})){
     # safety check
-    grep(/\bdead\b/i, @output) and quit "CRITICAL", "dead detected in output but dead datanode count not parsed. $nagios_plugins_support_msg";
+    grep(/\bdead\b/i, @output) and quit "CRITICAL", "'dead' word detected in output but dead datanode count was not parsed. $nagios_plugins_support_msg";
     # must be Apache 2.6+ with no dead datanodes
     $dfs{"datanodes_dead"} = 0;
 }
@@ -280,8 +285,13 @@ $msg    = "NO TESTS DONE!!! Please choose something to test";
 if($hdfs_space){
     $status = "OK"; # ok unless check_thresholds says otherwise
     plural $dfs{"datanodes_available"};
-    $msg = sprintf("%.2f%% HDFS space used on %d available datanode$plural", $dfs{"dfs_used_pc"}, $dfs{"datanodes_available"});
+    $msg = sprintf("%.2f%% HDFS space used", $dfs{"dfs_used_pc"});
     check_thresholds($dfs{"dfs_used_pc"});
+    $msg .= sprintf(" on %d available datanode$plural", $dfs{"datanodes_available"});
+    if($dfs{"datanodes_available"} < 1){
+        warning();
+        $msg .= " (< 1)";
+    }
     $msg .= " | 'HDFS Space Used'=$dfs{dfs_used_pc}%;$thresholds{warning}{upper};$thresholds{critical}{upper} 'HDFS Used Capacity'=$dfs{dfs_used}B;;0;$dfs{configured_capacity} 'HDFS Present Capacity'=$dfs{present_capacity}B 'HDFS Configured Capacity'=$dfs{configured_capacity}B 'Datanodes Available'=$dfs{datanodes_available}";
 } elsif($replication){
     $status = "OK";
@@ -308,17 +318,28 @@ if($hdfs_space){
     #my $largest_datanode_used_pc_diff = $max_datanode_used_pc_diff > $min_datanode_used_pc_diff ? $max_datanode_used_pc_diff : $min_datanode_used_pc_diff;
     # switching to allow collection of datanodes which are out of balance
     my $largest_datanode_used_pc_diff = -1;
+    my $num_datanodes = scalar keys %datanodes;
+    if($num_datanodes < 1){
+        $largest_datanode_used_pc_diff = 0;
+    }
     foreach(keys %datanodes){
         $datanodes_imbalance{$_} = abs($dfs{"dfs_used_pc"} - $datanodes{$_}{"used_pc"});
         $largest_datanode_used_pc_diff = $datanodes_imbalance{$_} if($datanodes_imbalance{$_} > $largest_datanode_used_pc_diff);
     }
-    ( $largest_datanode_used_pc_diff >= 0 ) or code_error "largest_datanode_used_pc_diff is less than 0, this is not possible";
+    ( $largest_datanode_used_pc_diff >= 0 ) or code_error "largest_datanode_used_pc_diff is '$largest_datanode_used_pc_diff', cannot be less than 0, this is not possible";
     $largest_datanode_used_pc_diff = sprintf("%.2f", $largest_datanode_used_pc_diff);
     $status = "OK";
-    plural scalar keys %datanodes;
-    $msg = sprintf("%.2f%% HDFS imbalance on space used %% across %d datanode$plural", $largest_datanode_used_pc_diff, scalar keys %datanodes);
+    $msg = sprintf("%.2f%% HDFS imbalance on space used %%", $largest_datanode_used_pc_diff);
     check_thresholds($largest_datanode_used_pc_diff);
-    if($verbose and (is_warning or is_critical)){
+    plural $num_datanodes;
+    $msg .= sprintf(" across %d datanode$plural", $num_datanodes);
+    if($num_datanodes < 1){
+        warning();
+        $msg .= " (< 1)";
+    }
+    if($verbose and
+       $num_datanodes > 0 and
+       (is_warning or is_critical)){
         my $msg2 = " [imbalanced nodes: ";
         foreach(sort keys %datanodes_imbalance){
             if($datanodes_imbalance{$_} >= $thresholds{"warning"}{"upper"}){
