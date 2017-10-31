@@ -533,7 +533,7 @@ if($balance){
     $content = curl $url_live_nodes, "$url_name live nodes";
     parse_datanode_blockcounts();
     unless(%datanode_blocks){
-        quit "UNKNOWN", "no datanode block counts were recorded, either there are no datanodes or there was a parsing error to changes in a neweer version of the NameNode WebUI. $nagios_plugins_support_msg";
+        quit "UNKNOWN", "no datanode block counts were recorded, either there are no live datanodes or there was a parsing error to changes in a neweer version of the NameNode WebUI. $nagios_plugins_support_msg";
     }
     my $datanodes_warning_blocks  = 0;
     my $datanodes_critical_blocks = 0;
