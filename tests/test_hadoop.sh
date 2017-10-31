@@ -23,7 +23,7 @@ cd "$srcdir/.."
 
 section "H a d o o p"
 
-export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-latest 2.5 2.6 2.7}}"
+export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-latest 2.5 2.6 2.7 2.8}}"
 
 HADOOP_HOST="${DOCKER_HOST:-${HADOOP_HOST:-${HOST:-localhost}}}"
 HADOOP_HOST="${HADOOP_HOST##*/}"
@@ -81,13 +81,13 @@ test_hadoop(){
     when_url_content "$HADOOP_HOST:$HADOOP_NAMENODE_PORT/dfshealth.html" 'NameNode Journal Status'
     hr
     echo "waiting for RM cluster page to come up:"
-    when_url_content "$HADOOP_HOST:$HADOOP_YARN_RESOURCE_MANAGER_PORT/ws/v1/cluster" resourceManager
-    hr
-    echo "waiting for NM node page to come up:"
-    when_url_content "$HADOOP_HOST:$HADOOP_YARN_NODE_MANAGER_PORT/node" 'Node Manager Version'
+    RETRY_INTERVAL=2 when_url_content "$HADOOP_HOST:$HADOOP_YARN_RESOURCE_MANAGER_PORT/ws/v1/cluster" resourceManager
     hr
     echo "waiting for DN page to come up:"
     when_url_content "$HADOOP_HOST:$HADOOP_DATANODE_PORT" 'DataNode on'
+    hr
+    echo "waiting for NM node page to come up:"
+    when_url_content "$HADOOP_HOST:$HADOOP_YARN_NODE_MANAGER_PORT/node" 'Node Manager Version'
     hr
     echo "setting up HDFS for tests"
     #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
@@ -260,7 +260,7 @@ EOF
     # run inside Docker container so it can resolve redirect to DN
     docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
     hr
-    FAIL=2 docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost -P "$wrong_port"
+    ERRCODE=2 docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost -P "$wrong_port"
     hr
     for x in 2.5 2.6 2.7; do
         run $perl -T ./check_hadoop_hdfs_fsck.pl -f tests/data/hdfs-fsck-$x.log
@@ -425,7 +425,7 @@ EOF
     run_fail 3 ./check_hadoop_yarn_long_running_apps.py -l
     hr
     # ================================================
-    echo "Running sample mapreduce job to test Yarn application /job based plugins against:"
+    echo "Running sample mapreduce job to test Yarn application / job based plugins against:"
     docker exec -i "$DOCKER_CONTAINER" /bin/bash <<EOF &
     echo
     echo "running mapreduce job from sample jar"
@@ -442,7 +442,7 @@ EOF
     set +e
     local max_wait_job_running_secs=30
     # -a '.*' keeps getting expanded incorrectly in shell inside retry(), cannot quote inside retry() and escaping '.\*' or ".\*" doesn't work either it appears as those the backslash is passed in literally to the program
-    retry $max_wait_job_running_secs ./check_hadoop_yarn_app_running.py -a "monte"
+    RETRY_INTERVAL=3 retry "$max_wait_job_running_secs" ./check_hadoop_yarn_app_running.py -a "monte"
     if [ $? -ne 0 ]; then
         # Job can get stuck in Accepted state with no NM to run on if disk > 90% full it gets marked as bad dir - Docker images have been updated to permit 100% / not check disk utilization so there is more chance of this working on machines with low disk space left, eg. your laptop
         echo "FAILED: MapReduce job was not detected as running after $max_wait_job_running_secs secs (is disk >90% full?)"
@@ -500,8 +500,7 @@ EOF
     run_grep "checked 0 out of" ./check_hadoop_yarn_long_running_apps.py --exclude=quasi
     hr
     echo "waiting for job to stop running:"
-    # got an unknown status timeout which exited prematurely, so increase timeout
-    retry 100 ! ./check_hadoop_yarn_app_running.py -a 'monte' -t 100
+    ERRCODE=2 RETRY_INTERVAL=2 retry 100 ./check_hadoop_yarn_app_running.py -a 'monte'
     hr
     echo "Checking listing app history:"
     echo
@@ -580,6 +579,103 @@ EOF
     run $perl -T ./check_hadoop_yarn_resource_manager_state.pl
     hr
     run_conn_refused $perl -T ./check_hadoop_yarn_resource_manager_state.pl
+    hr
+    echo "Now killing DataNode and NodeManager to run worker failure tests:"
+    echo "killing datanode:"
+    docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f org.apache.hadoop.hdfs.server.datanode.DataNode
+    echo "killing node manager:"
+    docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f org.apache.hadoop.yarn.server.nodemanager.NodeManager
+    hr
+    echo "Now waiting for masters to detect worker failures:"
+    echo "waiting for Yarn Resource Manager to detect NodeManager failure:"
+    ERRCODE=1 RETRY_INTERVAL=3 retry 60 $perl -T ./check_hadoop_yarn_node_managers.pl -w 0 -c 1
+    hr
+    ERRCODE=2 retry 10 $perl -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname"
+    hr
+    echo "waiting for NameNode to detect DataNode failure:"
+    ERRCODE=1 retry 30 $perl -T ./check_hadoop_datanodes.pl
+    hr
+    echo "datanodes check will only be warning stale at this point:"
+    run_fail 1 $perl -T ./check_hadoop_datanodes.pl
+    hr
+    run_fail 1 ./check_hadoop_datanode_last_contact.py -d "$hostname"
+    hr
+    run_fail 2 ./check_hadoop_datanode_last_contact.py -d "$hostname" -c 30
+    hr
+    # run inside Docker container so it can resolve redirect to DN
+    ERRCODE=2 docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
+    hr
+    run_fail 2 $perl -T ./check_hadoop_yarn_node_manager.pl
+    hr
+    # ================================================
+    run_fail 1 $perl -T ./check_hadoop_yarn_node_managers.pl -w 0 -c 1
+    hr
+    run_fail 2 $perl -T ./check_hadoop_yarn_node_managers.pl -w 0 -c 0
+    hr
+    # ================================================
+    run_fail 2 $perl -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname"
+    hr
+    # ================================================
+    # NN 2 * heartbeatRecheckInterval (10) + 10 * 1000 * heartbeatIntervalSeconds == 50 secs
+    hr
+    ERRCODE=2 retry 50 $perl -T ./check_hadoop_datanodes.pl -c 0
+    hr
+    run_fail 2 $perl -T ./check_hadoop_datanodes.pl -c 0
+    hr
+    # ================================================
+    # stuff from here will must be tested after worker
+    # thresholds have been exceeded, relying on latch
+    # from retry on datanodes above
+    # ================================================
+    if [ "$version" = "2.5" -o "$version" = "2.6" ]; then
+        run_fail 3 $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
+        hr
+        run_fail 3 $perl -T ./check_hadoop_datanodes_blockcounts.pl
+        hr
+    fi
+    run_fail 2 ./check_hadoop_datanodes_block_balance.py -w 5 -c 10
+    hr
+    run_fail 2 ./check_hadoop_hdfs_balance.py -w 5 -c 10 -v
+    hr
+    # space will show 0% but datanodes < 1 should trigger warning
+    ERRCODE=1 docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hadoop --hadoop-user root --hdfs-space -w 80 -c 90 -t 20
+    hr
+    # XXX: doesn't detect missing blocks yet - revisit
+    #ERRCODE=2 docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --replication -w 1 -c 1 -t 20
+    hr
+    ERRCODE=1 docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --balance -w 5 -c 10 -t 20
+    hr
+    ERRCODE=2 docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --nodes-available -w 1 -c 1 -t 20
+    hr
+    run_fail 2 ./check_hadoop_hdfs_corrupt_files.py
+    hr
+    run_fail 2 $perl -T ./check_hadoop_hdfs_space.pl
+    hr
+    run_fail 2 ./check_hadoop_hdfs_space.py
+    hr
+    if [ "$version" = "2.5" -o "$version" = "2.6" ]; then
+        run_fail 1 $perl -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10
+        hr
+        run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --hdfs-space
+        hr
+        run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --replication -w 10 -c 20
+        hr
+        run_fail 3 $perl -T ./check_hadoop_namenode.pl -v --datanode-blocks
+        hr
+        run_fail 3 $perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20
+        hr
+        run_fail 3 $perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20 -v
+        hr
+        run_fail 1 $perl -T ./check_hadoop_namenode.pl -v --node-count -w 1 -c 0
+        hr
+        echo "checking node count (expecting critical < 1 nodes)"
+        run_fail 2 $perl -t ./check_hadoop_namenode.pl -v --node-count -w 2 -c 1
+        hr
+        run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --node-list $hostname
+        hr
+    fi
+    hr
+    run_fail 2 $perl -T ./check_hadoop_replication.pl
     hr
     echo "Completed $run_count Hadoop tests"
     hr
