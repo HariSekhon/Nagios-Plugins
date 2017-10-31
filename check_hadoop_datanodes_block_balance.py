@@ -44,14 +44,14 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, plural, isInt
-    from harisekhon.utils import UnknownError, support_msg_api
+    from harisekhon.utils import CriticalError, UnknownError, support_msg_api
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 class CheckHadoopDatanodesBlockBalance(RestNagiosPlugin):
@@ -83,8 +83,8 @@ class CheckHadoopDatanodesBlockBalance(RestNagiosPlugin):
             live_node_data = json.loads(live_nodes)
             num_datanodes = len(live_node_data)
             if num_datanodes < 1:
-                raise UnknownError("no live datanodes returned by JMX API from namenode '{0}:{1}'"\
-                                   .format(self.host, self.port))
+                raise CriticalError("no live datanodes returned by JMX API from namenode '{0}:{1}'"\
+                                    .format(self.host, self.port))
             max_blocks = 0
             min_blocks = None
             for datanode in live_node_data:
