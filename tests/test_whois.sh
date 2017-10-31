@@ -34,7 +34,7 @@ export DOCKER_CONTAINER="nagios-plugins-whois-test"
 
 export MNTDIR="/pl"
 
-startupwait=1
+startupwait 0
 DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
 DOCKER_CMD="tail -f /dev/null"
 check_whois="run ./check_whois.pl"
