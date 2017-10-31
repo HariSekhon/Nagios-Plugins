@@ -84,7 +84,8 @@ test_hadoop(){
     RETRY_INTERVAL=2 when_url_content "$HADOOP_HOST:$HADOOP_YARN_RESOURCE_MANAGER_PORT/ws/v1/cluster" resourceManager
     hr
     echo "waiting for DN page to come up:"
-    when_url_content "$HADOOP_HOST:$HADOOP_DATANODE_PORT" 'DataNode on'
+    # Hadoop 2.8 uses /datanode.html but this isn't available on older versions eg. 2.6 so change the regex to find the redirect in 2.8 instead
+    when_url_content "$HADOOP_HOST:$HADOOP_DATANODE_PORT" 'DataNode on|/datanode\.html'
     hr
     echo "waiting for NM node page to come up:"
     when_url_content "$HADOOP_HOST:$HADOOP_YARN_NODE_MANAGER_PORT/node" 'Node Manager Version'
