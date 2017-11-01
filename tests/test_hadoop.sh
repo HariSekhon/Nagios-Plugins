@@ -573,9 +573,9 @@ EOF
     hr
     # API field not available in Hadoop 2.2
     if [ "$version" != "2.2" ]; then
-        run_fail 2 ./check_hadoop_hdfs_corrupt_files.py -v
+        run_fail "0 2" ./check_hadoop_hdfs_corrupt_files.py -v
         hr
-        run_fail 2 ./check_hadoop_hdfs_corrupt_files.py -vv
+        run_fail "0 2" ./check_hadoop_hdfs_corrupt_files.py -vv
         hr
         # still passes in some versions eg. Hadoop 2.3 as it's only metadata so allow 0 or 2 exit codes
         ERRCODE="0 2" docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728
