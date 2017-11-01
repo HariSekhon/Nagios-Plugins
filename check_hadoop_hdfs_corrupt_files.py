@@ -23,7 +23,7 @@ Outputs the number of corrupt files.
 
 Use double verbose mode -vv to output the file list
 
-Tested on HDP 2.6.1 and Apache Hadoop 2.5.2, 2.6.4, 2.7.3
+Tested on HDP 2.6.1 and Apache Hadoop 2.5, 2.6, 2.7, 2.8
 
 """
 

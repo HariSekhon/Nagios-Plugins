@@ -31,7 +31,7 @@ Use the --exclude regex to exclude intentionally long running applications
 
 Applications called llap\d+ are implicitly skipped
 
-Tested on HDP 2.6.1 and Apache Hadoop 2.5.2, 2.6.4, 2.7.3
+Tested on HDP 2.6.1 and Apache Hadoop 2.5, 2.6, 2.7, 2.8
 
 """
 

@@ -24,7 +24,7 @@ This is important as it impacts NameNode heap space
 Compares the number of total blocks to --warning and --critical thresholds and outputs
 graphing data for tracking the block growth over time, which is useful for NameNode capacity planning
 
-Tested on HDP 2.6.1 and Apache Hadoop 2.5.2, 2.6.4, 2.7.3
+Tested on HDP 2.6.1 and Apache Hadoop 2.5, 2.6, 2.7, 2.8
 
 """
 

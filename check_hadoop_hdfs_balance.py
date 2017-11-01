@@ -28,7 +28,7 @@ See adjacent check_hadoop_balance.pl for older versions of Hadoop <= 2.6
 The old program compared used % space between datanodes but this one compares absolute space used as this is how Hadoop
 balances and accounts of heterogenous nodes better and calculates the percentage against the most filled datanode
 
-Tested on HDP 2.6.1 and Apache Hadoop 2.5.2, 2.6.4, 2.7.3
+Tested on HDP 2.6.1 and Apache Hadoop 2.5, 2.6, 2.7, 2.8
 
 """
 

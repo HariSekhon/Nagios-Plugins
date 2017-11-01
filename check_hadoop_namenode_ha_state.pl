@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check the Active / Standby state of a Hadoop Na
 
 Tip: run this against a load balancer in front of your NameNodes or in conjunction with find_active_hadoop_namenode.py to check that you always have an active master available
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2. Added legacy support for Cloudera CDH 4.4.0 (Hadoop 2.0.0)";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0) and Apache Hadoop 2.5, 2.6, 2.7, 2.8. Added legacy support for Cloudera CDH 4.4.0 (Hadoop 2.0.0)";
 
 $VERSION = "0.3";
 

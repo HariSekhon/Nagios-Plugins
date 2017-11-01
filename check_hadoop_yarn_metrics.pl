@@ -17,7 +17,7 @@ Optional thresholds can be specified for a metric if specifying only one metric.
 
 Thresholds default to upper boundaries, but to make them lower boundaries use standard Nagios threshold syntax <lower>:<upper> eg 5: for a minimum of 5 (inclusive) with no upper boundary to apply to things like activeNodes or availableMB.
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0), HDP 2.6 (Hadoop 2.7.3) and Apache Hadoop 2.5, 2.6, 2.7";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0), HDP 2.6 (Hadoop 2.7.3) and Apache Hadoop 2.5, 2.6, 2.7, 2.8";
 
 $VERSION = "0.2";
 

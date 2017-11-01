@@ -24,9 +24,9 @@ Runs in 1 of 3 modes:
    - checks optional thresholds for the maximum number of missing nodes from the specified list (default 0 == CRITICAL on any missing, you may want to set these thresholds higher)
 3. checks the JobTracker Heap % Used
 
-Originally written on old vanilla Apache Hadoop 0.20.x, backwards untested rewrite for CDH 4.3 (2.0.0-mr1-cdh4.3.0), now tested on Apache Hadoop 2.5.2, 2.6.4, 2.7.2
+Originally written on old vanilla Apache Hadoop 0.20.x, backwards untested rewrite for CDH 4.3 (2.0.0-mr1)
 
-Seriously recommend you consider using check_hadoop_cloudera_manager_metrics.pl instead if possible (disclaimer I work for Cloudera but seriously it's better it uses the CM API instead of scraping output which can break betweens versions and requires more maintenance)";
+Seriously recommend you consider using check_hadoop_cloudera_manager_metrics.pl instead if possible (disclaimer I worked for Cloudera but seriously it's better it uses the CM API instead of scraping output which can break betweens versions and requires more maintenance)";
 
 $VERSION = "0.9.3";
 

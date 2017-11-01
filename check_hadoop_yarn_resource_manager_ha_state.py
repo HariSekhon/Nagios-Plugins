@@ -22,7 +22,7 @@ Nagios Plugin to check the Active / Standby state of a Yarn Resource Manager via
 Tip: run this against a load balancer in front of your Resource Manager or with
 find_active_hadoop_yarn_resource_manager.py to check that you always have an active master available
 
-Tested on Hortonworks HDP 2.6.1 and Apache Hadoop 2.5, 2.6, 2.7
+Tested on Hortonworks HDP 2.6.1 and Apache Hadoop 2.5, 2.6, 2.7, 2.8
 
 """
 

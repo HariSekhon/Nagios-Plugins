@@ -13,7 +13,7 @@ our $DESCRIPTION = "Nagios Plugin to check a Hadoop HDFS DataNode's version via 
 
 DEPRECATED - use check_hadoop_datanode_version.py which goes directly to the DataNode's JMX API, it's more efficient and easier to use as it doesn't need to specify a --node switch
 
-Tested on Apache Hadoop NameNode 2.5.2, 2.6.4, 2.7.3
+Tested on Apache Hadoop 2.5, 2.6, 2.7, 2.8
 ";
 
 $VERSION = "0.2";

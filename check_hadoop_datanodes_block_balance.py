@@ -25,7 +25,7 @@ follows that change.
 
 See adjacent check_hadoop_datanodes_block_balance.pl for older versions of Hadoop <= 2.6
 
-Tested on HDP 2.6.1 and Apache Hadoop 2.5.2, 2.6.4, 2.7.3
+Tested on HDP 2.6.1 and Apache Hadoop 2.5, 2.6, 2.7, 2.8
 
 """
 

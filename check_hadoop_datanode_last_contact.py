@@ -21,7 +21,7 @@ Nagios Plugin to check the last contact time of a given Hadoop datanode via Name
 Written for Hadoop 2.7, replaces older check_hadoop_namenode.pl which used dfshealth.jsp which was removed and replaced
 by AJAX calls to populate tables from JMX info, so this plugin follows that change.
 
-Tested on HDP 2.6.1 and Apache Hadoop 2.5.2, 2.6.4, 2.7.3
+Tested on HDP 2.6.1 and Apache Hadoop 2.5, 2.6, 2.7, 2.8
 
 """
 

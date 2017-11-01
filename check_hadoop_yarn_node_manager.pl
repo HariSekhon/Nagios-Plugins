@@ -20,7 +20,7 @@ See also:
 - check_hadoop_yarn_node_manager_via_rm.pl (from Resource Manager's perspective, has more info and can also list node managers)
 - check_hadoop_yarn_node_managers.pl (aggregate view of the number of healthy / unhealthy Node Managers)
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) and Apache Hadoop 2.5.2, 2.6.4, 2.7.2";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0) and Apache Hadoop 2.5, 2.6, 2.7, 2.8";
 
 $VERSION = "0.1";
 

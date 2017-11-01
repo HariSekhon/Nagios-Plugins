@@ -17,7 +17,7 @@ Optional thresholds on pending yarn apps in queue to aid in capacity planning, o
 
 Also displays active users in a queue, be aware however active users are only counted in leaf queues as of Hadoop 2.4.
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0.2.1.1.0-385) with Capacity Scheduler queues and Apache Hadoop 2.5.2, 2.6.4, 2.7.3";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0) with Capacity Scheduler queues and Apache Hadoop 2.5, 2.6, 2.7, 2.8";
 
 $VERSION = "0.6";
 
