@@ -104,6 +104,17 @@ test_tachyon(){
     hr
     run_conn_refused ./check_tachyon_dead_workers.py -v
     hr
+    set +e
+    node="$(./check_tachyon_worker_heartbeat.py -l | tail -n1)"
+    set -e
+    if [ -z "$node" ]; then
+        echo "FAILED to find Tachyon worker node"
+        exit 1
+    fi
+    run ./check_tachyon_worker_heartbeat.py --node "$node"
+    hr
+    run_conn_refused ./check_tachyon_worker_heartbeat.py --node "$node"
+    hr
     if [ -n "${KEEPDOCKER:-}" ]; then
         echo
         echo "Completed $run_count Tachyon tests"
@@ -133,6 +144,11 @@ test_tachyon(){
         run_fail 1 ./check_tachyon_running_workers.py -v -w 1 -c 0
         hr
         run_fail 2 ./check_tachyon_running_workers.py -v -w 1
+        hr
+        run_fail 1 ./check_tachyon_worker_heartbeat.py --node "$node" -w 1
+        hr
+        run_fail 2 ./check_tachyon_worker_heartbeat.py --node "$node" -w 1 -c 1
+        hr
     fi
     hr
     echo "Completed $run_count Tachyon tests"
