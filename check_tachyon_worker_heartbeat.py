@@ -107,7 +107,7 @@ class CheckTachyonWorkerHeartbeat(RestNagiosPlugin):
         if not isInt(last_heartbeat):
             raise UnknownError("last heartbeat '{0}' for node '{1}' is not an integer, possible parsing error! {2}"\
                                .format(last_heartbeat, self.node, support_msg()))
-        self.msg = '{0} worker last heartbeat = {1} secs ago'.format(self.software, last_heartbeat)
+        self.msg = "{0} worker '{1}' last heartbeat = {1} secs ago".format(self.software, self.node, last_heartbeat)
         self.check_thresholds(last_heartbeat)
         self.msg += ' | last_heartbeat={0}s{1}'.format(last_heartbeat, self.get_perf_thresholds())
 
