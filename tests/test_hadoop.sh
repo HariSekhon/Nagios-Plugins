@@ -317,6 +317,11 @@ EOF
     run_conn_refused $perl -T ./check_hadoop_replication.pl
     hr
     # ================================================
+    check_newer_plugins
+    hr
+    check_older_plugins
+    hr
+    # ================================================
     run_fail 2 ./check_hadoop_yarn_app_running.py -a '.*'
     hr
     run_conn_refused ./check_hadoop_yarn_app_running.py -a '.*'
@@ -495,10 +500,6 @@ EOF
     run $perl -T ./check_hadoop_yarn_resource_manager_state.pl
     hr
     run_conn_refused $perl -T ./check_hadoop_yarn_resource_manager_state.pl
-    hr
-    check_newer_plugins
-    hr
-    check_older_plugins
     hr
     echo "Now killing DataNode and NodeManager to run worker failure tests:"
     echo "killing datanode:"
