@@ -77,8 +77,9 @@ class CheckTachyonWorkerHeartbeat(RestNagiosPlugin):
 
     def process_options(self):
         super(CheckTachyonWorkerHeartbeat, self).process_options()
-        self.node = self.get_opt('node')
-        validate_host(self.node, 'node')
+        if not self.get_opt('list'):
+            self.node = self.get_opt('node')
+            validate_host(self.node, 'node')
         self.validate_thresholds()
 
     def list_workers(self, soup):
