@@ -65,10 +65,10 @@ test_alluxio(){
     fi
     hr
     echo "waiting on Alluxio Master to give Alluxio time to properly initialize:"
-    retry "$startupwait" 2 ./check_alluxio_master_version.py -v -e "$version" -t 2
+    RETRY_INTERVAL=2 retry "$startupwait" ./check_alluxio_master_version.py -v -e "$version" -t 2
     hr
     echo "expect Alluxio Worker to also be up by this point:"
-    retry 10 2 ./check_alluxio_worker_version.py -v -e "$version" -t 2
+    RETRY_INTERVAL=2 retry 10 ./check_alluxio_worker_version.py -v -e "$version" -t 2
     hr
     run ./check_alluxio_master_version.py -v -e "$version"
     hr

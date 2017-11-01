@@ -64,10 +64,10 @@ test_tachyon(){
     fi
     hr
     echo "waiting on Tachyon Master to give Tachyon time to properly initialize:"
-    retry "$startupwait" 2 ./check_tachyon_master_version.py -v -e "$version" -t 2
+    RETRY_INTERVAL=2 retry "$startupwait" ./check_tachyon_master_version.py -v -e "$version" -t 2
     hr
     echo "expect Tachyon Worker to also be up by this point:"
-    retry 10 2 ./check_tachyon_worker_version.py -v -e "$version" -t 2
+    RETRY_INTERVAL=2 retry 10 ./check_tachyon_worker_version.py -v -e "$version" -t 2
     hr
     run ./check_tachyon_master_version.py -v -e "$version"
     hr
