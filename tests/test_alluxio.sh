@@ -102,6 +102,19 @@ test_alluxio(){
     hr
     run_conn_refused ./check_alluxio_dead_workers.py -v
     hr
+    run_fail 3 ./check_alluxio_worker_heartbeat.py -l
+    hr
+    set +e
+    node="$(./check_alluxio_worker_heartbeat.py -l | tail -n1)"
+    set -e
+    if [ -z "$node" ]; then
+        echo "FAILED to find Alluxio worker node"
+        exit 1
+    fi
+    run ./check_alluxio_worker_heartbeat.py --node "$node"
+    hr
+    run_conn_refused ./check_alluxio_worker_heartbeat.py --node "$node"
+    hr
     if [ -n "${KEEPDOCKER:-}" ]; then
         echo
         echo "Completed $run_count Alluxio tests"
@@ -130,6 +143,10 @@ test_alluxio(){
     run_fail 1 ./check_alluxio_running_workers.py -v -w 1 -c 0
     hr
     run_fail 2 ./check_alluxio_running_workers.py -v -w 1
+    hr
+    run_fail 1 ./check_alluxio_worker_heartbeat.py --node "$node" -w 1
+    hr
+    run_fail 2 ./check_alluxio_worker_heartbeat.py --node "$node" -w 1 -c 1
     hr
     fi
     echo "Completed $run_count Alluxio tests"
