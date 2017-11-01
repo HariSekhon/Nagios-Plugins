@@ -55,7 +55,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6.0'
+__version__ = '0.7.0'
 
 
 class CheckHadoopYarnAppRunning(RestNagiosPlugin):
@@ -85,7 +85,8 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         self.add_opt('-u', '--user', help='Expected user that yarn application should be running as (optional)')
         self.add_opt('-q', '--queue', help='Expected queue that yarn application should be running on (optional)')
         self.add_opt('-m', '--min-containers', metavar='N', default=0,
-                     help='Expected minimum number of containers for application (optional)')
+                     help='Expected minimum number of containers for application ' + \
+                          '(optional, ignored on old Hadoop 2.2 where the runningContainers stat is not available)')
         self.add_opt('-n', '--limit', metavar='N', default=1000,
                      help='Limit number of results to search through (default: 1000)')
         self.add_opt('-d', '--warn-on-duplicate-app', action='store_true',
@@ -165,11 +166,14 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         state = app['state']
         user = app['user']
         queue = app['queue']
-        running_containers = app['runningContainers']
+        # Hadoop 2.2 doesn't have this field
+        running_containers = None
+        if 'runningContainers' in app:
+            running_containers = app['runningContainers']
+            assert isInt(running_containers, allow_negative=True)
+            running_containers = int(running_containers)
         elapsed_time = app['elapsedTime']
-        assert isInt(running_containers, allow_negative=True)
         assert isInt(elapsed_time)
-        running_containers = int(running_containers)
         elapsed_time = int(elapsed_time / 1000)
         self.msg = "Yarn application '{0}' state = '{1}'".format(app['name'], state)
         if state != 'RUNNING':
@@ -188,10 +192,11 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         if self.queue is not None and self.queue != queue:
             self.critical()
             self.msg += " (expected '{0}')".format(self.queue)
-        self.msg += ", running containers = {0}".format(running_containers)
-        if self.min_containers is not None and running_containers < self.min_containers:
-            self.critical()
-            self.msg += " (< '{0}')".format(self.min_containers)
+        if running_containers is not None:
+            self.msg += ", running containers = {0}".format(running_containers)
+            if self.min_containers is not None and running_containers < self.min_containers:
+                self.critical()
+                self.msg += " (< '{0}')".format(self.min_containers)
         self.msg += ", elapsed time = {0} secs".format(elapsed_time)
         self.check_thresholds(elapsed_time)
         return elapsed_time
