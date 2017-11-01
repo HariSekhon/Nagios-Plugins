@@ -56,7 +56,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6.0'
+__version__ = '0.7.0'
 
 
 class CheckHadoopYarnAppLastFinishedState(RestNagiosPlugin):
@@ -184,7 +184,8 @@ class CheckHadoopYarnAppLastFinishedState(RestNagiosPlugin):
 #         RUNNING UNDEFINED
 #
         # state = FAILED / KILLED get same final status = FAILED / KILLED, no point double printing
-        if state == 'FINISHED':
+        # Hadoop 2.2 tests show FINISHING stage in tests
+        if state in ('FINISHED', 'FINISHING'):
             final_status = app['finalStatus']
             self.msg += ", final status = '{0}'".format(final_status)
             if final_status != 'SUCCEEDED':
