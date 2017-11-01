@@ -17,7 +17,7 @@ See also check_hadoop_dfs.pl for another implementation of datanode checks from 
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0) and Apache Hadoop 2.5, 2.6, 2.7, 2.8";
 
-$VERSION = "0.2.1";
+$VERSION = "0.3.0";
 
 use strict;
 use warnings;
@@ -79,19 +79,29 @@ foreach(@beans){
     my $live        = get_field2_int($_, "NumLiveDataNodes");
     my $dead        = get_field2_int($_, "NumDeadDataNodes");
     my $stale       = get_field2_int($_, "NumStaleDataNodes");
-    my $decom       = get_field2_int($_, "NumDecommissioningDataNodes");
-    my $decom_live  = get_field2_int($_, "NumDecomLiveDataNodes");
-    my $decom_dead  = get_field2_int($_, "NumDecomDeadDataNodes");
-
+    my $decom;
+    my $decom_live;
+    my $decom_dead;
+    # Hadoop 2.2 doesn't have these stats
+    if(defined($$_{"NumDecommissioningDataNodes"})){
+        $decom       = get_field2_int($_, "NumDecommissioningDataNodes");
+        $decom_live  = get_field2_int($_, "NumDecomLiveDataNodes");
+        $decom_dead  = get_field2_int($_, "NumDecomDeadDataNodes");
+    }
     $msg =  "datanodes: $live live, $dead dead";
     check_thresholds($dead);
     $msg .= ", $stale stale";
     $msg .= " (w=$stale_threshold)" if $verbose;
     warning if($stale > $stale_threshold);
-    $msg .= ", $decom decommissioning, $decom_live live decommissioning, $decom_dead dead decommissioning | ";
+    if(defined($decom)){
+        $msg .= ", $decom decommissioning, $decom_live live decommissioning, $decom_dead dead decommissioning";
+    }
+    $msg .= " | ";
     $msg .= sprintf("'live datanodes'=%d 'dead datanodes'=%d", $live, $dead);
     msg_perf_thresholds();
-    $msg .= sprintf(" 'stale datanodes'=%d;%d 'decommissioning datanodes'=%d 'decommissioning live datanodes'=%d 'decommissioning dead datanodes'=%d", $stale, $stale_threshold, $decom, $decom_live, $decom_dead);
+    if(defined($decom)){
+        $msg .= sprintf(" 'stale datanodes'=%d;%d 'decommissioning datanodes'=%d 'decommissioning live datanodes'=%d 'decommissioning dead datanodes'=%d", $stale, $stale_threshold, $decom, $decom_live, $decom_dead);
+    }
     last;
 }
 quit "UNKNOWN", "failed to find FSNamesystemState mbean" unless $found_mbean;
