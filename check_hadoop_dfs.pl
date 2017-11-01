@@ -28,7 +28,7 @@ Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclai
 # 1. Min Configured Capacity per node (from node section output).
 # 2. Last Contact: convert the date to secs and check against thresholds.
 
-$VERSION = "0.8.0";
+$VERSION = "0.9.0";
 
 use strict;
 use warnings;
@@ -185,9 +185,8 @@ foreach(@output){
     } elsif(/Dead\s+datanodes\s+\((\d+)\)/){
         $dfs{"datanodes_dead"} = $1;
         last;
-    # Dead datanodes summary is below Live nodes list in recent versions
-    #} elsif(/^Name:/){
-    #    last;
+    } elsif(/^Name:/){
+        last;
     #} else {
     #    quit "UNKNOWN", "Unrecognized line in output while parsing totals: '$_'. $nagios_plugins_support_msg_api";
     }
