@@ -322,6 +322,9 @@ EOF
     check_older_plugins
     hr
     # ================================================
+    echo
+    echo "Now checking YARN Job plugins, including running the classic MR MonteCarlo Pi job:"
+    echo
     run_fail 2 ./check_hadoop_yarn_app_running.py -a '.*'
     hr
     run_conn_refused ./check_hadoop_yarn_app_running.py -a '.*'
@@ -525,7 +528,8 @@ EOF
     hr
     # API endpoint not available in Hadoop 2.2
     if [ "$version" != "2.2" ]; then
-        ERRCODE=2 docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728
+        # still passes in some versions eg. Hadoop 2.3 as it's only metadata so allow 0 or 2 exit codes
+        ERRCODE="0 2" docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728
         hr
         # run inside Docker container so it can resolve redirect to DN
         ERRCODE=2 docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
@@ -573,7 +577,8 @@ EOF
         hr
         run_fail 2 ./check_hadoop_hdfs_corrupt_files.py -vv
         hr
-        ERRCODE=2 docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728
+        # still passes in some versions eg. Hadoop 2.3 as it's only metadata so allow 0 or 2 exit codes
+        ERRCODE="0 2" docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728
         hr
         # run inside Docker container so it can resolve redirect to DN
         ERRCODE=2 docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
