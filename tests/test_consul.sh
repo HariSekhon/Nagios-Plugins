@@ -144,7 +144,7 @@ test_consul(){
     #docker exec -i "$DOCKER_CONTAINER-dev" "$MNTDIR/check_consul_version.py" -e "$expected_version"
     docker_exec "check_consul_version.py" -e "$expected_version"
     hr
-    FAIL=2 docker_exec "check_consul_version.py" -e "fail-version"
+    ERRCODE=2 docker_exec "check_consul_version.py" -e "fail-version"
     hr
     echo "Completed $run_count Consul tests"
     hr
