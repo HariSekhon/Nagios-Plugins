@@ -186,32 +186,10 @@ EOF
         run_fail 2 $perl -T ./check_hadoop_checkpoint.pl -w 3000: -c 2000:
     fi
     hr
-    # TODO: write replacement python plugin for this
-    # XXX: Total Blocks are not available via blockScannerReport from Hadoop 2.7
-    if [[ "$version" =~ ^2\.[0-6]$ ]]; then
-        run $perl -T ./check_hadoop_datanode_blockcount.pl
-        hr
-        run_conn_refused $perl -T ./check_hadoop_datanode_blockcount.pl
-    fi
-    hr
     run $perl -T ./check_hadoop_datanode_jmx.pl --all-metrics
     hr
     run_conn_refused $perl -T ./check_hadoop_datanode_jmx.pl --all-metrics
     hr
-    # TODO: write replacement python plugins for this
-    # XXX: Hadoop doesn't expose this information in the same way any more via dfshealth.jsp so these plugins are end of life with Hadoop 2.6
-    if [[ "$version" =~ ^2\.[0-6]$ ]]; then
-        run $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
-        hr
-        run $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10 -v
-        hr
-        run_conn_refused $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
-        hr
-        run $perl -T ./check_hadoop_datanodes_blockcounts.pl
-        hr
-        run_conn_refused $perl -T ./check_hadoop_datanodes_blockcounts.pl
-        hr
-    fi
     run ./check_hadoop_datanodes_block_balance.py -w 5 -c 10
     hr
     run ./check_hadoop_datanodes_block_balance.py -w 5 -c 10 -v
@@ -242,48 +220,16 @@ EOF
     hr
     docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hdfs --hadoop-user root --nodes-available -w 1 -c 1 -t 20
     hr
-    # This field is not available in older versions of Hadoop
-    if [ "$version" != "2.2" ]; then
-        run ./check_hadoop_hdfs_corrupt_files.py
-        hr
-    fi
-    # XXX: Hadoop doesn't expose this information in the same way any more via dfshealth.jsp so this plugin is end of life with Hadoop 2.6
-    # XXX: this doesn't seem to even work on Hadoop 2.5.2 any more, use python version below instead
-    if [[ "$version" =~ ^2\.[0-6]$ ]]; then
-        # on a real cluster thresholds should be set to millions+, no defaults as must be configured based on NN heap allocated
-        run $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 10 -c 20
-        hr
-        run_conn_refused $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 10 -c 20
-        hr
-        echo "testing failure scenarios:"
-        run_fail 1 $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 1
-        hr
-        run_fail 2 $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 0
-        hr
-        run_conn_refused $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 1
-        hr
-    fi
     # on a real cluster thresholds should be set to millions+, no defaults as must be configured based on NN heap allocated
     run ./check_hadoop_hdfs_total_blocks.py -w 10 -c 20
     hr
     run_conn_refused ./check_hadoop_hdfs_total_blocks.py -w 10 -c 20
     hr
     echo "testing failure scenarios:"
-    run_fail 1 ./check_hadoop_hdfs_total_blocks.py -w 0 -c 1
+    run_fail 1 ./check_hadoop_hdfs_total_blocks.py -w 0 -c 4
     hr
     run_fail 2 ./check_hadoop_hdfs_total_blocks.py -w 0 -c 0
     hr
-    # API endpoint not present in Hadoop 2.2
-    if [ "$version" != "2.2" ]; then
-        # run inside Docker container so it can resolve redirect to DN
-        docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728
-        hr
-        # run inside Docker container so it can resolve redirect to DN
-        docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
-        hr
-        ERRCODE=2 docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost -P "$wrong_port"
-        hr
-    fi
     run $perl -T ./check_hadoop_hdfs_fsck.pl -f "$data_dir/hdfs-fsck-$version.log"
     hr
     run $perl -T ./check_hadoop_hdfs_fsck.pl -f "$data_dir/hdfs-fsck-$version.log" --stats
@@ -348,55 +294,6 @@ EOF
     hr
     run_conn_refused $perl -T ./check_hadoop_namenode_jmx.pl --all-metrics
     hr
-    # TODO: write replacement python plugins for this
-    # XXX: Hadoop doesn't expose this information in the same way any more via dfshealth.jsp so this plugin is end of life with Hadoop 2.6
-    # gets 404 not found
-    if [[ "$version" =~ ^2\.[0-6]$ ]]; then
-        run $perl -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10
-        hr
-        run $perl -T ./check_hadoop_namenode.pl -v --hdfs-space
-        hr
-        run $perl -T ./check_hadoop_namenode.pl -v --replication -w 10 -c 20
-        hr
-        run $perl -T ./check_hadoop_namenode.pl -v --datanode-blocks
-        hr
-        run $perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20
-        hr
-        run $perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20 -v
-        hr
-        run $perl -T ./check_hadoop_namenode.pl -v --node-count -w 1 -c 1
-        hr
-        echo "checking node count (expecting warning < 2 nodes)"
-        run_fail 1 $perl -t ./check_hadoop_namenode.pl -v --node-count -w 2 -c 1
-        hr
-        echo "checking node count (expecting critical < 2 nodes)"
-        run_fail 2 $perl -t ./check_hadoop_namenode.pl -v --node-count -w 2 -c 2
-        hr
-        run $perl -T ./check_hadoop_namenode.pl -v --node-list $hostname
-        hr
-        run $perl -T ./check_hadoop_namenode.pl -v --heap-usage -w 80 -c 90
-        hr
-        echo "checking we can trigger warning on heap usage"
-        run_fail 1 $perl -T ./check_hadoop_namenode.pl -v --heap-usage -w 1 -c 90
-        hr
-        echo "checking we can trigger critical on heap usage"
-        run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --heap-usage -w 0 -c 1
-        hr
-        run $perl -T ./check_hadoop_namenode.pl -v --non-heap-usage -w 80 -c 90
-        hr
-        # these won't trigger as NN has no max non-heap
-#        echo "checking we can trigger warning on non-heap usage"
-#        set +e
-#        $perl -T ./check_hadoop_namenode.pl - P"$HADOOP_NAMENODE_PORT" -v --non-heap-usage -w 1 -c 90
-#        check_exit_code 1
-#        hr
-#        echo "checking we can trigger critical on non-heap usage"
-#        set +e
-#        $perl -T ./check_hadoop_namenode.pl -P "$HADOOP_NAMENODE_PORT" -v --non-heap-usage -w 0 -c 1
-#        check_exit_code 2
-#        set -e
-#        hr
-    fi
     run_conn_refused $perl -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10
     hr
     run $perl -T ./check_hadoop_namenode_safemode.pl
@@ -592,20 +489,16 @@ EOF
     run_conn_refused $perl -T ./check_hadoop_yarn_resource_manager_heap.pl --non-heap
     hr
     # ================================================
-    if [ "$version" != "2.2" ]; then
-        run ./check_hadoop_yarn_resource_manager_ha_state.py
-        hr
-        run ./check_hadoop_yarn_resource_manager_ha_state.py --active
-        hr
-        run_fail 2 ./check_hadoop_yarn_resource_manager_ha_state.py --standby
-        hr
-    fi
     run_conn_refused ./check_hadoop_yarn_resource_manager_ha_state.py
     hr
     # ================================================
     run $perl -T ./check_hadoop_yarn_resource_manager_state.pl
     hr
     run_conn_refused $perl -T ./check_hadoop_yarn_resource_manager_state.pl
+    hr
+    check_newer_plugins
+    hr
+    check_older_plugins
     hr
     echo "Now killing DataNode and NodeManager to run worker failure tests:"
     echo "killing datanode:"
@@ -659,12 +552,6 @@ EOF
     # thresholds have been exceeded, relying on latch
     # from retry on datanodes above
     # ================================================
-    if [[ "$version" =~ ^2\.[0-6]$ ]]; then
-        run_fail 3 $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
-        hr
-        run_fail 3 $perl -T ./check_hadoop_datanodes_blockcounts.pl
-        hr
-    fi
     run_fail 2 ./check_hadoop_datanodes_block_balance.py -w 5 -c 10
     hr
     run_fail 2 ./check_hadoop_hdfs_balance.py -w 5 -c 10 -v
@@ -697,6 +584,10 @@ EOF
     run_fail "0 2" ./check_hadoop_hdfs_space.py
     hr
     if [[ "$version" =~ ^2\.[0-6]$ ]]; then
+        run_fail 3 $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
+        hr
+        run_fail 3 $perl -T ./check_hadoop_datanodes_blockcounts.pl
+        hr
         run_fail 1 $perl -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10
         hr
         run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --hdfs-space
@@ -726,6 +617,113 @@ EOF
     docker-compose down
     echo
     echo
+}
+
+check_newer_plugins(){
+    echo
+    echo "Now checking plugins that do not work on older versions of Hadoop:"
+    echo
+    if [ "$version" != "2.2" ]; then
+        # corrupt fields field is not available in older versions of Hadoop
+        run ./check_hadoop_hdfs_corrupt_files.py
+        hr
+        # WebHDFS API endpoint not present in Hadoop 2.2
+        # run inside Docker container so it can resolve redirect to DN
+        docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728
+        hr
+        # run inside Docker container so it can resolve redirect to DN
+        docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
+        hr
+        ERRCODE=2 docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost -P "$wrong_port"
+        hr
+        # Yarn RM HA state field not available in older versions of Hadoop
+        run ./check_hadoop_yarn_resource_manager_ha_state.py
+        hr
+        run ./check_hadoop_yarn_resource_manager_ha_state.py --active
+        hr
+        run_fail 2 ./check_hadoop_yarn_resource_manager_ha_state.py --standby
+    fi
+}
+
+check_older_plugins(){
+    echo
+    echo "Now checking plugins that do not work on newer versions of Hadoop:"
+    echo
+    # TODO: write replacement python plugins for this stuff
+    # XXX: Hadoop doesn't expose this information in the same way any more via dfshealth.jsp so these plugins are end of life with Hadoop 2.6
+    if [[ "$version" =~ ^2\.[0-6]$ ]]; then
+        # gets 404 not found on newer Hadoop versions
+        run $perl -T ./check_hadoop_datanode_blockcount.pl
+        hr
+        run_conn_refused $perl -T ./check_hadoop_datanode_blockcount.pl
+        hr
+        run $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
+        hr
+        run $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10 -v
+        hr
+        run_conn_refused $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
+        hr
+        run $perl -T ./check_hadoop_datanodes_blockcounts.pl
+        hr
+        run_conn_refused $perl -T ./check_hadoop_datanodes_blockcounts.pl
+        hr
+        # on a real cluster thresholds should be set to millions+, no defaults as must be configured based on NN heap allocated
+        # XXX: Total Blocks are not available via blockScannerReport from Hadoop 2.7
+        run $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 10 -c 20
+        hr
+        run_conn_refused $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 10 -c 20
+        hr
+        echo "testing failure scenarios:"
+        run_fail 1 $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 4
+        hr
+        run_fail 2 $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 0
+        hr
+        run_conn_refused $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 1
+        hr
+        run $perl -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10
+        hr
+        run $perl -T ./check_hadoop_namenode.pl -v --hdfs-space
+        hr
+        run $perl -T ./check_hadoop_namenode.pl -v --replication -w 10 -c 20
+        hr
+        run $perl -T ./check_hadoop_namenode.pl -v --datanode-blocks
+        hr
+        run $perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20
+        hr
+        run $perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20 -v
+        hr
+        run $perl -T ./check_hadoop_namenode.pl -v --node-count -w 1 -c 1
+        hr
+        echo "checking node count (expecting warning < 2 nodes)"
+        run_fail 1 $perl -t ./check_hadoop_namenode.pl -v --node-count -w 2 -c 1
+        hr
+        echo "checking node count (expecting critical < 2 nodes)"
+        run_fail 2 $perl -t ./check_hadoop_namenode.pl -v --node-count -w 2 -c 2
+        hr
+        run $perl -T ./check_hadoop_namenode.pl -v --node-list $hostname
+        hr
+        run $perl -T ./check_hadoop_namenode.pl -v --heap-usage -w 80 -c 90
+        hr
+        echo "checking we can trigger warning on heap usage"
+        run_fail 1 $perl -T ./check_hadoop_namenode.pl -v --heap-usage -w 1 -c 90
+        hr
+        echo "checking we can trigger critical on heap usage"
+        run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --heap-usage -w 0 -c 1
+        hr
+        run $perl -T ./check_hadoop_namenode.pl -v --non-heap-usage -w 80 -c 90
+        # these won't trigger as NN has no max non-heap
+#        echo "checking we can trigger warning on non-heap usage"
+#        set +e
+#        $perl -T ./check_hadoop_namenode.pl - P"$HADOOP_NAMENODE_PORT" -v --non-heap-usage -w 1 -c 90
+#        check_exit_code 1
+#        hr
+#        echo "checking we can trigger critical on non-heap usage"
+#        set +e
+#        $perl -T ./check_hadoop_namenode.pl -P "$HADOOP_NAMENODE_PORT" -v --non-heap-usage -w 0 -c 1
+#        check_exit_code 2
+#        set -e
+#        hr
+    fi
 }
 
 run_test_versions Hadoop
