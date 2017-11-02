@@ -118,9 +118,9 @@ test_consul(){
     hr
     set +o pipefail
     echo "./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 5 -v | tee /dev/stderr | grep --color=yes ^WARNING"
-    run_grep '^WARNING' ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 5 -v
+    ERRCODE=1 run_grep '^WARNING' ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 5 -v
     hr
-    run_grep '^CRITICAL' ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 4 -v
+    ERRCODE=2 run_grep '^CRITICAL' ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 4 -v
     set -o pipefail
     hr
     run ./check_consul_write.py -v
