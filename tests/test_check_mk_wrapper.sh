@@ -61,8 +61,10 @@ hr
 echo "Testing failure detection of wrong git branch (python)"
 run_grep '^2 check_git_branch_checkout.py ' ./check_mk_wrapper.py python ./check_git_branch_checkout.py -d . -b nonexistentbranch
 hr
-echo test > test.txt
-run ./check_mk_wrapper.py $perl -T ./check_file_md5.pl -f test.txt -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
+tmpfile="$(mktemp /tmp/check_mk_wrapper.txt.XXXXXX)"
+echo test > "$tmpfile"
+run ./check_mk_wrapper.py $perl -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
+rm -f "$tmpfile"
 hr
 run ./check_mk_wrapper.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
 hr
