@@ -660,6 +660,7 @@ EOF
         hr
     fi
     hr
+    if ! is_CI; then
     local fsck_log="$data_dir/hdfs-fsck-fail-$version.log"
     if [ "$version" != "latest" ]; then
         # It's so damn slow to wait for hdfs to convert that let's not do this every time as these tests
@@ -694,6 +695,7 @@ EOF
     run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log"
     hr
     run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --stats
+    fi
     hr
     echo "Completed $run_count Hadoop tests"
     hr
