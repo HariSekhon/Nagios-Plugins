@@ -121,13 +121,15 @@ EOF
     echo
     hr
     data_dir="tests/data"
-    if ! test -s "$data_dir/hdfs-fsck-$version.log"; then
-        echo "copying NEW hdfs-fsck.log from Hadoop $version container:"
-        docker cp "$DOCKER_CONTAINER":/tmp/hdfs-fsck.log "$data_dir/hdfs-fsck-$version.log"
-        echo "adding new hdfs-fsck-$version.log to git:"
-        # .log paths are excluded, must -f or this will fail
-        git add -f "$data_dir/hdfs-fsck-$version.log"
-        hr
+    if [ "$version" != "latest" ]; then
+        if ! test -s "$data_dir/hdfs-fsck-$version.log"; then
+            echo "copying NEW hdfs-fsck.log from Hadoop $version container:"
+            docker cp "$DOCKER_CONTAINER":/tmp/hdfs-fsck.log "$data_dir/hdfs-fsck-$version.log"
+            echo "adding new hdfs-fsck-$version.log to git:"
+            # .log paths are excluded, must -f or this will fail
+            git add -f "$data_dir/hdfs-fsck-$version.log"
+            hr
+        fi
     fi
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
