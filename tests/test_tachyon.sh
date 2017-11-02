@@ -42,7 +42,7 @@ trap_debug_env tachyon
 test_tachyon(){
     local version="$1"
     section2 "Setting up Tachyon $version test container"
-    if is_CI; then
+    if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     if [ -z "${KEEPDOCKER:-}" ]; then

@@ -44,7 +44,7 @@ test_linux(){
     section2 "Setting up Linux $distro $version test container"
     export SERVICE="nagiosplugins_$distro-github_1"
     export COMPOSE_FILE="$srcdir/docker/$distro-github-docker-compose.yml"
-    if is_CI; then
+    if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d

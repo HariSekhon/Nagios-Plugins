@@ -45,7 +45,7 @@ trap_debug_env mesos
 test_mesos(){
     local version="${1:-latest}"
     section2 "Setting up Mesos $version test container"
-    if is_CI; then
+    if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d

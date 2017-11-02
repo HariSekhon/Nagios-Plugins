@@ -50,7 +50,7 @@ test_kafka(){
     local version="$1"
     section2 "Setting up Apache Kafka $version test container"
     export ADVERTISED_HOSTNAME="$KAFKA_HOST"
-    if is_CI; then
+    if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d

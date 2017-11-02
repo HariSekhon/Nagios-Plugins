@@ -46,7 +46,7 @@ test_spark(){
     local version="$1"
     section2 "Setting up Spark $version test container"
     docker-compose down &>/dev/null
-    if is_CI; then
+    if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     if [ -z "${KEEPDOCKER:-}" ]; then
