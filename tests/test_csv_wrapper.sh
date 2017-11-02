@@ -51,8 +51,10 @@ hr
 echo "Testing failure detection of wrong git branch (python)"
 run_grep '^CRITICAL', ./geneos_wrapper.py ./check_git_branch_checkout.py -d . -b nonexistentbranch
 hr
-echo test > test.txt
-run ./csv_wrapper.py $perl -T ./check_file_md5.pl -f test.txt -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
+tmpfile="$(mktemp /tmp/csv_wrapper.txt.XXXXXX)"
+echo test > "$tmpfile"
+run ./csv_wrapper.py $perl -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
+rm "$tmpfile"
 hr
 run ./csv_wrapper.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
 hr
