@@ -40,14 +40,14 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, isInt, validate_chars, plural
-    from harisekhon.utils import UnknownError, ERRORS, support_msg_api
+    from harisekhon.utils import ERRORS, CriticalError, UnknownError, support_msg_api
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5'
+__version__ = '0.6'
 
 
 class CheckHadoopDatanodeLastContact(RestNagiosPlugin):
@@ -87,7 +87,7 @@ class CheckHadoopDatanodeLastContact(RestNagiosPlugin):
             live_nodes = json_data['beans'][0]['LiveNodes']
             live_nodes_data = json.loads(live_nodes)
             if self.list_nodes:
-                print('Datanodes:\n')
+                print('Live Datanodes:\n')
                 for datanode in live_nodes_data:
                     print(datanode)
                 sys.exit(ERRORS['UNKNOWN'])
@@ -101,7 +101,7 @@ class CheckHadoopDatanodeLastContact(RestNagiosPlugin):
                     last_contact_secs = live_nodes_data[datanode]['lastContact']
                     found_datanode = True
             if not found_datanode:
-                raise UnknownError("datanode '{0}' was not found in list of live datanodes".format(self.datanode))
+                raise CriticalError("datanode '{0}' was not found in list of live datanodes".format(self.datanode))
             if not isInt(last_contact_secs):
                 raise UnknownError("non-integer '{0}' returned for last contact seconds by namenode '{1}:{2}'"\
                                    .format(last_contact_secs, self.host, self.port))
