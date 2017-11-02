@@ -135,6 +135,8 @@ EOF
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
         local version="$(dockerhub_latest_version hadoop-dev)"
+        # 2.8.2 => 2.8 so that $version matches hdfs-fsck-2.8.log for check_hadoop_hdfs_fsck.pl check further down
+        version="${version%.*}"
         echo "expecting version '$version'"
     fi
     # docker-compose exec returns $'hostname\r' but not in shell
