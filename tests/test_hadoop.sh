@@ -57,6 +57,20 @@ docker_exec(){
     run docker exec "$DOCKER_CONTAINER" "$MNTDIR/$@"
 }
 
+dump_fsck_log(){
+    local fsck_log="$1"
+    if [ "$version" != "latest" ]; then
+        if ! test -s "$fsck_log"; then
+            echo "copying NEW $fsck_log from Hadoop $version container:"
+            docker cp "$DOCKER_CONTAINER":/tmp/hdfs-fsck.log "$fsck_log"
+            echo "adding new $fsck_log to git:"
+            # .log paths are excluded, must -f or this will fail
+            git add -f "$fsck_log"
+            hr
+        fi
+    fi
+}
+
 test_hadoop(){
     local version="$1"
     section2 "Setting up Hadoop $version test container"
@@ -114,23 +128,15 @@ test_hadoop(){
         # triggerBlockReport error: java.io.IOException: Failed on local exception: com.google.protobuf.InvalidProtocolBufferException: Protocol message end-group tag did not match expected tag.; Host Details : local host is: "94bab7680584/172.19.0.2"; destination host is: "localhost":50075;
         # this doesn't help get Total Blocks in /blockScannerReport for ./check_hadoop_datanode_blockcount.pl, looks like that information is simply not exposed like that any more
         #hdfs dfsadmin -triggerBlockReport localhost:50020
-        echo "dumping fsck log"
+        echo "dumping fsck log to /tmp inside container:"
         hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && tail -n30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
         exit 0
 EOF
     echo
     hr
     data_dir="tests/data"
-    if [ "$version" != "latest" ]; then
-        if ! test -s "$data_dir/hdfs-fsck-$version.log"; then
-            echo "copying NEW hdfs-fsck.log from Hadoop $version container:"
-            docker cp "$DOCKER_CONTAINER":/tmp/hdfs-fsck.log "$data_dir/hdfs-fsck-$version.log"
-            echo "adding new hdfs-fsck-$version.log to git:"
-            # .log paths are excluded, must -f or this will fail
-            git add -f "$data_dir/hdfs-fsck-$version.log"
-            hr
-        fi
-    fi
+    local fsck_log="$data_dir/hdfs-fsck-$version.log"
+    dump_fsck_log "$fsck_log"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -244,20 +250,23 @@ EOF
     hr
     run_fail 2 ./check_hadoop_hdfs_total_blocks.py -w 0 -c 0
     hr
-    run $perl -T ./check_hadoop_hdfs_fsck.pl -f "$data_dir/hdfs-fsck-$version.log"
-    hr
-    run $perl -T ./check_hadoop_hdfs_fsck.pl -f "$data_dir/hdfs-fsck-$version.log" --stats
-    hr
-    run_fail 1 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$data_dir/hdfs-fsck-$version.log" --last-fsck -w 1 -c 999999999
-    hr
-    run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$data_dir/hdfs-fsck-$version.log" --last-fsck -w 1 -c 1
-    hr
-    run $perl -T ./check_hadoop_hdfs_fsck.pl -f "$data_dir/hdfs-fsck-$version.log" --max-blocks -w 1 -c 2
-    hr
-    run_fail 1 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$data_dir/hdfs-fsck-$version.log" --max-blocks -w 0 -c 1
-    hr
-    run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$data_dir/hdfs-fsck-$version.log" --max-blocks -w 0 -c 0
-    hr
+    # only check logs for each version as there is no latest fsck log as it would be a duplicate of the highest version number
+    if [ "$version" != "latest" ]; then
+        run $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log"
+        hr
+        run $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --stats
+        hr
+        run_fail 1 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --last-fsck -w 1 -c 999999999
+        hr
+        run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --last-fsck -w 1 -c 1
+        hr
+        run $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --max-blocks -w 1 -c 2
+        hr
+        run_fail 1 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --max-blocks -w 0 -c 1
+        hr
+        run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --max-blocks -w 0 -c 0
+        hr
+    fi
     docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log
     hr
     docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --stats
@@ -650,6 +659,41 @@ EOF
         run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --node-list $hostname
         hr
     fi
+    hr
+    local fsck_log="$data_dir/hdfs-fsck-fail-$version.log"
+    if [ "$version" != "latest" ]; then
+        # It's so damn slow to wait for hdfs to convert that let's not do this every time as these tests
+        # are already taking too long and having a saved failure case covers it anyway, don't need the dynamic check
+        if ! test -s "$fsck_log"; then
+            echo "getting new hdfs failure fsck:"
+            #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
+            docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
+                set -eu
+                export JAVA_HOME=/usr
+                echo "dumping fsck log to /tmp inside container:"
+                echo
+                # this takes about 100 secs in tests
+                echo "retrying up to 100 secs until hdfs fsck detects corrupt files / missing blocks:"
+                for i in {1..100}; do
+                    sleep 1
+                    echo -n "try \$i: "
+                    hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && tail -n30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
+                    grep 'filesystem under path '/' is CORRUPT' /tmp/hdfs-fsck.log && break
+                    echo "CORRUPT not found in /tmp/hdfs-fsck.log yet"
+                done
+                exit \$?
+EOF
+            echo
+            hr
+            dump_fsck_log "$fsck_log"
+            ERRCODE=2 docker_exec check_hadoop_hdfs_fsck.pl -f "$fsck_log" # --last-fsck -w 1 -c 200000000
+            hr
+        fi
+    fi
+    hr
+    run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log"
+    hr
+    run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --stats
     hr
     echo "Completed $run_count Hadoop tests"
     hr
