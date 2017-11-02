@@ -78,7 +78,7 @@ test_hadoop(){
     # needed for version tests, also don't return container to user before it's ready if NOTESTS
     # also, do this wait before HDFS setup to give datanodes time to come online to copy the file too
     echo "waiting for NN dfshealth page to come up:"
-    if [ "$version" = "2.2" -o "$version" = "2.3" ]; then
+    if [[ "$version" =~ ^2\.[2-4]$ ]]; then
         when_url_content "$HADOOP_HOST:$HADOOP_NAMENODE_PORT/dfshealth.jsp" 'Hadoop NameNode'
         echo "waiting for DN page to come up:"
         hr
@@ -212,9 +212,19 @@ EOF
     hr
     run_conn_refused $perl -T ./check_hadoop_datanodes.pl
     hr
-    run ./check_hadoop_datanode_last_contact.py -d "$hostname"
+    run ./check_hadoop_datanode_last_contact.py --node "$hostname"
     hr
-    run_conn_refused ./check_hadoop_datanode_last_contact.py -d "$hostname"
+    if [[ "$version" =~ ^2\.[0-6]$ ]]; then
+        echo "checking specifying datanode with port suffix in Hadoop < 2.7 is not found:"
+        run_fail 3 ./check_hadoop_datanode_last_contact.py --node "$hostname:50010"
+    else
+        echo "checking we can specify datanode with port suffix in Hadoop 2.7+:"
+        run ./check_hadoop_datanode_last_contact.py --node "$hostname:50010"
+    fi
+    hr
+    run_fail 3 ./check_hadoop_datanode_last_contact.py --node "nonexistentnode"
+    hr
+    run_conn_refused ./check_hadoop_datanode_last_contact.py --node "$hostname"
     hr
     docker_exec check_hadoop_dfs.pl --hadoop-bin /hadoop/bin/hadoop --hadoop-user root --hdfs-space -w 80 -c 90 -t 20
     hr
@@ -359,6 +369,9 @@ EOF
     run_fail 3 ./check_hadoop_yarn_long_running_apps.py -l
     hr
     # ================================================
+    # TODO: add pi job run and kill it to test ./check_hadoop_yarn_app_last_run.py for KILLED status
+    # TODO: add teragen job run with bad preexisting output dir to test ./check_hadoop_yarn_app_last_run.py for FAILED status
+    # TODO: use --include --exclude to work around the two tests
     echo "Running sample mapreduce job to test Yarn application / job based plugins against:"
     docker exec -i "$DOCKER_CONTAINER" /bin/bash <<EOF &
     echo
@@ -517,26 +530,30 @@ EOF
     hr
     # ================================================
     echo "Now waiting for masters to detect worker failures:"
+    echo "waiting for NameNode to detect DataNode failure:"
+    ERRCODE=1 retry 30 $perl -T ./check_hadoop_datanodes.pl
+    hr
+    echo "datanodes should be in warning state at this point due to being stale with contact lag but not yet marked dead:"
+    ERRCODE=1 run_grep '1 stale' $perl -T ./check_hadoop_datanodes.pl
+    hr
+    # typically 10-20 secs since last contact by this point
+    run_fail 1 ./check_hadoop_datanode_last_contact.py --node "$hostname" -w 5
+    hr
+    run_fail 2 ./check_hadoop_datanode_last_contact.py --node "$hostname" -c 5
+    hr
+    # ================================================
+    # TODO: submit job to get stuck in ACCEPTED state and test yarn apps plugins again
     echo "waiting for Yarn Resource Manager to detect NodeManager failure:"
     ERRCODE=1 RETRY_INTERVAL=3 retry 60 $perl -T ./check_hadoop_yarn_node_managers.pl -w 0 -c 1
     hr
     ERRCODE=2 retry 10 $perl -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname"
     hr
-    echo "waiting for NameNode to detect DataNode failure:"
-    ERRCODE=1 retry 30 $perl -T ./check_hadoop_datanodes.pl
-    hr
     # ================================================
-    echo "datanodes should be in warning stale at this point due to stale but not yet marked dead:"
-    run_fail 1 $perl -T ./check_hadoop_datanodes.pl
-    hr
-    run_fail 1 ./check_hadoop_datanode_last_contact.py -d "$hostname"
-    hr
-    run_fail 2 ./check_hadoop_datanode_last_contact.py -d "$hostname" -c 30
-    hr
     # API endpoint not available in Hadoop 2.2
     if [ "$version" != "2.2" ]; then
-        # still passes in some versions eg. Hadoop 2.3 as it's only metadata so allow 0 or 2 exit codes
-        ERRCODE="0 2" docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728
+        # still passes as it's only metadata
+        # the check for corrupt / missing blocks / files should catch the fact that the underlying data is offline
+        docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728
         hr
         # run inside Docker container so it can resolve redirect to DN
         ERRCODE=2 docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
@@ -565,6 +582,9 @@ EOF
     # thresholds have been exceeded, relying on latch
     # from retry on datanodes above
     # ================================================
+    echo "check datanode last contact returns critical if node is marked as dead regardless of the thresholds:"
+    run_fail 2 ./check_hadoop_datanode_last_contact.py --node "$hostname" -w 999999999 -c 9999999999
+    hr
     run_fail 2 ./check_hadoop_datanodes_block_balance.py -w 5 -c 10
     hr
     run_fail 2 ./check_hadoop_hdfs_balance.py -w 5 -c 10 -v
@@ -581,30 +601,38 @@ EOF
     hr
     # API field not available in Hadoop 2.2
     if [ "$version" != "2.2" ]; then
-        run_fail "0 2" ./check_hadoop_hdfs_corrupt_files.py -v
+        ERRCODE=2 retry 20 ./check_hadoop_hdfs_corrupt_files.py -v
         hr
-        run_fail "0 2" ./check_hadoop_hdfs_corrupt_files.py -vv
+        run_fail 2 ./check_hadoop_hdfs_corrupt_files.py -v
         hr
-        # still passes in some versions eg. Hadoop 2.3 as it's only metadata so allow 0 or 2 exit codes
-        ERRCODE="0 2" docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728
+        run_fail 2 ./check_hadoop_hdfs_corrupt_files.py -vv
+        hr
+        # still passes as it's only metadata
+        docker_exec check_hadoop_hdfs_file_webhdfs.pl -H localhost -p /tmp/test.txt --owner root --group supergroup --replication 1 --size 8 --last-accessed 600 --last-modified 600 --blockSize 134217728
         hr
         # run inside Docker container so it can resolve redirect to DN
         ERRCODE=2 docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
         hr
     fi
-    # XXX: sometimes Hadoop returns 100% used, sometimes the real amount, so could pass or fail
-    run_fail "0 2" $perl -T ./check_hadoop_hdfs_space.pl
+    ERRCODE=2 retry 20 $perl -T ./check_hadoop_hdfs_space.pl
     hr
-    run_fail "0 2" ./check_hadoop_hdfs_space.py
+    run_fail 2 $perl -T ./check_hadoop_hdfs_space.pl
+    hr
+    run_fail 2 ./check_hadoop_hdfs_space.py
+    hr
+    run_fail 2 $perl -T ./check_hadoop_replication.pl
     hr
     if [[ "$version" =~ ^2\.[0-6]$ ]]; then
+        echo
+        echo "Now running legacy checks against failure scenarios:"
+        echo
         run_fail 3 $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
         hr
         run_fail 3 $perl -T ./check_hadoop_datanodes_blockcounts.pl
         hr
         run_fail 1 $perl -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10
         hr
-        run_fail "0 2" $perl -T ./check_hadoop_namenode.pl -v --hdfs-space
+        run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --hdfs-space
         hr
         run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --replication -w 10 -c 20
         hr
@@ -622,8 +650,6 @@ EOF
         run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --node-list $hostname
         hr
     fi
-    hr
-    run_fail 2 $perl -T ./check_hadoop_replication.pl
     hr
     echo "Completed $run_count Hadoop tests"
     hr
