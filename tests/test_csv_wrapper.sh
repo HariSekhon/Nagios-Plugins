@@ -54,7 +54,7 @@ hr
 tmpfile="$(mktemp /tmp/csv_wrapper.txt.XXXXXX)"
 echo test > "$tmpfile"
 run ./csv_wrapper.py $perl -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
-rm "$tmpfile"
+rm -f "$tmpfile"
 hr
 run ./csv_wrapper.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
 hr
