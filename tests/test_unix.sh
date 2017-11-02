@@ -34,23 +34,24 @@ run_fail 2 $perl -t ./check_git_branch_checkout.pl -d . -b nonexistentbranch
 hr
 run_fail 2 ./check_git_branch_checkout.py -d . -b nonexistentbranch
 hr
-echo test > test.txt
-run $perl -T ./check_file_checksum.pl -f test.txt -v -c '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83'
+tmpfile="$(mktemp /tmp/check_file_checksum.txt.XXXXXX)"
+echo test > "$tmpfile"
+run $perl -T ./check_file_checksum.pl -f "$tmpfile" -v -c '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83'
 hr
-run $perl -T ./check_file_checksum.pl -f test.txt -vn -a adler32
+run $perl -T ./check_file_checksum.pl -f "$tmpfile" -vn -a adler32
 hr
-run $perl -T ./check_file_adler32.pl  -f test.txt -v -c '062801cb'
+run $perl -T ./check_file_adler32.pl  -f "$tmpfile" -v -c '062801cb'
 hr
-run $perl -T ./check_file_crc.pl      -f test.txt -v -c '3bb935c6'
+run $perl -T ./check_file_crc.pl      -f "$tmpfile" -v -c '3bb935c6'
 hr
-run $perl -T ./check_file_md5.pl      -f test.txt -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
+run $perl -T ./check_file_md5.pl      -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
 hr
-run $perl -T ./check_file_sha1.pl     -f test.txt -v --checksum '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83'
+run $perl -T ./check_file_sha1.pl     -f "$tmpfile" -v --checksum '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83'
 hr
-run $perl -T ./check_file_sha256.pl   -f test.txt -v -c 'f2ca1bb6c7e907d06dafe4687e579fce76b37e4e93b7605022da52e6ccc26fd2'
+run $perl -T ./check_file_sha256.pl   -f "$tmpfile" -v -c 'f2ca1bb6c7e907d06dafe4687e579fce76b37e4e93b7605022da52e6ccc26fd2'
 hr
-run $perl -T ./check_file_sha512.pl   -f test.txt -v -c '0e3e75234abc68f4378a86b3f4b32a198ba301845b0cd6e50106e874345700cc6663a86c1ea125dc5e92be17c98f9a0f85ca9d5f595db2012f7cc3571945c123'
-rm -f test.txt
+run $perl -T ./check_file_sha512.pl   -f "$tmpfile" -v -c '0e3e75234abc68f4378a86b3f4b32a198ba301845b0cd6e50106e874345700cc6663a86c1ea125dc5e92be17c98f9a0f85ca9d5f595db2012f7cc3571945c123'
+rm -f "$tmpfile"
 hr
 # test real login against HP iLO or similar if local environment is configured for it
 if [ -n "${SSH_HOST:-}" -a -n "${SSH_USER:-}" -a -n "${SSH_PASSWORD:-}" ]; then
