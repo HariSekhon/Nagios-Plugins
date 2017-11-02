@@ -508,12 +508,14 @@ EOF
     hr
     run_conn_refused $perl -T ./check_hadoop_yarn_resource_manager_state.pl
     hr
+    # ================================================
     echo "Now killing DataNode and NodeManager to run worker failure tests:"
     echo "killing datanode:"
     docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f org.apache.hadoop.hdfs.server.datanode.DataNode
     echo "killing node manager:"
     docker exec -ti "$DOCKER_CONTAINER" pkill -9 -f org.apache.hadoop.yarn.server.nodemanager.NodeManager
     hr
+    # ================================================
     echo "Now waiting for masters to detect worker failures:"
     echo "waiting for Yarn Resource Manager to detect NodeManager failure:"
     ERRCODE=1 RETRY_INTERVAL=3 retry 60 $perl -T ./check_hadoop_yarn_node_managers.pl -w 0 -c 1
@@ -523,7 +525,8 @@ EOF
     echo "waiting for NameNode to detect DataNode failure:"
     ERRCODE=1 retry 30 $perl -T ./check_hadoop_datanodes.pl
     hr
-    echo "datanodes check will only be warning stale at this point:"
+    # ================================================
+    echo "datanodes should be in warning stale at this point due to stale but not yet marked dead:"
     run_fail 1 $perl -T ./check_hadoop_datanodes.pl
     hr
     run_fail 1 ./check_hadoop_datanode_last_contact.py -d "$hostname"
@@ -550,8 +553,9 @@ EOF
     run_fail 2 $perl -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname"
     hr
     # ================================================
-    # NN 2 * heartbeatRecheckInterval (10) + 10 * 1000 * heartbeatIntervalSeconds == 50 secs
     hr
+    echo "Now waiting on datanode to be marked as dead:"
+    # NN 2 * heartbeatRecheckInterval (10) + 10 * 1000 * heartbeatIntervalSeconds == 50 secs
     ERRCODE=2 retry 50 $perl -T ./check_hadoop_datanodes.pl -c 0
     hr
     run_fail 2 $perl -T ./check_hadoop_datanodes.pl -c 0
@@ -600,7 +604,7 @@ EOF
         hr
         run_fail 1 $perl -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10
         hr
-        run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --hdfs-space
+        run_fail "0 2" $perl -T ./check_hadoop_namenode.pl -v --hdfs-space
         hr
         run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --replication -w 10 -c 20
         hr
