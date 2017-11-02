@@ -106,8 +106,7 @@ test_neo4j_main(){
     hr
     run $perl -T ./check_neo4j_stats.pl -v
     hr
-    # TODO: why is this zero and not one??
-    run $perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v
+    run $perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 1:20 -v
     hr
     # Neo4J on Travis doesn't seem to return anything resulting in "'attributes' field not returned by Neo4J" error
     run $perl -T ./check_neo4j_store_sizes.pl -v
