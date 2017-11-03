@@ -59,10 +59,12 @@ test_couchdb(){
     echo "getting CouchDB dynamic port mapping:"
     docker_compose_port "CouchDB"
     hr
+    # ============================================================================ #
     when_ports_available "$COUCHDB_HOST" "$COUCHDB_PORT"
     hr
     when_url_content "http://$COUCHDB_HOST:$COUCHDB_PORT/" "couchdb"
     hr
+    # ============================================================================ #
     # this only seems to work in 2.x, not 1.6
     if [ "${version:0:1}" != 1 ]; then
         retry 10 ./check_couchdb_status.py
@@ -71,6 +73,7 @@ test_couchdb(){
         exit 0
     fi
     hr
+    # ============================================================================ #
     echo "Setting up nagios-plugins database:"
     curl -s -u "$COUCHDB_USER:$COUCHDB_PASSWORD" -X PUT -H 'content-type: application/json' "$COUCHDB_HOST:$COUCHDB_PORT/$COUCHDB_TEST_DB" | tee /dev/stderr | grep --color -e '{"ok":true}' -e 'already exists'
     # TODO: run curl call to set up DB
@@ -84,6 +87,7 @@ test_couchdb(){
     hr
     run_conn_refused ./check_couchdb_version.py -e "$version"
     hr
+    # ============================================================================ #
     # this only seems to work in 2.x, not 1.6
     if [ "${version:0:1}" != 1 ]; then
         run ./check_couchdb_status.py
@@ -91,27 +95,42 @@ test_couchdb(){
     hr
     run_conn_refused ./check_couchdb_status.py
     hr
+    # ============================================================================ #
     run_fail 3 ./check_couchdb_database_exists.py --list
     hr
     run_fail 3 ./check_couchdb_database_stats.py --list
     hr
+    run_fail 3 ./check_couchdb_database_compaction_running.py --list
+    hr
+    # ============================================================================ #
     run ./check_couchdb_database_exists.py --database "$COUCHDB_TEST_DB"
+    hr
+    run ./check_couchdb_database_exists.py --database "$COUCHDB_TEST_DB" --show-compaction
     hr
     run_fail 2 ./check_couchdb_database_exists.py --database "nonexistentdatabase"
     hr
     run_conn_refused ./check_couchdb_database_exists.py --database "$COUCHDB_TEST_DB"
     hr
+    # ============================================================================ #
     run ./check_couchdb_database_stats.py --database "$COUCHDB_TEST_DB"
     hr
     run_fail 2 ./check_couchdb_database_stats.py --database "nonexistentdatabase"
     hr
     run_conn_refused ./check_couchdb_database_stats.py --database "$COUCHDB_TEST_DB"
     hr
+    # ============================================================================ #
+    run ./check_couchdb_database_compaction_running.py --database "$COUCHDB_TEST_DB"
+    hr
+    run_fail 2 ./check_couchdb_database_compaction_running.py --database "nonexistentdatabase"
+    hr
+    run_conn_refused ./check_couchdb_database_compaction_running.py --database "$COUCHDB_TEST_DB"
+    hr
     # race condition, misses
     #echo "trigger compaction and check stat for compaction=1:"
     #curl -s -u "$COUCHDB_USER:$COUCHDB_PASSWORD" -X POST -H 'content-type: application/json' "$COUCHDB_HOST:$COUCHDB_PORT/$COUCHDB_TEST_DB/_compact" | tee /dev/stderr | grep '{"ok":true}'
     #sleep 1
     #run_grep 'compact_running=1' ./check_couchdb_database_stats.py --database "$COUCHDB_TEST_DB"
+    #ERRCODE=1 run_grep 'compact_running=1' ./check_couchdb_database_compaction_running.py --database "$COUCHDB_TEST_DB"
     hr
     echo "Completed $run_count CouchDB tests"
     hr
