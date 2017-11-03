@@ -105,14 +105,14 @@ test_couchdb(){
     # ============================================================================ #
     run ./check_couchdb_database_exists.py --database "$COUCHDB_TEST_DB"
     hr
-    run ./check_couchdb_database_exists.py --database "$COUCHDB_TEST_DB" --show-compaction
-    hr
     run_fail 2 ./check_couchdb_database_exists.py --database "nonexistentdatabase"
     hr
     run_conn_refused ./check_couchdb_database_exists.py --database "$COUCHDB_TEST_DB"
     hr
     # ============================================================================ #
     run ./check_couchdb_database_stats.py --database "$COUCHDB_TEST_DB"
+    hr
+    run ./check_couchdb_database_stats.py --database "$COUCHDB_TEST_DB" --show-compaction
     hr
     run_fail 2 ./check_couchdb_database_stats.py --database "nonexistentdatabase"
     hr
