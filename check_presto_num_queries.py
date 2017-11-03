@@ -59,7 +59,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 class CheckPrestoNumQueries(RestNagiosPlugin):
@@ -100,7 +100,8 @@ class CheckPrestoNumQueries(RestNagiosPlugin):
         num_queries = len(current_queries)
         self.msg = 'Presto SQL - {0} current {1}'.format(num_queries, self.query_type)
         self.check_thresholds(num_queries)
-        self.msg += ' on coordinator'
+        # check_presto_num_tasks.py works against workers too
+        #self.msg += ' on {0}'.format(self.query_on_node)
         if self.verbose:
             self.msg += ' {0}:{1}'.format(self.host, self.port)
         self.msg += ' | num_current_{type}={num}{thresholds}'.format(
