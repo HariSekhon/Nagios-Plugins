@@ -24,10 +24,12 @@ Outputs:
     - doc count
     - doc del count
     - data size
-    - if compaction is running
+    - if compaction is running (optional, see also adjacent check_couchdb_database_compaction_running.py
+                                which will alert if compaction is running on database to ensure
+                                it only happens off peak during maintenance windows)
 
-Perfdata is output for all 3 with 0 or 1 for compaction running so you can track historically
-in graphs when compactions run
+Perfdata is output for all stats with 0 or 1 for compaction running so you can track historically
+in graphs when compactions run if --show-compaction option is used
 
 Thresholds are optional and apply to the total number of documents for the given database
 
@@ -56,7 +58,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckCouchDBDatabaseStats(RestNagiosPlugin):
@@ -77,6 +79,7 @@ class CheckCouchDBDatabaseStats(RestNagiosPlugin):
     def add_options(self):
         super(CheckCouchDBDatabaseStats, self).add_options()
         self.add_opt('-d', '--database', help='Database to assert exists')
+        self.add_opt('--show-compaction', action='store_true', help='Show is compaction is running')
         self.add_opt('-l', '--list', action='store_true', default=False, help='List databases and exit')
         self.add_thresholds()
 
@@ -112,9 +115,13 @@ class CheckCouchDBDatabaseStats(RestNagiosPlugin):
         self.check_thresholds(doc_count)
         self.msg += ', doc del count = {0}'.format(doc_del_count)
         self.msg += ', data size = {0}'.format(humanize.naturalsize(data_size))
-        self.msg += ', compaction running = {0}'.format(compact_running)
-        self.msg += ' | doc_count={0}{1} doc_del_count={2} data_size={3}b compact_running={4}'\
-                    .format(doc_count, self.get_perf_thresholds(), doc_del_count, data_size, int(compact_running))
+        show_compaction = self.get_opt('show_compaction')
+        if show_compaction:
+            self.msg += ', compaction running = {0}'.format(compact_running)
+        self.msg += ' | doc_count={0}{1} doc_del_count={2} data_size={3}b'\
+                    .format(doc_count, self.get_perf_thresholds(), doc_del_count, data_size)
+        if show_compaction:
+            self.msg += ' compact_running={0}'.format(int(compact_running))
 
 
 if __name__ == '__main__':
