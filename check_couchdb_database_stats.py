@@ -24,10 +24,10 @@ Outputs:
     - doc count
     - doc del count
     - data size
-    - if compact is running
+    - if compaction is running
 
-Perfdata is output for all 3 with 0 or 1 for compact running so you can track
-historically against graphs when compacts run
+Perfdata is output for all 3 with 0 or 1 for compaction running so you can track historically
+in graphs when compactions run
 
 Thresholds are optional and apply to the total number of documents for the given database
 
