@@ -57,7 +57,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckPrestoNumQueries(RestNagiosPlugin):
@@ -72,6 +72,8 @@ class CheckPrestoNumQueries(RestNagiosPlugin):
         self.auth = False
         self.json = True
         self.path = '/v1/query'
+        self.query_type = 'queries'
+        self.finished_states = ('FINISHED', 'FAILED', 'CANCELLED', 'closed')
         self.msg = 'Presto msg not defined'
 
     def add_options(self):
@@ -82,17 +84,25 @@ class CheckPrestoNumQueries(RestNagiosPlugin):
         super(CheckPrestoNumQueries, self).process_options()
         self.validate_thresholds()
 
+    def filter(self, items):
+        """Take a list of queries and return only the non-finished ones"""
+        return [query for query in items if query['state'] not in self.finished_states]
+
     def parse_json(self, json_data):
         if not isList(json_data):
-            raise UnknownError('non-list returned by Presto for queries. {0}'.format(support_msg_api()))
-        current_queries = [query for query in json_data if query['state'] not in ('FINISHED', 'FAILED')]
+            raise UnknownError('non-list returned by Presto for {type}. {msg}'.format(
+                type=self.query_type, msg=support_msg_api()))
+        current_queries = self.filter(json_data)
         num_queries = len(current_queries)
-        self.msg = 'Presto SQL - {0} queries'.format(num_queries)
+        self.msg = 'Presto SQL - {0} current {1}'.format(num_queries, self.query_type)
         self.check_thresholds(num_queries)
         self.msg += ' on coordinator'
         if self.verbose:
             self.msg += ' {0}:{1}'.format(self.host, self.port)
-        self.msg += ' | num_queries={0}{1}'.format(num_queries, self.get_perf_thresholds())
+        self.msg += ' | num_current_{type}={num}{thresholds}'.format(
+            type=self.query_type,
+            num=num_queries,
+            thresholds=self.get_perf_thresholds())
 
 
 if __name__ == '__main__':
