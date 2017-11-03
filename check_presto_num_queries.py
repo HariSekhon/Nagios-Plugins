@@ -59,7 +59,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 
 
 class CheckPrestoNumQueries(RestNagiosPlugin):
@@ -76,8 +76,9 @@ class CheckPrestoNumQueries(RestNagiosPlugin):
         self.path = '/v1/query'
         self.query_type = 'queries'
         # queries are usually FINISHED or FAILED
-        # tasks can show CANCELLED or closed lowercase
-        self.finished_states = ('FINISHED', 'FAILED', 'CANCELLED', 'closed')
+        # tasks can show CANCELLED, CANCELED or closed lowercase (API doc shows CANCELED in both text and sample output)
+        # https://github.com/prestodb/presto/blob/master/presto-docs/src/main/sphinx/rest/task.rst
+        self.finished_states = ('FINISHED', 'FAILED', 'CANCELLED', 'CANCELED', 'closed')
         self.msg = 'Presto msg not defined'
 
     def add_options(self):
