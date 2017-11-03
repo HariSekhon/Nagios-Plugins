@@ -65,7 +65,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5.0'
 
 
 class CheckPrestoQueries(RestNagiosPlugin):
@@ -133,6 +133,7 @@ class CheckPrestoQueries(RestNagiosPlugin):
         return json_data
 
     def list_queries(self, query_list):
+        max_query_display_width = 100
         print('Presto SQL Queries:\n')
         cols = OrderedDict([
             ('User', 'session.user'),
@@ -151,24 +152,29 @@ class CheckPrestoQueries(RestNagiosPlugin):
                 if col not in widths:
                     widths[col] = 0
                 val = self.get_field(query_item, cols[col])
-                width = len(str(val))
-                if width > widths[col]:
-                    widths[col] = width
-                width = len(str(val))
+                width = min(max_query_display_width, len(str(val).strip()))
                 if width > widths[col]:
                     widths[col] = width
         total_width = 0
         for heading in cols:
             total_width += widths[heading] + 2
+        # ends up being 2 chars longer than items, but if queries are long and result in trailing ...
+        # then make sure this lines up with headers by adding one
+        total_width += 1
         print('=' * total_width)
         for heading in cols:
             print('{0:{1}}  '.format(heading, widths[heading]), end='')
         print()
         print('=' * total_width)
+        re_collapse_lines = re.compile(r'\s*\n\s*')
         for query_item in query_list:
             for col in cols:
                 val = self.get_field(query_item, cols[col])
-                print('{0:{1}}  '.format(val, widths[col]), end='')
+                val = re_collapse_lines.sub(' ', str(val).strip())
+                trailing = ''
+                if len(val) > max_query_display_width:
+                    trailing = '...'
+                print('{0:{1}}{2}  '.format(val[:max_query_display_width], widths[col], trailing), end='')
             print()
         sys.exit(ERRORS['UNKNOWN'])
 
