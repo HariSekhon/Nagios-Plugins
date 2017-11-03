@@ -112,7 +112,7 @@ class CheckCouchDBDatabaseStats(RestNagiosPlugin):
         self.check_thresholds(doc_count)
         self.msg += ', doc del count = {0}'.format(doc_del_count)
         self.msg += ', data size = {0}'.format(humanize.naturalsize(data_size))
-        self.msg += ', compact running = {0}'.format(compact_running)
+        self.msg += ', compaction running = {0}'.format(compact_running)
         self.msg += ' | doc_count={0}{1} doc_del_count={2} data_size={3}b compact_running={4}'\
                     .format(doc_count, self.get_perf_thresholds(), doc_del_count, data_size, int(compact_running))
 
