@@ -22,9 +22,10 @@ Nagios Plugin to check for a specific Presto SQL worker node via the Coordinator
 Checks worker node:
 
     - is found on Coordinator
-    - time since last response to Coordinator vs threshold
-    - recent failures vs threshold
-    - recent failure ratio vs threshold
+    - time since last response to Coordinator vs threshold (raises critical)
+    - recent requests vs threshold (raises warning)
+    - recent failures vs threshold (raises critical)
+    - recent failure ratio vs threshold (raises critical)
     - shows uptime of the worker node
 
 Tested on:
@@ -57,7 +58,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.1'
+__version__ = '0.3.0'
 
 
 class CheckPrestoWorker(RestNagiosPlugin):
@@ -76,6 +77,7 @@ class CheckPrestoWorker(RestNagiosPlugin):
         self.max_age = None
         self.max_ratio = None
         self.max_failures = None
+        self.max_requests = None
         self.list_nodes = None
         self.msg = 'Presto msg not defined'
 
@@ -86,10 +88,12 @@ class CheckPrestoWorker(RestNagiosPlugin):
                           ', can omit http:// uri prefix and port suffix for convenience')
         self.add_opt('-a', '--max-age', metavar='secs', default=10,
                      help='Max age in secs since worker\'s last response to coordinator (default: 10)')
-        self.add_opt('-r', '--max-ratio', metavar='0.0', default=0.0,
+        self.add_opt('-R', '--max-ratio', metavar='0.0', default=0.0,
                      help='Max recent failure ratio (default: 0.0)')
         self.add_opt('-f', '--max-failures', metavar='0', default=0,
                      help='Max number of recent failures to tolerate on the worker (default: 0)')
+        self.add_opt('-r', '--max-requests', metavar='0', default=None,
+                     help='Max number of recent requests to tolerate on the worker (default: none, check disabled)')
         self.add_opt('-l', '--list-nodes', action='store_true', help='List worker nodes and exit')
 
     def process_options(self):
@@ -101,6 +105,11 @@ class CheckPrestoWorker(RestNagiosPlugin):
         self.max_age = self.get_opt('max_age')
         validate_float(self.max_age, 'max age', 0, 3600)
         self.max_age = int(self.max_age)
+
+        self.max_requests = self.get_opt('max_requests')
+        if self.max_requests is not None:
+            validate_float(self.max_requests, 'max recent requests', 0, None)
+            self.max_requests = float('{0:.2f}'.format(float(self.max_requests)))
 
         self.max_failures = self.get_opt('max_failures')
         validate_float(self.max_failures, 'max recent failures', 0, None)
@@ -138,14 +147,14 @@ class CheckPrestoWorker(RestNagiosPlugin):
         return recent_failure_ratio
 
     @staticmethod
-    def get_recent_failures(node):
-        recent_failures = node['recentFailures']
-        if not isFloat(recent_failures):
-            raise UnknownError('recentFailures is not a float! {0}'.format(support_msg_api()))
-        recent_failures = float('{0:.2f}'.format(recent_failures))
-        if recent_failures < 0:
-            raise UnknownError('recentFailures < 0 ?!!! {0}'.format(support_msg_api()))
-        return recent_failures
+    def get_stat(node, stat):
+        stat_num = node[stat]
+        if not isFloat(stat_num):
+            raise UnknownError('{stat} is not a float! {msg}'.format(stat=stat, msg=support_msg_api()))
+        stat_num = float('{0:.2f}'.format(stat_num))
+        if stat_num < 0:
+            raise UnknownError('{stat} < 0 ?!!! {msg}'.format(stat=stat, msg=support_msg_api()))
+        return stat_num
 
     @staticmethod
     def get_response_age(node):
@@ -179,7 +188,9 @@ class CheckPrestoWorker(RestNagiosPlugin):
         if not node:
             raise CriticalError("Presto SQL worker node '{0}' not found on coordinator!".format(self.node))
         response_age = self.get_response_age(node)
-        recent_failures = self.get_recent_failures(node)
+        recent_requests = self.get_stat(node, 'recentRequests')
+        recent_successes = self.get_stat(node, 'recentSuccesses')
+        recent_failures = self.get_stat(node, 'recentFailures')
         recent_failure_ratio = self.get_recent_failure_ratio(node)
         uptime = node['age']
         self.msg = "Presto SQL worker node '{0}' ".format(self.node)
@@ -187,6 +198,11 @@ class CheckPrestoWorker(RestNagiosPlugin):
         if response_age > self.max_age:
             self.critical()
             self.msg += ' (> {0})'.format(self.max_age)
+        self.msg += ', recent requests = {0:.2f}'.format(recent_requests)
+        if self.max_requests is not None and recent_requests > self.max_requests:
+            self.warning()
+            self.msg += ' (> {0})'.format(self.max_requests)
+        self.msg += ', recent successes = {0:.2f}'.format(recent_successes)
         self.msg += ', recent failures = {0:.2f}'.format(recent_failures)
         if recent_failures > self.max_failures:
             self.critical()
@@ -198,6 +214,8 @@ class CheckPrestoWorker(RestNagiosPlugin):
         self.msg += ', uptime = {0}'.format(uptime)
         self.msg += ' | '
         self.msg += 'response_age={0}s;{1:.2f} '.format(response_age, self.max_age)
+        self.msg += 'recent_requests={0:.2f} '.format(recent_requests)
+        self.msg += 'recent_successes={0:.2f}'.format(recent_successes)
         self.msg += 'recent_failures={0:.2f};{1:.2f} '.format(recent_failures, self.max_failures)
         self.msg += 'recent_failure_ratio={0:.2f};{1:.2f} '.format(recent_failure_ratio, self.max_ratio)
 
