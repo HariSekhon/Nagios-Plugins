@@ -1,25 +1,43 @@
 OpenJDK 64-Bit Server VM warning: You have loaded library /hadoop-2.2.0/lib/native/libhadoop.so.1.0.0 which might have disabled stack guard. The VM will try to fix the stack guard now.
 It's highly recommended that you fix the library with 'execstack -c <libfile>', or link it with '-z noexecstack'.
-17/11/03 08:24:49 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-Connecting to namenode via http://255c1c088083:50070
-FSCK started by root (auth:SIMPLE) from /172.22.0.2 for path / at Fri Nov 03 08:24:50 UTC 2017
-.Status: HEALTHY
- Total size:	8 B
- Total dirs:	2
- Total files:	1
+17/11/03 15:48:38 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Connecting to namenode via http://02e2b2fcaabc:50070
+FSCK started by root (auth:SIMPLE) from /172.22.0.2 for path / at Fri Nov 03 15:48:38 UTC 2017
+.
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509722579882_0001-1509722630827-root-QuasiMonteCarlo-1509722675196-20-1-SUCCEEDED-default.jhist: CORRUPT blockpool BP-649765013-172.17.0.3-1509575238514 block blk_1073741855
+
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509722579882_0001-1509722630827-root-QuasiMonteCarlo-1509722675196-20-1-SUCCEEDED-default.jhist: MISSING 1 blocks of total size 154019 B..
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509722579882_0001.summary: CORRUPT blockpool BP-649765013-172.17.0.3-1509575238514 block blk_1073741854
+
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509722579882_0001.summary: MISSING 1 blocks of total size 356 B..
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509722579882_0001_conf.xml: CORRUPT blockpool BP-649765013-172.17.0.3-1509575238514 block blk_1073741856
+
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509722579882_0001_conf.xml: MISSING 1 blocks of total size 77598 B..
+/tmp/test.txt: CORRUPT blockpool BP-649765013-172.17.0.3-1509575238514 block blk_1073741825
+
+/tmp/test.txt: MISSING 1 blocks of total size 8 B.Status: CORRUPT
+ Total size:	231981 B
+ Total dirs:	11
+ Total files:	4
  Total symlinks:		0
- Total blocks (validated):	1 (avg. block size 8 B)
- Minimally replicated blocks:	1 (100.0 %)
+ Total blocks (validated):	4 (avg. block size 57995 B)
+  ********************************
+  CORRUPT FILES:	4
+  MISSING BLOCKS:	4
+  MISSING SIZE:		231981 B
+  CORRUPT BLOCKS: 	4
+  ********************************
+ Minimally replicated blocks:	0 (0.0 %)
  Over-replicated blocks:	0 (0.0 %)
  Under-replicated blocks:	0 (0.0 %)
  Mis-replicated blocks:		0 (0.0 %)
  Default replication factor:	1
- Average block replication:	1.0
- Corrupt blocks:		0
- Missing replicas:		0 (0.0 %)
- Number of data-nodes:		1
- Number of racks:		1
-FSCK ended at Fri Nov 03 08:24:50 UTC 2017 in 3 milliseconds
+ Average block replication:	0.0
+ Corrupt blocks:		4
+ Missing replicas:		0
+ Number of data-nodes:		0
+ Number of racks:		0
+FSCK ended at Fri Nov 03 15:48:38 UTC 2017 in 0 milliseconds
 
 
-The filesystem under path '/' is HEALTHY
+The filesystem under path '/' is CORRUPT
