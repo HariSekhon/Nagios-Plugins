@@ -73,6 +73,8 @@ class CheckPrestoNumQueries(RestNagiosPlugin):
         self.json = True
         self.path = '/v1/query'
         self.query_type = 'queries'
+        # queries are usually FINISHED or FAILED
+        # tasks can show CANCELLED or closed lowercase
         self.finished_states = ('FINISHED', 'FAILED', 'CANCELLED', 'closed')
         self.msg = 'Presto msg not defined'
 
