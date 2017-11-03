@@ -660,43 +660,51 @@ EOF
         hr
     fi
     hr
-    if ! is_CI; then
+    # This takes ages and we aren't going to git commit the collected log from Jenkins or Travis CI
+    # so don't bother running on there are it would only time out the builds anyway
     local fsck_log="$data_dir/hdfs-fsck-fail-$version.log"
-    if [ "$version" != "latest" ]; then
-        # It's so damn slow to wait for hdfs to convert that let's not do this every time as these tests
-        # are already taking too long and having a saved failure case covers it anyway, don't need the dynamic check
-        if ! test -s "$fsck_log"; then
-            echo "getting new hdfs failure fsck:"
-            #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
-            docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
-                set -eu
-                export JAVA_HOME=/usr
-                echo "dumping fsck log to /tmp inside container:"
-                echo
-                # this takes about 100 secs in tests
-                echo "retrying up to 100 secs until hdfs fsck detects corrupt files / missing blocks:"
-                for i in {1..100}; do
-                    sleep 1
-                    echo -n "try \$i: "
-                    hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && tail -n30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
-                    grep 'filesystem under path '/' is CORRUPT' /tmp/hdfs-fsck.log && break
-                    echo "CORRUPT not found in /tmp/hdfs-fsck.log yet"
-                done
-                exit \$?
+    if ! is_CI; then
+        if [ "$version" != "latest" ]; then
+            # It's so damn slow to wait for hdfs to convert that let's not do this every time as these tests
+            # are already taking too long and having a saved failure case covers it anyway, don't need the dynamic check
+            # this takes over 150 secs in tests :-/
+            max_fsck_wait_time=1900
+            if ! test -s "$fsck_log"; then
+                echo "getting new hdfs failure fsck:"
+                #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
+                docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
+                    set -eu
+                    export JAVA_HOME=/usr
+                    echo "dumping fsck log to /tmp inside container:"
+                    echo
+                    echo "retrying up to $max_fsck_wait_time secs until hdfs fsck detects corrupt files / missing blocks:"
+                    SECONDS=0
+                    while true; do
+                        hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && tail -n30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
+                        grep 'CORRUPT' /tmp/hdfs-fsck.log && break
+                        echo "CORRUPT not found in /tmp/hdfs-fsck.log yet (waited \$SECONDS secs)"
+                        if [ "\$SECONDS" -gt "$max_fsck_wait_time" ]; then
+                            echo "HDFS FSCK CORRUPTION NOT DETECTED WITHIN $max_fsck_wait_time SECS!!! ABORTING..."
+                            exit 1
+                        fi
+                        sleep 1
+                    done
+                    exit 0
 EOF
-            echo
-            hr
-            dump_fsck_log "$fsck_log"
-            ERRCODE=2 docker_exec check_hadoop_hdfs_fsck.pl -f "$fsck_log" # --last-fsck -w 1 -c 200000000
-            hr
+                echo
+                hr
+                dump_fsck_log "$fsck_log"
+                ERRCODE=2 docker_exec check_hadoop_hdfs_fsck.pl -f "$fsck_log" # --last-fsck -w 1 -c 200000000
+                hr
+            fi
         fi
     fi
-    hr
-    run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log"
-    hr
-    run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --stats
+    if [ -f "$fsck_log" ]; then
+        run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log"
+        hr
+        run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --stats
+        hr
     fi
-    hr
     echo "Completed $run_count Hadoop tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
