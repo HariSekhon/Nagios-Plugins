@@ -41,12 +41,17 @@ import logging
 import os
 import sys
 import traceback
+#from multiprocessing.pool import ThreadPool
+# prefer this to the blocking semantics of Queue.get() in this case
+# see pytools/find_active_server.py for usage of Queue.get()
+#from collections import deque
 srcdir = os.path.abspath(os.path.dirname(__file__))
 libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit, plural #, support_msg_api
+    from harisekhon.utils import log, qquit, plural\
+                                 #, validate_int #, support_msg_api
     from check_hbase_write import CheckHBaseWrite
 except ImportError as _:
     print('harisekhon module import error - did you try copying this program out without the adjacent pylib?\n\n'
@@ -54,7 +59,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckHBaseWriteSpray(CheckHBaseWrite):
@@ -67,7 +72,18 @@ class CheckHBaseWriteSpray(CheckHBaseWrite):
         self.num_regions = None
         self.num_column_families = None
         self.msg = 'msg not defined'
+        self.num_threads = None
         self.ok()
+
+    def add_options(self):
+        super(CheckHBaseWriteSpray, self).add_options()
+        #self.add_opt('-n', '--num-threads', default=10i0, type='int',
+        #             help='Number or parallel threads to speed up processing (default: 100)')
+
+    def process_options(self):
+        super(CheckHBaseWriteSpray, self).process_options()
+        #self.num_threads = self.get_opt('num_threads')
+        #validate_int(self.num_threads, 'num threads', 1, 100)
 
     def check_table(self):
         log.info('checking table \'%s\'', self.table)
@@ -86,10 +102,34 @@ class CheckHBaseWriteSpray(CheckHBaseWrite):
         for column_family in sorted(families):
             column = '{0}:{1}'.format(column_family, self.column_qualifier)
             for region in regions:
-                row = region['start_key'] + self.row
-                self.check_write(table_conn, row, column)
-                self.check_read(table_conn, row, column, self.value)
-                self.check_delete(table_conn, row, column)
+                self.check_region(table_conn, column, region)
+            # Parallelizing this check doesn't seem to save much time, must be losing too much time in code compared to
+            # the speed of HBase
+            # TODO: variable safe locking in check_hbase_write.py
+#            if self.num_threads == 1:
+#                for region in regions:
+#                    self.check_region(table_conn, column, region)
+#            else:
+#                # parallelize at the region level
+#                log.info('creating thread pool')
+#                pool = ThreadPool(processes=self.num_threads)
+#                log.info('creating queue')
+#                queue = deque()
+#                for region in regions:
+#                    #log.info('scheduling test of region: %s', region)
+#                    pool.apply_async(queue.append((self.check_region(table_conn, column, region))))
+#                log.info('waiting for region tests to complete')
+#                try:
+#                    while True:
+#                        queue.popleft()
+#                except IndexError:
+#                    log.info('all threads finished')
+
+    def check_region(self, table_conn, column, region):
+        row = region['start_key'] + self.row
+        self.check_write(table_conn, row, column)
+        self.check_read(table_conn, row, column, self.value)
+        self.check_delete(table_conn, row, column)
 
     def output(self, connect_time, total_time):
         self.msg = "HBase write spray to {0} column {1} x {2} region{3}".format(self.num_column_families,
