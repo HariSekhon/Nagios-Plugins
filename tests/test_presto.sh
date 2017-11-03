@@ -301,6 +301,10 @@ EOF
     hr
     run ./check_presto_worker_node.py --node "$ip"
     hr
+    run ./check_presto_worker_node.py --node "$ip" --max-age 20 --max-ratio 0.0 --max-failures 0.0 --max-requests 100
+    hr
+    run_fail 1 ./check_presto_worker_node.py --node "$ip" --max-requests 1
+    hr
     echo "Now killing Presto Worker:"
     # Presto Worker runs the same com.facebook.presto.server.PrestoServer class with a different node id
     # worker doesn't show up as a failed node in coorindator API if we send a polite kill signal, must kill -9 worker
