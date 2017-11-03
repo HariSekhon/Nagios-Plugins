@@ -261,12 +261,13 @@ test_presto2(){
     select 3+3;
     select failure;
     select failure2;
+    select count(*) from localfile.logs.http_request_log;
 EOF2
 EOF
     hr
     run_fail 3 ./check_presto_queries.py --list
     hr
-    run ./check_presto_queries.py --exclude 'failure'
+    run ./check_presto_queries.py --exclude 'failure|localfile.logs.http_request_log'
     hr
     run_fail 1 ./check_presto_queries.py
     hr
@@ -293,7 +294,7 @@ EOF
     ip="$(docker exec -i "$DOCKER_CONTAINER" tail -n1 /etc/hosts | awk '{print $1}')"
     echo "determined presto container IP = '$ip'"
     hr
-    echo "lastResponseTime field is not immediately initialized in node data on coordinator, retrying for 10 secs to give node lastResponseTime a chance to be populated"
+    echo "lastResponseTime field is not immediately initialized in node data on coordinator, retrying for 10 secs to give node lastResponseTime a chance to be populated:"
     retry 10 ./check_presto_worker_node.py --node "http://$ip:$PRESTO_WORKER_PORT_DEFAULT"
     run++
     hr
@@ -301,6 +302,7 @@ EOF
     hr
     run ./check_presto_worker_node.py --node "$ip"
     hr
+    # query failures never hit the worker
     run ./check_presto_worker_node.py --node "$ip" --max-age 20 --max-ratio 0.0 --max-failures 0.0 --max-requests 100
     hr
     run_fail 1 ./check_presto_worker_node.py --node "$ip" --max-requests 1
