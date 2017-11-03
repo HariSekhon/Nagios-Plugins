@@ -105,6 +105,8 @@ presto_worker_tests(){
     # will get a 404 Not Found against worker API
     run_fail 2 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
     hr
+    run ./check_presto_num_tasks.py -P "$PRESTO_WORKER_PORT"
+    hr
     # will get a 404 Not Found against worker API
     run_fail 2 ./check_presto_num_worker_nodes.py -w 1 -P "$PRESTO_WORKER_PORT"
     hr
@@ -188,6 +190,10 @@ test_presto2(){
     run ./check_presto_num_queries.py
     hr
     run_conn_refused ./check_presto_num_queries.py
+    hr
+    run ./check_presto_num_tasks.py
+    hr
+    run_conn_refused ./check_presto_num_tasks.py
     hr
     run_fail 2 ./check_presto_num_worker_nodes.py -w 1
     hr
