@@ -139,7 +139,7 @@ There are over 350 programs in this repo so these are just some of the highlight
 - ```check_presto_*.py``` - [Presto SQL DB](https://prestodb.io/)
   - cluster checks (via coordinator API) - number of current queries, tasks, failed queries, worker nodes, failed worker nodes, workers with response lag to coordinator, workers with recent failures and recent failure ratios vs thresholds, version
   - per node checks - status, if coordinator, environment
-  - per worker checks (via coordinator API) - specific worker registered with coordinator, response age to coordinator, recent failures, recent failure ratio vs thresholds
+  - per worker checks (via coordinator API) - specific worker registered with coordinator, response age to coordinator, recent requests vs threshold, recent successes, recent failures & failure ratio vs thresholds
 - ```check_ranger_*.pl/.py``` - [Apache Ranger](https://ranger.apache.org/) checks:
   - policy checks - existence, enabled, has auditing enabled, is recursive, last updated vs thresholds (to catch changes), repository name and type that the policy belongs to
   - repository checks - existence, active, type (eg. hive, hdfs), last updated vs thresholds (to catch changes)
