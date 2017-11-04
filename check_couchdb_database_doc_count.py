@@ -47,11 +47,11 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
 
-class CheckCouchDBDatabaseDocs(CheckCouchDBDatabaseStats):
+class CheckCouchDBDatabaseDocCount(CheckCouchDBDatabaseStats):
 
     def __init__(self):
         # Python 2.x
-        super(CheckCouchDBDatabaseDocs, self).__init__()
+        super(CheckCouchDBDatabaseDocCount, self).__init__()
         # Python 3.x
         # super().__init__()
         self.has_thresholds = True
@@ -64,4 +64,4 @@ class CheckCouchDBDatabaseDocs(CheckCouchDBDatabaseStats):
 
 
 if __name__ == '__main__':
-    CheckCouchDBDatabaseDocs().main()
+    CheckCouchDBDatabaseDocCount().main()
