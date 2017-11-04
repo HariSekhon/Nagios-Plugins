@@ -28,10 +28,7 @@ Outputs:
                                 which will alert if compaction is running on database to ensure
                                 it only happens off peak during maintenance windows)
 
-Perfdata is output for all stats with 0 or 1 for compaction running so you can track historically
-in graphs when compactions run if --show-compaction option is used
-
-Thresholds are optional and apply to the total number of documents for the given database
+For threshold tests on each of the above, see adjacent plugins instead
 
 Tested on CouchDB 1.6.1 and 2.1.0
 
@@ -58,7 +55,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckCouchDBDatabaseStats(RestNagiosPlugin):
@@ -75,13 +72,15 @@ class CheckCouchDBDatabaseStats(RestNagiosPlugin):
         self.json = True
         self.msg = 'CouchDB database '
         self.database = None
+        self.has_thresholds = False
 
     def add_options(self):
         super(CheckCouchDBDatabaseStats, self).add_options()
-        self.add_opt('-d', '--database', help='Database to assert exists')
-        self.add_opt('--show-compaction', action='store_true', help='Show is compaction is running')
+        self.add_opt('-d', '--database', default=os.getenv('COUCHDB_DATABASE'),
+                     help='CouchDB Database ($COUCHDB_DATABASE)')
         self.add_opt('-l', '--list', action='store_true', default=False, help='List databases and exit')
-        self.add_thresholds()
+        if self.has_thresholds:
+            self.add_thresholds()
 
     def process_options(self):
         super(CheckCouchDBDatabaseStats, self).process_options()
@@ -92,9 +91,10 @@ class CheckCouchDBDatabaseStats(RestNagiosPlugin):
             # lowercase characters (a-z), digits (0-9), and any of the characters _, $, (, ), +, -, and /
             validate_chars(self.database, 'database', r'a-z0-9_\$\(\)\+\-/')
             self.path = '/{0}'.format(self.database)
-        self.validate_thresholds(optional=True)
+        if self.has_thresholds:
+            self.validate_thresholds(optional=True)
 
-    def parse_json(self, json_data):
+    def list_databases(self, json_data):
         if self.get_opt('list'):
             if not isList(json_data):
                 raise UnknownError('non-list returned by CouchDB for databases')
@@ -106,22 +106,24 @@ class CheckCouchDBDatabaseStats(RestNagiosPlugin):
             else:
                 print('<none>')
             sys.exit(ERRORS['UNKNOWN'])
+
+    def parse_json(self, json_data):
+        self.list_databases(json_data)
         assert json_data['db_name'] == self.database
+        self.msg += "'{0}' ".format(self.database)
+        self.check_couchdb_stats(json_data)
+
+    def check_couchdb_stats(self, json_data):
         doc_count = json_data['doc_count']
         doc_del_count = json_data['doc_del_count']
         data_size = json_data['data_size']
-        compact_running = json_data['compact_running']
+        #compact_running = json_data['compact_running']
         self.msg += "'{0}' doc count = {1}".format(self.database, doc_count)
         self.check_thresholds(doc_count)
         self.msg += ', doc del count = {0}'.format(doc_del_count)
         self.msg += ', data size = {0}'.format(humanize.naturalsize(data_size))
-        show_compaction = self.get_opt('show_compaction')
-        if show_compaction:
-            self.msg += ', compaction running = {0}'.format(compact_running)
         self.msg += ' | doc_count={0}{1} doc_del_count={2} data_size={3}b'\
                     .format(doc_count, self.get_perf_thresholds(), doc_del_count, data_size)
-        if show_compaction:
-            self.msg += ' compact_running={0}'.format(int(compact_running))
 
 
 if __name__ == '__main__':
