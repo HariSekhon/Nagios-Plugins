@@ -156,7 +156,7 @@ perl-libs:
 	#
 	# https://developer.apple.com/library/content/documentation/Security/Conceptual/System_Integrity_Protection_Guide/ConfiguringSystemIntegrityProtection/ConfiguringSystemIntegrityProtection.html
 	#
-	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' "$$libfilepath" || $(SUDO_PERL) sed -i.bak "s/use strict;/use strict; use Socket;/" "$$libfilepath"
+	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' "$$libfilepath" || $(SUDO_PERL) sed -i.bak "s/use strict;/use strict; use Socket;/" "$$libfilepath" || : # doesn't work on Mac right now
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins perl)"
 	@echo
@@ -193,6 +193,8 @@ python-libs:
 	
 	# install MySQLdb python module for check_logserver.py / check_syslog_mysql.py
 	# fails if MySQL isn't installed locally
+	# Mac fails to import module, one workaround is:
+	# sudo install_name_tool -change libmysqlclient.18.dylib /usr/local/mysql/lib/libmysqlclient.18.dylib /Library/Python/2.7/site-packages/_mysql.so
 	$(SUDO_PIP) pip install MySQL-python
 	
 	# must downgrade happybase library to work on Python 2.6
