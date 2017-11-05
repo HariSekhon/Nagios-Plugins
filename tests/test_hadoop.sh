@@ -251,7 +251,7 @@ EOF
     run_fail 2 ./check_hadoop_hdfs_total_blocks.py -w 0 -c 0
     hr
     # only check logs for each version as there is no latest fsck log as it would be a duplicate of the highest version number
-    if [ "$version" != "latest" ]; then
+    if [ "$version" != "latest" -a "$version" != ".*" ]; then
         run $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log"
         hr
         run $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --stats
@@ -664,7 +664,7 @@ EOF
     # so don't bother running on there are it would only time out the builds anyway
     local fsck_log="$data_dir/hdfs-fsck-fail-$version.log"
     if ! is_CI; then
-        if [ "$version" != "latest" ]; then
+        if [ "$version" != "latest" -a "$version" != ".*" ]; then
             # It's so damn slow to wait for hdfs to convert that let's not do this every time as these tests
             # are already taking too long and having a saved failure case covers it anyway, don't need the dynamic check
             # this takes over 150 secs in tests :-/
