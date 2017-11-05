@@ -110,9 +110,15 @@ test_couchdb(){
     # ============================================================================ #
     run ./check_couchdb_database_exists.py --database "$COUCHDB_DATABASE"
     hr
+    run ./check_couchdb_database_exists.py --database "$COUCHDB_DATABASE" --get
+    hr
     run_fail 2 ./check_couchdb_database_exists.py --database "nonexistentdatabase"
     hr
+    run_fail 2 ./check_couchdb_database_exists.py --database "nonexistentdatabase" --get
+    hr
     run_conn_refused ./check_couchdb_database_exists.py --database "$COUCHDB_DATABASE"
+    hr
+    run_conn_refused ./check_couchdb_database_exists.py --database "$COUCHDB_DATABASE" --get
     hr
     # ============================================================================ #
     run ./check_couchdb_database_stats.py --database "$COUCHDB_DATABASE"
