@@ -36,14 +36,14 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import UnknownError, ERRORS, validate_chars, isList
+    from harisekhon.utils import UnknownError, ERRORS, validate_chars, isList, support_msg_api
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckCouchDBDatabaseExists(RestNagiosPlugin):
@@ -55,34 +55,60 @@ class CheckCouchDBDatabaseExists(RestNagiosPlugin):
         # super().__init__()
         self.name = ['CouchDB', 'Couch']
         self.default_port = 5984
-        # can HEAD /{db} to test for DB existence ever so slightly more efficient but won't get as nice error messages
-        self.path = '/_all_dbs'
+        # HEAD /{db} to test for DB existence slightly more efficiently
+        # path set in process options now depending on whether we're listing databases
+        # or doing a more efficient HEAD call to check a specific database
+        #self.path = '/_all_dbs'
+        self.path = None
         self.auth = False
         self.json = True
+        self.request_method = 'get'
         self.msg = 'CouchDB database '
         self.database = None
+
+    def check_response_code(self, req):
+        if req.status_code != 200:
+            #raise CriticalError("database '{0}' does not exist'".format(self.database))
+            self.critical()
+            self.msg += 'does not exist!'
 
     def add_options(self):
         super(CheckCouchDBDatabaseExists, self).add_options()
         self.add_opt('-d', '--database', help='Database to assert exists')
+        self.add_opt('-g', '--get', action='store_true',
+                     help='Do full GET request and assert on db name field' + \
+                          ' (default is to do a faster HEAD request only for efficiency)')
         self.add_opt('-l', '--list', action='store_true', default=False, help='List databases and exit')
 
     def process_options(self):
         super(CheckCouchDBDatabaseExists, self).process_options()
         if self.get_opt('list'):
-            #self.path = '/_all_dbs'
-            pass
+            self.path = '/_all_dbs'
         else:
             self.database = self.get_opt('database')
             # lowercase characters (a-z), digits (0-9), and any of the characters _, $, (, ), +, -, and /
             validate_chars(self.database, 'database', r'a-z0-9_\$\(\)\+\-/')
-            #self.path = '/{0}'.format(self.database)
+            self.path = '/{0}'.format(self.database)
+            if not self.get_opt('get'):
+                self.request_method = 'head'
+                self.json = False
+            self.request.check_response_code = self.check_response_code
+            self.msg += "'{0}' ".format(self.database)
 
+    # called only for faster HEAD /{db} existence test
+    def parse(self, req):
+        if req.content:
+            raise UnknownError('unexpected output received when using HEAD to /{db} endpoint. {msg}'\
+                               .format(db=self.database, msg=support_msg_api()))
+        if self.is_ok():
+            self.msg += 'exists'
+
+    # called only for listing databases now, HEAD non-json used for simple database existence check
     def parse_json(self, json_data):
-        if not isList(json_data):
-            raise UnknownError('non-list returned by CouchDB for databases')
-        databases = json_data
         if self.get_opt('list'):
+            if not isList(json_data):
+                raise UnknownError('non-list returned by CouchDB for databases')
+            databases = json_data
             print('CouchDB databases:\n')
             if databases:
                 for database in databases:
@@ -90,15 +116,18 @@ class CheckCouchDBDatabaseExists(RestNagiosPlugin):
             else:
                 print('<none>')
             sys.exit(ERRORS['UNKNOWN'])
-        # if using /{db}
-        #assert json_data['db_name'] == self.database
-        self.msg += "'{0}' ".format(self.database)
-        if self.database in databases:
-            self.ok()
+        # not testing for DB existance from list of databases any more
+#            if self.database in databases:
+#                self.ok()
+#                self.msg += 'exists'
+#            else:
+#                self.critical()
+#                self.msg += 'does not exist!'
+        # now using direct /{db} call instead for specific database
+        # exception handling wrapped further up in class hierarchy
+        if self.is_ok():
+            assert json_data['db_name'] == self.database
             self.msg += 'exists'
-        else:
-            self.critical()
-            self.msg += 'does not exist!'
 
 
 if __name__ == '__main__':
