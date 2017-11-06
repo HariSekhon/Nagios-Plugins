@@ -1,0 +1,42 @@
+Connecting to namenode via http://0b6e87138799:50070/fsck?ugi=root&path=%2F
+FSCK started by root (auth:SIMPLE) from /172.18.0.2 for path / at Mon Nov 06 15:13:16 UTC 2017
+.
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509980962892_0001-1509981030023-root-QuasiMonteCarlo-1509981114088-20-1-SUCCEEDED-default-1509981037871.jhist: CORRUPT blockpool BP-2128985214-172.17.0.3-1509651613523 block blk_1073741856
+
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509980962892_0001-1509981030023-root-QuasiMonteCarlo-1509981114088-20-1-SUCCEEDED-default-1509981037871.jhist: MISSING 1 blocks of total size 156191 B..
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509980962892_0001.summary: CORRUPT blockpool BP-2128985214-172.17.0.3-1509651613523 block blk_1073741855
+
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509980962892_0001.summary: MISSING 1 blocks of total size 356 B..
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509980962892_0001_conf.xml: CORRUPT blockpool BP-2128985214-172.17.0.3-1509651613523 block blk_1073741857
+
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509980962892_0001_conf.xml: MISSING 1 blocks of total size 119490 B..
+/tmp/test.txt: CORRUPT blockpool BP-2128985214-172.17.0.3-1509651613523 block blk_1073741825
+
+/tmp/test.txt: MISSING 1 blocks of total size 8 B.Status: CORRUPT
+ Total size:	276045 B
+ Total dirs:	11
+ Total files:	4
+ Total symlinks:		0
+ Total blocks (validated):	4 (avg. block size 69011 B)
+  ********************************
+  UNDER MIN REPL'D BLOCKS:	4 (100.0 %)
+  dfs.namenode.replication.min:	1
+  CORRUPT FILES:	4
+  MISSING BLOCKS:	4
+  MISSING SIZE:		276045 B
+  CORRUPT BLOCKS: 	4
+  ********************************
+ Minimally replicated blocks:	0 (0.0 %)
+ Over-replicated blocks:	0 (0.0 %)
+ Under-replicated blocks:	0 (0.0 %)
+ Mis-replicated blocks:		0 (0.0 %)
+ Default replication factor:	1
+ Average block replication:	0.0
+ Corrupt blocks:		4
+ Missing replicas:		0
+ Number of data-nodes:		0
+ Number of racks:		0
+FSCK ended at Mon Nov 06 15:13:16 UTC 2017 in 2 milliseconds
+
+
+The filesystem under path '/' is CORRUPT
