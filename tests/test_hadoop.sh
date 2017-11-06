@@ -673,14 +673,17 @@ EOF
                 echo "getting new hdfs failure fsck:"
                 #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
                 docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
-                    set -eu
+                    set -euo pipefail
                     export JAVA_HOME=/usr
                     echo "dumping fsck log to /tmp inside container:"
                     echo
                     echo "retrying up to $max_fsck_wait_time secs until hdfs fsck detects corrupt files / missing blocks:"
                     SECONDS=0
                     while true; do
-                        hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && tail -n30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
+                        # for some reason this gives a non-zero exit code, check output instead
+                        hdfs fsck / &> /tmp/hdfs-fsck.log.tmp || :
+                        #tail -n 30 /tmp/hdfs-fsck.log.tmp | tee /tmp/hdfs-fsck.log
+                        mv -fv /tmp/hdfs-fsck.log{.tmp,}
                         grep 'CORRUPT' /tmp/hdfs-fsck.log && break
                         echo "CORRUPT not found in /tmp/hdfs-fsck.log yet (waited \$SECONDS secs)"
                         if [ "\$SECONDS" -gt "$max_fsck_wait_time" ]; then
@@ -694,7 +697,7 @@ EOF
                 echo
                 hr
                 dump_fsck_log "$fsck_log"
-                ERRCODE=2 docker_exec check_hadoop_hdfs_fsck.pl -f "$fsck_log" # --last-fsck -w 1 -c 200000000
+                ERRCODE=2 docker_exec check_hadoop_hdfs_fsck.pl -f "/tmp/hdfs-fsck.log" # --last-fsck -w 1 -c 200000000
                 hr
             fi
         fi
