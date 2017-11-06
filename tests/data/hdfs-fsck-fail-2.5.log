@@ -1,0 +1,41 @@
+17/11/06 14:57:18 WARN ssl.FileBasedKeyStoresFactory: The property 'ssl.client.truststore.location' has not been set, no TrustStore will be loaded
+Connecting to namenode via http://27e92c82b9c4:50070
+FSCK started by root (auth:SIMPLE) from /172.18.0.2 for path / at Mon Nov 06 14:57:19 UTC 2017
+.
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509980070050_0001-1509980123513-root-QuasiMonteCarlo-1509980169876-20-1-SUCCEEDED-default-1509980129230.jhist: CORRUPT blockpool BP-424092124-172.17.0.3-1509466537243 block blk_1073741856
+
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509980070050_0001-1509980123513-root-QuasiMonteCarlo-1509980169876-20-1-SUCCEEDED-default-1509980129230.jhist: MISSING 1 blocks of total size 156061 B..
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509980070050_0001.summary: CORRUPT blockpool BP-424092124-172.17.0.3-1509466537243 block blk_1073741855
+
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509980070050_0001.summary: MISSING 1 blocks of total size 356 B..
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509980070050_0001_conf.xml: CORRUPT blockpool BP-424092124-172.17.0.3-1509466537243 block blk_1073741857
+
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509980070050_0001_conf.xml: MISSING 1 blocks of total size 96183 B..
+/tmp/test.txt: CORRUPT blockpool BP-424092124-172.17.0.3-1509466537243 block blk_1073741825
+
+/tmp/test.txt: MISSING 1 blocks of total size 8 B.Status: CORRUPT
+ Total size:	252608 B
+ Total dirs:	11
+ Total files:	4
+ Total symlinks:		0
+ Total blocks (validated):	4 (avg. block size 63152 B)
+  ********************************
+  CORRUPT FILES:	4
+  MISSING BLOCKS:	4
+  MISSING SIZE:		252608 B
+  CORRUPT BLOCKS: 	4
+  ********************************
+ Minimally replicated blocks:	0 (0.0 %)
+ Over-replicated blocks:	0 (0.0 %)
+ Under-replicated blocks:	0 (0.0 %)
+ Mis-replicated blocks:		0 (0.0 %)
+ Default replication factor:	1
+ Average block replication:	0.0
+ Corrupt blocks:		4
+ Missing replicas:		0
+ Number of data-nodes:		0
+ Number of racks:		0
+FSCK ended at Mon Nov 06 14:57:19 UTC 2017 in 2 milliseconds
+
+
+The filesystem under path '/' is CORRUPT
