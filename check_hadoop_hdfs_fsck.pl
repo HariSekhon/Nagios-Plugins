@@ -20,15 +20,18 @@ Checks the status of the HDFS FSCK output and optionally one of the following ag
 
 In order to constrain the runtime of this plugin you must run the Hadoop FSCK separately and have this plugin check the output file results. Recommend you do not use any extra switches as it'll enlarge the output and slow down the plugin by forcing it to parse all the extra noise. As the 'hdfs' user run this periodically (via cron):
 
-hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && tail -n30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
+hdfs fsck / &> /tmp/hdfs-fsck.log.tmp
+
+# make sure not to trim too much though as we still want to find status field
+tail -n 30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
 
 Then have the plugin check the results separately (the tail stops the log getting too big and slowing the plugin down if there is lots of corruption/missing blocks which will end up enlarging the output - it gives us just the bit we need, which are the stats at the end):
 
 ./check_hadoop_fsck.pl -f /tmp/hdfs-fsck.log
 
-Tested on Hortonworks HDP 2.1, 2.2, 2.3 and Apache Hadoop 2.5, 2.6, 2.7, 2.8";
+Tested on Hortonworks HDP 2.1, 2.2, 2.3, 2.6 and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8";
 
-$VERSION = "0.3.3";
+$VERSION = "0.4.0";
 
 use strict;
 use warnings;
@@ -78,9 +81,11 @@ while(<$fh>){
     chomp;
     vlog3 "file: $_";
     /Permission denied/i and quit "CRITICAL", "Did you fail to run this as the hdfs superuser? $_";
-    if(/^\//){
+    if(/^\// and not /\bStatus\s*:/){
         next;
-    } elsif(/Status:\s*(\w+)/){
+    # this can end up being mixed on a line with a file such as 
+    # 2017-11-06 15:29:24 +0100  file: /tmp/test.txt: MISSING 1 blocks of total size 8 B.Status: CORRUPT
+    } elsif(/\bStatus\s*:\s*(\w+)/){
         $hdfs{"status"} = $1;
     } elsif(/^\s*Total size:\s*(\d+)/){
         $hdfs{"size"} = $1;
@@ -111,6 +116,11 @@ while(<$fh>){
     } elsif(/^\s*Missing replicas:\s*(\d+)\s*\((\d+\.\d+)\s*%\)/){
         $hdfs{"missing_replicas"}    = $1;
         $hdfs{"missing_replicas_pc"} = $2;
+    } elsif(/^\s*Missing replicas:\s*(\d+)/){
+        $hdfs{"missing_replicas"}    = $1;
+        # will sprintf to zero in --stats, just leave the graph flatlined for now
+        #$hdfs{"missing_replicas_pc"} = "N/A";
+        $hdfs{"missing_replicas_pc"} = 0;
     } elsif(/^\s*Number of data-nodes:\s*(\d+)/){
         $hdfs{"num_datanodes"} = $1;
     } elsif(/^\s*Number of racks:\s*(\d+)/){
