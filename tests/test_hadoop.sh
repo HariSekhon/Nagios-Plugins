@@ -59,7 +59,7 @@ docker_exec(){
 
 dump_fsck_log(){
     local fsck_log="$1"
-    if [ "$version" != "latest" ]; then
+    if [ "$version" != "latest" -a "$version" != ".*" ]; then
         if ! test -s "$fsck_log"; then
             echo "copying NEW $fsck_log from Hadoop $version container:"
             docker cp "$DOCKER_CONTAINER":/tmp/hdfs-fsck.log "$fsck_log"
@@ -665,10 +665,7 @@ EOF
     local fsck_log="$data_dir/hdfs-fsck-fail-$version.log"
     if ! is_CI; then
         if [ "$version" != "latest" -a "$version" != ".*" ]; then
-            # It's so damn slow to wait for hdfs to convert that let's not do this every time as these tests
-            # are already taking too long and having a saved failure case covers it anyway, don't need the dynamic check
-            # this takes over 150 secs in tests :-/
-            max_fsck_wait_time=1900
+            max_fsck_wait_time=30
             if ! test -s "$fsck_log"; then
                 echo "getting new hdfs failure fsck:"
                 #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
