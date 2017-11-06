@@ -68,7 +68,7 @@ dump_hbck_log(){
     if [ "$version" != "latest" -a "$version" != ".*" ]; then
         if ! test -s "$hbck_log"; then
             echo "copying NEW $hbck_log from HBase $version container:"
-            docker cp "$DOCKER_CONTAINER":/tmp/hdfs-hbck.log "$hbck_log"
+            docker cp "$DOCKER_CONTAINER":/tmp/hbase-hbck.log "$hbck_log"
             echo "adding new $hbck_log to git:"
             # .log paths are excluded, must -f or this will fail
             git add -f "$hbck_log"
@@ -130,13 +130,13 @@ EOF2
     hbase org.apache.hadoop.hbase.util.RegionSplitter UniformSplitTable UniformSplit -c 100 -f cf1
     hbase org.apache.hadoop.hbase.util.RegionSplitter HexStringSplitTable HexStringSplit -c 100 -f cf1
     echo "creating hbck.log"
-    hbase hbck &>/tmp/hbck.log
+    hbase hbck &> /tmp/hbase-hbck.log
     echo "test setup finished"
     exit 0
 EOF
     data_dir="tests/data"
-    local hbck_log="$data_dir/hdfs-hbck-$version.log"
-    dump_hbck_log "$hbck_log"
+    local hbck_log="$data_dir/hbase-hbck-$version.log"
+    #dump_hbck_log "$hbck_log"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -163,10 +163,10 @@ EOF
     hr
     run_fail 1 ./check_hbase_hbck.py -f tests/data/hbck.log -a 3
     hr
-    docker_exec check_hbase_hbck.py -f /tmp/hbck.log -a 30
+    docker_exec check_hbase_hbck.py -f /tmp/hbase-hbck.log -a 30
     hr
     set +e
-    docker_exec check_hbase_hbck.py -f /tmp/hbck.log -a 1
+    docker_exec check_hbase_hbck.py -f /tmp/hbase-hbck.log -a 1
     check_exit_code 1
     set -e
     hr
@@ -480,11 +480,11 @@ EOF
 #                    SECONDS=0
 #                    while true; do
 #                        # for some reason this gives a non-zero exit code, check output instead
-#                        hdfs hbck / &> /tmp/hdfs-hbck.log.tmp || :
-#                        #tail -n 30 /tmp/hdfs-hbck.log.tmp | tee /tmp/hdfs-hbck.log
-#                        mv -fv /tmp/hdfs-hbck.log{.tmp,}
-#                        grep 'CORRUPT' /tmp/hdfs-hbck.log && break
-#                        echo "CORRUPT not found in /tmp/hdfs-hbck.log yet (waited \$SECONDS secs)"
+#                        hdfs hbck / &> /tmp/hbase-hbck.log.tmp || :
+#                        #tail -n 30 /tmp/hbase-hbck.log.tmp | tee /tmp/hbase-hbck.log
+#                        mv -fv /tmp/hbase-hbck.log{.tmp,}
+#                        grep 'CORRUPT' /tmp/hbase-hbck.log && break
+#                        echo "CORRUPT not found in /tmp/hbase-hbck.log yet (waited \$SECONDS secs)"
 #                        if [ "\$SECONDS" -gt "$max_hbck_wait_time" ]; then
 #                            echo "HBase hbck CORRUPTION NOT DETECTED WITHIN $max_hbck_wait_time SECS!!! ABORTING..."
 #                            exit 1
