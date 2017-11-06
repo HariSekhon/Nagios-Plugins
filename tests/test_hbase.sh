@@ -42,6 +42,8 @@ check_docker_available
 
 trap_debug_env hbase
 
+startupwait 60
+
 export MNTDIR="/pl"
 
 export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-docker}"
@@ -61,7 +63,19 @@ EOF"
 EOF
 }
 
-startupwait 30
+dump_hbck_log(){
+    local hbck_log="$1"
+    if [ "$version" != "latest" -a "$version" != ".*" ]; then
+        if ! test -s "$hbck_log"; then
+            echo "copying NEW $hbck_log from HBase $version container:"
+            docker cp "$DOCKER_CONTAINER":/tmp/hdfs-hbck.log "$hbck_log"
+            echo "adding new $hbck_log to git:"
+            # .log paths are excluded, must -f or this will fail
+            git add -f "$hbck_log"
+            hr
+        fi
+    fi
+}
 
 test_hbase(){
     local version="$1"
@@ -98,6 +112,10 @@ test_hbase(){
     # gets ValueError: file descriptor cannot be a negative integer (-1), -T should be the workaround but hangs
     #docker-compose exec -T "$DOCKER_SERVICE" /bin/bash <<-EOF
     docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
+    set -euo pipefail
+    if [ -n "${DEBUG:-}" ]; then
+        set -x
+    fi
     export JAVA_HOME=/usr
     /hbase/bin/hbase shell <<-EOF2
         create 't1', 'cf1', { 'REGION_REPLICATION' => 1 }
@@ -114,8 +132,11 @@ EOF2
     echo "creating hbck.log"
     hbase hbck &>/tmp/hbck.log
     echo "test setup finished"
-    exit
+    exit 0
 EOF
+    data_dir="tests/data"
+    local hbck_log="$data_dir/hdfs-hbck-$version.log"
+    dump_hbck_log "$hbck_log"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -441,6 +462,45 @@ EOF
     hr
     run_fail 2 ./check_hbase_cell.py -T t1 -R r1 -C cf1:q1
     hr
+    # Doesn't give any failure in hbck log when RegionServer is down
+#    local hbck_log="$data_dir/hdfs-hbck-fail-$version.log"
+#    if ! is_CI; then
+#        if [ "$version" != "latest" -a "$version" != ".*" ]; then
+#            max_hbck_wait_time=1900
+#            if ! test -s "$hbck_log"; then
+#                docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
+#                    set -euo pipefail
+#                    if [ -n "${DEBUG:-}" ]; then
+#                        set -x
+#                    fi
+#                    export JAVA_HOME=/usr
+#                    echo "dumping hbck log to /tmp inside container:"
+#                    echo
+#                    echo "retrying up to $max_hbck_wait_time secs until hdfs hbck detects corrupt files / missing blocks:"
+#                    SECONDS=0
+#                    while true; do
+#                        # for some reason this gives a non-zero exit code, check output instead
+#                        hdfs hbck / &> /tmp/hdfs-hbck.log.tmp || :
+#                        #tail -n 30 /tmp/hdfs-hbck.log.tmp | tee /tmp/hdfs-hbck.log
+#                        mv -fv /tmp/hdfs-hbck.log{.tmp,}
+#                        grep 'CORRUPT' /tmp/hdfs-hbck.log && break
+#                        echo "CORRUPT not found in /tmp/hdfs-hbck.log yet (waited \$SECONDS secs)"
+#                        if [ "\$SECONDS" -gt "$max_hbck_wait_time" ]; then
+#                            echo "HBase hbck CORRUPTION NOT DETECTED WITHIN $max_hbck_wait_time SECS!!! ABORTING..."
+#                            exit 1
+#                        fi
+#                        sleep 1
+#                    done
+#                    exit 0
+#EOF
+#                echo
+#                hr
+#                dump_fsck_log "$fsck_log"
+#                # TODO: add hbck failure test inside container here
+#                hr
+#            fi
+#        fi
+#    fi
     echo "Completed $run_count HBase tests"
     hr
     # will return further above and not use this
