@@ -19,7 +19,8 @@
 
 Nagios Plugin to check a CouchDB database's data size via its API
 
-Outputs perfdata for graphing and optional thresholds are applied
+- Optional thresholds are applied to size in bytes
+- Outputs perfdata for graphing
 
 Tested on CouchDB 1.6.1 and 2.1.0
 
