@@ -1,0 +1,43 @@
+OpenJDK 64-Bit Server VM warning: You have loaded library /hadoop-2.4.1/lib/native/libhadoop.so.1.0.0 which might have disabled stack guard. The VM will try to fix the stack guard now.
+It's highly recommended that you fix the library with 'execstack -c <libfile>', or link it with '-z noexecstack'.
+17/11/06 14:51:53 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Connecting to namenode via http://c2930127a5f2:50070
+FSCK started by root (auth:SIMPLE) from /172.18.0.2 for path / at Mon Nov 06 14:51:54 UTC 2017
+.
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509979757484_0001-1509979805111-root-QuasiMonteCarlo-1509979848609-20-1-SUCCEEDED-default-1509979809795.jhist: CORRUPT blockpool BP-1218947422-172.17.0.3-1509572737721 block blk_1073741856
+
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509979757484_0001-1509979805111-root-QuasiMonteCarlo-1509979848609-20-1-SUCCEEDED-default-1509979809795.jhist: MISSING 1 blocks of total size 155036 B..
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509979757484_0001.summary: CORRUPT blockpool BP-1218947422-172.17.0.3-1509572737721 block blk_1073741855
+
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509979757484_0001.summary: MISSING 1 blocks of total size 356 B..
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509979757484_0001_conf.xml: CORRUPT blockpool BP-1218947422-172.17.0.3-1509572737721 block blk_1073741857
+
+/tmp/hadoop-yarn/staging/history/done_intermediate/root/job_1509979757484_0001_conf.xml: MISSING 1 blocks of total size 92053 B..
+/tmp/test.txt: CORRUPT blockpool BP-1218947422-172.17.0.3-1509572737721 block blk_1073741825
+
+/tmp/test.txt: MISSING 1 blocks of total size 8 B.Status: CORRUPT
+ Total size:	247453 B
+ Total dirs:	11
+ Total files:	4
+ Total symlinks:		0
+ Total blocks (validated):	4 (avg. block size 61863 B)
+  ********************************
+  CORRUPT FILES:	4
+  MISSING BLOCKS:	4
+  MISSING SIZE:		247453 B
+  CORRUPT BLOCKS: 	4
+  ********************************
+ Minimally replicated blocks:	0 (0.0 %)
+ Over-replicated blocks:	0 (0.0 %)
+ Under-replicated blocks:	0 (0.0 %)
+ Mis-replicated blocks:		0 (0.0 %)
+ Default replication factor:	1
+ Average block replication:	0.0
+ Corrupt blocks:		4
+ Missing replicas:		0
+ Number of data-nodes:		0
+ Number of racks:		0
+FSCK ended at Mon Nov 06 14:51:54 UTC 2017 in 1 milliseconds
+
+
+The filesystem under path '/' is CORRUPT
