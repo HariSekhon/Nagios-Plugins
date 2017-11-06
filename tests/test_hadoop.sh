@@ -46,7 +46,7 @@ export HADOOP_YARN_NODE_MANAGER_PORT_DEFAULT="8042"
 # still used by docker_exec() function below, must align with what is set in tests/docker/common.yml
 export MNTDIR="/pl"
 
-startupwait 30
+startupwait 90
 
 check_docker_available
 
@@ -116,7 +116,10 @@ test_hadoop(){
     echo "setting up HDFS for tests"
     #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
     docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
-        set -eu
+        set -euo pipefail
+        if [ -n "${DEBUG:-}" ]; then
+            set -x
+        fi
         export JAVA_HOME=/usr
         echo "leaving safe mode"
         hdfs dfsadmin -safemode leave
@@ -129,7 +132,8 @@ test_hadoop(){
         # this doesn't help get Total Blocks in /blockScannerReport for ./check_hadoop_datanode_blockcount.pl, looks like that information is simply not exposed like that any more
         #hdfs dfsadmin -triggerBlockReport localhost:50020
         echo "dumping fsck log to /tmp inside container:"
-        hdfs fsck / &> /tmp/hdfs-fsck.log.tmp && tail -n30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
+        hdfs fsck / &> /tmp/hdfs-fsck.log.tmp
+        tail -n30 /tmp/hdfs-fsck.log.tmp > /tmp/hdfs-fsck.log
         exit 0
 EOF
     echo
@@ -386,7 +390,11 @@ EOF
     echo
     echo "running mapreduce job from sample jar"
     echo
+    if [ -n "${DEBUG:-}" ]; then
+        set -x
+    fi
     hadoop jar /hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar pi 20 20 &>/dev/null &
+    set +x
     echo
     echo "triggered mapreduce job"
     echo
@@ -671,6 +679,9 @@ EOF
                 #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
                 docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
                     set -euo pipefail
+                    if [ -n "${DEBUG:-}" ]; then
+                        set -x
+                    fi
                     export JAVA_HOME=/usr
                     echo "dumping fsck log to /tmp inside container:"
                     echo
