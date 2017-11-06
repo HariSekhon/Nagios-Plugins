@@ -23,7 +23,7 @@ cd "$srcdir/..";
 
 section "E l a s t i c s e a r c h"
 
-export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-latest 1.3 1.4 1.5 1.6 1.7 2.0 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5}}"
+export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-latest 1.3 1.4 1.5 1.6 1.7 2.0 2.1 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5 5.6}}"
 
 ELASTICSEARCH_HOST="${DOCKER_HOST:-${ELASTICSEARCH_HOST:-${HOST:-localhost}}}"
 ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST##*/}"
@@ -36,7 +36,8 @@ check_docker_available
 
 trap_debug_env elasticsearch
 
-startupwait 30
+# Elasticsearch 5.x takes ~ 50 secs to start up, sometimes doesn't start after 90 secs :-/
+startupwait 120
 
 # Elasticsearch 5.0 may fail to start up properly complaining about vm.max_map_count, fix is to do:
 #
