@@ -83,7 +83,7 @@ while(<$fh>){
     /Permission denied/i and quit "CRITICAL", "Did you fail to run this as the hdfs superuser? $_";
     if(/^\// and not /\bStatus\s*:/){
         next;
-    # this can end up being mixed on a line with a file such as 
+    # this can end up being mixed on a line with a file such as
     # 2017-11-06 15:29:24 +0100  file: /tmp/test.txt: MISSING 1 blocks of total size 8 B.Status: CORRUPT
     } elsif(/\bStatus\s*:\s*(\w+)/){
         $hdfs{"status"} = $1;
