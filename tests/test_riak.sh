@@ -35,7 +35,7 @@ export RIAK_PORT_DEFAULT=8098
 export DOCKER_IMAGE="harisekhon/riak-dev"
 export DOCKER_CONTAINER="nagios-plugins-riak-test"
 
-export MNTDIR="/pl"
+export DOCKER_MOUNT_DIR="/pl"
 
 check_docker_available
 

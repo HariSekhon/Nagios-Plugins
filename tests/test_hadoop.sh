@@ -44,7 +44,7 @@ export HADOOP_YARN_NODE_MANAGER_PORT_DEFAULT="8042"
 #export DOCKER_IMAGE="harisekhon/hadoop-dev"
 
 # still used by docker_exec() function below, must align with what is set in tests/docker/common.yml
-export MNTDIR="/pl"
+export DOCKER_MOUNT_DIR="/pl"
 
 startupwait 90
 

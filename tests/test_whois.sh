@@ -32,10 +32,10 @@ section "W h o i s"
 export DOCKER_IMAGE="harisekhon/nagios-plugins:centos"
 export DOCKER_CONTAINER="nagios-plugins-whois-test"
 
-export MNTDIR="/pl"
+export DOCKER_MOUNT_DIR="/pl"
 
 startupwait 0
-DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
+DOCKER_OPTS="-v $srcdir/..:$DOCKER_MOUNT_DIR"
 DOCKER_CMD="tail -f /dev/null"
 check_whois="run ./check_whois.pl"
 using_docker=""
@@ -51,7 +51,7 @@ if ! which jwhois &>/dev/null || is_mac; then
     echo "jwhois not found in \$PATH, attempting to use Dockerized test instead"
     launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
     #docker exec -ti "$DOCKER_CONTAINER" ls -l /pl
-    check_whois="run docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/check_whois.pl"
+    check_whois="run docker exec -ti "$DOCKER_CONTAINER" $DOCKER_MOUNT_DIR/check_whois.pl"
     using_docker=1
 fi
 

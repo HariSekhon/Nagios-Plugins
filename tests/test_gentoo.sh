@@ -29,7 +29,7 @@ exit 0
 export DOCKER_IMAGE="gentoo/stage3-amd64"
 export DOCKER_CONTAINER="nagios-plugins-gentoo-test"
 
-export MNTDIR="/tmp/nagios-plugins"
+export DOCKER_MOUNT_DIR="/tmp/nagios-plugins"
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping Gentoo checks!!!'
@@ -46,7 +46,7 @@ if ! is_docker_available; then
 fi
 
 echo "Setting up Gentoo test container"
-DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
+DOCKER_OPTS="-v $srcdir/..:$DOCKER_MOUNT_DIR"
 DOCKER_CMD="tail -f /dev/null"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
 #docker exec "$DOCKER_CONTAINER" yum makecache fast

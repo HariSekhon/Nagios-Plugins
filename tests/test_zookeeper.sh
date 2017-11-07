@@ -32,7 +32,7 @@ export ZOOKEEPER_HOST
 export ZOOKEEPER_PORT_DEFAULT=2181
 #export ZOOKEEPER_PORTS="$ZOOKEEPER_PORT_DEFAULT 3181 4181"
 
-export MNTDIR="/pl"
+export DOCKER_MOUNT_DIR="/pl"
 
 check_docker_available
 

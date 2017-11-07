@@ -40,7 +40,7 @@ export SOLR_PORTS="$SOLR_PORT_DEFAULT 8984 $SOLR_ZOOKEEPER_PORT_DEFAULT"
 export ZOOKEEPER_HOST="$SOLR_HOST"
 
 export SOLR_HOME="/solr"
-export MNTDIR="/pl"
+export DOCKER_MOUNT_DIR="/pl"
 
 startupwait 30
 

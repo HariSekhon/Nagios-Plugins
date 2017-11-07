@@ -34,7 +34,7 @@ section "Y u m"
 export DOCKER_IMAGE="harisekhon/centos-github"
 export DOCKER_CONTAINER="nagios-plugins-centos-test"
 
-export MNTDIR="/tmp/nagios-plugins"
+export DOCKER_MOUNT_DIR="/tmp/nagios-plugins"
 
 if ! is_docker_available; then
     echo 'WARNING: Docker not found, skipping CentOS Yum checks!!!'
@@ -44,7 +44,7 @@ fi
 startupwait 0
 
 echo "Setting up CentOS test container"
-DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
+DOCKER_OPTS="-v $srcdir/..:$DOCKER_MOUNT_DIR"
 DOCKER_CMD="tail -f /dev/null"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
 docker exec "$DOCKER_CONTAINER" yum makecache fast

@@ -27,7 +27,7 @@ section "L i n u x"
 
 check_docker_available
 
-export MNTDIR="/pl"
+export DOCKER_MOUNT_DIR="/pl"
 
 valid_distros=(alpine centos debian ubuntu)
 
@@ -36,7 +36,7 @@ test_linux(){
     local distro="$1"
     local version="$2"
     section2 "Setting up Linux $distro $version test container"
-    export SERVICE="nagiosplugins_$distro-github_1"
+    export DOCKER_CONTAINER="nagiosplugins_$distro-github_1"
     export COMPOSE_FILE="$srcdir/docker/$distro-github-docker-compose.yml"
     if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
         VERSION="$version" docker-compose pull $docker_compose_quiet
@@ -58,8 +58,7 @@ test_linux(){
     docker_exec check_linux_duplicate_IDs.pl
     hr
     # temporary fix until slow DockerHub automated builds trickle through ethtool in docker images
-    #docker-compose exec "$SERVICE" sh <<EOF
-    docker exec -i "$SERVICE" sh <<EOF
+    docker exec -i "$DOCKER_CONTAINER" sh <<EOF
 which yum && yum install -y ethtool net-tools && exit
 which apt-get && apt-get update && apt-get install -y ethtool net-tools && exit
 which apk && apk add ethtool && exit

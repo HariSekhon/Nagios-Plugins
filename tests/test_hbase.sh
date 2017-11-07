@@ -44,7 +44,7 @@ trap_debug_env hbase
 
 startupwait 60
 
-export MNTDIR="/pl"
+export DOCKER_MOUNT_DIR="/pl"
 
 export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-docker}"
 export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME//-}"

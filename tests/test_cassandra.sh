@@ -32,7 +32,7 @@ export CASSANDRA_HOST
 export CASSANDRA_PORT_DEFAULT=9042
 export CASSANDRA_JMX_PORT_DEFAULT=7199
 
-export MNTDIR="/pl"
+export DOCKER_MOUNT_DIR="/pl"
 
 startupwait 10
 

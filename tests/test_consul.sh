@@ -35,7 +35,7 @@ export CONSUL_PORT_DEFAULT=8500
 export DOCKER_IMAGE="harisekhon/consul"
 
 # used by docker_compose_exec
-export MNTDIR="/pl"
+export DOCKER_MOUNT_DIR="/pl"
 
 startupwait 10
 
@@ -131,14 +131,14 @@ test_consul(){
     hr
     section2 "Setting up Consul-dev $version test container"
     hr
-    #local DOCKER_OPTS="-v $srcdir/..:$MNTDIR"
+    #local DOCKER_OPTS="-v $srcdir/..:$DOCKER_MOUNT_DIR"
     #local DOCKER_CMD=""
     local DOCKER_SERVICE="$DOCKER_SERVICE-dev"
     local COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-docker-compose.yml"
     VERSION="$version" docker-compose up -d
     export CONSUL_PORT="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT_DEFAULT" | sed 's/.*://'`"
     hr
-    #docker exec -i "$DOCKER_CONTAINER-dev" "$MNTDIR/check_consul_version.py" -e "$expected_version"
+    #docker exec -i "$DOCKER_CONTAINER-dev" "$DOCKER_MOUNT_DIR/check_consul_version.py" -e "$expected_version"
     docker_compose_exec "check_consul_version.py" -e "$expected_version"
     hr
     ERRCODE=2 docker_compose_exec "check_consul_version.py" -e "fail-version"
