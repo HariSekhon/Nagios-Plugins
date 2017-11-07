@@ -65,7 +65,7 @@ EOF
 
 dump_hbck_log(){
     local hbck_log="$1"
-    if [ "$version" != "latest" -a "$version" != ".*" ]; then
+    if ! is_latest_version; then
         if ! test -s "$hbck_log"; then
             echo "copying NEW $hbck_log from HBase $version container:"
             docker cp "$DOCKER_CONTAINER":/tmp/hbase-hbck.log "$hbck_log"
@@ -141,7 +141,7 @@ EOF
         exit 0
     fi
     echo "starting tests for version $version"
-    if [ "$version" = "latest" ]; then
+    if is_latest_version; then
         echo "latest version, fetching latest version from DockerHub master branch"
         local version="$(dockerhub_latest_version hbase-dev)"
         echo "expecting version '$version'"
@@ -465,7 +465,7 @@ EOF
     # Doesn't give any failure in hbck log when RegionServer is down
 #    local hbck_log="$data_dir/hdfs-hbck-fail-$version.log"
 #    if ! is_CI; then
-#        if [ "$version" != "latest" -a "$version" != ".*" ]; then
+#        if ! is_latest_version; then
 #            max_hbck_wait_time=1900
 #            if ! test -s "$hbck_log"; then
 #                docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
