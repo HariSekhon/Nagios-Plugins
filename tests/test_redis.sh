@@ -118,7 +118,7 @@ EOF
     run_conn_refused $perl -T ./check_redis_write.pl -v
     hr
     echo "checking for no code failure masking root cause in catch quit handler"
-    run_grep ' line ' $perl -T ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v || :
+    ERRCODE=2 run_grep 'Connection refused' $perl -T ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v
     hr
     echo "Completed $run_count Redis tests"
     hr
