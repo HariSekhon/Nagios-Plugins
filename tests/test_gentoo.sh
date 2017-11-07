@@ -36,12 +36,6 @@ if ! is_docker_available; then
     exit 0
 fi
 
-docker_exec(){
-    local cmd="$@"
-    echo "docker exec '$DOCKER_CONTAINER' $MNTDIR/$*"
-    docker exec "$DOCKER_CONTAINER" "$MNTDIR/$@"
-}
-
 #trap "docker rm -f $DOCKER_CONTAINER &>/dev/null" SIGINT SIGTERM EXIT
 
 startupwait 0

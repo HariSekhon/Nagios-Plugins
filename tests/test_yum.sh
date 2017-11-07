@@ -41,11 +41,6 @@ if ! is_docker_available; then
     exit 0
 fi
 
-docker_exec(){
-    local cmd="$@"
-    run docker exec "$DOCKER_CONTAINER" "$MNTDIR/$@"
-}
-
 startupwait 0
 
 echo "Setting up CentOS test container"

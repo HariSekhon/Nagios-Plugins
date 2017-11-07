@@ -40,11 +40,6 @@ check_docker_available
 
 trap_debug_env cassandra
 
-docker_exec(){
-    #docker exec -ti "$DOCKER_CONTAINER" $MNTDIR/$@
-    run docker-compose exec "$DOCKER_SERVICE" "$MNTDIR/$@"
-}
-
 test_cassandra(){
     local version="$1"
     section2 "Setting up Cassandra $version test container"

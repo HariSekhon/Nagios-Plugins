@@ -34,6 +34,7 @@ export CONSUL_PORT_DEFAULT=8500
 
 export DOCKER_IMAGE="harisekhon/consul"
 
+# used by docker_compose_exec
 export MNTDIR="/pl"
 
 startupwait 10
@@ -41,10 +42,6 @@ startupwait 10
 check_docker_available
 
 trap_debug_env consul
-
-docker_exec(){
-    run docker-compose exec "$DOCKER_SERVICE" "$MNTDIR/$@"
-}
 
 test_consul(){
     local version="$1"
@@ -142,9 +139,9 @@ test_consul(){
     export CONSUL_PORT="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT_DEFAULT" | sed 's/.*://'`"
     hr
     #docker exec -i "$DOCKER_CONTAINER-dev" "$MNTDIR/check_consul_version.py" -e "$expected_version"
-    docker_exec "check_consul_version.py" -e "$expected_version"
+    docker_compose_exec "check_consul_version.py" -e "$expected_version"
     hr
-    ERRCODE=2 docker_exec "check_consul_version.py" -e "fail-version"
+    ERRCODE=2 docker_compose_exec "check_consul_version.py" -e "fail-version"
     hr
     echo "Completed $run_count Consul tests"
     hr

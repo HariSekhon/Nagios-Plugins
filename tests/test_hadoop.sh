@@ -52,14 +52,9 @@ check_docker_available
 
 trap_debug_env hadoop
 
-docker_exec(){
-    #docker-compose exec "$DOCKER_SERVICE" $MNTDIR/$@
-    run docker exec "$DOCKER_CONTAINER" "$MNTDIR/$@"
-}
-
 dump_fsck_log(){
     local fsck_log="$1"
-    if [ "$version" != "latest" -a "$version" != ".*" ]; then
+    if ! is_latest_version; then
         if ! test -s "$fsck_log"; then
             echo "copying NEW $fsck_log from Hadoop $version container:"
             docker cp "$DOCKER_CONTAINER":/tmp/hdfs-fsck.log "$fsck_log"
@@ -138,13 +133,15 @@ test_hadoop(){
 EOF
     echo
     hr
-    data_dir="tests/data"
+    local data_dir="tests/data"
     local fsck_log="$data_dir/hdfs-fsck-$version.log"
-    dump_fsck_log "$fsck_log"
+    if ! is_latest_version; then
+        dump_fsck_log "$fsck_log"
+    fi
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    if [ "$version" = "latest" ]; then
+    if is_latest_version; then
         echo "latest version, fetching latest version from DockerHub master branch"
         local version="$(dockerhub_latest_version hadoop-dev)"
         # 2.8.2 => 2.8 so that $version matches hdfs-fsck-2.8.log for check_hadoop_hdfs_fsck.pl check further down
@@ -255,7 +252,8 @@ EOF
     run_fail 2 ./check_hadoop_hdfs_total_blocks.py -w 0 -c 0
     hr
     # only check logs for each version as there is no latest fsck log as it would be a duplicate of the highest version number
-    if [ "$version" != "latest" -a "$version" != ".*" ]; then
+    echo "version = $version"
+    if ! is_latest_version; then
         run $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log"
         hr
         run $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --stats
@@ -670,11 +668,11 @@ EOF
     hr
     # This takes ages and we aren't going to git commit the collected log from Jenkins or Travis CI
     # so don't bother running on there are it would only time out the builds anyway
-    local fsck_log="$data_dir/hdfs-fsck-fail-$version.log"
+    local fsck_fail_log="$data_dir/hdfs-fsck-fail-$version.log"
     if ! is_CI; then
-        if [ "$version" != "latest" -a "$version" != ".*" ]; then
+        if ! is_latest_version; then
             max_fsck_wait_time=30
-            if ! test -s "$fsck_log"; then
+            if ! test -s "$fsck_fail_log"; then
                 echo "getting new hdfs failure fsck:"
                 #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
                 docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
@@ -704,16 +702,16 @@ EOF
 EOF
                 echo
                 hr
-                dump_fsck_log "$fsck_log"
+                dump_fsck_fail_log "$fsck_fail_log"
                 ERRCODE=2 docker_exec check_hadoop_hdfs_fsck.pl -f "/tmp/hdfs-fsck.log" # --last-fsck -w 1 -c 200000000
                 hr
             fi
         fi
     fi
-    if [ -f "$fsck_log" ]; then
-        run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log"
+    if [ -f "$fsck_fail_log" ]; then
+        run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_fail_log"
         hr
-        run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --stats
+        run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_fail_log" --stats
         hr
     fi
     echo "Completed $run_count Hadoop tests"

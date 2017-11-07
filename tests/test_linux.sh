@@ -29,12 +29,6 @@ check_docker_available
 
 export MNTDIR="/pl"
 
-docker_exec(){
-    #echo "docker-compose exec '$SERVICE' $MNTDIR/$*"
-    #docker-compose exec "$SERVICE" $MNTDIR/$*
-    run docker exec "$SERVICE" "$MNTDIR/$@"
-}
-
 valid_distros=(alpine centos debian ubuntu)
 
 # TODO: build specific versions to test for CentOS 6 + 7, Ubuntu 14.04 + 16.04, Debian Wheezy + Jessie, Alpine builds

@@ -48,10 +48,6 @@ check_docker_available
 
 trap_debug_env solr zookeeper
 
-docker_exec(){
-    run docker-compose exec "$DOCKER_SERVICE" "$MNTDIR/$@"
-}
-
 # TODO: separate solrcloud and solrcloud-dev checks
 test_solrcloud(){
     local version="$1"

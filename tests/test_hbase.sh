@@ -49,20 +49,6 @@ export MNTDIR="/pl"
 export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-docker}"
 export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME//-}"
 
-docker_exec(){
-    # this doesn't allocate TTY properly, blessing module bails out
-    #docker-compose exec "$DOCKER_SERVICE" /bin/bash <<-EOF
-    echo "docker exec -i '$DOCKER_CONTAINER' /bin/bash <<-EOF
-    export JAVA_HOME=/usr
-    $MNTDIR/$@
-EOF"
-    # TODO: check if this can output the here doc and if so remove above echo
-    run docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
-    export JAVA_HOME=/usr
-    $MNTDIR/$@
-EOF
-}
-
 dump_hbck_log(){
     local hbck_log="$1"
     if ! is_latest_version; then

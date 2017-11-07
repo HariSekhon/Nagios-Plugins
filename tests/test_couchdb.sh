@@ -45,10 +45,6 @@ check_docker_available
 
 trap_debug_env couchdb
 
-docker_exec(){
-    run docker-compose exec "$DOCKER_SERVICE" "$MNTDIR/$@"
-}
-
 test_couchdb(){
     local version="$1"
     section2 "Setting up CouchDB $version test container"

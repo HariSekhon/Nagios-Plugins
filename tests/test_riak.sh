@@ -41,9 +41,8 @@ check_docker_available
 
 trap_debug_env riak
 
-docker_exec(){
-    run docker-compose exec --user riak "$DOCKER_SERVICE" "$MNTDIR/$@"
-}
+# picked up by docker_exec
+export DOCKER_USER=riak
 
 startupwait 20
 
