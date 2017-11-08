@@ -39,38 +39,32 @@ startupwait 0
 export DOCKER_MOUNT_DIR="/pl"
 
 section2 "Setting up CentOS test container"
+
 distro=centos
+
 export DOCKER_CONTAINER="nagiosplugins_$distro-github_1"
 export COMPOSE_FILE="$srcdir/docker/$distro-github-docker-compose.yml"
+
 if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
     docker-compose pull $docker_compose_quiet
 fi
+
 docker-compose up -d
+
 docker-compose exec "centos-github" yum makecache fast
+
 if [ -n "${NOTESTS:-}" ]; then
     exit 0
 fi
-hr
+
 docker_exec check_yum.pl -C -v -t 60
-hr
-set +e
-docker_exec check_yum.pl -C --all-updates -v -t 60
-result=$?
-set -e
-if [ $result -ne 0 -a $result -ne 2 ]; then
-    exit 1
-fi
-hr
+
+ERRCODE="0 2" docker_exec check_yum.pl -C --all-updates -v -t 60
+
 docker_exec check_yum.py -C -v -t 60
-hr
-set +e
-docker_exec check_yum.py -C --all-updates -v -t 60
-result=$?
-set -e
-if [ $result -ne 0 -a $result -ne 2 ]; then
-    exit 1
-fi
-hr
+
+ERRCODE="0 2" docker_exec check_yum.py -C --all-updates -v -t 60
+
 echo "Completed $run_count Yum tests"
 hr
 [ -n "${KEEPDOCKER:-}" ] ||
