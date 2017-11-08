@@ -34,7 +34,7 @@ Detects both Spark Scala and PySpark Shells.
 See also check_hadoop_yarn_long_running_apps.py which is a more flexible base program of this that can be applied
 to any other Yarn application.
 
-Tested on HDP 2.6.1 and Apache Hadoop 2.5, 2.6, 2.7, 2.8
+Tested on HDP 2.6.1 and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
 
 """
 

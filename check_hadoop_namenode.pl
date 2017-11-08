@@ -29,7 +29,12 @@ Caveats:
 1. In Replication check cannot currently detect corrupt or under-replicated blocks since JSP doesn't offer this information
 2. There are no byte counters, so we can only use the human summary and multiply out, and being a multiplier of a summary figure it's marginally less accurate
 
-Note: This was created for Apache Hadoop 0.20.2, r911707 and updated for Cloudera CDH 4.3 (2.0.0-cdh4.3.0), Hortonworks HDP 2.1 (2.4.0), HDP 2.2 (Apache 2.6.0) and also tested on Apache Hadoop 2.5.2, 2.6.4
+Originally written for Apache Hadoop 0.20.2, but updated and tested on:
+
+CDH 4.3 (Hadoop 2.0.0)
+HDP 2.1 (Hadoop 2.4.0)
+HDP 2.2 (Apache 2.6.0)
+Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6
 
 THIS PLUGIN IS NOW DEPRECATED - it only works for Hadoop <= 2.6 as the JSP pages were replaced in Hadoop 2.7
 

@@ -19,7 +19,13 @@ $DESCRIPTION = "Nagios Hadoop Plugin to check various health aspects of HDFS via
 - checks HDFS % Used Balance is within thresholds
 - checks number of available datanodes and if there are any dead datanodes
 
-Originally written for old vanilla Apache Hadoop 0.20.x, updated for CDH 4.3 (Apache 2.0.0), CDH 5.0 (Apache 2.3.0), HDP 2.1 (Apache 2.4.0), HDP 2.2 (Apache 2.6.0), and Apache Hadoop 2.5, 2.6, 2.7, 2.8
+Originally written for old vanilla Apache Hadoop 0.20.x, updated and tested on:
+
+CDH 4.3 (Hadoop 2.0.0)
+CDH 5.0 (Hadoop 2.3.0)
+HDP 2.1 (Hadoop 2.4.0)
+HDP 2.2 (Hadoop 2.6.0)
+Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
 
 Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclaimer I used to work for Cloudera but seriously it's good it gives you access to a wealth of information)";
 

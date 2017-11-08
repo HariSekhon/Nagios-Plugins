@@ -9,11 +9,16 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check the Active / Standby state of a Hadoop NameNode via the it's JMX API
+$DESCRIPTION = "Nagios Plugin to check the Active / Standby state of a Hadoop NameNode via it's JMX API
 
 Tip: run this against a load balancer in front of your NameNodes or in conjunction with find_active_hadoop_namenode.py to check that you always have an active master available
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0) and Apache Hadoop 2.5, 2.6, 2.7, 2.8. Added legacy support for Cloudera CDH 4.4.0 (Hadoop 2.0.0)";
+Tested on:
+
+Hortonworks HDP 2.1 (Hadoop 2.4.0)
+Added legacy support for Cloudera CDH 4.4.0 (Hadoop 2.0.0)
+Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
+";
 
 $VERSION = "0.3";
 

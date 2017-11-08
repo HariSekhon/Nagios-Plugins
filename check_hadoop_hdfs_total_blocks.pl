@@ -23,7 +23,7 @@ See check_hadoop_hdfs_total_blocks.py for a replacement that works with Hadoop 2
 
 See also check_hadoop_namenode_heap.pl for heap size checks
 
-Tested on Hortonworks HDP 2.2 (Hadoop 2.6.0) and Apache Hadoop 2.5.2, 2.6.4";
+Tested on Hortonworks HDP 2.2 (Hadoop 2.6.0) and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6";
 
 $VERSION = "0.9.4";
 

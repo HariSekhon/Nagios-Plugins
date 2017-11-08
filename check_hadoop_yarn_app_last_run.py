@@ -30,7 +30,7 @@ Can optionally check the following additional aspects of the job:
 The --app name is a regex and the first matching job to is checked and optionally can apply --warn-on-duplicate
 if multiple running jobs match the given regex
 
-Tested on HDP 2.6.1 and Apache Hadoop 2.5, 2.6, 2.7, 2.8
+Tested on HDP 2.6.1 and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
 
 """
 

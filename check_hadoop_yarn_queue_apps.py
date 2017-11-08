@@ -34,7 +34,7 @@ failing either --disallow or --allow regexes). In Verbose mode if there is more 
 will also output stats per queue (be careful using this as if you're changing the number of matching queues over
 time it could result in more perfdata fields which can break PNP4Nagios graphs)
 
-Tested on HDP 2.6.1 and Apache Hadoop 2.5, 2.6, 2.7, 2.8
+Tested on HDP 2.6.1 and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
 
 """
 

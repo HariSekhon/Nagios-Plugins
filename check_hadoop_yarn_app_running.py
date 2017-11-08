@@ -29,7 +29,7 @@ Optional additional checks:
 - elapsed time - optional --warning / --critical thresholds apply
 - if multiple applications match the given app name regex
 
-Tested on HDP 2.6.1 and Apache Hadoop 2.5, 2.6, 2.7, 2.8
+Tested on HDP 2.6.1 and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
 
 """
 
