@@ -37,17 +37,17 @@ trap_debug_env atlas
 echo "checking connection refused tests first:"
 echo
 run_conn_refused ./check_atlas_version.py
-hr
+
 run_conn_refused ./check_atlas_version.py -e '0\.'
-hr
+
 run_conn_refused ./check_atlas_status.py -A
-hr
+
 run_conn_refused ./check_atlas_entity.py -l
-hr
+
 run_conn_refused ./check_atlas_entity.py -E Sales -T DB
-hr
+
 run_conn_refused ./check_atlas_entity.py -I "1"
-hr
+
 echo
 
 if [ -z "${ATLAS_HOST:-}" ]; then
@@ -60,7 +60,6 @@ else
         untrap
         exit 0
     fi
-
     hr
     if ! when_url_content 5 "$ATLAS_HOST:$ATLAS_PORT" atlas; then
         echo "WARNING: Atlas host $ATLAS_HOST:$ATLAS_PORT content not found, skipping Atlas checks"
@@ -70,28 +69,28 @@ else
         exit 0
     fi
     hr
-
     # Sandbox often has some broken stuff, we're testing the code works, not the cluster
     #[ "$ATLAS_CLUSTER" = "$SANDBOX_CLUSTER" ] && set +e
     #echo "testing Atlas server $ATLAS_HOST"
     hr
     run ./check_atlas_version.py
-    hr
+
     run ./check_atlas_version.py -e '0\.'
-    hr
+
     run_fail 2 ./check_atlas_version.py -e 'fail-version'
-    hr
+
     run ./check_atlas_status.py -A
-    hr
+
     run_fail 3 ./check_atlas_entity.py -l
-    hr
+
     run ./check_atlas_entity.py -E Sales -T DB
-    hr
+
     set +o pipefail
     id="$(./check_atlas_entity.py -l | tail -n 1 | awk '{print $1}')"
     set -o pipefail
-    run ./check_atlas_entity.py -I "$id"
+    echo "got Atlas ID = $id"
     hr
+    run ./check_atlas_entity.py -I "$id"
 fi
 echo
 echo "Completed $run_count Apache Atlas tests"
