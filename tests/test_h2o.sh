@@ -47,6 +47,7 @@ test_h2o(){
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d
+    hr
     echo "getting H2O dynamic port mapping:"
     docker_compose_port "H2O"
     hr
@@ -60,26 +61,27 @@ test_h2o(){
     fi
     docker_compose_version_test h2o "$version"
     hr
+
     run $perl -T ./check_h2o_cluster.pl
-    hr
+
     run $perl -T ./check_h2o_jobs.pl
-    hr
+
     run $perl -T ./check_h2o_node_health.pl
-    hr
+
     run $perl -T ./check_h2o_node_stats.pl
-    hr
+
     run $perl -T ./check_h2o_nodes_last_contact.pl
-    hr
+
     run_conn_refused $perl -T ./check_h2o_cluster.pl
-    hr
+
     run_conn_refused $perl -T ./check_h2o_jobs.pl
-    hr
+
     run_conn_refused $perl -T ./check_h2o_node_health.pl
-    hr
+
     run_conn_refused $perl -T ./check_h2o_node_stats.pl
-    hr
+
     run_conn_refused $perl -T ./check_h2o_nodes_last_contact.pl
-    hr
+
     echo "Completed $run_count H2O tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
