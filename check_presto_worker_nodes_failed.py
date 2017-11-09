@@ -27,7 +27,7 @@ according to tests, so this can also be used to catch adding or restarting worke
 
 Tested on:
 
-- Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185
+- Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185, 0.187, 0.188
 - Presto Teradata distribution versions:  0.152, 0.157, 0.167, 0.179
 
 """
