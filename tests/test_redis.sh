@@ -52,18 +52,21 @@ test_redis(){
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d
+    hr
     echo "getting Redis dynamic port mapping:"
     docker_compose_port Redis
     hr
     when_ports_available "$REDIS_HOST" "$REDIS_PORT"
     hr
-    echo "creating test Redis key-value"
-    #echo set myKey hari | redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT"
-    docker exec -i "$DOCKER_CONTAINER" sh <<EOF
-        echo set myKey hari | redis-cli
+    if [ -z "${NOSETUP:-}" ]; then
+        echo "creating test Redis key-value"
+        #echo set myKey hari | redis-cli -h "$REDIS_HOST" -p "$REDIS_PORT"
+        docker exec -i "$DOCKER_CONTAINER" sh <<EOF
+            echo set myKey hari | redis-cli
 EOF
-    echo done
-    hr
+        echo done
+        hr
+    fi
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -72,16 +75,16 @@ EOF
         local version=".*"
     fi
     run $perl -T ./check_redis_version.pl -v # -e "$version"  TODO: change to regex and enable this with .* for latest
-    hr
+
     run_fail 2 $perl -T ./check_redis_version.pl -v -e 'fail-version'
-    hr
+
     run_conn_refused $perl -T ./check_redis_version.pl -v
-    hr
+
     # REDIS_HOST obtained via .travis.yml
     run $perl -T ./check_redis_clients.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_redis_clients.pl -v
-    hr
+
     # there is no redis.conf in the Docker container :-/
     #docker cp "$DOCKER_CONTAINER":/etc/redis.conf /tmp/redis.conf
     # doesn't match
@@ -92,34 +95,34 @@ EOF
     echo "$perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v | grep -v -e '^debug:' | sed 's/.*extra config found on running server://;s/=/ /g' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tee /tmp/.check_redis_config.conf"
     $perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v | grep -v -e '^debug:' | sed 's/.*extra config found on running server://;s/=/ /g' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tee /tmp/.check_redis_config.conf
     run $perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -vv
-    hr
+
     run_conn_refused $perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf
-    hr
+
     [ -z "${NODELETE:-1}" ] && rm -v /tmp/.check_redis_config.conf
-    hr
+
     run $perl -T ./check_redis_key.pl -k myKey -e hari -v
-    hr
+
     run_conn_refused $perl -T ./check_redis_key.pl -k myKey -e hari -v
-    hr
+
     run $perl -T ./check_redis_publish_subscribe.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_redis_publish_subscribe.pl -v
-    hr
+
     run $perl -T ./check_redis_stats.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_redis_stats.pl -v
-    hr
+
     run $perl -T ./check_redis_stats.pl -s connected_clients -c 1:1 -v
-    hr
+
     run_conn_refused $perl -T ./check_redis_stats.pl -s connected_clients -c 1:1 -v
-    hr
+
     run $perl -T ./check_redis_write.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_redis_write.pl -v
-    hr
+
     echo "checking for no code failure masking root cause in catch quit handler"
     ERRCODE=2 run_grep 'Connection refused' $perl -T ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v
-    hr
+
     echo "Completed $run_count Redis tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
