@@ -42,58 +42,62 @@ test_linux(){
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d
+    hr
     #docker exec "$DOCKER_CONTAINER" yum install -y net-tools
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    hr
+
     docker_exec check_disk_write.pl -d .
-    hr
-    hr
+
     docker_exec check_linux_auth.pl -u root -g root -v
-    hr
+
     # setting this high now because my workstation is heavily loaded with docker builds and want this to pass
     docker_exec check_linux_context_switches.pl || : ; sleep 1; docker_exec check_linux_context_switches.pl -w 50000 -c 70000
-    hr
+
     docker_exec check_linux_duplicate_IDs.pl
-    hr
+
     # temporary fix until slow DockerHub automated builds trickle through ethtool in docker images
-    docker exec -i "$DOCKER_CONTAINER" sh <<EOF
-which yum && yum install -y ethtool net-tools && exit
-which apt-get && apt-get update && apt-get install -y ethtool net-tools && exit
-which apk && apk add ethtool && exit
-:
-EOF
-    hr
+#    docker exec -i "$DOCKER_CONTAINER" sh <<EOF
+#which yum && yum install -y ethtool net-tools && exit
+#which apt-get && apt-get update && apt-get install -y ethtool net-tools && exit
+#which apk && apk add ethtool && exit
+#:
+#EOF
+#    hr
+
     docker_exec check_linux_interface.pl -i eth0 -v -e -d Full
-    echo "sleeping for 1 sec before second run to check stats code path + re-load from state file"
+
+    echo "sleeping for 1 sec before second run to check stats code path + re-load from state file:"
     sleep 1
+    echo
     docker_exec check_linux_interface.pl -i eth0 -v -e -d Full
-    hr
+
     # making this much higher so it doesn't trip just due to test system load
     docker_exec check_linux_load_normalized.pl -w 99 -c 99
-    hr
+
     docker_exec check_linux_load_normalized.pl -w 99 -c 99 --cpu-cores-perfdata
-    hr
+
     docker_exec check_linux_ram.py -v -w 20% -c 10%
-    hr
+
     docker_exec check_linux_system_file_descriptors.pl
-    hr
+
     #docker_exec check_linux_timezone.pl -T UTC -Z /usr/share/zoneinfo/UTC -A UTC -v
+
     # Alpine doesn't have zoneinfo installation
     docker_exec check_linux_timezone.pl -T UTC -Z /etc/localtime -A UTC -v
-    hr
+
     if [ "$distro" = "centos" ]; then
         docker-compose exec "centos-github" yum makecache fast
         hr
+
         docker_exec check_yum.pl -C -v -t 30
-        hr
+
         docker_exec check_yum.pl -C --all-updates -v -t 30 || :
-        hr
+
         docker_exec check_yum.py -C -v -t 30
-        hr
+
         docker_exec check_yum.py -C --all-updates -v -t 30 || :
-        hr
     fi
     echo "Completed $run_count Linux tests"
     hr
@@ -104,9 +108,18 @@ EOF
 
 # TODO: check if next arg is distro, if so latest and then use next arg
 if [ $# -gt 1 ]; then
+    if ! [[ ${valid_distros[*]} =~ "$1" ]]; then
+        echo "INVALID distro argument given, must be one of: ${valid_distros[*]}"
+        exit 1
+    fi
     test_linux "$1" "$2"
-elif [[ $# -eq 1 && ${valid_distros[*]} =~ "$1" ]]; then
-    test_linux "$1" "latest"
+elif [ $# -eq 1 ]; then
+    if [[ ${valid_distros[*]} =~ "$1" ]]; then
+        test_linux "$1" "latest"
+    else
+        echo "INVALID distro argument given, must be one of: ${valid_distros[*]}"
+        exit 1
+    fi
 else
     section "CentOS"
     for version in $(ci_sample latest); do
