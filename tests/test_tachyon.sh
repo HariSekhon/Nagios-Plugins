@@ -49,14 +49,16 @@ test_tachyon(){
         docker-compose down || :
     fi
     VERSION="$version" docker-compose up -d
+    hr
     echo "getting Tachyon dynamic port mappings:"
     docker_compose_port "Tachyon Master"
     docker_compose_port "Tachyon Worker"
     hr
+    when_ports_available "$TACHYON_HOST" "$TACHYON_MASTER_PORT" "$TACHYON_WORKER_PORT"
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    when_ports_available "$TACHYON_HOST" "$TACHYON_MASTER_PORT" "$TACHYON_WORKER_PORT"
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
         local version="$(dockerhub_latest_version tachyon)"
@@ -69,41 +71,41 @@ test_tachyon(){
     echo "expect Tachyon Worker to also be up by this point:"
     RETRY_INTERVAL=2 retry 10 ./check_tachyon_worker_version.py -v -e "$version" -t 2
     hr
+
     run ./check_tachyon_master_version.py -v -e "$version"
-    hr
+
     run_fail 2 ./check_tachyon_master_version.py -v -e "fail-version"
-    hr
+
     run ./check_tachyon_worker_version.py -v -e "$version"
-    hr
+
     run_fail 2 ./check_tachyon_worker_version.py -v -e "fail-version"
-    hr
+
     run ./check_tachyon_master.py -v
-    hr
-    #docker exec -ti "$DOCKER_CONTAINER" ps -ef
+
     run ./check_tachyon_worker.py -v
-    hr
+
     run ./check_tachyon_running_workers.py -v -w 1
-    hr
+
     run ./check_tachyon_dead_workers.py -v
-    hr
+
     run_conn_refused ./check_tachyon_master_version.py -v -e "$version"
-    hr
+
     run_conn_refused ./check_tachyon_worker_version.py -v -e "$version"
-    hr
+
     run_conn_refused ./check_tachyon_master.py -v
-    hr
+
     run_conn_refused ./check_tachyon_worker.py -v
-    hr
+
     run ./check_tachyon_running_workers.py -v -w 1
-    hr
+
     run_fail 1 ./check_tachyon_running_workers.py -v -w 2
-    hr
+
     run_fail 2 ./check_tachyon_running_workers.py -v -w 3 -c 2
-    hr
+
     run_conn_refused ./check_tachyon_running_workers.py -v -w 1
-    hr
+
     run_conn_refused ./check_tachyon_dead_workers.py -v
-    hr
+
     set +e
     node="$(./check_tachyon_worker_heartbeat.py -l | tail -n1)"
     set -e
@@ -111,10 +113,11 @@ test_tachyon(){
         echo "FAILED to find Tachyon worker node"
         exit 1
     fi
+
     run ./check_tachyon_worker_heartbeat.py --node "$node"
-    hr
+
     run_conn_refused ./check_tachyon_worker_heartbeat.py --node "$node"
-    hr
+
     if [ -n "${KEEPDOCKER:-}" ]; then
         echo
         echo "Completed $run_count Tachyon tests"
@@ -137,20 +140,19 @@ test_tachyon(){
         echo "(detects heartbeat lag / expired after 10 secs)"
         retry 20 ! ./check_tachyon_dead_workers.py -v
         hr
+
         run_fail 1 ./check_tachyon_dead_workers.py -v
-        hr
+
         run_fail 2 ./check_tachyon_dead_workers.py -v -c 0
-        hr
+
         run_fail 1 ./check_tachyon_running_workers.py -v -w 1 -c 0
-        hr
+
         run_fail 2 ./check_tachyon_running_workers.py -v -w 1
-        hr
+
         run_fail 1 ./check_tachyon_worker_heartbeat.py --node "$node" -w 1
-        hr
+
         run_fail 2 ./check_tachyon_worker_heartbeat.py --node "$node" -w 1 -c 1
-        hr
     fi
-    hr
     echo "Completed $run_count Tachyon tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
