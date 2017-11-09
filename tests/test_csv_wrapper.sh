@@ -26,57 +26,57 @@ section "C S V   W r a p p e r"
 # Try to make these local tests with no dependencies for simplicity
 
 run_grep '^OK,' ./csv_wrapper.py echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
-hr
+
 run_grep '^OK,' ./csv_wrapper.py --shell --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000
-hr
+
 run_grep '^OK,' ./csv_wrapper.py --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000 --shell
-hr
+
 run_grep '^WARNING,' ./csv_wrapper.py --result 1 'test 1 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
-hr
+
 run_grep '^CRITICAL,' ./csv_wrapper.py --result 2 'test 2 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
-hr
+
 run_grep '^UNKNOWN,' ./csv_wrapper.py --result 3 'test 3 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
-hr
+
 run_grep '^DEPENDENT' ./csv_wrapper.py --result 4 'test 4 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
-hr
+
 run_grep '^OK,' ./csv_wrapper.py --shell "echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'"
-hr
+
 run ./csv_wrapper.py $perl -T ./check_disk_write.pl -d .
-hr
+
 run ./csv_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^*/{print $2}')"
-hr
+
 echo "Testing failure detection of wrong git branch (perl)"
 run_grep '^CRITICAL,' ./csv_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch
-hr
+
 echo "Testing failure detection of wrong git branch (python)"
 run_grep '^CRITICAL', ./geneos_wrapper.py ./check_git_branch_checkout.py -d . -b nonexistentbranch
-hr
+
 tmpfile="$(mktemp /tmp/csv_wrapper.txt.XXXXXX)"
 echo test > "$tmpfile"
 run ./csv_wrapper.py $perl -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
-rm -f "$tmpfile"
+rm -vf "$tmpfile"
 hr
 run ./csv_wrapper.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
-hr
-echo "Testing induced failures"
-hr
+
+echo "Testing induced failures:"
+echo
 # should return zero exit code regardless but raise non-OK statuses in STATUS field
 run_grep '^OK,' ./csv_wrapper.py --shell exit 0
-hr
+
 run_grep '^WARNING,' ./csv_wrapper.py --shell exit 1
-hr
+
 run_grep '^CRITICAL,' ./csv_wrapper.py --shell exit 2
-hr
+
 run_grep '^UNKNOWN,' ./csv_wrapper.py --shell exit 3
-hr
+
 run_grep '^UNKNOWN,' ./csv_wrapper.py --shell exit 5
-hr
+
 run_grep '^UNKNOWN,' ./csv_wrapper.py nonexistentcommand arg1 arg2
-hr
+
 run_grep '^UNKNOWN,' ./csv_wrapper.py --shell nonexistentcommand arg1 arg2
-hr
+
 run_grep '^UNKNOWN,' ./csv_wrapper.py $perl -T check_disk_write.pl --help
-hr
+
 echo "Completed $run_count CSV wrapper tests"
 echo
 echo "All CSV wrapper tests completed successfully"
