@@ -98,7 +98,7 @@ test_hbase(){
     local uniq_val=$(< /dev/urandom base64 | tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)
     # gets ValueError: file descriptor cannot be a negative integer (-1), -T should be the workaround but hangs
     #docker-compose exec -T "$DOCKER_SERVICE" /bin/bash <<-EOF
-    [ "${NOSETUP:-}" ] ||
+    [ -n "${NOSETUP:-}" ] ||
     docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
     set -euo pipefail
     if [ -n "${DEBUG:-}" ]; then
@@ -321,6 +321,7 @@ EOF
 
     run_conn_refused $perl -T ./check_hadoop_jmx.pl --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
 
+    # TODO: perhaps this only works on some versions now??? Test and re-enable for those versions
     # XXX: both cause 500 internal server error
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" --all-metrics
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" -m compactionQueueLength
