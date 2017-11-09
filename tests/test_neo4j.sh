@@ -57,6 +57,7 @@ test_neo4j_main(){
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d
+    hr
     echo "getting Neo4J dynammic port mappings:"
     docker_compose_port NEO4J_PORT "Neo4J HTTP"
     docker_compose_port NEO4J_HTTPS_PORT "Neo4J HTTPS"
@@ -72,21 +73,23 @@ test_neo4j_main(){
         when_url_content "http://$NEO4J_HOST:7687" "not a WebSocket handshake request: missing upgrade"
     fi
     hr
-    echo "creating test Neo4J node"
-    if [ "${version:0:3}" = "2.3" -o "${version:0:3}" = "3.0" ]; then
-        # port 1337 - gets connection refused in newer versions as there is nothing listening on 1337
-        docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
-    else
-        # connects to 7687
-        # needs NEO4J_USERNAME and NEO4J_PASSWORD environment variables for the authenticated service
-        local auth_env=""
-        if [ -n "${NEO4J_AUTH:-}" ]; then
-            # API 1.25+
-            auth_env="-e NEO4J_USERNAME=$NEO4J_USERNAME -e NEO4J_PASSWORD=$NEO4J_PASSWORD"
+    if [ -z "${NOSETUP:-}" ]; then
+        echo "creating test Neo4J node"
+        if [ "${version:0:3}" = "2.3" -o "${version:0:3}" = "3.0" ]; then
+            # port 1337 - gets connection refused in newer versions as there is nothing listening on 1337
+            docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
+        else
+            # connects to 7687
+            # needs NEO4J_USERNAME and NEO4J_PASSWORD environment variables for the authenticated service
+            local auth_env=""
+            if [ -n "${NEO4J_AUTH:-}" ]; then
+                # API 1.25+
+                auth_env="-e NEO4J_USERNAME=$NEO4J_USERNAME -e NEO4J_PASSWORD=$NEO4J_PASSWORD"
+            fi
+            docker exec -i $auth_env "$DOCKER_CONTAINER" /var/lib/neo4j/bin/cypher-shell <<< 'CREATE (p:Person { name: "Hari Sekhon" });'
         fi
-        docker exec -i $auth_env "$DOCKER_CONTAINER" /var/lib/neo4j/bin/cypher-shell <<< 'CREATE (p:Person { name: "Hari Sekhon" });'
+        hr
     fi
-    hr
     if [ "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -94,35 +97,35 @@ test_neo4j_main(){
         local version=".*"
     fi
     run $perl -T ./check_neo4j_version.pl -v -e "^$version"
-    hr
+
     run_fail 2 $perl -T ./check_neo4j_version.pl -v -e 'fail-version'
-    hr
+
     run $perl -T ./check_neo4j_readonly.pl -v
-    hr
+
     # TODO: SSL checks
     #run $perl -T ./check_neo4j_readonly.pl -v -S -P 7473
-    hr
+
     run $perl -T ./check_neo4j_remote_shell_enabled.pl -v
-    hr
+
     run $perl -T ./check_neo4j_stats.pl -v
-    hr
+
     run $perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 1:20 -v
-    hr
+
     # Neo4J on Travis doesn't seem to return anything resulting in "'attributes' field not returned by Neo4J" error
     run $perl -T ./check_neo4j_store_sizes.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_neo4j_version.pl -v -e "^$version"
-    hr
+
     run_conn_refused $perl -T ./check_neo4j_readonly.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_neo4j_remote_shell_enabled.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_neo4j_stats.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v
-    hr
+
     run_conn_refused $perl -T ./check_neo4j_store_sizes.pl -v
-    hr
+
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
