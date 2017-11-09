@@ -53,6 +53,7 @@ test_spark(){
         docker-compose down || :
     fi
     VERSION="$version" docker-compose up -d
+    hr
     echo "getting Spark dynamic port mappings:"
     printf "Spark Master Port => "
     export SPARK_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$SPARK_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
@@ -77,36 +78,37 @@ test_spark(){
     fi
     hr
     run ./check_spark_master_version.py -e "$version"
-    hr
+
     run_fail 2 ./check_spark_master_version.py -e "fail-version"
-    hr
+
     run_conn_refused ./check_spark_master_version.py -e "$version"
-    hr
+
     run ./check_spark_worker_version.py -e "$version"
-    hr
+
     run_fail 2 ./check_spark_worker_version.py -e "fail-version"
-    hr
+
     run_conn_refused ./check_spark_worker_version.py -e "$version"
+
+    echo "trying check_spark_cluster.pl for up to $startupwait secs to give cluster worker a chance to initialize:"
+    retry $startupwait ./check_spark_cluster.pl -c 1: -v
     hr
-    echo "trying check_spark_cluster.pl up to 10 times to give cluster worker a chance to initialize:"
-    retry 10 ./check_spark_cluster.pl -c 1: -v
-    hr
+
     run $perl -T ./check_spark_cluster.pl -c 1: -v
-    hr
+
     run_conn_refused $perl -T ./check_spark_cluster.pl -c 1: -v
-    hr
+
     run $perl -T ./check_spark_cluster_dead_workers.pl -w 0 -c 1 -v
-    hr
+
     run_conn_refused $perl -T ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v
-    hr
+
     run $perl -T ./check_spark_cluster_memory.pl -w 80 -c 90 -v
-    hr
+
     run_conn_refused $perl -T ./check_spark_cluster_memory.pl -w 80 -c 90 -v
-    hr
+
     run $perl -T ./check_spark_worker.pl -w 80 -c 90 -v
-    hr
+
     run_conn_refused $perl -T ./check_spark_worker.pl -w 80 -c 90 -v
-    hr
+
     if [ -n "${KEEPDOCKER:-}" ]; then
         echo
         echo "Completed $run_count Spark tests"
@@ -117,6 +119,7 @@ test_spark(){
     hr
     echo "Now waiting for Spark Worker failure to be detected:"
     retry 10 ! $perl -T ./check_spark_cluster_dead_workers.pl
+    run++
     hr
     echo "Completed $run_count Spark tests"
     hr
