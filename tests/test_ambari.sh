@@ -35,25 +35,25 @@ trap_debug_env ambari
 echo "running connection refused tests first:"
 echo
 run_conn_refused $perl -T check_ambari_cluster_alerts_host_summary.pl
-hr
+
 run_conn_refused $perl -T check_ambari_cluster_alerts_summary.pl
-hr
+
 run_conn_refused $perl -T check_ambari_cluster_health_report.pl
-hr
+
 run_conn_refused $perl -T check_ambari_cluster_kerberized.pl
-hr
+
 run_conn_refused $perl -T check_ambari_cluster_service_config_compatible.pl
-hr
+
 run_conn_refused $perl -T check_ambari_cluster_total_hosts.pl
-hr
+
 run_conn_refused $perl -T check_ambari_cluster_version.pl
-hr
+
 run_conn_refused $perl -T check_ambari_config_stale.pl
-hr
+
 run_conn_refused $perl -T check_ambari_nodes.pl
-hr
+
 run_conn_refused $perl -T check_ambari_services.pl
-hr
+
 
 echo
 
@@ -68,7 +68,7 @@ else
         untrap
         exit 0
     fi
-
+    hr
     if ! when_url_content 5 "http://$AMBARI_HOST:$AMBARI_PORT/#/login" Ambari; then
         echo "WARNING: Ambari host $AMBARI_HOST:$AMBARI_PORT did not contain Ambari in html, may be some other service bound to the port, skipping..."
         echo
@@ -76,33 +76,32 @@ else
         untrap
         exit 0
     fi
-
+    hr
     # Sandbox often has some broken stuff, we're testing the code works, not the cluster
     [ "$AMBARI_CLUSTER" = "$SANDBOX_CLUSTER" ] && set +e
     echo "testing Ambari server $AMBARI_HOST"
     hr
     run_fail "0 1 2" $perl -T check_ambari_cluster_alerts_host_summary.pl
-    hr
+
     run_fail "0 1 2" $perl -T check_ambari_cluster_alerts_summary.pl
-    hr
+
     run_fail "0 1 2" $perl -T check_ambari_cluster_health_report.pl
-    hr
+
     run_fail "0 2" $perl -T check_ambari_cluster_kerberized.pl
-    hr
+
     run_fail "0 2" $perl -T check_ambari_cluster_service_config_compatible.pl
-    hr
+
     run $perl -T check_ambari_cluster_total_hosts.pl
-    hr
+
     run $perl -T check_ambari_cluster_version.pl
-    hr
+
     run_fail 2 $perl -T check_ambari_cluster_version.pl --expected 'fail-version'
-    hr
+
     run_fail "0 1" $perl -T check_ambari_config_stale.pl
-    hr
+
     run_fail "0 1 2" $perl -T check_ambari_nodes.pl
-    hr
+
     run_fail "0 1 2" $perl -T check_ambari_services.pl
-    hr
 fi
 
 echo
