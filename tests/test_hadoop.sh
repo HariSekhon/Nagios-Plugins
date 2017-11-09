@@ -472,6 +472,7 @@ EOF
     echo
     run_fail 3 ./check_hadoop_yarn_app_last_run.py -l
 
+    echo
     echo "now testing last run status:"
     run ./check_hadoop_yarn_app_last_run.py -a '.*' -v
 
