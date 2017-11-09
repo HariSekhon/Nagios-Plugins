@@ -74,6 +74,7 @@ test_hbase(){
         docker-compose down || :
     fi
     VERSION="$version" docker-compose up -d
+    hr
     if [ "$version" = "0.96" -o "$version" = "0.98" ]; then
         local export HBASE_MASTER_PORT_DEFAULT=60010
         local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
@@ -93,10 +94,11 @@ test_hbase(){
     when_url_content "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/rs-status" hbase
     hr
     echo "setting up test tables"
-    # tr occasionally errors out due to weird input chars, base64 for safety, but still remove chars liek '+' which will ruin --expected regex
+    # tr occasionally errors out due to weird input chars, base64 for safety, but still remove chars like '+' which will ruin --expected regex
     local uniq_val=$(< /dev/urandom base64 | tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)
     # gets ValueError: file descriptor cannot be a negative integer (-1), -T should be the workaround but hangs
     #docker-compose exec -T "$DOCKER_SERVICE" /bin/bash <<-EOF
+    [ "${NOSETUP:-}" ] ||
     docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
     set -euo pipefail
     if [ -n "${DEBUG:-}" ]; then
@@ -120,6 +122,7 @@ EOF2
     echo "test setup finished"
     exit 0
 EOF
+    hr
     data_dir="tests/data"
     local hbck_log="$data_dir/hbase-hbck-$version.log"
     #dump_hbck_log "$hbck_log"
@@ -134,69 +137,68 @@ EOF
     fi
     hr
     run ./check_hbase_master_version.py -e "$version"
-    hr
+
     run_fail 2 ./check_hbase_master_version.py -e "fail-version"
-    hr
+
     run_conn_refused ./check_hbase_master_version.py -e "$version"
-    hr
+
     run_fail 2 ./check_hbase_regionserver_version.py -e "fail-version"
-    hr
+
     run ./check_hbase_regionserver_version.py -e "$version"
-    hr
+
     run_conn_refused ./check_hbase_regionserver_version.py -e "$version"
-    hr
+
     run ./check_hbase_hbck.py -f tests/data/hbck.log -a 0
-    hr
+
     run_fail 1 ./check_hbase_hbck.py -f tests/data/hbck.log -a 3
-    hr
+
     docker_exec check_hbase_hbck.py -f /tmp/hbase-hbck.log -a 30
-    hr
-    set +e
-    docker_exec check_hbase_hbck.py -f /tmp/hbase-hbck.log -a 1
-    check_exit_code 1
-    set -e
-    hr
+
+    ERRCODE=1 docker_exec check_hbase_hbck.py -f /tmp/hbase-hbck.log -a 1
+
     run_fail 2 ./check_hbase_hbck.py -f tests/data/hbck-inconsistencies.log -a 0
-    hr
+
     run_fail 2 ./check_hbase_hbck.py -f tests/data/hbck-inconsistencies.log -a 3
-    hr
+
     run_fail 3 ./check_hbase_hbck.py -f nonexistent_file
+
 # ============================================================================ #
-    hr
+
     # Python plugins use env for -H $HBASE_HOST
     run ./check_hbase_table_enabled.py -T t1
-    hr
+
     run_conn_refused ./check_hbase_table_enabled.py -T t1
-    hr
+
     run ./check_hbase_table_enabled.py -T EmptyTable
-    hr
+
     run_fail 2 ./check_hbase_table_enabled.py -T DisabledTable
-    hr
-    set +e
+
     # TODO: this used to work I'm sure but now it's behaviour is completely broken is now returning OK on multiple HBase versions
     run_fail "0 2" ./check_hbase_table_enabled.py -T nonexistent_table
+
 # ============================================================================ #
-    hr
+
     run ./check_hbase_table.py -T t1
-    hr
+
     run_conn_refused ./check_hbase_table.py -T t1
-    hr
+
     run ./check_hbase_table.py -T EmptyTable
-    hr
+
     run_fail 2 ./check_hbase_table.py -T DisabledTable
-    hr
+
     run_fail 2 ./check_hbase_table.py -T nonexistent_table
+
 # ============================================================================ #
-    hr
+
     run ./check_hbase_table_regions.py -T t1
-    hr
+
     run_conn_refused ./check_hbase_table_regions.py -T t1
-    hr
+
     run ./check_hbase_table_regions.py -T EmptyTable
-    hr
+
     # even though DisabledTable table is disabled, it still has assigned regions
     run ./check_hbase_table_regions.py -T DisabledTable
-    hr
+
     # Re-assignment happens too fast, can't catch
     # forcibly unassign region and re-test
     #region=$(echo "locate_region 'DisabledTable', 'key1'" | hbase shell | awk '/ENCODED/{print $4; exit}' | sed 's/,$//')
@@ -208,160 +210,163 @@ EOF
     #check_exit_code 2
     #set -e
     #hr
+
     run_fail 2 ./check_hbase_table_regions.py -T nonexistent_table
+
 # ============================================================================ #
-    hr
+
     run ./check_hbase_table_compaction_in_progress.py -T t1
-    hr
+
     run_conn_refused ./check_hbase_table_compaction_in_progress.py -T t1
-    hr
+
     run ./check_hbase_table_compaction_in_progress.py -T EmptyTable
-    hr
+
     run ./check_hbase_table_compaction_in_progress.py -T DisabledTable
-    hr
+
     run_fail 2 ./check_hbase_table_compaction_in_progress.py -T nonexistent_table
+
 # ============================================================================ #
-    hr
+
     run ./check_hbase_region_balance.py
-    hr
+
     run_conn_refused ./check_hbase_region_balance.py
-    hr
+
     run ./check_hbase_regions_stuck_in_transition.py
-    hr
+
     run ./check_hbase_num_regions_in_transition.py
-    hr
+
     run ./check_hbase_regionserver_compaction_in_progress.py
-    hr
-    echo "ensuring Stargate Server is properly online before running this test"
+
+    echo "ensuring Stargate Server is properly online before running this test:"
     when_url_content "http://$HBASE_HOST:$HBASE_STARGATE_PORT/" UniformSplitTable
     hr
+
     run $perl -T ./check_hbase_regionservers.pl
-    hr
+
     run_conn_refused $perl -T ./check_hbase_regionservers.pl
-    hr
+
     run $perl -T ./check_hbase_regionservers_jsp.pl
-    hr
+
     run_conn_refused $perl -T ./check_hbase_regionservers_jsp.pl
-    hr
+
 # ============================================================================ #
+
     for x in "$perl -T ./check_hbase_cell.pl" ./check_hbase_cell.py "$perl -T ./check_hbase_cell_stargate.pl"; do
-        hr
         run eval $x -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
-        hr
+
         run_conn_refused eval $x -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
-        hr
+
         run eval $x -T t1 -R r2 -C cf1:q1 --expected test --precision 3
-        hr
+
         run eval $x -T t1 -R r3 -C cf1:q1 -e 5 -w 5 -c 10 -g -u ms
-        hr
+
         run_fail 1 eval $x -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 10
-        hr
+
         run_fail 2 eval $x -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 4
-        hr
+
         run_fail 2 eval $x -T t1 -R nonExistentRow -C cf1:q1
-        hr
+
         run_fail 2 eval $x -T t1 -R r1 -C nonExistentCF:q1
-        hr
+
         run_fail 2 eval $x -T t1 -R r1 -C cf1:nonExistentQF
-        hr
+
         run_fail 2 eval $x -T NonExistentTable -R r1 -C cf1:q1
-        hr
+
         run_fail 2 eval $x -T DisabledTable -R r1 -C cf1:q1
-        hr
+
         run_fail 2 eval $x -T EmptyTable -R r1 -C cf1:q1
     done
-    hr
+
     # this is only a symlink to check_hbase_cell.pl so just check it's still there and working
     run $perl -T ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
 
 # ============================================================================ #
-    hr
+
     run ./check_hbase_write.py -T t1 -w 500 --precision 3
-    hr
+
     run_conn_refused ./check_hbase_write.py -T t1 -w 100 --precision 3
-    hr
+
     # this will also be checked later by check_hbase_rowcount that it returns to zero rows, ie. delete succeeded
     run ./check_hbase_write.py -T EmptyTable -w 100 --precision 3
-    hr
+
     run_fail 2 ./check_hbase_write.py -T DisabledTable -t 2
-    hr
+
     run_fail 2 ./check_hbase_write.py -T NonExistentTable
+
 # ============================================================================ #
-    hr
+
     run ./check_hbase_write_spray.py -T t1 -w 500 --precision 3 -t 20
-    hr
+
     run_conn_refused ./check_hbase_write_spray.py -T t1 -w 500 --precision 3 -t 20
-    hr
+
     # this will also be checked later by check_hbase_rowcount that it returns to zero rows, ie. delete succeeded
     run ./check_hbase_write_spray.py -T EmptyTable -w 500 --precision 3 -t 20
-    hr
+
     # write to 100 regions...
     run ./check_hbase_write_spray.py -T HexStringSplitTable -w 500 --precision 3 -t 20
-    hr
+
     run_fail 2 ./check_hbase_write_spray.py -T DisabledTable -t 5
-    hr
+
     run_fail 2 ./check_hbase_write_spray.py -T NonExistentTable -t 5
+
 # ============================================================================ #
-    hr
+
     # have to use --host and --port here as this is a generic program with specific environment variables like we're setting and don't want to set $HOST and $PORT
     run $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
-    hr
+
     run $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics -t 20 | sed 's/|.*$//'
-    hr
+
     # too long exceeds Travis CI max log length due to the 100 region HexStringSplitTable multiplying out the available metrics
     run $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --all-metrics -t 20 | sed 's/|.*$//'
-    #hr
+
     run_conn_refused $perl -T ./check_hadoop_jmx.pl --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
-    hr
+
     # XXX: both cause 500 internal server error
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" --all-metrics
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" -m compactionQueueLength
-    #hr
+
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --all-metrics
     #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" -m compactionQueueLength
-    #hr
 
     # use newer Python version "check_hbase_table.py" for newer versions of HBase
     #$perl -T ./check_hbase_tables.pl
-    #hr
+
     #$perl -T ./check_hbase_tables_thrift.pl
-    #hr
 
     # TODO:
     #$perl -T ./check_hbase_tables_stargate.pl
-    #hr
+
     #$perl -T ./check_hbase_tables_jsp.pl
 
-    hr
     run ./check_hbase_table_region_balance.py -T t1
-    hr
+
     run_conn_refused ./check_hbase_table_region_balance.py -T t1
-    hr
+
     run ./check_hbase_table_region_balance.py -T EmptyTable
-    hr
+
     run ./check_hbase_table_region_balance.py -T DisabledTable
-    hr
+
     # all tables
     run ./check_hbase_table_region_balance.py
-    hr
+
     run_conn_refused ./check_hbase_table_region_balance.py
-    hr
+
     run_fail 3 ./check_hbase_table_region_balance.py --list-tables
-    hr
+
     docker_exec check_hbase_table_rowcount.pl -T t1 --hbase-bin /hbase/bin/hbase -w 3:3 -c 3:3 -t 60
-    hr
+
     if is_zookeeper_built; then
         # This also checks that check_hbase_write.py deleted correctly
         run $perl -T ./check_hbase_table_rowcount.pl -T EmptyTable --hbase-bin /hbase/bin/hbase -w 0:0 -c 0:0 -t 30
-        hr
+
         run $perl -T ./check_zookeeper_znode.pl -H "$HBASE_HOST" -z /hbase -v -n --child-znodes
-        hr
+
         run_conn_refused $perl -T ./check_zookeeper_znode.pl -z /hbase -v -n --child-znodes
-        hr
+
         run $perl -T ./check_zookeeper_child_znodes.pl -H "$HBASE_HOST" -z /hbase/rs -v -w 1:1 -c 1:1
-        hr
+
         run_conn_refused $perl -T ./check_zookeeper_child_znodes.pl -z /hbase/rs -v -w 1:1 -c 1:1
-        hr
+
         # XXX: not present all the time
         #$perl -T ./check_hbase_unassigned_regions_znode.pl
     else
@@ -369,21 +374,21 @@ EOF
         echo "ZooKeeper not built - running ZooKeeper checks in docker container:"
         # This also checks that check_hbase_write.py deleted correctly
         docker_exec check_hbase_table_rowcount.pl -T EmptyTable --hbase-bin /hbase/bin/hbase -w 0:0 -c 0:0 -t 30
-        hr
+
         docker_exec check_zookeeper_znode.pl -H localhost -z /hbase -v -n --child-znodes
-        hr
+
         ERRCODE=2 docker_exec check_zookeeper_znode.pl -H localhost -z /hbase -v -n --child-znodes -P "$wrong_port"
-        hr
+
         docker_exec check_zookeeper_child_znodes.pl -H localhost -z /hbase/rs -v -w 1:1 -c 1:1
-        hr
+
         ERRCODE=2 docker_exec check_zookeeper_child_znodes.pl -H localhost -z /hbase/rs -v -w 1:1 -c 1:1 -P "$wrong_port"
-        hr
+
         # XXX: not present all the time
         #docker_exec check_hbase_unassigned_regions_znode.pl -H localhost
     fi
-    hr
 
 # ============================================================================ #
+
     if [ -n "${KEEPDOCKER:-}" ]; then
         echo
         echo "Completed $run_count HBase tests"
@@ -411,27 +416,29 @@ EOF
     hr
     # default critical = 1 but will raise critical if there are no more live regionservers
     run_fail 2 $perl -T ./check_hbase_regionservers.pl
-    hr
+
     # should still exit critical as there are no remaining regionservers live
     run_fail 2 $perl -T ./check_hbase_regionservers.pl -w 2 -c 2
-    hr
+
 # ============================================================================ #
+
     run_fail 2 $perl -T ./check_hbase_regionservers_jsp.pl
-    hr
+
     # should still exit critical as there are no remaining regionservers live
     run_fail 2 $perl -T ./check_hbase_regionservers_jsp.pl -w 2 -c 2
-    hr
+
 # ============================================================================ #
+
     echo "Thrift API checks will hang so these python plugins will self timeout with UNKNOWN when the sole RegionServer is down"
     # looks like this is cached and succeeds in 0.96 / 0.98
     run_fail "0 3" ./check_hbase_table.py -T t1 -t 5
-    hr
+
     run_fail "0 3" ./check_hbase_table_enabled.py -T t1 -t 5
-    hr
+
     run_fail 3 ./check_hbase_table_regions.py -T DisabledTable -t 5
-    hr
+
     run_fail 3 ./check_hbase_cell.py -T t1 -R r1 -C cf1:q1 -t 5
-    hr
+
     echo "sending kill signal to ThriftServer"
     docker-compose exec "$DOCKER_SERVICE" pkill -f ThriftServer
     # leaving a race condition here intentionally as depending on timing it may trigger
@@ -441,13 +448,13 @@ EOF
     sleep 2
     echo "Thrift API checks should now fail with exit code 2:"
     run_fail 2 ./check_hbase_table.py -T t1
-    hr
+
     run_fail 2 ./check_hbase_table_enabled.py -T t1
-    hr
+
     run_fail 2 ./check_hbase_table_regions.py -T DisabledTable
-    hr
+
     run_fail 2 ./check_hbase_cell.py -T t1 -R r1 -C cf1:q1
-    hr
+
     # Doesn't give any failure in hbck log when RegionServer is down
 #    local hbck_log="$data_dir/hdfs-hbck-fail-$version.log"
 #    if ! is_CI; then
