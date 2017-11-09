@@ -93,7 +93,6 @@ test_hbase(){
     hr
     when_url_content "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/rs-status" hbase
     hr
-    echo "setting up test tables"
     # tr occasionally errors out due to weird input chars, base64 for safety, but still remove chars like '+' which will ruin --expected regex
     local uniq_val=$(< /dev/urandom base64 | tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)
     # gets ValueError: file descriptor cannot be a negative integer (-1), -T should be the workaround but hangs
@@ -101,6 +100,7 @@ test_hbase(){
     [ -n "${NOSETUP:-}" ] ||
     docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
     set -euo pipefail
+    echo "setting up test tables"
     if [ -n "${DEBUG:-}" ]; then
         set -x
     fi
@@ -164,7 +164,6 @@ EOF
 
 # ============================================================================ #
 
-    # Python plugins use env for -H $HBASE_HOST
     run ./check_hbase_table_enabled.py -T t1
 
     run_conn_refused ./check_hbase_table_enabled.py -T t1
@@ -173,8 +172,10 @@ EOF
 
     run_fail 2 ./check_hbase_table_enabled.py -T DisabledTable
 
-    # TODO: this used to work I'm sure but now it's behaviour is completely broken is now returning OK on multiple HBase versions
-    run_fail "0 2" ./check_hbase_table_enabled.py -T nonexistent_table
+    # broken on 0.96 it returns enabled for nonexistent_table
+    if [ "$version" != "0.96" ]; then
+        run_fail 2 ./check_hbase_table_enabled.py -T nonexistent_table
+    fi
 
 # ============================================================================ #
 
