@@ -32,15 +32,23 @@ if is_CI; then
     export DOCKER_IMAGES="$(ci_sample ${DOCKER_IMAGES[*]})"
 fi
 
+stdout="/dev/stdout"
+if is_CI; then
+    stdout="/dev/null"
+fi
+
 if is_docker_available; then
     [ -n "${NO_DOCKER:-}" ] && exit 0
     if [ -z "${NO_PULL:-}" ]; then
-        docker pull "$DOCKER_IMAGE"
+        echo docker pull "$DOCKER_IMAGE"
+        docker pull "$DOCKER_IMAGE" > $stdout
         for image in ${DOCKER_IMAGES[*]}; do
-            docker pull "$image"
+            echo docker pull "$image"
+            docker pull "$image" > $stdout
         done
         for tag in $DOCKER_IMAGE_TAGS; do
-            docker pull "$DOCKER_IMAGE:$tag"
+            echo docker pull "$DOCKER_IMAGE:$tag"
+            docker pull "$DOCKER_IMAGE:$tag" > $stdout
         done
     fi
     hr
