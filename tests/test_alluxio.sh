@@ -49,6 +49,7 @@ test_alluxio(){
         docker-compose down || :
     fi
     VERSION="$version" docker-compose up -d
+    hr
     echo "getting Alluxio dynamic port mappings:"
     docker_compose_port "Alluxio Master"
     docker_compose_port "Alluxio Worker"
@@ -71,39 +72,39 @@ test_alluxio(){
     RETRY_INTERVAL=2 retry 10 ./check_alluxio_worker_version.py -v -e "$version" -t 2
     hr
     run ./check_alluxio_master_version.py -v -e "$version"
-    hr
+
     run_fail 2 ./check_alluxio_master_version.py -v -e "fail-version"
-    hr
+
     run_conn_refused ./check_alluxio_master_version.py -v -e "$version"
-    hr
+
     run ./check_alluxio_worker_version.py -v -e "$version"
-    hr
+
     run_fail 2 ./check_alluxio_worker_version.py -v -e "fail-version"
-    hr
+
     run_conn_refused ./check_alluxio_worker_version.py -v -e "$version"
-    hr
+
     run ./check_alluxio_master.py -v
-    hr
+
     run_conn_refused ./check_alluxio_master.py -v
-    hr
+
     run ./check_alluxio_worker.py -v
-    hr
+
     run_conn_refused ./check_alluxio_worker.py -v
-    hr
+
     run ./check_alluxio_running_workers.py -v -w 1
-    hr
+
     run_fail 1 ./check_alluxio_running_workers.py -v -w 2
-    hr
+
     run_fail 2 ./check_alluxio_running_workers.py -v -w 3 -c 2
-    hr
+
     run_conn_refused ./check_alluxio_running_workers.py -v -w 1
-    hr
+
     run ./check_alluxio_dead_workers.py -v
-    hr
+
     run_conn_refused ./check_alluxio_dead_workers.py -v
-    hr
+
     run_fail 3 ./check_alluxio_worker_heartbeat.py -l
-    hr
+
     set +e
     node="$(./check_alluxio_worker_heartbeat.py -l | tail -n1)"
     set -e
@@ -112,9 +113,9 @@ test_alluxio(){
         exit 1
     fi
     run ./check_alluxio_worker_heartbeat.py --node "$node"
-    hr
+
     run_conn_refused ./check_alluxio_worker_heartbeat.py --node "$node"
-    hr
+
     if [ -n "${KEEPDOCKER:-}" ]; then
         echo
         echo "Completed $run_count Alluxio tests"
@@ -137,17 +138,17 @@ test_alluxio(){
     retry 310 ! ./check_alluxio_dead_workers.py -v
     hr
     run_fail 1 ./check_alluxio_dead_workers.py -v
-    hr
+
     run_fail 2 ./check_alluxio_dead_workers.py -v -c 0
-    hr
+
     run_fail 1 ./check_alluxio_running_workers.py -v -w 1 -c 0
-    hr
+
     run_fail 2 ./check_alluxio_running_workers.py -v -w 1
-    hr
+
     run_fail 1 ./check_alluxio_worker_heartbeat.py --node "$node" -w 1
-    hr
+
     run_fail 2 ./check_alluxio_worker_heartbeat.py --node "$node" -w 1 -c 1
-    hr
+
     fi
     echo "Completed $run_count Alluxio tests"
     hr
