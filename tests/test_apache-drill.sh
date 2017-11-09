@@ -45,6 +45,7 @@ test_apache_drill(){
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d
+    hr
     echo "getting Apache Drill dynamic port mappings:"
     docker_compose_port "Apache Drill"
     hr
@@ -58,17 +59,17 @@ test_apache_drill(){
     docker_compose_version_test apache-drill "$version"
     hr
     #run ./check_apache_drill_version.py -v -e "$version"
-    hr
+
     #run_fail 2 ./check_apache_drill_version.py -v -e "fail-version"
-    hr
+
     run ./check_apache_drill_status.py -v
-    hr
+
     run_conn_refused ./check_apache_drill_status.py -v
-    hr
+
     run $perl -T ./check_apache_drill_metrics.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_apache_drill_metrics.pl -v
-    hr
+
     echo "Completed $run_count Apache Drill tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
