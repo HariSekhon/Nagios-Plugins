@@ -371,7 +371,10 @@ EOF
 
     run_fail 2 ./check_presto_worker_node.py --node "$ip"
 
-    # XXX: must permit error state 2 on checks below to pass 500 Internal Server Error caused by Presto Bug
+    # XXX: must permit error state 2 on checks below to pass 500 Internal Server Error caused by Presto Bug:
+    #
+    # https://github.com/prestodb/presto/issues/9158
+    #
     run_fail "1 2" ./check_presto_worker_nodes_failed.py
 
     run_fail "0 2" ./check_presto_worker_nodes_response_lag.py --max-age 1
