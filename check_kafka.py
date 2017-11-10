@@ -63,7 +63,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 
 
 class CheckKafka(PubSubNagiosPlugin):
@@ -215,6 +215,7 @@ class CheckKafka(PubSubNagiosPlugin):
         #except KafkaError as _:
             #raise CriticalError(_)
         except KafkaError:
+            err = self.exception_msg()
             raise CriticalError(err)
 
     def exception_msg(self):
