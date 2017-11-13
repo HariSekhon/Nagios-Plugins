@@ -43,25 +43,24 @@ trap_debug_env cm
 echo "checking connection refused tests first:"
 echo
 run_conn_refused $perl -T check_cloudera_manager_version.pl -e "$CM_VERSION"
-hr
+
 run_conn_refused $perl -T check_cloudera_manager.pl --api-ping
-hr
+
 run_conn_refused $perl -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs
-hr
+
 run_conn_refused $perl -T check_cloudera_manager_cluster_version.pl
-hr
+
 run_conn_refused $perl -T check_cloudera_manager_config_stale.pl -S "hdfs"
-hr
+
 run_conn_refused $perl -T check_cloudera_manager_config_validation.pl -S "hdfs"
-hr
+
 run_conn_refused $perl -T check_cloudera_manager_health.pl -S "hdfs"
-hr
+
 run_conn_refused $perl -T check_cloudera_manager_license.pl
-hr
+
 run_conn_refused $perl -T check_cloudera_manager_metrics.pl -S "hdfs" -a
-hr
+
 run_conn_refused $perl -T check_cloudera_manager_status.pl -S "hdfs"
-hr
 
 echo
 
@@ -74,36 +73,35 @@ else
         echo
         exit 0
     fi
-
+    hr
     if when_url_content 5 "$PROTOCOL://$CM_HOST:$CM_PORT/cmf/login" Cloudera; then
         echo "WARNING: Cloudera Manager host $CM_HOST:$CM_PORT did not contain Cloudera in html, may be some other service bound to the port, skipping..."
         echo
         echo
         exit 0
     fi
-
+    hr
     # QuickStart VM often has some broken stuff, we're testing the code works, not the cluster
-    [ "$CM_CLUSTER" = "$QUICKSTART_CLUSTER" ] && set +e
-
+    #[ "$CM_CLUSTER" = "$QUICKSTART_CLUSTER" ] && set +e
     hr
     run $perl -T check_cloudera_manager_version.pl -e "$CM_VERSION"
-    hr
+
     run $perl -T check_cloudera_manager.pl --api-ping
-    hr
+
     run_fail 3 $perl -T check_cloudera_manager.pl --list-clusters
-    hr
+
     run_fail 3 $perl -T check_cloudera_manager.pl --list-users
-    hr
+
     run_fail 3 $perl -T check_cloudera_manager.pl --list-hosts
-    hr
+
     run_fail 3 $perl -T check_cloudera_manager.pl --list-services
-    hr
+
     run_fail 3 $perl -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs
-    hr
+
     run $perl -T check_cloudera_manager_cluster_version.pl
-    hr
+
     run_fail 2 $perl -T check_cloudera_manager_cluster_version.pl --expected 'fail-version'
-    hr
+
     echo
 
     # ============================================================================ #
@@ -138,17 +136,16 @@ else
 
     hr
     run $perl -T check_cloudera_manager_config_stale.pl -S "$service"
-    hr
+
     run $perl -T check_cloudera_manager_config_validation.pl -S "$service"
-    hr
+
     run $perl -T check_cloudera_manager_health.pl -S "$service"
-    hr
+
     run $perl -T check_cloudera_manager_license.pl
-    hr
+
     run $perl -T check_cloudera_manager_metrics.pl -S "$service" -a
-    hr
+
     run $perl -T check_cloudera_manager_status.pl -S "$service"
-    hr
 fi
 echo
 echo "Completed $run_count Cloudera Manager tests"

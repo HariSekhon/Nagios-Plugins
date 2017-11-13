@@ -32,15 +32,15 @@ section "D o c k e r H u b "
 #run ./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper
 echo "DockerHub has space failures all the time, must allow for broken build:"
 run_fail "0 2" ./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper
-hr
+
 echo "testing repo with extended output information:"
 #run ./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper -v
 run_fail "0 2" ./check_dockerhub_repo_build_status.py -r harisekhon/zookeeper -v
-hr
+
 echo "testing detection of failing repo build:"
 # intentionally broken repo created specifically for this test
 run_fail 2 ./check_dockerhub_repo_build_status.py -r harisekhon/ci_intentionally_broken_test_do_not_use -v
-hr
+
 echo
 echo "Completed $run_count DockerHub tests"
 echo

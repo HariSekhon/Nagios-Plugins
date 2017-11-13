@@ -73,8 +73,7 @@ test_db(){
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d
-    #local docker_container="$(docker-compose ps | sed -n '3s/ .*//p')"
-    #echo "determined docker container to be '$docker_container'"
+    hr
     echo "getting $name dynamic port mapping:"
     docker_compose_port MYSQL_PORT "$name"
     hr
@@ -93,14 +92,7 @@ test_db(){
     my_cnf="$(docker exec -ti "$DOCKER_CONTAINER" find /etc -type f -name my.cnf -o -name mysqld.cnf | head -n1 | tr -d '\r')"
     set -o pipefail
     echo "determined my.cnf location to be $my_cnf"
-    #if [ "$version" = "latest" ] || [ "${version%%.*}" -gt 5 ]; then
-    #    export MYSQL_CONFIG_PATH="/etc/mysql/mysql.conf.d"
-    #    export MYSQL_CONFIG_FILE="mysqld.cnf"
-    #else
-    #    export MYSQL_CONFIG_PATH="/etc/mysql"
-    #    export MYSQL_CONFIG_FILE="my.cnf"
-    #fi
-    echo "fetching $my_cnf to local host"
+    echo "fetching $my_cnf to local host:"
     # must require newer version of docker?
     #docker cp -L "$docker_container":"$MYSQL_CONFIG_PATH/$MYSQL_CONFIG_FILE" /tmp
     # doesn't let you specify a file path only dir otherwise gives annoying and inflexible error "not a directory"
@@ -124,39 +116,40 @@ test_db(){
         # for some reason MariaDB's thread_cache_size is 128 in conf vs 100 in running service in Docker, so ignore it
     fi
     run $perl -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v $extra_opt
-    hr
+
     run_conn_refused $perl -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v $extra_opt
-    hr
+
     rm -vf "/tmp/$MYSQL_CONFIG_FILE"
     hr
+
     #echo "$perl -T ./check_mysql_query.pl -q \"SHOW TABLES IN information_schema like 'C%'\" -o CHARACTER_SETS -v"
     run $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema like 'C%'" -o CHARACTER_SETS -v
-    hr
+
     run $perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -r "'(root|mysql.sys)'@'(%|localhost)'" -v
-    hr
+
     run_fail 2 $perl -T ./check_mysql_query.pl -q "SELECT FAILURE" -v
-    hr
+
     echo "checking non SELECT / SHOW query triggers unknown usage result:"
     run_fail 3 $perl -T ./check_mysql_query.pl -q "INVALID_QUERY" -v
-    hr
+
     echo "checking invalid query hits MySQL error resulting in critical error:"
     run_fail 2 $perl -T ./check_mysql_query.pl -q "SHOW INVALID_QUERY" -v
-    hr
+
     run_conn_refused $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema like 'C%'" -o CHARACTER_SETS -v
-    hr
+
     run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "DROP table haritest" -r 1 -v
-    hr
+
     run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "DELETE FROM haritest where 1=1" -r 1 -v
-    hr
+
     run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "SELECT * FROM (DROP TABLE haritest)" -r 1 -v
-    hr
+
     run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "SELECT * FROM (DELETE FROM haritest where 1=1)" -r 1 -v
 
     # TODO: add socket test - must mount on a compiled system, ie replace the docker image with a custom test one
     # this breaks subsequent iterations of this function
     #unset MYSQL_HOST
     #$perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
-    hr
+
     echo "Completed $run_count $name tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||

@@ -26,26 +26,26 @@ section "C h e c k   M K   W r a p p e r"
 # Try to make these local tests with no dependencies for simplicity
 
 run_grep '^0 ' ./check_mk_wrapper.py --name 'basic test' echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
-hr
+
 run_grep '^0' ./check_mk_wrapper.py -n 'basic test result' --shell --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000
-hr
+
 run_grep '^0 ' ./check_mk_wrapper.py -n 'basic test result trailing args' --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000 --shell
-hr
+
 run_grep '^1 ' ./check_mk_wrapper.py -n 'basic test result 1' --result 1 'test 1 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
-hr
+
 run_grep '^2 ' ./check_mk_wrapper.py -n 'basic test result 2' --result 2 'test 2 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
-hr
+
 run_grep '^3 ' ./check_mk_wrapper.py -n 'basic test result 3' --result 3 'test 3 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
-hr
+
 run_grep '^4 ' ./check_mk_wrapper.py -n 'basic test result 4' --result 4 'test 4 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
-hr
+
 run_grep '^0 ' ./check_mk_wrapper.py -n 'basic shell test' --shell "echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'"
-hr
+
 run ./check_mk_wrapper.py $perl -T ./check_disk_write.pl -d .
-hr
+
 run ./check_mk_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^\*/{print $2}')"
-hr
-echo "testing stripping of numbered Python interpreter"
+
+echo "testing stripping of numbered Python interpreter:"
 if which python2.7 &>/dev/null; then
     python=python2.7
 elif which python2.6 &>/dev/null; then
@@ -54,39 +54,39 @@ else
     python=python
 fi
 run_grep '^0 check_git_branch_checkout.py' ./check_mk_wrapper.py $python ./check_git_branch_checkout.py -d . -b "$(git branch | awk '/^\*/{print $2}')"
-hr
-echo "Testing failure detection of wrong git branch (perl)"
+
+echo "Testing failure detection of wrong git branch (perl):"
 run_grep '^2 check_git_branch_checkout.pl ' ./check_mk_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch
-hr
-echo "Testing failure detection of wrong git branch (python)"
+
+echo "Testing failure detection of wrong git branch (python):"
 run_grep '^2 check_git_branch_checkout.py ' ./check_mk_wrapper.py python ./check_git_branch_checkout.py -d . -b nonexistentbranch
-hr
+
 tmpfile="$(mktemp /tmp/check_mk_wrapper.txt.XXXXXX)"
 echo test > "$tmpfile"
 run ./check_mk_wrapper.py $perl -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
 rm -f "$tmpfile"
-hr
+
 run ./check_mk_wrapper.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
-hr
-echo "Testing induced failures"
-hr
+
+echo "Testing induced failures:"
+echo
 # should return zero exit code regardless but raise non-OK statuses in STATUS field
 run_grep '^0 ' ./check_mk_wrapper.py --shell exit 0
-hr
+
 run_grep '^1 ' ./check_mk_wrapper.py --shell exit 1
-hr
+
 run_grep '^2 ' ./check_mk_wrapper.py --shell exit 2
-hr
+
 run_grep '^3 ' ./check_mk_wrapper.py --shell exit 3
-hr
+
 run_grep '^3 ' ./check_mk_wrapper.py --shell exit 5
-hr
+
 run_grep '^3 ' ./check_mk_wrapper.py nonexistentcommand arg1 arg2
-hr
+
 run_grep '^3 ' ./check_mk_wrapper.py --shell nonexistentcommand arg1 arg2
-hr
+
 run_grep '^3 ' ./check_mk_wrapper.py $perl -T check_disk_write.pl --help
-hr
+
 echo "Completed $run_count Check_MK wrapper tests"
 echo
 echo "All Check_MK wrapper tests passed succesfully"

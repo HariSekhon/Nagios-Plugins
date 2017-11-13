@@ -21,7 +21,7 @@ See also: check_yum.py (the original, also part of the Advanced Nagios Plugins C
 Tested on CentOS 5 / 6 / 7
 ";
 
-$VERSION = "0.5.0";
+$VERSION = "0.6.0";
 
 use strict;
 use warnings;
@@ -182,7 +182,7 @@ sub get_all_updates(){
     my ($result, @output) = cmd("$YUM $opts check-update", 0, 0, "get_returncode");
     #open my $fh, "test_input.txt"; @output = split("\n", do { local $/ = <$fh>});
     check_yum_returncode($result, @output);
-    my @output2 = split("\n\n", join("\n", @output));
+    my @output2 = grep { $_ } split("\n\n", join("\n", @output));
     my $number_packages;
     foreach(@output2){
         vlog3 "Section:\n$_\n";
@@ -193,17 +193,25 @@ sub get_all_updates(){
         if($output2[1] =~ /Setting up repositories/ or $output2[1] =~ /Loaded plugins: /){
             quit "UNKNOWN", "Yum output signature does not match current known format. Output format may have changed. $nagios_plugins_support_msg";
         }
-        # avoid warning 'Use of implicit split to @_ is deprecated at check_yum.pl line 172.'
-        my @packages = split("\n", $output2[1]);
-        $number_packages = scalar @packages;
+        foreach my $line (split("\n", $output2[1])){
+            if(scalar split(/\s+/, $line) > 1 and $line !~ /^\s/o and $line !~ /Obsoleting Packages/o){
+                $number_packages += 1;
+            }
+        }
     } else {
         quit "UNKNOWN", "Yum output signature does not match current known format. Output format may have changed. $nagios_plugins_support_msg";
     }
 
     # Extra layer of checks. This is a security plugin so it's preferable to fail with an error rather than pass silently leaving you with an insecure system
     my $count = 0;
+    my $obsoleting_packages = 0;
     foreach(@output){
         next if / excluded /;
+        if(/Obsoleting Packages/){
+            $obsoleting_packages = 1;
+            next;
+        }
+        next if $obsoleting_packages and /^\s/;
         $count++ if /^.+\.(i[3456]86|x86_64|noarch)\s+.+\s+.+$/;
     }
     if($count != $number_packages){

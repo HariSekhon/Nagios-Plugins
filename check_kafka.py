@@ -63,7 +63,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.0'
+__version__ = '0.5.2'
 
 
 class CheckKafka(PubSubNagiosPlugin):
@@ -177,11 +177,12 @@ class CheckKafka(PubSubNagiosPlugin):
         else:
             self.usage('--topic not specified')
 
-        # because this could fail to retrive partition metadata and we want it to throw CRITICAL if so
+        # because this could fail to retrieve partition metadata and we want it to throw CRITICAL if so
         try:
             self.process_partitions(list_partitions)
         except KafkaError:
-            raise CriticalError(self.exception_msg())
+            err = self.exception_msg()
+            raise CriticalError(err)
 
         self.topic_partition = TopicPartition(self.topic, self.partition)
         self.acks = self.get_opt('acks')
@@ -215,13 +216,13 @@ class CheckKafka(PubSubNagiosPlugin):
             #raise CriticalError(_)
         except KafkaError:
             err = self.exception_msg()
-            if 'NoBrokersAvailable' in err:
-                err += ' ({0})'.format(self.brokers)
             raise CriticalError(err)
 
-    @staticmethod
-    def exception_msg():
-        return traceback.format_exc().split('\n')[-2]
+    def exception_msg(self):
+        err = traceback.format_exc().split('\n')[-2]
+        if 'NoBrokersAvailable' in err:
+            err += ". Could not connect to Kafka broker(s) '{0}'".format(self.brokers)
+        return err
 
     def get_topics(self):
         self.consumer = KafkaConsumer(

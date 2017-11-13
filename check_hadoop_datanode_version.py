@@ -21,7 +21,7 @@ Nagios Plugin to check the version of the Hadoop DataNode via the JMX API
 
 Set --port to 1022 for Kerberized clusters
 
-Tested on HDP 2.6.1 and Apache Hadoop 2.5, 2.6, 2.7, 2.8
+Tested on HDP 2.6.1 and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
 
 """
 

@@ -47,6 +47,7 @@ test_cassandra(){
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d
+    hr
     echo "getting Cassandra dynamic port mappings:"
     docker_compose_port CASSANDRA_PORT "Cassandra CQL"
     docker_compose_port "Cassandra JMX"
@@ -73,46 +74,46 @@ test_cassandra(){
     retry 40 docker-compose exec "$DOCKER_SERVICE" nodetool status
     hr
     docker_exec check_cassandra_version_nodetool.py -e "$version"
-    hr
+
     ERRCODE=2 docker_exec check_cassandra_version_nodetool.py -e "fail-version"
-    hr
+
     docker_exec check_cassandra_balance.pl
-    hr
+
     docker_exec check_cassandra_balance.pl -v
-    hr
+
     docker_exec check_cassandra_balance.pl --nodetool /cassandra/bin/nodetool -v
-    hr
+
     echo "checking connection refused:"
     ERRCODE=2 docker_exec check_cassandra_balance.pl -v -P 719
-    hr
+
     docker_exec check_cassandra_heap.pl -w 70 -c 90 -v
-    hr
+
     docker_exec check_cassandra_heap.pl --nodetool /cassandra/bin/nodetool -w 70 -c 90 -v
-    hr
+
     echo "checking connection refused:"
     ERRCODE=2 docker_exec check_cassandra_heap.pl -w 70 -c 90 -v -P 719
-    hr
+
     docker_exec check_cassandra_netstats.pl -v
-    hr
+
     docker_exec check_cassandra_netstats.pl --nodetool /cassandra/bin/nodetool -v
-    hr
+
     echo "checking connection refused:"
     ERRCODE=2 docker_exec check_cassandra_netstats.pl -v -P 719
-    hr
+
     docker_exec check_cassandra_nodes.pl -v
-    hr
+
     docker_exec check_cassandra_nodes.pl --nodetool /cassandra/bin/nodetool -v
-    hr
+
     echo "checking connection refused:"
     ERRCODE=2 docker_exec check_cassandra_nodes.pl -v -P 719
-    hr
+
     docker_exec check_cassandra_tpstats.pl -v
-    hr
+
     docker_exec check_cassandra_tpstats.pl --nodetool /cassandra/bin/nodetool -v
-    hr
+
     echo "checking connection refused:"
     ERRCODE=2 docker_exec check_cassandra_tpstats.pl -P 719
-    hr
+
     echo "Completed $run_count Cassandra tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||

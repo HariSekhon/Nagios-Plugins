@@ -59,23 +59,24 @@ presto_worker_tests(){
     hr
     # this info is not available via the Presto worker API
     run_fail 3 ./check_presto_version.py --expected "$version(-t.\d+.\d+)?" -P "$PRESTO_WORKER_PORT"
-    hr
+
     run_fail 2 ./check_presto_coordinator.py -P "$PRESTO_WORKER_PORT"
-    hr
+
     run ./check_presto_environment.py -P "$PRESTO_WORKER_PORT"
-    hr
+
     run ./check_presto_environment.py --expected development -P "$PRESTO_WORKER_PORT"
-    hr
+
     run ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
-    hr
+
     # doesn't show up as registered for a while, so run this test last and iterate for a little while
     max_node_up_wait=20
     echo "allowing to $max_node_up_wait secs for worker to be detected as online by the Presto Coordinator:"
     retry $max_node_up_wait ./check_presto_num_worker_nodes.py -w 1
     run++
     hr
+
     run_fail 3 ./check_presto_worker_node.py --list-nodes
-    hr
+
     set +o pipefail
     worker_node="$(./check_presto_worker_node.py --list-nodes | tail -n 1)"
     set -o pipefail
@@ -85,43 +86,45 @@ presto_worker_tests(){
     retry 10 ./check_presto_worker_node.py --node "$worker_node"
     run++
     hr
+
     # strip https?:// leaving host:port
     worker_node="${worker_node/*\/}"
     run ./check_presto_worker_node.py --node "$worker_node"
-    hr
+
     # strip :port leaving just host
     worker_node="${worker_node%:*}"
     run ./check_presto_worker_node.py --node "$worker_node"
-    hr
+
     run_fail 2 ./check_presto_worker_node.py --node "nonexistentnode2"
-    hr
+
     echo "retrying worker nodes failed as this doesn't settle immediately after node addition:"
     retry 10 ./check_presto_worker_nodes_failed.py
     run++
     hr
+
     # will get a 404 Not Found against worker API
     run_fail 2 ./check_presto_worker_nodes_failed.py -P "$PRESTO_WORKER_PORT"
-    hr
+
     # will get a 404 Not Found against worker API
     run_fail 2 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
-    hr
+
     run ./check_presto_num_tasks.py -P "$PRESTO_WORKER_PORT"
-    hr
+
     # will get a 404 Not Found against worker API
     run_fail 2 ./check_presto_num_worker_nodes.py -w 1 -P "$PRESTO_WORKER_PORT"
-    hr
+
     run ./check_presto_worker_nodes_response_lag.py
-    hr
+
     # will get a 404 Not Found against worker API
     run_fail 2 ./check_presto_worker_nodes_response_lag.py -P "$PRESTO_WORKER_PORT"
-    hr
+
     run ./check_presto_worker_nodes_recent_failure_ratio.py
-    hr
+
     # will get a 404 Not Found against worker API
     run_fail 2 ./check_presto_worker_nodes_recent_failure_ratio.py -P "$PRESTO_WORKER_PORT"
-    hr
+
     run ./check_presto_worker_nodes_recent_failures.py
-    hr
+
     # will get a 404 Not Found against worker API
     run_fail 2 ./check_presto_worker_nodes_recent_failures.py -P "$PRESTO_WORKER_PORT"
 }
@@ -163,67 +166,72 @@ test_presto2(){
     if [ -n "${NODOCKER:-}" ]; then
         # custom compiled presto has a version like 'dc91f48' which results in UNKNOWN: Presto Coordinator version unrecognized 'dc91f48'
         run_fail "0 3" ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
-        hr
+
         run_fail "2 3" ./check_presto_version.py --expected "fail-version"
     else
         run ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
-        hr
+
         run_fail 2 ./check_presto_version.py --expected "fail-version"
     fi
-    hr
+
     run_conn_refused ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
-    hr
+
     run ./check_presto_coordinator.py
-    hr
+
     run_conn_refused ./check_presto_coordinator.py
-    hr
+
     run ./check_presto_environment.py
-    hr
+
     run ./check_presto_environment.py --expected "$PRESTO_ENVIRONMENT"
-    hr
+
     run_conn_refused ./check_presto_environment.py --expected "$PRESTO_ENVIRONMENT"
-    hr
+
     run ./check_presto_worker_nodes_failed.py
-    hr
+
     run_conn_refused ./check_presto_worker_nodes_failed.py
-    hr
+
     run ./check_presto_num_queries.py
-    hr
+
     run_conn_refused ./check_presto_num_queries.py
-    hr
+
     run ./check_presto_num_tasks.py
-    hr
+
     run_conn_refused ./check_presto_num_tasks.py
-    hr
+
     run_fail 2 ./check_presto_num_worker_nodes.py -w 1
-    hr
+
     run_conn_refused ./check_presto_num_worker_nodes.py -w 1
-    hr
-    run_fail "0 1 2" ./check_presto_queries.py
-    hr
+
+    if [ -n "${NODOCKER:-}" -o -n "${KEEPDOCKER:-}" ]; then
+        run_fail "0 1 2" ./check_presto_queries.py
+    else
+        echo "checking presto queries, but in docker there will be none by this point so expecting warning:"
+        run_fail 1 ./check_presto_queries.py
+    fi
+
     run_fail 3 ./check_presto_queries.py --list
-    hr
+
     run ./check_presto_state.py
-    hr
+
     run_conn_refused ./check_presto_state.py
-    hr
+
     run_fail 2 ./check_presto_worker_node.py --node "nonexistentnode"
-    hr
+
     run_fail 1 ./check_presto_worker_nodes_response_lag.py
-    hr
+
     run_conn_refused ./check_presto_worker_nodes_response_lag.py
-    hr
+
     run_fail 1 ./check_presto_worker_nodes_recent_failure_ratio.py
-    hr
+
     run_conn_refused ./check_presto_worker_nodes_recent_failure_ratio.py
-    hr
+
     run_fail 1 ./check_presto_worker_nodes_recent_failures.py
-    hr
+
     run_conn_refused ./check_presto_worker_nodes_recent_failures.py
-    hr
+
     if [ -n "${NODOCKER:-}" ]; then
         presto_worker_tests
-        hr
+        echo
         echo "External Presto, skipping worker setup + teardown checks..."
         echo
         echo "Completed $run_count Presto tests"
@@ -266,26 +274,26 @@ EOF2
 EOF
     hr
     run_fail 3 ./check_presto_queries.py --list
-    hr
+
     run ./check_presto_queries.py --exclude 'failure|localfile.logs.http_request_log'
-    hr
+
     run_fail 1 ./check_presto_queries.py
-    hr
+
     run_fail 2 ./check_presto_queries.py -c 1
-    hr
+
     run ./check_presto_queries.py --include 'select 1\+1'
-    hr
+
     run_fail 1 ./check_presto_queries.py --include 'failure'
-    hr
+
     run_fail 2 ./check_presto_queries.py --include 'failure' -c 1
-    hr
+
     run_fail 1 ./check_presto_queries.py --include 'nonexistentquery'
-    hr
+
     echo "getting Presto Worker dynamic port mapping:"
     docker_compose_port "Presto Worker"
     hr
     presto_worker_tests
-    hr
+
     echo "finding presto docker container IP for specific node registered checks:"
     # hostname command not installed
     #hostname="$(docker exec -i "$DOCKER_CONTAINER" hostname -f)"
@@ -298,15 +306,16 @@ EOF
     retry 10 ./check_presto_worker_node.py --node "http://$ip:$PRESTO_WORKER_PORT_DEFAULT"
     run++
     hr
+
     run ./check_presto_worker_node.py --node "$ip:$PRESTO_WORKER_PORT_DEFAULT"
-    hr
+
     run ./check_presto_worker_node.py --node "$ip"
-    hr
+
     # query failures never hit the worker
     run ./check_presto_worker_node.py --node "$ip" --max-age 20 --max-ratio 0.0 --max-failures 0.0 --max-requests 100
-    hr
+
     run_fail 1 ./check_presto_worker_node.py --node "$ip" --max-requests 1
-    hr
+
     echo "Now killing Presto Worker:"
     # Presto Worker runs the same com.facebook.presto.server.PrestoServer class with a different node id
     # worker doesn't show up as a failed node in coorindator API if we send a polite kill signal, must kill -9 worker
@@ -325,8 +334,9 @@ EOF
         sleep 1
     done
     hr
+
     run_fail 2 ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
-    hr
+
     echo "re-running failed worker node check against the coordinator API to detect failure of the worker we just killed:"
     # usually detects in around 5-10 secs
     max_detect_secs=60
@@ -351,24 +361,28 @@ EOF
     set -o pipefail
     # subsequent queries to the API expose a bug in the Presto API returning 500 Internal Server Error
     hr
+
     # XXX: this still passes as worker is still found, only response time lag and recent failures / recent failure ratios will reliably detect worker failure, not drop in the number of nodes
     run_fail "0 2" ./check_presto_num_worker_nodes.py -w 1
-    hr
+
     run_fail 2 ./check_presto_worker_node.py --node "http://$ip:$PRESTO_WORKER_PORT_DEFAULT"
-    hr
+
     run_fail 2 ./check_presto_worker_node.py --node "$ip:$PRESTO_WORKER_PORT_DEFAULT"
-    hr
+
     run_fail 2 ./check_presto_worker_node.py --node "$ip"
-    hr
-    # XXX: must permit error state 2 on checks below to pass 500 Internal Server Error caused by Presto Bug
+
+    # XXX: must permit error state 2 on checks below to pass 500 Internal Server Error caused by Presto Bug:
+    #
+    # https://github.com/prestodb/presto/issues/9158
+    #
     run_fail "1 2" ./check_presto_worker_nodes_failed.py
-    hr
+
     run_fail "0 2" ./check_presto_worker_nodes_response_lag.py --max-age 1
-    hr
+
     run_fail "1 2" ./check_presto_worker_nodes_recent_failure_ratio.py
-    hr
+
     run_fail "1 2" ./check_presto_worker_nodes_recent_failures.py
-    hr
+
     echo "Completed $run_count Presto tests"
     hr
     [ -z "${KEEPDOCKER:-}" ] || return 0

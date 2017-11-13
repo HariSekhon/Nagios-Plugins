@@ -24,7 +24,7 @@ decommissioning but within last contact thresholds then returns warning, or crit
 Written for Hadoop 2.7, replaces older check_hadoop_namenode.pl which used dfshealth.jsp which was removed and replaced
 by AJAX calls to populate tables from JMX info, so this plugin follows that change.
 
-Tested on HDP 2.6.1 and Apache Hadoop 2.5, 2.6, 2.7, 2.8
+Tested on HDP 2.6.1 and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
 
 """
 

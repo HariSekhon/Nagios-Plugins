@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check the number of blocks on a Hadoop HDFS Dat
 
 Specify --port 1022 for Kerberized clusters
 
-Tested on CDH 4.x and Apache Hadoop 2.5, 2.6, 2.7, 2.8";
+Tested on CDH 4.x and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8";
 
 $VERSION = "0.5";
 

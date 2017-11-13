@@ -51,6 +51,7 @@ test_elasticsearch(){
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d
+    hr
     echo "getting Elasticsearch dynamic port mapping:"
     docker_compose_port "Elasticsearch"
     hr
@@ -87,13 +88,13 @@ test_elasticsearch(){
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
-    echo
+
     run $perl -T ./check_elasticsearch.pl -v --es-version "$version"
-    hr
+
     run_fail 2 $perl -T ./check_elasticsearch.pl -v --es-version "fail-version"
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch.pl -v --es-version "$version"
-    hr
+
     # Listing checks return UNKNOWN
     set +e
     # _cat/fielddata API is no longer outputs lines for 0b fielddata nodes in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
@@ -107,112 +108,112 @@ test_elasticsearch(){
     echo "determined Elasticsearch node => $ELASTICSEARCH_NODE"
     hr
     run_fail 3 $perl -T ./check_elasticsearch_index_exists.pl --list-indices
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_index_exists.pl --list-indices
-    hr
+
     run $perl -T ./check_elasticsearch_cluster_disk_balance.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_cluster_disk_balance.pl -v
-    hr
+
     run $perl -T ./check_elasticsearch_cluster_shards.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_cluster_shards.pl -v
-    hr
+
     run $perl -T ./check_elasticsearch_cluster_shard_balance.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_cluster_shard_balance.pl -v
-    hr
+
     run $perl -T ./check_elasticsearch_cluster_stats.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_cluster_stats.pl -v
-    hr
+
     # travis has yellow status
     run_fail "0 1" $perl -T ./check_elasticsearch_cluster_status.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_cluster_status.pl -v
-    hr
+
     run $perl -T ./check_elasticsearch_cluster_status_nodes_shards.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_cluster_status_nodes_shards.pl -v
-    hr
+
     run $perl -T ./check_elasticsearch_data_nodes.pl -w 1 -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_data_nodes.pl -w 1 -v
-    hr
+
     run $perl -T ./check_elasticsearch_doc_count.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_doc_count.pl -v
-    hr
+
     # _cat/fielddata API is no longer outputs lines for 0b fielddata nodes in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
     run $perl -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
-    hr
+
     run $perl -T ./check_elasticsearch_index_exists.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_index_exists.pl -v
-    hr
+
     # the field for this is not available in Elasticsearch 1.3
     if [ "$version" != 1.3  ]; then
         run $perl -T ./check_elasticsearch_index_age.pl -v -w 0:1
     fi
-    #hr
+
     run_conn_refused $perl -T ./check_elasticsearch_index_age.pl -v -w 0:1
-    #hr
+
     #run perl -T ./check_elasticsearch_index_health.pl -v
-    #hr
+
     #run_conn_refused perl -T ./check_elasticsearch_index_health.pl -v
-    hr
+
     run $perl -T ./check_elasticsearch_index_replicas.pl -w 0 -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_index_replicas.pl -w 0 -v
-    hr
+
     run $perl -T ./check_elasticsearch_index_settings.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_index_settings.pl -v
-    hr
+
     run $perl -T ./check_elasticsearch_index_shards.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_index_shards.pl -v
-    hr
+
     run $perl -T ./check_elasticsearch_index_stats.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_index_stats.pl -v
-    hr
+
     run $perl -T ./check_elasticsearch_master_node.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_master_node.pl -v
-    hr
+
     run $perl -T ./check_elasticsearch_nodes.pl -v -w 1
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_nodes.pl -v -w 1
-    hr
+
     run $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 99 -c 99
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 99 -c 99
-    hr
+
     echo "checking threshold failure warning:"
     run_fail 1 $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 1 -c 99
-    hr
+
     echo "checking threshold failure critical:"
     run_fail 2 $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 1 -c 2
-    hr
+
     run $perl -T ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
-    hr
+
     run $perl -T ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
-    hr
+
     run $perl -T ./check_elasticsearch_pending_tasks.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_pending_tasks.pl -v
-    hr
+
     run $perl -T ./check_elasticsearch_shards_state_detail.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_elasticsearch_shards_state_detail.pl -v
-    hr
+
     echo "Completed $run_count Elasticsearch tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||

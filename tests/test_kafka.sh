@@ -57,24 +57,31 @@ test_kafka(){
     hr
     when_ports_available "$KAFKA_HOST" "$KAFKA_PORT"
     hr
-    echo "checking if Kafka topic already exists:"
-    set +o pipefail
-    if docker-compose exec "$DOCKER_SERVICE" kafka-topics.sh --zookeeper localhost:2181 --list | tee /dev/stderr | grep -q "^[[:space:]]*$KAFKA_TOPIC[[:space:]]*$"; then
-        echo "Kafka topic $KAFKA_TOPIC already exists, continuing"
-    else
-        echo "creating Kafka test topic:"
-        for i in {1..20}; do
-            echo "try $i / 10"
-            # Older versions of Kafka eg. 0.8 seem to return 0 even when this fails so check the output instead
-            docker-compose exec "$DOCKER_SERVICE" kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic "$KAFKA_TOPIC" | tee /dev/stderr | grep -q -e 'Created topic' -e 'already exists' && break
-            echo
-            sleep 1
-        done
+    if [ -z "${NOSETUP:-}" ]; then
+        echo "checking if Kafka topic already exists:"
+        set +o pipefail
+        if docker-compose exec "$DOCKER_SERVICE" kafka-topics.sh --zookeeper localhost:2181 --list | tee /dev/stderr | grep -q "^[[:space:]]*$KAFKA_TOPIC[[:space:]]*$"; then
+            echo "Kafka topic $KAFKA_TOPIC already exists, continuing"
+        else
+            echo "creating Kafka test topic:"
+            SECONDS=0
+            while true; do
+                # Older versions of Kafka eg. 0.8 seem to return 0 even when this fails so check the output instead
+                docker-compose exec "$DOCKER_SERVICE" kafka-topics.sh --zookeeper localhost:2181 --create --replication-factor 1 --partitions 1 --topic "$KAFKA_TOPIC" | tee /dev/stderr | grep -q -e 'Created topic' -e 'already exists' && break
+                if [ "$SECONDS" -gt 20 ]; then
+                    echo "FAILED: kafka topic still not able to be created after 20 secs"
+                    exit 1
+                fi
+                echo "retrying for Kafka topic to be successfully created (waited $SECONDS secs)"
+                sleep 1
+            done
+        fi
+        set -o pipefail
     fi
-    set -o pipefail
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
+    hr
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
         # TODO: improve this for Kafka specifically
@@ -95,69 +102,68 @@ test_kafka(){
     fi
     hr
     run ./check_kafka.py -H "$KAFKA_HOST" -P "$KAFKA_PORT" -T "$KAFKA_TOPIC" -v
-    hr
+
     run ./check_kafka.py -H "$KAFKA_HOST" -P "$KAFKA_PORT" -v
-    hr
+
     run ./check_kafka.py -H "$KAFKA_HOST" -v
-    hr
+
     run ./check_kafka.py -B "$KAFKA_HOST" -v
-    hr
+
     run ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -v
-    hr
+
     run ./check_kafka.py -B "$KAFKA_HOST" -P "$KAFKA_PORT" -v
-    hr
+
     KAFKA_BROKERS="$KAFKA_HOST" \
     run ./check_kafka.py -v
-    hr
+
     KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" \
     run ./check_kafka.py -P "999" -v
-    hr
+
     run ./check_kafka.py -v
-    hr
-    run_fail 2 ./check_kafka.py -B "$KAFKA_HOST" -P "999" -v
-    hr
+
+    ERRCODE=2 run_grep "NoBrokersAvailable" ./check_kafka.py -B "$KAFKA_HOST" -P "999" -v
+
     run_fail 3 ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -v --list-topics
-    hr
+
     run_fail 3 ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -v -T "$KAFKA_TOPIC" --list-partitions
-    hr
+
     run_fail 3 ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -v --list-partitions
-    hr
-    run_fail 2 ./check_kafka.py -B "localhost:9999" -v -T "$KAFKA_TOPIC"
-    hr
-    run_fail 2 ./check_kafka.py -B "localhost:9999" -v -T "$KAFKA_TOPIC" --list-partitions
-    hr
+
+    ERRCODE=2 run_grep "NoBrokersAvailable" ./check_kafka.py -B "localhost:9999" -v -T "$KAFKA_TOPIC"
+
+    ERRCODE=2 run_grep "NoBrokersAvailable" ./check_kafka.py -B "localhost:9999" -v -T "$KAFKA_TOPIC" --list-partitions
+
     run ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -T "$KAFKA_TOPIC" -v
-    hr
+
 #    ./check_kafka_topic_exists.py -B "$KAFKA_HOST:$KAFKA_PORT" -T "$KAFKA_TOPIC" -v
-#    hr
-#    set +e
-#    ./check_kafka_topic_exists.py -B "$KAFKA_HOST:$KAFKA_PORT" -T "nonexistenttopic" -v
-#    check_exit_code 2
-#    hr
-#    ./check_kafka_topic_exists.py -B "localhost:9999" -T "$KAFKA_TOPIC" -v
-#    check_exit_code 2
-    hr
+
+#    run_fail 2 ./check_kafka_topic_exists.py -B "$KAFKA_HOST:$KAFKA_PORT" -T "nonexistenttopic" -v
+
+#    run_fail 2 ./check_kafka_topic_exists.py -B "localhost:9999" -T "$KAFKA_TOPIC" -v
+
     run_fail 3 $perl -T ./check_kafka.pl -v --list-topics
-    hr
+
     run_fail 3 $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions
-    hr
+
     run_fail 3 $perl -T ./check_kafka.pl -v --list-partitions
-    hr
-    run_fail 2 $perl -T ./check_kafka.pl -H localhost -P 9999 -v --list-partitions
-    hr
-    run_fail 2 $perl -T ./check_kafka.pl -H localhost -P 9999 -v
-    hr
+
+    ERRCODE=2 run_grep "Cannot get metadata" $perl -T ./check_kafka.pl -H localhost -P 9999 -v --list-partitions
+
+    ERRCODE=2 run_grep "Cannot get metadata" $perl -T ./check_kafka.pl -H localhost -P 9999 -v
+
     KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" KAFKA_HOST="" KAFKA_PORT="" \
     run $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
-    hr
+
     run $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
-    hr
+
     run $perl -T ./check_kafka.pl -v
-    hr
-    run_conn_refused $perl -T ./check_kafka.py -v
-    hr
-    run_conn_refused $perl -T ./check_kafka.pl -v
-    hr
+
+    run_conn_refused ./check_kafka.py -v
+
+    echo "checking custom connection refused:"
+    # Perl library error doesn't give a usual connection refused / failed to connect msg
+    ERRCODE=2 run_grep "Cannot get metadata" $perl -T ./check_kafka.pl -v -P 9999
+
     echo "Completed $run_count Kafka tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||

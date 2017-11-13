@@ -9,7 +9,7 @@
 #
 
 """
-Nagios plugin to test for Yum updates on RedHat/CentOS Linux.
+Nagios plugin to test for Yum updates on RedHat / CentOS Linux.
 
 Can optionally alert on any available updates as well as just security related updates
 
@@ -33,7 +33,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.8.2"
+__version__ = "0.8.3"
 
 # Standard Nagios return codes
 OK = 0
@@ -160,7 +160,8 @@ class YumTester(object):
                                                   % (cmd.split()[0], error))
 
             output = process.communicate()
-            #output = [open('test_input.txt').read(), '']
+            # for using debug outputs, either do not comment above line or explicitly set exit code below
+            #output = [open(os.path.dirname(__file__) + '/test_input.txt').read(), '']
             returncode = process.returncode
             stdout = output[0]
 
@@ -274,7 +275,7 @@ class YumTester(object):
 
         output = self.run(cmd)
 
-        output2 = "\n".join(output).split("\n\n")
+        output2 = [_ for _ in "\n".join(output).split("\n\n") if  _]
         if self.verbosity >= 4:
             for section in output2:
                 print "\nSection:\n%s\n" % section
@@ -290,8 +291,8 @@ class YumTester(object):
             # the loading and setting up of repositories
             pass
         else:
-            for _ in output2[1].split("\n"):
-                if len(_.split()) > 1 and _[0:1] != " ":
+            for line in output2[1].split("\n"):
+                if len(line.split()) > 1 and line[0:1] != " " and "Obsoleting Packages" not in line:
                     number_packages += 1
 
         try:
@@ -315,8 +316,14 @@ class YumTester(object):
         # and raise an unknown error on anything else for maximum security
         #re_package_format_truncated = \
         #        re.compile("^[\w-]+-kmod-\d[\d\.-]+.*\s+.+\s+.+$")
+        obsoleting_packages = False
         for line in output:
             if re_exclude.search(line):
+                continue
+            if "Obsoleting Packages" in line:
+                obsoleting_packages = True
+                continue
+            if obsoleting_packages and line[0:1] == " ":
                 continue
             if re_package_format.match(line):
                 count += 1

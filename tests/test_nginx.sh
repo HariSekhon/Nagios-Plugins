@@ -50,13 +50,17 @@ test_nginx(){
     VERSION="$version" docker-compose down || :
     if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
         VERSION="$version" docker-compose pull $docker_compose_quiet
+        hr
     fi
     VERSION="$version" docker-compose up -d
+    hr
     # Configure Nginx stats stub so watch_nginx_stats.pl now passes
     VERSION="$version" docker-compose stop
+    hr
     echo "Now reconfiguring Nginx to support stats and restarting:"
     docker cp "$srcdir/conf/nginx/conf.d/default.conf" "$DOCKER_CONTAINER":/etc/nginx/conf.d/default.conf
     VERSION="$version" docker-compose start
+    hr
     echo "getting Nginx dynamic port mapping:"
     docker_compose_port Nginx
     hr
@@ -68,19 +72,19 @@ test_nginx(){
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
-    hr
+
     run ./check_nginx_version.py -e "$version"
-    hr
+
     run_fail 2 ./check_nginx_version.py -e "fail-version"
-    hr
+
     run_conn_refused ./check_nginx_version.py -e "$version"
-    hr
+
     run $perl -T ./check_nginx_stats.pl -u /status
-    hr
+
     run_fail 2 $perl -T ./check_nginx_stats.pl -u /nonexistent
-    hr
+
     run_conn_refused $perl -T ./check_nginx_stats.pl -u /status
-    hr
+
     echo "Completed $run_count Nginx tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||

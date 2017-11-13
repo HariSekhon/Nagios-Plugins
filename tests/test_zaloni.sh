@@ -31,6 +31,7 @@ export ZALONI_BEDROCK_PORT="${ZALONI_BEDROCK_PORT:-8080}"
 if [ -z "${ZALONI_BEDROCK_PASSWORD:-}" ]; then
     echo "WARNING: ZALONI_BEDROCK_PASSWORD not defined, defaulting to 'test'"
     export ZALONI_BEDROCK_PASSWORD=test
+    echo
 fi
 
 trap_debug_env Zaloni
@@ -38,9 +39,9 @@ trap_debug_env Zaloni
 echo "running conection refused checks first:"
 echo
 run_conn_refused ./check_zaloni_bedrock_ingestion.py -l
-hr
+
 run_conn_refused ./check_zaloni_bedrock_workflow.py --all -v --min-runtime 0
-hr
+
 
 if [ -z "${ZALONI_BEDROCK_HOST:-}" ]; then
     echo "WARNING: \$ZALONI_BEDROCK_HOST not set, skipping real Zaloni checks"
@@ -49,9 +50,8 @@ else
         echo "WARNING: Zaloni Bedrock host $ZALONI_BEDROCK_HOST:$ZALONI_BEDROCK_PORT not up, skipping Zaloni checks"
     else
         run_fail 3 ./check_zaloni_bedrock_ingestion.py -l
-        hr
+
         run_fail "0 2" ./check_zaloni_bedrock_ingestion.py -v -r 600 -a 1440
-        hr
 
         set +o pipefail
         ./check_zaloni_bedrock_workflow.py -l |
@@ -60,7 +60,6 @@ else
         while read workflow_id; do
             # TODO: fix - won't increment due to subshell
             run_fail "0 2" ./check_zaloni_bedrock_workflow.py -I "$workflow_id" -v --min-runtime 0
-            hr
         done
 
         ./check_zaloni_bedrock_workflow.py -l |
@@ -69,10 +68,10 @@ else
         while read workflow_name; do
             # TODO: fix - won't increment due to subshell
             run_fail "0 2" ./check_zaloni_bedrock_workflow.py -N "$workflow_name" -v --min-runtime 0
-            hr
         done
+
         run_fail "0 2" ./check_zaloni_bedrock_workflow.py --all -v --min-runtime 0
-        hr
+
     fi
 fi
 echo

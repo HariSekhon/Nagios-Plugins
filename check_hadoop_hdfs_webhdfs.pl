@@ -29,7 +29,7 @@ OR
 
 Supports Kerberos authentication but must have a valid kerberos ticket and must use the FQDN of the server, not an IP address and not a short name, otherwise you will get a \"401 Authentication required\" error.
 
-Tested on CDH 4.5, HDP 2.2, Apache Hadoop 2.5, 2.6, 2.7, 2.8
+Tested on CDH 4.5, HDP 2.2, Apache Hadoop 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
 ";
 
 $VERSION = "0.5.3";

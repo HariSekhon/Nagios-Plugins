@@ -50,6 +50,7 @@ test_consul(){
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d
+    hr
     echo "getting Consul dynamic port mapping:"
     docker_compose_port "Consul"
     hr
@@ -66,7 +67,6 @@ test_consul(){
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    hr
     local testkey="nagios/consul/testkey1"
     echo "Writing random value to test key $testkey"
     local random_val=$RANDOM
@@ -90,59 +90,57 @@ test_consul(){
     echo "Consul version $found_version"
     hr
     run ./check_consul_leader_elected.py
-    hr
+
     run_conn_refused ./check_consul_leader_elected.py
-    hr
+
     run ./check_consul_peer_count.py
-    hr
+
     run_conn_refused ./check_consul_peer_count.py
-    hr
+
     run ./check_consul_key.py -k /nagios/consul/testkey1 -r "^$random_val$" -v
-    hr
+
     run_conn_refused ./check_consul_key.py -k /nagios/consul/testkey1 -r "^$random_val$" -v
-    hr
+
     echo "writing deterministic test key to check thresholds"
     curl -X PUT -d "5" "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$testkey"
     echo
     hr
     run ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 5 -v
-    hr
+
     run ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -c 5 -v
-    hr
+
     run ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 5 -c 5 -v
-    hr
-    echo "checking threshold failures are caught correctly"
-    hr
-    set +o pipefail
-    echo "./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 5 -v | tee /dev/stderr | grep --color=yes ^WARNING"
+
+    echo "checking threshold failures are caught correctly:"
+
     ERRCODE=1 run_grep '^WARNING' ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 5 -v
-    hr
+
     ERRCODE=2 run_grep '^CRITICAL' ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 4 -v
-    set -o pipefail
-    hr
+
     run ./check_consul_write.py -v
-    hr
+
     run_conn_refused ./check_consul_write.py -v
-    hr
+
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     echo
 
-    hr
     section2 "Setting up Consul-dev $version test container"
-    hr
-    #local DOCKER_OPTS="-v $srcdir/..:$DOCKER_MOUNT_DIR"
-    #local DOCKER_CMD=""
     local DOCKER_SERVICE="$DOCKER_SERVICE-dev"
     local COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-docker-compose.yml"
+    if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
+        VERSION="$version" docker-compose pull $docker_compose_quiet
+    fi
     VERSION="$version" docker-compose up -d
-    export CONSUL_PORT="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT_DEFAULT" | sed 's/.*://'`"
+    hr
+    #export CONSUL_PORT="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT_DEFAULT" | sed 's/.*://'`"
+    docker_compose_port "Consul"
     hr
     #docker exec -i "$DOCKER_CONTAINER-dev" "$DOCKER_MOUNT_DIR/check_consul_version.py" -e "$expected_version"
     docker_compose_exec "check_consul_version.py" -e "$expected_version"
-    hr
+
     ERRCODE=2 docker_compose_exec "check_consul_version.py" -e "fail-version"
-    hr
+
     echo "Completed $run_count Consul tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||

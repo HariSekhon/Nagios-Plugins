@@ -23,11 +23,7 @@ cd "$srcdir2/.."
 
 srcdir="$srcdir2"
 
-echo "
-# ============================================================================ #
-#                               S o l r C l o u d
-# ============================================================================ #
-"
+section "S o l r C l o u d"
 
 export SOLRCLOUD_VERSIONS="${@:-${SOLRCLOUD_VERSIONS:-latest 4.10 5.5 6.0 6.1 6.2 6.3 6.4 6.5 6.6 7.0 7.1}}"
 
@@ -64,6 +60,7 @@ test_solrcloud(){
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d
+    hr
     echo "getting SolrCloud dynamic port mappings:"
     docker_compose_port SOLR_PORT "Solr HTTP"
     docker_compose_port "Solr ZooKeeper"
@@ -81,25 +78,23 @@ test_solrcloud(){
         local version="$(dockerhub_latest_version solrcloud-dev)"
     fi
     hr
+
     run ./check_solr_version.py -e "$version"
-    hr
+
     run_fail 2 ./check_solr_version.py -e "fail-version"
-    hr
+
     run_conn_refused ./check_solr_version.py -e "$version"
+
+    echo "will try cluster status for up to $startupwait secs to give cluster and collection chance to initialize properly:"
+    retry $startupwait $perl -T ./check_solrcloud_cluster_status.pl
     hr
-    #echo "sleeping for 20 secs to allow SolrCloud shard state to settle"
-    #sleep 20
-    echo "will try cluster status up to $startupwait times to give cluster and collection chance to initialize properly"
-    for x in `seq $startupwait`; do
-        $perl -T ./check_solrcloud_cluster_status.pl -v && break
-        sleep 1
-    done
+
     run $perl -T ./check_solrcloud_cluster_status.pl -v
-    hr
+
     run_conn_refused $perl -T ./check_solrcloud_cluster_status.pl -v
-    hr
+
     docker_exec check_solrcloud_cluster_status_zookeeper.pl -H localhost -P 9983 -b / -v
-    hr
+
     # FIXME: doesn't pick up collection from env
     if [ -n "$four" ]; then
         docker_exec check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C "$SOLR_COLLECTION" -d "/solr/node1/solr/$SOLR_COLLECTION/conf" -v
@@ -114,36 +109,36 @@ test_solrcloud(){
         fi
         set -o pipefail
     fi
-    hr
+
     # FIXME: why is only 1 node up instead of 2
     run $perl -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
-    hr
+
     run_conn_refused $perl -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
-    hr
+
     docker_exec check_solrcloud_live_nodes_zookeeper.pl -H localhost -P 9983 -b / -w 1 -c 1 -v
-    hr
+
     # docker is running slow
     run $perl -T ./check_solrcloud_overseer.pl -t 60 -v
-    hr
+
     run_conn_refused $perl -T ./check_solrcloud_overseer.pl -t 60 -v
-    hr
+
     docker_exec check_solrcloud_overseer_zookeeper.pl -H localhost -P 9983 -b / -v
-    hr
+
     # returns blank now
     #container_ip="$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$DOCKER_CONTAINER")"
     container_ip="$(docker-compose exec "$DOCKER_SERVICE" ip addr | awk '/inet .* e/{print $2}' | sed 's/\/.*//')"
     echo "container IP is $container_ip"
     docker_exec check_solrcloud_server_znode.pl -H localhost -P 9983 -z "/live_nodes/$container_ip:8983_solr" -v
-    hr
+
     # FIXME: second node does not come/stay up
     # docker_exec check_solrcloud_server_znode.pl -H localhost -P 9983 -z /live_nodes/$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' "$DOCKER_CONTAINER"):8984_solr -v
-    hr
+
     if [ -n "$four" ]; then
         docker_exec check_zookeeper_config.pl -H localhost -P 9983 -C "$SOLR_HOME/node1/solr/zoo.cfg" --no-warn-extra -v
     else
         docker_exec check_zookeeper_config.pl -H localhost -P 9983 -C "$SOLR_HOME/example/cloud/node1/solr/zoo.cfg" --no-warn-extra -v
     fi
-    hr
+
     echo "Completed $run_count SolrCloud tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||

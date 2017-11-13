@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check if a Hadoop NameNode is in Safe Mode via 
 
 Raises warning status if the NameNode is in Safe Mode.
 
-Tested on Hortonworks HDP 2.1 and Apache Hadoop 2.5, 2.6, 2.7, 2.8";
+Tested on Hortonworks HDP 2.1 and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8";
 
 $VERSION = "0.1";
 

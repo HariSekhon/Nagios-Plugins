@@ -32,15 +32,14 @@ trap_debug_env attivio
 echo "running connection refused tests first:"
 echo
 run_conn_refused ./check_attivio_aie_ingest_session_count.py -v
-hr
+
 run_conn_refused ./check_attivio_aie_license_expiry.py -v
-hr
+
 run_conn_refused ./check_attivio_aie_system_health.py -v
-hr
+
 run_conn_refused ./check_attivio_aie_version.py -v
-hr
+
 run_conn_refused ./check_attivio_aie_metrics.py -m "fake" -v
-hr
 
 echo
 
@@ -51,15 +50,14 @@ else
         echo "WARNING: Attivio AIE host $ATTIVIO_AIE_HOST:$ATTIVIO_AIE_PORT not up, skipping Attivio AIE checks"
     else
         run ./check_attivio_aie_ingest_session_count.py -v
-        hr
+
         run ./check_attivio_aie_license_expiry.py -v
-        hr
+
         run ./check_attivio_aie_system_health.py -v
-        hr
+
         run ./check_attivio_aie_version.py -v
-        hr
+
         run_fail 2 ./check_attivio_aie_version.py -v -e 'fail-version'
-        hr
     fi
 fi
 
@@ -72,7 +70,6 @@ else
         tail -n +3 |
         while read metric; do
             run ./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -P "$ATTIVIO_AIE_PERFMON_PORT" -m "$metric" -v
-            hr
         done
     else
         echo "WARNING: Attivio AIE PerfMon host $ATTIVIO_AIE_PERFMON_HOST:$ATTIVIO_AIE_PERFMON_PORT not up, skipping Attivio AIE PerfMon checks"

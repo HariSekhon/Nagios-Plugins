@@ -52,6 +52,7 @@ test_couchdb(){
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d
+    hr
     echo "getting CouchDB dynamic port mapping:"
     docker_compose_port "CouchDB"
     hr
@@ -69,97 +70,97 @@ test_couchdb(){
     # ============================================================================ #
     echo "Setting up nagios-plugins database:"
     curl -s -u "$COUCHDB_USER:$COUCHDB_PASSWORD" -X PUT -H 'content-type: application/json' "$COUCHDB_HOST:$COUCHDB_PORT/$COUCHDB_DATABASE" | tee /dev/stderr | grep --color -e '{"ok":true}' -e 'already exists'
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
-    hr
     if [ "$version" = "latest" ]; then
         version=".*"
     fi
     run ./check_couchdb_version.py -e "$version"
-    hr
+
     run_fail 2 ./check_couchdb_version.py -e "fail-version"
-    hr
+
     run_conn_refused ./check_couchdb_version.py -e "$version"
-    hr
+
     # ============================================================================ #
     # this only seems to work in 2.x, not 1.6
     if [ "${version:0:1}" != 1 ]; then
         run ./check_couchdb_status.py
     fi
-    hr
+
     run_conn_refused ./check_couchdb_status.py
-    hr
+
     # ============================================================================ #
     run_fail 3 ./check_couchdb_database_exists.py --list
-    hr
+
     run_fail 3 ./check_couchdb_database_stats.py --list
-    hr
+
     run_fail 3 ./check_couchdb_database_compaction_running.py --list
-    hr
+
     run_fail 3 ./check_couchdb_database_doc_count.py --list
-    hr
+
     run_fail 3 ./check_couchdb_database_doc_deleted_count.py --list
-    hr
+
     run_fail 3 ./check_couchdb_database_data_size.py --list
-    hr
+
     # ============================================================================ #
     run ./check_couchdb_database_exists.py --database "$COUCHDB_DATABASE"
-    hr
+
     run ./check_couchdb_database_exists.py --database "$COUCHDB_DATABASE" --get
-    hr
+
     run_fail 2 ./check_couchdb_database_exists.py --database "nonexistentdatabase"
-    hr
+
     run_fail 2 ./check_couchdb_database_exists.py --database "nonexistentdatabase" --get
-    hr
+
     run_conn_refused ./check_couchdb_database_exists.py --database "$COUCHDB_DATABASE"
-    hr
+
     run_conn_refused ./check_couchdb_database_exists.py --database "$COUCHDB_DATABASE" --get
-    hr
+
     # ============================================================================ #
     run ./check_couchdb_database_stats.py --database "$COUCHDB_DATABASE"
-    hr
+
     run ./check_couchdb_database_stats.py --database "$COUCHDB_DATABASE"
-    hr
+
     run_fail 2 ./check_couchdb_database_stats.py --database "nonexistentdatabase"
-    hr
+
     run_conn_refused ./check_couchdb_database_stats.py --database "$COUCHDB_DATABASE"
-    hr
+
     # ============================================================================ #
     run ./check_couchdb_database_compaction_running.py --database "$COUCHDB_DATABASE"
-    hr
+
     run_fail 2 ./check_couchdb_database_compaction_running.py --database "nonexistentdatabase"
-    hr
+
     run_conn_refused ./check_couchdb_database_compaction_running.py --database "$COUCHDB_DATABASE"
-    hr
+
     # ============================================================================ #
     run ./check_couchdb_database_doc_count.py --database "$COUCHDB_DATABASE"
-    hr
+
     run_fail 2 ./check_couchdb_database_doc_count.py --database "nonexistentdatabase"
-    hr
+
     run_conn_refused ./check_couchdb_database_doc_count.py --database "$COUCHDB_DATABASE"
-    hr
+
     # ============================================================================ #
     run ./check_couchdb_database_doc_deleted_count.py --database "$COUCHDB_DATABASE"
-    hr
+
     run_fail 2 ./check_couchdb_database_doc_deleted_count.py --database "nonexistentdatabase"
-    hr
+
     run_conn_refused ./check_couchdb_database_doc_deleted_count.py --database "$COUCHDB_DATABASE"
-    hr
+
     # ============================================================================ #
     run ./check_couchdb_database_data_size.py --database "$COUCHDB_DATABASE"
-    hr
+
     run_fail 2 ./check_couchdb_database_data_size.py --database "nonexistentdatabase"
-    hr
+
     run_conn_refused ./check_couchdb_database_data_size.py --database "$COUCHDB_DATABASE"
-    hr
+
     # race condition, misses
     #echo "trigger compaction and check stat for compaction=1:"
     #curl -s -u "$COUCHDB_USER:$COUCHDB_PASSWORD" -X POST -H 'content-type: application/json' "$COUCHDB_HOST:$COUCHDB_PORT/$COUCHDB_DATABASE/_compact" | tee /dev/stderr | grep '{"ok":true}'
     #sleep 1
     #run_grep 'compact_running=1' ./check_couchdb_database_stats.py --database "$COUCHDB_DATABASE"
     #ERRCODE=1 run_grep 'compact_running=1' ./check_couchdb_database_compaction_running.py --database "$COUCHDB_DATABASE"
-    hr
+
     echo "Completed $run_count CouchDB tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||

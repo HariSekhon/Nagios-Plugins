@@ -65,15 +65,15 @@ test_mongo(){
     # TODO: more specific CLI runs to valid critical and output
     hr
     run_fail "0 2" $perl -T ./check_mongodb_master.pl
-    hr
+
     run_fail "0 2" $perl -T ./check_mongodb_master_rest.pl
-    hr
+
     # Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
     if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
         # cannot run this one in taint mode due to insecure dependency in Sub/Quote.pm line 3
         run $perl ./check_mongodb_write.pl -v
     fi
-    hr
+
     [ -n "${KEEPDOCKER:-}" ] ||
     delete_container
     echo
@@ -115,10 +115,10 @@ EOF
     # TODO: more specific CLI runs to valid critical and output
     hr
     run_fail "0 2" $perl -T ./check_mongodb_master.pl
-    hr
+
     # TODO: Fails - authentication not supported, basic auth doesn't seem to work
     run_fail "0 2" $perl -T ./check_mongodb_master_rest.pl -v
-    hr
+
     # Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
     if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
         # cannot run this one in taint mode due to insecure dependency in Sub/Quote.pm line 3

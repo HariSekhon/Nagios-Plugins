@@ -21,6 +21,7 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
+# using Docker now so runs on Mac too
 #[ `uname -s` = "Linux" ] || exit 0
 
 if [ -z "${FORCE_YUM_CHECKS:-}" ]; then
@@ -31,50 +32,41 @@ fi
 
 section "Y u m"
 
-export DOCKER_IMAGE="harisekhon/centos-github"
-export DOCKER_CONTAINER="nagios-plugins-centos-test"
-
-export DOCKER_MOUNT_DIR="/tmp/nagios-plugins"
-
-if ! is_docker_available; then
-    echo 'WARNING: Docker not found, skipping CentOS Yum checks!!!'
-    exit 0
-fi
+check_docker_available
 
 startupwait 0
 
-echo "Setting up CentOS test container"
-DOCKER_OPTS="-v $srcdir/..:$DOCKER_MOUNT_DIR"
-DOCKER_CMD="tail -f /dev/null"
-launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
-docker exec "$DOCKER_CONTAINER" yum makecache fast
-#docker exec "$DOCKER_CONTAINER" yum install -y net-tools
+export DOCKER_MOUNT_DIR="/pl"
+
+section2 "Setting up CentOS test container"
+
+distro=centos
+
+export DOCKER_CONTAINER="nagiosplugins_$distro-github_1"
+export COMPOSE_FILE="$srcdir/docker/$distro-github-docker-compose.yml"
+
+if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
+    docker-compose pull $docker_compose_quiet
+fi
+
+docker-compose up -d
+
+docker-compose exec "centos-github" yum makecache fast
+
 if [ -n "${NOTESTS:-}" ]; then
     exit 0
 fi
-hr
+
 docker_exec check_yum.pl -C -v -t 60
-hr
-set +e
-docker_exec check_yum.pl -C --all-updates -v -t 60
-result=$?
-set -e
-if [ $result -ne 0 -a $result -ne 2 ]; then
-    exit 1
-fi
-hr
+
+ERRCODE="0 2" docker_exec check_yum.pl -C --all-updates -v -t 60
+
 docker_exec check_yum.py -C -v -t 60
-hr
-set +e
-docker_exec check_yum.py -C --all-updates -v -t 60
-result=$?
-set -e
-if [ $result -ne 0 -a $result -ne 2 ]; then
-    exit 1
-fi
-hr
+
+ERRCODE="0 2" docker_exec check_yum.py -C --all-updates -v -t 60
+
 echo "Completed $run_count Yum tests"
 hr
 [ -n "${KEEPDOCKER:-}" ] ||
-delete_container
+docker-compose down
 echo; echo
