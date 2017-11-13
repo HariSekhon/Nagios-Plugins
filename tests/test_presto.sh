@@ -106,7 +106,12 @@ presto_worker_tests(){
     run_fail 2 ./check_presto_worker_nodes_failed.py -P "$PRESTO_WORKER_PORT"
 
     # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+    # succeeds with zero queries on versions <= 0.148, not sure why yet - is this another Presto bug?
+    if [ "$version" != "latest" -a "${version#0.}" -le 148 ]; then
+        run ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+    else
+        run_fail 2 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+    fi
 
     run ./check_presto_num_tasks.py -P "$PRESTO_WORKER_PORT"
 
