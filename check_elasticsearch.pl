@@ -42,6 +42,8 @@ my $lc_version_regex;
     "C|cluster=s"       => [ \$cluster,           "Cluster to expect membership of (optional, available from 1.3" ],
     "es-version=s"      => [ \$es_version_regex,  "Elasticsearch version regex to expect (optional)" ],
     "lucene-version=s"  => [ \$lc_version_regex,  "Lucene version regex to expect (optional)" ],
+    %useroptions,
+    %ssloptions,
 );
 splice @usage_order, 6, 0, qw/cluster es-version lucene-version/;
 

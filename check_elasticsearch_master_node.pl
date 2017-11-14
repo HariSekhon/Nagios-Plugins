@@ -34,6 +34,8 @@ my $node;
 %options = (
     %hostoptions,
     "N|node=s" => [ \$node, "Hostname or IP address of node for which to expect as master, raises warning if a different master node is found to alert us to a possible failover event. Optional" ],
+    %useroptions,
+    %ssloptions,
 );
 push(@usage_order, qw/node/);
 

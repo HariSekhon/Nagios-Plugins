@@ -46,6 +46,8 @@ my $expected_value;
     "K|key=s"   => [ \$keys,            "Stat Key(s) to fetch (eg. total.docs.count, total.docs.deleted). Multiple keys may be comma separated, will be prefixed with 'total.' if not already starting with 'primaries' or 'total'. Optional, all 'total' stats will be printed if no specific stat(s) requested, can specify just 'primaries' to fetch all primaries stats instead of totals" ],
     #"shorten"   => [ \$shorten,        "Shorten key names using sections: instead of duplicating the full stat key name prefixes for every stat" ],
     %thresholdoptions,
+    %useroptions,
+    %ssloptions,
 );
 
 get_options();

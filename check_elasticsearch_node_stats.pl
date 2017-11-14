@@ -45,6 +45,8 @@ my $expected_value;
     %elasticsearch_node,
     "K|key=s" => [ \$keys, "Stat Key(s) to fetch (eg. indices.docs.count, http.current_open, fs.total.available_in_bytes). Multiple keys may be comma separated. Optional, all stats will be printed if no specific stat(s) requested" ],
     %thresholdoptions,
+    %useroptions,
+    %ssloptions,
 );
 
 get_options();

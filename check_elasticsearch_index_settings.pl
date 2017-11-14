@@ -44,6 +44,8 @@ my $expected_value;
     #"K|key=s"      =>  [ \$key,                "Setting key to check (eg. index.refresh_interval), will be prefixed with 'index.' if not starting with index for convenience of being able to use shorter keys" ],
     "K|key=s"      =>  [ \$key,                "Setting key to check (eg. index.refresh_interval)" ],
     "L|value=s"    =>  [ \$expected_value,     "Expected setting value (optional, eg. 30, use 'default' to check the key doesn't exist which implies default value)" ],
+    %useroptions,
+    %ssloptions,
 );
 
 get_options();

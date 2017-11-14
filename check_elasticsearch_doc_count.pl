@@ -33,6 +33,8 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
     %hostoptions,
     %elasticsearch_index,
     %thresholdoptions,
+    %useroptions,
+    %ssloptions,
 );
 
 get_options();

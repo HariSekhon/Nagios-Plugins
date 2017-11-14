@@ -44,6 +44,8 @@ my $expected_value;
     %hostoptions,
     "K|key=s"   => [ \$keys,            "Stat Key(s) to fetch (eg. indices.count, indices.docs.count, nodes.fs.disk_writes, nodes.fs.free_in_bytes). Multiple keys may be comma separated. Optional, all stats will be printed if no specific stat(s) requested" ],
     %thresholdoptions,
+    %useroptions,
+    %ssloptions,
 );
 
 get_options();

@@ -30,6 +30,8 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
     %hostoptions,
     %elasticsearch_index,
     %multilineoption,
+    %useroptions,
+    %ssloptions,
 );
 $options{"I|index=s"}[1] .= ", defaults to showing all indices if unspecified";
 splice @usage_order, 6, 0, qw/index/;

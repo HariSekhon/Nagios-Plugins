@@ -41,6 +41,8 @@ set_threshold_defaults(75, 90);
     %hostoptions,
     %elasticsearch_node,
     %thresholdoptions,
+    %useroptions,
+    %ssloptions,
 );
 
 get_options();

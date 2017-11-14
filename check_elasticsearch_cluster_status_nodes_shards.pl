@@ -54,6 +54,8 @@ my $unassigned_shard_thresholds = "0,1";
     "relocating-shards=s"       =>  [ \$relocating_shard_thresholds,        "Relocating Shards upper thresholds (inclusive, default w,c: 0,0:)" ],
     "initializing-shards=s"     =>  [ \$initializing_shard_thresholds,      "Initializing Shards upper thresholds (inclusive, default w,c: 0,0:)" ],
     "unassigned-shards=s"       =>  [ \$unassigned_shard_thresholds,        "Unassigned Shards upper thresholds (inclusive, default w,c: 0,1)" ],
+    %useroptions,
+    %ssloptions,
 );
 splice @usage_order, 6, 0, qw/cluster-name nodes data-nodes active-primary-shards active-shards relocating-shards initializing-shards unassigned-shards/;
 

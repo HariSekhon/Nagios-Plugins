@@ -36,6 +36,8 @@ my $cluster;
     %hostoptions,
     "C|cluster-name=s" =>  [ \$cluster, "Cluster name to expect (optional). Cluster name is used for auto-discovery and should be unique to each cluster in a single network" ],
     %thresholdoptions,
+    %useroptions,
+    %ssloptions,
 );
 splice @usage_order, 6, 0, qw/cluster-name/;
 

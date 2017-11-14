@@ -38,6 +38,8 @@ set_threshold_defaults(30, 200);
 %options = (
     %hostoptions,
     %thresholdoptions,
+    %useroptions,
+    %ssloptions,
 );
 
 get_options();
