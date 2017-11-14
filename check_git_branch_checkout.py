@@ -72,7 +72,8 @@ class CheckGitBranchCheckout(NagiosPlugin):
         if expected_branch is None:
             self.usage('expected branch not defined')
         if not re.match(r'^[\w\s-]+$', expected_branch):
-            self.usage('Invalid branch name given, must be alphanumeric, may contain dashes and spaces for detached HEADs')
+            self.usage('Invalid branch name given, must be alphanumeric' + \
+                       ', may contain dashes and spaces for detached HEADs')
         log_option('expected branch', expected_branch)
         repo = git.Repo(directory)
         try:
