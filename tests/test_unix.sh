@@ -30,12 +30,16 @@ current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 
 run $perl -T ./check_git_branch_checkout.pl -d . -b "$current_branch"
 
-run          ./check_git_branch_checkout.py -d . -b "$current_branch"
+# Travis CI runs in a detached head which throws CriticalError
+if ! is_travis; then
+    run      ./check_git_branch_checkout.py -d . -b "$current_branch"
+fi
 
 # ============================================================================ #
 echo "Testing failure detection of wrong git branch:"
 run_fail 2 $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch
 
+# in Travis this will result in CRITICAL: HEAD is a detached symbolic reference as it points to '<hashref>' but will still pass with the right exit code
 run_fail 2          ./check_git_branch_checkout.py -d . -b nonexistentbranch
 
 # ============================================================================ #
