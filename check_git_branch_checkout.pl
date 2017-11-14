@@ -42,7 +42,7 @@ get_options();
 $directory = abs_path($directory) if defined($directory);
 $directory = validate_directory($directory);
 $branch or usage "branch name not specified";
-$branch    =~ /^([\w-]+)$/ or usage "Invalid branch name given, must be alpha-numeric";
+$branch    =~ /^([\w\s-]+)$/ or usage "Invalid branch name given, must be alphanumeric with dashes and spaces permitted for detached HEADs";
 $branch    = $1;
 $git       = validate_program_path($git, "git");
 
