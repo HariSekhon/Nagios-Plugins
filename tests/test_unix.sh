@@ -32,11 +32,13 @@ run $perl -T ./check_git_branch_checkout.pl -d . -b "$current_branch"
 run ./check_git_branch_checkout.py -d . -b "$current_branch"
 
 echo "Testing failure detection of wrong git branch:"
-run_fail 2 $perl -t ./check_git_branch_checkout.pl -d . -b nonexistentbranch
+run_fail 2 $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch
 
 run_fail 2 ./check_git_branch_checkout.py -d . -b nonexistentbranch
 
 echo "checking directory not defined results in usage error:"
+run_fail 3 $perl -T ./check_git_branch_checkout.pl -b "$current_branch"
+
 run_fail 3 ./check_git_branch_checkout.py -b "$current_branch"
 
 tmpfile="$(mktemp /tmp/check_file_checksum.txt.XXXXXX)"
