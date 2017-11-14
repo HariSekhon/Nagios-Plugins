@@ -22,7 +22,7 @@ check_elasticsearch_cluster_shards.pl
 
 Tested on Elasticsearch 0.90.1, 1.2.1, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3, 2.4.1, 5.0.0";
 
-$VERSION = "0.3.2";
+$VERSION = "0.4.0";
 
 use strict;
 use warnings;
@@ -46,6 +46,8 @@ my $unassigned_shard_thresholds = "0,1";
 
 %options = (
     %hostoptions,
+    %useroptions,
+    %ssloptions,
     "C|cluster-name=s"          =>  [ \$cluster,                            "Cluster name to expect (optional). Cluster name is used for auto-discovery and should be unique to each cluster in a single network" ],
     "n|nodes=s"                 =>  [ \$node_thresholds,                    "Node lower thresholds (inclusive, optional)" ],
     "d|data-nodes=s"            =>  [ \$data_node_thresholds,               "Data Node lower thresholds (inclusive, optional)" ],
@@ -54,8 +56,6 @@ my $unassigned_shard_thresholds = "0,1";
     "relocating-shards=s"       =>  [ \$relocating_shard_thresholds,        "Relocating Shards upper thresholds (inclusive, default w,c: 0,0:)" ],
     "initializing-shards=s"     =>  [ \$initializing_shard_thresholds,      "Initializing Shards upper thresholds (inclusive, default w,c: 0,0:)" ],
     "unassigned-shards=s"       =>  [ \$unassigned_shard_thresholds,        "Unassigned Shards upper thresholds (inclusive, default w,c: 0,1)" ],
-    %useroptions,
-    %ssloptions,
 );
 splice @usage_order, 6, 0, qw/cluster-name nodes data-nodes active-primary-shards active-shards relocating-shards initializing-shards unassigned-shards/;
 
@@ -63,6 +63,10 @@ get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 $cluster = validate_elasticsearch_cluster($cluster) if defined($cluster);
 my $options_upper = { "simple" => "upper", "integer" => 1, "positive" => 1 };
 my $options_lower = { "simple" => "lower", "integer" => 1, "positive" => 1 };

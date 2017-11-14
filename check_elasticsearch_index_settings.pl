@@ -18,7 +18,7 @@ Caveats: since Elasticsearch doesn't output settings which have default values, 
 
 Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3, 2.4.1, 5.0.0";
 
-$VERSION = "0.6";
+$VERSION = "0.7.0";
 
 use strict;
 use warnings;
@@ -38,20 +38,24 @@ my $expected_value;
 
 %options = (
     %hostoptions,
+    %useroptions,
+    %ssloptions,
     %elasticsearch_index,
     #"A|shards=s"   =>  [ \$expected_shards,    "Expected shards (optional)" ],
     #"R|replicas=s" =>  [ \$expected_replicas,  "Expected replicas (optional)" ],
     #"K|key=s"      =>  [ \$key,                "Setting key to check (eg. index.refresh_interval), will be prefixed with 'index.' if not starting with index for convenience of being able to use shorter keys" ],
     "K|key=s"      =>  [ \$key,                "Setting key to check (eg. index.refresh_interval)" ],
     "L|value=s"    =>  [ \$expected_value,     "Expected setting value (optional, eg. 30, use 'default' to check the key doesn't exist which implies default value)" ],
-    %useroptions,
-    %ssloptions,
 );
 
 get_options();
 
 $host  = validate_host($host);
 $port  = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 $index = validate_elasticsearch_index($index);
 #$expected_shards   = validate_int($expected_shards,   "expected shards",   1, 1000000) if defined($expected_shards);
 #$expected_replicas = validate_int($expected_replicas, "expected replicas", 1, 1000)    if defined($expected_replicas);

@@ -24,7 +24,7 @@ For a convenient list of all stats one per line use -vv
 
 Tested on Elasticsearch 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3, 2.4.1, 5.0.0";
 
-$VERSION = "0.1";
+$VERSION = "0.2.0";
 
 use strict;
 use warnings;
@@ -42,17 +42,21 @@ my $expected_value;
 
 %options = (
     %hostoptions,
+    %useroptions,
+    %ssloptions,
     %elasticsearch_node,
     "K|key=s" => [ \$keys, "Stat Key(s) to fetch (eg. indices.docs.count, http.current_open, fs.total.available_in_bytes). Multiple keys may be comma separated. Optional, all stats will be printed if no specific stat(s) requested" ],
     %thresholdoptions,
-    %useroptions,
-    %ssloptions,
 );
 
 get_options();
 
 $host  = validate_host($host);
 $port  = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 # this is the node name, not using validate_host because an IP returns logstash clients and don't want to have to deal with that
 #$node  = validate_hostname($node, "node") unless $list_nodes;
 # hostname is too restrictive because of default Marvel names, and in some cases we may want to just do it by IP or hostname or whatever as long as there are not more than one colocated node (including client nodes like LogStash) on the same hosts

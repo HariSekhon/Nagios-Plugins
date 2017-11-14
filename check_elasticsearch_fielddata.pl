@@ -18,7 +18,7 @@ Also outputs total fielddata on all nodes
 
 Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.1.1, 2.2.2, 2.3.3, 2.4.1, 5.0.0";
 
-$VERSION = "0.4";
+$VERSION = "0.5.0";
 
 use strict;
 use warnings;
@@ -36,11 +36,11 @@ my $list_nodes;
 
 %options = (
     %hostoptions,
+    %useroptions,
+    %ssloptions,
     "N|node=s"    => [ \$node,       "Node hostname or IP address of node for which to check fielddata volume" ],
     "list-nodes"  => [ \$list_nodes, "List nodes (this API no longer returns nodes without fielddata from 5.0 onwards, use --list from one of the adjacent plugins instead)" ],
     %thresholdoptions,
-    %useroptions,
-    %ssloptions,
 );
 push(@usage_order, qw/node list-nodes/);
 
@@ -48,6 +48,10 @@ get_options();
 
 $host  = validate_host($host);
 $port  = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 unless($list_nodes){
     defined($node) or usage "node not defined, see --list-nodes to see which nodes are available to specify";
     $node = (isIP($node) or isHostname($node)) or usage "invalid node specified, must be IP or hostname of node according to --list-nodes";

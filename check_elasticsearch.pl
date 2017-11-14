@@ -20,7 +20,7 @@ Checks:
 
 Tested on Elasticsearch 0.90.1, 1.2.1, 1.3.0, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3, 2.4.1, 5.0.0";
 
-$VERSION = "0.3";
+$VERSION = "0.4.0";
 
 use strict;
 use warnings;
@@ -39,11 +39,11 @@ my $lc_version_regex;
 
 %options = (
     %hostoptions,
+    %useroptions,
+    %ssloptions,
     "C|cluster=s"       => [ \$cluster,           "Cluster to expect membership of (optional, available from 1.3" ],
     "es-version=s"      => [ \$es_version_regex,  "Elasticsearch version regex to expect (optional)" ],
     "lucene-version=s"  => [ \$lc_version_regex,  "Lucene version regex to expect (optional)" ],
-    %useroptions,
-    %ssloptions,
 );
 splice @usage_order, 6, 0, qw/cluster es-version lucene-version/;
 
@@ -51,6 +51,10 @@ get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 $cluster = validate_elasticsearch_cluster($cluster) if $cluster;
 $es_version_regex = validate_regex($es_version_regex, "elasticsearch version") if defined($es_version_regex);
 $lc_version_regex = validate_regex($lc_version_regex, "lucene version") if defined($lc_version_regex);

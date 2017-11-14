@@ -22,7 +22,7 @@ use -vv to see a convenient list of stats one per line to select from.
 
 Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3, 2.4.1, 5.0.0";
 
-$VERSION = "0.2";
+$VERSION = "0.3.0";
 
 use strict;
 use warnings;
@@ -42,18 +42,22 @@ my $expected_value;
 
 %options = (
     %hostoptions,
+    %useroptions,
+    %ssloptions,
     %elasticsearch_index,
     "K|key=s"   => [ \$keys,            "Stat Key(s) to fetch (eg. total.docs.count, total.docs.deleted). Multiple keys may be comma separated, will be prefixed with 'total.' if not already starting with 'primaries' or 'total'. Optional, all 'total' stats will be printed if no specific stat(s) requested, can specify just 'primaries' to fetch all primaries stats instead of totals" ],
     #"shorten"   => [ \$shorten,        "Shorten key names using sections: instead of duplicating the full stat key name prefixes for every stat" ],
     %thresholdoptions,
-    %useroptions,
-    %ssloptions,
 );
 
 get_options();
 
 $host  = validate_host($host);
 $port  = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 #if($progname =~ /index/){
 #    $index or usage "index not specified";
 #}

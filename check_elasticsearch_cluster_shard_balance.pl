@@ -20,7 +20,7 @@ In order to account for client nodes like co-located LogStash this code ignores 
 
 Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3, 2.4.1, 5.0.0";
 
-$VERSION = "0.2";
+$VERSION = "0.3.0";
 
 use strict;
 use warnings;
@@ -37,15 +37,19 @@ set_threshold_defaults(30, 200);
 
 %options = (
     %hostoptions,
-    %thresholdoptions,
     %useroptions,
     %ssloptions,
+    %thresholdoptions,
 );
 
 get_options();
 
 $host  = validate_host($host);
 $port  = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 validate_thresholds(0, 0, { 'simple' => 'upper', 'integer' => 0, 'positive' => 1});
 
 vlog2;
