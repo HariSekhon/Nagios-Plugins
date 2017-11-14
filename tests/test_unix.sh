@@ -26,7 +26,7 @@ section "U n i x"
 run $perl -T ./check_disk_write.pl -d .
 
 # ============================================================================ #
-current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//')"
+current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 
 run $perl -T ./check_git_branch_checkout.pl -d . -b "$current_branch"
 
