@@ -31,7 +31,9 @@ current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 run $perl -T ./check_git_branch_checkout.pl -d . -b "$current_branch"
 
 # Travis CI runs in a detached head which throws CriticalError
-if ! is_travis; then
+if is_travis; then
+    run_fail 2 ./check_git_branch_checkout.py -d . -b "$current_branch"
+else
     run      ./check_git_branch_checkout.py -d . -b "$current_branch"
 fi
 
