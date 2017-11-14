@@ -66,7 +66,10 @@ presto_worker_tests(){
 
     run ./check_presto_environment.py --expected development -P "$PRESTO_WORKER_PORT"
 
-    run ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
+    # endpoint only found on Presto 0.128 onwards
+    if [ "${version#0.}" -ge 128 ]; then
+        run ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
+    fi
 
     # doesn't show up as registered for a while, so run this test last and iterate for a little while
     max_node_up_wait=20
@@ -153,7 +156,7 @@ test_presto2(){
     when_ports_available "$PRESTO_HOST" "$PRESTO_PORT"
     hr
     # endpoint initializes blank, wait until there is some content, eg. nodeId
-    # don't just run ./check_presto_state.py
+    # don't just run ./check_presto_state.py (this also doesn't work < 0.128)
     when_url_content "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" nodeId
     hr
     if [ "$version" = "latest" -o "$version" = "NODOCKER" ]; then
@@ -216,7 +219,10 @@ test_presto2(){
 
     run_fail 3 ./check_presto_queries.py --list
 
-    run ./check_presto_state.py
+    # endpoint only found on Presto 0.128 onwards
+    if [ "${version#0.}" -ge 128 ]; then
+        run ./check_presto_state.py
+    fi
 
     run_conn_refused ./check_presto_state.py
 
@@ -340,7 +346,10 @@ EOF
     done
     hr
 
-    run_fail 2 ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
+    # endpoint only found on Presto 0.128 onwards
+    if [ "${version#0.}" -ge 128 ]; then
+        run_fail 2 ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
+    fi
 
     echo "re-running failed worker node check against the coordinator API to detect failure of the worker we just killed:"
     # usually detects in around 5-10 secs
