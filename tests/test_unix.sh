@@ -32,7 +32,7 @@ run $perl -T ./check_git_branch_checkout.pl -d . -b "$current_branch"
 
 # Travis CI runs in a detached head which throws CriticalError
 if is_travis; then
-    run_fail 2 ./check_git_branch_checkout.py -d . -b "$current_branch"
+    ERRCODE=2 run_grep "CRITICAL: HEAD is a detached symbolic reference as it points to '[a-z0-9]+'" ./check_git_branch_checkout.py -d . -b "$current_branch"
 else
     run      ./check_git_branch_checkout.py -d . -b "$current_branch"
 fi
