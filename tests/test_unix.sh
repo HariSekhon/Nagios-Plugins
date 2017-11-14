@@ -25,14 +25,19 @@ section "U n i x"
 
 run $perl -T ./check_disk_write.pl -d .
 
-run $perl -T ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^\*/ {print $2; exit}')"
+current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//')"
 
-run ./check_git_branch_checkout.py -d . -b "$(git branch | awk '/^\*/ {print $2; exit}')"
+run $perl -T ./check_git_branch_checkout.pl -d . -b "$current_branch"
+
+run ./check_git_branch_checkout.py -d . -b "$current_branch"
 
 echo "Testing failure detection of wrong git branch:"
 run_fail 2 $perl -t ./check_git_branch_checkout.pl -d . -b nonexistentbranch
 
 run_fail 2 ./check_git_branch_checkout.py -d . -b nonexistentbranch
+
+echo "checking directory not defined results in usage error:"
+run_fail 3 ./check_git_branch_checkout.py -b "$current_branch"
 
 tmpfile="$(mktemp /tmp/check_file_checksum.txt.XXXXXX)"
 echo test > "$tmpfile"
