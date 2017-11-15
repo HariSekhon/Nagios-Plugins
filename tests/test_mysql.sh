@@ -130,20 +130,20 @@ test_db(){
     run_fail 2 $perl -T ./check_mysql_query.pl -q "SELECT FAILURE" -v
 
     echo "checking non SELECT / SHOW query triggers unknown usage result:"
-    run_fail 3 $perl -T ./check_mysql_query.pl -q "INVALID_QUERY" -v
+    run_usage $perl -T ./check_mysql_query.pl -q "INVALID_QUERY" -v
 
     echo "checking invalid query hits MySQL error resulting in critical error:"
     run_fail 2 $perl -T ./check_mysql_query.pl -q "SHOW INVALID_QUERY" -v
 
     run_conn_refused $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema like 'C%'" -o CHARACTER_SETS -v
 
-    run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "DROP table haritest" -r 1 -v
+    run_usage $perl -T ./check_mysql_query.pl -d mysql -q "DROP table haritest" -r 1 -v
 
-    run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "DELETE FROM haritest where 1=1" -r 1 -v
+    run_usage $perl -T ./check_mysql_query.pl -d mysql -q "DELETE FROM haritest where 1=1" -r 1 -v
 
-    run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "SELECT * FROM (DROP TABLE haritest)" -r 1 -v
+    run_usage $perl -T ./check_mysql_query.pl -d mysql -q "SELECT * FROM (DROP TABLE haritest)" -r 1 -v
 
-    run_fail 3 $perl -T ./check_mysql_query.pl -d mysql -q "SELECT * FROM (DELETE FROM haritest where 1=1)" -r 1 -v
+    run_usage $perl -T ./check_mysql_query.pl -d mysql -q "SELECT * FROM (DELETE FROM haritest where 1=1)" -r 1 -v
 
     # TODO: add socket test - must mount on a compiled system, ie replace the docker image with a custom test one
     # this breaks subsequent iterations of this function
