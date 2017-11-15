@@ -54,13 +54,13 @@ echo "checking no builds returned:"
 run_fail 3 ./check_travis_ci_last_build.py -r harisekhon/nagios-plugins -v
 
 echo "checking wrong repo name/format:"
-run_fail 3 ./check_travis_ci_last_build.py -r test -v
+run_usage ./check_travis_ci_last_build.py -r test -v
 
-run_fail 3 ./check_travis_ci_last_build.py -r harisekhon/ -v
+run_usage ./check_travis_ci_last_build.py -r harisekhon/ -v
 
-run_fail 3 ./check_travis_ci_last_build.py -r /nagios-plugins -v
+run_usage ./check_travis_ci_last_build.py -r /nagios-plugins -v
 
-run_fail 3 ./check_travis_ci_last_build.py -r tools -v
+run_usage ./check_travis_ci_last_build.py -r tools -v
 
 echo "checking nonexistent repo:"
 run_fail 3 ./check_travis_ci_last_build.py -r nonexistent/repo -v
