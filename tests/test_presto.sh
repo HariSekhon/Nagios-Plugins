@@ -301,6 +301,7 @@ EOF
 
     run ./check_presto_queries.py --exclude 'failure|localfile.logs.http_request_log|SHOW FUNCTIONS|information_schema.tables'
 
+    echo "checking ./check_presto_queries.py with implicit --warning 0 should raise warning after failed queries above are detected:"
     run_fail 1 ./check_presto_queries.py # implicit -w 0
 
     # this should be -c 1 but sometimes queries get the following error and are marked as abandoned, reducing the select failure count, seems to happen mainly on older versions of Presto < 0.130 eg 0.126, setting to -c 0 for more resilience in case only one query was actually executed to fail instead of two:
