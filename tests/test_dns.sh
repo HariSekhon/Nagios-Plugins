@@ -45,7 +45,7 @@ echo "PTR record resolve:"
 run $perl -T ./check_dns.pl --server "$nameservers" --record 4.2.2.1 --type PTR
 
 echo "check giving same IP record without --type PTR returns 'unknown' exit code"
-run_fail 3 $perl -T ./check_dns.pl --server "$nameservers" --record 4.2.2.1
+run_usage $perl -T ./check_dns.pl --server "$nameservers" --record 4.2.2.1
 
 echo "randomizing servers:"
 run $perl -T ./check_dns.pl --server "$nameservers" --record google.com --randomize-servers
