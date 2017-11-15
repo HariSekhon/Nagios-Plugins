@@ -330,7 +330,7 @@ EOF
 
     run_fail 1 ./check_presto_queries.py --include 'failure'
 
-    run_fail 2 ./check_presto_queries.py --include 'failure' -c 1
+    run_fail 2 ./check_presto_queries.py --include 'failure' -c 0
 
     run_fail 1 ./check_presto_queries.py --include 'nonexistentquery'
 
