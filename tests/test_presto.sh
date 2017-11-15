@@ -301,9 +301,9 @@ EOF
 
     run ./check_presto_queries.py --exclude 'failure|localfile.logs.http_request_log|SHOW FUNCTIONS|information_schema.tables'
 
-    run_fail 1 ./check_presto_queries.py
+    run_fail 1 ./check_presto_queries.py # implicit -w 0
 
-    # this should be -c 1 but sometimes queries get the following error and are marked as abandoned, reducing the select failure count, seems to happen mainly on older versions of Presto < 0.130, setting to -c 0 for more resilience in case only one query successfully failed instead of two:
+    # this should be -c 1 but sometimes queries get the following error and are marked as abandoned, reducing the select failure count, seems to happen mainly on older versions of Presto < 0.130 eg 0.126, setting to -c 0 for more resilience in case only one query was actually executed to fail instead of two:
     #
     # [ERROR] Failed to disable litteral next character
     # java.lang.InterruptedException
@@ -323,7 +323,7 @@ EOF
     #         at com.facebook.presto.cli.Console.run(Console.java:128)
     #         at com.facebook.presto.cli.Presto.main(Presto.java:32)
     #
-    run_fail 2 ./check_presto_queries.py -c 1
+    run_fail 2 ./check_presto_queries.py -c 0
 
     run ./check_presto_queries.py --include 'select 1\+1'
 
