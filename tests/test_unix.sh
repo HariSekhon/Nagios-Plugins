@@ -46,9 +46,9 @@ run_fail 2          ./check_git_branch_checkout.py -d . -b nonexistentbranch
 
 # ============================================================================ #
 echo "checking directory not defined results in usage error:"
-run_fail 3 $perl -T ./check_git_branch_checkout.pl -b "$current_branch"
+run_usage $perl -T ./check_git_branch_checkout.pl -b "$current_branch"
 
-run_fail 3          ./check_git_branch_checkout.py -b "$current_branch"
+run_usage          ./check_git_branch_checkout.py -b "$current_branch"
 
 # ============================================================================ #
 tmpfile="$(mktemp /tmp/check_file_checksum.txt.XXXXXX)"
