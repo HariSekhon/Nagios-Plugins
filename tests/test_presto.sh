@@ -108,11 +108,14 @@ presto_worker_tests(){
     # will get a 404 Not Found against worker API
     run_fail 2 ./check_presto_worker_nodes_failed.py -P "$PRESTO_WORKER_PORT"
 
-    # will get a 404 Not Found against worker API
-    # succeeds with zero queries on versions <= 0.148, not sure why yet - is this another Presto bug?
-    if [ "$version" != "latest" -a "${version#0.}" -le 148 ]; then
+    if [ "${version#0.}" = 74 ]; then
+        # gets "UNKNOWN: ValueError: No JSON object could be decoded." for Presto 0.74, there is just a smiley face ":)" in the returned output
+        run_fail 3 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+    elif [ "$version" != "latest" -a "${version#0.}" -le 148 ]; then
+        # succeeds with zero queries on versions <= 0.148, not sure why yet - is this another Presto bug?
         run ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
     else
+        # will get a 404 Not Found against worker API in modern versions of Presto
         run_fail 2 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
     fi
 
@@ -141,6 +144,10 @@ test_presto2(){
     local version="$1"
     run_count=0
     if [ -z "${NODOCKER:-}" ]; then
+        if [ "$version" = "0.70" ]; then
+            echo "Presto 0.70 does not start up due to bug 'java.lang.ClassCastException: org.slf4j.impl.JDK14LoggerAdapter cannot be cast to ch.qos.logback.classic.Logger', skipping..."
+            return
+        fi
         DOCKER_CONTAINER="${DOCKER_CONTAINER:-$DOCKER_CONTAINER}"
         section2 "Setting up Presto $version test container"
         if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
@@ -184,7 +191,10 @@ test_presto2(){
 
     run_conn_refused ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
 
-    run ./check_presto_coordinator.py
+    # coordinator field not available in Presto 0.93
+    if [ "${version#0.}" -ge 94 ]; then
+        run ./check_presto_coordinator.py
+    fi
 
     run_conn_refused ./check_presto_coordinator.py
 
@@ -280,16 +290,39 @@ test_presto2(){
     select 3+3;
     select failure;
     select failure2;
-    select count(*) from localfile.logs.http_request_log;
+    -- localfile catalog not available in older versions of Presto
+    --select count(*) from localfile.logs.http_request_log;
 EOF2
 EOF
     hr
-    run_fail 3 ./check_presto_queries.py --list
 
-    run ./check_presto_queries.py --exclude 'failure|localfile.logs.http_request_log'
+    # missing key error also returns UNKNOWN, so check we actual output a query we expect
+    ERRCODE=3 run_grep 'select 1\+1' ./check_presto_queries.py --list
+
+    run ./check_presto_queries.py --exclude 'failure|localfile.logs.http_request_log|SHOW FUNCTIONS|information_schema.tables'
 
     run_fail 1 ./check_presto_queries.py
 
+    # this should be -c 1 but sometimes queries get the following error and are marked as abandoned, reducing the select failure count, seems to happen mainly on older versions of Presto < 0.130, setting to -c 0 for more resilience in case only one query successfully failed instead of two:
+    #
+    # [ERROR] Failed to disable litteral next character
+    # java.lang.InterruptedException
+    #         at java.lang.Object.wait(Native Method)
+    #         at java.lang.Object.wait(Object.java:502)
+    #         at java.lang.UNIXProcess.waitFor(UNIXProcess.java:395)
+    #         at jline.internal.TerminalLineSettings.waitAndCapture(TerminalLineSettings.java:339)
+    #         at jline.internal.TerminalLineSettings.exec(TerminalLineSettings.java:311)
+    #         at jline.internal.TerminalLineSettings.stty(TerminalLineSettings.java:282)
+    #         at jline.internal.TerminalLineSettings.undef(TerminalLineSettings.java:158)
+    #         at jline.UnixTerminal.disableLitteralNextCharacter(UnixTerminal.java:185)
+    #         at jline.console.ConsoleReader.readLine(ConsoleReader.java:2448)
+    #         at jline.console.ConsoleReader.readLine(ConsoleReader.java:2372)
+    #         at com.facebook.presto.cli.LineReader.readLine(LineReader.java:51)
+    #         at jline.console.ConsoleReader.readLine(ConsoleReader.java:2360)
+    #         at com.facebook.presto.cli.Console.runConsole(Console.java:149)
+    #         at com.facebook.presto.cli.Console.run(Console.java:128)
+    #         at com.facebook.presto.cli.Presto.main(Presto.java:32)
+    #
     run_fail 2 ./check_presto_queries.py -c 1
 
     run ./check_presto_queries.py --include 'select 1\+1'
