@@ -69,6 +69,9 @@ presto_worker_tests(){
     # endpoint only found on Presto 0.128 onwards
     if [ "${version#0.}" -ge 128 ]; then
         run ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
+    else
+        echo "state endpoint not available in this version $version < 0.128, expecting 'critical' 404 status:"
+        run_404 ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
     fi
 
     # doesn't show up as registered for a while, so run this test last and iterate for a little while
@@ -106,7 +109,7 @@ presto_worker_tests(){
     hr
 
     # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_worker_nodes_failed.py -P "$PRESTO_WORKER_PORT"
+    run_404 ./check_presto_worker_nodes_failed.py -P "$PRESTO_WORKER_PORT"
 
     if [ "${version#0.}" = 74 ]; then
         # gets "UNKNOWN: ValueError: No JSON object could be decoded." for Presto 0.74, there is just a smiley face ":)" in the returned output
@@ -116,28 +119,28 @@ presto_worker_tests(){
         run ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
     else
         # will get a 404 Not Found against worker API in modern versions of Presto
-        run_fail 2 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+        run_404 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
     fi
 
     run ./check_presto_num_tasks.py -P "$PRESTO_WORKER_PORT"
 
     # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_num_worker_nodes.py -w 1 -P "$PRESTO_WORKER_PORT"
+    run_404 ./check_presto_num_worker_nodes.py -w 1 -P "$PRESTO_WORKER_PORT"
 
     run ./check_presto_worker_nodes_response_lag.py
 
     # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_worker_nodes_response_lag.py -P "$PRESTO_WORKER_PORT"
+    run_404 ./check_presto_worker_nodes_response_lag.py -P "$PRESTO_WORKER_PORT"
 
     run ./check_presto_worker_nodes_recent_failure_ratio.py
 
     # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_worker_nodes_recent_failure_ratio.py -P "$PRESTO_WORKER_PORT"
+    run_404 ./check_presto_worker_nodes_recent_failure_ratio.py -P "$PRESTO_WORKER_PORT"
 
     run ./check_presto_worker_nodes_recent_failures.py
 
     # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_worker_nodes_recent_failures.py -P "$PRESTO_WORKER_PORT"
+    run_404 ./check_presto_worker_nodes_recent_failures.py -P "$PRESTO_WORKER_PORT"
 }
 
 test_presto2(){
@@ -195,7 +198,7 @@ test_presto2(){
     if [ "${version#0.}" -ge 94 ]; then
         run ./check_presto_coordinator.py
     else
-        echo "coordinator attribute will not be available in this version $version < 0.94, expecting unknown status:"
+        echo "coordinator attribute will not be available in this version $version < 0.94, expecting 'unknown' status:"
         run_fail 3 ./check_presto_coordinator.py
     fi
 
@@ -235,6 +238,9 @@ test_presto2(){
     # endpoint only found on Presto 0.128 onwards
     if [ "${version#0.}" -ge 128 ]; then
         run ./check_presto_state.py
+    else
+        echo "state endpoint is not available in this version $version < $0.128, expecting 'critical' 404 status:"
+        run_404 ./check_presto_state.py
     fi
 
     run_conn_refused ./check_presto_state.py
@@ -383,10 +389,8 @@ EOF
     done
     hr
 
-    # endpoint only found on Presto 0.128 onwards
-    if [ "${version#0.}" -ge 128 ]; then
-        run_fail 2 ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
-    fi
+    # endpoint only found on Presto 0.128 onwards but will fail here regardless
+    run_conn_refused ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
 
     echo "re-running failed worker node check against the coordinator API to detect failure of the worker we just killed:"
     # usually detects in around 5-10 secs
