@@ -20,9 +20,9 @@ check_elasticsearch_nodes.pl
 check_elasticsearch_data_nodes.pl
 check_elasticsearch_cluster_shards.pl
 
-Tested on Elasticsearch 0.90.1, 1.2.1, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3, 2.4.1, 5.0.0";
+Tested on Elasticsearch 0.90, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 2.0, 2.1, 2.2, 2.3, 2.4, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6";
 
-$VERSION = "0.3.2";
+$VERSION = "0.4.0";
 
 use strict;
 use warnings;
@@ -46,6 +46,8 @@ my $unassigned_shard_thresholds = "0,1";
 
 %options = (
     %hostoptions,
+    %useroptions,
+    %ssloptions,
     "C|cluster-name=s"          =>  [ \$cluster,                            "Cluster name to expect (optional). Cluster name is used for auto-discovery and should be unique to each cluster in a single network" ],
     "n|nodes=s"                 =>  [ \$node_thresholds,                    "Node lower thresholds (inclusive, optional)" ],
     "d|data-nodes=s"            =>  [ \$data_node_thresholds,               "Data Node lower thresholds (inclusive, optional)" ],
@@ -61,6 +63,10 @@ get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 $cluster = validate_elasticsearch_cluster($cluster) if defined($cluster);
 my $options_upper = { "simple" => "upper", "integer" => 1, "positive" => 1 };
 my $options_lower = { "simple" => "lower", "integer" => 1, "positive" => 1 };

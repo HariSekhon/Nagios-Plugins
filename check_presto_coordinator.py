@@ -19,10 +19,14 @@
 
 Nagios Plugin to check a Presto SQL node is configured as a coordinator via the API
 
+Works on Presto 0.94 onwards (the field for distinguishing a coordinator is not available on 0.93 and prior)
+
 Tested on:
 
-- Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185, 0.187, 0.188
+- Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185, 0.186, 0.187, 0.188
 - Presto Teradata distribution versions:  0.152, 0.157, 0.167, 0.179
+- back tested against all Facebook Presto releases 0.69, 0.71 - 0.188
+  (see Presto docker images on DockerHub at https://hub.docker.com/u/harisekhon)
 
 """
 

@@ -21,10 +21,14 @@ Nagios Plugin to check the state reported by a Presto SQL node
 
 Works on both Presto Coordinator and Worker APIs
 
+This API endpoint is only available on Presto 0.128 onwards
+
 Tested on:
 
 - Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185, 0.187, 0.188
 - Presto Teradata distribution versions:  0.152, 0.157, 0.167, 0.179
+- back tested against all Facebook Presto releases 0.69, 0.71 - 0.188
+  (see Presto docker images on DockerHub at https://hub.docker.com/u/harisekhon)
 
 """
 

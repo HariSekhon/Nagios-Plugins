@@ -25,15 +25,32 @@ section "U n i x"
 
 run $perl -T ./check_disk_write.pl -d .
 
-run $perl -T ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^\*/ {print $2; exit}')"
+# ============================================================================ #
+current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 
-run ./check_git_branch_checkout.py -d . -b "$(git branch | awk '/^\*/ {print $2; exit}')"
+run $perl -T ./check_git_branch_checkout.pl -d . -b "$current_branch"
 
+# Travis CI runs in a detached head which throws CriticalError
+if is_travis; then
+    ERRCODE=2 run_grep "CRITICAL: HEAD is a detached symbolic reference as it points to '[a-z0-9]+'" ./check_git_branch_checkout.py -d . -b "$current_branch"
+else
+    run      ./check_git_branch_checkout.py -d . -b "$current_branch"
+fi
+
+# ============================================================================ #
 echo "Testing failure detection of wrong git branch:"
-run_fail 2 $perl -t ./check_git_branch_checkout.pl -d . -b nonexistentbranch
+run_fail 2 $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch
 
-run_fail 2 ./check_git_branch_checkout.py -d . -b nonexistentbranch
+# in Travis this will result in CRITICAL: HEAD is a detached symbolic reference as it points to '<hashref>' but will still pass with the right exit code
+run_fail 2          ./check_git_branch_checkout.py -d . -b nonexistentbranch
 
+# ============================================================================ #
+echo "checking directory not defined results in usage error:"
+run_usage $perl -T ./check_git_branch_checkout.pl -b "$current_branch"
+
+run_usage          ./check_git_branch_checkout.py -b "$current_branch"
+
+# ============================================================================ #
 tmpfile="$(mktemp /tmp/check_file_checksum.txt.XXXXXX)"
 echo test > "$tmpfile"
 run $perl -T ./check_file_checksum.pl -f "$tmpfile" -v -c '4e1243bd22c66e76c2ba9eddc1f91394e57f9f83'

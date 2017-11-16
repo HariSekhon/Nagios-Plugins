@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check a Git working copy is in the right branch
 Primarily written for puppetmasters to make sure prod and staging
 environment dirs had the right branches checked out in them";
 
-$VERSION = "0.3";
+$VERSION = "0.3.2";
 
 use strict;
 use warnings;
@@ -39,10 +39,10 @@ my $git = $git_default;
 
 get_options();
 
-$directory = abs_path($directory);
+$directory = abs_path($directory) if defined($directory);
 $directory = validate_directory($directory);
 $branch or usage "branch name not specified";
-$branch    =~ /^([\w-]+)$/ or usage "Invalid branch name given, must be alpha-numeric";
+$branch    =~ /^([\w\s-]+)$/ or usage "Invalid branch name given, must be alphanumeric with dashes and spaces permitted for detached HEADs";
 $branch    = $1;
 $git       = validate_program_path($git, "git");
 
@@ -54,7 +54,8 @@ set_timeout();
 chdir($directory) or quit "CRITICAL", "Failed to chdir to directory '$directory'";
 my @output = cmd("$git branch --color=never", 1);
 foreach(@output){
-    if(/^\*\s+(.+)\s*$/){
+    # parsing "(HEAD detached from 43e7b9e)"
+    if(/^\*\s+\(?(.+?)\)?\s*$/){
         $branch_checkout = $1;
         last;
     }

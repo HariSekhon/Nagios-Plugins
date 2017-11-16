@@ -20,9 +20,9 @@ For regular deployments with one Elasticsearch instance per server it's perfectl
 
 For convenience --node defaults to same as --host, which may not match if you're specifying a short hostname for --host and elasticsearch is reporting an FQDN, in which case you should specify the node explicitly as shown by the output of --list-nodes.
 
-Tested on Elasticsearch 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3, 2.4.1, 5.0.0";
+Tested on Elasticsearch 1.3, 1.4, 1.5, 1.6, 1.7, 2.0, 2.1, 2.2, 2.3, 2.4, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6";
 
-$VERSION = "0.2";
+$VERSION = "0.3.0";
 
 use strict;
 use warnings;
@@ -39,6 +39,8 @@ set_threshold_defaults(75, 90);
 
 %options = (
     %hostoptions,
+    %useroptions,
+    %ssloptions,
     %elasticsearch_node,
     %thresholdoptions,
 );
@@ -47,6 +49,10 @@ get_options();
 
 $host  = validate_host($host);
 $port  = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 # this is the node name, not using validate_host because an IP returns logstash clients and don't want to have to deal with that
 #$node  = validate_hostname($node, "node") unless $list_nodes;
 # hostname is too restrictive because of default Marvel names, and in some cases we may want to just do it by IP or hostname or whatever as long as there are not more than one colocated node (including client nodes like LogStash) on the same hosts

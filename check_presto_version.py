@@ -26,6 +26,8 @@ Tested on:
 
 - Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185, 0.187, 0.188
 - Presto Teradata distribution versions:  0.152, 0.157, 0.167, 0.179
+- back tested against all Facebook Presto releases 0.69, 0.71 - 0.188
+  (see Presto docker images on DockerHub at https://hub.docker.com/u/harisekhon)
 
 """
 
@@ -49,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 # pylint: disable=too-few-public-methods
@@ -79,6 +81,8 @@ class CheckPrestoVersion(RestVersionNagiosPlugin):
                                "Check you haven't run this against a presto worker node as this information isn't " + \
                                "available via the worker API. Otherwise {0}".format(support_msg_api()))
         version = presto_service['properties']['node_version']
+        # for presto <= 0.132 - presto-main:0.132 => 0.132
+        version = version.split(':', 1)[-1]
         return version
 
 

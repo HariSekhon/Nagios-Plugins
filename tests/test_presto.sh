@@ -66,7 +66,13 @@ presto_worker_tests(){
 
     run ./check_presto_environment.py --expected development -P "$PRESTO_WORKER_PORT"
 
-    run ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
+    # endpoint only found on Presto 0.128 onwards
+    if [ "${version#0.}" -ge 128 ]; then
+        run ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
+    else
+        echo "state endpoint not available in this version $version < 0.128, expecting 'critical' 404 status:"
+        run_404 ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
+    fi
 
     # doesn't show up as registered for a while, so run this test last and iterate for a little while
     max_node_up_wait=20
@@ -103,36 +109,48 @@ presto_worker_tests(){
     hr
 
     # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_worker_nodes_failed.py -P "$PRESTO_WORKER_PORT"
+    run_404 ./check_presto_worker_nodes_failed.py -P "$PRESTO_WORKER_PORT"
 
-    # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+    if [ "${version#0.}" = 74 ]; then
+        # gets "UNKNOWN: ValueError: No JSON object could be decoded." for Presto 0.74, there is just a smiley face ":)" in the returned output
+        run_fail 3 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+    elif [ "$version" != "latest" -a "${version#0.}" -le 148 ]; then
+        # succeeds with zero queries on versions <= 0.148, not sure why yet - is this another Presto bug?
+        run ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+    else
+        # will get a 404 Not Found against worker API in modern versions of Presto
+        run_404 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+    fi
 
     run ./check_presto_num_tasks.py -P "$PRESTO_WORKER_PORT"
 
     # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_num_worker_nodes.py -w 1 -P "$PRESTO_WORKER_PORT"
+    run_404 ./check_presto_num_worker_nodes.py -w 1 -P "$PRESTO_WORKER_PORT"
 
     run ./check_presto_worker_nodes_response_lag.py
 
     # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_worker_nodes_response_lag.py -P "$PRESTO_WORKER_PORT"
+    run_404 ./check_presto_worker_nodes_response_lag.py -P "$PRESTO_WORKER_PORT"
 
     run ./check_presto_worker_nodes_recent_failure_ratio.py
 
     # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_worker_nodes_recent_failure_ratio.py -P "$PRESTO_WORKER_PORT"
+    run_404 ./check_presto_worker_nodes_recent_failure_ratio.py -P "$PRESTO_WORKER_PORT"
 
     run ./check_presto_worker_nodes_recent_failures.py
 
     # will get a 404 Not Found against worker API
-    run_fail 2 ./check_presto_worker_nodes_recent_failures.py -P "$PRESTO_WORKER_PORT"
+    run_404 ./check_presto_worker_nodes_recent_failures.py -P "$PRESTO_WORKER_PORT"
 }
 
 test_presto2(){
     local version="$1"
     run_count=0
     if [ -z "${NODOCKER:-}" ]; then
+        if [ "$version" = "0.70" ]; then
+            echo "Presto 0.70 does not start up due to bug 'java.lang.ClassCastException: org.slf4j.impl.JDK14LoggerAdapter cannot be cast to ch.qos.logback.classic.Logger', skipping..."
+            return
+        fi
         DOCKER_CONTAINER="${DOCKER_CONTAINER:-$DOCKER_CONTAINER}"
         section2 "Setting up Presto $version test container"
         docker_compose_pull
@@ -146,7 +164,7 @@ test_presto2(){
     when_ports_available "$PRESTO_HOST" "$PRESTO_PORT"
     hr
     # endpoint initializes blank, wait until there is some content, eg. nodeId
-    # don't just run ./check_presto_state.py
+    # don't just run ./check_presto_state.py (this also doesn't work < 0.128)
     when_url_content "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" nodeId
     hr
     if [ "$version" = "latest" -o "$version" = "NODOCKER" ]; then
@@ -174,7 +192,13 @@ test_presto2(){
 
     run_conn_refused ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
 
-    run ./check_presto_coordinator.py
+    # coordinator field not available in Presto 0.93
+    if [ "${version#0.}" -ge 94 ]; then
+        run ./check_presto_coordinator.py
+    else
+        echo "coordinator attribute will not be available in this version $version < 0.94, expecting 'unknown' status:"
+        run_fail 3 ./check_presto_coordinator.py
+    fi
 
     run_conn_refused ./check_presto_coordinator.py
 
@@ -209,7 +233,13 @@ test_presto2(){
 
     run_fail 3 ./check_presto_queries.py --list
 
-    run ./check_presto_state.py
+    # endpoint only found on Presto 0.128 onwards
+    if [ "${version#0.}" -ge 128 ]; then
+        run ./check_presto_state.py
+    else
+        echo "state endpoint is not available in this version $version < $0.128, expecting 'critical' 404 status:"
+        run_404 ./check_presto_state.py
+    fi
 
     run_conn_refused ./check_presto_state.py
 
@@ -267,23 +297,47 @@ test_presto2(){
     select 3+3;
     select failure;
     select failure2;
-    select count(*) from localfile.logs.http_request_log;
+    -- localfile catalog not available in older versions of Presto
+    --select count(*) from localfile.logs.http_request_log;
 EOF2
 EOF
     hr
-    run_fail 3 ./check_presto_queries.py --list
 
-    run ./check_presto_queries.py --exclude 'failure|localfile.logs.http_request_log'
+    # missing key error also returns UNKNOWN, so check we actual output a query we expect
+    ERRCODE=3 run_grep 'select 1\+1' ./check_presto_queries.py --list
 
-    run_fail 1 ./check_presto_queries.py
+    run ./check_presto_queries.py --exclude 'failure|localfile.logs.http_request_log|SHOW FUNCTIONS|information_schema.tables'
 
-    run_fail 2 ./check_presto_queries.py -c 1
+    echo "checking ./check_presto_queries.py with implicit --warning 0 should raise warning after failed queries above are detected:"
+    run_fail 1 ./check_presto_queries.py # implicit -w 0
+
+    # this should be -c 1 but sometimes queries get the following error and are marked as abandoned, reducing the select failure count, seems to happen mainly on older versions of Presto < 0.130 eg 0.126, setting to -c 0 for more resilience in case only one query was actually executed to fail instead of two:
+    #
+    # [ERROR] Failed to disable litteral next character
+    # java.lang.InterruptedException
+    #         at java.lang.Object.wait(Native Method)
+    #         at java.lang.Object.wait(Object.java:502)
+    #         at java.lang.UNIXProcess.waitFor(UNIXProcess.java:395)
+    #         at jline.internal.TerminalLineSettings.waitAndCapture(TerminalLineSettings.java:339)
+    #         at jline.internal.TerminalLineSettings.exec(TerminalLineSettings.java:311)
+    #         at jline.internal.TerminalLineSettings.stty(TerminalLineSettings.java:282)
+    #         at jline.internal.TerminalLineSettings.undef(TerminalLineSettings.java:158)
+    #         at jline.UnixTerminal.disableLitteralNextCharacter(UnixTerminal.java:185)
+    #         at jline.console.ConsoleReader.readLine(ConsoleReader.java:2448)
+    #         at jline.console.ConsoleReader.readLine(ConsoleReader.java:2372)
+    #         at com.facebook.presto.cli.LineReader.readLine(LineReader.java:51)
+    #         at jline.console.ConsoleReader.readLine(ConsoleReader.java:2360)
+    #         at com.facebook.presto.cli.Console.runConsole(Console.java:149)
+    #         at com.facebook.presto.cli.Console.run(Console.java:128)
+    #         at com.facebook.presto.cli.Presto.main(Presto.java:32)
+    #
+    run_fail 2 ./check_presto_queries.py -c 0
 
     run ./check_presto_queries.py --include 'select 1\+1'
 
     run_fail 1 ./check_presto_queries.py --include 'failure'
 
-    run_fail 2 ./check_presto_queries.py --include 'failure' -c 1
+    run_fail 2 ./check_presto_queries.py --include 'failure' -c 0
 
     run_fail 1 ./check_presto_queries.py --include 'nonexistentquery'
 
@@ -333,7 +387,8 @@ EOF
     done
     hr
 
-    run_fail 2 ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
+    # endpoint only found on Presto 0.128 onwards but will fail here regardless
+    run_conn_refused ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
 
     echo "re-running failed worker node check against the coordinator API to detect failure of the worker we just killed:"
     # usually detects in around 5-10 secs

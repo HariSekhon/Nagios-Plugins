@@ -13,9 +13,9 @@ $DESCRIPTION = "Nagios Plugin to check Elasticsearch cluster status with explana
 
 Optional check on cluster name is included.
 
-Tested on Elasticsearch 0.90.1, 1.2.1, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3, 2.4.1, 5.0.0";
+Tested on Elasticsearch 0.90, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 2.0, 2.1, 2.2, 2.3, 2.4, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6";
 
-$VERSION = "0.2";
+$VERSION = "0.3.0";
 
 use strict;
 use warnings;
@@ -32,6 +32,8 @@ my $cluster;
 
 %options = (
     %hostoptions,
+    %useroptions,
+    %ssloptions,
     "C|cluster-name=s" => [ \$cluster, "Cluster name to expect (optional). Cluster name is used for auto-discovery and should be unique to each cluster in a single network" ],
 );
 splice @usage_order, 6, 0, qw/cluster-name/;
@@ -40,6 +42,10 @@ get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 $cluster = validate_elasticsearch_cluster($cluster) if defined($cluster);
 
 vlog2;

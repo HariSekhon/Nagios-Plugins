@@ -22,9 +22,9 @@ $DESCRIPTION = "Nagios Plugin to check Elasticsearch cluster stats
 
 For a convenient list of all stats one per line use -vv
 
-Tested on Elasticsearch 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3, 2.4.1, 5.0.0";
+Tested on Elasticsearch 1.3, 1.4, 1.5, 1.6, 1.7, 2.0, 2.1, 2.2, 2.3, 2.4, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6";
 
-$VERSION = "0.1";
+$VERSION = "0.2.0";
 
 use strict;
 use warnings;
@@ -42,6 +42,8 @@ my $expected_value;
 
 %options = (
     %hostoptions,
+    %useroptions,
+    %ssloptions,
     "K|key=s"   => [ \$keys,            "Stat Key(s) to fetch (eg. indices.count, indices.docs.count, nodes.fs.disk_writes, nodes.fs.free_in_bytes). Multiple keys may be comma separated. Optional, all stats will be printed if no specific stat(s) requested" ],
     %thresholdoptions,
 );
@@ -50,6 +52,10 @@ get_options();
 
 $host  = validate_host($host);
 $port  = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 my @keys;
 @keys = split(/\s*,\s*/, $keys) if defined($keys);
 @keys = uniq_array_ordered @keys if @keys;

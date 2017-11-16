@@ -12,9 +12,9 @@
 
 $DESCRIPTION = "Nagios Plugin to check the number of replicas of a given Elasticsearch index
 
-Tested on Elasticsearch 1.2.1, 1.4.0, 1.4.4, 1.4.5, 1.5.2, 1.6.2, 1.7.5, 2.0.2, 2.2.2, 2.3.3, 2.4.1, 5.0.0";
+Tested on Elasticsearch 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 2.0, 2.1, 2.2, 2.3, 2.4, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6";
 
-$VERSION = "0.7.1";
+$VERSION = "0.8.0";
 
 use strict;
 use warnings;
@@ -32,6 +32,8 @@ set_threshold_defaults(1,0);
 
 %options = (
     %hostoptions,
+    %useroptions,
+    %ssloptions,
     %elasticsearch_index,
     #"R|replicas=s" => [ \$expected_replicas, "Expected replicas (default: w,c = 1,0)" ],
     %thresholdoptions,
@@ -41,6 +43,10 @@ get_options();
 
 $host  = validate_host($host);
 $port  = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 $index = validate_elasticsearch_index($index);
 #$expected_replicas = validate_int($expected_replicas, "expected replicas", 0, 1000000) if defined($expected_replicas);
 #validate_thresholds(0, 0, { 'simple' => 'lower', 'positive' => 1, 'integer' => 1}, "expected replicas", $expected_replicas);

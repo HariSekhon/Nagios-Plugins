@@ -39,6 +39,8 @@ Tested on:
 
 - Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185, 0.187, 0.188
 - Presto Teradata distribution versions:  0.152, 0.157, 0.167, 0.179
+- back tested against all Facebook Presto releases 0.69, 0.71 - 0.188
+  (see Presto docker images on DockerHub at https://hub.docker.com/u/harisekhon)
 
 """
 
@@ -65,7 +67,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.0'
+__version__ = '0.6.0'
 
 
 class CheckPrestoQueries(RestNagiosPlugin):
@@ -121,16 +123,19 @@ class CheckPrestoQueries(RestNagiosPlugin):
         self.validate_thresholds()
 
     def get_field(self, json_data, index):
-        remainder = None
+        subfield = None
         if '.' in index:
-            (index, remainder) = index.split('.', 1)
+            (index, subfield) = index.split('.', 1)
         if index == 'errorCode':
             if index not in json_data:
                 return ''
-        json_data = json_data[index]
-        if remainder:
-            json_data = self.get_field(json_data, remainder)
-        return json_data
+        if index in json_data:
+            field = json_data[index]
+        else:
+            return 'N/A'
+        if subfield:
+            field = self.get_field(field, subfield)
+        return field
 
     def list_queries(self, query_list):
         max_query_display_width = 100
