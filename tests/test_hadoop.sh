@@ -71,9 +71,7 @@ test_hadoop(){
     section2 "Setting up Hadoop $version test container"
     # reset state as things like checkpoint age, blocks counts and job states, no history, succeeded etc depend on state
     docker-compose down || :
-    if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
-        VERSION="$version" docker-compose pull $docker_compose_quiet
-    fi
+    docker_compose_pull
     VERSION="$version" docker-compose up -d
     hr
     echo "getting Hadoop dynamic port mappings:"
