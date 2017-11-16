@@ -27,6 +27,7 @@ services:
       - 9095
       - 16000
       - 16010
+      - 16030 # for HBase 0.99
       - 16201
       - 16301
       # 0.96 needs these old ports
