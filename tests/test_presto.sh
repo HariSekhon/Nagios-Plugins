@@ -194,6 +194,9 @@ test_presto2(){
     # coordinator field not available in Presto 0.93
     if [ "${version#0.}" -ge 94 ]; then
         run ./check_presto_coordinator.py
+    else
+        echo "coordinator attribute will not be available in this version $version < 0.94, expecting unknown status:"
+        run_fail 3 ./check_presto_coordinator.py
     fi
 
     run_conn_refused ./check_presto_coordinator.py
