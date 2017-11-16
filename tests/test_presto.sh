@@ -135,9 +135,7 @@ test_presto2(){
     if [ -z "${NODOCKER:-}" ]; then
         DOCKER_CONTAINER="${DOCKER_CONTAINER:-$DOCKER_CONTAINER}"
         section2 "Setting up Presto $version test container"
-        if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
-            VERSION="$version" docker-compose pull $docker_compose_quiet
-        fi
+        docker_compose_pull
         # reset container as we start a presto worker inside later so we don't want to start successive workers on compounding failed runs
         [ -n "${KEEPDOCKER:-}" ] || VERSION="$version" docker-compose down || :
         VERSION="$version" docker-compose up -d
