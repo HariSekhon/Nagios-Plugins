@@ -41,7 +41,7 @@ check_docker_available
 
 trap_debug_env neo4j
 
-startupwait 20
+startupwait 30
 
 test_neo4j_main(){
     local version="$1"
