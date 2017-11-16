@@ -41,9 +41,7 @@ trap_debug_env apache_drill
 test_apache_drill(){
     local version="$1"
     section2 "Setting up Apache Drill $version test container"
-    if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
-        VERSION="$version" docker-compose pull $docker_compose_quiet
-    fi
+    docker_compose_pull
     VERSION="$version" docker-compose up -d
     hr
     echo "getting Apache Drill dynamic port mappings:"
