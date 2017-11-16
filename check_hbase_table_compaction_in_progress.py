@@ -49,8 +49,8 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, qquit, support_msg
-    #from harisekhon.utils import CriticalError, UnknownError
+    from harisekhon.utils import log, support_msg
+    from harisekhon.utils import CriticalError, UnknownError
     from harisekhon.utils import validate_host, validate_port, validate_database_tablename
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -58,7 +58,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 class CheckHBaseTableCompacting(NagiosPlugin):
@@ -90,7 +90,7 @@ class CheckHBaseTableCompacting(NagiosPlugin):
         try:
             req = requests.get(url)
         except requests.exceptions.RequestException as _:
-            qquit('CRITICAL', _)
+            raise CriticalError(_)
         log.debug("response: %s %s", req.status_code, req.reason)
         log.debug("content:\n%s\n%s\n%s", '='*80, req.content.strip(), '='*80)
         if req.status_code != 200:
@@ -98,7 +98,7 @@ class CheckHBaseTableCompacting(NagiosPlugin):
             #if req.status_code == '500' and 'TableNotFoundException' in req.content:
             if 'TableNotFoundException' in req.content:
                 info = 'table not found'
-            qquit('CRITICAL', "%s %s %s" % (req.status_code, req.reason, info))
+            raise CriticalError("%s %s %s" % (req.status_code, req.reason, info))
         is_table_compacting = self.parse_is_table_compacting(req.content)
         self.msg = 'HBase table \'{0}\' '.format(table)
         if is_table_compacting:
@@ -119,9 +119,9 @@ class CheckHBaseTableCompacting(NagiosPlugin):
                     log.debug('found Table Attributes section header')
                     table = heading.find_next('table')
                     return self.parse_table(table)
-            qquit('UNKNOWN', 'parse error - failed to find Table Attributes section in JSP. ' + support_msg())
+            raise UnknownError('parse error - failed to find Table Attributes section in JSP. ' + support_msg())
         except (AttributeError, TypeError):
-            qquit('UNKNOWN', 'failed to parse output. ' + support_msg())
+            raise UnknownError('failed to parse output. ' + support_msg())
 
     @staticmethod
     def parse_table(table):
@@ -132,15 +132,15 @@ class CheckHBaseTableCompacting(NagiosPlugin):
             log.debug('table:\n%s\n%s', table.prettify(), '='*80)
         rows = table.findChildren('tr')
         if len(rows) < 3:
-            qquit('UNKNOWN', 'parse error - less than the 3 expected rows in table attributes')
+            raise UnknownError('parse error - less than the 3 expected rows in table attributes')
         col_names = rows[0].findChildren('th')
         if len(col_names) < 3:
-            qquit('UNKNOWN', 'parse error - less than the 3 expected column headings')
+            raise UnknownError('parse error - less than the 3 expected column headings')
         first_col = col_names[0].get_text().strip()
         if first_col != 'Attribute Name':
-            qquit('UNKNOWN',
+            raise UnknownError( \
                   'parse error - expected first column header to be \'{0}\' but got \'\' instead. '\
-                  .format('Attribute Name')
+                  .format('Attribute Name') \
                   + support_msg())
         # ===========
         # fix for older versions of HBase < 1.0 that do not populate the table properly
@@ -151,19 +151,24 @@ class CheckHBaseTableCompacting(NagiosPlugin):
             if cols[0].get_text().strip() == 'Compaction':
                 found_compaction = True
         if not found_compaction:
-            qquit('CRITICAL', 'Compaction table attribute not found, perhaps table does not exist?')
+            raise CriticalError('Compaction table attribute not found, perhaps table does not exist?')
         # ===========
         for row in rows[1:]:
             cols = row.findChildren('td')
             if len(cols) < 3:
-                qquit('UNKNOWN', 'parse error - less than the 3 expected columns in table attributes:  ' + \
-                                 '{0}. {1}'.format(cols, support_msg()))
+                raise UnknownError('parse error - less than the 3 expected columns in table attributes:  ' + \
+                                   '{0}. {1}'.format(cols, support_msg()))
             if cols[0].get_text().strip() == 'Compaction':
                 compaction_state = cols[1].get_text().strip()
                 # NONE when enabled, Unknown when disabled
+                log.info('compaction state = %s', compaction_state)
                 for _ in ('NONE', 'Unknown'):
                     if _ in compaction_state:
                         return False
+                if len(compaction_state.split('\n')) > 1:
+                    raise UnknownError('parsing error - table data next to Compaction > 1 line' + \
+                                       ', old version of HBase < 0.96? Otherwise HBase UI may have changed' + \
+                                       '. {0}'.format(support_msg()))
                 return True
 
 
