@@ -45,9 +45,7 @@ distro=centos
 export DOCKER_CONTAINER="nagiosplugins_$distro-github_1"
 export COMPOSE_FILE="$srcdir/docker/$distro-github-docker-compose.yml"
 
-if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
-    docker-compose pull $docker_compose_quiet
-fi
+docker_compose_pull
 
 docker-compose up -d
 
