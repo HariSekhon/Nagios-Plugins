@@ -62,9 +62,7 @@ test_rabbitmq(){
     # if one container is already still up it'll result in inconsistent state error when the other tries to join cluster, causing rabbit2 joining node container to crash
     # so shut down any already existing containers for safety
     #docker-compose down
-    if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
-        VERSION="$version" docker-compose pull $docker_compose_quiet
-    fi
+    docker_compose_pull
     VERSION="$VERSION" docker-compose up -d
     hr
     local DOCKER_SERVICE="rabbit1"
