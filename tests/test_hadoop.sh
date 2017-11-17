@@ -24,11 +24,11 @@ cd "$srcdir/.."
 section "H a d o o p"
 
 # priortise testing of modern production versions
-if is_CI; then
-    export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-latest 2.6 2.7 2.8}}"
-else
+#if is_CI; then
+#    export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-latest 2.6 2.7 2.8}}"
+#else
     export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-latest 2.2 2.3 2.4 2.5 2.6 2.7 2.8}}"
-fi
+#fi
 
 HADOOP_HOST="${DOCKER_HOST:-${HADOOP_HOST:-${HOST:-localhost}}}"
 HADOOP_HOST="${HADOOP_HOST##*/}"
