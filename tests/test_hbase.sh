@@ -26,7 +26,12 @@ srcdir="$srcdir2"
 
 section "H B a s e"
 
-export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-latest 0.96 0.98 1.0 1.1 1.2 1.3}}"
+# tested on all these versions but we want to test recent production versions more
+if is_CI; then
+    export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-latest 0.98 1.0 1.1 1.2 1.3}}"
+else
+    export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-latest 0.90 0.92 0.94 0.95 0.96 0.98 0.99 1.0 1.1 1.2 1.3}}"
+fi
 
 HBASE_HOST="${DOCKER_HOST:-${HBASE_HOST:-${HOST:-localhost}}}"
 HBASE_HOST="${HBASE_HOST##*/}"
@@ -73,7 +78,11 @@ test_hbase(){
     fi
     VERSION="$version" docker-compose up -d
     hr
-    if [ "$version" = "0.96" -o "$version" = "0.98" ]; then
+    # HBase 0.99 redirects 16010 to 16030 so hit that directly to avoid localhost:16030 redirect which won't map properly
+    if [[ "${version:0:4}" =~ ^0\.99$ ]]; then
+        local export HBASE_MASTER_PORT_DEFAULT=16030
+    # HBase <= 0.99 uses older port numbers
+    elif [[ "${version:0:4}" =~ ^0\.9[0-8]$ ]]; then
         local export HBASE_MASTER_PORT_DEFAULT=60010
         local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
     fi
@@ -87,10 +96,22 @@ test_hbase(){
     hr
     when_ports_available "$HBASE_HOST" $HBASE_PORTS
     hr
-    when_url_content "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" hbase
+    if [ "$version" = "0.90" ]; then
+        when_url_content "http://$HBASE_HOST:$HBASE_MASTER_PORT/master.jsp" HBase
+        hr
+        when_url_content "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/regionserver.jsp" HBase
+    else
+        when_url_content "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" HBase
+        hr
+        when_url_content "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/rs-status" HBase
+    fi
     hr
-    when_url_content "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/rs-status" hbase
-    hr
+    if [ "$version" = "0.92" ]; then
+        # HBase 0.92 gets following errors when trying to create tables:
+        # org.apache.hadoop.hbase.PleaseHoldException: org.apache.hadoop.hbase.PleaseHoldException: Master is initializing
+        when_url_content "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" "Initialization successful"
+        hr
+    fi
     # tr occasionally errors out due to weird input chars, base64 for safety, but still remove chars like '+' which will ruin --expected regex
     local uniq_val=$(< /dev/urandom base64 | tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)
     # gets ValueError: file descriptor cannot be a negative integer (-1), -T should be the workaround but hangs
@@ -104,17 +125,22 @@ test_hbase(){
     fi
     export JAVA_HOME=/usr
     /hbase/bin/hbase shell <<-EOF2
-        create 't1', 'cf1', { 'REGION_REPLICATION' => 1 }
-        create 'EmptyTable', 'cf2', 'cf3', { 'REGION_REPLICATION' => 1 }
-        create 'DisabledTable', 'cf4', { 'REGION_REPLICATION' => 1 }
+        create 't1', 'cf1'
+        create 'EmptyTable', 'cf2', 'cf3'
+        create 'DisabledTable', 'cf4'
         disable 'DisabledTable'
         put 't1', 'r1', 'cf1:q1', '$uniq_val'
         put 't1', 'r2', 'cf1:q1', 'test'
         put 't1', 'r3', 'cf1:q1', '5'
         list
 EOF2
-    hbase org.apache.hadoop.hbase.util.RegionSplitter UniformSplitTable UniformSplit -c 100 -f cf1
-    hbase org.apache.hadoop.hbase.util.RegionSplitter HexStringSplitTable HexStringSplit -c 100 -f cf1
+    # don't actually use this table in tests, only in pytools repo
+    #hbase org.apache.hadoop.hbase.util.RegionSplitter UniformSplitTable UniformSplit -c 100 -f cf1
+    if [ "$version" = 0.90 -o "$version" = 0.92 ]; then
+        hbase org.apache.hadoop.hbase.util.RegionSplitter HexStringSplitTable -c 100 -f cf1
+    else
+        hbase org.apache.hadoop.hbase.util.RegionSplitter HexStringSplitTable HexStringSplit -c 100 -f cf1
+    fi
     echo "creating hbck.log"
     hbase hbck &> /tmp/hbase-hbck.log
     echo "test setup finished"
@@ -134,15 +160,18 @@ EOF
         echo "expecting version '$version'"
     fi
     hr
-    run ./check_hbase_master_version.py -e "$version"
+    # Not available on HBase 0.90
+    if [ "$version" != "0.90" ]; then
+        run ./check_hbase_master_version.py -e "$version"
 
-    run_fail 2 ./check_hbase_master_version.py -e "fail-version"
+        run_fail 2 ./check_hbase_master_version.py -e "fail-version"
+
+        run_fail 2 ./check_hbase_regionserver_version.py -e "fail-version"
+
+        run ./check_hbase_regionserver_version.py -e "$version"
+    fi
 
     run_conn_refused ./check_hbase_master_version.py -e "$version"
-
-    run_fail 2 ./check_hbase_regionserver_version.py -e "fail-version"
-
-    run ./check_hbase_regionserver_version.py -e "$version"
 
     run_conn_refused ./check_hbase_regionserver_version.py -e "$version"
 
@@ -168,20 +197,37 @@ EOF
 
     run ./check_hbase_table_enabled.py -T EmptyTable
 
-    run_fail 2 ./check_hbase_table_enabled.py -T DisabledTable
+    # broken on <= 0.94 it returns enabled for DisabledTable
+    if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
+        run_fail "0 2" ./check_hbase_table_enabled.py -T DisabledTable
+    else
+        run_fail 2 ./check_hbase_table_enabled.py -T DisabledTable
+    fi
 
-    # broken on 0.96 it returns enabled for nonexistent_table
-    if [ "$version" != "0.96" ]; then
+    # broken on 0.92, 0.94, 0.96 it incorrectly returns enabled for nonexistent_table
+    if [[ "$version" =~ ^0\.9[2-6]$ ]]; then
+        run ./check_hbase_table_enabled.py -T nonexistent_table
+    else
         run_fail 2 ./check_hbase_table_enabled.py -T nonexistent_table
     fi
 
 # ============================================================================ #
 
-    run ./check_hbase_table.py -T t1
+    # HBase <= 0.94 gets IOError
+    if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
+        run_fail "0 2" ./check_hbase_table.py -T t1
+    else
+        run ./check_hbase_table.py -T t1
+    fi
 
     run_conn_refused ./check_hbase_table.py -T t1
 
-    run ./check_hbase_table.py -T EmptyTable
+    # HBase <= 0.94 gets IOError
+    if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
+        run_fail "0 2" ./check_hbase_table.py -T EmptyTable
+    else
+        run ./check_hbase_table.py -T EmptyTable
+    fi
 
     run_fail 2 ./check_hbase_table.py -T DisabledTable
 
@@ -189,14 +235,38 @@ EOF
 
 # ============================================================================ #
 
-    run ./check_hbase_table_regions.py -T t1
+    # HBase 0.90 + 0.92 gets unassigned region
+    if [[ "$version" =~ ^0\.9[02]$ ]]; then
+        run_fail 1 ./check_hbase_table_regions.py -T t1
+    # HBase 0.94 fails to get regions
+    elif [ "$version" = "0.94" ]; then
+        run_fail "0 2" ./check_hbase_table_regions.py -T t1
+    else
+        run ./check_hbase_table_regions.py -T t1
+    fi
 
     run_conn_refused ./check_hbase_table_regions.py -T t1
 
-    run ./check_hbase_table_regions.py -T EmptyTable
+    # HBase 0.90 + 0.92 gets unassigned region
+    if [[ "$version" =~ ^0\.9[02]$ ]]; then
+        run_fail 1 ./check_hbase_table_regions.py -T EmptyTable
+    # HBase 0.94 fails to get regions
+    elif [ "$version" = "0.94" ]; then
+        run_fail "0 2" ./check_hbase_table_regions.py -T EmptyTable
+    else
+        run ./check_hbase_table_regions.py -T EmptyTable
+    fi
 
-    # even though DisabledTable table is disabled, it still has assigned regions
-    run ./check_hbase_table_regions.py -T DisabledTable
+    # HBase 0.90 + 0.92 gets unassigned region
+    if [[ "$version" =~ ^0\.9[02]$ ]]; then
+        run_fail 1 ./check_hbase_table_regions.py -T DisabledTable
+    # HBase 0.94 fails to get regions
+    elif [ "$version" = "0.94" ]; then
+        run_fail "0 2" ./check_hbase_table_regions.py -T DisabledTable
+    else
+        # even though DisabledTable table is disabled, it still has assigned regions
+        run ./check_hbase_table_regions.py -T DisabledTable
+    fi
 
     # Re-assignment happens too fast, can't catch
     # forcibly unassign region and re-test
@@ -214,50 +284,124 @@ EOF
 
 # ============================================================================ #
 
-    run ./check_hbase_table_compaction_in_progress.py -T t1
+    # 0.90 fails to parse
+    if [ "$version" = "0.90" ]; then
+        run_fail 3 ./check_hbase_table_compaction_in_progress.py -T t1
+    # HBase <= 0.94 does not find the table
+    elif [[ "$version" =~ ^0\.9[2-4]$ ]]; then
+        run_fail "0 2" ./check_hbase_table_compaction_in_progress.py -T t1
+    else
+        run ./check_hbase_table_compaction_in_progress.py -T t1
+    fi
 
     run_conn_refused ./check_hbase_table_compaction_in_progress.py -T t1
 
-    run ./check_hbase_table_compaction_in_progress.py -T EmptyTable
+    # 0.90 fails to parse
+    if [ "$version" = "0.90" ]; then
+        run_fail 3 ./check_hbase_table_compaction_in_progress.py -T EmptyTable
+    # HBase <= 0.94 does not find the table
+    elif [[ "$version" =~ ^0\.9[2-4]$ ]]; then
+        run_fail "0 2" ./check_hbase_table_compaction_in_progress.py -T EmptyTable
+    else
+        run ./check_hbase_table_compaction_in_progress.py -T EmptyTable
+    fi
 
-    run ./check_hbase_table_compaction_in_progress.py -T DisabledTable
+    # HBase 0.90 + 0.95 fails to parse the table page
+    if [[ "$version" =~ ^0\.9[05]$ ]]; then
+        run_fail 3 ./check_hbase_table_compaction_in_progress.py -T DisabledTable
+    # HBase <= 0.94 fails to parse as this info isn't available in the table page
+    elif [[ "$version" =~ ^0\.9[2-4]$ ]]; then
+        run_fail 3 ./check_hbase_table_compaction_in_progress.py -T DisabledTable
+    else
+        run ./check_hbase_table_compaction_in_progress.py -T DisabledTable
+    fi
 
     run_fail 2 ./check_hbase_table_compaction_in_progress.py -T nonexistent_table
 
 # ============================================================================ #
 
-    run ./check_hbase_region_balance.py
+    # HBase 0.90 gets 404
+    if [ "$version" = "0.90" ]; then
+        run_404 ./check_hbase_region_balance.py
+    # HBase <= 0.94 fails to parse region info
+    elif [[ "$version" =~ ^0\.9[2-4]$ ]]; then
+        run_fail 3 ./check_hbase_region_balance.py
+    else
+        run ./check_hbase_region_balance.py
+    fi
 
     run_conn_refused ./check_hbase_region_balance.py
 
-    run ./check_hbase_regions_stuck_in_transition.py
+    # HBase 0.90 gets 404
+    if [ "$version" = "0.90" ]; then
+        run_404 ./check_hbase_regions_stuck_in_transition.py
+    # HBase <= 0.94 fails to parse region info
+    elif [[ "$version" =~ ^0\.9[2-4]$ ]]; then
+        run_fail 3 ./check_hbase_regions_stuck_in_transition.py
+    else
+        run ./check_hbase_regions_stuck_in_transition.py
+    fi
 
-    run ./check_hbase_num_regions_in_transition.py
+    # HBase 0.90 gets 404
+    if [ "$version" = "0.90" ]; then
+        run_404 ./check_hbase_num_regions_in_transition.py
+    # HBase <= 0.94 fails to parse region info
+    elif [[ "$version" =~ ^0\.9[2-4]$ ]]; then
+        run_fail 3 ./check_hbase_num_regions_in_transition.py
+    else
+        run ./check_hbase_num_regions_in_transition.py
+    fi
 
-    run ./check_hbase_regionserver_compaction_in_progress.py
+    # HBase 0.90 gets 404
+    if [ "$version" = "0.90" ]; then
+        run_404 ./check_hbase_regionserver_compaction_in_progress.py
+    # HBase <= 0.94 fails to parse region info
+    elif [[ "$version" =~ ^0\.9[2-4]$ ]]; then
+        run_fail 3 ./check_hbase_regionserver_compaction_in_progress.py
+    else
+        run ./check_hbase_regionserver_compaction_in_progress.py
+    fi
 
     echo "ensuring Stargate Server is properly online before running this test:"
-    when_url_content "http://$HBASE_HOST:$HBASE_STARGATE_PORT/" UniformSplitTable
+    when_url_content "http://$HBASE_HOST:$HBASE_STARGATE_PORT/" HexStringSplitTable
     hr
 
     run $perl -T ./check_hbase_regionservers.pl
 
     run_conn_refused $perl -T ./check_hbase_regionservers.pl
 
-    run $perl -T ./check_hbase_regionservers_jsp.pl
+    if [ "$version" = "0.90" ]; then
+        run_404 $perl -T ./check_hbase_regionservers_jsp.pl
+    else
+        run $perl -T ./check_hbase_regionservers_jsp.pl
+    fi
 
     run_conn_refused $perl -T ./check_hbase_regionservers_jsp.pl
 
 # ============================================================================ #
 
     for x in "$perl -T ./check_hbase_cell.pl" ./check_hbase_cell.py "$perl -T ./check_hbase_cell_stargate.pl"; do
-        run eval $x -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+        # HBase <= 0.94 fails to retrieve cell
+        if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
+            run_fail "0 2" eval $x -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+            # TODO: fix up the rest of these checks to work
+            continue
+        else
+            run eval $x -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+        fi
 
         run_conn_refused eval $x -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
 
-        run eval $x -T t1 -R r2 -C cf1:q1 --expected test --precision 3
+        # HBase <= 0.94 fails to retrieve cell
+        if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
+            run_fail "0 2" eval $x -T t1 -R r2 -C cf1:q1 --expected test --precision 3
 
-        run eval $x -T t1 -R r3 -C cf1:q1 -e 5 -w 5 -c 10 -g -u ms
+            run_fail "0 2" eval $x -T t1 -R r3 -C cf1:q1 -e 5 -w 5 -c 10 -g -u ms
+        else
+            run eval $x -T t1 -R r2 -C cf1:q1 --expected test --precision 3
+
+            run eval $x -T t1 -R r3 -C cf1:q1 -e 5 -w 5 -c 10 -g -u ms
+        fi
 
         run_fail 1 eval $x -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 10
 
@@ -276,17 +420,31 @@ EOF
         run_fail 2 eval $x -T EmptyTable -R r1 -C cf1:q1
     done
 
-    # this is only a symlink to check_hbase_cell.pl so just check it's still there and working
-    run $perl -T ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+    # ./check_hbase_cell_thrift.pl is only a symlink to check_hbase_cell.pl so just check it's still there and working
+    # HBase 0.94 fails to retrieve cell
+    if [ "$version" = "0.94" ]; then
+        run_fail "0 2" $perl -T ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+    else
+        run $perl -T ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+    fi
 
 # ============================================================================ #
 
-    run ./check_hbase_write.py -T t1 -w 500 --precision 3
+    # HBase <= 0.94 gets CRITICAL: IOError(message='t1')
+    if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
+        run_fail "0 2" ./check_hbase_write.py -T t1 -w 500 --precision 3
+    else
+        run ./check_hbase_write.py -T t1 -w 500 --precision 3
+    fi
 
     run_conn_refused ./check_hbase_write.py -T t1 -w 100 --precision 3
 
     # this will also be checked later by check_hbase_rowcount that it returns to zero rows, ie. delete succeeded
-    run ./check_hbase_write.py -T EmptyTable -w 100 --precision 3
+    if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
+        run_fail "0 2" ./check_hbase_write.py -T EmptyTable -w 100 --precision 3
+    else
+        run ./check_hbase_write.py -T EmptyTable -w 100 --precision 3
+    fi
 
     run_fail 2 ./check_hbase_write.py -T DisabledTable -t 2
 
@@ -294,15 +452,30 @@ EOF
 
 # ============================================================================ #
 
-    run ./check_hbase_write_spray.py -T t1 -w 500 --precision 3 -t 20
+    # setting hbase write --warning millisecs high as I want these tests to pass even on a loaded workstation or CI server
+
+    # HBase <= 0.94 gets CRITICAL: IOError(message='t1')
+    if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
+        run_fail "0 2" ./check_hbase_write_spray.py -T t1 -w 700 --precision 3 -t 20
+    else
+        run ./check_hbase_write_spray.py -T t1 -w 700 --precision 3 -t 20
+    fi
 
     run_conn_refused ./check_hbase_write_spray.py -T t1 -w 500 --precision 3 -t 20
 
-    # this will also be checked later by check_hbase_rowcount that it returns to zero rows, ie. delete succeeded
-    run ./check_hbase_write_spray.py -T EmptyTable -w 500 --precision 3 -t 20
+    # HBase <= 0.94 gets CRITICAL: IOError(message='t1')
+    if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
+        run_fail "0 2" ./check_hbase_write_spray.py -T t1 -w 500 --precision 3 -t 20
+        run_fail "0 2" ./check_hbase_write_spray.py -T EmptyTable -w 500 --precision 3 -t 20
+    else
+        # this will also be checked later by check_hbase_rowcount that it returns to zero rows, ie. delete succeeded
+        run ./check_hbase_write_spray.py -T EmptyTable -w 700 --precision 3 -t 20
 
+    fi
+
+    # not sure why this succeeds on HBase 0.94 but check_hbase_write.py does not
     # write to 100 regions...
-    run ./check_hbase_write_spray.py -T HexStringSplitTable -w 500 --precision 3 -t 20
+    run ./check_hbase_write_spray.py -T HexStringSplitTable -w 700 --precision 3 -t 20
 
     run_fail 2 ./check_hbase_write_spray.py -T DisabledTable -t 5
 
@@ -310,44 +483,67 @@ EOF
 
 # ============================================================================ #
 
-    # have to use --host and --port here as this is a generic program with specific environment variables like we're setting and don't want to set $HOST and $PORT
-    run $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
+    # HBase <= 0.94 doesn't have this mbean
+    if ! [[ "$version" =~ ^0\.9[0-4]$ ]]; then
+        # have to use --host and --port here as this is a generic program with specific environment variables like we're setting and don't want to set $HOST and $PORT
+        run $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
 
-    run $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics -t 20 | sed 's/|.*$//'
+        run $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics -t 20 | sed 's/|.*$//'
+    fi
 
     # too long exceeds Travis CI max log length due to the 100 region HexStringSplitTable multiplying out the available metrics
-    run $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --all-metrics -t 20 | sed 's/|.*$//'
+    if [ "$version" = "0.90" ]; then
+        run_404 $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --all-metrics -t 20 | sed 's/|.*$//'
+    else
+        run $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --all-metrics -t 20 | sed 's/|.*$//'
+    fi
 
     run_conn_refused $perl -T ./check_hadoop_jmx.pl --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
 
-    # TODO: perhaps this only works on some versions now??? Test and re-enable for those versions
-    # XXX: both cause 500 internal server error
-    #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" --all-metrics
-    #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" -m compactionQueueLength
+    ######################
+    # use newer Python version "check_hbase_table.py" for Hbase 0.95+ instead of older plugins in this section
+    if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
+        run $perl -T ./check_hbase_tables.pl
+    else
+        run_fail 2 $perl -T ./check_hbase_tables.pl
+    fi
 
-    #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --all-metrics
-    #$perl -T ./check_hadoop_metrics.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" -m compactionQueueLength
+    if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
+        run $perl -T ./check_hbase_tables_thrift.pl
 
-    # use newer Python version "check_hbase_table.py" for newer versions of HBase
-    #$perl -T ./check_hbase_tables.pl
+        run $perl -T ./check_hbase_tables_stargate.pl
 
-    #$perl -T ./check_hbase_tables_thrift.pl
+        run $perl -T ./check_hbase_tables_jsp.pl
+    else
+        run_fail 2 $perl -T ./check_hbase_tables_thrift.pl
 
-    # TODO:
-    #$perl -T ./check_hbase_tables_stargate.pl
+        run_fail 2 $perl -T ./check_hbase_tables_stargate.pl
 
-    #$perl -T ./check_hbase_tables_jsp.pl
+        run_fail 2 $perl -T ./check_hbase_tables_jsp.pl
+    fi
 
-    run ./check_hbase_table_region_balance.py -T t1
+    ######################
 
-    run_conn_refused ./check_hbase_table_region_balance.py -T t1
+    # HBase <= 0.94 fails to find table
+    if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
+        run_fail "0 2" ./check_hbase_table_region_balance.py -T t1
 
-    run ./check_hbase_table_region_balance.py -T EmptyTable
+        run_fail "0 2" ./check_hbase_table_region_balance.py -T EmptyTable
 
-    run ./check_hbase_table_region_balance.py -T DisabledTable
+        run_fail "0 2" ./check_hbase_table_region_balance.py -T DisabledTable
+    else
+        run ./check_hbase_table_region_balance.py -T t1
+
+        run ./check_hbase_table_region_balance.py -T EmptyTable
+
+        run ./check_hbase_table_region_balance.py -T DisabledTable
+
+    fi
 
     # all tables
     run ./check_hbase_table_region_balance.py
+
+    run_conn_refused ./check_hbase_table_region_balance.py -T t1
 
     run_conn_refused ./check_hbase_table_region_balance.py
 
@@ -387,6 +583,16 @@ EOF
         #docker_exec check_hbase_unassigned_regions_znode.pl -H localhost
     fi
 
+    #####################
+    # give these more time as error reminds these metrics aren't available soon after start
+    # TODO: perhaps this only works on some versions now??? Test and re-enable for those versions
+    # XXX: this used to work, now cannot find metrics
+    run_fail "0 2 3" $perl -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" --all-metrics
+    run_fail "0 2 3" $perl -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" -m compactionQueueLength
+
+    run_fail "0 2 3" $perl -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --all-metrics
+    run_fail "0 2 3" $perl -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" -m compactionQueueLength
+
 # ============================================================================ #
 
     if [ -n "${KEEPDOCKER:-}" ]; then
@@ -396,7 +602,10 @@ EOF
     fi
     echo "Forced Failure Scenarios:"
     echo "sending kill signal to RegionServer"
-    docker exec -ti "$DOCKER_CONTAINER" pkill -f RegionServer
+    # doesn't have procps in build yet, otherwise -i and collapse next 2 lines
+    docker exec -ti "$DOCKER_CONTAINER" pkill -f RegionServer || :
+    # for HBase <= 0.94
+    docker exec -ti "$DOCKER_CONTAINER" pkill -f regionserver || :
     # This doesn't work because the port still responds as open, even when the mapped port is down
     # must be a result of docker networking
     #when_ports_down 20  "$HBASE_HOST" "$HBASE_REGIONSERVER_PORT"
@@ -435,17 +644,30 @@ EOF
 
     run_fail "0 3" ./check_hbase_table_enabled.py -T t1 -t 5
 
-    run_fail 3 ./check_hbase_table_regions.py -T DisabledTable -t 5
+    run_timeout ./check_hbase_table_regions.py -T DisabledTable -t 5
 
-    run_fail 3 ./check_hbase_cell.py -T t1 -R r1 -C cf1:q1 -t 5
+    run_timeout ./check_hbase_cell.py -T t1 -R r1 -C cf1:q1 -t 5
 
     echo "sending kill signal to ThriftServer"
-    docker-compose exec "$DOCKER_SERVICE" pkill -f ThriftServer
-    # leaving a race condition here intentionally as depending on timing it may trigger
-    # either connection refused or connection reset but the code has been upgraded to handle
-    # both as CRITICAL rather than falling through to the UNKNOWN status handler in the pylib framework
-    echo "waiting 2 secs for ThriftServer to go down"
+    docker-compose exec "$DOCKER_SERVICE" pkill -f ThriftServer || :
+    # HBase <= 0.94
+    docker-compose exec "$DOCKER_SERVICE" pkill -f -- hbase.log.file=hbase--thrift- || :
+    # intentionally leaving a race condition here as depending on timing it may trigger
+    # either connection refused or connection reset but the code has been upgraded to handle both
+    # as CRITICAL rather than falling through to the UNKNOWN status handler in the pylib framework
+    # so this actually tests the robustness of the code to return CRITICAL in either case
+    echo "Sleeping for 2 secs to before continuing with Thrift Server failure checks"
     sleep 2
+#    SECONDS=0
+#    max_kill_time=20
+#    while docker exec "$DOCKER_CONTAINER" ps -ef | grep -q thrift; do
+#        if [ $SECONDS -gt $max_kill_time ]; then
+#            echo "ThriftServer process did not go down after $max_kill_time secs!"
+#            exit 1
+#        fi
+#        echo "waiting for ThriftServer process to go down"
+#        sleep 1
+#    done
     echo "Thrift API checks should now fail with exit code 2:"
     run_fail 2 ./check_hbase_table.py -T t1
 
