@@ -68,8 +68,8 @@ presto_worker_tests(){
 
     # endpoint only found on Presto 0.128 onwards
     if [ "$version" = "latest" -o \
-         "$version" = "NODOCKER" -o \
-         "${version#0.}" -ge 128 ]; then
+         "$version" = "NODOCKER" ] ||
+       [ "${version#0.}" -ge 128 ]; then
         run ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
     else
         echo "state endpoint not available in this version $version < 0.128, expecting 'critical' 404 status:"
@@ -117,8 +117,8 @@ presto_worker_tests(){
         # gets "UNKNOWN: ValueError: No JSON object could be decoded." for Presto 0.74, there is just a smiley face ":)" in the returned output
         run_fail 3 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
     elif [ "$version" != "latest" -a \
-           "$version" != "NODOCKER" -a \
-           "${version#0.}" -le 148 ]; then
+           "$version" != "NODOCKER" ] &&
+         [ "${version#0.}" -le 148 ]; then
         # succeeds with zero queries on versions <= 0.148, not sure why yet - is this another Presto bug?
         run ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
     else
@@ -175,32 +175,32 @@ test_presto2(){
          "$version" = "NODOCKER" ]; then
         if [ "$teradata_distribution" = 1 ]; then
             echo "latest version, fetching latest version from DockerHub master branch"
-            local version="$(dockerhub_latest_version presto)"
+            local expected_version="$(dockerhub_latest_version presto)"
         else
             # don't want to have to pull presto versions script from Dockerfiles repo
-            local version=".*"
+            local expected_version=".*"
         fi
-        echo "expecting version '$version'"
+        echo "expecting version '$expected_version'"
     fi
     hr
     # presto service not found in list of endpoints initially even after it's come up, hence reason for when_url_content test above
     if [ -n "${NODOCKER:-}" ]; then
         # custom compiled presto has a version like 'dc91f48' which results in UNKNOWN: Presto Coordinator version unrecognized 'dc91f48'
-        run_fail "0 3" ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
+        run_fail "0 3" ./check_presto_version.py --expected "$expected_version(-t.\d+.\d+)?"
 
         run_fail "2 3" ./check_presto_version.py --expected "fail-version"
     else
-        run ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
+        run ./check_presto_version.py --expected "$expected_version(-t.\d+.\d+)?"
 
         run_fail 2 ./check_presto_version.py --expected "fail-version"
     fi
 
-    run_conn_refused ./check_presto_version.py --expected "$version(-t.\d+.\d+)?"
+    run_conn_refused ./check_presto_version.py --expected "$expected_version(-t.\d+.\d+)?"
 
     # coordinator field not available in Presto 0.93
     if [ "$version" = "latest" -o \
-         "$version" = "NODOCKER" -o \
-         "${version#0.}" -ge 94 ]; then
+         "$version" = "NODOCKER" ] ||
+       [ "${version#0.}" -ge 94 ]; then
         run ./check_presto_coordinator.py
     else
         echo "coordinator attribute will not be available in this version $version < 0.94, expecting 'unknown' status:"
@@ -242,8 +242,8 @@ test_presto2(){
 
     # endpoint only found on Presto 0.128 onwards
     if [ "$version" = "latest" -o \
-         "$version" = "NODOCKER" -o \
-         "${version#0.}" -ge 128 ]; then
+         "$version" = "NODOCKER" ] ||
+       [ "${version#0.}" -ge 128 ]; then
         run ./check_presto_state.py
     else
         echo "state endpoint is not available in this version $version < $0.128, expecting 'critical' 404 status:"
