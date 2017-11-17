@@ -20,7 +20,7 @@ Written and tested on CDH 4.3 (HBase 0.94.6-cdh4.3.0) then updated for HBase 1.x
 Tested on Apache HBase 0.96, 0.98, 1.0.3, 1.1.9, 1.2.6, 1.3.1
 ";
 
-$VERSION = "0.4.1";
+$VERSION = "0.5.0";
 
 use strict;
 use warnings;
@@ -81,6 +81,10 @@ foreach(split("\n", $content)){
         $live_servers_section = 1;
     }
     next unless $live_servers_section;
+    if(/Dead Region Servers/){
+        $live_servers_section = 0;
+        last;
+    }
     # HBase 0.94
     #if(/<tr><th>Total: <\/th><td>servers: (\d+)<\/td>/){
     # HBase 1.0
