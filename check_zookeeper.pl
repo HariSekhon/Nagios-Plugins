@@ -26,7 +26,7 @@ Checks:
 
 Requires ZooKeeper 3.4 onwards due to isro and mntr 4lw checks only being available from 3.4+.
 
-Tested on Apache ZooKeeper 3.4.5, 3.4.6, 3.4.8 and on Cloudera, Hortonworks and MapR.
+Tested on Apache ZooKeeper 3.4.5, 3.4.6, 3.4.8, 3.4.11 and on Cloudera, Hortonworks and MapR.
 ";
 
 $VERSION = "0.8.2";

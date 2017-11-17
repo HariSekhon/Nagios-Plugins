@@ -21,7 +21,7 @@ Nagios Plugin to check the deployed version of ZooKeeper matches what's expected
 This is also used in the accompanying test suite to ensure we're checking the right version of ZooKeeper
 and to avoid the check_zookeeper.pl which needs mntr not available in ZooKeeper 3.3
 
-Tested on ZooKeeper 3.3.6, 3.4.8
+Tested on ZooKeeper 3.3.6, 3.4.8, 3.4.11
 
 """
 

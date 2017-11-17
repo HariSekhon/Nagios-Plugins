@@ -17,7 +17,7 @@ Non-ephemeral znodes raises a warning by default as this will skew the purpose o
 
 Base off adjacent check_zookeeper_znode.pl (also part of the Advanced Nagios Plugins Collection)
 
-Tested on Apache ZooKeeper 3.3.6, 3.4.5, 3.4.6, 3.4.8 and on Hortonworks HDP 2.2.
+Tested on Apache ZooKeeper 3.3.6, 3.4.5, 3.4.6, 3.4.8, 3.4.11 and on Hortonworks HDP 2.2.
 
 API / BUGS / Limitations:
 

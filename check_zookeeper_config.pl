@@ -20,7 +20,7 @@ Inspired by check_mysql_config.pl (also part of the Advanced Nagios Plugins Coll
 
 Requires ZooKeeper 3.3.0 onwards.
 
-Tested on Apache ZooKeeper 3.3.6, 3.4.5, 3.4.6, 3.4.8 and on Cloudera, Hortonworks and MapR.
+Tested on Apache ZooKeeper 3.3.6, 3.4.5, 3.4.6, 3.4.8, 3.4.11 and on Cloudera, Hortonworks and MapR.
 
 BUGS: there are bugs in ZooKeeper's live running config where it doesn't report all the configuration variables from the config file. I checked this with my colleague Patrick Hunt @ Cloudera who reviewed those additions. If you get a warning about missing config not found on running server then you can use the -m switch to ignore it but please also raise a ticket to create an exception for that variable at https://github.com/harisekhon/nagios-plugins/issues/new
 ";
