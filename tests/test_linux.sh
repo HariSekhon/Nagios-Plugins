@@ -104,13 +104,16 @@ test_linux(){
     echo
 }
 
-# TODO: check if next arg is distro, if so latest and then use next arg
 if [ $# -gt 1 ]; then
     if ! [[ ${valid_distros[*]} =~ "$1" ]]; then
         echo "INVALID distro argument given, must be one of: ${valid_distros[*]}"
         exit 1
     fi
-    test_linux "$1" "$2"
+    distro="$1"
+    shift
+    for version in $@; do
+        test_linux "$distro" "$version"
+    done
 elif [ $# -eq 1 -a "$1" != "latest" ]; then
     if [[ ${valid_distros[*]} =~ "$1" ]]; then
         test_linux "$1" "latest"
