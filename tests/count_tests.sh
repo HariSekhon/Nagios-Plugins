@@ -23,7 +23,7 @@ total=$(egrep -Hn \
       -e '^[[:space:]]*run(_grep|_fail)?[[:space:]]' \
       -e '^[[:space:]]*run\+\+[[:space:]]*$' \
       -e '^[[:space:]]*docker_exec[[:space:]]' \
-      tests/test_*.sh |
+      ${@:-tests/test_*.sh} |
       egrep -v 'run[[:space:]]+docker(-compose)?[[:space:]]+exec' |
       tee /dev/stderr |
       wc -l)
