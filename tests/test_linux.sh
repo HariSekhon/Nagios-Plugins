@@ -111,7 +111,7 @@ if [ $# -gt 1 ]; then
         exit 1
     fi
     test_linux "$1" "$2"
-elif [ $# -eq 1 ]; then
+elif [ $# -eq 1 -a "$1" != "latest" ]; then
     if [[ ${valid_distros[*]} =~ "$1" ]]; then
         test_linux "$1" "latest"
     else
