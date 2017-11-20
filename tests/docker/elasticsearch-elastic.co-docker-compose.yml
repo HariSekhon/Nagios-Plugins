@@ -1,0 +1,29 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2016-12-09 18:41:13 +0000 (Fri, 09 Dec 2016)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+version: '2.2'
+services:
+  elasticsearch:
+    extends:
+      file: common.yml
+      service: common
+    # Official Elasticsearch docker images have moved from DockerHub to docker.elastic.co for Elasticsearch 6.x +
+    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-latest}
+    ports:
+      - 9200
+    networks:
+      - elasticsearch
+
+networks:
+  elasticsearch:
