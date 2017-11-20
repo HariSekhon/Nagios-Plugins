@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check the numbers of different types of Elastic
 
 Thresholds apply to counts of active primary shards, active shards, relocating shards, initializing shards and unassigned shards in <warning>,<critical> format where each threshold can take a standard Nagios ra:nge
 
-Tested on Elasticsearch 0.90, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 2.0, 2.1, 2.2, 2.3, 2.4, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6";
+Tested on Elasticsearch 0.90, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 2.0, 2.1, 2.2, 2.3, 2.4, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.0";
 
 $VERSION = "0.4.0";
 
