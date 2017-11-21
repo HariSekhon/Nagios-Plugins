@@ -114,11 +114,13 @@ test_kafka(){
     KAFKA_BROKERS="$KAFKA_HOST" \
     run ./check_kafka.py -v
 
+    echo "checking default port is overridden by more specific port per broker inside KAFKA_BROKERS by setting default port to the wrong port and checking it still succeeds:"
     KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" \
     run ./check_kafka.py -P "999" -v
 
     run ./check_kafka.py -v
 
+    echo "checking default port works by setting it to the wrong port and testing for failure expecting NoBrokersAvailable:"
     ERRCODE=2 run_grep "NoBrokersAvailable" ./check_kafka.py -B "$KAFKA_HOST" -P "999" -v
 
     run_fail 3 ./check_kafka.py -B "$KAFKA_HOST:$KAFKA_PORT" -v --list-topics
