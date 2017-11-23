@@ -17,7 +17,7 @@
 
 Nagios Plugin to check Apache Drill's status page
 
-Tested on Apache Drill 0.7, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11
+Tested on Apache Drill 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11
 
 """
 
