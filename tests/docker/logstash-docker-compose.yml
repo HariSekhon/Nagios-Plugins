@@ -22,6 +22,7 @@ services:
     ports:
       - 9600
     # listen on dummy port just to keep it up, stdin {} closes in this scenario
+    # set --http.host to 0.0.0.0 otherwise it listens on 127.0.0.1 by default
     command: "-e 'input { tcp { port => 9999 } }' --http.host 0.0.0.0 --http.port 9600"
     networks:
       - logstash
