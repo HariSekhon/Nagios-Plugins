@@ -1,0 +1,30 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2017-11-24 20:02:44 +0100 (Fri, 24 Nov 2017)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+version: '2.2'
+services:
+  logstash:
+    extends:
+      file: common.yml
+      service: common
+    image: logstash:${VERSION:-latest}
+    ports:
+      - 9600
+    # listen on dummy port just to keep it up, stdin {} closes in this scenario
+    command: "-e 'input { tcp { port => 9999 } }' --http.host 0.0.0.0 --http.port 9600"
+    networks:
+      - logstash
+
+networks:
+  logstash:
