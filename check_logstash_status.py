@@ -22,6 +22,9 @@ Nagios Plugin to check a Logstash instance is online via its Rest API
 Outputs uptime which may have optional thresholds applied to alert on logstash restarts
 (to detect crashing / respawning processes such as can happen with Java Heap dumps)
 
+This check's API endpoint for JVM info for uptime can take an extra 30-40 secs to come online
+for a faster check that will return OK within a few secs of Logstash starting see check_logstash_version.py
+
 API is only available in Logstash 5.x onwards, will get connection refused on older versions
 
 Ensure Logstash options:
@@ -75,7 +78,7 @@ class CheckLogstashStatus(RestNagiosPlugin):
 
     def add_options(self):
         super(CheckLogstashStatus, self).add_options()
-        self.add_thresholds(default_warning=60)
+        self.add_thresholds(default_warning=90)
 
     def process_options(self):
         super(CheckLogstashStatus, self).process_options()
