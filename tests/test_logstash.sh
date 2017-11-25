@@ -47,7 +47,8 @@ test_logstash(){
         local export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-elastic.co-docker-compose.yml"
     fi
     docker_compose_pull
-    docker-compose down || :
+    # force restarting the container so the uptime so the check_logstash_status.py checks get the right success and failure results for the amount of uptime
+    docker-compose stop || :
     VERSION="$version" docker-compose up -d
     hr
     echo "getting Logstash dynamic port mapping:"
@@ -109,9 +110,9 @@ test_logstash(){
 
     run ./check_logstash_pipeline.py -v --pipeline "$pipeline" $logstash_5
 
-    run ./check_logstash_pipeline.py -v --pipeline "$pipeline" --workers 8 $logstash_5
+    run ./check_logstash_pipeline.py -v --pipeline "$pipeline" -w 8:8 $logstash_5
 
-    run_fail 1 ./check_logstash_pipeline.py -v --pipeline "$pipeline" --workers 99 $logstash_5
+    run_fail 1 ./check_logstash_pipeline.py -v --pipeline "$pipeline" -w 99 $logstash_5
 
     # TODO: re-enable on latest if Elastic.co finally support 'latest' tag, otherwise it points to 5.x on dockerhub
     if [ "$version" = "latest" -o "${version:0:1}" = 5 ]; then
@@ -127,6 +128,18 @@ test_logstash(){
     run_conn_refused ./check_logstash_pipeline.py -v
 
     run_conn_refused ./check_logstash_pipeline.py -v --pipeline "$pipeline"
+
+    # ============================================================================ #
+
+    run_fail 3 ./check_logstash_plugins.py -l
+
+    run ./check_logstash_plugins.py -v
+
+    run_fail 1 ./check_logstash_plugins.py -w 10
+
+    run_fail 2 ./check_logstash_plugins.py -c 20
+
+    run_conn_refused ./check_logstash_plugins.py
 
     echo "Completed $run_count Logstash tests"
     hr
