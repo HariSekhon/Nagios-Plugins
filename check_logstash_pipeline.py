@@ -21,7 +21,7 @@ Nagios Plugin to check a Logstash pipeline is configured via its Rest API
 
 API is only available in Logstash 5.x onwards, will get connection refused on older versions
 
-Tested on Logstash version 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.0
+Tested on Logstash 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.0
 
 """
 
