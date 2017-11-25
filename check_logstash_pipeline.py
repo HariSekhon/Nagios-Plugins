@@ -17,7 +17,7 @@
 
 """
 
-Nagios Plugin to check a Logstash pipeline is online via Logstash Rest API
+Nagios Plugin to check a Logstash pipeline is online via the Logstash Rest API
 
 API is only available in Logstash 5.x onwards, will get connection refused on older versions
 
