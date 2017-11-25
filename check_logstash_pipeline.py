@@ -19,7 +19,9 @@
 
 Nagios Plugin to check a Logstash pipeline is configured via its Rest API
 
-Tested on Logstash version 6.0 (not available in 5.x and prior, will get a 404 Not Found error on those older versions)
+API is only available in Logstash 5.x onwards, will get connection refused on older versions
+
+Tested on Logstash version 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.0
 
 """
 
