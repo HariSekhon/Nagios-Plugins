@@ -76,12 +76,13 @@ test_logstash(){
 
     # ============================================================================ #
 
+    echo "waiting for Logstash JVM uptime to come online:"
+    retry 40 ./check_logstash_status.py -w 1
+
     echo "checking will alert warning on logstash recently started:"
     run_fail 1 ./check_logstash_status.py
 
     run_fail 1 ./check_logstash_status.py -v
-
-    retry 5 ./check_logstash_status.py -w 1
 
     run ./check_logstash_status.py -w 1
 
@@ -98,8 +99,8 @@ test_logstash(){
     fi
 
     local pipeline="main"
-    echo "waiting 30 secs for pipeline API endpoint to come up:"
-    retry 40 ./check_logstash_pipeline.py $logstash_5
+    echo "waiting for pipeline API endpoint to online:"
+    retry 20 ./check_logstash_pipeline.py $logstash_5
     hr
 
     run_fail 3 ./check_logstash_pipeline.py -l $logstash_5
