@@ -37,15 +37,15 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     #from harisekhon.utils import log
-    #from harisekhon.utils import CriticalError, UnknownError
-    from harisekhon.utils import ERRORS, validate_chars, validate_int
+    from harisekhon.utils import ERRORS, UnknownError, support_msg_api
+    from harisekhon.utils import validate_chars, validate_int
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.5'
 
 
 class CheckLogstashPipeline(RestNagiosPlugin):
@@ -58,6 +58,8 @@ class CheckLogstashPipeline(RestNagiosPlugin):
         self.name = 'Logstash'
         self.default_port = 9600
         # could add pipeline name to end of this endpoint but error would be less good 404 Not Found
+        # Logstash 5.x /_node/pipeline <= use -5 switch for older Logstash
+        # Logstash 6.x /_node/pipelines
         self.path = '/_node/pipelines'
         self.auth = False
         self.json = True
@@ -71,6 +73,8 @@ class CheckLogstashPipeline(RestNagiosPlugin):
         self.add_opt('-w', '--workers', type=int, help='Check it has the expected number of workers')
         self.add_opt('-d', '--dead-letter-queue-enabled', action='store_true',
                      help='Check dead letter queue is enabled on pipeline')
+        self.add_opt('-5', '--logstash-5', action='store_true',
+                     help='Logstash 5.x (has a slightly different API endpoint to 6.x')
         self.add_opt('-l', '--list', action='store_true', help='List pipelines and exit')
 
     def process_options(self):
@@ -82,31 +86,48 @@ class CheckLogstashPipeline(RestNagiosPlugin):
         self.expected_num_workers = self.get_opt('workers')
         if self.expected_num_workers is not None:
             validate_int(self.expected_num_workers, 'expected number of workers')
+        if self.get_opt('logstash_5'):
+            if self.pipeline != 'main':
+                self.usage("--pipeline can only be 'main' for --logstash-5")
+            if self.get_opt('list'):
+                self.usage('can only --list pipelines for Logstash 6+')
+            if self.get_opt('dead_letter_queue_enabled'):
+                self.usage('--dead-letter-queue-enabled only available with Logstash 6+')
+            self.path = self.path.rstrip('s')
 
     def parse_json(self, json_data):
-        pipelines = json_data['pipelines']
-        if self.get_opt('list'):
-            print('Logstash Pipelines:\n')
-            for pipeline in pipelines:
-                print(pipeline)
-            sys.exit(ERRORS['UNKNOWN'])
+        if self.get_opt('logstash_5'):
+            pipeline = json_data['pipeline']
+        else:
+            pipelines = json_data['pipelines']
+            if self.get_opt('list'):
+                print('Logstash Pipelines:\n')
+                for pipeline in pipelines:
+                    print(pipeline)
+                sys.exit(ERRORS['UNKNOWN'])
+            pipeline = None
+            if self.pipeline in pipelines:
+                pipeline = pipelines[self.pipeline]
         self.msg = "Logstash pipeline '{}' ".format(self.pipeline)
-        if self.pipeline in pipelines:
-            pipeline = pipelines[self.pipeline]
+        if pipeline:
             self.msg += 'exists'
+            if 'workers' not in pipeline:
+                raise UnknownError('workers field not found, Logstash may still be initializing' + \
+                                   '. If problem persists {}'.format(support_msg_api()))
             workers = pipeline['workers']
             self.msg += ' with {} workers'.format(workers)
             if self.expected_num_workers is not None:
                 if workers != self.expected_num_workers:
                     self.warning()
                     self.msg += ' (expected {})'.format(self.expected_num_workers)
-            dead_letter_queue_enabled = pipeline['dead_letter_queue_enabled']
+            if not self.get_opt('logstash_5'):
+                dead_letter_queue_enabled = pipeline['dead_letter_queue_enabled']
+                self.msg += ', dead letter queue enabled: {}'.format(dead_letter_queue_enabled)
+                if self.get_opt('dead_letter_queue_enabled') and not dead_letter_queue_enabled:
+                    self.warning()
+                    self.msg += ' (expected True)'
             batch_delay = pipeline['batch_delay']
             batch_size = pipeline['batch_size']
-            self.msg += ', dead letter queue enabled: {}'.format(dead_letter_queue_enabled)
-            if self.get_opt('dead_letter_queue_enabled') and not dead_letter_queue_enabled:
-                self.warning()
-                self.msg += ' (expected True)'
             self.msg += ', batch delay: {}, batch size: {}'.format(batch_delay, batch_size)
         else:
             self.critical()
