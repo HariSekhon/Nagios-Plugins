@@ -75,7 +75,7 @@ test_logstash(){
     # ============================================================================ #
     # API endpoint only available in Logstash 6.0 onwards
     # TODO: enable latest if Elastic.co finally support 'latest' tag
-    if [ "$version" != "latest" -a "${version:0:1}" -ge 6 ]; then
+    if [ "$version" != "latest" ] && [ "${version:0:1}" -ge 6 ]; then
         local pipeline="main"
         echo "waiting 20 secs for pipeline API endpoint to come up:"
         retry 20 ./check_logstash_pipeline.py
