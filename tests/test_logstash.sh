@@ -24,7 +24,8 @@ cd "$srcdir/..";
 section "L o g s t a s h"
 
 # Logstash 6.0+ only available on new docker.elastic.co which uses full sub-version x.y.z and does not have x.y tags
-export LOGSTASH_VERSIONS="${@:-${LOGSTASH_VERSIONS:-latest 1.4 1.5 2.0 2.1 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5 5.6 6.0.0}}"
+# Rest API 5.x onwards
+export LOGSTASH_VERSIONS="${@:-${LOGSTASH_VERSIONS:-latest 5.0 5.1 5.2 5.3 5.4 5.5 5.6 6.0.0}}"
 
 LOGSTASH_HOST="${DOCKER_HOST:-${LOGSTASH_HOST:-${HOST:-localhost}}}"
 LOGSTASH_HOST="${LOGSTASH_HOST##*/}"
@@ -36,17 +37,17 @@ check_docker_available
 
 trap_debug_env logstash
 
-startupwait 20
+startupwait 70
 
 test_logstash(){
     local version="$1"
     section2 "Setting up Logstash $version test container"
-    # TODO: re-enable this when Elastic.co finally support 'latest' tag
-    #if [ "$version" = "latest" ] || [ "${version:0:1}" -ge 6 ]; then
-    if [ "$version" != "latest" ] && [ "${version:0:1}" -ge 6 ]; then
+    # TODO: change latest if Elastic.co finally support 'latest' tag, otherwise it points to 5.x on dockerhub
+    if ! [ "$version" = "latest" -o "${version:0:1}" = 5 ]; then
         local export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-elastic.co-docker-compose.yml"
     fi
     docker_compose_pull
+    docker-compose down || :
     VERSION="$version" docker-compose up -d
     hr
     echo "getting Logstash dynamic port mapping:"
@@ -74,32 +75,57 @@ test_logstash(){
     run_conn_refused ./check_logstash_version.py -v --expected "$expected_version"
 
     # ============================================================================ #
-    # API endpoint only available in Logstash 6.0 onwards
-    # TODO: enable latest if Elastic.co finally support 'latest' tag
-    if [ "$version" != "latest" ] && [ "${version:0:1}" -ge 6 ]; then
-        local pipeline="main"
-        echo "waiting 20 secs for pipeline API endpoint to come up:"
-        retry 20 ./check_logstash_pipeline.py
-        hr
 
-        run_fail 3 ./check_logstash_pipeline.py -l
+    echo "checking will alert warning on logstash recently started:"
+    run_fail 1 ./check_logstash_status.py
 
-        run ./check_logstash_pipeline.py -v
+    run_fail 1 ./check_logstash_status.py -v
 
-        run ./check_logstash_pipeline.py -v --pipeline "$pipeline"
+    retry 5 ./check_logstash_status.py -w 1
 
+    run ./check_logstash_status.py -w 1
+
+    run ./check_logstash_status.py -v -w 1
+
+    run_conn_refused ./check_logstash_status.py -v
+
+    # ============================================================================ #
+    # API changed between Logstash 5 and 6
+    local logstash_5=""
+    # TODO: re-enable on latest if Elastic.co finally support 'latest' tag, otherwise it points to 5.x on dockerhub
+    if [ "$version" = "latest" -o "${version:0:1}" = 5 ]; then
+        logstash_5="--logstash-5"
+    fi
+
+    local pipeline="main"
+    echo "waiting 30 secs for pipeline API endpoint to come up:"
+    retry 40 ./check_logstash_pipeline.py $logstash_5
+    hr
+
+    run_fail 3 ./check_logstash_pipeline.py -l $logstash_5
+
+    run ./check_logstash_pipeline.py -v $logstash_5
+
+    run ./check_logstash_pipeline.py -v --pipeline "$pipeline" $logstash_5
+
+    run ./check_logstash_pipeline.py -v --pipeline "$pipeline" --workers 8 $logstash_5
+
+    run_fail 1 ./check_logstash_pipeline.py -v --pipeline "$pipeline" --workers 99 $logstash_5
+
+    # TODO: re-enable on latest if Elastic.co finally support 'latest' tag, otherwise it points to 5.x on dockerhub
+    if [ "$version" = "latest" -o "${version:0:1}" = 5 ]; then
+        run_usage ./check_logstash_pipeline.py -v --pipeline "$pipeline" --dead-letter-queue-enabled $logstash_5
+
+        run_usage ./check_logstash_pipeline.py -v --pipeline "nonexistent_pipeline" $logstash_5
+    else
         run_fail 1 ./check_logstash_pipeline.py -v --pipeline "$pipeline" --dead-letter-queue-enabled
 
-        run ./check_logstash_pipeline.py -v --pipeline "$pipeline" --workers 8
-
-        run_fail 1 ./check_logstash_pipeline.py -v --pipeline "$pipeline" --workers 99
-
         run_fail 2 ./check_logstash_pipeline.py -v --pipeline "nonexistent_pipeline"
-
-        run_conn_refused ./check_logstash_pipeline.py -v
-
-        run_conn_refused ./check_logstash_pipeline.py -v --pipeline "$pipeline"
     fi
+
+    run_conn_refused ./check_logstash_pipeline.py -v
+
+    run_conn_refused ./check_logstash_pipeline.py -v --pipeline "$pipeline"
 
     echo "Completed $run_count Logstash tests"
     hr
