@@ -41,7 +41,7 @@ startupwait 20
 test_logstash(){
     local version="$1"
     section2 "Setting up Logstash $version test container"
-    # re-enable this when Elastic.co finally support 'latest' tag
+    # TODO: re-enable this when Elastic.co finally support 'latest' tag
     #if [ "$version" = "latest" ] || [ "${version:0:1}" -ge 6 ]; then
     if [ "$version" != "latest" ] && [ "${version:0:1}" -ge 6 ]; then
         local export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-elastic.co-docker-compose.yml"
@@ -74,6 +74,7 @@ test_logstash(){
 
     # ============================================================================ #
     # API endpoint only available in Logstash 6.0 onwards
+    # TODO: enable latest if Elastic.co finally support 'latest' tag
     if [ "$version" != "latest" -a "${version:0:1}" -ge 6 ]; then
         local pipeline="main"
         echo "waiting 20 secs for pipeline API endpoint to come up:"
