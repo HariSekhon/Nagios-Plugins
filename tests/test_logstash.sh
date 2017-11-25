@@ -60,17 +60,18 @@ test_logstash(){
         exit 0
     fi
     hr
+    local expected_version="$version"
     if [ "$version" = "latest" ]; then
-        local version=".*"
+        local expected_version=".*"
     fi
 
-    run ./check_logstash_version.py --expected "$version"
+    run ./check_logstash_version.py --expected "$expected_version"
 
-    run ./check_logstash_version.py -v --expected "$version"
+    run ./check_logstash_version.py -v --expected "$expected_version"
 
     run_fail 2 ./check_logstash_version.py -v --expected "fail-version"
 
-    run_conn_refused ./check_logstash_version.py -v --expected "$version"
+    run_conn_refused ./check_logstash_version.py -v --expected "$expected_version"
 
     # ============================================================================ #
     # API endpoint only available in Logstash 6.0 onwards
