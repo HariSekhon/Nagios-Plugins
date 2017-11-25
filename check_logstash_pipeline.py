@@ -17,9 +17,11 @@
 
 """
 
-Nagios Plugin to check a Logstash pipeline is configured via its Rest API
+Nagios Plugin to check a Logstash pipeline is online via Logstash Rest API
 
 API is only available in Logstash 5.x onwards, will get connection refused on older versions
+
+Optional thresholds apply to the number of pipeline workers
 
 Ensure Logstash options:
   --http.host should be set to 0.0.0.0 if querying remotely
@@ -44,14 +46,14 @@ try:
     # pylint: disable=wrong-import-position
     #from harisekhon.utils import log
     from harisekhon.utils import ERRORS, UnknownError, support_msg_api
-    from harisekhon.utils import validate_chars, validate_int
+    from harisekhon.utils import validate_chars
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5'
+__version__ = '0.6'
 
 
 class CheckLogstashPipeline(RestNagiosPlugin):
@@ -71,17 +73,16 @@ class CheckLogstashPipeline(RestNagiosPlugin):
         self.json = True
         self.msg = 'Logstash piplines msg not defined yet'
         self.pipeline = None
-        self.expected_num_workers = None
 
     def add_options(self):
         super(CheckLogstashPipeline, self).add_options()
         self.add_opt('-i', '--pipeline', default='main', help='Pipeline to expect is configured (default: main)')
-        self.add_opt('-w', '--workers', type=int, help='Check it has the expected number of workers')
         self.add_opt('-d', '--dead-letter-queue-enabled', action='store_true',
-                     help='Check dead letter queue is enabled on pipeline')
+                     help='Check dead letter queue is enabled on pipeline (optional, only applies to Logstash 6+)')
         self.add_opt('-5', '--logstash-5', action='store_true',
-                     help='Logstash 5.x (has a slightly different API endpoint to 6.x')
-        self.add_opt('-l', '--list', action='store_true', help='List pipelines and exit')
+                     help='Logstash 5.x (has a slightly different API endpoint to 6.x)')
+        self.add_opt('-l', '--list', action='store_true', help='List pipelines and exit (only for Logstash 6+)')
+        self.add_thresholds()
 
     def process_options(self):
         super(CheckLogstashPipeline, self).process_options()
@@ -89,9 +90,6 @@ class CheckLogstashPipeline(RestNagiosPlugin):
         validate_chars(self.pipeline, 'pipeline', 'A-Za-z0-9_-')
         # slightly more efficient to not return the potential list of other pipelines but the error is less informative
         #self.path += '/{}'.format(self.pipeline)
-        self.expected_num_workers = self.get_opt('workers')
-        if self.expected_num_workers is not None:
-            validate_int(self.expected_num_workers, 'expected number of workers')
         if self.get_opt('logstash_5'):
             if self.pipeline != 'main':
                 self.usage("--pipeline can only be 'main' for --logstash-5")
@@ -100,6 +98,7 @@ class CheckLogstashPipeline(RestNagiosPlugin):
             if self.get_opt('dead_letter_queue_enabled'):
                 self.usage('--dead-letter-queue-enabled only available with Logstash 6+')
             self.path = self.path.rstrip('s')
+        self.validate_thresholds(simple='lower', optional=True)
 
     def parse_json(self, json_data):
         if self.get_opt('logstash_5'):
@@ -122,10 +121,7 @@ class CheckLogstashPipeline(RestNagiosPlugin):
                                    '. If problem persists {}'.format(support_msg_api()))
             workers = pipeline['workers']
             self.msg += ' with {} workers'.format(workers)
-            if self.expected_num_workers is not None:
-                if workers != self.expected_num_workers:
-                    self.warning()
-                    self.msg += ' (expected {})'.format(self.expected_num_workers)
+            self.check_thresholds(workers)
             if not self.get_opt('logstash_5'):
                 dead_letter_queue_enabled = pipeline['dead_letter_queue_enabled']
                 self.msg += ', dead letter queue enabled: {}'.format(dead_letter_queue_enabled)
