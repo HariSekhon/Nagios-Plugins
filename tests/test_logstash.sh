@@ -24,7 +24,7 @@ cd "$srcdir/..";
 section "L o g s t a s h"
 
 # Logstash 6.0+ only available on new docker.elastic.co which uses full sub-version x.y.z and does not have x.y tags
-export LOGSTASH_VERSIONS="${@:-${LOGSTASH_VERSIONS:-latest 1.3 1.4 1.5 1.6 1.7 2.0 2.1 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5 5.6 6.0.0}}"
+export LOGSTASH_VERSIONS="${@:-${LOGSTASH_VERSIONS:-latest 1.4 1.5 2.0 2.1 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5 5.6 6.0.0}}"
 
 LOGSTASH_HOST="${DOCKER_HOST:-${LOGSTASH_HOST:-${HOST:-localhost}}}"
 LOGSTASH_HOST="${LOGSTASH_HOST##*/}"
@@ -71,6 +71,31 @@ test_logstash(){
     run_fail 2 ./check_logstash_version.py -v --expected "fail-version"
 
     run_conn_refused ./check_logstash_version.py -v --expected "$version"
+
+    # ============================================================================ #
+    # API endpoint only available in Logstash 6.0 onwards
+    if [ "${version:0:1}" -ge 6 ]; then
+        local pipeline="main"
+        echo "waiting 20 secs for pipeline API endpoint to come up:"
+        retry 20 ./check_logstash_pipeline.py
+        hr
+
+        run ./check_logstash_pipeline.py -v
+
+        run ./check_logstash_pipeline.py -v --pipeline "$pipeline"
+
+        run_fail 1 ./check_logstash_pipeline.py -v --pipeline "$pipeline" --dead-letter-queue-enabled
+
+        run ./check_logstash_pipeline.py -v --pipeline "$pipeline" --workers 8
+
+        run_fail 1 ./check_logstash_pipeline.py -v --pipeline "$pipeline" --workers 99
+
+        run_fail 2 ./check_logstash_pipeline.py -v --pipeline "nonexistent_pipeline"
+
+        run_conn_refused ./check_logstash_pipeline.py -v
+
+        run_conn_refused ./check_logstash_pipeline.py -v --pipeline "$pipeline"
+    fi
 
     echo "Completed $run_count Logstash tests"
     hr
