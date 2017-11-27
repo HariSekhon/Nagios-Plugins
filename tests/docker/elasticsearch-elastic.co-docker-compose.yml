@@ -25,6 +25,12 @@ services:
       - 9200
     networks:
       - elasticsearch
+  haproxy:
+    image: haproxy:alpine
+    ports:
+      - 9201
+    networks:
+      - elasticsearch
 
 networks:
   elasticsearch:
