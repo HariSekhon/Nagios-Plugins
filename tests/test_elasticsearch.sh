@@ -113,7 +113,18 @@ test_elasticsearch(){
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
+    elasticsearch_tests
+    #ELASTICSEARCH_USER=elastic ELASTICSEARCH_PASSWORD=elasticsearchpw \
+    #elasticsearch_tests
+    # TODO: run fail auth tests for all plugins and add run_fail_auth to bash-tools/utils.sh with run_grep string
 
+    echo "Completed $run_count Elasticsearch tests"
+    hr
+    [ -n "${KEEPDOCKER:-}" ] ||
+    docker-compose down
+}
+
+elasticsearch_tests(){
     run $perl -T ./check_elasticsearch.pl -v --es-version "$version"
 
     run_fail 2 $perl -T ./check_elasticsearch.pl -v --es-version "fail-version"
@@ -253,11 +264,6 @@ test_elasticsearch(){
     run $perl -T ./check_elasticsearch_shards_state_detail.pl -v
 
     run_conn_refused $perl -T ./check_elasticsearch_shards_state_detail.pl -v
-
-    echo "Completed $run_count Elasticsearch tests"
-    hr
-    [ -n "${KEEPDOCKER:-}" ] ||
-    docker-compose down
 }
 
 run_test_versions Elasticsearch
