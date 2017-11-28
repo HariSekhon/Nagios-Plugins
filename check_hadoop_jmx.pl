@@ -19,7 +19,7 @@ Tested on Hadoop NameNode & DataNode and HBase Master & RegionServer on:
 
 Hortonworks HDP 2.2 / 2.3
 Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
-Apache HBase 0.96, 0.98, 1.0, 1.1, 1.2, 1.3
+Apache HBase 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3
 ";
 
 $VERSION = "0.4";
