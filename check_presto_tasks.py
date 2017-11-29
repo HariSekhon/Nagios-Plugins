@@ -74,10 +74,10 @@ class CheckPrestoTasks(CheckPrestoUnfinishedQueries):
         self.msg = 'Presto msg not defined'
 
     def add_options(self):
-        # Skip CheckPrestoNumQueries and go straight to it's parent as
-        # CheckPrestoNumQueries sets the defaults to 50 and 200 queries, we want much higher defaults
+        # Skip CheckPrestoUnfinishedQueries and go straight to it's parent as
+        # CheckPrestoUnfinishedQueries sets the defaults to 50 and 200 queries, we want much higher defaults
         # shut up pylint this works
-        super(CheckPrestoNumQueries, self).add_options()  # pylint: disable=bad-super-call
+        super(CheckPrestoUnfinishedQueries, self).add_options()  # pylint: disable=bad-super-call
         self.add_thresholds(default_warning=10000, default_critical=50000)
 
     def filter(self, items):
