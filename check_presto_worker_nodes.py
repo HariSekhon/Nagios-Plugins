@@ -67,14 +67,14 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
-class CheckPrestoWorkerNodeCount(RestNagiosPlugin):
+class CheckPrestoWorkerNodes(RestNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckPrestoWorkerNodeCount, self).__init__()
+        super(CheckPrestoWorkerNodes, self).__init__()
         # Python 3.x
         # super().__init__()
         self.name = ['Presto Coordinator', 'Presto']
@@ -85,11 +85,11 @@ class CheckPrestoWorkerNodeCount(RestNagiosPlugin):
         self.msg = 'Presto msg not defined'
 
     def add_options(self):
-        super(CheckPrestoWorkerNodeCount, self).add_options()
+        super(CheckPrestoWorkerNodes, self).add_options()
         self.add_thresholds(default_critical=1)
 
     def process_options(self):
-        super(CheckPrestoWorkerNodeCount, self).process_options()
+        super(CheckPrestoWorkerNodes, self).process_options()
         self.validate_thresholds(simple='lower')
 
     def parse_json(self, json_data):
@@ -102,4 +102,4 @@ class CheckPrestoWorkerNodeCount(RestNagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckPrestoWorkerNodeCount().main()
+    CheckPrestoWorkerNodes().main()
