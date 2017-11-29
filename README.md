@@ -52,15 +52,15 @@ https://www.linkedin.com/in/harisekhon
 
 ### Quick Start ###
 
-1. Compile dependencies for executing locally by running ```make```<br>
+1. Git clone this repo and compile dependencies for executing locally by running ```make```<br>
       OR<br>
-2. Download pre-built via Docker
+2. Download pre-built self-contained [Docker image](https://hub.docker.com/r/harisekhon/nagios-plugins/)
 
 Execute each program on the command line with ```--help``` to see its options.
 
 #### Ready-to-run Docker image #####
 
-All plugins and their pre-compiled dependencies can be found ready-to-run on [DockerHub](https://hub.docker.com/r/harisekhon/nagios-plugins/).
+All plugins and their pre-compiled dependencies can be found ready-to-run on [DockerHub](https://hub.docker.com/r/harisekhon/nagios-plugins/), if you have [Docker](https://www.docker.com/) installed, fetch this project like so:
 
 ```
 docker pull harisekhon/nagios-plugins
