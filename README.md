@@ -498,7 +498,7 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Groundwork Monitor](http://www.gwos.com/) - Nagios-based commercial monitoring distribution
 
-* [OpsView](https://www.opsview.com/) - Nagios-based commercial monitoring distribution
+* [OpsView Monitor](https://www.opsview.com/) - Nagios-based commercial monitoring distribution
 
 * [OP5 Monitor](https://www.op5.com/op5-monitor/) - Nagios-based commerical monitoring distribution
 
