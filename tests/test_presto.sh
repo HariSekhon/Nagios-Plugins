@@ -231,14 +231,20 @@ test_presto2(){
 
     run_conn_refused ./check_presto_num_worker_nodes.py -w 1
 
+    run_fail 3 ./check_presto_queries.py --list
+
     if [ -n "${NODOCKER:-}" -o -n "${KEEPDOCKER:-}" ]; then
-        run_fail "0 1 2" ./check_presto_queries.py
+        run_fail "0 1 2" ./check_presto_queries.py --running
+        run_fail "0 1 2" ./check_presto_queries.py --failed
+        run_fail "0 1 2" ./check_presto_queries.py --blocked
+        run_fail "0 1 2" ./check_presto_queries.py --queued
     else
         echo "checking presto queries, but in docker there will be none by this point so expecting warning:"
-        run_fail 1 ./check_presto_queries.py
+        run_fail 1 ./check_presto_queries.py --running
+        run_fail 1 ./check_presto_queries.py --failed
+        run_fail 1 ./check_presto_queries.py --blocked
+        run_fail 1 ./check_presto_queries.py --queued
     fi
-
-    run_fail 3 ./check_presto_queries.py --list
 
     # endpoint only found on Presto 0.128 onwards
     if [ "$version" = "latest" -o \
@@ -315,10 +321,13 @@ EOF
     # missing key error also returns UNKNOWN, so check we actual output a query we expect
     ERRCODE=3 run_grep 'select 1\+1' ./check_presto_queries.py --list
 
-    run ./check_presto_queries.py --exclude 'failure|localfile.logs.http_request_log|SHOW FUNCTIONS|information_schema.tables'
+    run ./check_presto_queries.py --running
+    run ./check_presto_queries.py --failed --exclude 'failure|localfile.logs.http_request_log|SHOW FUNCTIONS|information_schema.tables'
+    run ./check_presto_queries.py --queued
+    run ./check_presto_queries.py --blocked
 
     echo "checking ./check_presto_queries.py with implicit --warning 0 should raise warning after failed queries above are detected:"
-    run_fail 1 ./check_presto_queries.py # implicit -w 0
+    run_fail 1 ./check_presto_queries.py --failed # implicit -w 0
 
     # this should be -c 1 but sometimes queries get the following error and are marked as abandoned, reducing the select failure count, seems to happen mainly on older versions of Presto < 0.130 eg 0.126, setting to -c 0 for more resilience in case only one query was actually executed to fail instead of two:
     #
@@ -340,15 +349,28 @@ EOF
     #         at com.facebook.presto.cli.Console.run(Console.java:128)
     #         at com.facebook.presto.cli.Presto.main(Presto.java:32)
     #
-    run_fail 2 ./check_presto_queries.py -c 0
+    run_fail 2 ./check_presto_queries.py --failed -c 0
 
-    run ./check_presto_queries.py --include 'select 1\+1'
+    run ./check_presto_queries.py --running --include 'select 1\+1'
 
-    run_fail 1 ./check_presto_queries.py --include 'failure'
+    run ./check_presto_queries.py --failed --include 'select 1\+1'
 
-    run_fail 2 ./check_presto_queries.py --include 'failure' -c 0
+    run ./check_presto_queries.py --blocked --include 'select 1\+1'
 
-    run_fail 1 ./check_presto_queries.py --include 'nonexistentquery'
+    run ./check_presto_queries.py --queued --include 'select 1\+1'
+
+    run_fail 1 ./check_presto_queries.py --failed --include 'failure'
+
+    run ./check_presto_queries.py --running --include 'failure'
+    run ./check_presto_queries.py --blocked --include 'failure'
+    run ./check_presto_queries.py --queued  --include 'failure'
+
+    run_fail 2 ./check_presto_queries.py --failed --include 'failure' -c 0
+
+    run_fail 1 ./check_presto_queries.py --running --include 'nonexistentquery'
+    run_fail 1 ./check_presto_queries.py --failed --include 'nonexistentquery'
+    run_fail 1 ./check_presto_queries.py --blocked --include 'nonexistentquery'
+    run_fail 1 ./check_presto_queries.py --queued --include 'nonexistentquery'
 
     echo "getting Presto Worker dynamic port mapping:"
     docker_compose_port "Presto Worker"
