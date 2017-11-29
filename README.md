@@ -62,6 +62,10 @@ Execute each program on the command line with ```--help``` to see its options.
 
 All plugins and their pre-compiled dependencies can be found ready-to-run on [DockerHub](https://hub.docker.com/r/harisekhon/nagios-plugins/).
 
+```
+docker pull harisekhon/nagios-plugins
+```
+
 List all plugins:
 ```
 docker run harisekhon/nagios-plugins
