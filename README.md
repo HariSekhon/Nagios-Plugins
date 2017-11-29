@@ -14,26 +14,30 @@ Largest, most advanced collection of production-grade Nagios monitoring code (ov
 
 Specialised plugins for Hadoop, Big Data & NoSQL technologies, written by a former Clouderan ([Cloudera](http://www.cloudera.com) was the first Hadoop Big Data vendor) and modern [Hortonworks](http://www.hortonworks.com) partner/consultant.
 
-Hadoop and extensive API integration with all major Hadoop vendors ([Hortonworks](http://www.hortonworks.com), [Cloudera](http://www.cloudera.com), [MapR](http://www.mapr.com), [IBM BigInsights](http://www-03.ibm.com/software/products/en/ibm-biginsights-for-apache-hadoop)), as well as most major open source NoSQL technologies, Pub-Sub / Message Buses, CI, Web and Linux based infrastructure.
+Supports most major open source NoSQL technologies, Pub-Sub / Message Buses, CI, Web and Linux based infrastructure, including:
 
-Supports a a wide variety of [compatible Enterprise Monitoring servers](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems), can also run standalone on the command line or in scripts.
+- [Hadoop](http://hadoop.apache.org/) - extensive API integration to all major Hadoop vendors ([Hortonworks](http://www.hortonworks.com), [Cloudera](http://www.cloudera.com), [MapR](http://www.mapr.com), [IBM BigInsights](http://www-03.ibm.com/software/products/en/ibm-biginsights-for-apache-hadoop))
+- [Kafka](http://kafka.apache.org/)
+- [RabbitMQ](http://www.rabbitmq.com/)
+- [Elasticsearch](https://www.elastic.co/products/elasticsearch)
+- [Solr / SolrCloud](http://lucene.apache.org/solr/)
+- [HBase](https://hbase.apache.org/)
+- [Cassandra](http://cassandra.apache.org/)
+- [Redis](http://redis.io/)
+- [CouchDB](http://couchdb.apache.org/)
+- [Consul](https://www.consul.io/)
+- [ZooKeeper](https://zookeeper.apache.org/)
+- [Jenkins](https://jenkins.io/)
+- [Travis CI](https://travis-ci.org/)
+- [Puppet](https://puppet.com/)
+- Linux, [RHEL](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux) / [CentOS](https://www.centos.org/) yum security updates
+- SSL Certificate expiry, advanced DNS record checks, Whois domain expiry checker
+- [Git](https://git-scm.com/), [MySQL](https://www.mysql.com/) ... etc.
+
+Supports a a wide variety of [compatible Enterprise Monitoring servers](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems).
+Also useful to be run on the command line for testing or in scripts for dependency availability checking.
 
 Most enterprise monitoring systems come with basic generic checks, while this project extends their monitoring capabilities significantly further in to advanced infrastructure, application layer, APIs etc.
-
-It's a treasure trove of essentials for every single "DevOp" / sysadmin / engineer, with extensive goodies for people running Linux, Big Data, NoSQL and Web Infrastructure including
-[Hadoop](http://hadoop.apache.org/),
-[Kafka](http://kafka.apache.org/),
-[Elasticsearch](https://www.elastic.co/products/elasticsearch),
-[HBase](https://hbase.apache.org/),
-[RabbitMQ](http://www.rabbitmq.com/),
-[Cassandra](http://cassandra.apache.org/),
-[Solr / SolrCloud](http://lucene.apache.org/solr/),
-[Redis](http://redis.io/),
-[CouchDB](http://couchdb.apache.org/),
-[Consul](https://www.consul.io/),
-[Jenkins](https://jenkins.io/),
-[Travis CI](https://travis-ci.org/),
-SSL Certificate expiry, advanced DNS record checks, Whois domain expiry checker, Linux, [RHEL](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux) / [CentOS](https://www.centos.org/) yum security updates, [Git](https://git-scm.com/), [MySQL](https://www.mysql.com/) ... etc.
 
 Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/harisekhon/nagios-plugins/issues) or [pull requests](https://github.com/harisekhon/nagios-plugins/pulls) (in which case GitHub will give you credit and mark you as a contributor to the project :) ).
 
