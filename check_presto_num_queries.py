@@ -17,9 +17,12 @@
 
 """
 
-Nagios Plugin to check the current number of Presto queries on a Presto Coordinator via its API
+Nagios Plugin to check the combined number of running / waiting Presto queries on a Presto Coordinator via its API
 
-Warning / Critical thresholds apply to the number of current queries and it also outputs
+This is slighly different to check_presto_queries.py in that instead of selecting specific query types
+it includes anything that isn't a finished / failed / cancelled query
+
+Warning / Critical thresholds apply to the number of current / waiting queries and it also outputs
 graph perfdata of the number of queries and query time to retrieve this information
 
 This isn't efficent as it must get the full query list and parse for non-completed states as the Presto API
