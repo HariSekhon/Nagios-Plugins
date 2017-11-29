@@ -496,7 +496,7 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Check_MK](http://mathias-kettner.com/check_mk.html) - Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html). See `check_mk_wrapper.py` which can run any Nagios Plugin and convert its output to Check_MK local check format.
 
-* [Groundwork Monitor](http://www.gwos.com/) - Nagios-based commercial monitoring distribution
+* [GroundWork Monitor](http://www.gwos.com/) - Nagios-based commercial monitoring distribution
 
 * [OpsView Monitor](https://www.opsview.com/) - Nagios-based commercial monitoring distribution
 
