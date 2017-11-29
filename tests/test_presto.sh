@@ -171,6 +171,7 @@ test_presto2(){
     # don't just run ./check_presto_state.py (this also doesn't work < 0.128)
     when_url_content "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" nodeId
     hr
+    local expected_version="$version"
     if [ "$version" = "latest" -o \
          "$version" = "NODOCKER" ]; then
         if [ "$teradata_distribution" = 1 ]; then
@@ -180,8 +181,8 @@ test_presto2(){
             # don't want to have to pull presto versions script from Dockerfiles repo
             local expected_version=".*"
         fi
-        echo "expecting version '$expected_version'"
     fi
+    echo "expecting Presto version '$expected_version'"
     hr
     # presto service not found in list of endpoints initially even after it's come up, hence reason for when_url_content test above
     if [ -n "${NODOCKER:-}" ]; then
