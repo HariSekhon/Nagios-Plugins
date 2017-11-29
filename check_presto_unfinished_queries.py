@@ -64,14 +64,14 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.2'
+__version__ = '0.3.0'
 
 
-class CheckPrestoNumQueries(RestNagiosPlugin):
+class CheckPrestoUnfinishedQueries(RestNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckPrestoNumQueries, self).__init__()
+        super(CheckPrestoUnfinishedQueries, self).__init__()
         # Python 3.x
         # super().__init__()
         self.name = ['Presto Coordinator', 'Presto']
@@ -87,11 +87,11 @@ class CheckPrestoNumQueries(RestNagiosPlugin):
         self.msg = 'Presto msg not defined'
 
     def add_options(self):
-        super(CheckPrestoNumQueries, self).add_options()
+        super(CheckPrestoUnfinishedQueries, self).add_options()
         self.add_thresholds(default_warning=50, default_critical=200)
 
     def process_options(self):
-        super(CheckPrestoNumQueries, self).process_options()
+        super(CheckPrestoUnfinishedQueries, self).process_options()
         self.validate_thresholds()
 
     def filter(self, items):
@@ -117,4 +117,4 @@ class CheckPrestoNumQueries(RestNagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckPrestoNumQueries().main()
+    CheckPrestoUnfinishedQueries().main()
