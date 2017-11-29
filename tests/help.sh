@@ -76,7 +76,7 @@ for x in $(ls *.pl *.py *.rb */*.pl */*.py */*.rb 2>/dev/null | sort); do
         [ $(($RANDOM % 3)) = 0 ] || continue
     fi
     test_help "$x" 2>&1 >> "$log"
-    hr
+    hr >> "$log"
 done
 
 untrap
