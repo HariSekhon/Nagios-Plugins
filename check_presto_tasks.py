@@ -53,7 +53,7 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     #from harisekhon.utils import UnknownError, support_msg_api, isList
-    from check_presto_num_queries import CheckPrestoNumQueries
+    from check_presto_unfinished_queries import CheckPrestoUnfinishedQueries
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
@@ -62,11 +62,11 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
 
-class CheckPrestoNumTasks(CheckPrestoNumQueries):
+class CheckPrestoTasks(CheckPrestoUnfinishedQueries):
 
     def __init__(self):
         # Python 2.x
-        super(CheckPrestoNumTasks, self).__init__()
+        super(CheckPrestoTasks, self).__init__()
         # Python 3.x
         # super().__init__()
         self.path = '/v1/task'
@@ -87,4 +87,4 @@ class CheckPrestoNumTasks(CheckPrestoNumQueries):
 
 
 if __name__ == '__main__':
-    CheckPrestoNumTasks().main()
+    CheckPrestoTasks().main()
