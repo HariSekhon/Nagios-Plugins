@@ -79,7 +79,7 @@ presto_worker_tests(){
     # doesn't show up as registered for a while, so run this test last and iterate for a little while
     max_node_up_wait=20
     echo "allowing to $max_node_up_wait secs for worker to be detected as online by the Presto Coordinator:"
-    retry $max_node_up_wait ./check_presto_num_worker_nodes.py -w 1
+    retry $max_node_up_wait ./check_presto_worker_nodes.py -w 1
     run++
     hr
 
@@ -115,21 +115,21 @@ presto_worker_tests(){
 
     if [ "${version#0.}" = 74 ]; then
         # gets "UNKNOWN: ValueError: No JSON object could be decoded." for Presto 0.74, there is just a smiley face ":)" in the returned output
-        run_fail 3 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+        run_fail 3 ./check_presto_unfinished_queries.py -P "$PRESTO_WORKER_PORT"
     elif [ "$version" != "latest" -a \
            "$version" != "NODOCKER" ] &&
          [ "${version#0.}" -le 148 ]; then
         # succeeds with zero queries on versions <= 0.148, not sure why yet - is this another Presto bug?
-        run ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+        run ./check_presto_unfinished_queries.py -P "$PRESTO_WORKER_PORT"
     else
         # will get a 404 Not Found against worker API in modern versions of Presto
-        run_404 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+        run_404 ./check_presto_unfinished_queries.py -P "$PRESTO_WORKER_PORT"
     fi
 
-    run ./check_presto_num_tasks.py -P "$PRESTO_WORKER_PORT"
+    run ./check_presto_tasks.py -P "$PRESTO_WORKER_PORT"
 
     # will get a 404 Not Found against worker API
-    run_404 ./check_presto_num_worker_nodes.py -w 1 -P "$PRESTO_WORKER_PORT"
+    run_404 ./check_presto_worker_nodes.py -w 1 -P "$PRESTO_WORKER_PORT"
 
     run ./check_presto_worker_nodes_response_lag.py
 
@@ -220,17 +220,17 @@ test_presto2(){
 
     run_conn_refused ./check_presto_worker_nodes_failed.py
 
-    run ./check_presto_num_queries.py
+    run ./check_presto_unfinished_queries.py
 
-    run_conn_refused ./check_presto_num_queries.py
+    run_conn_refused ./check_presto_unfinished_queries.py
 
-    run ./check_presto_num_tasks.py
+    run ./check_presto_tasks.py
 
-    run_conn_refused ./check_presto_num_tasks.py
+    run_conn_refused ./check_presto_tasks.py
 
-    run_fail 2 ./check_presto_num_worker_nodes.py -w 1
+    run_fail 2 ./check_presto_worker_nodes.py -w 1
 
-    run_conn_refused ./check_presto_num_worker_nodes.py -w 1
+    run_conn_refused ./check_presto_worker_nodes.py -w 1
 
     run_fail 3 ./check_presto_queries.py --list
 
@@ -448,7 +448,7 @@ EOF
     hr
 
     # XXX: this still passes as worker is still found, only response time lag and recent failures / recent failure ratios will reliably detect worker failure, not drop in the number of nodes
-    run_fail "0 2" ./check_presto_num_worker_nodes.py -w 1
+    run_fail "0 2" ./check_presto_worker_nodes.py -w 1
 
     run_fail 2 ./check_presto_worker_node.py --node "http://$ip:$PRESTO_WORKER_PORT_DEFAULT"
 
