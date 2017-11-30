@@ -393,7 +393,7 @@ To trigger all tests run:
 make test
 ```
 
-which will start with the underlying libraries, then move on to top level integration tests and functional tests using docker containers if docker is available.
+which will start with the underlying libraries, then move on to top level integration tests and finally functional tests using docker containers if docker is available.
 
 ##### Bugs & Workarounds #####
 
