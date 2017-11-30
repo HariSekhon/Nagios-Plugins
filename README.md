@@ -10,7 +10,7 @@ Advanced Nagios Plugins Collection
 [![](https://images.microbadger.com/badges/image/harisekhon/nagios-plugins.svg)](http://microbadger.com/#/images/harisekhon/nagios-plugins)
 <!-- broken handling of Elasticsearch major version for Python library -->
 
-Largest, most advanced collection of production-grade Nagios monitoring code (over 350 programs).
+##### Largest, most advanced collection of production-grade Nagios monitoring code (over 350 programs).
 
 Specialised plugins for Hadoop, Big Data & NoSQL technologies, written by a former Clouderan ([Cloudera](http://www.cloudera.com) was the first Hadoop Big Data vendor) and modern [Hortonworks](http://www.hortonworks.com) partner/consultant.
 
@@ -52,7 +52,7 @@ https://www.linkedin.com/in/harisekhon
 
 ### Quick Start ###
 
-1. Git clone this repo and compile dependencies for executing locally by running ```make```<br>
+1. Git clone this repo and compile dependencies by running ```make```<br>
       OR<br>
 2. Download pre-built self-contained [Docker image](https://hub.docker.com/r/harisekhon/nagios-plugins/)
 
