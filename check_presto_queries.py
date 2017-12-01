@@ -49,9 +49,9 @@ is only available via the Presto Coordinator API
 
 Tested on:
 
-- Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185, 0.187, 0.188
+- Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185, 0.186, 0.187, 0.188, 0.189
 - Presto Teradata distribution versions:  0.152, 0.157, 0.167, 0.179
-- back tested against all Facebook Presto releases 0.69, 0.71 - 0.188
+- back tested against all Facebook Presto releases 0.69, 0.71 - 0.189
   (see Presto docker images on DockerHub at https://hub.docker.com/u/harisekhon)
 
 """
