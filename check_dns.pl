@@ -17,11 +17,19 @@ Primarily written to check things like NS and MX records for domains which the s
 
 Full list of supported record types: " . join(", ", @valid_types) . "
 
-The regex if supplied is validated against each record returned and it is anchored (^regex\$) as that's normally what you want to make it easier to strictly validate IP / name results, but if testing partial TXT records you may need to use .* before and after the regex, eg. '.*spf.*'. If differing TXT records are returned then use alternation '|' as per regex standard to be able to match both types of records, eg. 'regex1|regex2', see tests/test_dns.sh for an example. Requiring validating every record is much safer to ensure there is no rogue DNS server injected in to your domain and anchoring prevents a regex of 10\.10\.10\.10 from matching an unexpected service on 10.10.10.100";
+The regex if supplied is validated against each record returned and it is anchored (^regex\$) as that's normally what you want to make it easier to strictly validate IP / name results, but if testing partial TXT records you may need to use .* before and after the regex, eg. '.*spf.*'. If differing TXT records are returned then use alternation '|' as per regex standard to be able to match both types of records, eg. 'regex1|regex2', see tests/test_dns.sh for an example. Requiring validating every record is much safer to ensure there is no rogue DNS server injected in to your domain and anchoring prevents a regex of 10\.10\.10\.10 from matching an unexpected service on 10.10.10.100
+
+TLDs are validated with the following files:
+
+* lib/resources/tlds-alpha-by-domain.txt
+* lib/resources/custom_tlds.txt
+
+If you need a custom TLD, please add it to custom_tlds.txt.
+";
 
 # TODO: root name servers switch, determine root name servers for the specific TLD and go straight to them to bypass intermediate caching
 
-$VERSION = "0.8.3";
+$VERSION = "0.8.4";
 
 use strict;
 use warnings;
