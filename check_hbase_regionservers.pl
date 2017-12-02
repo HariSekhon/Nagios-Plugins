@@ -13,9 +13,7 @@ $DESCRIPTION = "Nagios Plugin to check the number of RegionServers that are dead
 
 Checks the number of dead RegionServers against warning/critical thresholds and lists the dead RegionServers
 
-Written for CDH 4.x but version 0.3 onwards has been updated for Apache HBase 0.96, 0.98, 1.0.3, 1.1.9, 1.2.6, 1.3.1
-
-Tested on Apache HBase 0.96, 0.98, 1.0.3, 1.1.9, 1.2.6, 1.3.1
+Tested on CDH 4.x and Apache HBase 0.90, 0.92, 0.94, 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3
 ";
 
 $VERSION = "0.3.1";

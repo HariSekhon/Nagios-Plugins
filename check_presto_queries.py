@@ -21,25 +21,37 @@ Nagios Plugin to check Presto queries on a cluster via the Coordinator API
 
 Checks:
 
-    - failed queries vs warning / critical thresholds out of last N [matching] queries
-    - minimum number of [matching] queries (raises warning)
+    - running queries (including planning, starting and finishing states)
+            or
+    - failed queries
+            or
+    - blocked queries
+            or
+    - queued queries
+
+    - checks warning / critical thresholds against resulting count
+    - limits to testing queries out of last N [matching] total queries
+      (to avoid persistent critical state for historical query failures)
+    - checks minimum number of queries found of all types
+      (eg. raises warning if there were no queries found at all of any result)
     - optionally check only certain SQL queries matching include and / or exclude regex
       against the actual SQL queries
 
 This is useful to be able to determine if there are failed Presto jobs or queries especially of
 a certain type or accessing a specific resource, eg. against a certain Presto catalog / external system
 
-Warning / Critical thresholds apply to the number of failed queries and it also outputs
-graph perfdata of the number of recently failed queries as well as query time to retrieve this information
+Warning / Critical thresholds apply to the number of running / failed / blocked / queued queries and it also outputs
+graph perfdata of the number of recently running / failed / blocked / queued queries
+as well as query time to retrieve this information
 
 Will get a '404 Not Found' if you try to run it against a Presto Worker as this information
 is only available via the Presto Coordinator API
 
 Tested on:
 
-- Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185, 0.187, 0.188
+- Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185, 0.186, 0.187, 0.188, 0.189
 - Presto Teradata distribution versions:  0.152, 0.157, 0.167, 0.179
-- back tested against all Facebook Presto releases 0.69, 0.71 - 0.188
+- back tested against all Facebook Presto releases 0.69, 0.71 - 0.189
   (see Presto docker images on DockerHub at https://hub.docker.com/u/harisekhon)
 
 """
@@ -67,7 +79,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6.0'
+__version__ = '0.7.0'
 
 
 class CheckPrestoQueries(RestNagiosPlugin):
@@ -88,12 +100,18 @@ class CheckPrestoQueries(RestNagiosPlugin):
         self.num = None
         self.min_queries = None
         self.list = False
+        self.state_selector = None
 
     def add_options(self):
         super(CheckPrestoQueries, self).add_options()
         self.add_opt('-i', '--include', metavar='regex', help='Include regex for queries to check')
         self.add_opt('-e', '--exclude', metavar='regex', help='Exclude regex for queries to exclude' + \
                                                               ' (takes priority over --include')
+        self.add_opt('-r', '--running', action='store_true',
+                     help='Select running queries (includes planning, starting and finishing)')
+        self.add_opt('-f', '--failed', action='store_true', help='Select failed queries')
+        self.add_opt('-b', '--blocked', action='store_true', help='Select blocked queries')
+        self.add_opt('-q', '--queued', action='store_true', help='Select queued queries')
         self.add_opt('-n', '--num', metavar='N', default=100,
                      help="Check only the last N matching queries to ensure older errors don't keep alerting" + \
                           " (default: 100)")
@@ -105,6 +123,25 @@ class CheckPrestoQueries(RestNagiosPlugin):
 
     def process_options(self):
         super(CheckPrestoQueries, self).process_options()
+        # Possible Query States - https://prestodb.io/docs/current/admin/web-interface.html
+        self.list = self.get_opt('list')
+        if not self.list:
+            if self.get_opt('running'):
+                self.state_selector = ['RUNNING', 'PLANNING', 'STARTING', 'FINISHING']
+            if self.get_opt('failed'):
+                if self.state_selector is not None:
+                    self.usage('cannot specify more than one of --running / --failed / --blocked / --queued at a time')
+                self.state_selector = ['FAILED']
+            if self.get_opt('blocked'):
+                if self.state_selector is not None:
+                    self.usage('cannot specify more than one of --running / --failed / --blocked / --queued at a time')
+                self.state_selector = ['BLOCKED']
+            if self.get_opt('queued'):
+                if self.state_selector is not None:
+                    self.usage('cannot specify more than one of --running / --failed / --blocked / --queued at a time')
+                self.state_selector = ['QUEUED']
+            if self.state_selector is None:
+                self.usage('must specify one type of --running / --failed / --blocked / --queued queries')
         self.include = self.get_opt('include')
         self.exclude = self.get_opt('exclude')
         if self.include:
@@ -119,7 +156,6 @@ class CheckPrestoQueries(RestNagiosPlugin):
         self.min_queries = self.get_opt('min_queries')
         validate_int(self.min_queries, 'minimum queries', 0)
         self.min_queries = int(self.min_queries)
-        self.list = self.get_opt('list')
         self.validate_thresholds()
 
     def get_field(self, json_data, index):
@@ -206,13 +242,14 @@ class CheckPrestoQueries(RestNagiosPlugin):
         last_n_matching_queries = matching_queries[0:self.num]
         if self.list:
             self.list_queries(last_n_matching_queries)
-        failed_queries = [query_item for query_item in last_n_matching_queries if query_item['state'] == 'FAILED']
+        selected_queries = [query_item for query_item in last_n_matching_queries \
+                            if query_item['state'] in self.state_selector]
         if log.isEnabledFor(logging.INFO):
-            for query_item in failed_queries:
-                log.info('FAILED query found: %s', query_item['query'])
-        num_failed_queries = len(failed_queries)
-        self.msg = 'Presto SQL - {0} failed queries'.format(num_failed_queries)
-        self.check_thresholds(num_failed_queries)
+            for query_item in matching_queries:
+                log.info('%s query found: %s', self.state_selector, query_item['query'])
+        num_selected_queries = len(selected_queries)
+        self.msg = 'Presto SQL - {0} {1} queries'.format(num_selected_queries, self.state_selector[0].lower())
+        self.check_thresholds(num_selected_queries)
         self.msg += ' out of last {0}'.format(num_matching_queries)
         if self.include or self.exclude:
             self.msg += ' matching'
@@ -223,8 +260,12 @@ class CheckPrestoQueries(RestNagiosPlugin):
         self.msg += ' on coordinator'
         if self.verbose:
             self.msg += ' {0}:{1}'.format(self.host, self.port)
-        self.msg += ' | num_failed_queries={0}{1} num_matching_queries={2}:{3}'\
-                    .format(num_failed_queries, self.get_perf_thresholds(), num_matching_queries, self.min_queries)
+        self.msg += ' | num_{0}_queries={1}{2} num_matching_queries={3}:{4}'\
+                    .format(self.state_selector[0].lower(),
+                            num_selected_queries,
+                            self.get_perf_thresholds(),
+                            num_matching_queries,
+                            self.min_queries)
 
 
 if __name__ == '__main__':

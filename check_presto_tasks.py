@@ -32,9 +32,9 @@ on query time from the perfdata that is output
 
 Tested on:
 
-- Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185, 0.187, 0.188
+- Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185, 0.186, 0.187, 0.188, 0.189
 - Presto Teradata distribution versions:  0.152, 0.157, 0.167, 0.179
-- back tested against all Facebook Presto releases 0.69, 0.71 - 0.188
+- back tested against all Facebook Presto releases 0.69, 0.71 - 0.189
   (see Presto docker images on DockerHub at https://hub.docker.com/u/harisekhon)
 
 """
@@ -53,7 +53,7 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     #from harisekhon.utils import UnknownError, support_msg_api, isList
-    from check_presto_num_queries import CheckPrestoNumQueries
+    from check_presto_unfinished_queries import CheckPrestoUnfinishedQueries
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
@@ -62,11 +62,11 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
 
-class CheckPrestoNumTasks(CheckPrestoNumQueries):
+class CheckPrestoTasks(CheckPrestoUnfinishedQueries):
 
     def __init__(self):
         # Python 2.x
-        super(CheckPrestoNumTasks, self).__init__()
+        super(CheckPrestoTasks, self).__init__()
         # Python 3.x
         # super().__init__()
         self.path = '/v1/task'
@@ -74,10 +74,10 @@ class CheckPrestoNumTasks(CheckPrestoNumQueries):
         self.msg = 'Presto msg not defined'
 
     def add_options(self):
-        # Skip CheckPrestoNumQueries and go straight to it's parent as
-        # CheckPrestoNumQueries sets the defaults to 50 and 200 queries, we want much higher defaults
+        # Skip CheckPrestoUnfinishedQueries and go straight to it's parent as
+        # CheckPrestoUnfinishedQueries sets the defaults to 50 and 200 queries, we want much higher defaults
         # shut up pylint this works
-        super(CheckPrestoNumQueries, self).add_options()  # pylint: disable=bad-super-call
+        super(CheckPrestoUnfinishedQueries, self).add_options()  # pylint: disable=bad-super-call
         self.add_thresholds(default_warning=10000, default_critical=50000)
 
     def filter(self, items):
@@ -87,4 +87,4 @@ class CheckPrestoNumTasks(CheckPrestoNumQueries):
 
 
 if __name__ == '__main__':
-    CheckPrestoNumTasks().main()
+    CheckPrestoTasks().main()

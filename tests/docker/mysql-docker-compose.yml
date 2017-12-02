@@ -23,6 +23,9 @@ services:
       - 3306
     environment:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-"test123"}
+      # MySQL 8.0 broke for a little while rejecting remote logins
+      #- MYSQL_ROOT_HOST=%
+      #- MYSQL_HOST=%
     networks:
       - mysql
 

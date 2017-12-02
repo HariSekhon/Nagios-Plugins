@@ -1,7 +1,7 @@
 #  vim:ts=2:sts=2:sw=2:et
 #
 #  Author: Hari Sekhon
-#  Date: 2016-12-09 18:41:13 +0000 (Fri, 09 Dec 2016)
+#  Date: 2017-11-24 20:02:44 +0100 (Fri, 24 Nov 2017)
 #
 #  https://github.com/harisekhon/nagios-plugins
 #
@@ -14,21 +14,18 @@
 
 version: '2.2'
 services:
-  elasticsearch:
+  logstash:
     extends:
       file: common.yml
       service: common
-    image: elasticsearch:${VERSION:-latest}
+    image: logstash:${VERSION:-latest}
     ports:
-      - 9200
+      - 9600
+    # listen on dummy port just to keep it up, stdin {} closes in this scenario
+    # set --http.host to 0.0.0.0 otherwise it listens on 127.0.0.1 by default
+    command: "-e 'input { tcp { port => 9999 } }' --http.host 0.0.0.0 --http.port 9600"
     networks:
-      - elasticsearch
-  haproxy:
-    image: haproxy:alpine
-    ports:
-      - 9201
-    networks:
-      - elasticsearch
+      - logstash
 
 networks:
-  elasticsearch:
+  logstash:

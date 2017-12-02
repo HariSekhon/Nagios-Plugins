@@ -36,8 +36,6 @@ export REDIS_PORT_DEFAULT="6379"
 unset REDIS_PASSWORD
 unset PASSWORD
 
-export DOCKER_IMAGE="redis"
-
 startupwait 5
 
 check_docker_available

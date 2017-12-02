@@ -18,7 +18,7 @@ $DESCRIPTION = "Nagios Plugin to check a specific HBase table cell via the HBase
 4. outputs the query time to a given precision for reporting and graphing
 5. optionally outputs the cell's value for graphing purposes
 
-Tested on HBase 0.04 on CDH 4.3.0, 4.5.0 and Apache HBase 0.96, 0.98, 1.0.3, 1.1.9, 1.2.6, 1.3.1
+Tested on CDH 4.3, 4.5 and Apache HBase 0.90, 0.92, 0.94, 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3
 
 Limitations:
 

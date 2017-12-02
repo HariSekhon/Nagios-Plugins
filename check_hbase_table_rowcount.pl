@@ -17,7 +17,7 @@ On any non-test table with real data, this will take minutes or more, and you wi
 
 Suggest this be run as a passive service check and the result fed back in to NSCA.
 
-Tested on HBase 0.94 on CDH 4.3.0, 4.5.0 and Apache HBase 0.96, 0.98, 1.0.3, 1.1.9, 1.2.6, 1.3.1
+Tested on HBase 0.94 on CDH 4.3.0, 4.5.0 and Apache HBase 0.90, 0.92, 0.94, 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3
 ";
 
 $VERSION = "0.3.0";

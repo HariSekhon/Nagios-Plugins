@@ -1,0 +1,34 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2017-11-24 20:02:44 +0100 (Fri, 24 Nov 2017)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+version: '2.2'
+services:
+  logstash:
+    extends:
+      file: common.yml
+      service: common
+    # Official Logstash docker images have moved from DockerHub to docker.elastic.co for Logstash 6.x +
+    # elastic.co don't support 'latest' tag yet, nor x.y versions, so default to x.y.z for now
+    image: docker.elastic.co/logstash/logstash:${VERSION:-6.0.0}
+    ports:
+      - 9600
+    # don't need to listen on dummy port just to keep it up now as open filebeats listener by default
+    # also -e conflicts with --path.settings
+    # don't need to set --http.host to 0.0.0.0 now, no longer defaults to 127.0.0.1 in new docker.elastic.co image
+    #command: "-e 'input { tcp { port => 9999 } }' --http.host 0.0.0.0 --http.port 9600"
+    networks:
+      - logstash
+
+networks:
+  logstash:

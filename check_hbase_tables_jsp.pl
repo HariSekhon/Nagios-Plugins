@@ -18,7 +18,7 @@ Checks:
 
 Strongly recommended to use check_hbase_table.pl instead which uses the HBase Thrift API, it's must tighter programmatically, this is only doing a basic scrape of the HBase Master JSP which could break across releases. The only advantage this program has is that it doesn't require having an HBase Thrift Server
 
-Written and tested on CDH 4.3 (HBase 0.94.6-cdh4.3.0). Also tested on CDH 4.4.0
+Tested on CDH 4.3, 4.4 and Apache HBase 0.90, 0.92, 0.94, 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3
 
 Limitations:
 

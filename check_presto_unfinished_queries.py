@@ -17,9 +17,12 @@
 
 """
 
-Nagios Plugin to check the current number of Presto queries on a Presto Coordinator via its API
+Nagios Plugin to check the combined number of running / waiting Presto queries on a Presto Coordinator via its API
 
-Warning / Critical thresholds apply to the number of current queries and it also outputs
+This is slighly different to check_presto_queries.py in that instead of selecting specific query types
+it includes anything that isn't a finished / failed / cancelled query
+
+Warning / Critical thresholds apply to the number of current / waiting queries and it also outputs
 graph perfdata of the number of queries and query time to retrieve this information
 
 This isn't efficent as it must get the full query list and parse for non-completed states as the Presto API
@@ -34,9 +37,9 @@ is only available via the Presto Coordinator API
 
 Tested on:
 
-- Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185, 0.187, 0.188
+- Presto Facebook versions:               0.152, 0.157, 0.167, 0.179, 0.185, 0.186, 0.187, 0.188, 0.189
 - Presto Teradata distribution versions:  0.152, 0.157, 0.167, 0.179
-- back tested against all Facebook Presto releases 0.69, 0.71 - 0.188
+- back tested against all Facebook Presto releases 0.69, 0.71 - 0.189
   (see Presto docker images on DockerHub at https://hub.docker.com/u/harisekhon)
 
 """
@@ -61,14 +64,14 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.2'
+__version__ = '0.3.0'
 
 
-class CheckPrestoNumQueries(RestNagiosPlugin):
+class CheckPrestoUnfinishedQueries(RestNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckPrestoNumQueries, self).__init__()
+        super(CheckPrestoUnfinishedQueries, self).__init__()
         # Python 3.x
         # super().__init__()
         self.name = ['Presto Coordinator', 'Presto']
@@ -84,11 +87,11 @@ class CheckPrestoNumQueries(RestNagiosPlugin):
         self.msg = 'Presto msg not defined'
 
     def add_options(self):
-        super(CheckPrestoNumQueries, self).add_options()
+        super(CheckPrestoUnfinishedQueries, self).add_options()
         self.add_thresholds(default_warning=50, default_critical=200)
 
     def process_options(self):
-        super(CheckPrestoNumQueries, self).process_options()
+        super(CheckPrestoUnfinishedQueries, self).process_options()
         self.validate_thresholds()
 
     def filter(self, items):
@@ -114,4 +117,4 @@ class CheckPrestoNumQueries(RestNagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckPrestoNumQueries().main()
+    CheckPrestoUnfinishedQueries().main()

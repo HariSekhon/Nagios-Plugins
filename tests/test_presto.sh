@@ -79,7 +79,7 @@ presto_worker_tests(){
     # doesn't show up as registered for a while, so run this test last and iterate for a little while
     max_node_up_wait=20
     echo "allowing to $max_node_up_wait secs for worker to be detected as online by the Presto Coordinator:"
-    retry $max_node_up_wait ./check_presto_num_worker_nodes.py -w 1
+    retry $max_node_up_wait ./check_presto_worker_nodes.py -w 1
     run++
     hr
 
@@ -115,21 +115,21 @@ presto_worker_tests(){
 
     if [ "${version#0.}" = 74 ]; then
         # gets "UNKNOWN: ValueError: No JSON object could be decoded." for Presto 0.74, there is just a smiley face ":)" in the returned output
-        run_fail 3 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+        run_fail 3 ./check_presto_unfinished_queries.py -P "$PRESTO_WORKER_PORT"
     elif [ "$version" != "latest" -a \
            "$version" != "NODOCKER" ] &&
          [ "${version#0.}" -le 148 ]; then
         # succeeds with zero queries on versions <= 0.148, not sure why yet - is this another Presto bug?
-        run ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+        run ./check_presto_unfinished_queries.py -P "$PRESTO_WORKER_PORT"
     else
         # will get a 404 Not Found against worker API in modern versions of Presto
-        run_404 ./check_presto_num_queries.py -P "$PRESTO_WORKER_PORT"
+        run_404 ./check_presto_unfinished_queries.py -P "$PRESTO_WORKER_PORT"
     fi
 
-    run ./check_presto_num_tasks.py -P "$PRESTO_WORKER_PORT"
+    run ./check_presto_tasks.py -P "$PRESTO_WORKER_PORT"
 
     # will get a 404 Not Found against worker API
-    run_404 ./check_presto_num_worker_nodes.py -w 1 -P "$PRESTO_WORKER_PORT"
+    run_404 ./check_presto_worker_nodes.py -w 1 -P "$PRESTO_WORKER_PORT"
 
     run ./check_presto_worker_nodes_response_lag.py
 
@@ -171,6 +171,7 @@ test_presto2(){
     # don't just run ./check_presto_state.py (this also doesn't work < 0.128)
     when_url_content "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" nodeId
     hr
+    local expected_version="$version"
     if [ "$version" = "latest" -o \
          "$version" = "NODOCKER" ]; then
         if [ "$teradata_distribution" = 1 ]; then
@@ -180,8 +181,8 @@ test_presto2(){
             # don't want to have to pull presto versions script from Dockerfiles repo
             local expected_version=".*"
         fi
-        echo "expecting version '$expected_version'"
     fi
+    echo "expecting Presto version '$expected_version'"
     hr
     # presto service not found in list of endpoints initially even after it's come up, hence reason for when_url_content test above
     if [ -n "${NODOCKER:-}" ]; then
@@ -219,26 +220,32 @@ test_presto2(){
 
     run_conn_refused ./check_presto_worker_nodes_failed.py
 
-    run ./check_presto_num_queries.py
+    run ./check_presto_unfinished_queries.py
 
-    run_conn_refused ./check_presto_num_queries.py
+    run_conn_refused ./check_presto_unfinished_queries.py
 
-    run ./check_presto_num_tasks.py
+    run ./check_presto_tasks.py
 
-    run_conn_refused ./check_presto_num_tasks.py
+    run_conn_refused ./check_presto_tasks.py
 
-    run_fail 2 ./check_presto_num_worker_nodes.py -w 1
+    run_fail 2 ./check_presto_worker_nodes.py -w 1
 
-    run_conn_refused ./check_presto_num_worker_nodes.py -w 1
-
-    if [ -n "${NODOCKER:-}" -o -n "${KEEPDOCKER:-}" ]; then
-        run_fail "0 1 2" ./check_presto_queries.py
-    else
-        echo "checking presto queries, but in docker there will be none by this point so expecting warning:"
-        run_fail 1 ./check_presto_queries.py
-    fi
+    run_conn_refused ./check_presto_worker_nodes.py -w 1
 
     run_fail 3 ./check_presto_queries.py --list
+
+    if [ -n "${NODOCKER:-}" -o -n "${KEEPDOCKER:-}" ]; then
+        run_fail "0 1 2" ./check_presto_queries.py --running
+        run_fail "0 1 2" ./check_presto_queries.py --failed
+        run_fail "0 1 2" ./check_presto_queries.py --blocked
+        run_fail "0 1 2" ./check_presto_queries.py --queued
+    else
+        echo "checking presto queries, but in docker there will be none by this point so expecting warning:"
+        run_fail 1 ./check_presto_queries.py --running
+        run_fail 1 ./check_presto_queries.py --failed
+        run_fail 1 ./check_presto_queries.py --blocked
+        run_fail 1 ./check_presto_queries.py --queued
+    fi
 
     # endpoint only found on Presto 0.128 onwards
     if [ "$version" = "latest" -o \
@@ -315,10 +322,13 @@ EOF
     # missing key error also returns UNKNOWN, so check we actual output a query we expect
     ERRCODE=3 run_grep 'select 1\+1' ./check_presto_queries.py --list
 
-    run ./check_presto_queries.py --exclude 'failure|localfile.logs.http_request_log|SHOW FUNCTIONS|information_schema.tables'
+    run ./check_presto_queries.py --running
+    run ./check_presto_queries.py --failed --exclude 'failure|localfile.logs.http_request_log|SHOW FUNCTIONS|information_schema.tables'
+    run ./check_presto_queries.py --queued
+    run ./check_presto_queries.py --blocked
 
     echo "checking ./check_presto_queries.py with implicit --warning 0 should raise warning after failed queries above are detected:"
-    run_fail 1 ./check_presto_queries.py # implicit -w 0
+    run_fail 1 ./check_presto_queries.py --failed # implicit -w 0
 
     # this should be -c 1 but sometimes queries get the following error and are marked as abandoned, reducing the select failure count, seems to happen mainly on older versions of Presto < 0.130 eg 0.126, setting to -c 0 for more resilience in case only one query was actually executed to fail instead of two:
     #
@@ -340,15 +350,28 @@ EOF
     #         at com.facebook.presto.cli.Console.run(Console.java:128)
     #         at com.facebook.presto.cli.Presto.main(Presto.java:32)
     #
-    run_fail 2 ./check_presto_queries.py -c 0
+    run_fail 2 ./check_presto_queries.py --failed -c 0
 
-    run ./check_presto_queries.py --include 'select 1\+1'
+    run ./check_presto_queries.py --running --include 'select 1\+1'
 
-    run_fail 1 ./check_presto_queries.py --include 'failure'
+    run ./check_presto_queries.py --failed --include 'select 1\+1'
 
-    run_fail 2 ./check_presto_queries.py --include 'failure' -c 0
+    run ./check_presto_queries.py --blocked --include 'select 1\+1'
 
-    run_fail 1 ./check_presto_queries.py --include 'nonexistentquery'
+    run ./check_presto_queries.py --queued --include 'select 1\+1'
+
+    run_fail 1 ./check_presto_queries.py --failed --include 'failure'
+
+    run ./check_presto_queries.py --running --include 'failure'
+    run ./check_presto_queries.py --blocked --include 'failure'
+    run ./check_presto_queries.py --queued  --include 'failure'
+
+    run_fail 2 ./check_presto_queries.py --failed --include 'failure' -c 0
+
+    run_fail 1 ./check_presto_queries.py --running --include 'nonexistentquery'
+    run_fail 1 ./check_presto_queries.py --failed --include 'nonexistentquery'
+    run_fail 1 ./check_presto_queries.py --blocked --include 'nonexistentquery'
+    run_fail 1 ./check_presto_queries.py --queued --include 'nonexistentquery'
 
     echo "getting Presto Worker dynamic port mapping:"
     docker_compose_port "Presto Worker"
@@ -425,7 +448,7 @@ EOF
     hr
 
     # XXX: this still passes as worker is still found, only response time lag and recent failures / recent failure ratios will reliably detect worker failure, not drop in the number of nodes
-    run_fail "0 2" ./check_presto_num_worker_nodes.py -w 1
+    run_fail "0 2" ./check_presto_worker_nodes.py -w 1
 
     run_fail 2 ./check_presto_worker_node.py --node "http://$ip:$PRESTO_WORKER_PORT_DEFAULT"
 

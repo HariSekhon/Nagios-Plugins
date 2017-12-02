@@ -10,30 +10,34 @@ Advanced Nagios Plugins Collection
 [![](https://images.microbadger.com/badges/image/harisekhon/nagios-plugins.svg)](http://microbadger.com/#/images/harisekhon/nagios-plugins)
 <!-- broken handling of Elasticsearch major version for Python library -->
 
-Largest, most advanced collection of production-grade Nagios monitoring code (over 350 programs).
+##### Largest, most advanced collection of production-grade Nagios monitoring code (over 350 programs).
 
 Specialised plugins for Hadoop, Big Data & NoSQL technologies, written by a former Clouderan ([Cloudera](http://www.cloudera.com) was the first Hadoop Big Data vendor) and modern [Hortonworks](http://www.hortonworks.com) partner/consultant.
 
-Hadoop and extensive API integration with all major Hadoop vendors ([Hortonworks](http://www.hortonworks.com), [Cloudera](http://www.cloudera.com), [MapR](http://www.mapr.com), [IBM BigInsights](http://www-03.ibm.com/software/products/en/ibm-biginsights-for-apache-hadoop)), as well as most major open source NoSQL technologies, Pub-Sub / Message Buses, CI, Web and Linux based infrastructure.
+Supports most major open source NoSQL technologies, Pub-Sub / Message Buses, CI, Web and Linux based infrastructure, including:
 
-Supports a a wide variety of [compatible Enterprise Monitoring servers](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems), can also run standalone on the command line or in scripts.
+- [Hadoop](http://hadoop.apache.org/) - extensive API integration to all major Hadoop vendors ([Hortonworks](http://www.hortonworks.com), [Cloudera](http://www.cloudera.com), [MapR](http://www.mapr.com), [IBM BigInsights](http://www-03.ibm.com/software/products/en/ibm-biginsights-for-apache-hadoop))
+- [Kafka](http://kafka.apache.org/)
+- [RabbitMQ](http://www.rabbitmq.com/)
+- [Elasticsearch](https://www.elastic.co/products/elasticsearch)
+- [Solr / SolrCloud](http://lucene.apache.org/solr/)
+- [HBase](https://hbase.apache.org/)
+- [Cassandra](http://cassandra.apache.org/)
+- [Redis](http://redis.io/)
+- [CouchDB](http://couchdb.apache.org/)
+- [Consul](https://www.consul.io/)
+- [ZooKeeper](https://zookeeper.apache.org/)
+- [Jenkins](https://jenkins.io/)
+- [Travis CI](https://travis-ci.org/)
+- [Puppet](https://puppet.com/)
+- Linux - including the widely used [RHEL](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux) / [CentOS](https://www.centos.org/) yum security updates check
+- SSL Certificate expiry, advanced DNS record checks, Whois domain expiry checker
+- [Git](https://git-scm.com/), [MySQL](https://www.mysql.com/) ... etc.
+
+Supports a a wide variety of [compatible Enterprise Monitoring servers](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems).
+Also useful to be run on the command line for testing or in scripts for dependency availability checking.
 
 Most enterprise monitoring systems come with basic generic checks, while this project extends their monitoring capabilities significantly further in to advanced infrastructure, application layer, APIs etc.
-
-It's a treasure trove of essentials for every single "DevOp" / sysadmin / engineer, with extensive goodies for people running Linux, Big Data, NoSQL and Web Infrastructure including
-[Hadoop](http://hadoop.apache.org/),
-[Kafka](http://kafka.apache.org/),
-[Elasticsearch](https://www.elastic.co/products/elasticsearch),
-[HBase](https://hbase.apache.org/),
-[RabbitMQ](http://www.rabbitmq.com/),
-[Cassandra](http://cassandra.apache.org/),
-[Solr / SolrCloud](http://lucene.apache.org/solr/),
-[Redis](http://redis.io/),
-[CouchDB](http://couchdb.apache.org/),
-[Consul](https://www.consul.io/),
-[Jenkins](https://jenkins.io/),
-[Travis CI](https://travis-ci.org/),
-SSL Certificate expiry, advanced DNS record checks, Whois domain expiry checker, Linux, [RHEL](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux) / [CentOS](https://www.centos.org/) yum security updates, [Git](https://git-scm.com/), [MySQL](https://www.mysql.com/) ... etc.
 
 Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/harisekhon/nagios-plugins/issues) or [pull requests](https://github.com/harisekhon/nagios-plugins/pulls) (in which case GitHub will give you credit and mark you as a contributor to the project :) ).
 
@@ -48,14 +52,19 @@ https://www.linkedin.com/in/harisekhon
 
 ### Quick Start ###
 
-1. a) Compile dependencies for executing locally by running ```make```
-      OR
-   b) Download pre-built via Docker
-2. Execute each program on the command line with ```--help``` to see its options
+1. Git clone this repo and compile dependencies by running ```make```<br>
+      OR<br>
+2. Download pre-built self-contained [Docker image](https://hub.docker.com/r/harisekhon/nagios-plugins/)
+
+Execute each program on the command line with ```--help``` to see its options.
 
 #### Ready-to-run Docker image #####
 
-All plugins and their pre-compiled dependencies can be found ready-to-run on [DockerHub](https://hub.docker.com/r/harisekhon/nagios-plugins/).
+All plugins and their pre-compiled dependencies can be found ready-to-run on [DockerHub](https://hub.docker.com/r/harisekhon/nagios-plugins/), if you have [Docker](https://www.docker.com/) installed, fetch this project like so:
+
+```
+docker pull harisekhon/nagios-plugins
+```
 
 List all plugins:
 ```
@@ -137,7 +146,7 @@ There are over 350 programs in this repo so these are just some of the highlight
 - ```check_atlas_*.py``` - [Apache Atlas](http://atlas.apache.org/) metadata server instance status, as well as metadata entity checks including entity existence, state=ACTIVE, expected type, expected tags are assigned to entity (eg. PII - important because Ranger ACLs to allow or deny access to data can be assigned based on tags)
 - ```check_hiveserver2_llap_*.py``` - [Apache Hive](https://hive.apache.org/) - HiveServer2 LLAP Interactive server status and uptime, peer count, check for a specific peer host fqdn via regex
 - ```check_presto_*.py``` - [Presto SQL DB](https://prestodb.io/)
-  - cluster checks (via coordinator API) - number of current queries, tasks, failed queries, worker nodes, failed worker nodes, workers with response lag to coordinator, workers with recent failures and recent failure ratios vs thresholds, version
+  - cluster checks (via coordinator API) - number of current queries, running/failed/blocked/queued queries, tasks, worker nodes, failed worker nodes, workers with response lag to coordinator, workers with recent failures and recent failure ratios vs thresholds, version
   - per node checks - status, if coordinator, environment
   - per worker checks (via coordinator API) - specific worker registered with coordinator, response age to coordinator, recent requests vs threshold, recent successes, recent failures & failure ratio vs thresholds
 - ```check_ranger_*.pl/.py``` - [Apache Ranger](https://ranger.apache.org/) checks:
@@ -152,6 +161,7 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
 ##### NoSQL
 
 - ```check_elasticsearch_*.pl``` - [Elasticsearch](https://www.elastic.co/products/elasticsearch) cluster state, shards, replicas, number of nodes & data nodes online, shard and disk % balance between nodes, single node ok, specific node found in cluster state, pending tasks on a node, elasticsearch / lucene versions, per index existence / shards / replicas / settings / age, stats per cluster / index / node
+  - ```check_logstash_*.py``` - [Logstash](https://www.elastic.co/products/logstash) status, uptime, hot threads, plugins, version, number of pipelines online, specific pipeline online and optionally its number of workers, if its dead letter queue is enabled, outputs pipeline batch size and delay
 - ```check_solr*.pl``` - checks for [Apache Solr](http://lucene.apache.org/solr/) and [SolrCloud](https://wiki.apache.org/solr/SolrCloud) including API write/read/delete, arbitrary Solr queries vs num matching documents, API ping, Solr Core Heap / Index Size / Number of Docs for a given Solr Collection, and thresholds in ms against all Solr API operations as well as perfdata for graphing, as well as SolrCloud ZooKeeper content checks for collection shards and replicas states, number of live nodes in SolrCloud cluster, overseer, SolrCloud config and Solr metrics.
 - ```check_cassandra_*.pl / check_datastax_opscenter_*.pl``` - [Apache Cassandra](http://cassandra.apache.org/) and [DataStax OpsCenter](https://www.datastax.com/) monitoring, including Cassandra cluster nodes, token balance, space, heap, keyspace replication settings, alerts, backups, best practice rule checks, DSE hadoop analytics service status and both nodetool and DataStax OpsCenter collected metrics
 - ```check_memcached_*.pl``` - [Memcached](https://memcached.org/) API writes/reads/deletes with timings, check specific key's value against regex or value range, number of current connections, gather statistics
@@ -383,7 +393,7 @@ To trigger all tests run:
 make test
 ```
 
-which will start with the underlying libraries, then move on to top level integration tests and functional tests using docker containers if docker is available.
+which will start with the underlying libraries, then move on to top level integration tests and finally functional tests using docker containers if docker is available.
 
 ##### Bugs & Workarounds #####
 
@@ -496,9 +506,11 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Check_MK](http://mathias-kettner.com/check_mk.html) - Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html). See `check_mk_wrapper.py` which can run any Nagios Plugin and convert its output to Check_MK local check format.
 
-* [Groundwork Monitor](http://www.gwos.com/) - Nagios-based commercial monitoring distribution
+* [GroundWork Monitor](http://www.gwos.com/) - Nagios-based commercial monitoring distribution
 
-* [OpsView](https://www.opsview.com/) - Nagios-based commercial monitoring distribution
+* [OpsView Monitor](https://www.opsview.com/) - Nagios-based commercial monitoring distribution
+
+* [OP5 Monitor](https://www.op5.com/op5-monitor/) - Nagios-based commerical monitoring distribution
 
 * [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program.
 
