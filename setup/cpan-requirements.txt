@@ -104,7 +104,7 @@ Sub::Util
 TAP::Harness::Env
 Test::More
 Test::SharedFork
-Thrift
+Thrift@0.10.0
 Time::HiRes
 Type::Tiny::XS
 URI::Escape
