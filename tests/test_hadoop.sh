@@ -23,12 +23,7 @@ cd "$srcdir/.."
 
 section "H a d o o p"
 
-# priortise testing of modern production versions
-#if is_CI; then
-#    export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-latest 2.6 2.7 2.8}}"
-#else
-    export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-latest 2.2 2.3 2.4 2.5 2.6 2.7 2.8}}"
-#fi
+export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-latest 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9}}"
 
 HADOOP_HOST="${DOCKER_HOST:-${HADOOP_HOST:-${HOST:-localhost}}}"
 HADOOP_HOST="${HADOOP_HOST##*/}"
@@ -79,6 +74,10 @@ test_hadoop(){
     docker_compose_pull
     VERSION="$version" docker-compose up -d
     hr
+    if [ "${version:0:1}" = 3 ]; then
+        local export HADOOP_NAMENODE_PORT_DEFAULT=9870
+        local export HADOOP_DATANODE_PORT_DEFAULT=9864
+    fi
     echo "getting Hadoop dynamic port mappings:"
     docker_compose_port HADOOP_NAMENODE_PORT "HDFS NN"
     docker_compose_port HADOOP_DATANODE_PORT "HDFS DN"
