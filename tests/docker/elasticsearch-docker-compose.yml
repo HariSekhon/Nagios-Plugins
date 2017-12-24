@@ -25,10 +25,13 @@ services:
       - elasticsearch
   haproxy:
     image: haproxy:alpine
+    command: -f /conf/haproxy-10-global.cfg -f /conf/haproxy-20-defaults.cfg -f /conf/haproxy-elasticsearch.cfg -d
     ports:
-      - 9201
+      - 9200
     networks:
       - elasticsearch
+    volumes:
+      - ../../haproxy:/conf
 
 networks:
   elasticsearch:
