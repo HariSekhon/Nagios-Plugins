@@ -31,6 +31,7 @@ APACHE_DRILL_HOST="${APACHE_DRILL_HOST##*/}"
 APACHE_DRILL_HOST="${APACHE_DRILL_HOST%%:*}"
 export APACHE_DRILL_HOST
 export APACHE_DRILL_PORT_DEFAULT=8047
+export HAPROXY_PORT_DEFAULT=8047
 
 export DOCKER_CONTAINER="nagios-plugins-apache-drill"
 
@@ -46,16 +47,39 @@ test_apache_drill(){
     hr
     echo "getting Apache Drill dynamic port mappings:"
     docker_compose_port "Apache Drill"
+    DOCKER_SERVICE=haproxy docker_compose_port HAProxy
     hr
-    when_ports_available "$APACHE_DRILL_HOST" "$APACHE_DRILL_PORT"
+    when_ports_available "$APACHE_DRILL_HOST" "$APACHE_DRILL_PORT" "$HAPROXY_PORT"
     hr
     when_url_content "http://$APACHE_DRILL_HOST:$APACHE_DRILL_PORT/status" "Running"
+    hr
+    echo "checking HAProxy port:"
+    when_url_content "http://$APACHE_DRILL_HOST:$HAPROXY_PORT/status" "Running"
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
     docker_compose_version_test apache-drill "$version"
     hr
+    test_drill
+    echo
+    hr
+    echo "Running HAProxy tests"
+    hr
+    test_drill
+    echo
+    section2 "Running Drill HAProxy test"
+    APACHE_DRILL_PORT="$HAPROXY_PORT" \
+    test_drill
+
+    echo "Completed $run_count Apache Drill tests"
+    hr
+    [ -n "${KEEPDOCKER:-}" ] ||
+    docker-compose down
+    echo
+}
+
+test_drill(){
     #run ./check_apache_drill_version.py -v -e "$version"
 
     #run_fail 2 ./check_apache_drill_version.py -v -e "fail-version"
@@ -82,11 +106,6 @@ test_apache_drill(){
     # more reliable for some versions of drill eg. 0.7
     docker_exec sqlline -u jdbc:drill:zk=zookeeper -f /dev/stdin <<< "select * from sys.options limit 1;"
 
-    echo "Completed $run_count Apache Drill tests"
-    hr
-    [ -n "${KEEPDOCKER:-}" ] ||
-    docker-compose down
-    echo
 }
 
 startupwait 50
