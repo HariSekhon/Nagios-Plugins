@@ -31,6 +31,7 @@ ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST##*/}"
 ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST%%:*}"
 export ELASTICSEARCH_HOST
 export ELASTICSEARCH_PORT_DEFAULT=9200
+export HAPROXY_PORT_DEFAULT=9200
 export ELASTICSEARCH_INDEX="${ELASTICSEARCH_INDEX:-test}"
 
 export HAPROXY_USER="esuser"
@@ -61,9 +62,7 @@ test_elasticsearch(){
     hr
     echo "getting Elasticsearch dynamic port mapping:"
     docker_compose_port "Elasticsearch"
-    echo -n "HAProxy port -> $ELASTICSEARCH_PORT_DEFAULT => "
-    export HAPROXY_PORT=$(docker-compose port haproxy "$ELASTICSEARCH_PORT_DEFAULT" | sed 's/.*://')
-    echo "$HAPROXY_PORT"
+    DOCKER_SERVICE=haproxy docker_compose_port HAProxy
     hr
     when_ports_available "$ELASTICSEARCH_HOST" "$ELASTICSEARCH_PORT" "$HAPROXY_PORT"
     hr
