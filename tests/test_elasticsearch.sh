@@ -122,9 +122,7 @@ test_elasticsearch(){
     fi
     elasticsearch_tests
     echo
-    hr
-    echo "Running HAProxy + Authentication tests"
-    hr
+    section2 "Running HAProxy + Authentication tests"
     ELASTICSEARCH_PORT="$HAPROXY_PORT" \
     ELASTICSEARCH_USER="$HAPROXY_USER" \
     ELASTICSEARCH_PASSWORD="$HAPROXY_PASSWORD" \
