@@ -27,6 +27,15 @@ services:
       consul agent -server -bootstrap -data-dir /tmp -client 0.0.0.0
     networks:
       - consul_dev
+  haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/consul.cfg -d
+    ports:
+      - 8500
+    networks:
+      - consul_dev
+    volumes:
+      - ../../haproxy:/conf
 
 networks:
   consul_dev:
