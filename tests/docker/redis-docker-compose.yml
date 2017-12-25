@@ -23,6 +23,15 @@ services:
       - 6379
     networks:
       - redis
+  redis-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/redis.cfg -d
+    ports:
+      - 6379
+    networks:
+      - redis
+    volumes:
+      - ../../haproxy:/conf
 
 networks:
   redis:
