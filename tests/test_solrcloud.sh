@@ -31,6 +31,7 @@ SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
 export SOLR_HOST="${SOLR_HOST%%:*}"
 export SOLR_PORT_DEFAULT=8983
+export HAPROXY_PORT_DEFAULT=8983
 export SOLR_ZOOKEEPER_PORT_DEFAULT=9983
 export SOLR_PORTS="$SOLR_PORT_DEFAULT 8984 $SOLR_ZOOKEEPER_PORT_DEFAULT"
 export ZOOKEEPER_HOST="$SOLR_HOST"
@@ -62,34 +63,54 @@ test_solrcloud(){
     echo "getting SolrCloud dynamic port mappings:"
     docker_compose_port SOLR_PORT "Solr HTTP"
     docker_compose_port "Solr ZooKeeper"
+    DOCKER_SERVICE=solrcloud-haproxy docker_compose_port HAProxy
     hr
     when_ports_available "$SOLR_HOST" "$SOLR_PORT" "$SOLR_ZOOKEEPER_PORT"
     hr
     when_url_content "http://$SOLR_HOST:$SOLR_PORT/solr/" "Solr Admin"
     hr
-    local DOCKER_CONTAINER="$(docker-compose ps | sed -n '3s/ .*//p')"
+    echo "checking HAProxy SolrCloud:"
+    when_url_content "http://$SOLR_HOST:$HAPROXY_PORT/solr/" "Solr Admin"
+    hr
+    local DOCKER_CONTAINER="$(docker-compose ps | grep -v haproxy | sed -n '3s/ .*//p')"
     echo "container is $DOCKER_CONTAINER"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
     if [ "$version" = "latest" ]; then
-        local version="$(dockerhub_latest_version solrcloud-dev)"
+        version="$(dockerhub_latest_version solrcloud-dev)"
     fi
     hr
 
+    solrcloud_tests
+
+    solrcloud_conn_refused_tests
+
+    echo
+    section2 "HAProxy SolrCloud tests:"
+    echo
+
+    SOLR_PORT="$HAPROXY_PORT" \
+    solrcloud_tests
+
+    echo "Completed $run_count SolrCloud tests"
+    hr
+    [ -n "${KEEPDOCKER:-}" ] ||
+    docker-compose down
+    hr
+    echo
+}
+
+solrcloud_tests(){
     run ./check_solr_version.py -e "$version"
 
     run_fail 2 ./check_solr_version.py -e "fail-version"
-
-    run_conn_refused ./check_solr_version.py -e "$version"
 
     echo "will try cluster status for up to $startupwait secs to give cluster and collection chance to initialize properly:"
     retry $startupwait $perl -T ./check_solrcloud_cluster_status.pl
     hr
 
     run $perl -T ./check_solrcloud_cluster_status.pl -v
-
-    run_conn_refused $perl -T ./check_solrcloud_cluster_status.pl -v
 
     docker_exec check_solrcloud_cluster_status_zookeeper.pl -H localhost -P 9983 -b / -v
 
@@ -111,14 +132,10 @@ test_solrcloud(){
     # FIXME: why is only 1 node up instead of 2
     run $perl -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
 
-    run_conn_refused $perl -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
-
     docker_exec check_solrcloud_live_nodes_zookeeper.pl -H localhost -P 9983 -b / -w 1 -c 1 -v
 
     # docker is running slow
     run $perl -T ./check_solrcloud_overseer.pl -t 60 -v
-
-    run_conn_refused $perl -T ./check_solrcloud_overseer.pl -t 60 -v
 
     docker_exec check_solrcloud_overseer_zookeeper.pl -H localhost -P 9983 -b / -v
 
@@ -136,13 +153,13 @@ test_solrcloud(){
     else
         docker_exec check_zookeeper_config.pl -H localhost -P 9983 -C "$SOLR_HOME/example/cloud/node1/solr/zoo.cfg" --no-warn-extra -v
     fi
+}
 
-    echo "Completed $run_count SolrCloud tests"
-    hr
-    [ -n "${KEEPDOCKER:-}" ] ||
-    docker-compose down
-    hr
-    echo
+solrcloud_conn_refused_tests(){
+    run_conn_refused ./check_solr_version.py -e "$version"
+    run_conn_refused $perl -T ./check_solrcloud_cluster_status.pl -v
+    run_conn_refused $perl -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
+    run_conn_refused $perl -T ./check_solrcloud_overseer.pl -t 60 -v
 }
 
 run_test_versions SolrCloud
