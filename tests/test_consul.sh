@@ -52,7 +52,7 @@ test_consul(){
     hr
     echo "getting Consul dynamic port mapping:"
     docker_compose_port "Consul"
-    DOCKER_SERVICE=haproxy docker_compose_port HAProxy
+    DOCKER_SERVICE=consul-haproxy docker_compose_port HAProxy
     hr
     when_ports_available "$CONSUL_HOST" "$CONSUL_PORT" "$HAPROXY_PORT"
     hr
