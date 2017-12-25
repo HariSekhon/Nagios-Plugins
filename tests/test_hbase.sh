@@ -91,6 +91,7 @@ test_hbase(){
     # HBase <= 0.99 uses older port numbers
     elif [[ "${version:0:4}" =~ ^0\.9[0-8]$ ]]; then
         local export HBASE_MASTER_PORT_DEFAULT=60010
+        local export HAPROXY_MASTER_PORT_DEFAULT=60010
         local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
     fi
     echo "getting HBase dynamic port mappings:"
