@@ -38,9 +38,16 @@ HBASE_HOST="${HBASE_HOST##*/}"
 HBASE_HOST="${HBASE_HOST%%:*}"
 export HBASE_HOST
 export HBASE_MASTER_PORT_DEFAULT=16010
+export HAPROXY_MASTER_PORT_DEFAULT=16010
 export HBASE_REGIONSERVER_PORT_DEFAULT=16301
 export HBASE_STARGATE_PORT_DEFAULT=8080
+export HAPROXY_STARGATE_PORT_DEFAULT=8080
+export HBASE_STARGATE_UI_PORT_DEFAULT=8085
+export HAPROXY_STARGATE_UI_PORT_DEFAULT=8085
 export HBASE_THRIFT_PORT_DEFAULT=9090
+export HAPROXY_THRIFT_PORT_DEFAULT=9090
+export HBASE_THRIFT_UI_PORT_DEFAULT=9095
+export HAPROXY_THRIFT_UI_PORT_DEFAULT=9095
 export ZOOKEEPER_PORT_DEFAULT=2181
 
 check_docker_available
@@ -90,7 +97,14 @@ test_hbase(){
     docker_compose_port "HBase Master"
     docker_compose_port "HBase RegionServer"
     docker_compose_port "HBase Stargate"
+    docker_compose_port "HBase Stargate UI"
     docker_compose_port "HBase Thrift"
+    docker_compose_port "HBase Thrift UI"
+    DOCKER_SERVICE=hbase-haproxy docker_compose_port HAPROXY_MASTER_PORT "HAProxy HBase Master"
+    DOCKER_SERVICE=hbase-haproxy docker_compose_port HAPROXY_STARGATE_PORT "HAProxy Stargate"
+    DOCKER_SERVICE=hbase-haproxy docker_compose_port HAPROXY_STARGATE_UI_PORT "HAProxy Stargate UI"
+    DOCKER_SERVICE=hbase-haproxy docker_compose_port HAPROXY_THRIFT_PORT "HAProxy Thrift"
+    DOCKER_SERVICE=hbase-haproxy docker_compose_port HAPROXY_THRIFT_UI_PORT "HAProxy Thrift UI"
     #docker_compose_port ZOOKEEPER_PORT "HBase ZooKeeper"
     export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT"
     hr
@@ -99,9 +113,15 @@ test_hbase(){
     if [ "$version" = "0.90" ]; then
         when_url_content "http://$HBASE_HOST:$HBASE_MASTER_PORT/master.jsp" HBase
         hr
+        echo "checking HAProxy HBase Master:"
+        when_url_content "http://$HBASE_HOST:$HAPROXY_MASTER_PORT/master.jsp" HBase
+        hr
         when_url_content "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/regionserver.jsp" HBase
     else
         when_url_content "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" HBase
+        hr
+        echo "checking HAProxy HBase Master:"
+        when_url_content "http://$HBASE_HOST:$HAPROXY_MASTER_PORT/master-status" HBase
         hr
         when_url_content "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/rs-status" HBase
     fi
@@ -112,6 +132,12 @@ test_hbase(){
         when_url_content "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" "Initialization successful"
         hr
     fi
+    echo "checking HBase Stargate:"
+    when_url_content "http://$HBASE_HOST:$HAPROXY_STARGATE_UI_PORT/rest.jsp" "HBase.+REST"
+    hr
+    echo "checking HBase Thrift:"
+    when_url_content "http://$HBASE_HOST:$HAPROXY_THRIFT_UI_PORT/thrift.jsp" "HBase.+Thrift"
+    hr
     # tr occasionally errors out due to weird input chars, base64 for safety, but still remove chars like '+' which will ruin --expected regex
     local uniq_val=$(< /dev/urandom base64 | tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)
     # gets ValueError: file descriptor cannot be a negative integer (-1), -T should be the workaround but hangs
