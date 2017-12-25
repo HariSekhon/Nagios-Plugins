@@ -27,7 +27,7 @@ section "H a d o o p"
 #if is_CI; then
 #    export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-latest 2.6 2.7 2.8}}"
 #else
-    export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-latest 2.2 2.3 2.4 2.5 2.6 2.7 2.8}}"
+    export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-latest 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9}}"
 #fi
 
 HADOOP_HOST="${DOCKER_HOST:-${HADOOP_HOST:-${HOST:-localhost}}}"
@@ -746,7 +746,7 @@ EOF
 
 check_newer_plugins(){
     echo
-    echo "Now checking plugins that do not work on older versions of Hadoop:"
+    echo "Now checking plugins that only work on newer versions of Hadoop:"
     echo
     if [ "$version" != "2.2" ]; then
         # corrupt fields field is not available in older versions of Hadoop
@@ -772,7 +772,7 @@ check_newer_plugins(){
 
 check_older_plugins(){
     echo
-    echo "Now checking plugins that do not work on newer versions of Hadoop:"
+    echo "Now checking plugins that only work on older versions of Hadoop:"
     echo
     # TODO: write replacement python plugins for this stuff
     # XXX: Hadoop doesn't expose this information in the same way any more via dfshealth.jsp so these plugins are end of life with Hadoop 2.6
