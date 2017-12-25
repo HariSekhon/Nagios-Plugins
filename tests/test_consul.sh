@@ -60,7 +60,7 @@ test_consul(){
     # newer versions say Consul by Hashicorp
     when_url_content "http://$CONSUL_HOST:$CONSUL_PORT/" "Consul (Agent|by HashiCorp)"
     hr
-    echo "checking HAProxy Consul port:"
+    echo "checking HAProxy Consul:"
     when_url_content "http://$CONSUL_HOST:$HAPROXY_PORT/" "Consul (Agent|by HashiCorp)"
     hr
     if [ -n "${NOTESTS:-}" ]; then
