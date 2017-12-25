@@ -53,7 +53,7 @@ test_apache_drill(){
     hr
     when_url_content "http://$APACHE_DRILL_HOST:$APACHE_DRILL_PORT/status" "Running"
     hr
-    echo "checking HAProxy Apache Drill port:"
+    echo "checking HAProxy Apache Drill:"
     when_url_content "http://$APACHE_DRILL_HOST:$HAPROXY_PORT/status" "Running"
     hr
     if [ -n "${NOTESTS:-}" ]; then
