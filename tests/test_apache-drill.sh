@@ -47,7 +47,7 @@ test_apache_drill(){
     hr
     echo "getting Apache Drill dynamic port mappings:"
     docker_compose_port "Apache Drill"
-    DOCKER_SERVICE=haproxy docker_compose_port HAProxy
+    DOCKER_SERVICE=apache-drill-haproxy docker_compose_port HAProxy
     hr
     when_ports_available "$APACHE_DRILL_HOST" "$APACHE_DRILL_PORT" "$HAPROXY_PORT"
     hr
