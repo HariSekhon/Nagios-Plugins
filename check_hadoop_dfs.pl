@@ -9,6 +9,8 @@
 #  License: see accompanying LICENSE file
 #
 
+# XXX: switch to % of corrupt / under-replicated blocks like Cloudera Manager 90c 95 warning
+
 # TODO: node list checks
 # TODO: list dead datanodes
 
@@ -25,7 +27,7 @@ CDH 4.3 (Hadoop 2.0.0)
 CDH 5.0 (Hadoop 2.3.0)
 HDP 2.1 (Hadoop 2.4.0)
 HDP 2.2 (Hadoop 2.6.0)
-Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
+Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9
 
 Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclaimer I used to work for Cloudera but seriously it's good it gives you access to a wealth of information)";
 
@@ -34,7 +36,7 @@ Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclai
 # 1. Min Configured Capacity per node (from node section output).
 # 2. Last Contact: convert the date to secs and check against thresholds.
 
-$VERSION = "0.9.0";
+$VERSION = "0.9.1";
 
 use strict;
 use warnings;
@@ -230,6 +232,8 @@ if($balance){
             next;
         } elsif(/Dead datanodes(?: \(\d+\))?:/){
             last;
+        } elsif(/Last Block Report: /){
+            next;
         } else {
             quit "UNKNOWN", "Unrecognized line in output while parsing nodes: '$_'. $nagios_plugins_support_msg_api";
         }
