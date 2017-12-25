@@ -16,9 +16,9 @@ Checks time left on license in days against configurable warning/critical thresh
 
 Raises warning on trial license unless setting --trial-ok
 
-Tested on MapR 3.1.0, 4.0.1, 5.1.0";
+Tested on MapR 3.1.0, 4.0.1, 5.1.0, 5.2.1";
 
-$VERSION = "0.1.1";
+$VERSION = "0.2.0";
 
 use strict;
 use warnings;
@@ -65,13 +65,22 @@ my @data = get_field_array("data");
 
 foreach(@data){
     my $desc = get_field2($_, "description");
-    next if($desc eq "MapR Base Edition");
+    debug "description: $desc";
+    next if($desc =~ /MapR Base Edition|Base MapR POSIX Client/);
     unless($trial_ok){
         warning if $desc =~ /trial|evaluation/i;
     }
     #$msg .= "version: "    . get_field2($_, "license") . ", ";
-    my $expiry = get_field2($_, "expiry");
-    $expiry =~ /^(\w+)\s+(\d{1,2}),\s*(\d{4})$/ or quit "UNKNOWN", "expiry is not in the expected format. $nagios_plugins_support_msg_api";
+    my $expiry;
+    #if(defined($_->{"expiry"})){
+        $expiry = get_field2($_, "expiry");
+        $expiry =~ /^(\w+)\s+(\d{1,2}),\s*(\d{4})$/ or quit "UNKNOWN", "expiry is not in the expected format. $nagios_plugins_support_msg_api";
+    #} elsif(defined($_->{"expdateStr"})){
+    #    $expiry = get_field2($_, "expdateStr");
+    #    $expiry =~ /^\w{3} (\w{3}) (\d{2}) .+ (\d{4})\s*$/ or quit "UNKNOWN", "expdateStr is not in the expected format. $nagios_plugins_support_msg_api";
+    #} else {
+    #    quit "UNKNOWN", "neither 'expiry' nor expdateStr fields found. $nagios_plugins_support_msg_api";
+    #}
     my $month = month2int($1);
     my $day   = $2;
     my $year  = $3;
