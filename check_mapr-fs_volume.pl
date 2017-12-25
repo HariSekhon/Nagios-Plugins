@@ -16,7 +16,7 @@ Can specify a single volume to check, by default checks all volumes. Checking a 
 
 There is a in-built exception to permit mapr.cldb.internal volume to not be mounted as this is normal.
 
-Tested on MapR 4.0.1, 5.1.0";
+Tested on MapR 4.0.1, 5.1.0, 5.2.1";
 
 $VERSION = "0.1";
 

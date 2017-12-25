@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check the default MapReduce mode on a MapR Hado
 
 Requires MapR 4.0 onwards, will get a '404 Not Found' on MapR 3.1 and earlier where this API endpoint isn't implemented.
 
-Tested on MapR 4.0.1, 5.1.0";
+Tested on MapR 4.0.1, 5.1.0, 5.2.1";
 
 $VERSION = "0.2";
 

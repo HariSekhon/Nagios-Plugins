@@ -12,7 +12,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the number of MapR nodes managed or in a given cluster via the MapR Control System REST API
 
-Tested on MapR 3.1.0, 4.0.1, 5.1.0";
+Tested on MapR 3.1.0, 4.0.1, 5.1.0, 5.2.1";
 
 $VERSION = "0.1";
 

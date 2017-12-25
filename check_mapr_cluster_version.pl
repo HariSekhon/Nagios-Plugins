@@ -12,7 +12,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check the MapR cluster version of a given cluster or all clusters managed by MapR Control System via the MapR Control System REST API
 
-Tested on MapR 4.0.1, 5.1.0";
+Tested on MapR 4.0.1, 5.1.0, 5.2.1";
 
 $VERSION = "0.1";
 

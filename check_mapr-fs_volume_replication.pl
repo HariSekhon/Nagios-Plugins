@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check MapR-FS replication for a given volume vi
 
 Checks thresholds as % at specified replication factor or higher (can be disabled to check this exact replication level). Perfdata is also output for graphing.
 
-Tested on MapR 4.0.1, 5.1.0";
+Tested on MapR 4.0.1, 5.1.0, 5.2.1";
 
 $VERSION = "0.1";
 

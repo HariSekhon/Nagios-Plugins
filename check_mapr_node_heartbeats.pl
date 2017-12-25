@@ -16,7 +16,7 @@ By defaults checks all nodes for heartbeat age > 3 (--heartbeat-max). Can restri
 
 Alternatively check a single --node heartbeat age against the warning/critical thresholds.
 
-Tested on MapR 3.1.0, 4.0.1, 5.1.0";
+Tested on MapR 3.1.0, 4.0.1, 5.1.0, 5.2.1";
 
 $VERSION = "0.1";
 

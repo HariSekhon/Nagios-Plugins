@@ -16,7 +16,7 @@ Can optionally specify just a single service to check on the given node.
 
 Currently the MCS API doesn't support service information at the cluster level, which is why you have to specify a node to check services on.
 
-Tested on MapR 3.1.0, 4.0.1, 5.1.0";
+Tested on MapR 3.1.0, 4.0.1, 5.1.0, 5.2.1";
 
 $VERSION = "0.3";
 

@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check MapR-FS mirroring for a given volume via 
 
 Checks optional thresholds as % mirroring complete (latest run). If checking % complete would be best to do so on a schedule (eg. 9am every day check mirror is 100%). Perfdata is also output for graphing.
 
-Tested on MapR 4.0.1, 5.1.0";
+Tested on MapR 4.0.1, 5.1.0, 5.2.1";
 
 $VERSION = "0.1";
 
