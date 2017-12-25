@@ -39,7 +39,7 @@ services:
       - hbase
   hbase-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/hbase-master.cfg -f /conf/hbase-master-old-ports.cfg -f /conf/hbase-stargate-rest.cfg -f /conf/hbase-thrift.cfg -d
+    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/hbase-master.cfg -f /conf/hbase-master-0.9x.cfg -f /conf/hbase-stargate-rest.cfg -f /conf/hbase-thrift.cfg -d
     ports:
       - 8080
       - 8085
