@@ -12,7 +12,7 @@
 
 $DESCRIPTION = "Nagios Plugin to fetch the MapR-FS Balancer metrics via the maprcli command. Call over NRPE.
 
-Tested on MapR 4.0.1, 5.1.0";
+Tested on MapR 4.0.1, 5.1.0, 5.2.1";
 
 $VERSION = "0.1";
 

@@ -18,7 +18,7 @@ Can optionally specify a cluster and/or just a single service to check.
 
 Specifying the cluster name shortens the perfdata labels to not have to include the cluster name to differentiate potentially multiple clusters
 
-Tested on MapR 3.1.0, 4.0.1, 5.1.0";
+Tested on MapR 3.1.0, 4.0.1, 5.1.0, 5.2.1";
 
 $VERSION = "0.2";
 

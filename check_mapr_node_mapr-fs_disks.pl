@@ -26,7 +26,7 @@ Checks:
 
 LVM disks and similar won't show used space as MapR doesn't understand those raw devices, so /dev/dm-* will only show total space for those partitions, but will still check their status is 'ok' and raise alert otherwise.
 
-Tested on MapR 3.1.0, 4.0.1, 5.1.0";
+Tested on MapR 3.1.0, 4.0.1, 5.1.0, 5.2.1";
 
 $VERSION = "0.1";
 

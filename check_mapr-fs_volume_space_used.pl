@@ -14,7 +14,7 @@ $DESCRIPTION = "Nagios Plugin to check MapR-FS volume space used via the MapR Co
 
 Can specify checking a single volume (returns all by default), and used space thresholds may be specified in MB. Perfdata is also output for graphing.
 
-Tested on MapR 4.0.1, 5.1.0";
+Tested on MapR 4.0.1, 5.1.0, 5.2.1";
 
 $VERSION = "0.1";
 
