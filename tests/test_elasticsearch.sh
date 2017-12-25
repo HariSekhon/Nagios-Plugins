@@ -62,7 +62,7 @@ test_elasticsearch(){
     hr
     echo "getting Elasticsearch dynamic port mapping:"
     docker_compose_port "Elasticsearch"
-    DOCKER_SERVICE=haproxy docker_compose_port HAProxy
+    DOCKER_SERVICE=elasticsearch-haproxy docker_compose_port HAProxy
     hr
     when_ports_available "$ELASTICSEARCH_HOST" "$ELASTICSEARCH_PORT" "$HAPROXY_PORT"
     hr
