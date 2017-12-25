@@ -33,6 +33,7 @@ H2O_HOST="${H2O_HOST%%:*}"
 export H2O_HOST
 echo "using docker address '$H2O_HOST'"
 export H2O_PORT_DEFAULT=54321
+export HAPROXY_PORT_DEFAULT=54321
 
 check_docker_available
 
@@ -48,15 +49,36 @@ test_h2o(){
     hr
     echo "getting H2O dynamic port mapping:"
     docker_compose_port "H2O"
+    DOCKER_SERVICE=h2o-haproxy docker_compose_port HAProxy
     hr
-    when_ports_available "$H2O_HOST" "$H2O_PORT"
+    when_ports_available "$H2O_HOST" "$H2O_PORT" "$HAPROXY_PORT"
     hr
     # 2.x h2o, 3.x H2O Flow
+    when_url_content "http://$H2O_HOST:$H2O_PORT/" "h2o|H2O"
+    hr
+    echo "checking HAProxy H2O:"
     when_url_content "http://$H2O_HOST:$H2O_PORT/" "h2o|H2O"
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
+
+    h2o_tests
+
+    echo
+
+    section2 "Running HAProxy tests"
+
+    H2O_PORT="$HAPROXY_PORT" \
+    h2o_tests
+
+    echo "Completed $run_count H2O tests"
+    hr
+    [ -n "${KEEPDOCKER:-}" ] ||
+    docker-compose down
+}
+
+h2o_tests(){
     docker_compose_version_test h2o "$version"
     hr
 
@@ -79,11 +101,6 @@ test_h2o(){
     run_conn_refused $perl -T ./check_h2o_node_stats.pl
 
     run_conn_refused $perl -T ./check_h2o_nodes_last_contact.pl
-
-    echo "Completed $run_count H2O tests"
-    hr
-    [ -n "${KEEPDOCKER:-}" ] ||
-    docker-compose down
 }
 
 run_test_versions H2O
