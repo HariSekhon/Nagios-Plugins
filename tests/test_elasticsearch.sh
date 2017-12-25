@@ -126,8 +126,7 @@ test_elasticsearch(){
     ELASTICSEARCH_PORT="$HAPROXY_PORT" \
     ELASTICSEARCH_USER="$HAPROXY_USER" \
     ELASTICSEARCH_PASSWORD="$HAPROXY_PASSWORD" \
-    :
-    #elasticsearch_tests
+    elasticsearch_tests
     # TODO: run fail auth tests for all plugins and add run_fail_auth to bash-tools/utils.sh with run_grep string
 
     echo "Completed $run_count Elasticsearch tests"
