@@ -62,7 +62,7 @@ test_riak(){
     when_url_content "http://$RIAK_HOST:$RIAK_PORT/ping" OK
     hr
     echo "checking HAProxy Riak:"
-    when_url_content "http://$RIAK_HOST:$RIAK_PORT/ping" OK
+    when_url_content "http://$RIAK_HOST:$HAPROXY_PORT/ping" OK
     hr
     echo "waiting for up to $startupwait secs for Riak to come fully up:"
     retry $startupwait $perl -T check_riak_write.pl -v
