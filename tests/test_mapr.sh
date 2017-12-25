@@ -160,9 +160,19 @@ run $perl -T check_mapr-fs_volume.pl $no_ssl
 
 run $perl -T check_mapr-fs_volume_mirroring.pl $no_ssl -L $volume
 
-run $perl -T check_mapr-fs_volume_replication.pl $no_ssl -L $volume
+if [ "$MAPR_CLUSTER" = "$SANDBOX_CLUSTER" ]; then
+    run_fail 2 $perl -T check_mapr-fs_volume_replication.pl $no_ssl -L $volume
 
-run $perl -T check_mapr-fs_volume_snapshots.pl $no_ssl -L $volume
+    run_fail "0 3" $perl -T check_mapr-fs_volume_snapshots.pl $no_ssl -L $volume
+
+    run_fail "0 1" $perl -T check_mapr_dialhome.pl $no_ssl
+else
+    run $perl -T check_mapr-fs_volume_replication.pl $no_ssl -L $volume
+
+    run $perl -T check_mapr-fs_volume_snapshots.pl $no_ssl -L $volume
+
+    run $perl -T check_mapr_dialhome.pl $no_ssl
+fi
 
 run $perl -T check_mapr-fs_volume_space_used.pl $no_ssl -L $volume
 
@@ -171,8 +181,6 @@ run $perl -T check_mapr_alarms.pl $no_ssl
 run $perl -T check_mapr_cluster_version.pl $no_ssl -e "$MAPR_VERSION"
 
 run $perl -T check_mapr_dashboard.pl $no_ssl
-
-run $perl -T check_mapr_dialhome.pl $no_ssl
 
 # must be run locally
 #run $perl -T check_mapr_disk_balancer_metrics.pl
@@ -211,3 +219,4 @@ echo
 echo "All MapR tests completed successfully"
 echo
 echo
+untrap
