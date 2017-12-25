@@ -63,20 +63,31 @@ test_consul(){
     echo "checking HAProxy port:"
     when_url_content "http://$CONSUL_HOST:$HAPROXY_PORT/" "Consul (Agent|by HashiCorp)"
     hr
+    if [ -n "${NOTESTS:-}" ]; then
+        exit 0
+    fi
+    expected_version="$version"
+    if [ "$version" = "latest" ]; then
+        echo "latest version, fetching latest version from DockerHub master branch"
+        local expected_version="$(dockerhub_latest_version consul)"
+        echo "expecting version '$expected_version'"
+    fi
+
     consul_tests
+
     echo
+
     section2 "Running HAProxy tests"
+
     CONSUL_PORT="$HAPROXY_PORT" \
     consul_tests
 
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down
     hr
-    echo
-    local DOCKER_SERVICE="$DOCKER_SERVICE-dev"
-    local COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-docker-compose.yml"
-    [ -n "${KEEPDOCKER:-}" ] ||
-    docker-compose down
+
+    consul_dev_tests
+
     hr
     echo "Completed $run_count Consul tests"
     hr
@@ -88,21 +99,12 @@ consul_tests(){
     # typically takes ~ 7 secs
     retry 15 ./check_consul_leader_elected.py
     hr
-    if [ -n "${NOTESTS:-}" ]; then
-        exit 0
-    fi
     local testkey="nagios/consul/testkey1"
     echo "Writing random value to test key $testkey"
     local random_val=$RANDOM
     curl -X PUT -d "$random_val" "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$testkey"
     echo
     hr
-    local expected_version="$version"
-    if [ "$version" = "latest" ]; then
-        echo "latest version, fetching latest version from DockerHub master branch"
-        local expected_version="$(dockerhub_latest_version consul)"
-        echo "expecting version '$expected_version'"
-    fi
     set +e
     found_version=$(docker-compose exec "$DOCKER_SERVICE" consul version | tr -d '\r' | head -n1 | tee /dev/stderr | sed 's/.*v//')
     set -e
@@ -144,7 +146,9 @@ consul_tests(){
     run ./check_consul_write.py -v
 
     run_conn_refused ./check_consul_write.py -v
+}
 
+consul_dev_tests(){
     section2 "Setting up Consul-dev $version test container"
     local DOCKER_SERVICE="$DOCKER_SERVICE-dev"
     local COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-docker-compose.yml"
@@ -160,6 +164,9 @@ consul_tests(){
     docker_compose_exec "check_consul_version.py" -e "$expected_version"
 
     ERRCODE=2 docker_compose_exec "check_consul_version.py" -e "fail-version"
+    echo
+    [ -n "${KEEPDOCKER:-}" ] ||
+    docker-compose down
 }
 
 run_test_versions Consul
