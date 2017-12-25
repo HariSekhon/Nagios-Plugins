@@ -31,7 +31,11 @@ ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST##*/}"
 ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST%%:*}"
 export ELASTICSEARCH_HOST
 export ELASTICSEARCH_PORT_DEFAULT=9200
+export HAPROXY_PORT_DEFAULT=9200
 export ELASTICSEARCH_INDEX="${ELASTICSEARCH_INDEX:-test}"
+
+export HAPROXY_USER="esuser"
+export HAPROXY_PASSWORD="espass"
 
 check_docker_available
 
@@ -58,10 +62,14 @@ test_elasticsearch(){
     hr
     echo "getting Elasticsearch dynamic port mapping:"
     docker_compose_port "Elasticsearch"
+    DOCKER_SERVICE=elasticsearch-haproxy docker_compose_port HAProxy
     hr
-    when_ports_available "$ELASTICSEARCH_HOST" "$ELASTICSEARCH_PORT"
+    when_ports_available "$ELASTICSEARCH_HOST" "$ELASTICSEARCH_PORT" "$HAPROXY_PORT"
     hr
     when_url_content "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT" "lucene_version"
+    hr
+    echo "checking HAProxy Elasticsearch with authentication:"
+    when_url_content "http://$ELASTICSEARCH_HOST:$HAPROXY_PORT" "lucene_version" -u esuser:espass
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
@@ -114,8 +122,12 @@ test_elasticsearch(){
         local version=".*"
     fi
     elasticsearch_tests
-    #ELASTICSEARCH_USER=elastic ELASTICSEARCH_PASSWORD=elasticsearchpw \
-    #elasticsearch_tests
+    echo
+    section2 "Running HAProxy + Authentication tests"
+    ELASTICSEARCH_PORT="$HAPROXY_PORT" \
+    ELASTICSEARCH_USER="$HAPROXY_USER" \
+    ELASTICSEARCH_PASSWORD="$HAPROXY_PASSWORD" \
+    elasticsearch_tests
     # TODO: run fail auth tests for all plugins and add run_fail_auth to bash-tools/utils.sh with run_grep string
 
     echo "Completed $run_count Elasticsearch tests"

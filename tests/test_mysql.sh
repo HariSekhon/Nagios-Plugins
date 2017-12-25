@@ -42,6 +42,7 @@ export MYSQL_HOST
 
 export MYSQL_DATABASE="${MYSQL_DATABASE:-mysql}"
 export MYSQL_PORT_DEFAULT=3306
+export HAPROXY_PORT_DEFAULT=3306
 export MYSQL_USER="root"
 export MYSQL_PASSWORD="test123"
 export MYSQL_ROOT_PASSWORD="$MYSQL_PASSWORD"
@@ -69,17 +70,19 @@ test_db(){
     name_lower="$(tr 'A-Z' 'a-z' <<< "$name")"
     local export COMPOSE_FILE="$srcdir/docker/$name_lower-docker-compose.yml"
     section2 "Setting up $name $version test container"
-    if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
-        VERSION="$version" docker-compose pull $docker_compose_quiet
-    fi
+    docker_compose_pull
     VERSION="$version" docker-compose up -d
     hr
     echo "getting $name dynamic port mapping:"
     docker_compose_port MYSQL_PORT "$name"
+    DOCKER_SERVICE=mysql-haproxy docker_compose_port HAProxy
     hr
-    when_ports_available "$MYSQL_HOST" $MYSQL_PORT
+    when_ports_available "$MYSQL_HOST" "$MYSQL_PORT" "$HAPROXY_PORT"
     hr
     # kind of an abuse of the protocol but good extra validation step
+    when_url_content "http://$MYSQL_HOST:$MYSQL_PORT" "$name|$name_lower"
+    hr
+    echo "checking HAProxy MySQL:"
     when_url_content "http://$MYSQL_HOST:$MYSQL_PORT" "$name|$name_lower"
     hr
     if [ -n "${NOTESTS:-}" ]; then
@@ -115,12 +118,31 @@ test_db(){
         extra_opt="--ignore thread_cache_size"
         # for some reason MariaDB's thread_cache_size is 128 in conf vs 100 in running service in Docker, so ignore it
     fi
-    run $perl -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v $extra_opt
 
-    run_conn_refused $perl -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v $extra_opt
+    mysql_tests
+
+    echo
+    section2 "Running HAProxy MySQL tests:"
+    echo
+
+    MYSQL_PORT="$HAPROXY_PORT" \
+    mysql_tests
 
     rm -vf "/tmp/$MYSQL_CONFIG_FILE"
     hr
+
+    echo "Completed $run_count $name tests"
+    hr
+    [ -n "${KEEPDOCKER:-}" ] ||
+    docker-compose down
+    hr
+    echo
+}
+
+mysql_tests(){
+    run $perl -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v $extra_opt
+
+    run_conn_refused $perl -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v $extra_opt
 
     #echo "$perl -T ./check_mysql_query.pl -q \"SHOW TABLES IN information_schema like 'C%'\" -o CHARACTER_SETS -v"
     run $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema like 'C%'" -o CHARACTER_SETS -v
@@ -149,13 +171,6 @@ test_db(){
     # this breaks subsequent iterations of this function
     #unset MYSQL_HOST
     #$perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -o "'root'@'localhost'" -v
-
-    echo "Completed $run_count $name tests"
-    hr
-    [ -n "${KEEPDOCKER:-}" ] ||
-    docker-compose down
-    hr
-    echo
 }
 
 # This will get called twice in each of 2 separate Travis CI builds, once for MySQL and once for MariaDB, so skip one build in each to save time

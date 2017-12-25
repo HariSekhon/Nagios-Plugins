@@ -745,7 +745,7 @@ EOF
 
 check_newer_plugins(){
     echo
-    echo "Now checking plugins that do not work on older versions of Hadoop:"
+    echo "Now checking plugins that only work on newer versions of Hadoop:"
     echo
     if [ "$version" != "2.2" ]; then
         # corrupt fields field is not available in older versions of Hadoop
@@ -771,7 +771,7 @@ check_newer_plugins(){
 
 check_older_plugins(){
     echo
-    echo "Now checking plugins that do not work on newer versions of Hadoop:"
+    echo "Now checking plugins that only work on older versions of Hadoop:"
     echo
     # TODO: write replacement python plugins for this stuff
     # XXX: Hadoop doesn't expose this information in the same way any more via dfshealth.jsp so these plugins are end of life with Hadoop 2.6

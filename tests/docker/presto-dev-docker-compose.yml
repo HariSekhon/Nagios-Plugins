@@ -14,13 +14,22 @@
 
 version: '2.1'
 services:
-  presto:
+  presto-dev:
     image: harisekhon/presto-dev:${VERSION:-latest}
     ports:
       - 8080
       - 8081
     networks:
       - presto_dev
+  presto-dev-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/presto.cfg -d
+    ports:
+      - 8080
+    networks:
+      - presto_dev
+    volumes:
+      - ../../haproxy:/conf
 
 networks:
   presto_dev:

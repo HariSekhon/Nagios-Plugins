@@ -20,7 +20,7 @@ Nagios Plugin to check a given key in a Consul key-value store
 
 Optionally may match the contents against a given regex or numeric thresholds if the key contents are numeric
 
-Tested on Consul 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9
+Tested on Consul 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0
 
 """
 

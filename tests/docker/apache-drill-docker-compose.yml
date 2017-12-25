@@ -37,6 +37,17 @@ services:
       - 4181
     networks:
       - apache_drill
+  apache-drill-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/apache-drill.cfg -d
+    ports:
+      - 8047
+    networks:
+      - apache_drill
+    links:
+      - apache-drill:drill
+    volumes:
+      - ../../haproxy:/conf
 
 networks:
   apache_drill:

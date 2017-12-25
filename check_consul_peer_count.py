@@ -18,7 +18,7 @@
 
 Nagios Plugin to check the number of peers in a Consul cluster
 
-Tested on Consul 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9
+Tested on Consul 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0
 
 """
 
