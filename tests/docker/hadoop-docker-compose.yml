@@ -33,6 +33,17 @@ services:
       - 50090
     networks:
       - hadoop
+  hadoop-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/hadoop-namenode.cfg -f /conf/hadoop-yarn-history-server.cfg -f /conf/hadoop-yarn-resource-manager.cfg -d
+    ports:
+      - 8088
+      - 19888
+      - 50070
+    networks:
+      - hadoop
+    volumes:
+      - ../../haproxy:/conf
 
 networks:
   hadoop:
