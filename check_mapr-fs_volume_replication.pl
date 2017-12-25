@@ -14,9 +14,9 @@ $DESCRIPTION = "Nagios Plugin to check MapR-FS replication for a given volume vi
 
 Checks thresholds as % at specified replication factor or higher (can be disabled to check this exact replication level). Perfdata is also output for graphing.
 
-Tested on MapR 4.0.1, 5.1.0";
+Tested on MapR 4.0.1, 5.1.0, 5.2.1";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -80,6 +80,11 @@ foreach(@data){
     my $vol = get_field2($_, "volumename");
     next if($volume and $volume ne $vol);
     $found++;
+    # Information is not yet available for volume \'mapr.configuration\'. Please try again.
+    my $actualreplication_tmp = get_field2_array($_, "actualreplication");
+    if($actualreplication_tmp =~ /not yet available/){
+        quit "UNKNOWN", "actualreplication field: $actualreplication_tmp";
+    }
     @{$vols{$vol}{"rep"}} = get_field2_array($_, "actualreplication");
     $vols{$vol}{"mount"}  = get_field2($_, "mountdir");
 }
