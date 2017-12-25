@@ -31,6 +31,7 @@ RIAK_HOST="${RIAK_HOST##*/}"
 RIAK_HOST="${RIAK_HOST%%:*}"
 export RIAK_HOST
 export RIAK_PORT_DEFAULT=8098
+export HAPROXY_PORT_DEFAULT=8098
 
 export DOCKER_IMAGE="harisekhon/riak-dev"
 export DOCKER_CONTAINER="nagios-plugins-riak-test"
@@ -53,12 +54,14 @@ test_riak(){
     VERSION="$version" docker-compose up -d
     hr
     echo "getting Riak dynamic port mapping:"
-    echo "Riak HTTP port => "
-    export RIAK_PORT="`docker-compose port "$DOCKER_SERVICE" "$RIAK_PORT_DEFAULT" | sed 's/.*://'`"
-    echo "$RIAK_PORT"
+    docker_compose_port Riak
+    DOCKER_SERVICE=riak-haproxy docker_compose_port HAProxy
     hr
-    when_ports_available "$RIAK_HOST" "$RIAK_PORT"
+    when_ports_available "$RIAK_HOST" "$RIAK_PORT" "$HAPROXY_PORT"
     hr
+    when_url_content "http://$RIAK_HOST:$RIAK_PORT/ping" OK
+    hr
+    echo "checking HAProxy Riak:"
     when_url_content "http://$RIAK_HOST:$RIAK_PORT/ping" OK
     hr
     echo "waiting for up to $startupwait secs for Riak to come fully up:"
@@ -94,6 +97,27 @@ test_riak(){
         version=".*"
     fi
     hr
+
+    riak_tests
+
+    echo
+    section2 "HAProxy Riak tests:"
+    echo
+
+    RIAK_PORT="$HAPROXY_PORT" \
+    riak_tests
+
+    echo "Completed $run_count Riak tests"
+    hr
+    echo
+    [ -n "${KEEPDOCKER:-}" ] ||
+    docker-compose down
+    echo
+    hr
+    echo; echo
+}
+
+riak_tests(){
     run $perl -T check_riak_version.pl -v -e "$version"
 
     run_fail 2 $perl -T check_riak_version.pl -v -e 'fail-version'
@@ -137,15 +161,6 @@ test_riak(){
     run_conn_refused $perl -T check_riak_write.pl -v
 
     docker_exec check_riak_write_local.pl -v
-
-    echo "Completed $run_count Riak tests"
-    hr
-    echo
-    [ -n "${KEEPDOCKER:-}" ] ||
-    docker-compose down
-    echo
-    hr
-    echo; echo
 }
 
 run_test_versions Riak
