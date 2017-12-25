@@ -28,6 +28,15 @@ services:
       #- MYSQL_HOST=%
     networks:
       - mysql
+  mysql-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/mysql.cfg -d
+    ports:
+      - 3306
+    networks:
+      - mysql
+    volumes:
+      - ../../haproxy:/conf
 
 networks:
   mysql:
