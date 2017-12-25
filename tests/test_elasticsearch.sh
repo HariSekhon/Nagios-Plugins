@@ -68,6 +68,7 @@ test_elasticsearch(){
     hr
     when_url_content "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT" "lucene_version"
     hr
+    echo "checking HAProxy Elasticsearch with authentication:"
     when_url_content "http://$ELASTICSEARCH_HOST:$HAPROXY_PORT" "lucene_version" -u esuser:espass
     hr
     if [ -n "${NOTESTS:-}" ]; then
