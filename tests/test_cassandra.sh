@@ -50,7 +50,7 @@ test_cassandra(){
     echo "getting Cassandra dynamic port mappings:"
     docker_compose_port CASSANDRA_PORT "Cassandra CQL"
     docker_compose_port "Cassandra JMX"
-    DOCKER_SERVICE=haproxy docker_compose_port HAProxy
+    DOCKER_SERVICE=cassandra-haproxy docker_compose_port HAPROXY "HAProxy CQL"
     hr
     when_ports_available "$CASSANDRA_HOST" "$CASSANDRA_PORT" "$HAPROXY_PORT" # "$CASSANDRA_JMX_PORT" binds to 127.0.0.1
     hr
