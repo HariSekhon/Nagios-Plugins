@@ -31,6 +31,7 @@ CONSUL_HOST="${CONSUL_HOST%%:*}"
 export CONSUL_HOST
 
 export CONSUL_PORT_DEFAULT=8500
+export HAPROXY_PORT_DEFAULT=8500
 
 export DOCKER_IMAGE="harisekhon/consul"
 
@@ -51,13 +52,38 @@ test_consul(){
     hr
     echo "getting Consul dynamic port mapping:"
     docker_compose_port "Consul"
+    DOCKER_SERVICE=haproxy docker_compose_port HAProxy
     hr
-    when_ports_available "$CONSUL_HOST" "$CONSUL_PORT"
+    when_ports_available "$CONSUL_HOST" "$CONSUL_PORT" "$HAPROXY_PORT"
     hr
     # older versions say Consul Agent
     # newer versions say Consul by Hashicorp
     when_url_content "http://$CONSUL_HOST:$CONSUL_PORT/" "Consul (Agent|by HashiCorp)"
     hr
+    echo "checking HAProxy port:"
+    when_url_content "http://$CONSUL_HOST:$HAPROXY_PORT/" "Consul (Agent|by HashiCorp)"
+    hr
+    consul_tests
+    echo
+    section2 "Running HAProxy tests"
+    CONSUL_PORT="$HAPROXY_PORT" \
+    consul_tests
+
+    [ -n "${KEEPDOCKER:-}" ] ||
+    docker-compose down
+    hr
+    echo
+    local DOCKER_SERVICE="$DOCKER_SERVICE-dev"
+    local COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-docker-compose.yml"
+    [ -n "${KEEPDOCKER:-}" ] ||
+    docker-compose down
+    hr
+    echo "Completed $run_count Consul tests"
+    hr
+    echo
+}
+
+consul_tests(){
     echo "waiting for leader election to avoid write key failure:"
     # typically takes ~ 7 secs
     retry 15 ./check_consul_leader_elected.py
@@ -119,10 +145,6 @@ test_consul(){
 
     run_conn_refused ./check_consul_write.py -v
 
-    [ -n "${KEEPDOCKER:-}" ] ||
-    docker-compose down
-    echo
-
     section2 "Setting up Consul-dev $version test container"
     local DOCKER_SERVICE="$DOCKER_SERVICE-dev"
     local COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-docker-compose.yml"
@@ -138,12 +160,6 @@ test_consul(){
     docker_compose_exec "check_consul_version.py" -e "$expected_version"
 
     ERRCODE=2 docker_compose_exec "check_consul_version.py" -e "fail-version"
-
-    echo "Completed $run_count Consul tests"
-    hr
-    [ -n "${KEEPDOCKER:-}" ] ||
-    docker-compose down
-    echo
 }
 
 run_test_versions Consul
