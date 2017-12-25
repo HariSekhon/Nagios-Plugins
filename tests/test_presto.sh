@@ -33,6 +33,7 @@ export PRESTO_HOST
 export PRESTO_WORKER_HOST="$PRESTO_HOST"
 
 export PRESTO_PORT_DEFAULT=8080
+export HAPROXY_PORT_DEFAULT=8080
 export PRESTO_PORT="${PRESTO_PORT:-$PRESTO_PORT_DEFAULT}"
 # only for docker change default port
 export PRESTO_WORKER_PORT_DEFAULT=8081
@@ -57,6 +58,9 @@ presto_worker_tests(){
     echo "Now starting Presto Worker tests:"
     when_url_content "http://$PRESTO_HOST:$PRESTO_WORKER_PORT/v1/service/general/presto" environment # or "services" which is blank on worker
     hr
+    # not running proxy for workers
+    #when_url_content "http://$PRESTO_HOST:$HAPROXY_PORT/v1/service/general/presto" environment # or "services" which is blank on worker
+    #hr
     # this info is not available via the Presto worker API
     run_fail 3 ./check_presto_version.py --expected "$version(-t.\d+.\d+)?" -P "$PRESTO_WORKER_PORT"
 
@@ -162,24 +166,28 @@ test_presto2(){
         [ -n "${KEEPDOCKER:-}" ] || VERSION="$version" docker-compose down || :
         VERSION="$version" docker-compose up -d
         echo "getting Presto dynamic port mapping:"
-        docker_compose_port PRESTO_PORT "Presto Coordinator"
+        docker_compose_port PRESTO "Presto Coordinator"
+        DOCKER_SERVICE=presto-haproxy docker_compose_port HAProxy
     fi
     hr
-    when_ports_available "$PRESTO_HOST" "$PRESTO_PORT"
+    when_ports_available "$PRESTO_HOST" "$PRESTO_PORT" "$HAPROXY_PORT"
     hr
     # endpoint initializes blank, wait until there is some content, eg. nodeId
     # don't just run ./check_presto_state.py (this also doesn't work < 0.128)
     when_url_content "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" nodeId
     hr
-    local expected_version="$version"
+    echo "Checking HAProxy Presto Coordinator:"
+    when_url_content "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" nodeId
+    hr
+    expected_version="$version"
     if [ "$version" = "latest" -o \
          "$version" = "NODOCKER" ]; then
         if [ "$teradata_distribution" = 1 ]; then
             echo "latest version, fetching latest version from DockerHub master branch"
-            local expected_version="$(dockerhub_latest_version presto)"
+            expected_version="$(dockerhub_latest_version presto)"
         else
             # don't want to have to pull presto versions script from Dockerfiles repo
-            local expected_version=".*"
+            expected_version=".*"
         fi
     fi
     echo "expecting Presto version '$expected_version'"
