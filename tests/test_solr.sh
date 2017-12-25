@@ -30,6 +30,7 @@ SOLR_HOST="${SOLR_HOST##*/}"
 SOLR_HOST="${SOLR_HOST%%:*}"
 export SOLR_HOST
 export SOLR_PORT_DEFAULT=8983
+export HAPROXY_PORT_DEFAULT=8983
 export SOLR_COLLECTION="${SOLR_COLLECTION:-test}"
 export SOLR_CORE="${SOLR_COLLECTION:-${SOLR_CORE:-test}}"
 
@@ -48,10 +49,14 @@ test_solr(){
     VERSION="$version" docker-compose up -d
     echo "getting Solr dynamic port mapping:"
     docker_compose_port SOLR_PORT "Solr HTTP"
+    DOCKER_SERVICE=solr-haproxy docker_compose_port HAProxy
     hr
     when_ports_available $SOLR_HOST $SOLR_PORT
     hr
     when_url_content "http://$SOLR_HOST:$SOLR_PORT/solr/" "Solr Admin"
+    hr
+    echo "checking HAProxy Solr:"
+    when_url_content "http://$SOLR_HOST:$HAPROXY_PORT/solr/" "Solr Admin"
     hr
     if [ "$version" != "3.1" -a -z "${NOSETUP:-}" ]; then
         echo "attempting to create Solr Core"
@@ -67,6 +72,27 @@ test_solr(){
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
+
+    solr_tests
+
+    solr_conn_refused_tests
+
+    echo
+    section2 "HAProxy Solr tests:"
+    echo
+
+    SOLR_PORT="$HAPROXY_PORT" \
+    solr_tests
+
+    echo "Completed $run_count Solr tests"
+    hr
+    [ -n "${KEEPDOCKER:-}" ] ||
+    docker-compose down
+    hr
+    echo
+}
+
+solr_tests(){
     if [ "${version:0:1}" != "3" ]; then
         if [ "$version" = "latest" ]; then
             local version="$(dockerhub_latest_version solr)"
@@ -80,29 +106,21 @@ test_solr(){
         hr
     fi
 
-    run_conn_refused ./check_solr_version.py -e "$version"
-
     # not available in Solr 3.x and collection not loaded in 4.10 above due to lack of bin/post command
     if ! [[ "$version" =~ ^3|^4 ]]; then
         run $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
     fi
-
-    run_conn_refused $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
-
-    if ! [[ "$version" =~ ^3|^4 ]]; then
-        run $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
-    fi
-
-    run_conn_refused $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
 
     # core / collection not created above in versions < 5
     if ! [[ "$version" =~ ^3|^4 ]]; then
         run $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
     fi
 
-    run_conn_refused $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
+    if ! [[ "$version" =~ ^3|^4 ]]; then
+        run $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
+    fi
 
-    num_expected_docs=4
+    num_expected_docs=5
     # docs are not loaded in 3.1 test
     [ "$version" = "3.1" ] && num_expected_docs=0
     # core / collection not created above in versions < 5
@@ -112,16 +130,15 @@ test_solr(){
         run $perl -T ./check_solr_write.pl -v -w 1000 # because Travis is slow
     fi
 
+}
+
+solr_conn_refused_tests(){
+    run_conn_refused ./check_solr_version.py -e "$version"
+    run_conn_refused $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
+    run_conn_refused $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
+    run_conn_refused $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
     run_conn_refused $perl -T ./check_solr_query.pl -n 0:$num_expected_docs -w 200 -v
-
     run_conn_refused $perl -T ./check_solr_write.pl -v -w 1000
-
-    echo "Completed $run_count Solr tests"
-    hr
-    [ -n "${KEEPDOCKER:-}" ] ||
-    docker-compose down
-    hr
-    echo
 }
 
 run_test_versions Solr
