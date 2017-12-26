@@ -32,7 +32,7 @@ Supports Kerberos authentication but must have a valid kerberos ticket and must 
 Tested on CDH 4.5, HDP 2.2, Apache Hadoop 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
 ";
 
-$VERSION = "0.5.3";
+$VERSION = "0.5.4";
 
 use strict;
 use warnings;
@@ -142,7 +142,7 @@ if($write){
         $file_checks{$_} and usage "cannot specify file checks with --write";
     }
 } else {
-    $path = validate_filename($path, "path");
+    $path = validate_dirname($path, "path");
 
     if($file_checks{"zero"} and $file_checks{"size"}){
         usage "--zero and --size are mutually exclusive";
