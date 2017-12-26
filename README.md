@@ -224,7 +224,7 @@ These allow you to use any standard nagios plugin with other non-Nagios style mo
 
 Testing high availability and multi-master setups is best done through a load balancer.
 
-HAProxy configurations are provided for all the major technologies under the ```haproxy``` directory for many of the technologies tested in this project, including:
+HAProxy configurations are provided for all the major technologies under the [haproxy/](https://github.com/HariSekhon/nagios-plugins/tree/master/haproxy) directory for many of the technologies tested in this project, including:
 
 - Hadoop NameNodes
 - Hadoop Resource Managers
