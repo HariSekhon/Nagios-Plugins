@@ -19,7 +19,7 @@ You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) 
 
 This is still using v1 of the API for compatability purposes
 
-Tested on Cloudera Manager 5.0.0, 5.7.0 with CDH 4.6 and CDH 5.x clusters";
+Tested on Cloudera Manager 5.0.0, 5.7.0, 5.12.0 with CDH 4.6 and CDH 5.x clusters";
 
 $VERSION = "0.1";
 
