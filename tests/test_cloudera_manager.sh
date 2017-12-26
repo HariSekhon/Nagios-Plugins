@@ -142,7 +142,9 @@ else
     if [ "$CM_CLUSTER" = "$QUICKSTART_CLUSTER" ]; then
         run_fail 2 $perl -T check_cloudera_manager_health.pl -S "$service"
 
-        run_fail 2 $perl -T check_cloudera_manager_license.pl
+        run_fail "0 2" $perl -T check_cloudera_manager_license.pl --license-trial
+
+        #run_fail "0 2" $perl -T check_cloudera_manager_license.pl --license-free
 
         run_fail "0 2" $perl -T check_cloudera_manager_status.pl -S "$service"
     else
