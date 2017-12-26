@@ -211,6 +211,7 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 
 This code base is under active development and there are many more cool plugins pending import.
 
+
 ##### Compatability / Translation Plugins
 
 These allow you to use any standard nagios plugin with other non-Nagios style monitoring systems by prefixing the nagios plugin command with these programs, which will execute and translate the outputs:
@@ -218,7 +219,26 @@ These allow you to use any standard nagios plugin with other non-Nagios style mo
 - ```check_mk_wrapper.py``` - executes and translates output from any standard nagios plugin to Check_MK local plugin format
 - ```geneos_wrapper.py / csv_wrapper.py``` - executes and translates output from any standard nagios plugin to Geneos / CSV format
 
-### See Also
+
+### High Availability / Multi-Master testing
+
+Testing high availability and multi-master setups is best done through a load balancer.
+
+HAProxy configurations are provided for all the major technologies under the ```haproxy``` directory for many of the technologies tested in this project, including:
+
+- Hadoop NameNodes
+- Hadoop Resource Managers
+- HBase Masters
+- Cassandra nodes
+- Apache Drill nodes
+- Impala nodes
+- Presto SQL Coordinators
+- Consul
+- SolrCloud nodes
+- Elasticsearch nodes
+
+
+#### See Also
 
 The following is pulled from my [PyTools repo](https://github.com/harisekhon/pytools#hari-sekhon-pytools) (currently one of my favourites):
 
@@ -233,18 +253,27 @@ There are now also simplified subclassed programs so you don't have to figure ou
 - ```find_active_hadoop_namenode.py```
 - ```find_active_hadoop_yarn_resource_manager.py```
 - ```find_active_hbase_master.py```
+- ```find_active_presto_coordinator.py```
+- ```find_active_apache_drill_node.py```
+- ```find_active_impala_node.py```
+- ```find_active_consul.py```
 - ```find_active_solrcloud_node.py```
 - ```find_active_elasticsearch_node.py```
+
+These are especially useful for ad-hoc scripting or quick command line tests.
+
 
 ### Kerberos Security Support ###
 
 For HTTP based plugins Kerberos is implicitly supported by LWP as long as the LWP::Authen::Negotiate CPAN module is installed (part of the automated ```make``` build). This will look for a valid TGT in the environment and if found will use it for SPNego.
+
 
 ### Quality ###
 
 Most of the plugins I've read from [Nagios Exchange](https://exchange.nagios.org/) and Monitoring Exchange (now [Icinga Exchange](https://exchange.icinga.org/)) in the last decade have not been of the quality required to run in production environments I've worked in (ever seen plugins written in Bash with little validation, or mere 200-300 line plugins without robust input/output validation and error handling, resulting in "UNKNOWN: (null)" when something goes wrong - right when you need them - then you know what I mean). That prompted me to write my own plugins whenever I had an idea or requirement.
 
 That naturally evolved in to this, a relatively Advanced Collection of Nagios Plugins, especially when I began standardizing and reusing code between plugins and improving the quality of all those plugins while doing so.
+
 
 ##### Goals #####
 
