@@ -226,9 +226,9 @@ Testing high availability and multi-master setups is best done through a load ba
 
 HAProxy configurations are provided for all the major technologies under the [haproxy/](https://github.com/HariSekhon/nagios-plugins/tree/master/haproxy) directory for many of the technologies tested in this project, including:
 
-- Hadoop NameNodes
-- Hadoop Resource Managers
-- HBase Masters
+- Hadoop HDFS NameNodes
+- Hadoop Yarn Resource Managers
+- HBase Masters, Stargate Rest & Thrift servers
 - Cassandra nodes
 - Apache Drill nodes
 - Impala nodes
