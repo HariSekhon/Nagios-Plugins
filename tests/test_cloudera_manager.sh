@@ -81,9 +81,7 @@ else
         exit 0
     fi
     hr
-    # QuickStart VM often has some broken stuff, we're testing the code works, not the cluster
-    #[ "$CM_CLUSTER" = "$QUICKSTART_CLUSTER" ] && set +e
-    hr
+
     run $perl -T check_cloudera_manager_version.pl -e "$CM_VERSION"
 
     run $perl -T check_cloudera_manager.pl --api-ping
