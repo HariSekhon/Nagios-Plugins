@@ -74,7 +74,7 @@ else
         exit 0
     fi
     hr
-    if when_url_content 5 "$PROTOCOL://$CM_HOST:$CM_PORT/cmf/login" Cloudera; then
+    if ! when_url_content 5 "$PROTOCOL://$CM_HOST:$CM_PORT/cmf/login" Cloudera; then
         echo "WARNING: Cloudera Manager host $CM_HOST:$CM_PORT did not contain Cloudera in html, may be some other service bound to the port, skipping..."
         echo
         echo
@@ -90,7 +90,7 @@ else
 
     run_fail 3 $perl -T check_cloudera_manager.pl --list-clusters
 
-    run_fail 3 $perl -T check_cloudera_manager.pl --list-users
+    run $perl -T check_cloudera_manager.pl --list-users
 
     run_fail 3 $perl -T check_cloudera_manager.pl --list-hosts
 
@@ -124,6 +124,8 @@ else
     $services
     "
 
+    # hbase service will be disabled in Quickstart VM
+    #service="$(bash-tools/random_select.sh "hdfs yarn hive zookeeper")"
     service="$(bash-tools/random_select.sh "$services")"
 
     echo "Selected service: $service"
@@ -139,13 +141,22 @@ else
 
     run $perl -T check_cloudera_manager_config_validation.pl -S "$service"
 
-    run $perl -T check_cloudera_manager_health.pl -S "$service"
+    if [ "$CM_CLUSTER" = "$QUICKSTART_CLUSTER" ]; then
+        run_fail 2 $perl -T check_cloudera_manager_health.pl -S "$service"
 
-    run $perl -T check_cloudera_manager_license.pl
+        run_fail 2 $perl -T check_cloudera_manager_license.pl
+
+        run_fail "0 2" $perl -T check_cloudera_manager_status.pl -S "$service"
+    else
+        run $perl -T check_cloudera_manager_health.pl -S "$service"
+
+        run $perl -T check_cloudera_manager_license.pl
+
+        run $perl -T check_cloudera_manager_status.pl -S "$service"
+    fi
 
     run $perl -T check_cloudera_manager_metrics.pl -S "$service" -a
 
-    run $perl -T check_cloudera_manager_status.pl -S "$service"
 fi
 echo
 echo "Completed $run_count Cloudera Manager tests"
