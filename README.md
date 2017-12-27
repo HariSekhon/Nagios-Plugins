@@ -35,9 +35,10 @@ Supports most major open source NoSQL technologies, Pub-Sub / Message Buses, CI,
 - [Git](https://git-scm.com/), [MySQL](https://www.mysql.com/) ... etc.
 
 Supports a a wide variety of [compatible Enterprise Monitoring servers](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems).
-Also useful to be run on the command line for testing or in scripts for dependency availability checking.
 
 Most enterprise monitoring systems come with basic generic checks, while this project extends their monitoring capabilities significantly further in to advanced infrastructure, application layer, APIs etc.
+
+Also useful to be run on the command line for testing or in scripts for dependency availability checking, and comes with a selection of [advanced HAProxy configurations](https://github.com/harisekhon/nagios-plugins/tree/master/haproxy) for these technologies to make monitoring and scripting easier for clustered technologies.
 
 Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/harisekhon/nagios-plugins/issues) or [pull requests](https://github.com/harisekhon/nagios-plugins/pulls) (in which case GitHub will give you credit and mark you as a contributor to the project :) ).
 
@@ -229,13 +230,13 @@ HAProxy configurations are provided for all the major technologies under the [ha
 - Hadoop HDFS NameNodes
 - Hadoop Yarn Resource Managers
 - HBase Masters, Stargate Rest & Thrift servers
-- Cassandra nodes
-- Apache Drill nodes
-- Impala nodes
+- Cassandra
+- Apache Drill
+- Impala
 - Presto SQL Coordinators
 - Consul
-- SolrCloud nodes
-- Elasticsearch nodes
+- SolrCloud
+- Elasticsearch
 
 
 #### See Also
@@ -253,12 +254,14 @@ There are now also simplified subclassed programs so you don't have to figure ou
 - ```find_active_hadoop_namenode.py```
 - ```find_active_hadoop_yarn_resource_manager.py```
 - ```find_active_hbase_master.py```
+- ```find_active_hbase_thrift.py```
+- ```find_active_hbase_stargate.py```
 - ```find_active_presto_coordinator.py```
-- ```find_active_apache_drill_node.py```
-- ```find_active_impala_node.py```
+- ```find_active_apache_drill.py```
+- ```find_active_impala.py```
 - ```find_active_consul.py```
-- ```find_active_solrcloud_node.py```
-- ```find_active_elasticsearch_node.py```
+- ```find_active_solrcloud.py```
+- ```find_active_elasticsearch.py```
 
 These are especially useful for ad-hoc scripting or quick command line tests.
 
