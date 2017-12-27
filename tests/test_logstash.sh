@@ -25,7 +25,7 @@ section "L o g s t a s h"
 
 # Logstash 6.0+ only available on new docker.elastic.co which uses full sub-version x.y.z and does not have x.y tags
 # Rest API 5.x onwards
-export LOGSTASH_VERSIONS="${@:-${LOGSTASH_VERSIONS:-latest 5.0 5.1 5.2 5.3 5.4 5.5 5.6 6.0.0}}"
+export LOGSTASH_VERSIONS="${@:-${LOGSTASH_VERSIONS:-latest 5.0 5.1 5.2 5.3 5.4 5.5 5.6 6.0.1 6.1.1}}"
 
 LOGSTASH_HOST="${DOCKER_HOST:-${LOGSTASH_HOST:-${HOST:-localhost}}}"
 LOGSTASH_HOST="${LOGSTASH_HOST##*/}"
