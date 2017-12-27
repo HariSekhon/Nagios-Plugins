@@ -25,7 +25,7 @@ Ensure Logstash options:
   --http.host should be set to 0.0.0.0 if querying remotely
   --http.port should be set to the same port that you are querying via this plugin's --port switch
 
-Tested on Logstash versions 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.0
+Tested on Logstash versions 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.0, 6.1
 
 """
 
