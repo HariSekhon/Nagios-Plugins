@@ -46,7 +46,7 @@ DEFAULT_TIMEOUT = 30
 support_msg = "Please make sure you have upgraded to the latest version from " + \
               "https://github.com/harisekhon/nagios-plugins. If the problem persists, " + \
               "please raise a ticket at https://github.com/harisekhon/nagios-plugins/issues "+ \
-	      "with the full -vvv output"
+              "with the full -vvv output"
 
 def end(status, message):
     """Exits the plugin with first arg as the return code and the second
