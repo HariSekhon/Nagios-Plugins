@@ -206,20 +206,20 @@ vlog2;
 # zk_open_file_descriptor_count   255
 # zk_max_file_descriptor_count    10240
 my %mntr = (
-    "zk_version",                        => undef,
-    "zk_avg_latency",                    => undef,
-    "zk_max_latency",                    => undef,
-    "zk_min_latency",                    => undef,
-    "zk_packets_received",              => undef,
-    "zk_packets_sent",                    => undef,
-    "zk_outstanding_requests",          => undef,
-    "zk_server_state",                    => undef,
-    "zk_znode_count",                    => undef,
-    "zk_watch_count",                    => undef,
-    "zk_ephemerals_count",                => undef,
-    "zk_approximate_data_size",            => undef,
-    "zk_open_file_descriptor_count",    => undef,
-    "zk_max_file_descriptor_count",        => undef,
+    "zk_version"                     => undef,
+    "zk_avg_latency"                 => undef,
+    "zk_max_latency"                 => undef,
+    "zk_min_latency"                 => undef,
+    "zk_packets_received"            => undef,
+    "zk_packets_sent"                => undef,
+    "zk_outstanding_requests"        => undef,
+    "zk_server_state"                => undef,
+    "zk_znode_count"                 => undef,
+    "zk_watch_count"                 => undef,
+    "zk_ephemerals_count"            => undef,
+    "zk_approximate_data_size"       => undef,
+    "zk_open_file_descriptor_count"  => undef,
+    "zk_max_file_descriptor_count"   => undef,
 );
 zoo_cmd "mntr", $timeout / 5;
 vlog3 "\nOutput from 'mntr':";
