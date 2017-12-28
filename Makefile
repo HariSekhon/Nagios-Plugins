@@ -207,8 +207,8 @@ python-libs:
 		find_active_hadoop_namenode.py \
 		find_active_hadoop_yarn_resource_manager.py \
 		find_active_hbase_master.py \
-		find_active_solrcloud_node.py \
-		find_active_elasticsearch_node.py \
+		find_active_solrcloud.py \
+		find_active_elasticsearch.py \
 		; do \
 		wget -O $$x.tmp https://raw.githubusercontent.com/HariSekhon/pytools/master/$$x && \
 		mv -vf $$x.tmp $$x; \
