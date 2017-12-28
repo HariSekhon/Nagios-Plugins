@@ -68,7 +68,7 @@ my @output;
     "c|critical=s"                  => [ \$critical,            "The critical threshold in days before expiry (defaults to $default_critical)" ],
     "C|CApath=s"                    => [ \$CApath,              "Path to ssl root certs dir (will attempt to determine from openssl binary if not supplied)" ],
     "N|no-validate"                 => [ \$no_validate,         "Do not validate the SSL certificate chain" ],
-    "cert-domain-invalid"	    => [ \$cert_domain_invalid, "Do not check that the domain on the returned certicate is valid according to domain naming rules. This was added for Platfora which had 'localhost' as the domain name. An alternative is to add 'localhost' to lib/custom_tlds.txt" ]
+    "cert-domain-invalid"           => [ \$cert_domain_invalid, "Do not check that the domain on the returned certicate is valid according to domain naming rules. This was added for Platfora which had 'localhost' as the domain name. An alternative is to add 'localhost' to lib/custom_tlds.txt" ]
 );
 @usage_order = qw/host port domain subject-alternative-names SNI-hostname warning critical CApath no-validate cert-domain-invalid/;
 
