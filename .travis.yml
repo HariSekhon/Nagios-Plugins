@@ -80,7 +80,9 @@ after_success:
 
 after_failure:
   - echo "After Failure"
-  - for x in /home/travis/.cpanm/work/*/build.log; do echo "uploading $x"; curl -sT "$x" transfer.sh || :; curl -sT "$x" chunk.io || :; done
+  #- for x in /home/travis/.cpanm/work/*/build.log; do echo "uploading $x"; curl -sT "$x" transfer.sh || :; done
+  # now requires authentication
+  #curl -sT "$x" chunk.io || :
 
 services:
   # docker breaks cassandra, mysql, probably everything
