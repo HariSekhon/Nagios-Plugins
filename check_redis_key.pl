@@ -94,11 +94,11 @@ vlog2 "reading key back from $hostport";
 my $value;
 my $start_time = time;
 try {
-	if ($lkey) {
-		$value  = $redis->llen($key);
-	} else {
-		$value  = $redis->get($key);
-	}
+    if ($lkey) {
+        $value  = $redis->llen($key);
+    } else {
+        $value  = $redis->get($key);
+    }
 };
 catch_quit "failed to get key '$key' from redis host $hostport";
 my $read_time  = time - $start_time;
