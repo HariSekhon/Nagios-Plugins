@@ -110,7 +110,7 @@ test_logstash(){
 
     run ./check_logstash_pipeline.py -v --pipeline "$pipeline" $logstash_5
 
-    run ./check_logstash_pipeline.py -v --pipeline "$pipeline" -w 8:8 $logstash_5
+    run ./check_logstash_pipeline.py -v --pipeline "$pipeline" -w 2:8 $logstash_5
 
     run_fail 1 ./check_logstash_pipeline.py -v --pipeline "$pipeline" -w 99 $logstash_5
 
