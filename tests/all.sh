@@ -41,7 +41,8 @@ time tests/help.sh
 tests/test_docker.sh
 
 tests_run=""
-failed_tests=""
+tests_succeeded=""
+tests_failed=""
 
 SECONDS=0
 for script in $(find tests -name 'test*.sh' | sort); do
@@ -58,8 +59,11 @@ for script in $(find tests -name 'test*.sh' | sort); do
         tests_run="$tests_run
 $script"
         declare_if_inside_docker
-        if ! time $script ${VERSION:-}; then
-            failed_tests="$failed_tests
+        if time $script ${VERSION:-}; then
+            tests_succeeded="$tests_suceeded
+$script"
+        else
+            tests_failed="$tests_failed
 $script"
         fi
     else
@@ -72,11 +76,15 @@ if is_CI; then
     echo
     echo "Tests Run:
 $tests_run"
+    echo "Tests Succeeded:
+$tests_run"
 fi
 
 if [ -n "$failed_tests" ]; then
     echo
-    echo "WARNING: the following tests failed:
+    echo "WARNING:
+
+Tests Failed:
 $failed_tests"
 fi
 
