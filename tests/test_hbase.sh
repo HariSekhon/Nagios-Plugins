@@ -665,7 +665,7 @@ EOF
 
 # ============================================================================ #
 
-    echo "Thrift API checks will hang so these python plugins will self timeout with UNKNOWN when the sole RegionServer is down"
+    echo "Thrift API checks will hang when sole RegionServer is down - testing python plugins will self timeout with UNKNOWN in this scenario:"
     # looks like this is cached and succeeds in 0.96 / 0.98
     run_fail "0 3" ./check_hbase_table.py -T t1 -t 5
 
