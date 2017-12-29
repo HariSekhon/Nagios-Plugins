@@ -76,8 +76,10 @@ if is_CI; then
     echo
     echo "Tests Run:
 $tests_run"
+    echo
     echo "Tests Succeeded:
-$tests_run"
+$tests_succeeded"
+    echo
 fi
 
 if [ -n "$failed_tests" ]; then
