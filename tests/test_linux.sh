@@ -114,7 +114,7 @@ if [ $# -gt 1 ]; then
     for version in $@; do
         test_linux "$distro" "$version"
     done
-elif [ $# -eq 1 -a "$1" != "latest" ]; then
+elif [ $# -eq 1 -a "${1:-}" != "latest" ]; then
     if [[ ${valid_distros[*]} =~ "$1" ]]; then
         test_linux "$1" "latest"
     else
