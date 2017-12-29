@@ -30,7 +30,7 @@ services:
       - 16030 # for HBase 0.99
       - 16201
       - 16301
-      # 0.96 needs these old ports
+      # older ports for HBase 0.96
       - 60000
       - 60010
       - 60201
@@ -46,7 +46,7 @@ services:
       - 9090
       - 9095
       - 16010
-      # 0.96 needs these old ports
+      # older port for HBase 0.96
       - 60010
     networks:
       - hbase
