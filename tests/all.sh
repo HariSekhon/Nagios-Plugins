@@ -82,12 +82,12 @@ $tests_succeeded"
     echo
 fi
 
-if [ -n "$failed_tests" ]; then
+if [ -n "$tests_failed" ]; then
     echo
     echo "WARNING:
 
 Tests Failed:
-$failed_tests"
+$tests_failed"
 fi
 
 srcdir="$srcdir_nagios_plugins_all"
