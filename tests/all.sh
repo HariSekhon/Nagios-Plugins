@@ -58,9 +58,10 @@ for script in $(find tests -name 'test*.sh' | sort); do
         tests_run="$tests_run
 $script"
         declare_if_inside_docker
-        time $script ${VERSION:-} || :
-        failed_tests="$failed_tests
+        if ! time $script ${VERSION:-}; then
+            failed_tests="$failed_tests
 $script"
+        fi
     else
         declare_if_inside_docker
         time $script ${VERSION:-}
