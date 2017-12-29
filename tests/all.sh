@@ -60,7 +60,7 @@ for script in $(find tests -name 'test*.sh' | sort); do
 $script"
         declare_if_inside_docker
         if time $script ${VERSION:-}; then
-            tests_succeeded="$tests_suceeded
+            tests_succeeded="$tests_succeeded
 $script"
         else
             tests_failed="$tests_failed
