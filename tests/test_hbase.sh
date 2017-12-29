@@ -118,6 +118,13 @@ test_hbase(){
         when_url_content "http://$HBASE_HOST:$HAPROXY_MASTER_PORT/master.jsp" HBase
         hr
         when_url_content "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/regionserver.jsp" HBase
+    elif [ "${version:0:3}" = "0.9" ]; then
+        when_url_content "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" HBase
+        hr
+        echo "checking HAProxy HBase Master:"
+        when_url_content "http://$HBASE_HOST:$HAPROXY_MASTER_PORT/master-status" HBase
+        hr
+        when_url_content "http://$HBASE_HOST:$HBASE_REGIONSERVER_PORT/rs-status" HBase
     else
         when_url_content "http://$HBASE_HOST:$HBASE_MASTER_PORT/master-status" HMaster
         hr
