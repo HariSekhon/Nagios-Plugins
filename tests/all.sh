@@ -53,7 +53,7 @@ for script in $(find tests -name 'test*.sh' | sort); do
     if is_CI; then
         [ $(($RANDOM % 4)) = 0 ] || continue
         if is_travis && [ $SECONDS -gt $((30*60)) ]; then
-            echo "Build has been running for longer than 40 minutes and is inside Travis CI, skipping rest of test_*.sh scripts"
+            echo "Build has been running for longer than 30 minutes and is inside Travis CI, skipping rest of test_*.sh scripts"
             break
         fi
         tests_run="$tests_run
