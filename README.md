@@ -528,7 +528,8 @@ The following enterprise monitoring systems are compatible with this project:
 * [Nagios](https://www.nagios.org/) - the original widely used open source monitoring system that set the standard
   * [Nagios Command Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command)
   * [Nagios Service Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service)
-  * [NRPE - Nagios Remote Plugin Executor](https://assets.nagios.com/downloads/nagioscore/docs/nrpe/NRPE.pdf) - most plugins check network services like NoSQL datastores but you can use NRPE for plugins that check the local system eg. `check_linux_*` / `older/check_*raid*.py`)
+  * [NRPE - Nagios Remote Plugin Executor](https://assets.nagios.com/downloads/nagioscore/docs/nrpe/NRPE.pdf) - most plugins check network services like NoSQL datastores but you can use NRPE for plugins that check the local system eg. ```check_linux_*` ``/ ```older/check_*raid*.py```)
+  * [PNP4Nagios](http://docs.pnp4nagios.org/start) - widely used metrics auto graphing add-on for Nagios
 
 * [Icinga](https://www.icinga.org/) - popular Nagios fork and rewrite with more features, Icinga retains the all-important Nagios Plugin compatibility, but adds native distributed monitoring capability, rule based configuration, a REST API and native Graphite and InfluxDB support for graphing
 
@@ -536,7 +537,7 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Shinken](http://www.shinken-monitoring.org/) - a Nagios reimplementation in Python which retains Nagios configuration compatibility
 
-* [Check_MK](http://mathias-kettner.com/check_mk.html) - Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html). See `check_mk_wrapper.py` which can run any Nagios Plugin and convert its output to Check_MK local check format.
+* [Check_MK](http://mathias-kettner.com/check_mk.html) - Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html). See ```check_mk_wrapper.py``` which can run any Nagios Plugin and convert its output to Check_MK local check format.
 
 * [GroundWork Monitor](http://www.gwos.com/) - Nagios-based commercial monitoring distribution
 
@@ -547,6 +548,13 @@ The following enterprise monitoring systems are compatible with this project:
 * [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program.
 
 * [Microsoft SCOM](https://www.microsoft.com/en-us/cloud-platform/system-center) - Microsoft Systems Center Operations Manager, can run Nagios Plugins as arbitrary Unix shell scripts with health/warning/error expression checks, see the [Microsoft technet documentation](https://technet.microsoft.com/en-us/library/jj126087(v=sc.12).aspx).
+
+##### Integrations - Metrics graphing solutions (Graphite etc)
+
+You can forward the metrics collected by plugins to specialised metrics graphing systems such as [Graphite](https://graphiteapp.org/):
+
+* [Collectd](https://collectd.org/index.shtml) - metrics collection daemon - can execute nagios plugins to collect their perfdata via the [exec plugin](https://collectd.org/documentation/manpages/collectd-exec.5.shtml). This can be used to ship to Graphite.
+* [Graphios](https://github.com/shawn-sterling/graphios) - sends perfdata collected by Nagios to metrics graphing systems like Graphite.
 
 ##### Datameer
 
