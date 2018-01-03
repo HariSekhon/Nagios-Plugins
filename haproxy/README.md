@@ -24,7 +24,7 @@ If you want to add a stats / admin UI then include the ```30-stats.cfg``` config
 haproxy -f 10-globals.cfg -f 20-defaults.cfg -f 30-stats.cfg -f elasticsearch.cfg
 ```
 
-And of course for multiple services just add those services to the command line:
+And of course for multiple services just add those service configurations to the command line options:
 ```
 haproxy -f 10-globals.cfg -f 20-defaults.cfg -f 30-stats.cfg -f elasticsearch.cfg -f cassandra.cfg
 ```
