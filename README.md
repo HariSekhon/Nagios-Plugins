@@ -533,7 +533,7 @@ The following enterprise monitoring systems are compatible with this project:
   * [NRPE - Nagios Remote Plugin Executor](https://assets.nagios.com/downloads/nagioscore/docs/nrpe/NRPE.pdf) - most plugins check network services like NoSQL datastores but you can use NRPE for plugins that check the local system eg. ```check_linux_*` ``/ ```older/check_*raid*.py```)
   * [PNP4Nagios](http://docs.pnp4nagios.org/start) - widely used metrics auto graphing add-on for Nagios
 
-* [Icinga](https://www.icinga.org/) - popular Nagios fork and rewrite with more features, Icinga retains the all-important Nagios Plugin compatibility, but adds native distributed monitoring capability, rule based configuration, a REST API and native Graphite and InfluxDB support for graphing
+* [Icinga](https://www.icinga.org/) - popular Nagios fork and rewrite with more features, Icinga retains the all-important Nagios Plugin compatibility, but adds native distributed monitoring capability, rule based configuration, a REST API and native [Graphite](https://graphiteapp.org/) and [InfluxDB](https://www.influxdata.com/) support for graphing
 
 * [Sensu](https://sensuapp.org/) - another more featureful monitoring system, compatible with both Nagios and Zabbix plugins
 
@@ -553,9 +553,9 @@ The following enterprise monitoring systems are compatible with this project:
 
 ##### Integrations - Metrics graphing solutions (Graphite etc)
 
-You can forward the metrics collected by plugins to specialised metrics graphing systems such as [Graphite](https://graphiteapp.org/):
+You can forward the metrics collected by plugins to specialised metrics graphing systems such as [Graphite](https://graphiteapp.org/), [Prometheus](https://prometheus.io/), [InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/):
 
-* [Collectd](https://collectd.org/index.shtml) - metrics collection daemon - can execute nagios plugins to collect their perfdata via the [exec plugin](https://collectd.org/documentation/manpages/collectd-exec.5.shtml). This can be used to ship to Graphite. See also the [collectd nagios plugin](https://collectd.org/documentation/manpages/collectd-nagios.1.shtml) which allows Nagios to query collectd metrics to apply alerts against them.
+* [Collectd](https://collectd.org/index.shtml) - metrics collection daemon - can execute nagios plugins to collect their perfdata via the [exec plugin](https://collectd.org/documentation/manpages/collectd-exec.5.shtml). Can send metrics to [Graphite](https://graphiteapp.org/), [Prometheus](https://prometheus.io/) and [OpenTSDB](http://opentsdb.net/). See also the [collectd nagios plugin](https://collectd.org/documentation/manpages/collectd-nagios.1.shtml) which allows Nagios to query collectd metrics to apply alerts against them.
 * [Graphios](https://github.com/shawn-sterling/graphios) - sends perfdata collected by Nagios to metrics graphing systems like Graphite.
 
 ##### Datameer
