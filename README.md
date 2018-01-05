@@ -551,7 +551,7 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Microsoft SCOM](https://www.microsoft.com/en-us/cloud-platform/system-center) - Microsoft Systems Center Operations Manager, can run Nagios Plugins as arbitrary Unix shell scripts with health/warning/error expression checks, see the [Microsoft technet documentation](https://technet.microsoft.com/en-us/library/jj126087(v=sc.12).aspx).
 
-##### Integrations - Metrics graphing solutions (Graphite etc)
+##### Integrations - Metrics graphing solutions (Graphite, Prometheus, InfluxDB, OpenTSDB)
 
 You can forward the metrics collected by plugins to specialised metrics graphing systems such as [Graphite](https://graphiteapp.org/), [Prometheus](https://prometheus.io/), [InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/):
 
