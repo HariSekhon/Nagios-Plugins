@@ -30,8 +30,10 @@ Supports most major open source NoSQL technologies, Pub-Sub / Message Buses, CI,
 - [Jenkins](https://jenkins.io/)
 - [Travis CI](https://travis-ci.org/)
 - [Puppet](https://puppet.com/)
-- Linux - including the widely used [RHEL](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux) / [CentOS](https://www.centos.org/) yum security updates check
-- SSL Certificate expiry, advanced DNS record checks, Whois domain expiry checker
+- Linux - various including the widely used [RHEL](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux) / [CentOS](https://www.centos.org/) yum security updates check
+- SSL Certificate validation & expiry days
+- Whois domain expiry days
+- advanced DNS record checks (MX, NS, SRV etc)
 - [Git](https://git-scm.com/), [MySQL](https://www.mysql.com/) ... etc.
 
 Supports a a wide variety of [compatible Enterprise Monitoring servers](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems).
@@ -553,7 +555,7 @@ The following enterprise monitoring systems are compatible with this project:
 
 You can forward the metrics collected by plugins to specialised metrics graphing systems such as [Graphite](https://graphiteapp.org/):
 
-* [Collectd](https://collectd.org/index.shtml) - metrics collection daemon - can execute nagios plugins to collect their perfdata via the [exec plugin](https://collectd.org/documentation/manpages/collectd-exec.5.shtml). This can be used to ship to Graphite.
+* [Collectd](https://collectd.org/index.shtml) - metrics collection daemon - can execute nagios plugins to collect their perfdata via the [exec plugin](https://collectd.org/documentation/manpages/collectd-exec.5.shtml). This can be used to ship to Graphite. See also the [collectd nagios plugin](https://collectd.org/documentation/manpages/collectd-nagios.1.shtml) which allows Nagios to query collectd metrics to apply alerts against them.
 * [Graphios](https://github.com/shawn-sterling/graphios) - sends perfdata collected by Nagios to metrics graphing systems like Graphite.
 
 ##### Datameer
