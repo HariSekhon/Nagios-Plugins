@@ -1,0 +1,39 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2018-01-15 17:59:33 +0000 (Mon, 15 Jan 2018)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+version: '2.2'
+services:
+  opentsdb:
+    extends:
+      file: common.yml
+      service: common
+    image: petergrace/opentsdb-docker:${VERSION:-latest}
+    ports:
+      - 4242
+    networks:
+      - opentsdb
+  opentsdb-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/opentsdb.cfg -d
+    ports:
+      - 4242
+    networks:
+      - opentsdb
+    links:
+      - opentsdb:opentsdb
+    volumes:
+      - ../../haproxy:/conf
+
+networks:
+  opentsdb:
