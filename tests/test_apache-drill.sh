@@ -64,11 +64,8 @@ test_apache_drill(){
     test_drill
     echo
     hr
-    echo "Running HAProxy tests"
-    hr
-    test_drill
     echo
-    section2 "Running Drill HAProxy test"
+    section2 "Running Apache Drill HAProxy tests"
     APACHE_DRILL_PORT="$HAPROXY_PORT" \
     test_drill
 
