@@ -43,22 +43,28 @@ test_haproxy_conf(){
         untrap
         # kill remaining child procs
         pkill -9 -P $$ || :
-        haproxy -c -f 10-global.cfg -f 21-defaults.cfg -f 30-stats.cfg -f "$cfg"
+        haproxy -c -f 10-global.cfg -f 20-defaults.cfg -f 30-stats.cfg -f "$cfg"
         exit 1
     fi
 }
+
+if [ $# -gt 0 ]; then
+    configs="$@"
+else
+    configs="$(echo [a-z]*.cfg */*.cfg)"
+fi
 
 if which haproxy &>/dev/null; then
     cd "$haproxy_srcdir"
     echo
     maxwidth=0
-    for cfg in [a-z]*.cfg; do
+    for cfg in $configs; do
         if [ "${#cfg}" -gt $maxwidth ]; then
             maxwidth="${#cfg}"
         fi
     done
     let maxwidth+=1
-    for cfg in [a-z]*.cfg; do
+    for cfg in $configs; do
         # slow due to all the DNS lookup failures for alternative haproxy services DNS names so aggressively parallelizing
         test_haproxy_conf "$cfg" &
     done
