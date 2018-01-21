@@ -74,14 +74,19 @@ test_influxdb(){
 
 influxdb_tests(){
     expected_version="${version%-alpine}"
-    if [ "$version" = "latest" ]; then
+    if [ "$version" = "latest" -o "$version" = "alpine" ]; then
         expected_version=".*"
     fi
-    #run ./check_influxdb_version.py -v -e "$expected_version"
+    build=""
+    # TODO: do bash utils float comparison function
+    if [[ "$version" = "latest" || "$version" = "alpine" ]]; then # || "${version:0:3}" -ge 1.4 ]]; then
+        build="--build OSS"
+    fi
+    run ./check_influxdb_version.py -v -e "$expected_version" $build
 
-    #run_fail 2 ./check_influxdb_version.py -v -e "fail-version"
+    run_fail 2 ./check_influxdb_version.py -v -e "fail-version" $build
 
-    #run_conn_refused ./check_influxdb_version.py -v -e "$expected_version"
+    run_conn_refused ./check_influxdb_version.py -v -e "$expected_version" $build
 
     run ./check_influxdb_api_ping.py
 
