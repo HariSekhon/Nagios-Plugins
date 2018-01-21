@@ -63,8 +63,8 @@ class CheckInfluxDBApiPing(RestNagiosPlugin):
         #self.json = False
         self.msg = 'InfluxDB msg not defined yet'
 
-    def add_options(self):
-        super(CheckInfluxDBApiPing, self).add_options()
+#    def add_options(self):
+#        super(CheckInfluxDBApiPing, self).add_options()
 
     def process_options(self):
         super(CheckInfluxDBApiPing, self).process_options()
