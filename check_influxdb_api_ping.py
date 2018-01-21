@@ -19,7 +19,7 @@
 
 Nagios Plugin to check InfluxDB is available via its Rest API
 
-Sends a simple API ping request and checks the response
+Sends a simple API ping request and checks the response code and headers to ensure it is InfluxDB
 
 Tested on InfluxDB 0.12, 0.13, 1.0, 1.1, 1.2, 1.3, 1.4
 
@@ -39,12 +39,13 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon import RestNagiosPlugin
+    from harisekhon.utils import UnknownError
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckInfluxDBApiPing(RestNagiosPlugin):
@@ -71,9 +72,18 @@ class CheckInfluxDBApiPing(RestNagiosPlugin):
         self.request.check_response_code = self.check_response_code
 
     def parse(self, req):
-        # validate X-Influxdb_Version
+        # validate X-Influxdb-Build and X-Influxdb-Version to ensure it is in fact InfluxDB
+        #
+        # X-Influxdb-Build header is only returned in InfluxDB 1.4+
+        #assert 'X-Influxdb-Build' in req.headers
+        #if 'X-Influxdb-Build' not in req.headers:
+        #    raise UnknownError('X-Influxdb-Build header not found in response')
+        #
+        #assert 'X-Influxdb-Version' in req.headers
+        if 'X-Influxdb-Version' not in req.headers:
+            raise UnknownError('X-Influxdb-Version header not found in response - not InfluxDB?')
         if req.status_code == 204:
-            self.msg = 'InfluxDB API ping successful'
+            self.msg = 'InfluxDB API ping successful, headers validated as InfluxDB'
         else:
             self.critical()
             self.msg = 'InfluxDB API ping failed! Non-204 response code returned'
