@@ -1,7 +1,7 @@
 3rd Party Nagios Plugins
 ========================
 
-This is a list of the best and most interesting 3rd party plugins, several of which I have used to come across over the years that deserve mention, usually due to their better quality than the typical Nagios Exchange / Icinga Exchange plugins.
+This is a list of the best and most interesting 3rd party plugins, several of which I have used or come across over the years that deserve mention, usually due to their better quality than the typical Nagios Exchange / Icinga Exchange plugins.
 
 - [check_openmanage](http://folk.uio.no/trondham/software/check_openmanage.html) - Dell OpenManage Hardware monitoring plugin by Trond Hasle Amundsen
 - [check_drbd](https://exchange.nagios.org/directory/Plugins/Operating-Systems/Linux/check_drbd/details) - can't remember if this is the plugin I used to use but I used to love it telling me when DRBD was behind by how much and caught up
