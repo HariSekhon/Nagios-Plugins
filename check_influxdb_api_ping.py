@@ -21,7 +21,7 @@ Nagios Plugin to check InfluxDB is available via its Rest API
 
 Sends a simple API ping request and checks the response code and headers to ensure it is InfluxDB
 
-Tested on InfluxDB 0.12, 0.13, 1.0, 1.1, 1.2, 1.3, 1.4
+Tested on InfluxDB 0.12, 0.13, 1.0, 1.1, 1.2, 1.3, 1.4 and InfluxDB Relay
 
 """
 
