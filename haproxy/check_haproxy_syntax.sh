@@ -47,7 +47,9 @@ test_haproxy_conf(){
         echo "$str OK"
         if ! grep -q "^$cfg$" <<< "$configs_without_acls"; then
             if ! grep -q -e '^[[:space:]]*acl internal_networks src 192.168.0.0/16 172.16.0.0/16 10.0.0.0/8 127.0.0.1$' "$cfg" ||
-               ! grep -q -e '^[[:space:]]*http-request deny if ! internal_networks' -e '^[[:space:]]*tcp-request content reject if ! internal_networks$' "$cfg"; then
+               # leave unanchored at end to allow elasticsearch-auth.cfg to append auth_ok ACLs
+               ! grep -q -e '^[[:space:]]*http-request deny if ! internal_networks' \
+                         -e '^[[:space:]]*tcp-request content reject if ! internal_networks$' "$cfg"; then
                 echo "ERROR: No ACL defined in config $cfg"
                 cleanup
                 exit 1
