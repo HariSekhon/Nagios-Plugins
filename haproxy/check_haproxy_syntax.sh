@@ -55,6 +55,15 @@ test_haproxy_conf(){
                 exit 1
             fi
         fi
+        for mode in tcp http; do
+            num_mode=$(egrep "^[[:space:]]*mode[[:space:]]+$mode" "$cfg" | wc -l | sed 's/[[:space:]]*//g'; :)
+            num_option_log=$(egrep "^[[:space:]]*option[[:space:]]+${mode}log" "$cfg" | wc -l | sed 's/[[:space:]]*//g'; :)
+            if [ "$num_mode" != "$num_option_log" ]; then
+                echo "ERROR: missing advanced logging options in $cfg"
+                cleanup
+                exit 1
+            fi
+        done
     else
         echo "$str FAILED"
         echo
