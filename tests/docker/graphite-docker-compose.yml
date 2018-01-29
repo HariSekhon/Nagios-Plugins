@@ -1,0 +1,50 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2018-01-29 17:35:21 +0000 (Mon, 29 Jan 2018)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+version: '2.2'
+services:
+  graphite:
+    extends:
+      file: common.yml
+      service: common
+    image: graphiteapp/graphite-statsd:${VERSION:-latest}
+    ports:
+      - 80
+      - 2003:2003
+      - 2004
+      - 8080
+    networks:
+      - graphite
+#  graphite-haproxy:
+#    image: haproxy:alpine
+#    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/graphite.cfg -d
+#    ports:
+#      - 4242
+#    networks:
+#      - graphite
+#    links:
+#      - graphite:graphite
+#    volumes:
+#      - ../../haproxy:/conf
+  graphite-collectd:
+    image: harisekhon/collectd
+    networks:
+      - graphite
+    links:
+      - graphite:graphite
+    volumes:
+      - ../conf/collectd.d/write_graphite.conf:/etc/collectd.d/write_graphite.conf
+
+networks:
+  graphite:
