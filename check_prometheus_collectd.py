@@ -54,12 +54,13 @@ class CheckPrometheusCollectd(RestNagiosPlugin):
         super(CheckPrometheusCollectd, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.name = 'Prometheus Collectd'
+        self.name = ['Prometheus Collectd', 'Collectd']
         self.default_port = 9103
+        # should technically be /metrics but / works too
         self.path = '/'
         self.auth = False
         self.json = False
-        self.msg = self.name + ' '
+        self.msg = self.name[0] + ' '
 
     def add_options(self):
         super(CheckPrometheusCollectd, self).add_options()
