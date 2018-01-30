@@ -57,7 +57,7 @@ class CheckPrometheusNodeExporterVersion(RestVersionNagiosPlugin):
         super(CheckPrometheusNodeExporterVersion, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.name = ['Prometheus NodeExporter', 'NodeExporter']
+        self.name = ['Prometheus Node Exporter', 'Node Exporter']
         self.default_port = 9100
         self.path = '/metrics'
         self.auth = False
