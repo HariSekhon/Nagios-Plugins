@@ -61,7 +61,7 @@ services:
     links:
       - influxdb-haproxy:influxdb
     volumes:
-      - ../conf/telegraf.conf:/etc/telegraf/telegraf.conf
+      - ../conf/telegraf-influxdb.conf:/etc/telegraf/telegraf.conf
 
 networks:
   influxdb:
