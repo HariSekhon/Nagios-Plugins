@@ -24,8 +24,9 @@ services:
     volumes:
       - ../conf/prometheus.yml:/etc/prometheus/prometheus.yml
     links:
-      - prometheus-collectd:prometheus-collectd
-      - prometheus-node-exporter:prometheus-node-exporter
+      - prometheus-collectd:collectd
+      - prometheus-node-exporter:node-exporter
+      - prometheus-telegraf:telegraf
     networks:
       - prometheus
   prometheus-haproxy:
@@ -53,6 +54,14 @@ services:
       - 9100
     networks:
       - prometheus
+  prometheus-telegraf:
+    image: telegraf:${TELEGRAF_VERSION:-alpine}
+    ports:
+      - 9273
+    networks:
+      - prometheus
+    volumes:
+      - ../conf/telegraf-prometheus.conf:/etc/telegraf/telegraf.conf
 
 networks:
   prometheus:
