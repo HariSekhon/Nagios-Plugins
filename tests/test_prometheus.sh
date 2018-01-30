@@ -28,6 +28,8 @@ export PROMETHEUS_VERSIONS="${@:-${PROMETHEUS_VERSIONS:-latest v1.0.0 v1.1.3 v1.
 # 0.9.0 does not have node_exporter_build_info
 # 0.10.0 tag is broken with a Go error: https://github.com/prometheus/node_exporter/issues/804
 export NODE_EXPORTER_VERSIONS="${NODE_EXPORTER_VERSIONS:-latest 0.12.0 v0.13.0 v0.14.0 v0.15.2}}"
+# versions before 1.4 don't run with the Prometheus config or have other issues
+export TELEGRAF_VERSIONS="${TELEGRAF_VERSIONS:-latest 1.4-alpine 1.5-alpine}}"
 
 PROMETHEUS_HOST="${DOCKER_HOST:-${PROMETHEUS_HOST:-${HOST:-localhost}}}"
 PROMETHEUS_HOST="${PROMETHEUS_HOST##*/}"
@@ -39,6 +41,7 @@ export PROMETHEUS_PORT_DEFAULT=9090
 export HAPROXY_PORT_DEFAULT=9090
 export COLLECTD_PORT_DEFAULT=9103
 export NODE_EXPORTER_PORT_DEFAULT=9100
+export TELEGRAF_PORT_DEFAULT=9273
 
 check_docker_available
 
@@ -49,13 +52,14 @@ test_prometheus(){
     section2 "Setting up Prometheus $version test container"
     docker_compose_pull
     local export NODE_EXPORTER_VERSION="${NODE_EXPORTER_VERSION:-$(bash-tools/random_select.sh $NODE_EXPORTER_VERSIONS)}"
-    VERSION="$version" docker-compose up -d
+    NODE_EXPORTER_VERSION="$NODE_EXPORTER_VERSION" VERSION="$version" docker-compose up -d
     hr
     echo "getting Prometheus dynamic port mappings:"
     docker_compose_port "Prometheus"
     DOCKER_SERVICE=prometheus-haproxy docker_compose_port HAProxy
     DOCKER_SERVICE=prometheus-collectd docker_compose_port Collectd
     DOCKER_SERVICE=prometheus-node-exporter docker_compose_port "Node Exporter"
+    DOCKER_SERVICE=prometheus-telegraf docker_compose_port Telegraf
     hr
     when_ports_available "$PROMETHEUS_HOST" "$PROMETHEUS_PORT" "$HAPROXY_PORT" "$COLLECTD_PORT" "$NODE_EXPORTER_PORT"
     hr
@@ -66,6 +70,9 @@ test_prometheus(){
     hr
     echo "checking Prometheus Node Exporter:"
     when_url_content "http://$PROMETHEUS_HOST:$NODE_EXPORTER_PORT/metrics" "^node_exporter_build_info"
+    hr
+    echo "checking Prometheus Telegraf:"
+    when_url_content "http://$PROMETHEUS_HOST:$TELEGRAF_PORT/metrics" "Telegraf collected metric"
     hr
     echo "checking HAProxy Prometheus:"
     when_url_content "http://$PROMETHEUS_HOST:$HAPROXY_PORT/graph" "Prometheus"
@@ -98,6 +105,12 @@ test_prometheus(){
     run_fail 2 ./check_prometheus_node_exporter_version.py -v -e 'fail-version'
 
     run_conn_refused ./check_prometheus_node_exporter_version.py
+
+    # ============================================================================ #
+
+    run ./check_prometheus_telegraf.py
+
+    run_conn_refused ./check_prometheus_telegraf.py
 
     # ============================================================================ #
 
