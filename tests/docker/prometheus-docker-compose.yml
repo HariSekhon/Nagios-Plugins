@@ -21,6 +21,8 @@ services:
     image: prom/prometheus:${VERSION:-latest}
     ports:
       - 9090
+    links:
+      - prometheus-collectd:prometheus-collectd
     networks:
       - prometheus
   prometheus-haproxy:
