@@ -67,6 +67,14 @@ test_prometheus(){
 
     run ./check_prometheus_collectd.py
 
+    run_conn_refused ./check_prometheus_collectd.py
+
+    run ./check_prometheus_collectd_version.py -v -e '5.8'
+
+    run_fail 2 ./check_prometheus_collectd_version.py -v -e 'fail-version'
+
+    run_conn_refused ./check_prometheus_collectd.py
+
     prometheus_tests
     echo
     section2 "Running Prometheus HAProxy tests"
