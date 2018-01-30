@@ -31,9 +31,11 @@ PROMETHEUS_HOST="${PROMETHEUS_HOST##*/}"
 PROMETHEUS_HOST="${PROMETHEUS_HOST%%:*}"
 export PROMETHEUS_HOST
 export PROMETHEUS_COLLECTD_HOST="$PROMETHEUS_HOST"
+export PROMETHEUS_NODE_EXPORTER_HOST="$PROMETHEUS_HOST"
 export PROMETHEUS_PORT_DEFAULT=9090
 export HAPROXY_PORT_DEFAULT=9090
 export COLLECTD_PORT_DEFAULT=9103
+export NODE_EXPORTER_PORT_DEFAULT=9100
 
 check_docker_available
 
@@ -49,13 +51,17 @@ test_prometheus(){
     docker_compose_port "Prometheus"
     DOCKER_SERVICE=prometheus-haproxy docker_compose_port HAProxy
     DOCKER_SERVICE=prometheus-collectd docker_compose_port Collectd
+    DOCKER_SERVICE=prometheus-node-exporter docker_compose_port "Node Exporter"
     hr
-    when_ports_available "$PROMETHEUS_HOST" "$PROMETHEUS_PORT" "$HAPROXY_PORT" "$COLLECTD_PORT"
+    when_ports_available "$PROMETHEUS_HOST" "$PROMETHEUS_PORT" "$HAPROXY_PORT" "$COLLECTD_PORT" "$NODE_EXPORTER_PORT"
     hr
     when_url_content "http://$PROMETHEUS_HOST:$PROMETHEUS_PORT/graph" "Prometheus"
     hr
     echo "checking Prometheus Collectd:"
-    when_url_content "http://$PROMETHEUS_HOST:$COLLECTD_PORT/" "collectd/write_prometheus"
+    when_url_content "http://$PROMETHEUS_HOST:$COLLECTD_PORT/metrics" "collectd/write_prometheus"
+    hr
+    echo "checking Prometheus Node Exporter:"
+    when_url_content "http://$PROMETHEUS_HOST:$NODE_EXPORTER_PORT/metrics" "^node_exporter_build_info"
     hr
     echo "checking HAProxy Prometheus:"
     when_url_content "http://$PROMETHEUS_HOST:$HAPROXY_PORT/graph" "Prometheus"
@@ -69,11 +75,23 @@ test_prometheus(){
 
     run_conn_refused ./check_prometheus_collectd.py
 
+    # ============================================================================ #
+
     run ./check_prometheus_collectd_version.py -v -e '5.8'
 
     run_fail 2 ./check_prometheus_collectd_version.py -v -e 'fail-version'
 
-    run_conn_refused ./check_prometheus_collectd.py
+    run_conn_refused ./check_prometheus_collectd_version.py
+
+    # ============================================================================ #
+
+    run ./check_prometheus_node_exporter_version.py -v -e '.*'
+
+    run_fail 2 ./check_prometheus_node_exporter_version.py -v -e 'fail-version'
+
+    run_conn_refused ./check_prometheus_node_exporter_version.py
+
+    # ============================================================================ #
 
     prometheus_tests
     echo
