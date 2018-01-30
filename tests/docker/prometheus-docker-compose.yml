@@ -25,6 +25,7 @@ services:
       - ../conf/prometheus.yml:/etc/prometheus/prometheus.yml
     links:
       - prometheus-collectd:prometheus-collectd
+      - prometheus-node-exporter:prometheus-node-exporter
     networks:
       - prometheus
   prometheus-haproxy:
@@ -46,6 +47,12 @@ services:
       - prometheus
     volumes:
       - ../conf/collectd.d/write_prometheus.conf:/etc/collectd.d/write_prometheus.conf
+  prometheus-node-exporter:
+    image: prom/node-exporter:${NODE_EXPORTER_VERSION:-latest}
+    ports:
+      - 9100
+    networks:
+      - prometheus
 
 networks:
   prometheus:
