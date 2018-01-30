@@ -18,11 +18,14 @@ services:
     extends:
       file: common.yml
       service: common
-    image: influxdb:${VERSION:-latest}
+    image: influxdb:${VERSION:-alpine}
     ports:
       - 8086
+      - 2003
     networks:
       - influxdb
+    environment:
+      - INFLUXDB_GRAPHITE_ENABLED=true
   influxdb-haproxy:
     image: haproxy:alpine
     command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/influxdb.cfg -d
@@ -34,6 +37,23 @@ services:
       - influxdb:influxdb
     volumes:
       - ../../haproxy:/conf
+  chronograf:
+    image: chronograf:alpine
+    command: --influxdb-url=http://influxdb:8086
+    ports:
+      - 8888:8888
+    networks:
+      - influxdb
+    links:
+      - influxdb-haproxy:influxdb
+  influxdb-collectd:
+    image: harisekhon/collectd
+    networks:
+      - influxdb
+    links:
+      - influxdb:influxdb
+    volumes:
+      - ../conf/collectd.d/write_influxdb_graphite.conf:/etc/collectd.d/write_influxdb_graphite.conf
 
 networks:
   influxdb:
