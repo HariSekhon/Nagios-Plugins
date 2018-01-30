@@ -45,6 +45,14 @@ services:
       - graphite:graphite
     volumes:
       - ../conf/collectd.d/write_graphite.conf:/etc/collectd.d/write_graphite.conf
+  graphite-telegraf:
+    image: telegraf:${TELEGRAF_VERSION:-alpine}
+    networks:
+      - graphite
+    links:
+      - graphite:graphite
+    volumes:
+      - ../conf/telegraf-graphite.conf:/etc/telegraf/telegraf.conf
 
 networks:
   graphite:
