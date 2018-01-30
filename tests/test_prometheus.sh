@@ -89,9 +89,9 @@ test_prometheus(){
 
     # ============================================================================ #
 
-    expected_node_exporter_version="${NODE_EXPORTER_VERSION#v}"
+    local expected_node_exporter_version="${NODE_EXPORTER_VERSION#v}"
     if [ "$NODE_EXPORTER_VERSION" = "latest" ]; then
-        $expected_node_exporter_version=".*"
+        expected_node_exporter_version=".*"
     fi
     run ./check_prometheus_node_exporter_version.py -v -e "$expected_node_exporter_version"
 
