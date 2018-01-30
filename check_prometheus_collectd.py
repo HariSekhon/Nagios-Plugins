@@ -57,7 +57,7 @@ class CheckPrometheusCollectd(RestNagiosPlugin):
         self.name = ['Prometheus Collectd', 'Collectd']
         self.default_port = 9103
         # should technically be /metrics but / works too
-        self.path = '/'
+        self.path = '/metrics'
         self.auth = False
         self.json = False
         self.msg = self.name[0] + ' '
