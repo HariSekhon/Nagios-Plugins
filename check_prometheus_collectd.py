@@ -47,6 +47,7 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
 
+# pylint: disable=too-few-methods
 class CheckPrometheusCollectd(RestNagiosPlugin):
 
     def __init__(self):
@@ -61,12 +62,6 @@ class CheckPrometheusCollectd(RestNagiosPlugin):
         self.auth = False
         self.json = False
         self.msg = self.name[0] + ' '
-
-    def add_options(self):
-        super(CheckPrometheusCollectd, self).add_options()
-
-    def process_options(self):
-        super(CheckPrometheusCollectd, self).process_options()
 
     def parse(self, req):
         if 'collectd/write_prometheus' in req.content:
