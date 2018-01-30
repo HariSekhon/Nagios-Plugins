@@ -55,7 +55,7 @@ services:
     volumes:
       - ../conf/collectd.d/write_influxdb_graphite.conf:/etc/collectd.d/write_influxdb_graphite.conf
   telegraf:
-    image: telegraf:alpine
+    image: telegraf:${TELEGRAF_VERSION:-alpine}
     networks:
       - influxdb
     links:
