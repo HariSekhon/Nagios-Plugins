@@ -21,6 +21,8 @@ Nagios Plugin to check the version of a Prometheus Node Exporter scrape target
 
 Tested on Prometheus Node Exporter 0.12, 0.13, 0.14, 0.15
 
+(0.9.0 does not contain this build information)
+
 """
 
 from __future__ import absolute_import
