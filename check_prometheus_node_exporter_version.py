@@ -19,7 +19,7 @@
 
 Nagios Plugin to check the version of a Prometheus Node Exporter scrape target
 
-Tested on Prometheus Node Exporter ...
+Tested on Prometheus Node Exporter 0.12, 0.13, 0.14, 0.15
 
 """
 
