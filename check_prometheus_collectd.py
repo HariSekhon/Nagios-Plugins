@@ -47,7 +47,7 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
 
-# pylint: disable=too-few-methods
+# pylint: disable=too-few-public-methods
 class CheckPrometheusCollectd(RestNagiosPlugin):
 
     def __init__(self):
