@@ -21,7 +21,7 @@ Nagios Plugin to check a Prometheus Telegraf scrape target is available
 
 This should be targeted against Telegraf's prometheus output plugin
 
-Tested on Telegraf 1.5
+Tested on Telegraf 1.4, 1.5
 
 """
 
