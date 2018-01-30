@@ -34,6 +34,14 @@ services:
       - opentsdb:opentsdb
     volumes:
       - ../../haproxy:/conf
+  opentsdb-collectd:
+    image: harisekhon/collectd
+    networks:
+      - opentsdb
+    links:
+      - opentsdb-haproxy:opentsdb
+    volumes:
+      - ../conf/collectd.d/write_tsdb.conf:/etc/collectd.d/write_tsdb.conf
 
 networks:
   opentsdb:
