@@ -25,6 +25,9 @@ cd "$srcdir/.."
 section "P r o m e t h e u s"
 
 export PROMETHEUS_VERSIONS="${@:-${PROMETHEUS_VERSIONS:-latest v1.0.0 v1.1.3 v1.2.3 v1.3.1 v1.4.0 v1.5.3 v1.6.3 v1.7.2 v1.8.2 v2.1.0}}"
+# 0.9.0 does not have node_exporter_build_info
+# 0.10.0 tag is broken with a Go error: https://github.com/prometheus/node_exporter/issues/804
+export NODE_EXPORTER_VERSIONS="${NODE_EXPORTER_VERSIONS:-latest 0.12.0 v0.13.0 v0.14.0 v0.15.2}}"
 
 PROMETHEUS_HOST="${DOCKER_HOST:-${PROMETHEUS_HOST:-${HOST:-localhost}}}"
 PROMETHEUS_HOST="${PROMETHEUS_HOST##*/}"
@@ -45,6 +48,7 @@ test_prometheus(){
     local version="$1"
     section2 "Setting up Prometheus $version test container"
     docker_compose_pull
+    local export NODE_EXPORTER_VERSION="${NODE_EXPORTER_VERSION:-$(bash-tools/random_select.sh $NODE_EXPORTER_VERSIONS)}"
     VERSION="$version" docker-compose up -d
     hr
     echo "getting Prometheus dynamic port mappings:"
@@ -85,7 +89,11 @@ test_prometheus(){
 
     # ============================================================================ #
 
-    run ./check_prometheus_node_exporter_version.py -v -e '.*'
+    expected_node_exporter_version="${NODE_EXPORTER_VERSION#v}"
+    if [ "$NODE_EXPORTER_VERSION" = "latest" ]; then
+        $expected_node_exporter_version=".*"
+    fi
+    run ./check_prometheus_node_exporter_version.py -v -e "$expected_node_exporter_version"
 
     run_fail 2 ./check_prometheus_node_exporter_version.py -v -e 'fail-version'
 
