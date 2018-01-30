@@ -21,6 +21,8 @@ services:
     image: prom/prometheus:${VERSION:-latest}
     ports:
       - 9090
+    volumes:
+      - ../conf/prometheus.yml:/etc/prometheus/prometheus.yml
     links:
       - prometheus-collectd:prometheus-collectd
     networks:
@@ -38,6 +40,8 @@ services:
       - ../../haproxy:/conf
   prometheus-collectd:
     image: harisekhon/collectd
+    ports:
+      - 9103
     networks:
       - prometheus
     volumes:
