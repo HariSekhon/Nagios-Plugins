@@ -541,7 +541,7 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Shinken](http://www.shinken-monitoring.org/) - a Nagios reimplementation in Python which retains Nagios configuration compatibility, with metrics graphing via Graphite from the plugins perfdata
 
-* [Check_MK](http://mathias-kettner.com/check_mk.html) - Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html). See ```check_mk_wrapper.py``` which can run any Nagios Plugin and convert its output to Check_MK local check format.
+* [Check_MK](http://mathias-kettner.com/check_mk.html) - Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html). See ```check_mk_wrapper.py``` which can run any Nagios Plugin and convert its output to Check_MK local check format
 
 * [GroundWork Monitor](http://www.gwos.com/) - Nagios-based commercial monitoring distribution
 
@@ -549,24 +549,24 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [OP5 Monitor](https://www.op5.com/op5-monitor/) - Nagios-based commerical monitoring distribution
 
-* [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program.
+* [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program
 
-* [Microsoft SCOM](https://www.microsoft.com/en-us/cloud-platform/system-center) - Microsoft Systems Center Operations Manager, can run Nagios Plugins as arbitrary Unix shell scripts with health/warning/error expression checks, see the [Microsoft technet documentation](https://technet.microsoft.com/en-us/library/jj126087(v=sc.12).aspx).
+* [Microsoft SCOM](https://www.microsoft.com/en-us/cloud-platform/system-center) - Microsoft Systems Center Operations Manager, can run Nagios Plugins as arbitrary Unix shell scripts with health/warning/error expression checks, see the [Microsoft technet documentation](https://technet.microsoft.com/en-us/library/jj126087(v=sc.12).aspx)
 
 
 ##### Integrations - Metrics graphing solutions (Graphite, Prometheus, InfluxDB, OpenTSDB)
 
 You can forward the metrics collected by plugins to specialised metrics graphing systems such as [Graphite](https://graphiteapp.org/), [Prometheus](https://prometheus.io/), [InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/):
 
-* [Collectd](https://collectd.org/index.shtml) - metrics collection daemon - can execute Nagios Plugins to collect their perfdata via the [exec plugin](https://collectd.org/documentation/manpages/collectd-exec.5.shtml). Can send metrics to [Graphite](https://graphiteapp.org/), [InfluxDB](https://www.influxdata.com/) (via Graphite protocol), [Prometheus](https://prometheus.io/) (via exporter for scrape target) and [OpenTSDB](http://opentsdb.net/). See also the [collectd nagios plugin](https://collectd.org/documentation/manpages/collectd-nagios.1.shtml) which allows Nagios to query collectd metrics to apply alerts against them.
-* [Telegraf](https://docs.influxdata.com/telegraf/) - metrics collection daemon - can execute Nagios Plugins via ```input.exec``` with ```data_format="nagios"``` and pass the perfdata to InfluxDB, Graphite, Prometheus and OpenTSDB - see [this documentation](https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md#nagios)
-* [Graphios](https://github.com/shawn-sterling/graphios) - sends perfdata collected by Nagios to metrics graphing systems like Graphite.
+* [Collectd](https://collectd.org/index.shtml) - metrics collection daemon - can execute Nagios Plugins to collect their perfdata via the [exec plugin](https://collectd.org/documentation/manpages/collectd-exec.5.shtml). Can send metrics to [Graphite](https://graphiteapp.org/), [InfluxDB](https://www.influxdata.com/) (via Graphite protocol), [Prometheus](https://prometheus.io/) (via exporter for scrape target) and [OpenTSDB](http://opentsdb.net/). See also the [collectd nagios plugin](https://collectd.org/documentation/manpages/collectd-nagios.1.shtml) which allows Nagios to query collectd metrics to apply alerts against them
+* [Telegraf](https://docs.influxdata.com/telegraf/) - metrics collection daemon - can execute Nagios Plugins via ```input.exec``` with ```data_format="nagios"``` and pass the Nagios Plugin perfdata to [InfluxDB]()https://www.influxdata.com/, [Graphite](https://graphiteapp.org/), [Prometheus](https://prometheus.io/) and [OpenTSDB](http://opentsdb.net/) - see [this documentation](https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md#nagios)
+* [Graphios](https://github.com/shawn-sterling/graphios) - sends perfdata collected by Nagios to metrics graphing systems like [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) (via Graphite protocol)
 
 The following Nagios compatible monitoring servers can run these Nagios Plugins and graph the perfdata as metrics in Graphite or InfluxDB (via Graphite protocol):
 
-* Icinga2
-* Sensu
-* Shinken
+* [Icinga2](https://www.icinga.org/)
+* [Sensu](https://sensuapp.org/)
+* [Shinken](http://www.shinken-monitoring.org/)
 
 See section above for descriptions of each of these.
 
