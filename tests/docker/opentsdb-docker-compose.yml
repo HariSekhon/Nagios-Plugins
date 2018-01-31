@@ -23,6 +23,7 @@ services:
       - 4242
     networks:
       - opentsdb
+
   opentsdb-haproxy:
     image: haproxy:alpine
     command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/opentsdb.cfg -d
@@ -34,22 +35,41 @@ services:
       - opentsdb:opentsdb
     volumes:
       - ../../haproxy:/conf
+
   opentsdb-collectd:
     image: harisekhon/collectd
     networks:
       - opentsdb
     links:
-      #- opentsdb:opentsdb
-      - opentsdb-haproxy:opentsdb
+      # XXX: metrics don't seem to arrive through HAProxy - to debug even though OpenTSDB shows the connection in the logs
+      - opentsdb:opentsdb
+      #- opentsdb-haproxy:opentsdb
     volumes:
       - ../conf/collectd.d/write_tsdb.conf:/etc/collectd.d/write_tsdb.conf
+
+  # Telegraf 1.5 gets connection refused and shuts down, see GitHub issue https://github.com/influxdata/telegraf/issues/3723
+  #
+  # workaround for now is re-run in a separate window a little later after OpenTSDB has had time to boot up:
+  #
+  # docker-compose -f opentsdb-docker-compose.yml up
+  #
+  opentsdb-telegraf:
+    image: telegraf:${TELEGRAF_VERSION:-alpine}
+    networks:
+      - opentsdb
+    links:
+      - opentsdb:opentsdb
+      #- opentsdb-haproxy:opentsdb
+    volumes:
+      - ../conf/telegraf-opentsdb.conf:/etc/telegraf/telegraf.conf
+
   tcollector:
     image: harisekhon/tcollector
     networks:
       - opentsdb
     links:
-      #- opentsdb:opentsdb
-      - opentsdb-haproxy:opentsdb
+      - opentsdb:opentsdb
+      #- opentsdb-haproxy:opentsdb
 
 networks:
   opentsdb:
