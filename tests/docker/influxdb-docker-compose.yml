@@ -26,6 +26,7 @@ services:
       - influxdb
     environment:
       - INFLUXDB_GRAPHITE_ENABLED=true
+
   influxdb-haproxy:
     image: haproxy:alpine
     command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/influxdb.cfg -d
@@ -37,6 +38,7 @@ services:
       - influxdb:influxdb
     volumes:
       - ../../haproxy:/conf
+
   chronograf:
     image: chronograf:alpine
     command: --influxdb-url=http://influxdb:8086
@@ -46,6 +48,7 @@ services:
       - influxdb
     links:
       - influxdb-haproxy:influxdb
+
   influxdb-collectd:
     image: harisekhon/collectd
     networks:
@@ -54,6 +57,7 @@ services:
       - influxdb:influxdb
     volumes:
       - ../conf/collectd.d/write_influxdb_graphite.conf:/etc/collectd.d/write_influxdb_graphite.conf
+
   telegraf:
     image: telegraf:${TELEGRAF_VERSION:-alpine}
     networks:
