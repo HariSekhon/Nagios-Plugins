@@ -558,7 +558,7 @@ The following enterprise monitoring systems are compatible with this project:
 
 You can graph the Nagios Plugins perfdata metrics by forwarding it to specialised metrics monitoring systems such as [Graphite](https://graphiteapp.org/), [Prometheus](https://prometheus.io/), [InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/).
 
-The following Nagios compatible monitoring servers can run these Nagios Plugins and graph the perfdata as metrics in [Graphite]()https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) (via Graphite protocol) - see the section above on enterprise monitoring systems for descriptions of each of these:
+The following Nagios compatible monitoring servers can run these Nagios Plugins and graph the perfdata as metrics in [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) (via Graphite protocol) - see the section above on enterprise monitoring systems for descriptions of each of these:
 
 * [Icinga2](https://www.icinga.org/)
 * [Sensu](https://sensuapp.org/)
