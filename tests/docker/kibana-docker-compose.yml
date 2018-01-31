@@ -32,6 +32,8 @@ services:
       - 5601
     networks:
       - kibana
+    links:
+      - kibana:kibana
     volumes:
       - ../../haproxy:/conf
 
