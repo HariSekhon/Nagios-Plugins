@@ -29,7 +29,7 @@ For multiple services just add those service configurations to the command line 
 haproxy -f 10-globals.cfg -f 20-defaults.cfg -f 30-stats.cfg -f elasticsearch.cfg -f solrcloud.cfg
 ```
 
-Common backend server addresses has been pre-populated for convenience including:
+Common backend server addresses have been pre-populated for convenience including:
 
 - ```<service>``` - generic service name matching the proxied technology - could be resolved by DNS to multiple IPs to be balanced across
 - ```192.168.99.100``` - the common Docker Machine IP address
