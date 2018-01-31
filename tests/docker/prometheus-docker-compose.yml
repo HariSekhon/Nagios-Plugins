@@ -29,6 +29,7 @@ services:
       - prometheus-telegraf:telegraf
     networks:
       - prometheus
+
   prometheus-haproxy:
     image: haproxy:alpine
     command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/prometheus.cfg -d
@@ -40,6 +41,7 @@ services:
       - prometheus:prometheus
     volumes:
       - ../../haproxy:/conf
+
   prometheus-collectd:
     image: harisekhon/collectd
     ports:
@@ -48,12 +50,14 @@ services:
       - prometheus
     volumes:
       - ../conf/collectd.d/write_prometheus.conf:/etc/collectd.d/write_prometheus.conf
+
   prometheus-node-exporter:
     image: prom/node-exporter:${NODE_EXPORTER_VERSION:-latest}
     ports:
       - 9100
     networks:
       - prometheus
+
   prometheus-telegraf:
     image: telegraf:${TELEGRAF_VERSION:-alpine}
     ports:
