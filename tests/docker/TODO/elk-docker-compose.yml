@@ -1,0 +1,86 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2016-12-09 18:41:13 +0000 (Fri, 09 Dec 2016)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+version: '2.2'
+services:
+  elasticsearch:
+    extends:
+      file: common.yml
+      service: common
+    image: elasticsearch:${VERSION:-latest}
+    ports:
+      - 9200
+    networks:
+      - elk
+
+  elasticsearch-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/elasticsearch.cfg -d
+    ports:
+      - 9200
+    networks:
+      - elk
+    links:
+      - elasticsearch:elasticsearch
+    volumes:
+      - ../../haproxy:/conf
+
+  logstash:
+    extends:
+      file: common.yml
+      service: common
+    image: logstash:${VERSION:-latest}
+    ports:
+      - 9600
+    # listen on dummy port just to keep it up, stdin {} closes in this scenario
+    # set --http.host to 0.0.0.0 otherwise it listens on 127.0.0.1 by default
+    #command: "-e 'input { tcp { port => 9999 } }' --http.host 0.0.0.0 --http.port 9600"
+    command: "-e 'input { file { path => \"/var/log/*.log\" } } output { elasticsearch { hosts => \"elasticsearch-haproxy:9200\" } }' --http.host 0.0.0.0 --http.port 9600"
+    networks:
+      - elk
+    links:
+      - elasticsearch:elasticsearch
+      - elasticsearch-haproxy:elasticsearch-haproxy
+
+  kibana:
+    extends:
+      file: common.yml
+      service: common
+    # Official Elasticsearch docker images have moved from DockerHub to docker.elastic.co for Elasticsearch 6.x +
+    # elastic.co don't support 'latest' tag yet, nor x.y versions, so default to x.y.z for now
+    image: kibana:${VERSION:-latest}
+    ports:
+      - 5601
+    networks:
+      - elk
+    links:
+      - elasticsearch:elasticsearch
+      - elasticsearch-haproxy:elasticsearch-haproxy
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch-haproxy:9200
+
+  kibana-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/kibana.cfg -d
+    ports:
+      - 5601
+    networks:
+      - elk
+    links:
+      - kibana:kibana
+    volumes:
+      - ../../haproxy:/conf
+
+networks:
+  elk:
