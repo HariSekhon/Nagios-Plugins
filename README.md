@@ -535,11 +535,11 @@ The following enterprise monitoring systems are compatible with this project:
   * [NRPE - Nagios Remote Plugin Executor](https://assets.nagios.com/downloads/nagioscore/docs/nrpe/NRPE.pdf) - most plugins check network services like NoSQL datastores but you can use NRPE for plugins that check the local system eg. ```check_linux_*``` / ```older/check_*raid*.py```)
   * [PNP4Nagios](http://docs.pnp4nagios.org/start) - widely used metrics auto graphing add-on for Nagios
 
-* [Icinga](https://www.icinga.org/) - popular Nagios fork and rewrite with more features, Icinga retains the all-important Nagios Plugin compatibility, but adds native distributed monitoring capability, rule based configuration, a REST API and metrics graphing via [Graphite](https://graphiteapp.org/) of [InfluxDB](https://www.influxdata.com/) of the plugins' perfdata
+* [Icinga](https://www.icinga.org/) - popular Nagios fork and rewrite with more features, Icinga retains the all-important Nagios Plugin compatibility, but adds native distributed monitoring capability, rule based configuration, a REST API and metrics graphing via [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) from the plugins' perfdata
 
-* [Sensu](https://sensuapp.org/) - another more featureful monitoring system, compatible with both Nagios and Zabbix plugins, with metrics graphing via [Graphite](https://graphiteapp.org/) / [InfluxDB](https://www.influxdata.com/) of the plugins' perfdata
+* [Sensu](https://sensuapp.org/) - another more featureful monitoring system, compatible with both Nagios and Zabbix plugins, with metrics graphing via [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) from the plugins' perfdata
 
-* [Shinken](http://www.shinken-monitoring.org/) - a Nagios reimplementation in Python which retains Nagios configuration compatibility, with metrics graphing via [Graphite](https://graphiteapp.org/) and [InfluxDB](https://www.influxdata.com/) of the plugins' perfdata
+* [Shinken](http://www.shinken-monitoring.org/) - a Nagios reimplementation in Python which retains Nagios configuration compatibility, with metrics graphing via [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) from the plugins' perfdata
 
 * [Check_MK](http://mathias-kettner.com/check_mk.html) - Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html). See ```check_mk_wrapper.py``` which can run any Nagios Plugin and convert its output to Check_MK local check format
 
