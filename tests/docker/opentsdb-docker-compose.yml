@@ -27,7 +27,7 @@ services:
     image: haproxy:alpine
     command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/opentsdb.cfg -d
     ports:
-      - 4242
+      - 4242:4242
     networks:
       - opentsdb
     links:
@@ -39,9 +39,17 @@ services:
     networks:
       - opentsdb
     links:
+      #- opentsdb:opentsdb
       - opentsdb-haproxy:opentsdb
     volumes:
       - ../conf/collectd.d/write_tsdb.conf:/etc/collectd.d/write_tsdb.conf
+  tcollector:
+    image: harisekhon/tcollector
+    networks:
+      - opentsdb
+    links:
+      #- opentsdb:opentsdb
+      - opentsdb-haproxy:opentsdb
 
 networks:
   opentsdb:
