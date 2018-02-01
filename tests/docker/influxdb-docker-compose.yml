@@ -53,8 +53,9 @@ services:
     image: harisekhon/collectd
     networks:
       - influxdb
-    links:
-      - influxdb:influxdb
+    # Graphite protocol on port 2003 isn't relevant to proxy via InfluxDB 8086, it's only needed by Chronograf
+    #links:
+    #  - influxdb-haproxy:influxdb
     volumes:
       - ../conf/collectd.d/write_influxdb_graphite.conf:/etc/collectd.d/write_influxdb_graphite.conf
 
