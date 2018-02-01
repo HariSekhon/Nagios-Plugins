@@ -21,36 +21,45 @@ services:
     image: graphiteapp/graphite-statsd:${VERSION:-latest}
     ports:
       - 80
-      - 2003:2003
-      - 2004
+      - 2003-2004
+      - 2023-2024
+      - 8125:8125/udp
+      - 8126
       - 8080
     networks:
       - graphite
-#  graphite-haproxy:
-#    image: haproxy:alpine
-#    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/graphite.cfg -d
-#    ports:
-#      - 4242
-#    networks:
-#      - graphite
-#    links:
-#      - graphite:graphite
-#    volumes:
-#      - ../../haproxy:/conf
+
+  graphite-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/graphite-web.cfg -f /conf/graphite-carbon-relay.cfg -d
+    ports:
+      - 2003:2003
+      - 2004:2004
+      - 8080:8080
+      - 9000:9000
+    networks:
+      - graphite
+    links:
+      - graphite:carbon-relay
+      - graphite:graphite-web
+    volumes:
+      - ../../haproxy:/conf
+
   graphite-collectd:
     image: harisekhon/collectd
     networks:
       - graphite
     links:
-      - graphite:graphite
+      - graphite-haproxy:graphite
     volumes:
       - ../conf/collectd.d/write_graphite.conf:/etc/collectd.d/write_graphite.conf
+
   graphite-telegraf:
     image: telegraf:${TELEGRAF_VERSION:-alpine}
     networks:
       - graphite
     links:
-      - graphite:graphite
+      - graphite-haproxy:graphite
     volumes:
       - ../conf/telegraf-graphite.conf:/etc/telegraf/telegraf.conf
 
