@@ -31,8 +31,6 @@ services:
       - 4242:4242
     networks:
       - opentsdb
-    links:
-      - opentsdb:opentsdb
     volumes:
       - ../../haproxy:/conf
 
@@ -40,10 +38,9 @@ services:
     image: harisekhon/collectd
     networks:
       - opentsdb
-    links:
-      # XXX: metrics don't seem to arrive through HAProxy - to debug even though OpenTSDB shows the connection in the logs
-      - opentsdb:opentsdb
-      #- opentsdb-haproxy:opentsdb
+    # XXX: metrics don't seem to arrive through HAProxy - even though logs show the connections and API requests succeed
+    #links:
+    #  - opentsdb-haproxy:opentsdb
     volumes:
       - ../conf/collectd.d/write_tsdb.conf:/etc/collectd.d/write_tsdb.conf
 
@@ -57,9 +54,8 @@ services:
     image: telegraf:${TELEGRAF_VERSION:-alpine}
     networks:
       - opentsdb
-    links:
-      - opentsdb:opentsdb
-      #- opentsdb-haproxy:opentsdb
+    #links:
+    #  - opentsdb-haproxy:opentsdb
     volumes:
       - ../conf/telegraf-opentsdb.conf:/etc/telegraf/telegraf.conf
 
@@ -67,9 +63,8 @@ services:
     image: harisekhon/tcollector
     networks:
       - opentsdb
-    links:
-      - opentsdb:opentsdb
-      #- opentsdb-haproxy:opentsdb
+    #links:
+    #  - opentsdb-haproxy:opentsdb
 
 networks:
   opentsdb:
