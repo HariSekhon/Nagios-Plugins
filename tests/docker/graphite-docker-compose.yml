@@ -36,7 +36,6 @@ services:
       - 2003:2003
       - 2004:2004
       - 8080:8080
-      - 9000:9000
     networks:
       - graphite
     links:
