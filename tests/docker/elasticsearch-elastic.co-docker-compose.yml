@@ -32,8 +32,6 @@ services:
       - 9200
     networks:
       - elasticsearch
-    #links:
-    #  - elasticsearch:elasticsearch
     volumes:
       - ../../haproxy:/conf
 
