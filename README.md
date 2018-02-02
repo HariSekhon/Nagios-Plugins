@@ -529,6 +529,8 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 ### Enterprise Monitoring Systems
 
+##### Compatible Monitoring Solutions
+
 The following enterprise monitoring systems are compatible with this project:
 
 * [Nagios](https://www.nagios.org/) - the original widely used open source monitoring system that set the standard
