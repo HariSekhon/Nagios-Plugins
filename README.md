@@ -529,7 +529,7 @@ Contributions are more than welcome with patches accepted in the form of Github 
 
 ### Enterprise Monitoring Systems
 
-##### Compatible Monitoring Solutions
+#### Compatible Monitoring Solutions
 
 The following enterprise monitoring systems are compatible with this project:
 
@@ -561,7 +561,7 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Microsoft SCOM](https://www.microsoft.com/en-us/cloud-platform/system-center) - Microsoft Systems Center Operations Manager, can run Nagios Plugins as arbitrary Unix shell scripts with health/warning/error expression checks, see the [Microsoft technet documentation](https://technet.microsoft.com/en-us/library/jj126087(v=sc.12).aspx)
 
-##### Incompatible Monitoring Solutions
+#### Incompatible Monitoring Solutions
 
 * [Zabbix](https://www.zabbix.com/) - open source monitoring solution with in-built graphing, distributed monitoring and auto discovery but unfortunately not Nagios Plugin compatible, some integration can be done via a wrapper script (we tried exactly this in 2012 but didn't like it enough to switch from Nagios), see this [community forum thread](https://www.zabbix.com/forum/showthread.php?t=28010) for more information and code
 
