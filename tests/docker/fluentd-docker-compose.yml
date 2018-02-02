@@ -38,8 +38,6 @@ services:
       #- 24230
     networks:
       - fluentd
-    links:
-      - fluentd:fluentd
     volumes:
       - ../../haproxy:/conf
 
