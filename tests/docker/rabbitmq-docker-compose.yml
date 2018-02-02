@@ -26,8 +26,6 @@ services:
     extends:
       file: rabbitmq-common.yml
       service: rabbitmq-common
-    links:
-      - rabbit1
     environment:
       - RABBITMQ_CLUSTER_SEED=rabbit1
       - RABBITMQ_RAM_NODE=1
