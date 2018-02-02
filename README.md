@@ -562,8 +562,14 @@ Many monitoring systems will already auto-graph the performance metric data from
 
 You can also execute these Nagios Plugins outside of any nagios-compatible monitoring server and forward just the metrics to the major metrics monitoring systems using the following tools:
 
+##### Metrics Collection Integrations
+
 * [Collectd](https://collectd.org/index.shtml) - metrics collection daemon - can execute Nagios Plugins to collect their perfdata via the [exec plugin](https://collectd.org/documentation/manpages/collectd-exec.5.shtml). Can send metrics to [Graphite](https://graphiteapp.org/), [InfluxDB](https://www.influxdata.com/) (via Graphite protocol), [Prometheus](https://prometheus.io/) (via exporter for scrape target) and [OpenTSDB](http://opentsdb.net/). See also the [collectd nagios plugin](https://collectd.org/documentation/manpages/collectd-nagios.1.shtml) which allows Nagios to query collectd metrics to apply alerts against them
 * [Telegraf](https://docs.influxdata.com/telegraf/) - metrics collection daemon - can execute Nagios Plugins via ```input.exec``` with ```data_format="nagios"``` and pass the Nagios Plugin perfdata to [InfluxDB](https://www.influxdata.com/), [Graphite](https://graphiteapp.org/), [Prometheus](https://prometheus.io/) and [OpenTSDB](http://opentsdb.net/) - see the [InfluxDB data input formats documentation](https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md#nagios)
+
+##### Other Metrics Integration Add-Ons
+
+* [PNP4Nagios](http://docs.pnp4nagios.org/start) - widely used open source auto-graphing add-on for Nagios open source and similar Nagios-based monitoring systems, see list of [enterprise monitoring systems](ttps://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems) to see which ones bundle this
 * [Graphios](https://github.com/shawn-sterling/graphios) - sends perfdata collected by Nagios to metrics graphing systems like [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) (via Graphite protocol)
 
 
