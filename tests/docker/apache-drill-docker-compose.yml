@@ -44,8 +44,6 @@ services:
       - 8047
     networks:
       - apache_drill
-    links:
-      - apache-drill:drill
     volumes:
       - ../../haproxy:/conf
 
