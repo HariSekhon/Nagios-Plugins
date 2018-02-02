@@ -31,8 +31,6 @@ services:
       - 9200
     networks:
       - elk
-    links:
-      - elasticsearch:elasticsearch
     volumes:
       - ../../haproxy:/conf
 
@@ -49,9 +47,6 @@ services:
     command: "-e 'input { file { path => \"/var/log/*.log\" } } output { elasticsearch { hosts => \"elasticsearch-haproxy:9200\" } }' --http.host 0.0.0.0 --http.port 9600"
     networks:
       - elk
-    links:
-      - elasticsearch:elasticsearch
-      - elasticsearch-haproxy:elasticsearch-haproxy
 
   kibana:
     extends:
@@ -64,9 +59,6 @@ services:
       - 5601
     networks:
       - elk
-    links:
-      - elasticsearch:elasticsearch
-      - elasticsearch-haproxy:elasticsearch-haproxy
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch-haproxy:9200
 
@@ -77,8 +69,6 @@ services:
       - 5601
     networks:
       - elk
-    links:
-      - kibana:kibana
     volumes:
       - ../../haproxy:/conf
 
