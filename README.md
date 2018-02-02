@@ -569,7 +569,7 @@ You can also execute these Nagios Plugins outside of any nagios-compatible monit
 
 ##### Other Metrics Integration Add-Ons
 
-* [PNP4Nagios](http://docs.pnp4nagios.org/start) - widely used open source auto-graphing add-on for Nagios open source and similar Nagios-based monitoring systems, see list of [enterprise monitoring systems](ttps://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems) to see which ones bundle this
+* [PNP4Nagios](http://docs.pnp4nagios.org/start) - widely used open source auto-graphing add-on for Nagios open source and similar Nagios-based monitoring systems, see list of [enterprise monitoring systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems) above to see which ones bundle this
 * [Graphios](https://github.com/shawn-sterling/graphios) - sends perfdata collected by Nagios to metrics graphing systems like [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) (via Graphite protocol)
 
 
