@@ -293,7 +293,7 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - `--warning/--critical` thresholds with range support, in form of `min:max` (`@` prefix inverts to expect value outside of this range)
 - support for use of `$USERNAME` and `$PASSWORD` environment variables as well as more specific overrides (eg. `$MYSQL_USERNAME`, `$REDIS_PASSWORD`) to give administrators the option to avoid leaking `--password` credentials in the process list for all users to see
 - self-timeouts
-- graph data ([PNP4Nagios](https://docs.pnp4nagios.org/) add-on auto-graphs the perfdata from these plugins)
+- graph metrics data  - [Graphite](https://graphiteapp.org/), [InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/) and [PNP4Nagios](https://docs.pnp4nagios.org/) can all auto-graph the perfdata from these plugins
 - [continuous integration](https://travis-ci.org/HariSekhon/nagios-plugins) with tests for success and failure scenarios:
   - unit tests for the custom supporting [perl](https://github.com/harisekhon/lib) and [python](https://github.com/harisekhon/pylib) libraries
   - integration tests of the top level programs using the libraries for things like option parsing
@@ -535,34 +535,30 @@ The following enterprise monitoring systems are compatible with this project:
   * [NRPE - Nagios Remote Plugin Executor](https://assets.nagios.com/downloads/nagioscore/docs/nrpe/NRPE.pdf) - most plugins check network services like NoSQL datastores but you can use NRPE for plugins that check the local system eg. ```check_linux_*``` / ```older/check_*raid*.py```)
   * [PNP4Nagios](http://docs.pnp4nagios.org/start) - widely used metrics auto graphing add-on for Nagios
 
-* [Icinga](https://www.icinga.org/) - popular Nagios fork and rewrite with more features, Icinga retains the all-important Nagios Plugin compatibility, but adds native distributed monitoring capability, rule based configuration, a REST API and metrics graphing via [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) from the plugins' perfdata
-
-* [Sensu](https://sensuapp.org/) - another more featureful monitoring system, compatible with both Nagios and Zabbix plugins, with metrics graphing via [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) from the plugins' perfdata
+* [Icinga2](https://www.icinga.org/) - popular open source Nagios fork rewritten with more features, Icinga retains the all-important Nagios Plugin compatibility, but adds native distributed monitoring capability, dynamic rule based configuration, a REST API and metrics graphing via [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) from the plugins' perfdata
 
 * [Shinken](http://www.shinken-monitoring.org/) - a Nagios reimplementation in Python which retains Nagios configuration compatibility, with metrics graphing via [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) from the plugins' perfdata
 
-* [Check_MK](http://mathias-kettner.com/check_mk.html) - Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html). See ```check_mk_wrapper.py``` which can run any Nagios Plugin and convert its output to Check_MK local check format
+* [Sensu](https://sensuapp.org/) - open-core distributed monitoring system, compatible with both Nagios and Zabbix plugins, with metrics graphing via [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) from the plugins' perfdata
 
-* [GroundWork Monitor](http://www.gwos.com/) - Nagios-based commercial monitoring distribution
+* [Check_MK](http://mathias-kettner.com/check_mk.html) - commercial Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html). See ```check_mk_wrapper.py``` which can run any Nagios Plugin and convert its output to Check_MK local check format. Has built-in metrics graphing via [PNP4Nagios](http://docs.pnp4nagios.org/start) (RRD), Enterprise Edition can send metrics to [Graphite](https://graphiteapp.org/) and [InfluxDB](https://www.influxdata.com/) via the Graphite protocol, see [documentation](https://mathias-kettner.com/cms_graphing.html)
 
-* [OpsView Monitor](https://www.opsview.com/) - Nagios-based commercial monitoring distribution
+* [GroundWork Monitor](http://www.gwos.com/) - commercial Nagios-based monitoring distribution with RRD metrics graphing and [InfluxDB integration](https://kb.groundworkopensource.com/display/DOC72/How+to+configure+GroundWork+InfluxDB)
 
-* [OP5 Monitor](https://www.op5.com/op5-monitor/) - Nagios-based commerical monitoring distribution
+* [OpsView Monitor](https://www.opsview.com/) - commercial Nagios-based monitoring distribution with native metrics graphing via [Graph Center](https://www.opsview.com/products/features/graph-center) as well as [InfluxDB integration](https://www.opsview.com/integrations/database/influxdb) via [InfluxDB Opspack](https://github.com/opsview/application-influxdb)
+
+* [OP5 Monitor](https://www.op5.com/op5-monitor/) - commercial Nagios-based monitoring distribution including metrics graphing via [PNP4Nagios](http://docs.pnp4nagios.org/start), has [InfluxDB integration](https://kb.op5.com/display/HOWTOs/Install+OP5+Monitor+InfluxDB+module)
+
+* [OpsGenie] - proprietary non-standard monitoring, cannot execute Nagios Plugins but has integration with existing [Nagios](https://docs.opsgenie.com/docs/nagios-overview), [Icinga2](https://docs.opsgenie.com/docs/icinga2-integration) and [Prometheus](https://docs.opsgenie.com/docs/prometheus-integration)
 
 * [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program
 
 * [Microsoft SCOM](https://www.microsoft.com/en-us/cloud-platform/system-center) - Microsoft Systems Center Operations Manager, can run Nagios Plugins as arbitrary Unix shell scripts with health/warning/error expression checks, see the [Microsoft technet documentation](https://technet.microsoft.com/en-us/library/jj126087(v=sc.12).aspx)
 
 
-#### Metrics Graphing Integrations - Graphite, Prometheus, InfluxDB, OpenTSDB
+#### Metrics Graphing Integrations - Graphite, InfluxDB, Prometheus, OpenTSDB, PNP4Nagios
 
-You can graph the Nagios Plugins perfdata metrics by forwarding it to specialised metrics monitoring systems such as [Graphite](https://graphiteapp.org/), [Prometheus](https://prometheus.io/), [InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/).
-
-The following Nagios compatible monitoring servers can run these Nagios Plugins and graph the perfdata as metrics in [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) (via Graphite protocol) - see the section above on enterprise monitoring systems for descriptions of each of these:
-
-* [Icinga2](https://www.icinga.org/)
-* [Sensu](https://sensuapp.org/)
-* [Shinken](http://www.shinken-monitoring.org/)
+Many monitoring systems will already auto-graph the performance metric data from these plugins via [PNP4Nagios](http://docs.pnp4nagios.org/start) but you can also forward it to newer more specialised metrics monitoring and graphing systems such as [Graphite](https://graphiteapp.org/), [InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/), [Prometheus](https://prometheus.io/) (this last one is the most awkward as it requires pull).
 
 You can also execute these Nagios Plugins outside of any nagios-compatible monitoring server and forward just the metrics to the major metrics monitoring systems using the following tools:
 
