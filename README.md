@@ -560,9 +560,9 @@ The following enterprise monitoring systems are compatible with this project:
 
 Many monitoring systems will already auto-graph the performance metric data from these nagios plugins via [PNP4Nagios](http://docs.pnp4nagios.org/start) but you can also forward it to newer more specialised metrics monitoring and graphing systems such as [Graphite](https://graphiteapp.org/), [InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/) and [Prometheus](https://prometheus.io/) (this last one is the most awkward as it requires pull rather than passively receiving).
 
-You can also execute these Nagios Plugins outside of any nagios-compatible monitoring server and forward just the metrics to the major metrics monitoring systems using the following tools:
-
 ##### Metrics Collection Integrations
+
+You can also execute these Nagios Plugins outside of any nagios-compatible monitoring server and forward just the metrics to the major metrics monitoring systems using the following tools:
 
 * [Collectd](https://collectd.org/index.shtml) - metrics collection daemon - can execute Nagios Plugins to collect their perfdata via the [exec plugin](https://collectd.org/documentation/manpages/collectd-exec.5.shtml). Can send metrics to [Graphite](https://graphiteapp.org/), [InfluxDB](https://www.influxdata.com/) (via Graphite protocol), [Prometheus](https://prometheus.io/) (via exporter for scrape target) and [OpenTSDB](http://opentsdb.net/). See also the [collectd nagios plugin](https://collectd.org/documentation/manpages/collectd-nagios.1.shtml) which allows Nagios to query collectd metrics to apply alerts against them
 * [Telegraf](https://docs.influxdata.com/telegraf/) - metrics collection daemon - can execute Nagios Plugins via ```input.exec``` with ```data_format="nagios"``` and pass the Nagios Plugin perfdata to [InfluxDB](https://www.influxdata.com/), [Graphite](https://graphiteapp.org/), [Prometheus](https://prometheus.io/) and [OpenTSDB](http://opentsdb.net/) - see the [InfluxDB data input formats documentation](https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md#nagios)
