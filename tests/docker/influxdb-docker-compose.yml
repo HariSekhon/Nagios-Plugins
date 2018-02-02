@@ -34,20 +34,16 @@ services:
       - 8086
     networks:
       - influxdb
-    links:
-      - influxdb:influxdb
     volumes:
       - ../../haproxy:/conf
 
   chronograf:
     image: chronograf:alpine
-    command: --influxdb-url=http://influxdb:8086
+    command: --influxdb-url=http://influxdb-haproxy:8086
     ports:
       - 8888:8888
     networks:
       - influxdb
-    links:
-      - influxdb-haproxy:influxdb
 
   influxdb-collectd:
     image: harisekhon/collectd
