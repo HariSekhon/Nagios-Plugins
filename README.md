@@ -556,9 +556,9 @@ The following enterprise monitoring systems are compatible with this project:
 * [Microsoft SCOM](https://www.microsoft.com/en-us/cloud-platform/system-center) - Microsoft Systems Center Operations Manager, can run Nagios Plugins as arbitrary Unix shell scripts with health/warning/error expression checks, see the [Microsoft technet documentation](https://technet.microsoft.com/en-us/library/jj126087(v=sc.12).aspx)
 
 
-#### Metrics Graphing Integrations
+### Metrics Graphing Integrations
 
-##### Graphite, InfluxDB, Prometheus, OpenTSDB, PNP4Nagios
+#### Graphite, InfluxDB, Prometheus, OpenTSDB, PNP4Nagios
 
 Many monitoring systems will already auto-graph the performance metric data from these nagios plugins via [PNP4Nagios](http://docs.pnp4nagios.org/start) but you can also forward it to newer more specialised metrics monitoring and graphing systems such as [Graphite](https://graphiteapp.org/), [InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/) and [Prometheus](https://prometheus.io/) (this last one is the most awkward as it requires pull rather than passively receiving). The above list of [enterprise monitoring systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems) documents each one's integration capabilities with links to their documentation.
 
