@@ -539,7 +539,7 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Shinken](http://www.shinken-monitoring.org/) - a Nagios reimplementation in Python which retains Nagios configuration compatibility, with metrics graphing via [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) from the plugins' perfdata
 
-* [Sensu](https://sensuapp.org/) - open-core distributed monitoring system, compatible with both Nagios and Zabbix plugins, with metrics graphing via [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) from the plugins' perfdata
+* [Sensu](https://sensuapp.org/) - open-core distributed monitoring system, compatible with both Nagios and Zabbix plugins. Enterprise Edition contains metrics graphing integrations via [Graphite](https://graphiteapp.org/), [InfluxDB](https://www.influxdata.com/) or [OpenTSDB](http://opentsdb.net/) from the plugins' perfdata
 
 * [Check_MK](http://mathias-kettner.com/check_mk.html) - commercial Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html). See ```check_mk_wrapper.py``` which can run any Nagios Plugin and convert its output to Check_MK local check format. Has built-in metrics graphing via [PNP4Nagios](http://docs.pnp4nagios.org/start) (RRD), Enterprise Edition can send metrics to [Graphite](https://graphiteapp.org/) and [InfluxDB](https://www.influxdata.com/) via the Graphite protocol, see [documentation](https://mathias-kettner.com/cms_graphing.html)
 
