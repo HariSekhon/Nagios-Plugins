@@ -545,6 +545,8 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Sensu](https://sensuapp.org/) - open-core distributed monitoring system, compatible with both Nagios and Zabbix plugins. Enterprise Edition contains metrics graphing integrations for [Graphite](https://sensuapp.org/docs/1.2/enterprise/integrations/graphite.html), [InfluxDB](https://sensuapp.org/docs/1.2/enterprise/integrations/influxdb.html) or [OpenTSDB](https://sensuapp.org/docs/1.2/enterprise/integrations/opentsdb.html) from the plugins' perfdata
 
+* [ZenOSS](https://www.zenoss.com/) - open-core monitoring solution that can run Nagios Plugins, see [documentation](http://wiki.zenoss.org/Working_With_Nagios_Plugins)
+
 * [Check_MK](http://mathias-kettner.com/check_mk.html) - commercial Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html). See ```check_mk_wrapper.py``` which can run any Nagios Plugin and convert its output to Check_MK local check format. Has built-in metrics graphing via [PNP4Nagios](http://docs.pnp4nagios.org/start), Enterprise Edition can send metrics to [Graphite](https://graphiteapp.org/) and [InfluxDB](https://www.influxdata.com/) via the Graphite protocol, see [documentation](https://mathias-kettner.com/cms_graphing.html)
 
 * [GroundWork Monitor](http://www.gwos.com/) - commercial Nagios-based monitoring distribution with RRD metrics graphing and [InfluxDB integration](https://kb.groundworkopensource.com/display/DOC72/How+to+configure+GroundWork+InfluxDB)
@@ -553,11 +555,15 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [OP5 Monitor](https://www.op5.com/op5-monitor/) - commercial Nagios-based monitoring distribution including metrics graphing via [PNP4Nagios](http://docs.pnp4nagios.org/start), has [InfluxDB integration](https://kb.op5.com/display/HOWTOs/Install+OP5+Monitor+InfluxDB+module)
 
-* [OpsGenie](https://www.opsgenie.com/) - proprietary non-standard monitoring, cannot execute Nagios Plugins but has integration with existing [Nagios](https://docs.opsgenie.com/docs/nagios-overview), [Icinga2](https://docs.opsgenie.com/docs/icinga2-integration) and [Prometheus](https://docs.opsgenie.com/docs/prometheus-integration)
-
 * [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program
 
 * [Microsoft SCOM](https://www.microsoft.com/en-us/cloud-platform/system-center) - Microsoft Systems Center Operations Manager, can run Nagios Plugins as arbitrary Unix shell scripts with health/warning/error expression checks, see the [Microsoft technet documentation](https://technet.microsoft.com/en-us/library/jj126087(v=sc.12).aspx)
+
+##### Incompatible Monitoring Solutions
+
+* [Zabbix](https://www.zabbix.com/) - open source monitoring solution with in-built graphing, distributed monitoring and auto discovery but unfortunately not Nagios Plugin compatible, some integration can be done via a wrapper script (we tried exactly this in 2012 but didn't like it enough to switch from Nagios), see this [community forum thread](https://www.zabbix.com/forum/showthread.php?t=28010) for more information and code
+
+* [OpsGenie](https://www.opsgenie.com/) - proprietary non-standard monitoring, cannot execute Nagios Plugins but has integration with existing [Nagios](https://docs.opsgenie.com/docs/nagios-overview), [Icinga2](https://docs.opsgenie.com/docs/icinga2-integration) and [Prometheus](https://docs.opsgenie.com/docs/prometheus-integration)
 
 
 ### Metrics Graphing Integrations
