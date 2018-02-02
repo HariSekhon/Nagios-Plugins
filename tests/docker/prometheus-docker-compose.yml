@@ -37,8 +37,6 @@ services:
       - 9090:9090
     networks:
       - prometheus
-    links:
-      - prometheus:prometheus
     volumes:
       - ../../haproxy:/conf
 
