@@ -308,6 +308,8 @@ Perl ePN optimization is not supported at this time as I was running 13,000 prod
 
 Python plugins are all pre-byte-compiled as part of the automated build.
 
+Modern scaling should be done using distributed computing, open source examples including [Icinga2](https://www.icinga.com/docs/icinga2/latest/doc/06-distributed-monitoring/) and [Shinken](http://shinken.readthedocs.io/en/latest/07_advanced/scaling-shinken.html#advanced-scaling-shinken). Shinken's [documentation](http://shinken.readthedocs.io/en/latest/07_advanced/distributed-shinken.html?highlight=150000%20checks/5min) cites an average 4 core server @ 3Ghz as supporting 150,000 checks per 5 minutes, which comfirms my own testing. Using the latest hardware should yield even better results.
+
 ##### Contributions #####
 
 Patches, improvements and even general feedback are welcome in the form of GitHub pull requests and issue tickets.
@@ -537,7 +539,7 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Icinga2](https://www.icinga.org/) - popular open source Nagios fork rewritten with more features, Icinga retains the all important Nagios Plugin compatibility, but adds native distributed monitoring capability, dynamic rule based configuration, a REST API and native metrics graphing integrations via [Graphite](https://www.icinga.com/docs/icinga2/latest/doc/09-object-types/#graphitewriter), [InfluxDB](https://www.icinga.com/docs/icinga2/latest/doc/09-object-types/#influxdbwriter) and [OpenTSDB](https://www.icinga.com/docs/icinga2/latest/doc/09-object-types/#opentsdbwriter) to create graphs from the plugins' perfdata
 
-* [Shinken](http://www.shinken-monitoring.org/) - a Nagios reimplementation in Python which retains Nagios configuration compatibility, with metrics graphing via [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) from the plugins' perfdata
+* [Shinken](http://www.shinken-monitoring.org/) - a modular Nagios reimplementation in Python, Nagios config compatible, with distributed monitoring architecture, high availability, host / service discovery, forwards plugins' metric perfdata via the Graphite protocol to [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/), see [documentation](http://shinken.readthedocs.io/en/latest/11_integration/graphite.html)
 
 * [Sensu](https://sensuapp.org/) - open-core distributed monitoring system, compatible with both Nagios and Zabbix plugins. Enterprise Edition contains metrics graphing integrations via [Graphite](https://sensuapp.org/docs/1.2/enterprise/integrations/graphite.html), [InfluxDB](https://sensuapp.org/docs/1.2/enterprise/integrations/influxdb.html) or [OpenTSDB](https://sensuapp.org/docs/1.2/enterprise/integrations/opentsdb.html) from the plugins' perfdata
 
