@@ -27,7 +27,7 @@ services:
       - solr
   solr-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/solrcloud.cfg -d
+    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/solr.cfg -d
     ports:
       - 8983
     networks:
