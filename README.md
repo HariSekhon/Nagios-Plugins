@@ -543,7 +543,7 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Shinken](http://www.shinken-monitoring.org/) - open source modular Nagios reimplementation in Python, Nagios config compatible, with distributed monitoring architecture, high availability, host / service discovery, forwards plugins' metric perfdata via the Graphite protocol to [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/), see [documentation](http://shinken.readthedocs.io/en/latest/11_integration/graphite.html)
 
-* [Centreon](https://www.centreon.com/en/) - open source french Nagios-compatible monitoring solution, can forward plugin's perfdata metrics to [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) via Graphite protocol, see [documentation](https://documentation.centreon.com/docs/centreon-broker/en/3.0/user/modules.html#graphite)
+* [Centreon](https://www.centreon.com/en/) - open source french Nagios-compatible monitoring solution, can forward plugin's metrics perfdata to [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) via Graphite protocol, see [documentation](https://documentation.centreon.com/docs/centreon-broker/en/3.0/user/modules.html#graphite)
 
 * [Sensu](https://sensuapp.org/) - open-core distributed monitoring system, compatible with both Nagios and Zabbix plugins. Enterprise Edition contains metrics graphing integrations for [Graphite](https://sensuapp.org/docs/1.2/enterprise/integrations/graphite.html), [InfluxDB](https://sensuapp.org/docs/1.2/enterprise/integrations/influxdb.html) or [OpenTSDB](https://sensuapp.org/docs/1.2/enterprise/integrations/opentsdb.html) from the plugins' perfdata
 
