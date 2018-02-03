@@ -34,11 +34,12 @@ services:
     volumes:
       - ../../haproxy:/conf
 
+  # 89 metrics ids-used
+  # XXX: Collectd doesn't send through HAProxy correctly even though Telegraf does
   opentsdb-collectd:
     image: harisekhon/collectd
     networks:
       - opentsdb
-    # XXX: metrics don't seem to arrive through HAProxy - even though logs show the connections and API requests succeed
     #links:
     #  - opentsdb-haproxy:opentsdb
     volumes:
@@ -50,19 +51,23 @@ services:
   #
   # docker-compose -f opentsdb-docker-compose.yml up
   #
+  # 58 metrics ids-used
   opentsdb-telegraf:
     image: telegraf:${TELEGRAF_VERSION:-alpine}
     networks:
       - opentsdb
-    #links:
-    #  - opentsdb-haproxy:opentsdb
+    links:
+      - opentsdb-haproxy:opentsdb
     volumes:
       - ../conf/telegraf-opentsdb.conf:/etc/telegraf/telegraf.conf
 
+  # 137 metrics ids-used
   tcollector:
     image: harisekhon/tcollector
+    #command: /tcollector/tcollector.py -H opentsdb --http -c /tcollector/collectors --pidfile /tmp/tcollector.pid
     networks:
       - opentsdb
+    # XXX: also doesn't seem to be able to send metrics through HAProxy, not even when specifying --http
     #links:
     #  - opentsdb-haproxy:opentsdb
 
