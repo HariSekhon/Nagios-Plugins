@@ -31,7 +31,7 @@ services:
     networks:
       - redis
     volumes:
-      - ../../haproxy:/conf
+      - ../../haproxy:/conf:ro
 
 networks:
   redis:

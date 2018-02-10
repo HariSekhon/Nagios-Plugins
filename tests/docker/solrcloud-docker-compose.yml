@@ -35,7 +35,7 @@ services:
     networks:
       - solrcloud
     volumes:
-      - ../../haproxy:/conf
+      - ../../haproxy:/conf:ro
 
 networks:
   solrcloud:

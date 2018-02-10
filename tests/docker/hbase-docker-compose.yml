@@ -51,7 +51,7 @@ services:
     networks:
       - hbase
     volumes:
-      - ../../haproxy:/conf
+      - ../../haproxy:/conf:ro
 
 networks:
   hbase:

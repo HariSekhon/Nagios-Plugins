@@ -43,7 +43,7 @@ services:
     networks:
       - hadoop
     volumes:
-      - ../../haproxy:/conf
+      - ../../haproxy:/conf:ro
 
 networks:
   hadoop:

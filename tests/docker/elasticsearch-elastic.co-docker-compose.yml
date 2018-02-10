@@ -33,7 +33,7 @@ services:
     networks:
       - elasticsearch
     volumes:
-      - ../../haproxy:/conf
+      - ../../haproxy:/conf:ro
 
 networks:
   elasticsearch:

@@ -35,7 +35,7 @@ services:
     networks:
       - influxdb
     volumes:
-      - ../../haproxy:/conf
+      - ../../haproxy:/conf:ro
 
   chronograf:
     image: chronograf:alpine
@@ -53,7 +53,7 @@ services:
     #links:
     #  - influxdb-haproxy:influxdb
     volumes:
-      - ../conf/collectd.d/write_influxdb_graphite.conf:/etc/collectd.d/write_influxdb_graphite.conf
+      - ../conf/collectd.d/write_influxdb_graphite.conf:/etc/collectd.d/write_influxdb_graphite.conf:ro
 
   telegraf:
     image: telegraf:${TELEGRAF_VERSION:-alpine}
@@ -62,7 +62,7 @@ services:
     links:
       - influxdb-haproxy:influxdb
     volumes:
-      - ../conf/telegraf-influxdb.conf:/etc/telegraf/telegraf.conf
+      - ../conf/telegraf-influxdb.conf:/etc/telegraf/telegraf.conf:ro
 
 networks:
   influxdb:

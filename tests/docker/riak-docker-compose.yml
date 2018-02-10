@@ -31,7 +31,7 @@ services:
     networks:
       - riak
     volumes:
-      - ../../haproxy:/conf
+      - ../../haproxy:/conf:ro
 
 networks:
   riak:

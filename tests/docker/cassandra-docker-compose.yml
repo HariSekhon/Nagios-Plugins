@@ -33,7 +33,7 @@ services:
     networks:
       - cassandra
     volumes:
-      - ../../haproxy:/conf
+      - ../../haproxy:/conf:ro
 
 networks:
   cassandra:

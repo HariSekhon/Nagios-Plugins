@@ -32,7 +32,7 @@ services:
     networks:
       - opentsdb
     volumes:
-      - ../../haproxy:/conf
+      - ../../haproxy:/conf:ro
 
   # 89 metrics ids-used
   # XXX: Collectd doesn't send through HAProxy correctly even though Telegraf does
@@ -43,7 +43,7 @@ services:
     #links:
     #  - opentsdb-haproxy:opentsdb
     volumes:
-      - ../conf/collectd.d/write_tsdb.conf:/etc/collectd.d/write_tsdb.conf
+      - ../conf/collectd.d/write_tsdb.conf:/etc/collectd.d/write_tsdb.conf:ro
 
   # Telegraf 1.5 gets connection refused and shuts down, see GitHub issue https://github.com/influxdata/telegraf/issues/3723
   #
@@ -54,12 +54,14 @@ services:
   # 58 metrics ids-used
   opentsdb-telegraf:
     image: telegraf:${TELEGRAF_VERSION:-alpine}
+    deploy:
+      restart: always
     networks:
       - opentsdb
     links:
       - opentsdb-haproxy:opentsdb
     volumes:
-      - ../conf/telegraf-opentsdb.conf:/etc/telegraf/telegraf.conf
+      - ../conf/telegraf-opentsdb.conf:/etc/telegraf/telegraf.conf:ro
 
   # 137 metrics ids-used
   tcollector:

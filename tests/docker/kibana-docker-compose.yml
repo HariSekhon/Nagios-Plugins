@@ -33,7 +33,7 @@ services:
     networks:
       - kibana
     volumes:
-      - ../../haproxy:/conf
+      - ../../haproxy:/conf:ro
 
 networks:
   kibana:

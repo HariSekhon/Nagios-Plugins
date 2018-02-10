@@ -31,7 +31,7 @@ services:
     networks:
       - h2o
     volumes:
-      - ../../haproxy:/conf
+      - ../../haproxy:/conf:ro
 
 networks:
   h2o:

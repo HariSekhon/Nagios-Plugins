@@ -33,7 +33,7 @@ services:
     networks:
       - solr
     volumes:
-      - ../../haproxy:/conf
+      - ../../haproxy:/conf:ro
 
 networks:
   solr:

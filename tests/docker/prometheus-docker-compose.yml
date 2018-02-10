@@ -22,7 +22,7 @@ services:
     ports:
       - 9090
     volumes:
-      - ../conf/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ../conf/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     links:
       - prometheus-collectd:collectd
       - prometheus-node-exporter:node-exporter
@@ -38,7 +38,7 @@ services:
     networks:
       - prometheus
     volumes:
-      - ../../haproxy:/conf
+      - ../../haproxy:/conf:ro
 
   prometheus-collectd:
     image: harisekhon/collectd
@@ -47,7 +47,7 @@ services:
     networks:
       - prometheus
     volumes:
-      - ../conf/collectd.d/write_prometheus.conf:/etc/collectd.d/write_prometheus.conf
+      - ../conf/collectd.d/write_prometheus.conf:/etc/collectd.d/write_prometheus.conf:ro
 
   prometheus-node-exporter:
     image: prom/node-exporter:${NODE_EXPORTER_VERSION:-latest}
@@ -63,7 +63,7 @@ services:
     networks:
       - prometheus
     volumes:
-      - ../conf/telegraf-prometheus.conf:/etc/telegraf/telegraf.conf
+      - ../conf/telegraf-prometheus.conf:/etc/telegraf/telegraf.conf:ro
 
 networks:
   prometheus:
