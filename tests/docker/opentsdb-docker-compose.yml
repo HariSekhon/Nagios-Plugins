@@ -45,17 +45,11 @@ services:
     volumes:
       - ../conf/collectd.d/write_tsdb.conf:/etc/collectd.d/write_tsdb.conf:ro
 
-  # Telegraf 1.5 gets connection refused and shuts down, see GitHub issue https://github.com/influxdata/telegraf/issues/3723
-  #
-  # workaround for now is re-run in a separate window a little later after OpenTSDB has had time to boot up:
-  #
-  # docker-compose -f opentsdb-docker-compose.yml up
-  #
   # 58 metrics ids-used
   opentsdb-telegraf:
     image: telegraf:${TELEGRAF_VERSION:-alpine}
-    deploy:
-      restart: always
+    # Telegraf 1.5 gets connection refused and shuts down, see GitHub issue https://github.com/influxdata/telegraf/issues/3723
+    restart: on-failure
     networks:
       - opentsdb
     links:
