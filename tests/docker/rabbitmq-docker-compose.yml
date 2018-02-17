@@ -29,6 +29,16 @@ services:
     environment:
       - RABBITMQ_CLUSTER_SEED=rabbit1
       - RABBITMQ_RAM_NODE=1
+  rabbit-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/rabbitmq.cfg -f /conf/rabbitmq-management.cfg -d
+    ports:
+      - 5672
+      - 15672
+    networks:
+      - rabbitmq
+    volumes:
+      - ../../haproxy:/conf:ro
 
 networks:
   rabbitmq:
