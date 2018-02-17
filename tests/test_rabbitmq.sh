@@ -31,10 +31,10 @@ RABBITMQ_HOST="${RABBITMQ_HOST##*/}"
 RABBITMQ_HOST="${RABBITMQ_HOST%%:*}"
 export RABBITMQ_HOST
 
-#export RABBITMQ_PORT="${RABBITMQ_PORT:-5672}"
-#export RABBITMQ_HTTP_PORT="${RABBITMQ_HTTP_PORT:-15672}"
 export RABBITMQ_PORT_DEFAULT=5672
 export RABBITMQ_HTTP_PORT_DEFAULT=15672
+export RABBITMQ_HAPROXY_PORT_DEFAULT=5672
+export RABBITMQ_HAPROXY_HTTP_PORT_DEFAULT=15672
 
 # used by docker-compose config
 export RABBITMQ_DEFAULT_VHOST="nagios-plugins"
@@ -79,8 +79,10 @@ test_rabbitmq(){
     printf "RabbitMQ node 2 HTTP port -> $RABBITMQ_HTTP_PORT_DEFAULT => "
     export RABBITMQ_HTTP_PORT2="`docker-compose port "$DOCKER_SERVICE2" "$RABBITMQ_HTTP_PORT_DEFAULT" | sed 's/.*://'`"
     echo "$RABBITMQ_HTTP_PORT2"
+    docker_compose_port "RabbitMQ HAProxy"
+    docker_compose_port "RabbitMQ HAProxy HTTP"
     hr
-    when_ports_available "$RABBITMQ_HOST" "$RABBITMQ_PORT" "$RABBITMQ_HTTP_PORT" "$RABBITMQ_PORT2" "$RABBITMQ_HTTP_PORT2"
+    when_ports_available "$RABBITMQ_HOST" "$RABBITMQ_PORT" "$RABBITMQ_HTTP_PORT" "$RABBITMQ_PORT2" "$RABBITMQ_HTTP_PORT2" "$RABBITMQ_HAPROXY_PORT" "$RABBITMQ_HAPROXY_HTTP_PORT"
     hr
 #    SECONDS=0
 #    echo "waiting up to $startupwait secs for RabbitMQ to become available"
@@ -99,8 +101,11 @@ test_rabbitmq(){
 #    done
     when_url_content "http://$RABBITMQ_HOST:$RABBITMQ_HTTP_PORT/" "RabbitMQ Management"
     hr
-    echo "now checking for second node:"
+    echo "now checking for second Rabbit node:"
     when_url_content "http://$RABBITMQ_HOST:$RABBITMQ_HTTP_PORT2/" "RabbitMQ Management"
+    hr
+    echo "now checking for HAProxy:"
+    when_url_content "http://$RABBITMQ_HOST:$RABBITMQ_HAPROXY_HTTP_PORT/" "RabbitMQ Management"
     hr
     if [ -z "${NOSETUP:-}" ]; then
         echo "setting up RabbitMQ environment"
@@ -159,6 +164,24 @@ EOF
         echo "expecting version '$expected_version'"
     fi
     hr
+
+    rabbitmq_tests
+
+    echo
+    echo "=============="
+    echo "HAProxy tests:"
+    echo "=============="
+    echo
+    RABBITMQ_PORT="$RABBITMQ_HAPROXY_PORT" RABBITMQ_HTTP_PORT="$RABBITMQ_HAPROXY_HTTP_PORT" rabbitmq_tests
+
+    echo "Completed $run_count RabbitMQ tests"
+    hr
+    [ -n "${KEEPDOCKER:-}" ] ||
+    docker-compose down
+    echo
+}
+
+rabbitmq_tests(){
     run ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" --expected "$expected_version"
 
     run_fail 2 ./check_rabbitmq_version.py -P "$RABBITMQ_HTTP_PORT" --expected "fail-version"
@@ -330,11 +353,6 @@ EOF
             run ./check_rabbitmq_healthchecks.py
         fi
     fi
-    echo "Completed $run_count RabbitMQ tests"
-    hr
-    [ -n "${KEEPDOCKER:-}" ] ||
-    docker-compose down
-    echo
 }
 
 run_test_versions RabbitMQ
