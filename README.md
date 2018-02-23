@@ -84,6 +84,14 @@ docker run harisekhon/nagios-plugins check_ssl_cert.pl --help
 
 There are also `:centos` (`:latest`), `:alpine`, `:debian` and `:ubuntu` tagged docker images available
 
+If you want to run off a tagged docker image rather than `latest` then you can see all tags like so:
+```
+docker run harisekhon/pytools dockerhub_show_tags.py <dockerhub_repo>
+```
+```
+docker run harisekhon/pytools dockerhub_show_tags.py harisekhon/nagios-plugins
+```
+
 #### Automated Build from Source
 
 ```
@@ -96,7 +104,7 @@ make
 
 ```
 
-Some plugins like `check_yum.py` can be copied around independently but most newer more sophisticated plugins require the co-located libraries I've written so you should ```git clone && make``` on each machine you deploy this code to or just use the Docker [pre-built container](https://hub.docker.com/r/harisekhon/nagios-plugins) which has all plugins and dependencies inside.
+Some plugins like `check_yum.py` can be copied around independently but most newer more sophisticated plugins require the co-located libraries I've written so you should ```git clone && make``` on each machine you deploy this code to or just use the pre-built [Docker image](https://hub.docker.com/r/harisekhon/nagios-plugins) which has all plugins and dependencies inside.
 
 You may need to install the GNU make system package if the ` make ` command isn't found (` yum install make ` / ` apt-get install make `)
 
