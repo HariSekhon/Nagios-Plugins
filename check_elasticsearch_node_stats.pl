@@ -22,7 +22,7 @@ Should specify an Elasticsearch node name rather than a hostname/FQDN/IP (see --
 
 For a convenient list of all stats one per line use -vv
 
-Tested on Elasticsearch 1.3, 1.4, 1.5, 1.6, 1.7, 2.0, 2.1, 2.2, 2.3, 2.4, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.0, 6.1";
+Tested on Elasticsearch 1.3, 1.4, 1.5, 1.6, 1.7, 2.0, 2.1, 2.2, 2.3, 2.4, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.0, 6.1, 6.2";
 
 $VERSION = "0.2.0";
 
