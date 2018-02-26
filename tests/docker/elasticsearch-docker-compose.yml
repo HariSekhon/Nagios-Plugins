@@ -25,7 +25,7 @@ services:
       - elasticsearch
   elasticsearch-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/elasticsearch-auth.cfg -d
+    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/elasticsearch.cfg -d
     ports:
       - 9200
     networks:
