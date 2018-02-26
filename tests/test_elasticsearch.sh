@@ -24,7 +24,7 @@ cd "$srcdir/..";
 section "E l a s t i c s e a r c h"
 
 # Elasticsearch 6.0+ only available on new docker.elastic.co which uses full sub-version x.y.z and does not have x.y tags
-export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-latest 1.3 1.4 1.5 1.6 1.7 2.0 2.1 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5 5.6 6.0.1 6.1.1}}"
+export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-latest 1.3 1.4 1.5 1.6 1.7 2.0 2.1 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5 5.6 6.0.1 6.1.3, 6.2.2}}"
 
 ELASTICSEARCH_HOST="${DOCKER_HOST:-${ELASTICSEARCH_HOST:-${HOST:-localhost}}}"
 ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST##*/}"
