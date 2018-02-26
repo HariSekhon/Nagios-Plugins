@@ -1,0 +1,40 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2018-02-26 17:55:49 +0000 (Mon, 26 Feb 2018)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+version: '2.2'
+services:
+  elasticsearch:
+    extends:
+      file: common.yml
+      service: common
+    # elastic.co don't support 'latest' tag yet, nor x.y versions, so default to x.y.z for now
+    image: docker.elastic.co/elasticsearch/elasticsearch-platinum:${VERSION:-6.2.2}
+    ports:
+      - 9200
+    environment:
+      - ELASTIC_PASSWORD=password
+    networks:
+      - elasticsearch
+  elasticsearch-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/elasticsearch-x-pack.cfg -d
+    ports:
+      - 9200
+    networks:
+      - elasticsearch
+    volumes:
+      - ../../haproxy:/conf:ro
+
+networks:
+  elasticsearch:
