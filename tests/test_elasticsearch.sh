@@ -24,7 +24,9 @@ cd "$srcdir/..";
 section "E l a s t i c s e a r c h"
 
 # Elasticsearch 6.0+ only available on new docker.elastic.co which uses full sub-version x.y.z and does not have x.y tags
-export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-latest 1.3 1.4 1.5 1.6 1.7 2.0 2.1 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5 5.6 6.0.1 6.1.3, 6.2.2}}"
+# Any version given as x.y.z will use docker.elastic.co repo, otherwise old dockerhub images
+# Platinum edition with X-Pack is only available from 6.x onwards from docker.elastic.co
+export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-latest 1.3 1.4 1.5 1.6 1.7 2.0 2.1 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5 5.6  5.2.1 5.3.3 5.4.3 5.5.3 5.6.8 6.0.1 6.1.3 6.2.2  6.0.1-x-pack 6.1.3-x-pack 6.2.2-x-pack}}"
 
 ELASTICSEARCH_HOST="${DOCKER_HOST:-${ELASTICSEARCH_HOST:-${HOST:-localhost}}}"
 ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST##*/}"
@@ -53,9 +55,16 @@ test_elasticsearch(){
     local version="$1"
     section2 "Setting up Elasticsearch $version test container"
     # re-enable this when Elastic.co finally support 'latest' tag
-    #if [ "$version" = "latest" ] || [ "${version:0:1}" -ge 6 ]; then
-    if [ "$version" != "latest" ] && [ "${version:0:1}" -ge 6 ]; then
+    #if [ "$version" != "latest" ] && [ "${version:0:1}" -ge 6 ]; then
+    if egrep -q '^[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$' <<< "$version"; then
         local export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-elastic.co-docker-compose.yml"
+    elif egrep -q '^[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+-x-pack$' <<< "$version"; then
+        local version="${version%-x-pack}"
+        local export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-platinum-docker-compose.yml"
+        export ELASTICSEARCH_USER="elastic"
+        export ELASTICSEARCH_PASSWORD="password"
+        local export HAPROXY_USER="elastic"
+        local export HAPROXY_PASSWORD="password"
     fi
     docker_compose_pull
     VERSION="$version" docker-compose up -d
@@ -66,10 +75,11 @@ test_elasticsearch(){
     hr
     when_ports_available "$ELASTICSEARCH_HOST" "$ELASTICSEARCH_PORT" "$HAPROXY_PORT"
     hr
-    when_url_content "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT" "lucene_version"
+    # not setting $ELASTICSEARCH_USER and $ELASTICSEARCH_PASSWORD for backwards compatability with unauthenticated elasticsearch tests
+    when_url_content "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT" "lucene_version" -u elastic:password
     hr
     echo "checking HAProxy Elasticsearch with authentication:"
-    when_url_content "http://$ELASTICSEARCH_HOST:$HAPROXY_PORT" "lucene_version" -u esuser:espass
+    when_url_content "http://$ELASTICSEARCH_HOST:$HAPROXY_PORT" "lucene_version" -u "$HAPROXY_USER:$HAPROXY_PASSWORD"
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
@@ -84,7 +94,7 @@ test_elasticsearch(){
         if ! $perl -T ./check_elasticsearch_index_exists.pl --list-indices | grep "^[[:space:]]*$ELASTICSEARCH_INDEX[[:space:]]*$"; then
             echo "creating test Elasticsearch index '$ELASTICSEARCH_INDEX'"
             # Elasticsearch 6.0 insists on application/json header otherwise index is not created
-            curl -iv -H "content-type: application/json" -XPUT "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX/" -d '
+            curl -iv -u "${ELASTICSEARCH_USER:-}:${ELASTICSEARCH_PASSWORD:-}" -H "content-type: application/json" -XPUT "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX/" -d '
             {
                 "settings": {
                     "index": {
@@ -104,7 +114,7 @@ test_elasticsearch(){
         grep -v "^[[:space:]]*$" |
         while read index; do
             echo "reducing replicas for index '$index'"
-            curl -H "content-type: application/json" -XPUT "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$index/_settings" -d '
+            curl -u "${ELASTICSEARCH_USER:-}:${ELASTICSEARCH_PASSWORD:-}" -H "content-type: application/json" -XPUT "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$index/_settings" -d '
             {
                 "index": {
                     "number_of_replicas": 0
