@@ -75,8 +75,7 @@ test_elasticsearch(){
     hr
     when_ports_available "$ELASTICSEARCH_HOST" "$ELASTICSEARCH_PORT" "$HAPROXY_PORT"
     hr
-    # not setting $ELASTICSEARCH_USER and $ELASTICSEARCH_PASSWORD for backwards compatability with unauthenticated elasticsearch tests
-    when_url_content "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT" "lucene_version" -u elastic:password
+    when_url_content "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT" "lucene_version" -u "${ELASTICSEARCH_USER:-}:${ELASTICSEARCH_PASSWORD:-}"
     hr
     echo "checking HAProxy Elasticsearch with authentication:"
     when_url_content "http://$ELASTICSEARCH_HOST:$HAPROXY_PORT" "lucene_version" -u "$HAPROXY_USER:$HAPROXY_PASSWORD"
