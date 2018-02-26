@@ -59,8 +59,8 @@ list_clusters();
 
 $json = curl_opscenter "$cluster/storage-capacity";
 
-my $free_gb         = get_field_int("free_gb");
-my $used_gb         = get_field_int("used_gb");
+my $free_gb         = get_field_float("free_gb");
+my $used_gb         = get_field_float("used_gb");
 my $reporting_nodes = get_field_int("reporting_nodes");
 
 vlog2 "free_gb: $free_gb";
@@ -76,7 +76,7 @@ if($total_gb == 0 or $reporting_nodes == 0){
     $pc_used = sprintf("%.2f", $used_gb / $total_gb * 100);
 }
 
-$msg = "$pc_used% space used in cassandra cluster '$cluster' [" . human_units($used_gb * 1024 * 1024 * 1024) . "/" . human_units($total_gb * 1024 * 1024 * 1024) . "]";
+$msg = sprintf("%s%% space used in cassandra cluster '%s' [%.2f%.2f]", $pc_used, $cluster, human_units($used_gb * 1024 * 1024 * 1024), human_units($total_gb * 1024 * 1024 * 1024));
 check_thresholds($pc_used);
 $msg .= " across $reporting_nodes reporting nodes | '% space used'=$pc_used%";
 msg_perf_thresholds();
