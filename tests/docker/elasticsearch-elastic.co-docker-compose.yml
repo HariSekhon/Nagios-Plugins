@@ -20,7 +20,7 @@ services:
       service: common
     # Official Elasticsearch docker images have moved from DockerHub to docker.elastic.co for Elasticsearch 6.x +
     # elastic.co don't support 'latest' tag yet, nor x.y versions, so default to x.y.z for now
-    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-6.1.1}
+    image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-6.2.2}
     ports:
       - 9200
     networks:
