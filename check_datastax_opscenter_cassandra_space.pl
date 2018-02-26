@@ -15,7 +15,7 @@ $DESCRIPTION = "Nagios Plugin to check Cassandra storage capacity % used via Dat
 
 Tested on DataStax OpsCenter 3.2.2 and 5.0.0";
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
