@@ -21,6 +21,9 @@ services:
     image: elasticsearch:${VERSION:-latest}
     ports:
       - 9200
+    # starts quicker but doesn't enable API features needed for tests
+    #environment:
+    #  - discovery.type=single-node
     networks:
       - elasticsearch
   elasticsearch-haproxy:

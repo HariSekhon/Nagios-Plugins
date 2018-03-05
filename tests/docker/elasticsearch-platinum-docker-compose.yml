@@ -24,6 +24,9 @@ services:
       - 9200
     environment:
       - ELASTIC_PASSWORD=password
+    # starts quicker but doesn't enable API features needed for tests
+    #environment:
+    #  - discovery.type=single-node
     networks:
       - elasticsearch
   elasticsearch-haproxy:

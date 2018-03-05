@@ -23,6 +23,9 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:${VERSION:-6.2.2}
     ports:
       - 9200
+    # starts quicker but doesn't enable API features needed for tests
+    #environment:
+    #  - discovery.type=single-node
     networks:
       - elasticsearch
   elasticsearch-haproxy:
