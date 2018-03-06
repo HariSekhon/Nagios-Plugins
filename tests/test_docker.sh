@@ -53,6 +53,40 @@ if is_docker_available; then
     fi
     hr
 
+    # ============================================================================ #
+
+    run ./check_docker_api_ping.py
+
+    DOCKER_HOST=tcp://127.0.0.1:23760 ERRCODE=2 run_grep 'Connection refused' ./check_docker_api_ping.py
+
+    # ============================================================================ #
+
+    run ./check_docker_version.py
+
+    run ./check_docker_version.py --expected '^1.+'
+
+    run_fail 2 ./check_docker_version.py --expected 'wrong-version'
+
+    DOCKER_HOST=tcp://127.0.0.1:23760 ERRCODE=2 run_grep 'Connection refused' ./check_docker_version.py
+
+    # ============================================================================ #
+
+    if docker info | grep -i 'Swarm: active'; then
+        run ./check_docker_swarm_version.py
+
+        run ./check_docker_swarm_version.py --expected '^1.+'
+    else
+        run_fail 2 ./check_docker_swarm_version.py
+
+        run_fail 2 ./check_docker_swarm_version.py --expected '^1.+'
+    fi
+
+    run_fail 2 ./check_docker_swarm_version.py --expected 'wrong-version'
+
+    DOCKER_HOST=tcp://127.0.0.1:23760 ERRCODE=2 run_grep 'Connection refused' ./check_docker_swarm_version.py
+
+    # ============================================================================ #
+
     run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest"
 
     for image in ${DOCKER_IMAGES[*]}; do
