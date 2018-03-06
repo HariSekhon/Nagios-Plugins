@@ -19,6 +19,8 @@
 
 Nagios Plugin to check Docker Swarm version via the Docker API
 
+Can optionally test the version matches a regex
+
 Returns Critical if the queried Docker daemon is not part of a Swarm
 
 Supports TLS with similar options to official 'docker' command
