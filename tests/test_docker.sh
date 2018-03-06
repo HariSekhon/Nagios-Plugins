@@ -85,15 +85,19 @@ if is_docker_available; then
 
     docker run -d --name docker-containers-test redis:alpine
 
+    run ./check_docker_containers.py -c 0
     run_fail 2 ./check_docker_containers.py --running -c 0
+    run_fail 2 ./check_docker_containers.py --total -c 0
 
     docker pause docker-containers-test
 
     run_fail 2 ./check_docker_containers.py --paused -c 0
+    run_fail 2 ./check_docker_containers.py --total -c 0
 
     docker stop docker-containers-test
 
     run_fail 2 ./check_docker_containers.py --stopped -c 0
+    run_fail 2 ./check_docker_containers.py --total -c 0
 
     docker rm docker-containers-test
 
