@@ -39,24 +39,11 @@ fi
 
 if is_docker_available; then
     [ -n "${NO_DOCKER:-}" ] && exit 0
-    if [ -z "${NO_PULL:-}" ]; then
-        echo docker pull "$DOCKER_IMAGE"
-        docker pull "$DOCKER_IMAGE" > $stdout
-        for image in ${DOCKER_IMAGES[*]}; do
-            echo docker pull "$image"
-            docker pull "$image" > $stdout
-        done
-        for tag in $DOCKER_IMAGE_TAGS; do
-            echo docker pull "$DOCKER_IMAGE:$tag"
-            docker pull "$DOCKER_IMAGE:$tag" > $stdout
-        done
-    fi
-    hr
-
     # ============================================================================ #
 
     run ./check_docker_api_ping.py
 
+    echo "checking connection refused:"
     DOCKER_HOST=tcp://127.0.0.1:23760 ERRCODE=2 run_grep 'Connection refused' ./check_docker_api_ping.py
 
     # ============================================================================ #
@@ -67,6 +54,7 @@ if is_docker_available; then
 
     run_fail 2 ./check_docker_version.py --expected 'wrong-version'
 
+    echo "checking connection refused:"
     DOCKER_HOST=tcp://127.0.0.1:23760 ERRCODE=2 run_grep 'Connection refused' ./check_docker_version.py
 
     # ============================================================================ #
@@ -83,9 +71,50 @@ if is_docker_available; then
 
     run_fail 2 ./check_docker_swarm_version.py --expected 'wrong-version'
 
+    echo "checking connection refused:"
     DOCKER_HOST=tcp://127.0.0.1:23760 ERRCODE=2 run_grep 'Connection refused' ./check_docker_swarm_version.py
 
     # ============================================================================ #
+
+    run ./check_docker_containers.py
+
+    run ./check_docker_containers.py --running -w 10000 -c 100000
+    run ./check_docker_containers.py --paused -w 0
+    run ./check_docker_containers.py --stopped -w 1000
+    run ./check_docker_containers.py --total -w 100000
+
+    docker run -d --name docker-containers-test redis:alpine
+
+    run_fail 2 ./check_docker_containers.py --running -c 0
+
+    docker pause docker-containers-test
+
+    run_fail 2 ./check_docker_containers.py --paused -c 0
+
+    docker stop docker-containers-test
+
+    run_fail 2 ./check_docker_containers.py --stopped -c 0
+
+    docker rm docker-containers-test
+
+    echo "checking connection refused:"
+    DOCKER_HOST=tcp://127.0.0.1:23760 ERRCODE=2 run_grep 'Connection refused' ./check_docker_containers.py
+
+    # ============================================================================ #
+
+    if [ -z "${NO_PULL:-}" ]; then
+        echo docker pull "$DOCKER_IMAGE"
+        docker pull "$DOCKER_IMAGE" > $stdout
+        for image in ${DOCKER_IMAGES[*]}; do
+            echo docker pull "$image"
+            docker pull "$image" > $stdout
+        done
+        for tag in $DOCKER_IMAGE_TAGS; do
+            echo docker pull "$DOCKER_IMAGE:$tag"
+            docker pull "$DOCKER_IMAGE:$tag" > $stdout
+        done
+    fi
+    hr
 
     run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest"
 
