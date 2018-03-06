@@ -19,6 +19,10 @@
 
 Nagios Plugin to check Docker version via the Docker API
 
+Can optionally test the version matches a regex
+
+Also outputs the Docker API version
+
 Supports TLS with similar options to official 'docker' command
 
 Tested on Docker 18.02
