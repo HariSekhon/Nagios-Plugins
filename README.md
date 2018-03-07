@@ -17,6 +17,7 @@ Specialised plugins for Hadoop, Big Data & NoSQL technologies, written by a form
 Supports most major open source NoSQL technologies, Pub-Sub / Message Buses, CI, Web and Linux based infrastructure, including:
 
 - [Hadoop](http://hadoop.apache.org/) - extensive API integration to all major Hadoop vendors ([Hortonworks](http://www.hortonworks.com), [Cloudera](http://www.cloudera.com), [MapR](http://www.mapr.com), [IBM BigInsights](http://www-03.ibm.com/software/products/en/ibm-biginsights-for-apache-hadoop))
+- [Docker](https://www.docker.com/)
 - [Kafka](http://kafka.apache.org/)
 - [RabbitMQ](http://www.rabbitmq.com/)
 - [Elasticsearch](https://www.elastic.co/products/elasticsearch)
