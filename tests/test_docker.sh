@@ -127,6 +127,7 @@ if is_docker_available; then
     # ============================================================================ #
 
     if ./check_docker_swarm_enabled.py; then
+        # rather than just run++ above, run it again so run prints the command and result with separator, not just the result
         run ./check_docker_swarm_enabled.py
 
         run ./check_docker_swarm_node_active.py
