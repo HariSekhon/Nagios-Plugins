@@ -126,8 +126,9 @@ if is_docker_available; then
 
     # ============================================================================ #
 
-    run++
     if ./check_docker_swarm_enabled.py; then
+        run ./check_docker_swarm_enabled.py
+
         run ./check_docker_swarm_node_active.py
 
         run ./check_docker_swarm_is_manager.py
