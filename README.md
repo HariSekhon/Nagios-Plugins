@@ -165,15 +165,20 @@ There are over 350 programs in this repo so these are just some of the highlight
   - policy checks - existence, enabled, has auditing enabled, is recursive, last updated vs thresholds (to catch changes), repository name and type that the policy belongs to
   - repository checks - existence, active, type (eg. hive, hdfs), last updated vs thresholds (to catch changes)
   - number of policies and repositories vs thresholds
-- ```check_zookeeper.pl``` - [Apache ZooKeeper](https://zookeeper.apache.org/) server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gather statistics
-- ```check_zookeeper_*znode*.pl``` - [ZooKeeper](https://zookeeper.apache.org/) znode checks using ZK Perl API, useful for [HBase](https://hbase.apache.org/), [Kafka](https://kafka.apache.org/), [SolrCloud](https://wiki.apache.org/solr/SolrCloud), [Hadoop](http://hadoop.apache.org/) HDFS & Yarn HA (ZKFC) and any other ZooKeeper-based service. Very versatile with multiple optional checks including data vs regex, json field extraction, ephemeral status, child znodes, znode last modified age
 
 Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for those proprietary products related to [Hadoop](http://hadoop.apache.org/).
+
+##### Service Discovery & Coordination
+
+- ```check_zookeeper.pl``` - [Apache ZooKeeper](https://zookeeper.apache.org/) server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gather statistics
+- ```check_zookeeper_*znode*.pl``` - [ZooKeeper](https://zookeeper.apache.org/) znode checks using ZK Perl API, useful for [HBase](https://hbase.apache.org/), [Kafka](https://kafka.apache.org/), [SolrCloud](https://wiki.apache.org/solr/SolrCloud), [Hadoop](http://hadoop.apache.org/) HDFS & Yarn HA (ZKFC) and any other ZooKeeper-based service. Very versatile with multiple optional checks including data vs regex, json field extraction, ephemeral status, child znodes, znode last modified age
+- ```check_consul_*.py``` - [Consul](https://www.consul.io/) API write / read back, arbitrary key-value content checks, number of cluster peers & version
 
 ##### Docker / Containerization
 
 - ```check_docker_*.py``` - [Docker](https://www.docker.com/) API checks including API ping, counts of running / paused / stopped / total containers with thresholds, specific container status by name or id, images count with thresholds, specific image:tag availability including size and checksum, counts of networks / volumes with thresholds, docker engine version
 - ```check_docker_swarm_*.py``` - [Docker Swarm](https://docs.docker.com/engine/swarm/) API checks including is swarm enabled, swarm node status, is node manager,  counts of swarm manager and worker nodes with thresholds, swarm errors, swarm version
+- ```check_mesos_*.pl``` - [Mesos](http://mesos.apache.org/) master health API, master & slaves state information including leader and versions, activated & deactivated slaves, number of Chronos jobs, master & slave metrics
 
 ##### Search
 
@@ -217,8 +222,6 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 - ```check_disk_write.pl``` - canary write test, catches partitions getting auto-remounted read-only by Linux when it detects underlying storage I/O errors (often caused by malfunctioning block devices, raid arrays, failing disks)
 - ```check_git_branch_checkout.pl/.py``` - if deploying from a git checkout (eg. puppetmaster), make sure it stays on the expected branch otherwise you could auto-deploy the wrong stuff
 - ```check_aws_s3_file.pl``` - check for the existence of any arbitrary file on AWS S3, eg. to check backups have happened or _SUCCESS placeholder files are present for a job
-- ```check_consul_*.py``` - [Consul](https://www.consul.io/) API write / read back, arbitrary key-value content checks, number of cluster peers & version
-- ```check_mesos_*.pl``` - [Mesos](http://mesos.apache.org/) master health API, master & slaves state information including leader and versions, activated & deactivated slaves, number of Chronos jobs, master & slave metrics
 - ```check_linux_*.pl/.py``` - checks RAM used, CPU context switches, system file descriptors, interface errors / promiscous mode / duplex / speed / MTU / stats, load normalized per CPU core (more useful than the default check_load plugin which would need different configs for heterogenous hardware), timezone settings, users / groups present (eg. PAM/LDAP integration is working), duplicate UID/GIDs (helps detects rogue uid 0 accounts and more common LDAP vs local id range overlap misconfigurations), groups.allow contains only specific groups
 - ```older/check_*raid.py``` - RAID controller / array checks for 3ware, LSI MegaRaid / Dell PERC controllers (they're rebranded from LSI), and Linux software MD Raid. I also recommend the widely used [Dell OpenManage Check](http://folk.uio.no/trondham/software/check_openmanage.html)
 - ```check_ssh_login.pl``` - performs a full SSH login with username & password, good for testing your Dell DRAC / HP iLO infrastructure is properly secured and accessible. Also works for your Linux servers and even Mac OSX
