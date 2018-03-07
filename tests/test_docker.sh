@@ -85,21 +85,33 @@ if is_docker_available; then
 
     docker run -d --name docker-containers-test redis:alpine
 
+    run ./check_docker_container_status.py --docker-container docker-containers-test
+    run ./check_docker_container_status.py --docker-container docker-containers-test -v
+
     run ./check_docker_containers.py -c 0
     run_fail 2 ./check_docker_containers.py --running -c 0
     run_fail 2 ./check_docker_containers.py --total -c 0
 
     docker pause docker-containers-test
 
+    run_fail 1 ./check_docker_container_status.py --docker-container docker-containers-test
+    run_fail 1 ./check_docker_container_status.py --docker-container docker-containers-test -v
+
     run_fail 2 ./check_docker_containers.py --paused -c 0
     run_fail 2 ./check_docker_containers.py --total -c 0
 
     docker stop docker-containers-test
 
+    run_fail 2 ./check_docker_container_status.py --docker-container docker-containers-test
+    run_fail 2 ./check_docker_container_status.py --docker-container docker-containers-test -v
+
     run_fail 2 ./check_docker_containers.py --stopped -c 0
     run_fail 2 ./check_docker_containers.py --total -c 0
 
     docker rm docker-containers-test
+
+    run_fail 2 ./check_docker_container_status.py --docker-container docker-containers-test
+    run_fail 2 ./check_docker_container_status.py --docker-container docker-containers-test -v
 
     echo "checking connection refused:"
     DOCKER_HOST=tcp://127.0.0.1:23760 ERRCODE=2 run_grep 'Connection refused' ./check_docker_containers.py
