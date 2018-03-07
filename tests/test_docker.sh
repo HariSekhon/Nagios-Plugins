@@ -144,7 +144,7 @@ if is_docker_available; then
         run_fail 1 ./check_docker_swarm_nodes.py -w 2 --manager
         run_fail 2 ./check_docker_swarm_nodes.py -c 2 --manager
 
-        run ./check_docker_swarm_error.py
+        run ./check_docker_services.py
     else
         run_fail 2 ./check_docker_swarm_enabled.py
 
@@ -162,6 +162,8 @@ if is_docker_available; then
         run_fail 2 ./check_docker_swarm_nodes.py -c 2
         run_fail 2 ./check_docker_swarm_nodes.py -w 2 --manager
         run_fail 2 ./check_docker_swarm_nodes.py -c 2 --manager
+
+        run_fail 2 ./check_docker_services.py
     fi
 
     # ============================================================================ #
