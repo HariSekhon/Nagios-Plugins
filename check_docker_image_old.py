@@ -49,14 +49,14 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 
 
-class CheckDockerImageChecksum(NagiosPlugin):
+class CheckDockerImage(NagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckDockerImageChecksum, self).__init__()
+        super(CheckDockerImage, self).__init__()
         # Python 3.x
         # super().__init__()
         self.ok()
@@ -158,4 +158,4 @@ class CheckDockerImageChecksum(NagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckDockerImageChecksum().main()
+    CheckDockerImage().main()
