@@ -61,7 +61,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckDockerContainerStatus(DockerNagiosPlugin):
@@ -97,7 +97,9 @@ class CheckDockerContainerStatus(DockerNagiosPlugin):
         state = container.attrs['State']
         status = state['Status']
         self.msg = "Docker container '{}' status = '{}'".format(self.docker_container, status)
-        if status != 'running':
+        if status in ('paused', 'restarting'):
+            self.warning()
+        elif status != 'running':
             self.critical()
         dead = state['Dead']
         exitcode = state['ExitCode']
@@ -107,23 +109,23 @@ class CheckDockerContainerStatus(DockerNagiosPlugin):
         paused = state['Paused']
         started = state['StartedAt']
         finished = state['FinishedAt']
-        if paused:
-            self.msg += " paused = '{}'!".format(paused)
+        if paused and status != 'paused':
+            self.msg += ", paused = '{}'!".format(paused)
             self.warning()
-        if restarting:
-            self.msg += " restarting = '{}'!".format(restarting)
+        if restarting and status != 'restarting':
+            self.msg += ", restarting = '{}'!".format(restarting)
             self.warning()
         if dead:
-            self.msg += " dead = '{}'!".format(dead)
+            self.msg += ", dead = '{}'!".format(dead)
             self.critical()
         if exitcode:
-            self.msg += " exit code = '{}'!".format(exitcode)
+            self.msg += ", exit code = '{}'!".format(exitcode)
             self.critical()
         if error:
-            self.msg += " error = '{}'!".format(error)
+            self.msg += ", error = '{}'!".format(error)
             self.critical()
         if oom:
-            self.msg += " OOMKilled = '{}'!".format(oom)
+            self.msg += ", OOMKilled = '{}'!".format(oom)
             self.critical()
         self.msg += ", started at '{}'".format(started)
         if self.verbose:
