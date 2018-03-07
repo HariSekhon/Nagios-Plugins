@@ -215,7 +215,6 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 - ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline. Tested against many versions of [MySQL](https://www.mysql.com/) and [MariaDB](https://mariadb.org/)
 - ```check_puppet.rb``` - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
 - ```check_disk_write.pl``` - canary write test, catches partitions getting auto-remounted read-only by Linux when it detects underlying storage I/O errors (often caused by malfunctioning block devices, raid arrays, failing disks)
-- ```check_docker.py``` - checks a [Docker](https://www.docker.com/) image has been pulled with optional checks on the image checksum and size
 - ```check_git_branch_checkout.pl/.py``` - if deploying from a git checkout (eg. puppetmaster), make sure it stays on the expected branch otherwise you could auto-deploy the wrong stuff
 - ```check_aws_s3_file.pl``` - check for the existence of any arbitrary file on AWS S3, eg. to check backups have happened or _SUCCESS placeholder files are present for a job
 - ```check_consul_*.py``` - [Consul](https://www.consul.io/) API write / read back, arbitrary key-value content checks, number of cluster peers & version
