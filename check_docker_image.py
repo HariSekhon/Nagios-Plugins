@@ -57,11 +57,11 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.6.0'
 
 
-class CheckDockerImageChecksum(DockerNagiosPlugin):
+class CheckDockerImage(DockerNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckDockerImageChecksum, self).__init__()
+        super(CheckDockerImage, self).__init__()
         # Python 3.x
         # super().__init__()
         self.msg = 'Docker msg not defined'
@@ -69,13 +69,13 @@ class CheckDockerImageChecksum(DockerNagiosPlugin):
         self.expected_id = None
 
     def add_options(self):
-        super(CheckDockerImageChecksum, self).add_options()
+        super(CheckDockerImage, self).add_options()
         self.add_opt('-d', '--docker-image', help='Docker image, in form of <repository>:<tag>')
         self.add_opt('-i', '--id', help='Docker image ID to expect docker image to have')
         self.add_thresholds()
 
     def process_options(self):
-        super(CheckDockerImageChecksum, self).process_options()
+        super(CheckDockerImage, self).process_options()
         self.docker_image = self.get_opt('docker_image')
         validate_chars(self.docker_image, 'docker image', r'A-Za-z0-9/:\.-')
         self.expected_id = self.get_opt('id')
@@ -122,4 +122,4 @@ class CheckDockerImageChecksum(DockerNagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckDockerImageChecksum().main()
+    CheckDockerImage().main()
