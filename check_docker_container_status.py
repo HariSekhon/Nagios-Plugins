@@ -61,7 +61,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckDockerContainerStatus(DockerNagiosPlugin):
@@ -72,23 +72,23 @@ class CheckDockerContainerStatus(DockerNagiosPlugin):
         # Python 3.x
         # super().__init__()
         self.msg = 'Docker msg not defined'
-        self.docker_container = None
+        self.container = None
         self.expected_id = None
 
     def add_options(self):
         super(CheckDockerContainerStatus, self).add_options()
-        self.add_opt('-d', '--docker-container', help='Docker container name or id')
+        self.add_opt('-C', '--container', help='Docker container name or id')
 
     def process_options(self):
         super(CheckDockerContainerStatus, self).process_options()
-        self.docker_container = self.get_opt('docker_container')
-        validate_chars(self.docker_container, 'docker container', r'A-Za-z0-9/:\._-')
+        self.container = self.get_opt('container')
+        validate_chars(self.container, 'docker container', r'A-Za-z0-9/:\._-')
 
     def check(self, client):
         # containers = client.containers.list()
         # print(containers)
         try:
-            container = client.containers.get(self.docker_container)
+            container = client.containers.get(self.container)
         except docker.errors.APIError as _:
             raise CriticalError(_)
         if log.isEnabledFor(logging.DEBUG):
@@ -96,7 +96,7 @@ class CheckDockerContainerStatus(DockerNagiosPlugin):
 
         state = container.attrs['State']
         status = state['Status']
-        self.msg = "Docker container '{}' status = '{}'".format(self.docker_container, status)
+        self.msg = "Docker container '{}' status = '{}'".format(self.container, status)
         if status in ('paused', 'restarting'):
             self.warning()
         elif status != 'running':
@@ -110,22 +110,22 @@ class CheckDockerContainerStatus(DockerNagiosPlugin):
         started = state['StartedAt']
         finished = state['FinishedAt']
         if paused and status != 'paused':
-            self.msg += ", paused = '{}'!".format(paused)
+            self.msg += ", paused = '{}'".format(paused)
             self.warning()
         if restarting and status != 'restarting':
-            self.msg += ", restarting = '{}'!".format(restarting)
+            self.msg += ", restarting = '{}'".format(restarting)
             self.warning()
         if dead:
             self.msg += ", dead = '{}'!".format(dead)
             self.critical()
         if exitcode:
-            self.msg += ", exit code = '{}'!".format(exitcode)
+            self.msg += ", exit code = '{}'".format(exitcode)
             self.critical()
         if error:
-            self.msg += ", error = '{}'!".format(error)
+            self.msg += ", error = '{}'".format(error)
             self.critical()
         if oom:
-            self.msg += ", OOMKilled = '{}'!".format(oom)
+            self.msg += ", OOMKilled = '{}'".format(oom)
             self.critical()
         self.msg += ", started at '{}'".format(started)
         if self.verbose:
@@ -134,7 +134,7 @@ class CheckDockerContainerStatus(DockerNagiosPlugin):
         if finished != '0001-01-01T00:00:00Z':
             self.msg += ", finished at '{}'".format(finished)
             if self.verbose:
-                human_time = self.calculate_human_age(started)
+                human_time = self.calculate_human_age(finished)
                 self.msg += ' ({} ago)'.format(human_time)
 
     @staticmethod
