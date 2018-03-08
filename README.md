@@ -568,7 +568,7 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Naemon](http://www.naemon.org/) - open source Nagios-forked monitoring solution, using [Thruk](http://thruk.org/) as its GUI and [PNP4Nagios](http://docs.pnp4nagios.org/start) for graphing the plugins' metrics perfdata
 
-* [OpenNMS] - open source enterprise-grade network management platform which can execute Nagios Plugins via NRPE, see [NRPEMonitor documentation](http://docs.opennms.org/opennms/releases/latest/guide-admin/guide-admin.html#_nrpemonitor)
+* [OpenNMS](https://opennms.org/en) - open source enterprise-grade network management platform which can execute Nagios Plugins via NRPE, see [NRPEMonitor documentation](http://docs.opennms.org/opennms/releases/latest/guide-admin/guide-admin.html#_nrpemonitor)
 
 * [Pandora FMS](https://pandorafms.com/) - open source distributed monitoring solution with flexible dashboarding, SLA reporting and Nagios Plugin compatibility via [Nagios wrapper for agent plugin](https://pandorafms.com/library/nagios-wrapper-for-agent-plugin/)
 
