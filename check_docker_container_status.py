@@ -93,7 +93,7 @@ class CheckDockerContainerStatus(DockerNagiosPlugin):
             raise CriticalError(_)
         if log.isEnabledFor(logging.DEBUG):
             log.debug(jsonpp(container.attrs))
-
+        #print(jsonpp(container.stats(stream=False)))
         state = container.attrs['State']
         status = state['Status']
         self.msg = "Docker container '{}' status = '{}'".format(self.container, status)
