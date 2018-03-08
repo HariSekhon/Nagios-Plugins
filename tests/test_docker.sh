@@ -130,8 +130,8 @@ if is_docker_available; then
 
     run ./check_docker_volumes.py
 
-    run_fail 1 ./check_docker_volumes.py -w 1
-    run_fail 2 ./check_docker_volumes.py -c 1
+    run_fail 1 ./check_docker_volumes.py -w 0
+    run_fail 2 ./check_docker_volumes.py -c 0
 
     echo "checking connection refused:"
     DOCKER_HOST=tcp://127.0.0.1:23760 ERRCODE=2 run_grep 'Connection refused' ./check_docker_volumes.py
