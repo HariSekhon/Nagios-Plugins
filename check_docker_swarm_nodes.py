@@ -48,7 +48,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckDockerSwarmNodes(DockerNagiosPlugin):
@@ -87,7 +87,7 @@ class CheckDockerSwarmNodes(DockerNagiosPlugin):
             nodes = swarm['Nodes']
         self.msg = 'Docker Swarm {} nodes = {}'.format(self.node_type, nodes)
         self.check_thresholds(nodes)
-        self.msg += ' | docker_swarm_{}_nodes={}{}'.format(self.node_type, nodes, self.get_perf_thresholds())
+        self.msg += ' | docker_swarm_{}_nodes={}{}'.format(self.node_type, nodes, self.get_perf_thresholds('lower'))
 
 
 if __name__ == '__main__':
