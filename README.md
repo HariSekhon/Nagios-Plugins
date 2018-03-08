@@ -238,7 +238,7 @@ This code base is under active development and there are many more cool plugins 
 See also [other 3rd Party Nagios Plugins](https://github.com/HariSekhon/nagios-plugins/blob/master/README-3rd_party_plugins.md) you might be interested in.
 
 
-##### Compatability / Translation Plugins
+##### Compatibility / Translation Plugins
 
 These allow you to use any standard nagios plugin with other non-Nagios style monitoring systems by prefixing the nagios plugin command with these programs, which will execute and translate the outputs:
 
@@ -567,6 +567,10 @@ The following enterprise monitoring systems are compatible with this project:
 * [Centreon](https://www.centreon.com/en/) - open source french Nagios-compatible monitoring solution, can forward plugin's metrics perfdata to [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) via Graphite protocol, see [documentation](https://documentation.centreon.com/docs/centreon-broker/en/3.0/user/modules.html#graphite)
 
 * [Naemon](http://www.naemon.org/) - open source Nagios-forked monitoring solution, using [Thruk](http://thruk.org/) as its GUI and [PNP4Nagios](http://docs.pnp4nagios.org/start) for graphing the plugins' metrics perfdata
+
+* [OpenNMS] - open source enterprise-grade network management platform which can execute Nagios Plugins via NRPE, see [NRPEMonitor documentation](http://docs.opennms.org/opennms/releases/latest/guide-admin/guide-admin.html#_nrpemonitor)
+
+* [Pandora FMS](https://pandorafms.com/) - open source distributed monitoring solution with flexible dashboarding, SLA reporting and Nagios Plugin compatibility via [Nagios wrapper for agent plugin](https://pandorafms.com/library/nagios-wrapper-for-agent-plugin/)
 
 * [Sensu](https://sensuapp.org/) - open-core distributed monitoring system, compatible with both Nagios and Zabbix plugins. Enterprise Edition contains metrics graphing integrations for [Graphite](https://sensuapp.org/docs/1.2/enterprise/integrations/graphite.html), [InfluxDB](https://sensuapp.org/docs/1.2/enterprise/integrations/influxdb.html) or [OpenTSDB](https://sensuapp.org/docs/1.2/enterprise/integrations/opentsdb.html) to graph the plugins' metrics perfdata
 
