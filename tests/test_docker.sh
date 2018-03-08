@@ -83,35 +83,40 @@ if is_docker_available; then
     run ./check_docker_containers.py --stopped -w 1000
     run ./check_docker_containers.py --total -w 100000
 
-    docker run -d --name docker-containers-test redis:alpine
+    container=nagios-plugins-container-test
+    echo "deleting test docker container '$container' if already exists:"
+    docker rm -f "$container" 2>/dev/null || :
+    echo "creating test docker container '$container':"
+    docker run -d --name "$container" redis:alpine
+    hr
 
-    run ./check_docker_container_status.py --docker-container docker-containers-test
-    run ./check_docker_container_status.py --docker-container docker-containers-test -v
+    run ./check_docker_container_status.py --container "$container"
+    run ./check_docker_container_status.py -v -C "$container"
 
     run ./check_docker_containers.py -c 0
     run_fail 2 ./check_docker_containers.py --running -c 0
     run_fail 2 ./check_docker_containers.py --total -c 0
 
-    docker pause docker-containers-test
+    docker pause "$container"
 
-    run_fail 1 ./check_docker_container_status.py --docker-container docker-containers-test
-    run_fail 1 ./check_docker_container_status.py --docker-container docker-containers-test -v
+    run_fail 1 ./check_docker_container_status.py --container "$container"
+    run_fail 1 ./check_docker_container_status.py -v -C "$container"
 
     run_fail 2 ./check_docker_containers.py --paused -c 0
     run_fail 2 ./check_docker_containers.py --total -c 0
 
-    docker stop docker-containers-test
+    docker stop "$container"
 
-    run_fail 2 ./check_docker_container_status.py --docker-container docker-containers-test
-    run_fail 2 ./check_docker_container_status.py --docker-container docker-containers-test -v
+    run_fail 2 ./check_docker_container_status.py --container "$container"
+    run_fail 2 ./check_docker_container_status.py -v -C "$container"
 
     run_fail 2 ./check_docker_containers.py --stopped -c 0
     run_fail 2 ./check_docker_containers.py --total -c 0
 
-    docker rm docker-containers-test
+    docker rm "$container"
 
-    run_fail 2 ./check_docker_container_status.py --docker-container docker-containers-test
-    run_fail 2 ./check_docker_container_status.py --docker-container docker-containers-test -v
+    run_fail 2 ./check_docker_container_status.py --container "$container"
+    run_fail 2 ./check_docker_container_status.py -v -C "$container"
 
     echo "checking connection refused:"
     DOCKER_HOST=tcp://127.0.0.1:23760 ERRCODE=2 run_grep 'Connection refused' ./check_docker_containers.py
@@ -139,6 +144,7 @@ if is_docker_available; then
     # ============================================================================ #
 
     if ./check_docker_swarm_enabled.py; then
+
         # rather than just run++ above, run it again so run prints the command and result with separator, not just the result
         run ./check_docker_swarm_enabled.py
 
@@ -146,19 +152,35 @@ if is_docker_available; then
 
         run ./check_docker_swarm_is_manager.py
 
+        service=nagios-plugins-service-test
+        echo "deleting test docker service '$service' if already exists:"
+        docker service rm "$service" 2>/dev/null || :
+        echo "creating test docker server '$service':"
+        docker service create --replicas 2 --name "$service" redis:alpine
+
         run ./check_docker_swarm_error.py
 
         run ./check_docker_swarm_nodes.py
         run ./check_docker_swarm_nodes.py --manager
 
-        # assumption we are running a single swarm node for testing
-        # TODO: parse out actual number and set that to the threshold
-        run_fail 1 ./check_docker_swarm_nodes.py -w 2
-        run_fail 2 ./check_docker_swarm_nodes.py -c 2
-        run_fail 1 ./check_docker_swarm_nodes.py -w 2 --manager
-        run_fail 2 ./check_docker_swarm_nodes.py -c 2 --manager
+        set +o pipefail
+        echo "determining number of Docker Swarm worker and manager nodes:"
+        num_worker_nodes=$(./check_docker_swarm_nodes.py | sed 's/^[^=]*= //;s/ .*//')
+        echo "determined number of Docker Swarm worker nodes to be '$num_worker_nodes'"
+        num_manager_nodes=$(./check_docker_swarm_nodes.py --manager | sed 's/^[^=]*= //;s/ .*//')
+        echo "determined number of Docker Swarm manager nodes to be '$num_manager_nodes'"
+        set -o pipefail
+        let worker_threshold=$num_worker_nodes+1
+        let manager_threshold=$num_manager_nodes+1
+
+        run_fail 1 ./check_docker_swarm_nodes.py -w "$worker_threshold"
+        run_fail 2 ./check_docker_swarm_nodes.py -c "$worker_threshold"
+        run_fail 1 ./check_docker_swarm_nodes.py -w "$manager_threshold" --manager
+        run_fail 2 ./check_docker_swarm_nodes.py -c "$manager_threshold" --manager
 
         run ./check_docker_services.py
+
+        docker service rm "$service"
     else
         run_fail 2 ./check_docker_swarm_enabled.py
 
@@ -171,11 +193,10 @@ if is_docker_available; then
         run_fail 2 ./check_docker_swarm_nodes.py
         run_fail 2 ./check_docker_swarm_nodes.py --manager
 
-        # TODO: parse out actual number and set that to the threshold
-        run_fail 2 ./check_docker_swarm_nodes.py -w 2
-        run_fail 2 ./check_docker_swarm_nodes.py -c 2
-        run_fail 2 ./check_docker_swarm_nodes.py -w 2 --manager
-        run_fail 2 ./check_docker_swarm_nodes.py -c 2 --manager
+        run_fail 2 ./check_docker_swarm_nodes.py -w "$worker_threshold"
+        run_fail 2 ./check_docker_swarm_nodes.py -c "$worker_threshold"
+        run_fail 2 ./check_docker_swarm_nodes.py -w "$manager_threshold" --manager
+        run_fail 2 ./check_docker_swarm_nodes.py -c "$manager_threshold" --manager
 
         run_fail 2 ./check_docker_services.py
     fi
@@ -225,6 +246,7 @@ if is_docker_available; then
     # This fails set -e, possibly because docker images command is interrupted by the abrupt exit of awk
     set +e
     id="$(docker images | awk "/^${DOCKER_IMAGE//\//\\/}.*latest/{print \$3; exit}")"
+    echo "determined docker id for $DOCKER_IMAGE:latest to be $id"
     set -e
     if [ -z "$id" ]; then
         echo "FAILED to get docker image id, debug pipeline"
@@ -232,7 +254,7 @@ if is_docker_available; then
     fi
     hr
     echo "testing against expected id of $id"
-    run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --id "$id"
+    run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --id "sha256:${id:0:10}"
     run ./check_docker_image_old.py --docker-image "$DOCKER_IMAGE:latest" --id "$id"
 
     echo "testing intentional id failure:"
