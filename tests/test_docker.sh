@@ -224,10 +224,10 @@ if is_docker_available; then
         run_fail 2 ./check_docker_swarm_nodes.py
         run_fail 2 ./check_docker_swarm_nodes.py --manager
 
-        run_fail 2 ./check_docker_swarm_nodes.py -w "$worker_threshold"
-        run_fail 2 ./check_docker_swarm_nodes.py -c "$worker_threshold"
-        run_fail 2 ./check_docker_swarm_nodes.py -w "$manager_threshold" --manager
-        run_fail 2 ./check_docker_swarm_nodes.py -c "$manager_threshold" --manager
+        run_fail 2 ./check_docker_swarm_nodes.py -w 1
+        run_fail 2 ./check_docker_swarm_nodes.py -c 1
+        run_fail 2 ./check_docker_swarm_nodes.py -w 1 --manager
+        run_fail 2 ./check_docker_swarm_nodes.py -c 1 --manager
 
         run_fail 2 ./check_docker_services.py
 
