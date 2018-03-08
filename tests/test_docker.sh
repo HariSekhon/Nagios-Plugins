@@ -87,7 +87,7 @@ if is_docker_available; then
     echo "deleting test docker container '$container' if already exists:"
     docker rm -f "$container" 2>/dev/null || :
     echo "creating test docker container '$container':"
-    docker run -d --name "$container" redis:alpine
+    docker run -d --name "$container" alpine top
     hr
 
     run ./check_docker_container_status.py --container "$container"
@@ -114,6 +114,7 @@ if is_docker_available; then
     run_fail 2 ./check_docker_containers.py --total -c 0
 
     docker rm "$container"
+    hr
 
     run_fail 2 ./check_docker_container_status.py --container "$container"
     run_fail 2 ./check_docker_container_status.py -v -C "$container"
@@ -143,6 +144,8 @@ if is_docker_available; then
 
     # ============================================================================ #
 
+    service=nagios-plugins-service-test
+
     if ./check_docker_swarm_enabled.py; then
 
         # rather than just run++ above, run it again so run prints the command and result with separator, not just the result
@@ -152,11 +155,11 @@ if is_docker_available; then
 
         run ./check_docker_swarm_is_manager.py
 
-        service=nagios-plugins-service-test
         echo "deleting test docker service '$service' if already exists:"
         docker service rm "$service" 2>/dev/null || :
         echo "creating test docker server '$service':"
-        docker service create --replicas 2 --name "$service" redis:alpine
+        docker service create --name "$service" --replicas 2 alpine top
+        hr
 
         run ./check_docker_swarm_error.py
 
@@ -180,7 +183,35 @@ if is_docker_available; then
 
         run ./check_docker_services.py
 
+        run_fail 1 ./check_docker_services.py -w 0
+
+        run_fail 2 ./check_docker_services.py -w 0 -c 0
+
+        run ./check_docker_service_status.py --service "$service"
+
+        run ./check_docker_service_status.py --service "$service" -v
+
+        run_fail 1 ./check_docker_service_status.py --service "$service" -U 60
+
+        run ./check_docker_service_status.py --service "$service" -w 2:2 -c 2:2
+
+        run_fail 1 ./check_docker_service_status.py --service "$service" -w 3 -c 2:2
+
+        run_fail 2 ./check_docker_service_status.py --service "$service" -w 2:2 -c 3
+
+        echo "recreating test docker server '$service' as a global service:"
         docker service rm "$service"
+        docker service create --name "$service" --mode global alpine top
+        hr
+
+        run ./check_docker_service_status.py --service "$service"
+
+        run_fail 1 ./check_docker_service_status.py --service "$service" -U 60
+
+        run_fail 2 ./check_docker_service_status.py --service "$service" -w 2:2
+
+        docker service rm "$service"
+        hr
     else
         run_fail 2 ./check_docker_swarm_enabled.py
 
@@ -199,6 +230,8 @@ if is_docker_available; then
         run_fail 2 ./check_docker_swarm_nodes.py -c "$manager_threshold" --manager
 
         run_fail 2 ./check_docker_services.py
+
+        run_fail 2 ./check_docker_service_status.py --service "$service"
     fi
 
     # ============================================================================ #
