@@ -17,7 +17,7 @@
 
 """
 
-Nagios Plugin to check the number of Docker services via the Docker API
+Nagios Plugin to check the number of Docker Swarm services via the Docker API
 
 Optional thresholds can be applied and perfdata is output for graphing the number of services over time
 
@@ -50,33 +50,33 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
-class CheckDockerServices(DockerNagiosPlugin):
+class CheckDockerSwarmServices(DockerNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckDockerServices, self).__init__()
+        super(CheckDockerSwarmServices, self).__init__()
         # Python 3.x
         # super().__init__()
         self.msg = 'Docker msg not defined yet'
 
     def add_options(self):
-        super(CheckDockerServices, self).add_options()
+        super(CheckDockerSwarmServices, self).add_options()
         self.add_thresholds()
 
     def process_options(self):
-        super(CheckDockerServices, self).process_options()
+        super(CheckDockerSwarmServices, self).process_options()
         self.validate_thresholds(integer=True, positive=True, optional=True)
 
     def check(self, client):
         log.info('running Docker info')
         services = len(client.services.list())
-        self.msg = 'Docker services = {}'.format(services)
+        self.msg = 'Docker Swarm services = {}'.format(services)
         self.check_thresholds(services)
-        self.msg += ' | docker_services={}{}'.format(services, self.get_perf_thresholds())
+        self.msg += ' | docker_swarm_services={}{}'.format(services, self.get_perf_thresholds())
 
 
 if __name__ == '__main__':
-    CheckDockerServices().main()
+    CheckDockerSwarmServices().main()
