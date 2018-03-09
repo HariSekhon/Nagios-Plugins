@@ -183,34 +183,34 @@ if is_docker_available; then
         run_fail 1 ./check_docker_swarm_nodes.py -w "$manager_threshold" --manager
         run_fail 2 ./check_docker_swarm_nodes.py -c "$manager_threshold" --manager
 
-        run ./check_docker_services.py
+        run ./check_docker_swarm_services.py
 
-        run_fail 1 ./check_docker_services.py -w 0
+        run_fail 1 ./check_docker_swarm_services.py -w 0
 
-        run_fail 2 ./check_docker_services.py -w 0 -c 0
+        run_fail 2 ./check_docker_swarm_services.py -w 0 -c 0
 
-        run ./check_docker_service_status.py --service "$service"
+        run ./check_docker_swarm_service_status.py --service "$service"
 
-        run ./check_docker_service_status.py --service "$service" -v
+        run ./check_docker_swarm_service_status.py --service "$service" -v
 
-        run_fail 1 ./check_docker_service_status.py --service "$service" -U 60
+        run_fail 1 ./check_docker_swarm_service_status.py --service "$service" -U 60
 
-        run ./check_docker_service_status.py --service "$service" -w 2:2 -c 2:2
+        run ./check_docker_swarm_service_status.py --service "$service" -w 2:2 -c 2:2
 
-        run_fail 1 ./check_docker_service_status.py --service "$service" -w 3 -c 2:2
+        run_fail 1 ./check_docker_swarm_service_status.py --service "$service" -w 3 -c 2:2
 
-        run_fail 2 ./check_docker_service_status.py --service "$service" -w 2:2 -c 3
+        run_fail 2 ./check_docker_swarm_service_status.py --service "$service" -w 2:2 -c 3
 
         echo "recreating test docker server '$service' as a global service:"
         docker service rm "$service"
         docker service create --name "$service" --mode global alpine top
         hr
 
-        run ./check_docker_service_status.py --service "$service"
+        run ./check_docker_swarm_service_status.py --service "$service"
 
-        run_fail 1 ./check_docker_service_status.py --service "$service" -U 60
+        run_fail 1 ./check_docker_swarm_service_status.py --service "$service" -U 60
 
-        run_fail 2 ./check_docker_service_status.py --service "$service" -w 2:2
+        run_fail 2 ./check_docker_swarm_service_status.py --service "$service" -w 2:2
 
         docker service rm "$service"
         hr
@@ -233,9 +233,9 @@ if is_docker_available; then
         run_fail 2 ./check_docker_swarm_nodes.py -c 1
         run_fail 2 ./check_docker_swarm_nodes.py -c 1 --manager
 
-        run_fail 2 ./check_docker_services.py
+        run_fail 2 ./check_docker_swarm_services.py
 
-        run_fail 2 ./check_docker_service_status.py --service "$service"
+        run_fail 2 ./check_docker_swarm_service_status.py --service "$service"
     fi
 
     # ============================================================================ #
