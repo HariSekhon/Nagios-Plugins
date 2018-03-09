@@ -65,14 +65,14 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5'
 
 
-class CheckDockerServiceStatus(DockerNagiosPlugin):
+class CheckDockerSwarmServiceStatus(DockerNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckDockerServiceStatus, self).__init__()
+        super(CheckDockerSwarmServiceStatus, self).__init__()
         # Python 3.x
         # super().__init__()
         self.msg = 'Docker msg not defined'
@@ -81,14 +81,14 @@ class CheckDockerServiceStatus(DockerNagiosPlugin):
         self.expected_id = None
 
     def add_options(self):
-        super(CheckDockerServiceStatus, self).add_options()
-        self.add_opt('-S', '--service', help='Docker service name or id')
+        super(CheckDockerSwarmServiceStatus, self).add_options()
+        self.add_opt('-S', '--service', help='Docker Swarm service name or id')
         self.add_opt('-U', '--warn-if-last-updated-within',
                      help='Raise warning if service was updated within this may secs ago')
         self.add_thresholds()
 
     def process_options(self):
-        super(CheckDockerServiceStatus, self).process_options()
+        super(CheckDockerSwarmServiceStatus, self).process_options()
         self.service = self.get_opt('service')
         self.updated = self.get_opt('warn_if_last_updated_within')
         validate_chars(self.service, 'docker service', r'A-Za-z0-9/:\._-')
@@ -107,7 +107,7 @@ class CheckDockerServiceStatus(DockerNagiosPlugin):
         if log.isEnabledFor(logging.DEBUG):
             log.debug(jsonpp(service.attrs))
         (mode, replicas, running_tasks, created, updated) = self.parse_service(service)
-        self.msg = "Docker service '{}' replicas = {}".format(self.service, running_tasks)
+        self.msg = "Docker Swarm service '{}' replicas = {}".format(self.service, running_tasks)
         if mode == 'replicated':
             self.msg += "/{}".format(replicas)
         self.check_thresholds(running_tasks)
@@ -174,4 +174,4 @@ class CheckDockerServiceStatus(DockerNagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckDockerServiceStatus().main()
+    CheckDockerSwarmServiceStatus().main()
