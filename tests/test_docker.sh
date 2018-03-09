@@ -136,9 +136,11 @@ if is_docker_available; then
 
     run ./check_docker_volumes.py
 
-    docker volume create nagios-plugins-test
+    echo "Creating test volume to test volumes thresholds:"
+    docker volume create nagios-plugins-test || :
     run_fail 1 ./check_docker_volumes.py -w 0
     run_fail 2 ./check_docker_volumes.py -c 0
+    echo "Deleting test volume:"
     docker volume rm nagios-plugins-test
 
     echo "checking connection refused:"
