@@ -17,9 +17,9 @@
 
 """
 
-Nagios Plugin to check the status of a Docker service via the Docker API
+Nagios Plugin to check the status of a Docker Swarm service via the Docker API
 
-Raises CRITICAL if the service does not exist
+Raises CRITICAL if the service does not exist or if the node is not a Swarm Manager
 
 Optional --warning / --critical thresholds apply to minimum number of running tasks for the service
 (can also use min:max threshold range format)
