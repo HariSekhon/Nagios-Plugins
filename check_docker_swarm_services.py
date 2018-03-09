@@ -19,7 +19,7 @@
 
 Nagios Plugin to check the number of Docker Swarm services via the Docker API
 
-Raises Critical if the node is not a Swarm Manager
+Raises CRITICAL if the node is not a Swarm Manager
 
 Optional thresholds can be applied and perfdata is output for graphing the number of services over time
 
