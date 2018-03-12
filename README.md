@@ -213,7 +213,7 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 - ```check_travis_ci_last_build.py``` - [Travis CI](https://travis-ci.org/) repo's last build status - includes showing build number, build duration with optional thresholds, start/stop date & time, if there are currently any builds in progress and perfdata for graphing last build time and number of builds in progress. Verbose mode gives the commit details as well such as commit id and message
 - ```check_dockerhub_repo_build_status.py``` - [DockerHub](https://hub.docker.com/u/harisekhon/) Automated Build status check for a given DockerHub repository's latest build or latest build for a given tag. Returns status and tag of last build along with perfdata for graphing build latency (time between build creation and completion) and query timing. Optionally also returns in verbose mode what triggered the build (webhook, revision control change, API / website trigger), created and last updated date timestamps and build URL to investigate
 
-##### Infrastructure - Linux & Web
+##### Infrastructure - Linux & Internet
 
 - ```check_ssl_cert.pl``` - SSL certificate checker - checks certificate expiry (days), validates domain, chain of trust, SNI, wildcard domains, SAN certs with multi-domain support. Chain of Trust support is important when building your JKS or certificate bundles to include intermediate certs otherwise certain mobile devices don't validate the SSL even though it may work in your desktop browser
 - ```check_whois.pl``` - check domain expiry days left and registration details match expected
