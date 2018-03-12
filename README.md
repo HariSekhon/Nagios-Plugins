@@ -37,7 +37,7 @@ Supports most major open source NoSQL technologies, Pub-Sub / Message Buses, CI,
 - advanced DNS record checks (MX, NS, SRV etc)
 - [Git](https://git-scm.com/), [MySQL](https://www.mysql.com/) ... etc.
 
-Supports a a wide variety of [compatible Enterprise Monitoring servers](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems).
+Supports a a wide variety of [compatible Enterprise Monitoring systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems).
 
 Most enterprise monitoring systems come with basic generic checks, while this project extends their monitoring capabilities significantly further in to advanced infrastructure, application layer, APIs etc.
 
@@ -586,7 +586,7 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program
 
-* [Microsoft SCOM](https://www.microsoft.com/en-us/cloud-platform/system-center) - Microsoft Systems Center Operations Manager, can run Nagios Plugins as arbitrary Unix shell scripts with health/warning/error expression checks, see the [Microsoft technet documentation](https://technet.microsoft.com/en-us/library/jj126087(v=sc.12).aspx)
+* [Microsoft SCOM](https://www.microsoft.com/en-us/cloud-platform/system-center) - Microsoft Systems Center Operations Manager, can run Nagios Plugins as arbitrary Unix shell scripts with health / warning / error expression checks, see the [Microsoft technet documentation](https://technet.microsoft.com/en-us/library/jj126087(v=sc.12).aspx)
 
 #### Incompatible Monitoring Solutions
 
