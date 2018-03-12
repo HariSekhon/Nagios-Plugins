@@ -257,7 +257,7 @@ if is_docker_available; then
     hr
 
     run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest"
-    run ./check_docker_image_old.py --docker-image "$DOCKER_IMAGE:latest"
+    run ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:latest"
 
     for image in ${DOCKER_IMAGES[*]}; do
         max_size=$((600 * 1024 * 1024))
@@ -268,18 +268,18 @@ if is_docker_available; then
             image="$image:latest"
         fi
         run ./check_docker_image.py --docker-image "$image" --warning "$max_size"
-        run ./check_docker_image_old.py --docker-image "$image" --warning "$max_size"
+        run ./older/check_docker_image_old.py --docker-image "$image" --warning "$max_size"
     done
     for tag in $DOCKER_IMAGE_TAGS; do
         run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((800 * 1024 * 1024))
-        run ./check_docker_image_old.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((800 * 1024 * 1024))
+        run ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((800 * 1024 * 1024))
 
         echo "checking thresholds fail as expected:"
         run_fail 1 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((300 * 1024 * 1024))
-        run_fail 1 ./check_docker_image_old.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((300 * 1024 * 1024))
+        run_fail 1 ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((300 * 1024 * 1024))
 
         run_fail 2 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:$tag" --critical $((300 * 1024 * 1024))
-        run_fail 2 ./check_docker_image_old.py --docker-image "$DOCKER_IMAGE:$tag" --critical $((300 * 1024 * 1024))
+        run_fail 2 ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:$tag" --critical $((300 * 1024 * 1024))
     done
     echo "getting docker image id"
     # This fails set -e, possibly because docker images command is interrupted by the abrupt exit of awk
@@ -294,11 +294,11 @@ if is_docker_available; then
     hr
     echo "testing against expected id of $id"
     run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --id "sha256:${id:0:10}"
-    run ./check_docker_image_old.py --docker-image "$DOCKER_IMAGE:latest" --id "$id"
+    run ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:latest" --id "$id"
 
     echo "testing intentional id failure:"
     run_fail 2 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --id "wrongid"
-    run_fail 2 ./check_docker_image_old.py --docker-image "$DOCKER_IMAGE:latest" --id "wrongid"
+    run_fail 2 ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:latest" --id "wrongid"
 
     run_usage docker run --rm -e DEBUG="$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl --help
 
