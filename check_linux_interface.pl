@@ -15,7 +15,7 @@ Written for RHEL / CentOS 6, also tested on Debian Wheezy (7) / Jessie (8) and U
 
 Updated for RHEL / CentOS 7 as well as support for checking special interfaces such as loopback, bond and tunnel interfaces";
 
-$VERSION = "0.9.1";
+$VERSION = "0.9.2";
 
 use strict;
 use warnings;
@@ -37,7 +37,8 @@ my $expected_speed;
 my $expected_mtu;
 my $expected_promisc = "off";
 # could use /proc/net/dev but this is easier
-my $ifconfig = "/sbin/ifconfig";
+$ENV{'PATH'} .= ':/usr/sbin';
+my $ifconfig = 'ifconfig';
 my $interface;
 my $promisc = "off";
 my $short = 0;
