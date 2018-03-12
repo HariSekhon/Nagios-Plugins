@@ -50,7 +50,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 # pylint: disable=too-few-public-methods
@@ -65,8 +65,11 @@ class CheckDockerAPIPing(DockerNagiosPlugin):
 
     def check(self, client):
         log.info('running API ping')
-        client.ping()
-        self.msg = 'Docker API Ping successful'
+        if client.ping():
+            self.msg = 'Docker API Ping successful'
+        else:
+            self.critical()
+            self.msg = 'Docker API Ping Failed'
 
 
 if __name__ == '__main__':

@@ -52,7 +52,7 @@ for script in $(find tests -name 'test*.sh' | sort); do
     fi
     if is_CI; then
         [ $(($RANDOM % 4)) = 0 ] || continue
-        max_mins=30
+        max_mins=25
         if is_travis && [ $SECONDS -gt $(($max_mins*60)) ]; then
             echo "Build has been running for longer than $max_mins minutes and is inside Travis CI, skipping rest of test_*.sh scripts"
             break
