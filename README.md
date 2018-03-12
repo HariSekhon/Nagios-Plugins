@@ -219,7 +219,7 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 - ```check_mysql_query.pl``` - flexible free-form [MySQL](https://www.mysql.com/) SQL queries - can check almost anything - obsoleted a dozen custom MySQL plugins and prevented writing many more. Tested against many versions of [MySQL](https://www.mysql.com/) and [MariaDB](https://mariadb.org/). You may also be interested in [Percona's plugins](https://www.percona.com/doc/percona-monitoring-plugins/latest/index.html)
 - ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline. Tested against many versions of [MySQL](https://www.mysql.com/) and [MariaDB](https://mariadb.org/)
 
-##### Infrastructure - Internet / Web / Networking / Domains
+##### Infrastructure - Internet - Web, DNS, Domains
 
 - ```check_ssl_cert.pl``` - SSL certificate checker - checks certificate expiry (days), validates domain, chain of trust, SNI, wildcard domains, SAN certs with multi-domain support. Chain of Trust support is important when building your JKS or certificate bundles to include intermediate certs otherwise certain mobile devices don't validate the SSL even though it may work in your desktop browser
 - ```check_whois.pl``` - check domain expiry days left and registration details match expected
