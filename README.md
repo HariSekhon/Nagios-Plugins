@@ -178,7 +178,7 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
 
 - ```check_docker_*.py``` - [Docker](https://www.docker.com/) API checks including API ping, counts of running / paused / stopped / total containers with thresholds, specific container status by name or id, images count with thresholds, specific image:tag availability including size and checksum, counts of networks / volumes with thresholds, docker engine version
 - ```check_docker_swarm_*.py``` - [Docker Swarm](https://docs.docker.com/engine/swarm/) API checks including is swarm enabled, swarm node status, is the node a swarm manager, swarm service status including number of live replicas / tasks and if the service was updated recently, counts of services, swarm manager and worker nodes with thresholds, swarm errors, swarm version
-- ```check_mesos_*.pl``` - [Mesos](http://mesos.apache.org/) master health API, master & slaves state information including leader and versions, activated & deactivated slaves, number of Chronos jobs, master & slave metrics. Warning: Mesos / Mesosphere DC/OS is legacy semi-prioprietary, major momentum has shifted to the open source [Kubernetes](https://kubernetes.io/) project (Kubernetes Nagios Plugins coming soon)
+- ```check_mesos_*.pl``` - [Mesos](http://mesos.apache.org/) master health API, master & slaves state information including leader and versions, activated & deactivated slaves, number of Chronos jobs, master & slave metrics. Warning: Mesos / Mesosphere DC/OS is legacy semi-proprietary, major momentum has shifted to the open source [Kubernetes](https://kubernetes.io/) project (Kubernetes Nagios Plugins coming soon)
 
 See also DockerHub build status nagios plugin further down in the CI section.
 
