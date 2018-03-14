@@ -37,4 +37,6 @@ Common backend server addresses have been pre-populated for convenience includin
 
 These addresses are used in continuous integration testing of this repo including these HAProxy configurations which are tested by running all the relevant nagios plugins for each service through HAProxy to validate the HAProxy configurations.
 
+See the ```untested/``` directory for a few more including SSL config versions I haven't got round to testing yet but should work.
+
 See also ```find_active_server.py``` from my [PyTools](https://github.com/harisekhon/pytools) repo and its related adjacent programs for on-the-fly command line determination of active masters or first responding peers across many of these same technologies.
