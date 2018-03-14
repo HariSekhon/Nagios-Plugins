@@ -173,6 +173,7 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
 - ```check_zookeeper.pl``` - [Apache ZooKeeper](https://zookeeper.apache.org/) server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gather statistics
 - ```check_zookeeper_*znode*.pl``` - [ZooKeeper](https://zookeeper.apache.org/) znode checks using ZK Perl API, useful for [HBase](https://hbase.apache.org/), [Kafka](https://kafka.apache.org/), [SolrCloud](https://wiki.apache.org/solr/SolrCloud), [Hadoop](http://hadoop.apache.org/) HDFS & Yarn HA (ZKFC) and any other ZooKeeper-based service. Very versatile with multiple optional checks including data vs regex, json field extraction, ephemeral status, child znodes, znode last modified age
 - ```check_consul_*.py``` - [Consul](https://www.consul.io/) API write / read back, arbitrary key-value content checks, number of cluster peers & version
+- ```check_vault_*.py``` - Hashicorp's [Vault]() API checks - health checks is initialized, is not standby, is vault sealed / unsealed, time skew between Vault server and local, is high availability enabled, is current leader, is leader found, version
 
 ##### Docker / Containerization
 
