@@ -295,7 +295,80 @@ There are now also simplified subclassed programs so you don't have to figure ou
 These are especially useful for ad-hoc scripting or quick command line tests.
 
 
-##### Detailed Build Instructions
+### Quality ###
+
+Most of the plugins I've read from [Nagios Exchange](https://exchange.nagios.org/) and Monitoring Exchange (now [Icinga Exchange](https://exchange.icinga.org/)) in the last decade have not been of the quality required to run in production environments I've worked in (ever seen plugins written in Bash with little validation, or mere 200-300 line plugins without robust input/output validation and error handling, resulting in "UNKNOWN: (null)" when something goes wrong - right when you need them - then you know what I mean). That prompted me to write my own plugins whenever I had an idea or requirement.
+
+That naturally evolved in to this, a relatively Advanced Collection of Nagios Plugins, especially when I began standardizing and reusing code between plugins and improving the quality of all those plugins while doing so.
+
+
+##### Goals #####
+
+- specific error messages to aid faster Root Cause Analysis
+- consistent behaviour
+- standardized switches
+- strict input/output validation at all stages, written for security and robustness
+- code reuse, especially for more complex input/output validations and error handling
+- multiple `--verbose` levels & `--debug` mode
+- `--warning/--critical` thresholds with range support, in form of `min:max` (`@` prefix inverts to expect value outside of this range)
+- support for use of `$USERNAME` and `$PASSWORD` environment variables as well as more specific overrides (eg. `$MYSQL_USERNAME`, `$REDIS_PASSWORD`) to give administrators the option to avoid leaking `--password` credentials in the process list for all users to see
+- self-timeouts
+- [Metrics Graphing integrations](https://github.com/HariSekhon/nagios-plugins#metrics-graphing-integrations)  - [Graphite](https://graphiteapp.org/), [InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/) and [PNP4Nagios](https://docs.pnp4nagios.org/) can all auto-graph the perfdata from these plugins
+- [Continuous Integration](https://travis-ci.org/HariSekhon/nagios-plugins) with tests for success and failure scenarios:
+  - unit tests for the custom supporting [perl](https://github.com/harisekhon/lib) and [python](https://github.com/harisekhon/pylib) libraries
+  - integration tests of the top level programs using the libraries for things like option parsing
+  - [functional tests](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) for the top level programs using [Docker containers](https://hub.docker.com/u/harisekhon/) for each technology (eg. Cassandra, Elasticsearch, Hadoop, HBase, ZooKeeper, Memcached, Neo4j, MongoDB, MySQL, Riak, Redis...)
+- easy rapid development of new high quality robust Nagios plugins with minimal lines of code
+
+Several plugins have been merged together and replaced with symlinks to the unified plugins bookmarking their areas of functionality, similar to some plugins from the standard nagios plugins collection.
+
+Some plugins such as those relating to Redis and Couchbase also have different modes and expose different options when called as different program names, so those symlinks are not just cosmetic. An example of this is write replication, which exposes extra options to read from a slave after writing to the master to check that replication is 100% working.
+
+Perl ePN optimization is not supported at this time as I was running 13,000 production checks per Nagios server years ago (circa 2010) without ePN optimization - it's not worth the effort and isn't available in any of the other languages anyway.
+
+Python plugins are all pre-byte-compiled as part of the automated build.
+
+Modern scaling should be done using distributed computing, open source examples include [Icinga2](https://www.icinga.com/docs/icinga2/latest/doc/06-distributed-monitoring/) and [Shinken](http://shinken.readthedocs.io/en/latest/07_advanced/scaling-shinken.html#advanced-scaling-shinken). Shinken's [documentation](http://shinken.readthedocs.io/en/latest/07_advanced/distributed-shinken.html?highlight=150000%20checks/5min) cites an average 4 core server @ 3Ghz as supporting 150,000 checks per 5 minutes, which aligns with my own experience with Nagios Core. Using the latest hardware and proper setup could probably result in even higher scale before having to move to distributed monitoring architecture.
+
+
+### Contributions
+
+Feedback, Feature Requests, Improvements and Patches are welcome.
+
+Patches are accepted in the form of Github pull requests, for which you will receive attribution automatically as Github tracks these merges.
+
+
+### Support for Updates / Bugs Fixes / Feature Requests ###
+
+Please raise a [Github Issue ticket](https://github.com/harisekhon/nagios-plugins/issues) for if you need updates, bug fixes or new features.
+
+Since there are a lot of programs covering a lot of different technologies in this project, so remember to look at the software versions each program was written / tested against (documented in --help for each program, also found near the top of the source code in each program). Newer versions of software seem to change a lot these days especially in the Big Data & NoSQL space so plugins may require updates for newer versions.
+
+Please make sure you have run ```make update``` first to pull the latest updates including library sub-modules and build the latest CPAN / PyPI module dependencies, (see [Quick Setup](https://github.com/harisekhon/nagios-plugins#quick-setup) above).
+
+Make sure you run the code by hand on the command line with ```-v -v -v``` for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` tool found in my [Tools repo](https://github.com/harisekhon/tools).
+
+
+##### Libraries #####
+
+Having written a large number of Nagios Plugins in the last 10 years in a variety of languages (Python, Perl, Ruby, Bash, VBS) I abstracted out common components of a good robust Nagios Plugin program in to libraries of reusable components that I leverage very heavily in all my modern plugins and other programs found under my other repos here on GitHub, which are now mostly written in Perl or Python using these custom libraries, for reasons of both concise rapid development and speed of execution.
+
+These libraries enables writing much more thoroughly validated production quality code, to achieve in a quick 200 lines of Perl or Python what might otherwise take 2000-3000 lines to do properly (including some of the more complicated supporting code such as robust validation functions with long complex regexs with unit tests, configurable self-timeouts, warning/critical threshold range logic, common options and generated usage, multiple levels of verbosity, debug mode etc), dramatically reducing the time to write high quality plugins down to mere hours and at the same time vastly improving the quality of the final code through code reuse, as well as benefitting from generic future improvements to the underlying libraries.
+
+This gives each plugin the misleading appearance of being very short, because only the some of the very core logic of what you're trying to achieve is displayed in the plugin itself, mostly composition of utility functions, and the error handling is often handled in custom libraries too, so it may appear that a simple one line field extraction or 'curl()' or 'open_file()' utility function call has no error handling at all around it but under the hood the error handling is handled inside the function inside a library, same for HBase Thrift API connection, Redis API connection etc so the client code as seen in the top level plugins knows it succeeded or otherwise the framework would have errored out with a specific error message such as "connection refused" etc... there is a lot of buried error checking code and a lot of utility functions so many operations become one-liners at the top level instead of huge programs that are hard to read and maintain.
+
+I've tried to keep the quality here high so a lot of plugins I've written over the years haven't made it in to this collection, there are a lot still pending import, a couple others `check_nsca.pl` and `check_syslog-ng_stats.pl` are in the `more/` directory until I get round to reintegrating and testing them with my current framework to modernize them, although they should still work with the tiny utils.pm from the standard nagios plugins collection.
+
+I'm aware of Nagios::Plugin but my libraries have a lot more utility functions and I've written them to be highly convenient to develop with.
+
+###### Older Plugins ######
+
+Some older plugins may not adhere to all of the criteria above so most have been filed away under the `older/` directory (they were used by people out there in production so I didn't want to remove them entirely). Older plugins also indicate that I haven't run or made updates to them in a few years so they're in basic maintenance mode and may require minor tweaks or updates.
+
+If you're new remember to check out the `older/` directory for more plugins that are less current but that you might find useful such as RAID checks for Linux MD Raid, 3ware / LSI MegaRaid / Dell Perc Raid Controllers (which are actually rebranded LSI MegaRaid so you can use the same check - I also recommend the widely used [Dell OpenManage Check](http://folk.uio.no/trondham/software/check_openmanage.html)).
+
+
+### Detailed Build Instructions
 
 ```
 
@@ -333,65 +406,6 @@ This downloads, builds and installs the ZooKeeper C bindings which Net::ZooKeepe
 make clean-zookeeper
 ```
 
-
-### Quality ###
-
-Most of the plugins I've read from [Nagios Exchange](https://exchange.nagios.org/) and Monitoring Exchange (now [Icinga Exchange](https://exchange.icinga.org/)) in the last decade have not been of the quality required to run in production environments I've worked in (ever seen plugins written in Bash with little validation, or mere 200-300 line plugins without robust input/output validation and error handling, resulting in "UNKNOWN: (null)" when something goes wrong - right when you need them - then you know what I mean). That prompted me to write my own plugins whenever I had an idea or requirement.
-
-That naturally evolved in to this, a relatively Advanced Collection of Nagios Plugins, especially when I began standardizing and reusing code between plugins and improving the quality of all those plugins while doing so.
-
-
-##### Goals #####
-
-- specific error messages to aid faster Root Cause Analysis
-- consistent behaviour
-- standardized switches
-- strict input/output validation at all stages, written for security and robustness
-- code reuse, especially for more complex input/output validations and error handling
-- multiple `--verbose` levels & `--debug` mode
-- `--warning/--critical` thresholds with range support, in form of `min:max` (`@` prefix inverts to expect value outside of this range)
-- support for use of `$USERNAME` and `$PASSWORD` environment variables as well as more specific overrides (eg. `$MYSQL_USERNAME`, `$REDIS_PASSWORD`) to give administrators the option to avoid leaking `--password` credentials in the process list for all users to see
-- self-timeouts
-- [Metrics Graphing integrations](https://github.com/HariSekhon/nagios-plugins#metrics-graphing-integrations)  - [Graphite](https://graphiteapp.org/), [InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/) and [PNP4Nagios](https://docs.pnp4nagios.org/) can all auto-graph the perfdata from these plugins
-- [Continuous Integration](https://travis-ci.org/HariSekhon/nagios-plugins) with tests for success and failure scenarios:
-  - unit tests for the custom supporting [perl](https://github.com/harisekhon/lib) and [python](https://github.com/harisekhon/pylib) libraries
-  - integration tests of the top level programs using the libraries for things like option parsing
-  - [functional tests](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) for the top level programs using [Docker containers](https://hub.docker.com/u/harisekhon/) for each technology (eg. Cassandra, Elasticsearch, Hadoop, HBase, ZooKeeper, Memcached, Neo4j, MongoDB, MySQL, Riak, Redis...)
-- easy rapid development of new high quality robust Nagios plugins with minimal lines of code
-
-Several plugins have been merged together and replaced with symlinks to the unified plugins bookmarking their areas of functionality, similar to some plugins from the standard nagios plugins collection.
-
-Some plugins such as those relating to Redis and Couchbase also have different modes and expose different options when called as different program names, so those symlinks are not just cosmetic. An example of this is write replication, which exposes extra options to read from a slave after writing to the master to check that replication is 100% working.
-
-Perl ePN optimization is not supported at this time as I was running 13,000 production checks per Nagios server years ago (circa 2010) without ePN optimization - it's not worth the effort and isn't available in any of the other languages anyway.
-
-Python plugins are all pre-byte-compiled as part of the automated build.
-
-Modern scaling should be done using distributed computing, open source examples include [Icinga2](https://www.icinga.com/docs/icinga2/latest/doc/06-distributed-monitoring/) and [Shinken](http://shinken.readthedocs.io/en/latest/07_advanced/scaling-shinken.html#advanced-scaling-shinken). Shinken's [documentation](http://shinken.readthedocs.io/en/latest/07_advanced/distributed-shinken.html?highlight=150000%20checks/5min) cites an average 4 core server @ 3Ghz as supporting 150,000 checks per 5 minutes, which aligns with my own experience with Nagios Core. Using the latest hardware and proper setup could probably result in even higher scale before having to move to distributed monitoring architecture.
-
-##### Contributions #####
-
-Patches, improvements and even general feedback are welcome in the form of GitHub pull requests and issue tickets.
-
-Examples of your usage and outputs are also welcome for the Wiki as some of these plugins allow a great diversity of checks to be created - for example, free form MySQL queries or ZooKeeper contents checks can be used to check pretty much anything that advanced DBAs and applications/operations personnel can think of with a just a few command line --switches.
-
-##### Libraries #####
-
-Having written a large number of Nagios Plugins in the last 10 years in a variety of languages (Python, Perl, Ruby, Bash, VBS) I abstracted out common components of a good robust Nagios Plugin program in to libraries of reusable components that I leverage very heavily in all my modern plugins and other programs found under my other repos here on GitHub, which are now mostly written in Perl or Python using these custom libraries, for reasons of both concise rapid development and speed of execution.
-
-These libraries enables writing much more thoroughly validated production quality code, to achieve in a quick 200 lines of Perl or Python what might otherwise take 2000-3000 lines to do properly (including some of the more complicated supporting code such as robust validation functions with long complex regexs with unit tests, configurable self-timeouts, warning/critical threshold range logic, common options and generated usage, multiple levels of verbosity, debug mode etc), dramatically reducing the time to write high quality plugins down to mere hours and at the same time vastly improving the quality of the final code through code reuse, as well as benefitting from generic future improvements to the underlying libraries.
-
-This gives each plugin the misleading appearance of being very short, because only the some of the very core logic of what you're trying to achieve is displayed in the plugin itself, mostly composition of utility functions, and the error handling is often handled in custom libraries too, so it may appear that a simple one line field extraction or 'curl()' or 'open_file()' utility function call has no error handling at all around it but under the hood the error handling is handled inside the function inside a library, same for HBase Thrift API connection, Redis API connection etc so the client code as seen in the top level plugins knows it succeeded or otherwise the framework would have errored out with a specific error message such as "connection refused" etc... there is a lot of buried error checking code and a lot of utility functions so many operations become one-liners at the top level instead of huge programs that are hard to read and maintain.
-
-I've tried to keep the quality here high so a lot of plugins I've written over the years haven't made it in to this collection, there are a lot still pending import, a couple others `check_nsca.pl` and `check_syslog-ng_stats.pl` are in the `more/` directory until I get round to reintegrating and testing them with my current framework to modernize them, although they should still work with the tiny utils.pm from the standard nagios plugins collection.
-
-I'm aware of Nagios::Plugin but my libraries have a lot more utility functions and I've written them to be highly convenient to develop with.
-
-###### Older Plugins ######
-
-Some older plugins may not adhere to all of the criteria above so most have been filed away under the `older/` directory (they were used by people out there in production so I didn't want to remove them entirely). Older plugins also indicate that I haven't run or made updates to them in a few years so they're in basic maintenance mode and may require minor tweaks or updates.
-
-If you're new remember to check out the `older/` directory for more plugins that are less current but that you might find useful such as RAID checks for Linux MD Raid, 3ware / LSI MegaRaid / Dell Perc Raid Controllers (which are actually rebranded LSI MegaRaid so you can use the same check - I also recommend the widely used [Dell OpenManage Check](http://folk.uio.no/trondham/software/check_openmanage.html)).
 
 ### Manual Build ###
 
@@ -550,20 +564,6 @@ It can be caused by an issue with the underlying Python + libraries due to chang
 ```
 pip uninstall -y certifi && pip install certifi==2015.04.28
 ```
-
-### Support for Updates / Bugs Fixes / Feature Requests ###
-
-Please raise a [Github Issue ticket](https://github.com/harisekhon/nagios-plugins/issues) for if you need updates, bug fixes or new features.
-
-Since there are a lot of programs covering a lot of different technologies in this project, so remember to look at the software versions each program was written / tested against (documented in --help for each program, also found near the top of the source code in each program). Newer versions of software seem to change a lot these days especially in the Big Data & NoSQL space so plugins may require updates for newer versions.
-
-Please make sure you have run ```make update``` first to pull the latest updates including library sub-modules and build the latest CPAN / PyPI module dependencies, (see [Quick Setup](https://github.com/harisekhon/nagios-plugins#quick-setup) above).
-
-Make sure you run the code by hand on the command line with ```-v -v -v``` for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` tool found in my [Tools repo](https://github.com/harisekhon/tools).
-
-### Contributions ###
-
-Contributions are more than welcome with patches accepted in the form of Github pull requests, for which you will receive attribution automatically as Github tracks these merges.
 
 ### Further Utilities ###
 
