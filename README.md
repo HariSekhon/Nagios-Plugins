@@ -295,7 +295,7 @@ There are now also simplified subclassed programs so you don't have to figure ou
 These are especially useful for ad-hoc scripting or quick command line tests.
 
 
-#### Configuration for Strict Domain / FQDN validation ####
+### Configuration for Strict Domain / FQDN validation
 
 Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via the [Lib](https://github.com/harisekhon/lib) and [PyLib](https://github.com/harisekhon/pylib) submodules for Perl and Python plugins respectively - see those repos for details on configuring to permit custom TLDs like ```.local``` or ```.intranet``` (both already supported by default as they're quite common customizations).
 
