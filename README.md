@@ -143,18 +143,18 @@ Make sure to run the [automated build](https://github.com/harisekhon/nagios-plug
 
 There are over 400 programs in this repo so these are just some of the highlights.
 
-###### Sections
+###### Quick Links:
 
-* [Hadoop Ecosystem - HDFS, Yarn, HBase, Ambari, Cloudera, MapR, Drill, Hive, Presto, Ranger](https://github.com/HariSekhon/nagios-plugins#hadoop-ecosystem)
-* [Service Discovery & Coordination - ZooKeeper, Consul, Vault](https://github.com/HariSekhon/nagios-plugins#service-discovery--coordination)
-* [Docker / Containerization - Docker & Docker Swarm, Mesos](https://github.com/HariSekhon/nagios-plugins#docker--containerization)
-* [Search - Elasticsearch, Solr / SolrCloud](https://github.com/HariSekhon/nagios-plugins#search)
-* [NoSQL - Cassandra, Redis, Riak, Memcached, CouchDB](https://github.com/HariSekhon/nagios-plugins#nosql)
-* [Pub-Sub / Message Queues - Kafka, Redis pub-sub, RabbitMQ](https://github.com/HariSekhon/nagios-plugins#publish---subscribe--message-queues)
-* [CI - Continuous Integration & Build Systems - Jenkins, Travis CI, DockerHub, Git](https://github.com/HariSekhon/nagios-plugins#ci---continuous-integration-systems--build-systems---git-jenkins-travis-ci--dockerhub-automated-builds)
-* [RDBMS / Databases - MySQL](https://github.com/HariSekhon/nagios-plugins#rdbms---databases)
-* [Infrastructure - Web, DNS, Internet](https://github.com/HariSekhon/nagios-plugins#infrastructure---internet---web-dns-domains)
-* [Infrastructure - Linux, Puppet, RAID, Clusters, Yum Security Updates](https://github.com/HariSekhon/nagios-plugins#infrastructure---linux-puppet-raid-clusters-yum-security-updates)
+* [Hadoop Ecosystem](https://github.com/HariSekhon/nagios-plugins#hadoop-ecosystem) - HDFS, Yarn, HBase, Ambari, Cloudera, MapR, Drill, Hive, Presto, Ranger
+* [Service Discovery & Coordination](https://github.com/HariSekhon/nagios-plugins#service-discovery--coordination) - ZooKeeper, Consul, Vault
+* [Docker / Containerization](https://github.com/HariSekhon/nagios-plugins#docker--containerization) - Docker & Docker Swarm, Mesos
+* [Search](https://github.com/HariSekhon/nagios-plugins#search) - Elasticsearch, Solr / SolrCloud
+* [NoSQL](https://github.com/HariSekhon/nagios-plugins#nosql) - Cassandra, Redis, Riak, Memcached, CouchDB
+* [Pub-Sub / Message Queues](https://github.com/HariSekhon/nagios-plugins#publish---subscribe--message-queues) - Kafka, Redis pub-sub, RabbitMQ
+* [CI - Continuous Integration & Build Systems](https://github.com/HariSekhon/nagios-plugins#ci---continuous-integration--build-systems---git-jenkins-travis-ci--dockerhub-automated-builds) - Jenkins, Travis CI, DockerHub, Git
+* [RDBMS / Databases](https://github.com/HariSekhon/nagios-plugins#rdbms---databases) - MySQL
+* [Infrastructure](https://github.com/HariSekhon/nagios-plugins#infrastructure---internet---web-dns-domains) - Web, DNS, Internet
+* [Infrastructure](https://github.com/HariSekhon/nagios-plugins#infrastructure---linux-puppet-raid-clusters-yum-security-updates) - Linux, Puppet, RAID, Clusters, Yum Security Updates
 
 ##### Hadoop Ecosystem
 
