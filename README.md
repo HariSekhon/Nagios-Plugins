@@ -331,24 +331,6 @@ Python plugins are all pre-byte-compiled as part of the automated build.
 Modern scaling should be done using distributed computing, open source examples include [Icinga2](https://www.icinga.com/docs/icinga2/latest/doc/06-distributed-monitoring/) and [Shinken](http://shinken.readthedocs.io/en/latest/07_advanced/scaling-shinken.html#advanced-scaling-shinken). Shinken's [documentation](http://shinken.readthedocs.io/en/latest/07_advanced/distributed-shinken.html?highlight=150000%20checks/5min) cites an average 4 core server @ 3Ghz as supporting 150,000 checks per 5 minutes, which aligns with my own experience with Nagios Core. Using the latest hardware and proper setup could probably result in even higher scale before having to move to distributed monitoring architecture.
 
 
-### Contributions
-
-Feedback, Feature Requests, Improvements and Patches are welcome.
-
-Patches are accepted in the form of Github pull requests, for which you will receive attribution automatically as Github tracks these merges.
-
-
-### Support for Updates / Bugs Fixes / Feature Requests ###
-
-Please raise a [Github Issue ticket](https://github.com/harisekhon/nagios-plugins/issues) for if you need updates, bug fixes or new features.
-
-Since there are a lot of programs covering a lot of different technologies in this project, so remember to look at the software versions each program was written / tested against (documented in --help for each program, also found near the top of the source code in each program). Newer versions of software seem to change a lot these days especially in the Big Data & NoSQL space so plugins may require updates for newer versions.
-
-Please make sure you have run ```make update``` first to pull the latest updates including library sub-modules and build the latest CPAN / PyPI module dependencies, (see [Quick Setup](https://github.com/harisekhon/nagios-plugins#quick-setup) above).
-
-Make sure you run the code by hand on the command line with ```-v -v -v``` for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` tool found in my [Tools repo](https://github.com/harisekhon/tools).
-
-
 ##### Libraries #####
 
 Having written a large number of Nagios Plugins in the last 10 years in a variety of languages (Python, Perl, Ruby, Bash, VBS) I abstracted out common components of a good robust Nagios Plugin program in to libraries of reusable components that I leverage very heavily in all my modern plugins and other programs found under my other repos here on GitHub, which are now mostly written in Perl or Python using these custom libraries, for reasons of both concise rapid development and speed of execution.
@@ -366,6 +348,24 @@ I'm aware of Nagios::Plugin but my libraries have a lot more utility functions a
 Some older plugins may not adhere to all of the criteria above so most have been filed away under the `older/` directory (they were used by people out there in production so I didn't want to remove them entirely). Older plugins also indicate that I haven't run or made updates to them in a few years so they're in basic maintenance mode and may require minor tweaks or updates.
 
 If you're new remember to check out the `older/` directory for more plugins that are less current but that you might find useful such as RAID checks for Linux MD Raid, 3ware / LSI MegaRaid / Dell Perc Raid Controllers (which are actually rebranded LSI MegaRaid so you can use the same check - I also recommend the widely used [Dell OpenManage Check](http://folk.uio.no/trondham/software/check_openmanage.html)).
+
+
+### Contributions
+
+Feedback, Feature Requests, Improvements and Patches are welcome.
+
+Patches are accepted in the form of [Github pull requests](https://github.com/HariSekhon/nagios-plugins/pulls), for which you will receive attribution automatically as Github tracks these merges.
+
+
+### Support for Updates / Bugs Fixes / Feature Requests ###
+
+Please raise a [Github Issue ticket](https://github.com/harisekhon/nagios-plugins/issues) for if you need updates, bug fixes or new features. [Github pull requests](https://github.com/HariSekhon/nagios-plugins/pulls) are more than welcome.
+
+Since there are a lot of programs covering a lot of different technologies in this project, so remember to look at the software versions each program was written / tested against (documented in --help for each program, also found near the top of the source code in each program). Newer versions of software seem to change a lot these days especially in the Big Data & NoSQL space so plugins may require updates for newer versions.
+
+Please make sure you have run ```make update``` first to pull the latest updates including library sub-modules and build the latest CPAN / PyPI module dependencies, (see [Quick Setup](https://github.com/harisekhon/nagios-plugins#quick-setup) above).
+
+Make sure you run the code by hand on the command line with ```-v -v -v``` for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` tool found in my [Tools repo](https://github.com/harisekhon/tools).
 
 
 ### Detailed Build Instructions
