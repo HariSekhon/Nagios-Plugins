@@ -115,7 +115,7 @@ There are over 400 programs in this repo so these are just some of the highlight
 
 ###### Quick Links:
 
-* [Hadoop Ecosystem](https://github.com/HariSekhon/nagios-plugins#hadoop-ecosystem) - HDFS, Yarn, HBase, Ambari, Cloudera, MapR, Drill, Hive, Presto, Ranger
+* [Hadoop Ecosystem](https://github.com/HariSekhon/nagios-plugins#hadoop-ecosystem) - HDFS, Yarn, HBase, Ambari, Cloudera, MapR, Drill, Presto, Hive, Atlas, Ranger
 * [Service Discovery & Coordination](https://github.com/HariSekhon/nagios-plugins#service-discovery--coordination) - ZooKeeper, Consul, Vault
 * [Docker / Containerization](https://github.com/HariSekhon/nagios-plugins#docker--containerization) - Docker & Docker Swarm, Mesos
 * [Search](https://github.com/HariSekhon/nagios-plugins#search) - Elasticsearch, Solr / SolrCloud
