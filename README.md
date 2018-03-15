@@ -295,6 +295,11 @@ There are now also simplified subclassed programs so you don't have to figure ou
 These are especially useful for ad-hoc scripting or quick command line tests.
 
 
+#### Configuration for Strict Domain / FQDN validation ####
+
+Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via the [Lib](https://github.com/harisekhon/lib) and [PyLib](https://github.com/harisekhon/pylib) submodules for Perl and Python plugins respectively - see those repos for details on configuring to permit custom TLDs like ```.local``` or ```.intranet``` (both already supported by default as they're quite common customizations).
+
+
 ### Quality ###
 
 Most of the plugins I've read from [Nagios Exchange](https://exchange.nagios.org/) and Monitoring Exchange (now [Icinga Exchange](https://exchange.icinga.org/)) in the last decade have not been of the quality required to run in production environments I've worked in (ever seen plugins written in Bash with little validation, or mere 200-300 line plugins without robust input/output validation and error handling, resulting in "UNKNOWN: (null)" when something goes wrong - right when you need them - then you know what I mean). That prompted me to write my own plugins whenever I had an idea or requirement.
@@ -460,6 +465,7 @@ After this check it's properly installed by doing
 ```perl -e "use Net::ZooKeeper"```
 which should return no errors if successful.
 
+
 ### Other Dependencies ###
 
 Some plugins, especially ones under the older/ directory such as those that check 3ware/LSI raid controllers, SVN, VNC etc require external binaries to work, but the plugins will tell you if they are missing. Please see the respective vendor websites for 3ware, LSI etc to fetch those binaries and then re-run those plugins.
@@ -478,15 +484,13 @@ sudo easy_install pip
 sudo pip install MySQL-python
 ```
 
-#### Configuration for Strict Domain / FQDN validation ####
-
-Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via the [Lib](https://github.com/harisekhon/lib) and [PyLib](https://github.com/harisekhon/pylib) submodules for Perl and Python plugins respectively - see those repos for details on configuring to permit custom TLDs like ```.local``` or ```.intranet``` (both already supported by default as they're quite common customizations).
 
 ### Updating ###
 
 Run ```make update```. This will git pull and then git submodule update which is necessary to pick up corresponding library updates.
 
 If you update often and want to just quickly git pull + submodule update but skip rebuilding all those dependencies each time then run ```make update-no-recompile``` (will miss new library dependencies - do full ```make update``` if you encounter issues).
+
 
 #### Testing
 
@@ -505,6 +509,7 @@ make test
 ```
 
 which will start with the underlying libraries, then move on to top level integration tests and finally functional tests using docker containers if docker is available.
+
 
 ##### Bugs & Workarounds #####
 
