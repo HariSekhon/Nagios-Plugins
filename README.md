@@ -120,7 +120,7 @@ There are over 400 programs in this repo so these are just some of the highlight
 * [Docker / Containerization](https://github.com/HariSekhon/nagios-plugins#docker--containerization) - Docker & Docker Swarm, Mesos
 * [Search](https://github.com/HariSekhon/nagios-plugins#search) - Elasticsearch, Solr / SolrCloud
 * [NoSQL](https://github.com/HariSekhon/nagios-plugins#nosql) - Cassandra, Redis, Riak, Memcached, CouchDB
-* [Pub-Sub / Message Queues](https://github.com/HariSekhon/nagios-plugins#publish---subscribe--message-queues) - Kafka, Redis pub-sub, RabbitMQ
+* [Pub-Sub / Message Queues](https://github.com/HariSekhon/nagios-plugins#publish---subscribe--message-queues) - Kafka, Redis, RabbitMQ
 * [CI - Continuous Integration & Build Systems](https://github.com/HariSekhon/nagios-plugins#ci---continuous-integration--build-systems---git-jenkins-travis-ci--dockerhub-automated-builds) - Jenkins, Travis CI, DockerHub, Git
 * [RDBMS / Databases](https://github.com/HariSekhon/nagios-plugins#rdbms---databases) - MySQL
 * [Infrastructure - Internet](https://github.com/HariSekhon/nagios-plugins#infrastructure---internet---web-dns-domains) - Web, DNS, Domains
@@ -185,7 +185,7 @@ See also DockerHub build status nagios plugin further down in the [CI section](h
 These programs check these message brokers end-to-end via their API, by acting as both a producer and a consumer and checking that a unique generated message passes through the broker cluster and is received by the consumer at the other side successfully. They report the publish, consumer and total timings taken, against which thresholds can be applied, and are also available as perfdata for graphing.
 
 - ```check_kafka.pl / check_kafka.py``` - [Kafka](https://kafka.apache.org/) brokers API write & read back with configurable topics/partition and producer behaviour for acks, sleep, retries, backoff, can also lists topics and partitions. See [Kafka Scala Nagios Plugin](https://github.com/HariSekhon/nagios-plugin-kafka) for a version with Kerberos support
-- ```check_redis_publish_subscribe.pl``` - [Redis](https://redis.io/) publish-subscribe API write & read back with configurable subscriber wait
+- ```check_redis_publish_subscribe.pl``` - [Redis](https://redis.io/) publish-subscribe API write & read back with configurable subscriber wait. See other Redis checks under [NoSQL](https://github.com/HariSekhon/nagios-plugins#nosql)
 - ```check_rabbitmq*.py``` - [RabbitMQ](https://www.rabbitmq.com/) brokers AMQP API write & read back with configurable vhost, exchange, exchange type, queue, routing key, durability, RabbitMQ 'confirms' protocol extension & standard AMQP transactions support. Checks via the RabbitMQ management API include aliveness queue health test, built-in health checks, cluster name, vhost, exchange with optional validation of exchange type (direct, fanout, headers, topic) and durability (true/false), user auth and permissions tags, stats db event queue
 <!--
 Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagios-plugins-rabbitmq` package
