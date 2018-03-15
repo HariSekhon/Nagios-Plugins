@@ -141,9 +141,22 @@ Make sure to run the [automated build](https://github.com/harisekhon/nagios-plug
 
 ### A Sample of cool Nagios Plugins in this collection ###
 
-There are over 400 programs in this repo so these are just some of the highlights:
+There are over 400 programs in this repo so these are just some of the highlights.
 
-##### Hadoop ecosystem
+###### Sections
+
+* [Hadoop Ecosystem - HDFS, Yarn, HBase, Ambari, Cloudera, MapR, Drill, Hive, Presto, Ranger](https://github.com/HariSekhon/nagios-plugins#hadoop-ecosystem)
+* [Service Discovery & Coordination - ZooKeeper, Consul, Vault](https://github.com/HariSekhon/nagios-plugins#service-discovery--coordination)
+* [Docker / Containerization - Docker & Docker Swarm, Mesos](https://github.com/HariSekhon/nagios-plugins#docker--containerization)
+* [Search - Elasticsearch, Solr / SolrCloud](https://github.com/HariSekhon/nagios-plugins#search)
+* [NoSQL - Cassandra, Redis, Riak, Memcached, CouchDB](https://github.com/HariSekhon/nagios-plugins#nosql)
+* [Pub-Sub / Message Queues - Kafka, Redis pub-sub, RabbitMQ](https://github.com/HariSekhon/nagios-plugins#publish---subscribe--message-queues)
+* [CI - Continuous Integration & Build Systems - Jenkins, Travis CI, DockerHub, Git](https://github.com/HariSekhon/nagios-plugins#ci---continuous-integration-systems--build-systems---git-jenkins-travis-ci--dockerhub-automated-builds)
+* [RDBMS / Databases - MySQL](https://github.com/HariSekhon/nagios-plugins#rdbms---databases)
+* [Infrastructure - Web, DNS, Internet](https://github.com/HariSekhon/nagios-plugins#infrastructure---internet---web-dns-domains)
+* [Infrastructure - Linux, Puppet, RAID, Clusters, Yum Security Updates](https://github.com/HariSekhon/nagios-plugins#infrastructure---linux-puppet-raid-clusters-yum-security-updates)
+
+##### Hadoop Ecosystem
 
 - `check_hadoop_*.pl/py` - various [Apache Hadoop](http://hadoop.apache.org/) monitoring utilities for HDFS, YARN and MapReduce (both MRv1 & MRv2):
   - HDFS - cluster space, balance, block replication, block count limits per datanode / cluster total, safe mode, failed name dirs, WebHDFS (with HDFS HA failover support), HttpFS, HDFS writeability, HDFS fsck status / last check / run time / max blocks, HDFS file / directory existence & metadata attributes
@@ -208,7 +221,7 @@ These programs check these message brokers end-to-end via their API, by acting a
 Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagios-plugins-rabbitmq` package
 -->
 
-##### CI - Continuous Integration systems - Git, Jenkins, Travis CI & DockerHub Automated Builds
+##### CI - Continuous Integration & Build Systems - Git, Jenkins, Travis CI & DockerHub Automated Builds
 
 - ```check_jenkins_*.py``` - [Jenkins](https://jenkins.io/) checks include job build status, color, health report score, build time, age since last completed build, if job is set to buildable, job count total or per view, number of running builds, queued builds, executors, node count, offline nodes, jenkins mode, is security enabled, if a given node is online and its number of executors, if a given plugin is enabled and if there are available plugin updates individually or overall, with perfdata for relevant metrics like build time, jobs/nodes/executors/plugins/plugin updates, running/queued build counts and query timings
 - ```check_travis_ci_last_build.py``` - [Travis CI](https://travis-ci.org/) repo's last build status - includes showing build number, build duration with optional thresholds, start/stop date & time, if there are currently any builds in progress and perfdata for graphing last build time and number of builds in progress. Verbose mode gives the commit details as well such as commit id and message
