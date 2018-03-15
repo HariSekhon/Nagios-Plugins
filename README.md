@@ -139,7 +139,7 @@ Environment variables are supported for convenience and also to hide credentials
 
 Make sure to run the [automated build](https://github.com/harisekhon/nagios-plugins#automated-build-from-source) or install the required Perl CPAN / Python PyPI modules first before calling `--help`.
 
-### A Sample of cool Nagios Plugins in this collection ###
+## Quick Plugins Guide
 
 There are over 400 programs in this repo so these are just some of the highlights.
 
