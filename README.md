@@ -10,7 +10,7 @@ Advanced Nagios Plugins Collection
 [![](https://images.microbadger.com/badges/image/harisekhon/nagios-plugins.svg)](http://microbadger.com/#/images/harisekhon/nagios-plugins)
 <!-- broken handling of Elasticsearch major version for Python library -->
 
-##### Largest, most advanced collection of production-grade Nagios monitoring code (over 350 programs).
+##### Largest, most advanced collection of production-grade Nagios monitoring code (over 400 programs).
 
 Specialised plugins for Hadoop, Big Data & NoSQL technologies, written by a former Clouderan ([Cloudera](http://www.cloudera.com) was the first Hadoop Big Data vendor) and modern [Hortonworks](http://www.hortonworks.com) partner/consultant.
 
@@ -101,49 +101,32 @@ git clone https://github.com/harisekhon/nagios-plugins
 
 cd nagios-plugins
 
-make
+make build zookeeper
 
 ```
 
-Some plugins like `check_yum.py` can be copied around independently but most newer more sophisticated plugins require the co-located libraries I've written so you should ```git clone && make``` on each machine you deploy this code to or just use the pre-built [Docker image](https://hub.docker.com/r/harisekhon/nagios-plugins) which has all plugins and dependencies inside.
+Now run any plugin with ```--help``` to find out which switches to use.
 
-You may need to install the GNU make system package if the ` make ` command isn't found (` yum install make ` / ` apt-get install make `)
+Make sure to read [Detailed Build Instructions](https://github.com/HariSekhon/nagios-plugins#detailed-build-instructions) further down for more information.
 
-To build just the Perl or Python dependencies for the project you can do ` make perl ` or ` make python `.
+## Quick Plugins Guide
 
-If you only want to use one plugin, you can do ` make perl-libs ` or ` make python-libs ` and then just install the potential one or two dependencies specific to that one plugin if it has any, which is much quicker than building the whole project.
+There are over 400 programs in this repo so these are just some of the highlights.
 
-` make ` builds will install yum rpms / apt debs dependencies automatically as well as a load of Perl CPAN & Python PyPI libraries. To pick and choose what to install follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead
+###### Quick Links:
 
-This has become quite a large project and will take at least 10 minutes to build. The build is automated and tested on RHEL / CentOS 5/6/7 & Debian / Ubuntu systems. The automated build also works on Mac OS X but will not handle basic OS system package dependencies for Mac.
+* [Hadoop Ecosystem](https://github.com/HariSekhon/nagios-plugins#hadoop-ecosystem) - HDFS, Yarn, HBase, Ambari, Cloudera, MapR, Drill, Presto, Hive, Atlas, Ranger
+* [Service Discovery & Coordination](https://github.com/HariSekhon/nagios-plugins#service-discovery--coordination) - ZooKeeper, Consul, Vault
+* [Docker / Containerization](https://github.com/HariSekhon/nagios-plugins#docker--containerization) - Docker & Docker Swarm, Mesos
+* [Search](https://github.com/HariSekhon/nagios-plugins#search) - Elasticsearch, Solr / SolrCloud
+* [NoSQL](https://github.com/HariSekhon/nagios-plugins#nosql) - Cassandra, Redis, Riak, Memcached, CouchDB
+* [Pub-Sub / Message Queues](https://github.com/HariSekhon/nagios-plugins#publish---subscribe--message-queues) - Kafka, Redis, RabbitMQ
+* [CI - Continuous Integration & Build Systems](https://github.com/HariSekhon/nagios-plugins#ci---continuous-integration--build-systems---git-jenkins-travis-ci--dockerhub-automated-builds) - Jenkins, Travis CI, DockerHub, Git
+* [RDBMS / Databases](https://github.com/HariSekhon/nagios-plugins#rdbms---databases) - MySQL
+* [Infrastructure - Internet](https://github.com/HariSekhon/nagios-plugins#infrastructure---internet---web-dns-domains) - Web, DNS, Domains
+* [Infrastructure - Linux](https://github.com/HariSekhon/nagios-plugins#infrastructure---linux---os-network-puppet-raid-ssh-clusters-yum-security-updates) - OS, Network, Puppet, RAID, SSH, Clusters, Yum Security Updates
 
-Make sure /usr/local/bin is in your ` $PATH ` when running make as otherwise it'll fail to find ` cpanm `
-
-The automated build will use 'sudo' to install required Perl CPAN & Python PyPI libraries to the system unless running as root or it detects being inside Perlbrew or VirtualEnv. If you want to install some of the common Perl / Python libraries such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN / PyPI then follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead.
-
-If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.8, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
-
-```
-make zookeeper
-```
-This downloads, builds and installs the ZooKeeper C bindings which Net::ZooKeeper needs. To clean up the working directory afterwards run:
-```
-make clean-zookeeper
-```
-
-### Usage --help ###
-
-All plugins come with `--help` which lists all options as well as giving a program description, often including a detailed account of what is checked in the code. You can also find example commands in the `tests/` directory.
-
-Environment variables are supported for convenience and also to hide credentials from being exposed in the process list eg. ```$PASSWORD```. These are indicated in the ```--help``` descriptions in brackets next to each option and often have more specific overrides with higher precedence eg. ```$ELASTICSEARCH_HOST``` takes priority over ```$HOST```, ```$REDIS_PASSWORD``` takes priority over ```$PASSWORD``` etc.
-
-Make sure to run the [automated build](https://github.com/harisekhon/nagios-plugins#automated-build-from-source) or install the required Perl CPAN / Python PyPI modules first before calling `--help`.
-
-### A Sample of cool Nagios Plugins in this collection ###
-
-There are over 350 programs in this repo so these are just some of the highlights:
-
-##### Hadoop ecosystem
+##### Hadoop Ecosystem
 
 - `check_hadoop_*.pl/py` - various [Apache Hadoop](http://hadoop.apache.org/) monitoring utilities for HDFS, YARN and MapReduce (both MRv1 & MRv2):
   - HDFS - cluster space, balance, block replication, block count limits per datanode / cluster total, safe mode, failed name dirs, WebHDFS (with HDFS HA failover support), HttpFS, HDFS writeability, HDFS fsck status / last check / run time / max blocks, HDFS file / directory existence & metadata attributes
@@ -173,6 +156,7 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
 - ```check_zookeeper.pl``` - [Apache ZooKeeper](https://zookeeper.apache.org/) server checks, multiple layers: "is ok" status, is writable (quorum), operating mode (leader/follower vs standalone), gather statistics
 - ```check_zookeeper_*znode*.pl``` - [ZooKeeper](https://zookeeper.apache.org/) znode checks using ZK Perl API, useful for [HBase](https://hbase.apache.org/), [Kafka](https://kafka.apache.org/), [SolrCloud](https://wiki.apache.org/solr/SolrCloud), [Hadoop](http://hadoop.apache.org/) HDFS & Yarn HA (ZKFC) and any other ZooKeeper-based service. Very versatile with multiple optional checks including data vs regex, json field extraction, ephemeral status, child znodes, znode last modified age
 - ```check_consul_*.py``` - [Consul](https://www.consul.io/) API write / read back, arbitrary key-value content checks, number of cluster peers & version
+- ```check_vault_*.py``` - Hashicorp's [Vault](https://www.vaultproject.io/) API checks - health checks is initialized, is not standby, is vault sealed / unsealed, time skew between Vault server and local, is high availability enabled, is current leader, is leader found, version
 
 ##### Docker / Containerization
 
@@ -201,13 +185,13 @@ See also DockerHub build status nagios plugin further down in the [CI section](h
 These programs check these message brokers end-to-end via their API, by acting as both a producer and a consumer and checking that a unique generated message passes through the broker cluster and is received by the consumer at the other side successfully. They report the publish, consumer and total timings taken, against which thresholds can be applied, and are also available as perfdata for graphing.
 
 - ```check_kafka.pl / check_kafka.py``` - [Kafka](https://kafka.apache.org/) brokers API write & read back with configurable topics/partition and producer behaviour for acks, sleep, retries, backoff, can also lists topics and partitions. See [Kafka Scala Nagios Plugin](https://github.com/HariSekhon/nagios-plugin-kafka) for a version with Kerberos support
-- ```check_redis_publish_subscribe.pl``` - [Redis](https://redis.io/) publish-subscribe API write & read back with configurable subscriber wait
+- ```check_redis_publish_subscribe.pl``` - [Redis](https://redis.io/) publish-subscribe API write & read back with configurable subscriber wait. See other Redis checks under [NoSQL](https://github.com/HariSekhon/nagios-plugins#nosql)
 - ```check_rabbitmq*.py``` - [RabbitMQ](https://www.rabbitmq.com/) brokers AMQP API write & read back with configurable vhost, exchange, exchange type, queue, routing key, durability, RabbitMQ 'confirms' protocol extension & standard AMQP transactions support. Checks via the RabbitMQ management API include aliveness queue health test, built-in health checks, cluster name, vhost, exchange with optional validation of exchange type (direct, fanout, headers, topic) and durability (true/false), user auth and permissions tags, stats db event queue
 <!--
 Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagios-plugins-rabbitmq` package
 -->
 
-##### CI - Continuous Integration systems - Git, Jenkins, Travis CI & DockerHub Automated Builds
+##### CI - Continuous Integration & Build Systems - Git, Jenkins, Travis CI & DockerHub Automated Builds
 
 - ```check_jenkins_*.py``` - [Jenkins](https://jenkins.io/) checks include job build status, color, health report score, build time, age since last completed build, if job is set to buildable, job count total or per view, number of running builds, queued builds, executors, node count, offline nodes, jenkins mode, is security enabled, if a given node is online and its number of executors, if a given plugin is enabled and if there are available plugin updates individually or overall, with perfdata for relevant metrics like build time, jobs/nodes/executors/plugins/plugin updates, running/queued build counts and query timings
 - ```check_travis_ci_last_build.py``` - [Travis CI](https://travis-ci.org/) repo's last build status - includes showing build number, build duration with optional thresholds, start/stop date & time, if there are currently any builds in progress and perfdata for graphing last build time and number of builds in progress. Verbose mode gives the commit details as well such as commit id and message
@@ -226,7 +210,7 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 - ```check_aws_s3_file.pl``` - check for the existence of any arbitrary file on AWS S3, eg. to check backups have happened or _SUCCESS placeholder files are present for a job
 - ```check_dns.pl``` - advanced DNS query checker supporting NS records for your public domain name, MX records for your mail servers, SOA, SRV, TXT as well as A and PTR records. Can optionally specify `--expected` literal or `--regex` results (which is anchored for security) for strict validation to ensure all records returned are expected and authorized. The record, type and result(s) are output along with the DNS query timing perfdata for graphing DNS performance
 
-##### Infrastructure - Linux, Puppet, RAID, Clusters, Yum Security Updates
+##### Infrastructure - Linux - OS, Network, Puppet, RAID, SSH, Clusters, Yum Security Updates
 
 - ```check_puppet.rb``` - thorough, find out when Puppet stops properly applying manifests, if it's in the right environment, if it's --disabled, right puppet version etc
 - ```check_disk_write.pl``` - canary write test, catches partitions getting auto-remounted read-only by Linux when it detects underlying storage I/O errors (often caused by malfunctioning block devices, raid arrays, failing disks)
@@ -250,6 +234,20 @@ These allow you to use any standard nagios plugin with other non-Nagios style mo
 
 - ```check_mk_wrapper.py``` - executes and translates output from any standard nagios plugin to Check_MK local plugin format
 - ```geneos_wrapper.py / csv_wrapper.py``` - executes and translates output from any standard nagios plugin to Geneos / CSV format
+
+
+### Usage --help ###
+
+All plugins come with `--help` which lists all options as well as giving a program description, often including a detailed account of what is checked in the code. You can also find example commands in the `tests/` directory.
+
+Environment variables are supported for convenience and also to hide credentials from being exposed in the process list eg. ```$PASSWORD```. These are indicated in the ```--help``` descriptions in brackets next to each option and often have more specific overrides with higher precedence eg. ```$ELASTICSEARCH_HOST``` takes priority over ```$HOST```, ```$REDIS_PASSWORD``` takes priority over ```$PASSWORD``` etc.
+
+Make sure to run the [automated build](https://github.com/harisekhon/nagios-plugins#automated-build-from-source) or install the required Perl CPAN / Python PyPI modules first before calling `--help`.
+
+
+### Kerberos Security Support ###
+
+For HTTP based plugins Kerberos is implicitly supported by LWP as long as the LWP::Authen::Negotiate CPAN module is installed (part of the automated ```make``` build). This will look for a valid TGT in the environment and if found will use it for SPNego.
 
 
 ### High Availability / Multi-Master testing
@@ -297,9 +295,9 @@ There are now also simplified subclassed programs so you don't have to figure ou
 These are especially useful for ad-hoc scripting or quick command line tests.
 
 
-### Kerberos Security Support ###
+### Configuration for Strict Domain / FQDN validation
 
-For HTTP based plugins Kerberos is implicitly supported by LWP as long as the LWP::Authen::Negotiate CPAN module is installed (part of the automated ```make``` build). This will look for a valid TGT in the environment and if found will use it for SPNego.
+Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via the [Lib](https://github.com/harisekhon/lib) and [PyLib](https://github.com/harisekhon/pylib) submodules for Perl and Python plugins respectively - see those repos for details on configuring to permit custom TLDs like ```.local``` or ```.intranet``` (both already supported by default as they're quite common customizations).
 
 
 ### Quality ###
@@ -337,11 +335,6 @@ Python plugins are all pre-byte-compiled as part of the automated build.
 
 Modern scaling should be done using distributed computing, open source examples include [Icinga2](https://www.icinga.com/docs/icinga2/latest/doc/06-distributed-monitoring/) and [Shinken](http://shinken.readthedocs.io/en/latest/07_advanced/scaling-shinken.html#advanced-scaling-shinken). Shinken's [documentation](http://shinken.readthedocs.io/en/latest/07_advanced/distributed-shinken.html?highlight=150000%20checks/5min) cites an average 4 core server @ 3Ghz as supporting 150,000 checks per 5 minutes, which aligns with my own experience with Nagios Core. Using the latest hardware and proper setup could probably result in even higher scale before having to move to distributed monitoring architecture.
 
-##### Contributions #####
-
-Patches, improvements and even general feedback are welcome in the form of GitHub pull requests and issue tickets.
-
-Examples of your usage and outputs are also welcome for the Wiki as some of these plugins allow a great diversity of checks to be created - for example, free form MySQL queries or ZooKeeper contents checks can be used to check pretty much anything that advanced DBAs and applications/operations personnel can think of with a just a few command line --switches.
 
 ##### Libraries #####
 
@@ -360,6 +353,64 @@ I'm aware of Nagios::Plugin but my libraries have a lot more utility functions a
 Some older plugins may not adhere to all of the criteria above so most have been filed away under the `older/` directory (they were used by people out there in production so I didn't want to remove them entirely). Older plugins also indicate that I haven't run or made updates to them in a few years so they're in basic maintenance mode and may require minor tweaks or updates.
 
 If you're new remember to check out the `older/` directory for more plugins that are less current but that you might find useful such as RAID checks for Linux MD Raid, 3ware / LSI MegaRaid / Dell Perc Raid Controllers (which are actually rebranded LSI MegaRaid so you can use the same check - I also recommend the widely used [Dell OpenManage Check](http://folk.uio.no/trondham/software/check_openmanage.html)).
+
+
+### Contributions
+
+Feedback, Feature Requests, Improvements and Patches are welcome.
+
+Patches are accepted in the form of [Github pull requests](https://github.com/HariSekhon/nagios-plugins/pulls), for which you will receive attribution automatically as Github tracks these merges.
+
+
+### Support for Updates / Bugs Fixes / Feature Requests ###
+
+Please raise a [Github Issue ticket](https://github.com/harisekhon/nagios-plugins/issues) for if you need updates, bug fixes or new features. [Github pull requests](https://github.com/HariSekhon/nagios-plugins/pulls) are more than welcome.
+
+Since there are a lot of programs covering a lot of different technologies in this project, so remember to look at the software versions each program was written / tested against (documented in --help for each program, also found near the top of the source code in each program). Newer versions of software seem to change a lot these days especially in the Big Data & NoSQL space so plugins may require updates for newer versions.
+
+Please make sure you have run ```make update``` first to pull the latest updates including library sub-modules and build the latest CPAN / PyPI module dependencies, (see [Quick Setup](https://github.com/harisekhon/nagios-plugins#quick-setup) above).
+
+Make sure you run the code by hand on the command line with ```-v -v -v``` for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` tool found in my [Tools repo](https://github.com/harisekhon/tools).
+
+
+### Detailed Build Instructions
+
+```
+
+git clone https://github.com/harisekhon/nagios-plugins
+
+cd nagios-plugins
+
+make build
+
+```
+
+Some plugins like `check_yum.py` can be copied around independently but most newer more sophisticated plugins require the co-located libraries I've written so you should ```git clone && make``` on each machine you deploy this code to or just use the pre-built [Docker image](https://hub.docker.com/r/harisekhon/nagios-plugins) which has all plugins and dependencies inside.
+
+You may need to install the GNU make system package if the ` make ` command isn't found (` yum install make ` / ` apt-get install make `)
+
+To build just the Perl or Python dependencies for the project you can do ` make perl ` or ` make python `.
+
+If you only want to use one plugin, you can do ` make perl-libs ` or ` make python-libs ` and then just install the potential one or two dependencies specific to that one plugin if it has any, which is much quicker than building the whole project.
+
+` make ` builds will install yum rpms / apt debs dependencies automatically as well as a load of Perl CPAN & Python PyPI libraries. To pick and choose what to install follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead
+
+This has become quite a large project and will take at least 10 minutes to build. The build is automated and tested on RHEL / CentOS 5/6/7 & Debian / Ubuntu systems. The automated build also works on Mac OS X but will not handle basic OS system package dependencies for Mac.
+
+Make sure /usr/local/bin is in your ` $PATH ` when running make as otherwise it'll fail to find ` cpanm `
+
+The automated build will use 'sudo' to install required Perl CPAN & Python PyPI libraries to the system unless running as root or it detects being inside Perlbrew or VirtualEnv. If you want to install some of the common Perl / Python libraries such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN / PyPI then follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead.
+
+If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.8, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
+
+```
+make zookeeper
+```
+This downloads, builds and installs the ZooKeeper C bindings which Net::ZooKeeper needs. To clean up the working directory afterwards run:
+```
+make clean-zookeeper
+```
+
 
 ### Manual Build ###
 
@@ -414,6 +465,7 @@ After this check it's properly installed by doing
 ```perl -e "use Net::ZooKeeper"```
 which should return no errors if successful.
 
+
 ### Other Dependencies ###
 
 Some plugins, especially ones under the older/ directory such as those that check 3ware/LSI raid controllers, SVN, VNC etc require external binaries to work, but the plugins will tell you if they are missing. Please see the respective vendor websites for 3ware, LSI etc to fetch those binaries and then re-run those plugins.
@@ -432,15 +484,13 @@ sudo easy_install pip
 sudo pip install MySQL-python
 ```
 
-#### Configuration for Strict Domain / FQDN validation ####
-
-Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via the [Lib](https://github.com/harisekhon/lib) and [PyLib](https://github.com/harisekhon/pylib) submodules for Perl and Python plugins respectively - see those repos for details on configuring to permit custom TLDs like ```.local``` or ```.intranet``` (both already supported by default as they're quite common customizations).
 
 ### Updating ###
 
 Run ```make update```. This will git pull and then git submodule update which is necessary to pick up corresponding library updates.
 
 If you update often and want to just quickly git pull + submodule update but skip rebuilding all those dependencies each time then run ```make update-no-recompile``` (will miss new library dependencies - do full ```make update``` if you encounter issues).
+
 
 #### Testing
 
@@ -459,6 +509,7 @@ make test
 ```
 
 which will start with the underlying libraries, then move on to top level integration tests and finally functional tests using docker containers if docker is available.
+
 
 ##### Bugs & Workarounds #####
 
@@ -518,20 +569,6 @@ It can be caused by an issue with the underlying Python + libraries due to chang
 ```
 pip uninstall -y certifi && pip install certifi==2015.04.28
 ```
-
-### Support for Updates / Bugs Fixes / Feature Requests ###
-
-Please raise a [Github Issue ticket](https://github.com/harisekhon/nagios-plugins/issues) for if you need updates, bug fixes or new features.
-
-Since there are a lot of programs covering a lot of different technologies in this project, so remember to look at the software versions each program was written / tested against (documented in --help for each program, also found near the top of the source code in each program). Newer versions of software seem to change a lot these days especially in the Big Data & NoSQL space so plugins may require updates for newer versions.
-
-Please make sure you have run ```make update``` first to pull the latest updates including library sub-modules and build the latest CPAN / PyPI module dependencies, (see [Quick Setup](https://github.com/harisekhon/nagios-plugins#quick-setup) above).
-
-Make sure you run the code by hand on the command line with ```-v -v -v``` for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` tool found in my [Tools repo](https://github.com/harisekhon/tools).
-
-### Contributions ###
-
-Contributions are more than welcome with patches accepted in the form of Github pull requests, for which you will receive attribution automatically as Github tracks these merges.
 
 ### Further Utilities ###
 
