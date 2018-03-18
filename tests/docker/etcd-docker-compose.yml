@@ -46,7 +46,7 @@ services:
       >
       /usr/local/bin/etcd
         --name etcd2
-        --data-dir=/etcd-data 
+        --data-dir=/etcd-data
         --initial-advertise-peer-urls http://etcd2:2380
         --advertise-client-urls http://etcd2:2379
         --listen-peer-urls http://0.0.0.0:2380
