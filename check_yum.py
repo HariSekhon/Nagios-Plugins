@@ -91,6 +91,7 @@ class YumTester(object):
         self.no_warn_on_lock = False
         self.enable_repo = ""
         self.disable_repo = ""
+        self.disable_plugin = ""
         self.yum_config = ""
         self.timeout = DEFAULT_TIMEOUT
         self.verbosity = 0
@@ -139,6 +140,10 @@ class YumTester(object):
         if self.disable_repo:
             for repo in self.disable_repo.split(","):
                 cmd += " --disablerepo=%s" % repo
+
+        if self.disable_plugin:
+            for plugin in self.disable_plugin.split(","):
+                cmd += " --disableplugin=%s" % plugin
 
         if self.yum_config:
             for repo in self.yum_config.split(","):
@@ -542,6 +547,11 @@ def main():
                       help="Explicitly disables a repository when calling yum. " \
                          + "Can take a comma separated list of repositories")
 
+    parser.add_option("--disableplugin",
+                      dest="plugin_to_disable",
+                      help="Explicitly disables a plugin when calling yum. " \
+                         + "Can take a comma separated list of plugins")
+
     parser.add_option("-t",
                       "--timeout",
                       dest="timeout",
@@ -575,6 +585,7 @@ def main():
     tester.no_warn_on_lock = options.no_warn_on_lock
     tester.enable_repo = options.repository_to_enable
     tester.disable_repo = options.repository_to_disable
+    tester.disable_plugin = options.plugin_to_disable
     tester.yum_config = options.yum_config
     tester.timeout = options.timeout
     tester.verbosity = options.verbosity
