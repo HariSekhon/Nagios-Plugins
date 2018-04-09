@@ -118,6 +118,11 @@ solr_tests(){
 
     if ! [[ "$version" =~ ^3|^4 ]]; then
         run $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
+
+        # several categories return no metrics at this point
+        for category in $(./check_solr_metrics.pl --list-categories | tail -n +3 | egrep -v -e 'CONTAINER|QUERYPARSER|SPELLCHECKER|SEARCHER|TLOG|INDEX|DIRECTORY|HTTP|OTHER'); do
+            run $perl -T ./check_solr_metrics.pl --category $category
+        done
     fi
 
     num_expected_docs=5
