@@ -28,10 +28,10 @@ export BLUE_TALON_PORT="${BLUE_TALON_PORT:-443}"
 export BLUE_TALON_USER="${BLUE_TALON_USER:-btadminuser}"
 export BLUE_TALON_PASSWORD="${BLUE_TALON_PASSWORD:-P@ssw0rd}"
 export BLUE_TALON_SSL="-S"
-export PROTOCOL="http"
+export PROTOCOL="https"
 if [ -n "${BLUE_TALON_NO_SSL:-}" ]; then
     export BLUE_TALON_SSL=""
-    export PROTOCOL="https"
+    export PROTOCOL="http"
 fi
 
 trap_debug_env blue_talon
@@ -64,6 +64,12 @@ if when_ports_available 3 "$BLUE_TALON_HOST" "$BLUE_TALON_PORT"; then
         untrap
         exit 0
     fi
+    if ! ./check_blue_talon_masking_functions.py $BLUE_TALON_SSL -v -w 400 -c 1000; then
+        echo "Blue Talon site has become non-operational lately, skipping rest of checks"
+        untrap
+        exit 0
+    fi
+
     run ./check_blue_talon_masking_functions.py $BLUE_TALON_SSL -v -w 400 -c 1000
 
     run ./check_blue_talon_policies.py $BLUE_TALON_SSL -v -w 100 -c 200

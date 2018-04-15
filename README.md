@@ -54,6 +54,7 @@ https://www.linkedin.com/in/harisekhon
 
 ##### Make sure you run ```make update``` if updating and not just ```git pull``` as you will often need the latest library submodules and probably new upstream libraries too.
 
+
 ### Quick Start ###
 
 1. Git clone this repo and compile dependencies by running ```make```<br>
@@ -62,7 +63,8 @@ https://www.linkedin.com/in/harisekhon
 
 Execute each program on the command line with ```--help``` to see its options.
 
-#### Ready-to-run Docker image #####
+
+#### Ready-to-run Docker Image #####
 
 All plugins and their pre-compiled dependencies can be found ready-to-run on [DockerHub](https://hub.docker.com/r/harisekhon/nagios-plugins/), if you have [Docker](https://www.docker.com/) installed, fetch this project like so:
 
@@ -83,15 +85,10 @@ eg.
 docker run harisekhon/nagios-plugins check_ssl_cert.pl --help
 ```
 
-There are also `:centos` (`:latest`), `:alpine`, `:debian` and `:ubuntu` tagged docker images available
+There are also `:centos` (`:latest`), `:alpine`, `:debian` and `:ubuntu` tagged docker images available.
 
-If you want to run off a tagged docker image rather than `latest` then you can see all tags like so:
-```
-docker run harisekhon/pytools dockerhub_show_tags.py <dockerhub_repo>
-```
-```
-docker run harisekhon/pytools dockerhub_show_tags.py harisekhon/nagios-plugins
-```
+You should tag the build locally as `:stable` or date-time stamped and run off that tag to avoid it getting auto-replaced by newer `:latest` builds, to control updates to suit your schedule and prevent random delays from `docker run`s pulling down newer builds from DockerHub.
+
 
 #### Automated Build from Source
 
@@ -108,6 +105,7 @@ make build zookeeper
 Now run any plugin with ```--help``` to find out which switches to use.
 
 Make sure to read [Detailed Build Instructions](https://github.com/HariSekhon/nagios-plugins#detailed-build-instructions) further down for more information.
+
 
 ## Quick Plugins Guide
 
