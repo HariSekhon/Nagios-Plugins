@@ -182,7 +182,7 @@ python-libs:
 	$(SUDO) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	# upgrade required to get install to work properly on Debian
-	$(SUDO) pip install --upgrade pip
+	#$(SUDO) pip install --upgrade pip
 	$(SUDO_PIP) pip install --upgrade -r requirements.txt
 	# in requirements.txt now
 	#$(SUDO_PIP) pip install cassandra-driver scales blist lz4 python-snappy
