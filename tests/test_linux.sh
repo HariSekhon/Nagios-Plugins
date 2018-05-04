@@ -55,6 +55,8 @@ test_linux(){
 
     docker_exec check_linux_duplicate_IDs.pl
 
+    docker_exec check_linux_hugepages_disabled.py
+
     # temporary fix until slow DockerHub automated builds trickle through ethtool in docker images
 #    docker exec -i "$DOCKER_CONTAINER" sh <<EOF
 #which yum && yum install -y ethtool net-tools && exit
