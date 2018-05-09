@@ -33,7 +33,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.8.3"
+__version__ = "0.8.4"
 
 # Standard Nagios return codes
 OK = 0
@@ -297,7 +297,9 @@ class YumTester(object):
             pass
         else:
             for line in output2[1].split("\n"):
-                if len(line.split()) > 1 and line[0:1] != " " and "Obsoleting Packages" not in line:
+                if len(line.split()) > 1 and \
+                   line[0:1] != " " and \
+                   "Obsoleting Packages" not in line:
                     number_packages += 1
 
         try:
@@ -312,7 +314,8 @@ class YumTester(object):
         # to fail on error rather than pass silently leaving you with an
         # insecure system
         count = 0
-        re_exclude = re.compile(r' excluded ')
+        re_exclude = re.compile('^Security: kernel-.+ is an installed security update' + '|' + \
+                                '^Security: kernel-.+ is the currently running version')
         re_package_format = \
                 re.compile(r'^.+\.(i[3456]86|x86_64|noarch)\s+.+\s+.+$')
         # This is to work around a yum truncation issue effectively changing
@@ -323,12 +326,14 @@ class YumTester(object):
         #        re.compile("^[\w-]+-kmod-\d[\d\.-]+.*\s+.+\s+.+$")
         obsoleting_packages = False
         for line in output:
-            if re_exclude.search(line):
+            if ' excluded ' in line:
                 continue
-            if "Obsoleting Packages" in line:
+            elif obsoleting_packages and line[0:1] == " ":
+                continue
+            elif "Obsoleting Packages" in line:
                 obsoleting_packages = True
                 continue
-            if obsoleting_packages and line[0:1] == " ":
+            elif re_exclude.search(line):
                 continue
             if re_package_format.match(line):
                 count += 1
