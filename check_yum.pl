@@ -21,7 +21,7 @@ See also: check_yum.py (the original, also part of the Advanced Nagios Plugins C
 Tested on CentOS 5 / 6 / 7
 ";
 
-$VERSION = "0.7.0";
+$VERSION = "0.7.1";
 
 use strict;
 use warnings;
@@ -197,7 +197,8 @@ sub get_all_updates(){
         if($output2[1] =~ /Setting up repositories/ or $output2[1] =~ /Loaded plugins: /){
             quit "UNKNOWN", "Yum output signature does not match current known format. Output format may have changed. $nagios_plugins_support_msg";
         }
-        foreach my $line (split("\n", $output2[1])){
+        my @tmp = split("\n", $output2[1]);
+        foreach my $line (@tmp){
             if(scalar split(/\s+/, $line) > 1 and $line !~ /^\s/o and $line !~ /Obsoleting Packages/o){
                 $number_packages += 1;
             }
