@@ -21,7 +21,7 @@ See also: check_yum.py (the original, also part of the Advanced Nagios Plugins C
 Tested on CentOS 5 / 6 / 7
 ";
 
-$VERSION = "0.6.0";
+$VERSION = "0.7.0";
 
 use strict;
 use warnings;
@@ -165,6 +165,10 @@ sub get_security_updates(){
             $number_security_updates = $1;
             $number_total_updates    = $2;
             last;
+        } elsif(/^Security: kernel-.+ is an installed security update/){
+            quit "CRITICAL", "Kernel security update is installed but requires a reboot";
+        } elsif(/^Security: kernel-+ is the currently running version/){
+            next;
         }
     }
     defined($number_security_updates) or quit "UNKNOWN", "failed to determine the number of security updates. Format may have changed. $nagios_plugins_support_msg";
@@ -207,11 +211,17 @@ sub get_all_updates(){
     my $obsoleting_packages = 0;
     foreach(@output){
         next if / excluded /;
+        next if $obsoleting_packages and /^\s/;
         if(/Obsoleting Packages/){
             $obsoleting_packages = 1;
             next;
         }
-        next if $obsoleting_packages and /^\s/;
+        if(/^Security: kernel-.+ is an installed security update/){
+            quit "WARNING", "Kernel security update is installed but requires a reboot";
+        }
+        if(/^Security: kernel-+ is the currently running version/){
+            next;
+        }
         $count++ if /^.+\.(i[3456]86|x86_64|noarch)\s+.+\s+.+$/;
     }
     if($count != $number_packages){
