@@ -23,7 +23,7 @@ cd "$srcdir/.."
 
 section "H a d o o p"
 
-export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-latest 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9}}"
+export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 latest}}"
 
 HADOOP_HOST="${DOCKER_HOST:-${HADOOP_HOST:-${HOST:-localhost}}}"
 HADOOP_HOST="${HADOOP_HOST##*/}"
