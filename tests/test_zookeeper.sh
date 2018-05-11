@@ -23,7 +23,7 @@ cd "$srcdir/..";
 
 section "Z o o K e e p e r"
 
-export ZOOKEEPER_VERSIONS="${@:-${ZOOKEEPER_VERSIONS:-latest 3.3 3.4}}"
+export ZOOKEEPER_VERSIONS="${@:-${ZOOKEEPER_VERSIONS:-3.3 3.4 latest}}"
 
 ZOOKEEPER_HOST="${DOCKER_HOST:-${ZOOKEEPER_HOST:-${HOST:-localhost}}}"
 ZOOKEEPER_HOST="${ZOOKEEPER_HOST##*/}"
