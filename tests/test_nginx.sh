@@ -26,7 +26,7 @@ srcdir="$srcdir2"
 
 section "N g i n x"
 
-export NGINX_VERSIONS="${@:-${NGINX_VERSIONS:-latest 1.10 1.11.0}}"
+export NGINX_VERSIONS="${@:-${NGINX_VERSIONS:-1.10 1.11.0 latest}}"
 
 NGINX_HOST="${DOCKER_HOST:-${NGINX_HOST:-${HOST:-localhost}}}"
 NGINX_HOST="${NGINX_HOST##*/}"
