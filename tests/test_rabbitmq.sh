@@ -24,7 +24,7 @@ cd "$srcdir/.."
 
 section "R a b b i t M Q"
 
-export RABBITMQ_VERSIONS="${@:-${RABBITMQ_VERSIONS:-latest 3.4 3.5 3.6}}"
+export RABBITMQ_VERSIONS="${@:-${RABBITMQ_VERSIONS:-3.4 3.5 3.6 latest}}"
 
 RABBITMQ_HOST="${DOCKER_HOST:-${RABBITMQ_HOST:-${HOST:-localhost}}}"
 RABBITMQ_HOST="${RABBITMQ_HOST##*/}"
