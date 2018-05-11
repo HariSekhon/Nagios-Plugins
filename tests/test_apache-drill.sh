@@ -169,6 +169,8 @@ test_drill(){
 
     run_fail 2 ./check_apache_drill_config.py --key exec.errors.verbose --expected 1
 
+    run_conn_refused ./check_apache_drill_config.py --key exec.errors.verbose -e false
+
     # ============================================================================ #
 
     # Encryption is available only in Apache Drill 1.11+
@@ -217,6 +219,8 @@ test_drill(){
     run_fail 2 ./check_apache_drill_storage_plugin.py -n hbase --type hbase
 
     run_fail 2 ./check_apache_drill_storage_plugin.py -n mongo --type mongo
+
+    run_conn_refused ./check_apache_drill_storage_plugin.py --name dfs
 
     # ============================================================================ #
 
