@@ -27,7 +27,7 @@ section "M o n g o D B"
 echo "WARNING: mongodb tests broken, skipping for now"
 exit 0
 
-export MONGO_VERSIONS="${@:-${MONGO_VERSIONS:-latest 2.6 3.0 3.2 3.3}}"
+export MONGO_VERSIONS="${@:-${MONGO_VERSIONS:-2.6 3.0 3.2 3.3 latest}}"
 
 # TODO: add support for shorter MONGO_HOST to mongo plugins
 MONGODB_HOST="${DOCKER_HOST:-${MONGODB_HOST:-${HOST:-localhost}}}"
