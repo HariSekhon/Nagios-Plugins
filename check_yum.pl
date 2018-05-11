@@ -21,7 +21,7 @@ See also: check_yum.py (the original, also part of the Advanced Nagios Plugins C
 Tested on CentOS 5 / 6 / 7
 ";
 
-$VERSION = "0.7.3";
+$VERSION = "0.7.4";
 
 use strict;
 use warnings;
@@ -46,6 +46,7 @@ my $cache_only;
 my $no_warn_on_lock;
 my $enablerepo;
 my $disablerepo;
+my $disableplugin;
 
 %options = (
     "A|all-updates"         =>  [ \$all_updates,        "Does not distinguish between security and non-security updates, but returns critical for any available update. This may be used if the yum security plugin is absent or you want to maintain every single package at the latest version. You may want to use --warn-on-any-update instead of this option" ],
@@ -54,9 +55,10 @@ my $disablerepo;
     "N|no-warn-on-lock"     => [ \$no_warn_on_lock,     "Return OK instead of WARNING when yum is locked and fails to check for updates due to another instance running. This is not recommended from the security standpoint, but may be wanted to reduce the number of alerts that may intermittently pop up when someone is running yum for package management" ],
     "e|enablerepo=s"        => [ \$enablerepo,          "Explicitly enables  a repository when calling yum. Can take a comma separated list of repositories" ],
     "d|disablerepo=s"       => [ \$disablerepo,         "Explicitly disables a repository when calling yum. Can take a comma separated list of repositories" ],
+    "disableplugin=s"       => [ \$disableplugin,       "Explicitly disables a plugin when calling yum. Can take a comma separated list of plugins" ],
 );
 
-@usage_order = qw/all-updates warn-on-any-update cache-only no-warn-on-lock enablerepo disablerepo/;
+@usage_order = qw/all-updates warn-on-any-update cache-only no-warn-on-lock enablerepo disablerepo disableplugin/;
 
 get_options();
 
@@ -80,6 +82,13 @@ if($enablerepo){
 if($disablerepo){
     foreach(split(",", $disablerepo)){
         $opts .= " --disablerepo=" . validate_reponame($_);
+    }
+}
+if($disableplugin){
+    $disableplugin =~ /^([A-Za-z0-9,-]+)$/ or usage "invalid argument passed to --disableplugin, must be alphanumeric with dashes and comma separated for multiple plugins";
+    $disableplugin = $1;
+    foreach(split(",", $disableplugin)){
+        $opts .= " --disableplugin=$disableplugin";
     }
 }
 
