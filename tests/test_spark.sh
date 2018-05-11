@@ -24,7 +24,7 @@ cd "$srcdir/.."
 
 section "S p a r k"
 
-export SPARK_VERSIONS="${@:-${SPARK_VERSIONS:-latest 1.3 1.4 1.5 1.6}}"
+export SPARK_VERSIONS="${@:-${SPARK_VERSIONS:-1.3 1.4 1.5 1.6 latest}}"
 
 SPARK_HOST="${DOCKER_HOST:-${SPARK_HOST:-${HOST:-localhost}}}"
 SPARK_HOST="${SPARK_HOST##*/}"
