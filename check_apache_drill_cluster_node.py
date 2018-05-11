@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckApacheDrillClusterNode(RestNagiosPlugin):
@@ -82,24 +82,28 @@ class CheckApacheDrillClusterNode(RestNagiosPlugin):
         if not self.list_nodes:
             validate_host(self.node, 'node')
 
+    @staticmethod
+    def list_drillbits(drillbits):
+        print('Apache Drill nodes:\n')
+        print('=' * 80)
+        format_string = '{:30}\t{:10}\t{:10}\t{}'
+        print(format_string.format('Address', 'State', 'Version', 'Version Match'))
+        print('=' * 80)
+        for drillbit in drillbits:
+            address = drillbit['address']
+            if 'state' in drillbit:
+                state = drillbit['state']
+            else:
+                state = 'N/A'
+            version = drillbit['version']
+            version_match = drillbit['versionMatch']
+            print(format_string.format(address, state, version, version_match))
+        sys.exit(ERRORS['UNKNOWN'])
+
     def parse_json(self, json_data):
         drillbits = json_data['drillbits']
         if self.list_nodes:
-            print('Apache Drill nodes:\n')
-            print('=' * 80)
-            format_string = '{:30}\t{:10}\t{:10}\t{}'
-            print(format_string.format('Address', 'State', 'Version', 'Version Match'))
-            print('=' * 80)
-            for drillbit in drillbits:
-                address = drillbit['address']
-                if 'state' in drillbit:
-                    state = drillbit['state']
-                else:
-                    state = 'N/A'
-                version = drillbit['version']
-                version_match = drillbit['versionMatch']
-                print(format_string.format(address, state, version, version_match))
-            sys.exit(ERRORS['UNKNOWN'])
+            self.list_drillbits(drillbits)
         found = 0
         for drillbit in drillbits:
             address = drillbit['address']
