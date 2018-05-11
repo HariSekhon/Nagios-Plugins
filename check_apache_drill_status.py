@@ -17,6 +17,17 @@
 
 Nagios Plugin to check Apache Drill's status page
 
+The API has limitations around reflecting Drill issues however, see:
+
+https://issues.apache.org/jira/browse/DRILL-5990
+https://issues.apache.org/jira/browse/DRILL-6406
+
+Recommend if running a cluster to also use:
+
+    ./check_apache_drill_cluster_node.py - for a specific node
+    ./check_apache_drill_cluster_nodes.py - to check minimum number of nodes in cluster
+    ./check_apache_drill_cluster_nodes_offline.py - to check for number of down nodes
+
 Tested on Apache Drill 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13
 
 """
@@ -48,7 +59,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 
 
 class CheckApacheDrillStatus(StatusNagiosPlugin):
@@ -76,7 +87,10 @@ class CheckApacheDrillStatus(StatusNagiosPlugin):
             status = soup.find('div', {'class': 'alert alert-success'}).get_text().strip()
         except (AttributeError, TypeError):
             qquit('UNKNOWN', 'failed to parse Apache Drill status page. %s' % support_msg())
-        if re.match('Running!?$', status):
+        # Found a STARTUP status in cluster nodes state but looking at the code for /status is looks like Running is all there is, or results for this endpoint are not properly undocumented - see https://issues.apache.org/jira/browse/DRILL-6407
+        #if status in ("Startup", "Initializing"):
+        #    self.warning()
+        if re.match('^Running!?$', status):
             self.ok()
         else:
             self.critical()
