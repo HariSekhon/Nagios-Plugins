@@ -139,7 +139,7 @@ There are over 400 programs in this repo so these are just some of the highlight
 - ```check_ibm_biginsights_*.pl``` - Hadoop cluster checks via IBM BigInsights Console API - checks services, nodes, agents, BigSheets workbook runs, dfs paths and properties, HDFS space and block replication, BI console version, BI console applications deployed
 - ```check_apache_drill_*.pl/.py``` - [Apache Drill](https://drill.apache.org/) checks for:
   - cluster wide: number of online / offline cluster nodes, mismatched versions across cluster
-  - per drill node: status, cluster membership, encryption enabled, config settings, storage plugins enabled, version, metrics with options thresholds
+  - per drill node: status, cluster membership, encryption enabled, config settings, storage plugins enabled, version, metrics with optional thresholds
 - ```check_atlas_*.py``` - [Apache Atlas](http://atlas.apache.org/) metadata server instance status, as well as metadata entity checks including entity existence, state=ACTIVE, expected type, expected tags are assigned to entity (eg. PII - important because Ranger ACLs to allow or deny access to data can be assigned based on tags)
 - ```check_hiveserver2_llap_*.py``` - [Apache Hive](https://hive.apache.org/) - HiveServer2 LLAP Interactive server status and uptime, peer count, check for a specific peer host fqdn via regex
 - ```check_presto_*.py``` - [Presto SQL DB](https://prestodb.io/)
