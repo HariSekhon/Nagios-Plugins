@@ -28,9 +28,9 @@ section "H B a s e"
 
 # tested on all these versions but we want to test recent production versions more
 if is_CI; then
-    export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-latest 0.98 1.0 1.1 1.2 1.3}}"
+    export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-0.98 1.0 1.1 1.2 1.3 latest}}"
 else
-    export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-latest 0.90 0.92 0.94 0.95 0.96 0.98 0.99 1.0 1.1 1.2 1.3}}"
+    export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-0.90 0.92 0.94 0.95 0.96 0.98 0.99 1.0 1.1 1.2 1.3 latest}}"
 fi
 
 HBASE_HOST="${DOCKER_HOST:-${HBASE_HOST:-${HOST:-localhost}}}"
