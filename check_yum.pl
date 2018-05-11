@@ -21,7 +21,7 @@ See also: check_yum.py (the original, also part of the Advanced Nagios Plugins C
 Tested on CentOS 5 / 6 / 7
 ";
 
-$VERSION = "0.7.2";
+$VERSION = "0.7.3";
 
 use strict;
 use warnings;
@@ -32,6 +32,7 @@ BEGIN {
 use HariSekhonUtils;
 
 set_timeout_max(3600);
+set_timeout_default(30);
 
 my $YUM = "/usr/bin/yum";
 
@@ -124,7 +125,7 @@ sub check_all_updates(){
     } else {
         critical;
         plural $number_updates;
-        $msg = "$number_updates Yum Update$plural Available | yum_updates_available=$number_updates";
+        $msg = "$number_updates Yum Update$plural Available | total_updates_available=$number_updates";
     }
 }
 
