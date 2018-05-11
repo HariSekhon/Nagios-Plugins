@@ -23,7 +23,7 @@ cd "$srcdir/.."
 
 section "E t c d"
 
-export ETCD_VERSIONS="${@:-${ETCD_VERSIONS:-latest v2.0.13 v2.1.3 v2.2.5 v2.3.8 v3.0}}"
+export ETCD_VERSIONS="${@:-${ETCD_VERSIONS:-v2.0.13 v2.1.3 v2.2.5 v2.3.8 v3.0 latest}}"
 
 ETCD_HOST="${DOCKER_HOST:-${ETCD_HOST:-${HOST:-localhost}}}"
 ETCD_HOST="${ETCD_HOST##*/}"
