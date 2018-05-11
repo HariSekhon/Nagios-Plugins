@@ -21,7 +21,7 @@ See also: check_yum.py (the original, also part of the Advanced Nagios Plugins C
 Tested on CentOS 5 / 6 / 7
 ";
 
-$VERSION = "0.7.4";
+$VERSION = "0.7.5";
 
 use strict;
 use warnings;
@@ -209,7 +209,10 @@ sub get_all_updates(){
         }
         my @tmp = split("\n", $output2[1]);
         foreach my $line (@tmp){
-            if(scalar split(/\s+/, $line) > 1 and $line !~ /^\s/o and $line !~ /Obsoleting Packages/o){
+            my @line_parts = split(/\s+/, $line);
+            if(scalar @line_parts > 1 and
+               $line !~ /^\s/o and
+               $line !~ /Obsoleting Packages/o){
                 $number_packages += 1;
             }
         }
