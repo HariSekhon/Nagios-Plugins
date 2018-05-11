@@ -33,7 +33,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.8.5"
+__version__ = "0.8.7"
 
 # Standard Nagios return codes
 OK = 0
@@ -91,6 +91,7 @@ class YumTester(object):
         self.no_warn_on_lock = False
         self.enable_repo = ""
         self.disable_repo = ""
+        self.disable_plugin = ""
         self.yum_config = ""
         self.timeout = DEFAULT_TIMEOUT
         self.verbosity = 0
@@ -139,6 +140,12 @@ class YumTester(object):
         if self.disable_repo:
             for repo in self.disable_repo.split(","):
                 cmd += " --disablerepo=%s" % repo
+
+        if self.disable_plugin:
+            # --disableplugin can take a comma separated list directly
+            #for plugin in self.disable_plugin.split(","):
+                #cmd += " --disableplugin=%s" % plugin
+            cmd += " --disableplugin=%s" % self.disable_plugin
 
         if self.yum_config:
             for repo in self.yum_config.split(","):
@@ -439,6 +446,8 @@ class YumTester(object):
             else:
                 message = "%s Updates Available" % number_updates
 
+        message += " | total_updates_available=%s" % number_updates
+
         return status, message
 
 
@@ -470,6 +479,8 @@ class YumTester(object):
             else:
                 message += ". %s Non-Security Updates Available" \
                                                         % number_other_updates
+        message += " | security_updates_available=%s non_security_updates_available=%s total_updates_available=%s" \
+                   % (number_security_updates, number_other_updates, number_security_updates + number_other_updates)
 
         return status, message
 
@@ -553,6 +564,11 @@ def main():
                       help="Explicitly disables a repository when calling yum. " \
                          + "Can take a comma separated list of repositories")
 
+    parser.add_option("--disableplugin",
+                      dest="plugin_to_disable",
+                      help="Explicitly disables a plugin when calling yum. " \
+                         + "Can take a comma separated list of plugins")
+
     parser.add_option("-t",
                       "--timeout",
                       dest="timeout",
@@ -586,6 +602,7 @@ def main():
     tester.no_warn_on_lock = options.no_warn_on_lock
     tester.enable_repo = options.repository_to_enable
     tester.disable_repo = options.repository_to_disable
+    tester.disable_plugin = options.plugin_to_disable
     tester.yum_config = options.yum_config
     tester.timeout = options.timeout
     tester.verbosity = options.verbosity
