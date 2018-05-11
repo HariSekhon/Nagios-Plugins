@@ -23,7 +23,7 @@ cd "$srcdir/..";
 
 section "P r e s t o   S Q L"
 
-export PRESTO_TERADATA_VERSIONS="latest 0.152 0.157 0.167 0.179"
+export PRESTO_TERADATA_VERSIONS="0.152 0.157 0.167 0.179 latest"
 export PRESTO_VERSIONS="${@:-${PRESTO_VERSIONS:-$PRESTO_TERADATA_VERSIONS}}"
 
 PRESTO_HOST="${DOCKER_HOST:-${PRESTO_HOST:-${HOST:-localhost}}}"
@@ -319,6 +319,9 @@ test_presto2(){
     select 1+1;
     select 2+2;
     select 3+3;
+    -- gets access denied to system
+    --select * from system.runtime.nodes;
+    --select * from system.runtime.queries;
     select failure;
     select failure2;
     -- localfile catalog not available in older versions of Presto
