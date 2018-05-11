@@ -29,8 +29,8 @@ else
     section "M y S Q L"
 fi
 
-export MYSQL_VERSIONS="${@:-${MYSQL_VERSIONS:-latest 5.5 5.6 5.7 8.0}}"
-export MARIADB_VERSIONS="${@:-${MARIADB_VERSIONS:-latest 5.5 10.1 10.2 10.3}}"
+export MYSQL_VERSIONS="${@:-${MYSQL_VERSIONS:-5.5 5.6 5.7 8.0 latest}}"
+export MARIADB_VERSIONS="${@:-${MARIADB_VERSIONS:-5.5 10.1 10.2 10.3 latest}}"
 
 MYSQL_HOST="${DOCKER_HOST:-${HOST:-localhost}}"
 MYSQL_HOST="${MYSQL_HOST##*/}"
