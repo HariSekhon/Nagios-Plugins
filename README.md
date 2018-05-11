@@ -576,7 +576,7 @@ pip uninstall -y certifi && pip install certifi==2015.04.28
 
 [Python Tools](https://github.com/harisekhon/pytools) & [Perl Tools](https://github.com/harisekhon/tools) repos - contains another 75+ programs including useful tools such as:
 * Hive / Pig => Elasticsearch / SolrCloud indexers
-* Hadoop HDFS performance debugger, native checksum extractor, file retention policy script, HDFS file stats, XML & running Hadoop cluster config differ
+* Hadoop HDFS performance debugger, native checksum extractor, HDFS file retention & snapshot retention policy scripts, HDFS file stats, XML & running Hadoop cluster config differ
 * ```watch_url.pl``` - debugs load balanced web farms via multiple queries to a URL - returns HTTP status codes, % success across all requests, timestamps, round trip times, and optionally the output
 * tools for Ambari, Pig, Hive, Spark + IPython Notebook, Solr CLI
 * code reCaser for SQL / Pig / Neo4j / Hive HQL / Cassandra / MySQL / PostgreSQL / Impala / MSSQL / Oracle / Dockerfiles
