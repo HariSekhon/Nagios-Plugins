@@ -23,7 +23,7 @@ cd "$srcdir/.."
 
 section "V a u l t"
 
-export VAULT_VERSIONS="${@:-${VAULT_VERSIONS:-latest 0.6.5 0.7.3 0.8.3 0.9.5}}"
+export VAULT_VERSIONS="${@:-${VAULT_VERSIONS:-0.6.5 0.7.3 0.8.3 0.9.5 latest}}"
 
 VAULT_HOST="${DOCKER_HOST:-${VAULT_HOST:-${HOST:-localhost}}}"
 VAULT_HOST="${VAULT_HOST##*/}"
