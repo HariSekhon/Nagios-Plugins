@@ -21,7 +21,7 @@ See also: check_yum.py (the original, also part of the Advanced Nagios Plugins C
 Tested on CentOS 5 / 6 / 7
 ";
 
-$VERSION = "0.7.1";
+$VERSION = "0.7.2";
 
 use strict;
 use warnings;
@@ -142,7 +142,7 @@ sub check_security_updates(){
         warning if $warn_on_any_update;
     }
     plural $number_other_updates;
-    $msg .= ", $number_other_updates Non-Security Update$plural Available | security_updates_available=$number_security_updates non_security_updates_available=$number_other_updates yum_updates_available=" . ($number_security_updates + $number_other_updates);
+    $msg .= ", $number_other_updates Non-Security Update$plural Available | security_updates_available=$number_security_updates non_security_updates_available=$number_other_updates total_updates_available=" . ($number_security_updates + $number_other_updates);
 }
 
 
