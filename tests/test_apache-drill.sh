@@ -102,8 +102,8 @@ test_drill(){
 
     # ============================================================================ #
 
-    # API endpoint not available < 1.0
-    if egrep -q '^0' <<< "$version"; then
+    # API endpoint not available < 1.7
+    if [[ "$version" =~ ^0.[7-9]|^1.[0-6]$ ]]; then
         run_fail 2 ./check_apache_drill_status2.py -v
     else
         run ./check_apache_drill_status2.py -v
@@ -145,7 +145,9 @@ test_drill(){
     # ============================================================================ #
 
     # API endpoint does not have the state field < 1.12
-    if egrep -q '^0|^1\.[0-9]$|^1\.1[01]$' <<< "$version"; then
+    if [[ "$version" =~ 1.1[01] ]]; then
+        run_fail 3 ./check_apache_drill_cluster_nodes_offline.py
+    elif [[ "$version" =~ ^0|^1\.[0-9]$ ]]; then
         run_fail 2 ./check_apache_drill_cluster_nodes_offline.py
     else
         run ./check_apache_drill_cluster_nodes_offline.py
@@ -155,11 +157,28 @@ test_drill(){
 
     # ============================================================================ #
 
+    run_fail 3 ./check_apache_drill_config.py --list
+
+    run ./check_apache_drill_config.py --key exec.errors.verbose -e false
+
+    run ./check_apache_drill_config.py -k exec.errors.verbose -e f.*
+
+    run ./check_apache_drill_config.py -k exec.errors.verbose
+
+    run_fail 2 ./check_apache_drill_config.py -k exec.errors.verbose -e true
+
+    run_fail 2 ./check_apache_drill_config.py --key exec.errors.verbose --expected 1
+
+    # ============================================================================ #
+
     # Encryption is available only in Apache Drill 1.11+
-    if [ "$version" = "latest" ] || [[ "$version" > 1.10 ]]; then
-        run_fail 2 ./check_apache_drill_encryption_enabled.py
-    else
+    # field not available in 1.10
+    if [[ "$version" =~ 1.10 ]]; then
         run_fail 3 ./check_apache_drill_encryption_enabled.py
+    else
+        # encryption is not enabled in Docker image
+        # < 1.9 gets "500 Internal Server Error"
+        run_fail 2 ./check_apache_drill_encryption_enabled.py
     fi
 
     run_conn_refused ./check_apache_drill_encryption_enabled.py
