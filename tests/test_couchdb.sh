@@ -25,7 +25,7 @@ section "C o u c h D B"
 
 # 1.6 and 2.1 were getting the following error, seem to be behaving now:
 # ERROR: Get https://registry-1.docker.io/v2/: dial tcp: lookup registry-1.docker.io on 194.239.134.83:53: server misbehaving
-export COUCHDB_VERSIONS="${@:-${COUCHDB_VERSIONS:-latest 1.6 2.1}}"
+export COUCHDB_VERSIONS="${@:-${COUCHDB_VERSIONS:-1.6 2.1 latest}}"
 
 COUCHDB_HOST="${DOCKER_HOST:-${COUCHDB_HOST:-${HOST:-localhost}}}"
 COUCHDB_HOST="${COUCHDB_HOST##*/}"
