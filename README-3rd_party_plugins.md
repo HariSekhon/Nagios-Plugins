@@ -4,6 +4,7 @@
 This is a list of the best and most interesting 3rd party plugins, several of which I have used or come across over the years that deserve mention, usually due to their better quality than the typical Nagios Exchange / Icinga Exchange plugins.
 
 - [check_openmanage](http://folk.uio.no/trondham/software/check_openmanage.html) - Dell OpenManage Hardware monitoring plugin by Trond Hasle Amundsen
+- [Percona plugins](https://www.percona.com/doc/percona-monitoring-plugins/latest/index.html) - MySQL plugins from MySQL specialists
 - [check_drbd](https://exchange.nagios.org/directory/Plugins/Operating-Systems/Linux/check_drbd/details) - can't remember if this is the plugin I used to use but I used to love it telling me when DRBD was behind by how much and caught up
 - [check_tsd](https://github.com/OpenTSDB/opentsdb/blob/master/tools/check_tsd) - OpenTSDB metrics query
 - [check_prometheus_metric.sh](https://github.com/prometheus/nagios_plugins/blob/master/check_prometheus_metric.sh) - I don't normally rate bash scripts as Nagios Plugins but this is in the official project so it's worth a look
