@@ -23,7 +23,7 @@ cd "$srcdir/..";
 
 section "R a n c h e r"
 
-export RANCHER_VERSIONS="${@:-${RANCHER_VERSIONS:-latest stable v1.0.2 v1.1.4 v1.2.4 v1.3.5 v1.4.3 v1.5.9 v1.6.14}}"
+export RANCHER_VERSIONS="${@:-${RANCHER_VERSIONS:-v1.0.2 v1.1.4 v1.2.4 v1.3.5 v1.4.3 v1.5.9 v1.6.14 stable latest}}"
 
 RANCHER_HOST="${DOCKER_HOST:-${RANCHER_HOST:-${HOST:-localhost}}}"
 RANCHER_HOST="${RANCHER_HOST##*/}"
