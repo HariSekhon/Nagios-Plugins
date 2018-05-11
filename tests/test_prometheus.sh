@@ -24,13 +24,13 @@ cd "$srcdir/.."
 
 section "P r o m e t h e u s"
 
-export PROMETHEUS_VERSIONS="${@:-${PROMETHEUS_VERSIONS:-latest v1.0.0 v1.1.3 v1.2.3 v1.3.1 v1.4.0 v1.5.3 v1.6.3 v1.7.2 v1.8.2 v2.1.0}}"
+export PROMETHEUS_VERSIONS="${@:-${PROMETHEUS_VERSIONS:-v1.0.0 v1.1.3 v1.2.3 v1.3.1 v1.4.0 v1.5.3 v1.6.3 v1.7.2 v1.8.2 v2.1.0 latest}}"
 # 0.9.0 does not have node_exporter_build_info
 # 0.10.0 tag is broken with a Go error: https://github.com/prometheus/node_exporter/issues/804
 # 0.12.0 and earlier tags have been removed from DockerHub, there was no 0.11 but 0.12 was tested successfully with node exporter version plugin
-export NODE_EXPORTER_VERSIONS="${NODE_EXPORTER_VERSIONS:-latest v0.13.0 v0.14.0 v0.15.2}}"
+export NODE_EXPORTER_VERSIONS="${NODE_EXPORTER_VERSIONS:-v0.13.0 v0.14.0 v0.15.2 latest}}"
 # versions before 1.4 don't run with the Prometheus config or have other issues
-export TELEGRAF_VERSIONS="${TELEGRAF_VERSIONS:-latest 1.4-alpine 1.5-alpine}}"
+export TELEGRAF_VERSIONS="${TELEGRAF_VERSIONS:-1.4-alpine 1.5-alpine latest}}"
 
 PROMETHEUS_HOST="${DOCKER_HOST:-${PROMETHEUS_HOST:-${HOST:-localhost}}}"
 PROMETHEUS_HOST="${PROMETHEUS_HOST##*/}"
