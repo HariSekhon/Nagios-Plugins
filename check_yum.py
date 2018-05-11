@@ -33,7 +33,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.8.6"
+__version__ = "0.8.7"
 
 # Standard Nagios return codes
 OK = 0
@@ -142,8 +142,10 @@ class YumTester(object):
                 cmd += " --disablerepo=%s" % repo
 
         if self.disable_plugin:
-            for plugin in self.disable_plugin.split(","):
-                cmd += " --disableplugin=%s" % plugin
+            # --disableplugin can take a comma separated list directly
+            #for plugin in self.disable_plugin.split(","):
+                #cmd += " --disableplugin=%s" % plugin
+            cmd += " --disableplugin=%s" % self.disable_plugin
 
         if self.yum_config:
             for repo in self.yum_config.split(","):
