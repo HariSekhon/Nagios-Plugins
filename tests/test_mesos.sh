@@ -25,7 +25,7 @@ cd "$srcdir/.."
 section "A p a c h e   M e s o s"
 
 # TODO: docker images for 0.25 and 0.26 need fixes
-export MESOS_VERSIONS="${@:-${MESOS_VERSIONS:-${VERSIONS:-latest 0.23 0.24 0.27 0.28}}}"
+export MESOS_VERSIONS="${@:-${MESOS_VERSIONS:-${VERSIONS:-0.23 0.24 0.27 0.28 latest}}}"
 
 MESOS_HOST="${DOCKER_HOST:-${MESOS_HOST:-${HOST:-localhost}}}"
 MESOS_HOST="${MESOS_HOST##*/}"
