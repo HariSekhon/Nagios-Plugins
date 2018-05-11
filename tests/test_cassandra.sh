@@ -23,7 +23,7 @@ cd "$srcdir/..";
 
 section "C a s s a n d r a"
 
-export CASSANDRA_VERSIONS="${@:-${CASANDRA_VERSIONS:-latest 1.2 2.0 2.1 2.2 3.0 3.5 3.6 3.7 3.9 3.10 3.11}}"
+export CASSANDRA_VERSIONS="${@:-${CASANDRA_VERSIONS:-1.2 2.0 2.1 2.2 3.0 3.5 3.6 3.7 3.9 3.10 3.11 latest}}"
 
 CASSANDRA_HOST="${DOCKER_HOST:-${CASSANDRA_HOST:-${HOST:-localhost}}}"
 CASSANDRA_HOST="${CASSANDRA_HOST##*/}"
