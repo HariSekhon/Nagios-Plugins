@@ -23,7 +23,7 @@ cd "$srcdir/.."
 
 section "T a c h y o n"
 
-export TACHYON_VERSIONS="${@:-${TACHYON_VERSIONS:-latest 0.7 0.8}}"
+export TACHYON_VERSIONS="${@:-${TACHYON_VERSIONS:-0.7 0.8 latest}}"
 
 TACHYON_HOST="${DOCKER_HOST:-${TACHYON_HOST:-${HOST:-localhost}}}"
 TACHYON_HOST="${TACHYON_HOST##*/}"
