@@ -23,7 +23,7 @@ cd "$srcdir/..";
 
 section "M e m c a c h e d"
 
-export MEMCACHED_VERSIONS="${@:-${MEMCACHED_VERSIONS:-latest 1.4 1.5}}"
+export MEMCACHED_VERSIONS="${@:-${MEMCACHED_VERSIONS:-1.4 1.5 latest}}"
 
 MEMCACHED_HOST="${DOCKER_HOST:-${MEMCACHED_HOST:-${HOST:-localhost}}}"
 MEMCACHED_HOST="${MEMCACHED_HOST##*/}"
