@@ -24,7 +24,7 @@ cd "$srcdir/.."
 
 section "A p a c h e   D r i l l"
 
-export APACHE_DRILL_VERSIONS="${@:-${APACHE_DRILL_VERSIONS:-latest 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 1.10 1.11 1.12 1.13 latest}}"
+export APACHE_DRILL_VERSIONS="${@:-${APACHE_DRILL_VERSIONS:-0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 1.10 1.11 1.12 1.13 latest}}"
 
 APACHE_DRILL_HOST="${DOCKER_HOST:-${APACHE_DRILL_HOST:-${HOST:-localhost}}}"
 APACHE_DRILL_HOST="${APACHE_DRILL_HOST##*/}"
@@ -43,6 +43,8 @@ test_apache_drill(){
     local version="$1"
     section2 "Setting up Apache Drill $version test container"
     docker_compose_pull
+    # protects against using a stale ZooKeeper storage plugin config from a higher version which will result in an error as see in DRILL-4383
+    #docker-compose down
     VERSION="$version" docker-compose up -d
     hr
     echo "getting Apache Drill dynamic port mappings:"
@@ -81,8 +83,10 @@ test_drill(){
     if [ "$version" = "latest" ]; then
         expected_version=".*"
     fi
-    # API endpoint not available in 0.7
-    if [ "$version" != "0.7" ]; then
+    # API endpoint not available < 1.10
+    if egrep -q '^0|^1\.[0-9]$' <<< "$version"; then
+        run_fail 2 ./check_apache_drill_version.py -v -e "$expected_version"
+    else
         run ./check_apache_drill_version.py -v -e "$expected_version"
     fi
 
@@ -98,8 +102,10 @@ test_drill(){
 
     # ============================================================================ #
 
-    # API endpoint not available in 0.7
-    if [ "$version" != "0.7" ]; then
+    # API endpoint not available < 1.0
+    if egrep -q '^0' <<< "$version"; then
+        run_fail 2 ./check_apache_drill_status2.py -v
+    else
         run ./check_apache_drill_status2.py -v
     fi
 
@@ -107,30 +113,63 @@ test_drill(){
 
     # ============================================================================ #
 
-    # API endpoint not available in 0.7
-    if [ "$version" != "0.7" ]; then
-        run ./check_apache_drill_cluster_nodes.py -v -w 1
+    local node="not_set"
+    # API endpoint not available < 1.10
+    if egrep -q '^0|^1\.[0-9]$' <<< "$version"; then
+        run_fail 2 ./check_apache_drill_cluster_nodes.py -w 1
 
-        run_fail 1 ./check_apache_drill_cluster_nodes.py -v
+        run_fail 2 ./check_apache_drill_cluster_nodes.py
+
+        run_fail 2 ./check_apache_drill_cluster_node.py --list
+
+        run_fail 2 ./check_apache_drill_cluster_node.py --node "doesntmatter"
+    else
+        run ./check_apache_drill_cluster_nodes.py -w 1
+
+        run_fail 1 ./check_apache_drill_cluster_nodes.py
+
+        run_fail 3 ./check_apache_drill_cluster_node.py --list
+
+        local node="$(./check_apache_drill_cluster_node.py -l | sed -n '6p' | awk '{print $1}')"
+        run ./check_apache_drill_cluster_node.py --node "$node"
     fi
 
-    run_fail 2 ./check_apache_drill_cluster_nodes.py -v -w 3 -c 2
+    run_fail 2 ./check_apache_drill_cluster_nodes.py -w 3 -c 2
 
-    run_conn_refused ./check_apache_drill_cluster_nodes.py -v
+    run_fail 2 ./check_apache_drill_cluster_node.py --node nonexistentnode
+
+    run_conn_refused ./check_apache_drill_cluster_nodes.py
+
+    run_conn_refused ./check_apache_drill_cluster_node.py -n "$node"
+
+    # ============================================================================ #
+
+    # API endpoint does not have the state field < 1.12
+    if egrep -q '^0|^1\.[0-9]$|^1\.1[01]$' <<< "$version"; then
+        run_fail 2 ./check_apache_drill_cluster_nodes_offline.py
+    else
+        run ./check_apache_drill_cluster_nodes_offline.py
+    fi
+
+    run_conn_refused ./check_apache_drill_cluster_nodes_offline.py
 
     # ============================================================================ #
 
     # Encryption is available only in Apache Drill 1.11+
     if [ "$version" = "latest" ] || [[ "$version" > 1.10 ]]; then
         run_fail 2 ./check_apache_drill_encryption_enabled.py
+    else
+        run_fail 3 ./check_apache_drill_encryption_enabled.py
     fi
 
     run_conn_refused ./check_apache_drill_encryption_enabled.py
 
     # ============================================================================ #
 
-    # API endpoint not available in 0.7
-    if [ "$version" != "0.7" ]; then
+    # API endpoint not available < 1.10
+    if egrep -q '^0|^1\.[0-9]$' <<< "$version"; then
+        run_fail 2 ./check_apache_drill_cluster_mismatched_versions.py
+    else
         run ./check_apache_drill_cluster_mismatched_versions.py
     fi
 
