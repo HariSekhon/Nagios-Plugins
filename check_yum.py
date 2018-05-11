@@ -33,7 +33,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.8.5"
+__version__ = "0.8.6"
 
 # Standard Nagios return codes
 OK = 0
@@ -43,7 +43,7 @@ UNKNOWN = 3
 
 DEFAULT_TIMEOUT = 30
 
-support_msg = "Please make sure you have upgraded to the latest version from " + \
+SUPPORT_MSG = "Please make sure you have upgraded to the latest version from " + \
               "https://github.com/harisekhon/nagios-plugins. If the problem persists, " + \
               "please raise a ticket at https://github.com/harisekhon/nagios-plugins/issues "+ \
               "with the full -vvv output"
@@ -165,7 +165,8 @@ class YumTester(object):
                                                   % (cmd.split()[0], error))
 
             output = process.communicate()
-            # for using debug outputs, either do not comment above line or explicitly set exit code below
+            # for using debug outputs, either do not comment above line
+            # or explicitly set exit code below
             #output = [open(os.path.dirname(__file__) + '/test_input.txt').read(), '']
             returncode = process.returncode
             stdout = output[0]
@@ -206,7 +207,12 @@ class YumTester(object):
                 output = self.strip_output(output)
                 end(UNKNOWN, "%s" % output)
         else:
-            if (not ('Loading "security" plugin' in output or 'Loaded plugins:.*security' in output)) \
+            if (
+                    not (
+                        'Loading "security" plugin' in output \
+                        or 'Loaded plugins:.*security' in output
+                    )
+                ) \
                or "Command line error: no such option: --security" in output:
                 end(UNKNOWN, "Security plugin for yum is required. Try to "    \
                            + "'yum install yum-security' (RHEL5) or " \
@@ -289,7 +295,7 @@ class YumTester(object):
                 "Loaded plugins: " in output2[0] or \
                 re.search(r'Loading\s+".+"\s+plugin', output2[0])):
             end(WARNING, "Yum output signature does not match current known "  \
-                       + "format. " + support_msg)
+                       + "format. " + SUPPORT_MSG)
         number_packages = 0
         if len(output2) == 1:
             # There are no updates but we have passed
@@ -308,13 +314,15 @@ class YumTester(object):
                 raise ValueError
         except ValueError:
             end(UNKNOWN, "Error parsing package information, invalid package " \
-                       + "number, yum output may have changed. " + support_msg)
+                       + "number, yum output may have changed. " + SUPPORT_MSG)
 
         # Extra layer of checks. This is a security plugin so it's preferable
         # to fail on error rather than pass silently leaving you with an
         # insecure system
         count = 0
-        re_kernel_security_update = re.compile('^Security: kernel-.+ is an installed security update')
+        re_kernel_security_update = re.compile(
+            '^Security: kernel-.+ is an installed security update'
+        )
         re_kernel_update = re.compile('^Security: kernel-.+ is the currently running version')
         re_package_format = \
                 re.compile(r'^.+\.(i[3456]86|x86_64|noarch)\s+.+\s+.+$')
@@ -342,7 +350,7 @@ class YumTester(object):
         if count != number_packages:
             end(UNKNOWN, "Error parsing package information, inconsistent "    \
                        + "package count (%d count vs %s num packages)" % (count, number_packages) \
-                       + ", yum output may have changed. " + support_msg)
+                       + ", yum output may have changed. " + SUPPORT_MSG)
 
         return number_packages
 
@@ -358,7 +366,9 @@ class YumTester(object):
 
         re_security_summary = \
                 re.compile(r'Needed (\d+) of (\d+) packages, for security')
-        re_summary_rhel6 = re.compile(r'(\d+) package\(s\) needed for security, out of (\d+) available')
+        re_summary_rhel6 = re.compile(
+            r'(\d+) package\(s\) needed for security, out of (\d+) available'
+        )
         re_no_sec_updates = \
                 re.compile(r'No packages needed,? for security[;,] (\d+) (?:packages )?available')
         re_kernel_update = re.compile(r'^Security: kernel-.+ is an installed security update')
@@ -387,21 +397,23 @@ class YumTester(object):
                 end(CRITICAL, "Kernel security update is installed but requires a reboot")
 
         if not summary_line_found:
-            end(WARNING, "Cannot find summary line in yum output. " + support_msg)
+            end(WARNING, "Cannot find summary line in yum output. " + SUPPORT_MSG)
 
         try:
             number_security_updates = int(number_security_updates)
             number_total_updates = int(number_total_updates)
         except ValueError:
             end(WARNING, "Error parsing package information, yum output " \
-                       + "may have changed. " + support_msg)
+                       + "may have changed. " + SUPPORT_MSG)
 
         number_other_updates = number_total_updates - number_security_updates
 
         from_excluded_regex = re.compile(' from .+ excluded ')
-        if len([_ for _ in output if not from_excluded_regex.search(_)]) > number_total_updates + 25:
+        if len(
+                [_ for _ in output if not from_excluded_regex.search(_)]
+            ) > number_total_updates + 25:
             end(WARNING, "Yum output signature is larger than current known "  \
-                       + "format. " + support_msg)
+                       + "format. " + SUPPORT_MSG)
 
         return number_security_updates, number_other_updates
 
@@ -426,7 +438,8 @@ class YumTester(object):
         of the status code and output"""
 
         status = UNKNOWN
-        message = "code error. " + support_msg
+        message = "code error. " + SUPPORT_MSG
+        perfdata = ""
 
         number_updates = self.get_all_updates()
         if number_updates == 0:
@@ -439,7 +452,10 @@ class YumTester(object):
             else:
                 message = "%s Updates Available" % number_updates
 
-        return status, message
+        perfdata = "| other_updates=%s;;;;" \
+            % number_updates
+
+        return status, message, perfdata
 
 
     def test_security_updates(self):
@@ -447,7 +463,8 @@ class YumTester(object):
         of the status code and output"""
 
         status = UNKNOWN
-        message = "code error. " + support_msg
+        message = "code error. " + SUPPORT_MSG
+        perfdata = ""
 
         number_security_updates, number_other_updates = \
                                                     self.get_security_updates()
@@ -471,7 +488,10 @@ class YumTester(object):
                 message += ". %s Non-Security Updates Available" \
                                                         % number_other_updates
 
-        return status, message
+        perfdata = "| security_updates=%s;;;; other_updates=%s;;;;" \
+            % (number_security_updates, number_other_updates)
+
+        return status, message, perfdata
 
 
     def vprint(self, threshold, message):
@@ -553,6 +573,12 @@ def main():
                       help="Explicitly disables a repository when calling yum. " \
                          + "Can take a comma separated list of repositories")
 
+    parser.add_option("-p",
+                      "--enable-perfdata",
+                      action="store_true",
+                      dest="perfdata",
+                      help="Enables performance data (default: no)")
+
     parser.add_option("-t",
                       "--timeout",
                       dest="timeout",
@@ -596,8 +622,11 @@ def main():
             % (__title__, __version__, __author__)
         sys.exit(OK)
 
-    result, output = tester.test_yum_updates()
-    end(result, output)
+    result, output, perfdata = tester.test_yum_updates()
+    if options.perfdata:
+        end(result, "%s %s" % (output, perfdata))
+    else:
+        end(result, output)
 
 
 if __name__ == "__main__":
