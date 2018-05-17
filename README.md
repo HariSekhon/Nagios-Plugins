@@ -166,6 +166,12 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
 - ```check_docker_swarm_*.py``` - [Docker Swarm](https://docs.docker.com/engine/swarm/) API checks including is swarm enabled, swarm node status, is the node a swarm manager, swarm service status including number of live replicas / tasks and if the service was updated recently, counts of services, swarm manager and worker nodes with thresholds, swarm errors, swarm version
 - ```check_mesos_*.pl``` - [Mesos](http://mesos.apache.org/) master health API, master & slaves state information including leader and versions, activated & deactivated slaves, number of Chronos jobs, master & slave metrics. Warning: Mesos & Mesosphere DC/OS is legacy semi-proprietary - major momentum has shifted to the open source [Kubernetes](https://kubernetes.io/) project (Kubernetes Nagios Plugins coming soon)
 
+If running docker checks from within the [nagios plugins docker image](https://hub.docker.com/r/harisekhon/nagios-plugins/) then you will need to expose the socket within the container, like so:
+```
+docker run -v /var/run/docker.sock:/var/run/docker.sock harisekhon/nagios-plugins check_docker_images.py -H unix:///var/run/docker.sock
+OK: Docker images = 296 | docker_images=296;; query_time=0.1568s
+```
+
 See also DockerHub build status nagios plugin further down in the [CI section](https://github.com/HariSekhon/nagios-plugins#ci---continuous-integration--build-systems---git-jenkins-travis-ci--dockerhub-automated-builds).
 
 ##### Search
