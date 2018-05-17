@@ -401,15 +401,39 @@ If you only want to use one plugin, you can do ` make perl-libs ` or ` make pyth
 
 This has become quite a large project and will take at least 10 minutes to build. The build is automated and tested on RHEL / CentOS 5/6/7 & Debian / Ubuntu systems.
 
+Make sure /usr/local/bin is in your ` $PATH ` when running make as otherwise it'll fail to find ` cpanm `
+
 ##### Python VirtualEnv / Perlbrew localized installs
 
 The automated build will use 'sudo' to install required Perl CPAN & Python PyPI libraries to the system unless running as root or it detects being inside Perlbrew or VirtualEnv. If you want to install some of the common Perl / Python libraries such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN / PyPI then follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead.
 
 ##### Mac OS X
 
-The automated build also works on Mac OS X but will not handle basic OS system package dependencies for Mac, and you will likely need to download and install [Apple XCode](https://developer.apple.com/download/) development libraries to provide the headers to build some of the upstream library modules. I also recommend you get [HomeBrew](https://brew.sh/) to install other useful tools and libraries you may need like OpenSSL and Snappy.
+The automated build also works on Mac OS X but will not handle basic OS system package dependencies for Mac, and you will likely need to download and install [Apple XCode](https://developer.apple.com/download/) development libraries to provide the headers to build some of the upstream library modules. I also recommend you get [HomeBrew](https://brew.sh/) to install other useful tools and libraries you may need like OpenSSL and Snappy:
 
-Make sure /usr/local/bin is in your ` $PATH ` when running make as otherwise it'll fail to find ` cpanm `
+```
+brew install openssl snappy
+```
+
+CPAN's Net::SSLeay may not find the openssl header and error like so:
+
+```
+fatal error: 'openssl/opensslv.h' file not found
+#include <openssl/opensslv.h>
+```
+
+In this case, give it the path to the openssl lib to build:
+
+```
+sudo OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib cpan Crypt::SSLeay
+```
+
+then continue with the rest of the build:
+
+```
+make
+```
+
 
 ##### ZooKeeper Checks
 
