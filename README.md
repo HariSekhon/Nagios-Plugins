@@ -415,14 +415,14 @@ The automated build also works on Mac OS X but will not handle basic OS system p
 brew install openssl snappy mysql wget
 ```
 
-CPAN's Crypt::SSLeay may not find the openssl header and error like so:
+CPAN's Crypt::SSLeay may not find the OpenSSL header and error like so:
 
 ```
 fatal error: 'openssl/opensslv.h' file not found
 #include <openssl/opensslv.h>
 ```
 
-In this case, give it the path to the openssl lib to build:
+In this case, give it the path to the OpenSSL lib to build:
 
 ```
 sudo OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib cpan Crypt::SSLeay
@@ -434,7 +434,7 @@ then continue with the rest of the build:
 make
 ```
 
-You may get errors around installing to Python library paths, sometimes this is caused by pip 10 vs pip 9 and downgrading will work around it:
+You may get errors trying to install to Python library paths even as root on newer versions of Mac, sometimes this is caused by pip 10 vs pip 9 and downgrading will work around it:
 
 ```
 pip install --upgrade pip==9.0.1
