@@ -409,10 +409,10 @@ The automated build will use 'sudo' to install required Perl CPAN & Python PyPI 
 
 ##### Mac OS X
 
-The automated build also works on Mac OS X but will not handle basic OS system package dependencies for Mac, and you will likely need to download and install [Apple XCode](https://developer.apple.com/download/) development libraries to provide the headers to build some of the upstream library modules. I also recommend you get [HomeBrew](https://brew.sh/) to install other useful tools and libraries you may need like OpenSSL and Snappy:
+The automated build also works on Mac OS X but will not handle basic OS system package dependencies for Mac, and you will likely need to download and install [Apple XCode](https://developer.apple.com/download/) development libraries to provide the headers to build some of the upstream library modules. I also recommend you get [HomeBrew](https://brew.sh/) to install other useful tools and libraries you may need like OpenSSL, Snappy and MySQL for their development headers and tools such as wget:
 
 ```
-brew install openssl snappy
+brew install openssl snappy mysql wget
 ```
 
 CPAN's Crypt::SSLeay may not find the openssl header and error like so:
