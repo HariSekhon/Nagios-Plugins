@@ -415,7 +415,7 @@ The automated build also works on Mac OS X but will not handle basic OS system p
 brew install openssl snappy
 ```
 
-CPAN's Net::SSLeay may not find the openssl header and error like so:
+CPAN's Crypt::SSLeay may not find the openssl header and error like so:
 
 ```
 fatal error: 'openssl/opensslv.h' file not found
