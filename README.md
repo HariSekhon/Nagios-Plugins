@@ -377,6 +377,8 @@ Make sure you run the code by hand on the command line with ```-v -v -v``` for a
 
 ### Detailed Build Instructions
 
+#### Automated Build
+
 ```
 
 git clone https://github.com/harisekhon/nagios-plugins
@@ -397,13 +399,21 @@ If you only want to use one plugin, you can do ` make perl-libs ` or ` make pyth
 
 ` make ` builds will install yum rpms / apt debs dependencies automatically as well as a load of Perl CPAN & Python PyPI libraries. To pick and choose what to install follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead
 
-This has become quite a large project and will take at least 10 minutes to build. The build is automated and tested on RHEL / CentOS 5/6/7 & Debian / Ubuntu systems. The automated build also works on Mac OS X but will not handle basic OS system package dependencies for Mac, and you will likely need to download and install [Apple XCode](https://developer.apple.com/download/) development libraries to provide the headers to build some of the upstream library modules. I also recommend you get [HomeBrew](https://brew.sh/) to install other useful tools and libraries you may need like OpenSSL and Snappy.
+This has become quite a large project and will take at least 10 minutes to build. The build is automated and tested on RHEL / CentOS 5/6/7 & Debian / Ubuntu systems.
 
-Make sure /usr/local/bin is in your ` $PATH ` when running make as otherwise it'll fail to find ` cpanm `
+##### Python VirtualEnv / Perlbrew localized installs
 
 The automated build will use 'sudo' to install required Perl CPAN & Python PyPI libraries to the system unless running as root or it detects being inside Perlbrew or VirtualEnv. If you want to install some of the common Perl / Python libraries such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN / PyPI then follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead.
 
-If wanting to use any of ZooKeeper znode checks for HBase/SolrCloud etc based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.8, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
+##### Mac OS X
+
+The automated build also works on Mac OS X but will not handle basic OS system package dependencies for Mac, and you will likely need to download and install [Apple XCode](https://developer.apple.com/download/) development libraries to provide the headers to build some of the upstream library modules. I also recommend you get [HomeBrew](https://brew.sh/) to install other useful tools and libraries you may need like OpenSSL and Snappy.
+
+Make sure /usr/local/bin is in your ` $PATH ` when running make as otherwise it'll fail to find ` cpanm `
+
+##### ZooKeeper Checks
+
+If you want to use any of the ZooKeeper content znode based checks (eg. for HBase / SolrCloud etc) based on check_zookeeper_znode.pl or any of the check_solrcloud_*_zookeeper.pl programs you will also need to install the zookeeper libraries which has a separate build target due to having to install C bindings as well as the library itself on the local system. This will explicitly fetch the tested ZooKeeper 3.4.8, you'd have to update the ```ZOOKEEPER_VERSION``` variable in the Makefile if you want a different version.
 
 ```
 make zookeeper
@@ -414,7 +424,7 @@ make clean-zookeeper
 ```
 
 
-### Manual Build ###
+#### Manual Build
 
 Fetch my library repos which are included as submodules (they're shared between this and other repos containing various programs I've written over the years).
 
