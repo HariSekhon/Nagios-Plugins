@@ -434,6 +434,14 @@ then continue with the rest of the build:
 make
 ```
 
+You may get errors around installing to Python library paths, sometimes this is caused by pip 10 vs pip 9 and downgrading will work around it:
+
+```
+pip install --upgrade pip==9.0.1
+make
+pip install --upgrade pip
+make
+```
 
 ##### ZooKeeper Checks
 
