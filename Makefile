@@ -72,17 +72,17 @@ build :
 	@echo Nagios Plugins Build
 	@echo ====================
 
-	make common
-	make perl-libs
-	make python-libs
+	$(MAKE) common
+	$(MAKE) perl-libs
+	$(MAKE) python-libs
 	@echo
-	#make jar-plugins
+	#$(MAKE) jar-plugins
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins)"
 
 .PHONY: quick
 quick:
-	QUICK=1 make build
+	QUICK=1 $(MAKE) build
 
 .PHONY: common
 common: system-packages submodules
@@ -95,9 +95,9 @@ submodules:
 
 .PHONY: system-packages
 system-packages:
-	if [ -x /sbin/apk ];        then make apk-packages; fi
-	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
-	if [ -x /usr/bin/yum ];     then make yum-packages; fi
+	if [ -x /sbin/apk ];        then $(MAKE) apk-packages; fi
+	if [ -x /usr/bin/apt-get ]; then $(MAKE) apt-packages; fi
+	if [ -x /usr/bin/yum ];     then $(MAKE) yum-packages; fi
 	
 .PHONY: perl
 perl:
@@ -105,8 +105,8 @@ perl:
 	@echo "Nagios Plugins Build (Perl)"
 	@echo ===========================
 
-	make common
-	make perl-libs
+	$(MAKE) common
+	$(MAKE) perl-libs
 
 .PHONY: perl-libs
 perl-libs:
@@ -169,8 +169,8 @@ python:
 	@echo "Nagios Plugins Build (Python)"
 	@echo =============================
 
-	make common
-	make python-libs
+	$(MAKE) common
+	$(MAKE) python-libs
 
 .PHONY: python-libs
 python-libs:
@@ -233,7 +233,7 @@ apk-packages:
 
 .PHONY: apk-packages-remove
 apk-packages-remove:
-	cd lib && make apk-packages-remove
+	cd lib && $(MAKE) apk-packages-remove
 	$(SUDO) apk del `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/apk-packages-dev.txt` || :
 	$(SUDO) rm -fr /var/cache/apk/*
 
@@ -248,7 +248,7 @@ apt-packages:
 
 .PHONY: apt-packages-remove
 apt-packages-remove:
-	cd lib && make apt-packages-remove
+	cd lib && $(MAKE) apt-packages-remove
 	$(SUDO) apt-get purge -y `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/deb-packages-dev.txt`
 	$(SUDO) apt-get purge -y libmariadbd-dev || :
 	$(SUDO) apt-get purge -y libmysqlclient-dev || :
@@ -277,7 +277,7 @@ yum-packages:
 
 .PHONY: yum-packages-remove
 yum-packages-remove:
-	cd lib && make yum-packages-remove
+	cd lib && $(MAKE) yum-packages-remove
 	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/rpm-packages-dev.txt`; do if rpm -q $$x; then $(SUDO) yum remove -y $$x; fi; done
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
@@ -286,17 +286,17 @@ yum-packages-remove:
 ZOOKEEPER_VERSION = 3.4.12
 .PHONY: zookeeper
 zookeeper:
-	[ -x /sbin/apk ]        && make apk-packages || :
-	[ -x /usr/bin/apt-get ] && make apt-packages || :
-	[ -x /usr/bin/yum ]     && make yum-packages || :
+	[ -x /sbin/apk ]        && $(MAKE) apk-packages || :
+	[ -x /usr/bin/apt-get ] && $(MAKE) apt-packages || :
+	[ -x /usr/bin/yum ]     && $(MAKE) yum-packages || :
 	[ -f zookeeper-$(ZOOKEEPER_VERSION).tar.gz ] || wget -O zookeeper-$(ZOOKEEPER_VERSION).tar.gz "http://www.apache.org/dyn/closer.lua?filename=zookeeper/zookeeper-${ZOOKEEPER_VERSION}/zookeeper-${ZOOKEEPER_VERSION}.tar.gz&action=download" || wget -t 2 --retry-connrefused -O zookeeper-$(ZOOKEEPER_VERSION).tar.gz "https://archive.apache.org/dist/zookeeper/zookeeper-$(ZOOKEEPER_VERSION)/zookeeper-$(ZOOKEEPER_VERSION).tar.gz"
 	[ -d zookeeper-$(ZOOKEEPER_VERSION) ] || tar zxf zookeeper-$(ZOOKEEPER_VERSION).tar.gz
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				./configure
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				make
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				$(SUDO) make install
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				$(SUDO) $(MAKE) install
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	perl Makefile.PL --zookeeper-include=/usr/local/include --zookeeper-lib=/usr/local/lib
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	LD_RUN_PATH=/usr/local/lib $(SUDO) make
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	$(SUDO) make install
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	$(SUDO) $(MAKE) install
 	perl -e "use Net::ZooKeeper"
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins perl zookeeper)"
@@ -322,9 +322,9 @@ sonar:
 
 .PHONY: lib-test
 lib-test:
-	cd lib && make test
+	cd lib && $(MAKE) test
 	rm -fr lib/cover_db || :
-	cd pylib && make test
+	cd pylib && $(MAKE) test
 
 .PHONY: test
 test: lib-test
@@ -361,10 +361,10 @@ updatem: update-submodules
 
 .PHONY: clean
 clean:
-	cd lib && make clean
-	cd pylib && make clean
+	cd lib && $(MAKE) clean
+	cd pylib && $(MAKE) clean
 	@find . -maxdepth 3 -iname '*.py[co]' -o -iname '*.jy[co]' | xargs rm -f || :
-	@make clean-zookeeper
+	@$(MAKE) clean-zookeeper
 	rm -fr tests/spark-*-bin-hadoop*
 
 .PHONY: clean-zookeeper
@@ -373,8 +373,8 @@ clean-zookeeper:
 
 .PHONY: deep-clean
 deep-clean: clean clean-zookeeper
-	cd lib && make deep-clean
-	cd pylib && make deep-clean
+	cd lib && $(MAKE) deep-clean
+	cd pylib && $(MAKE) deep-clean
 
 .PHONY: docker-run
 docker-run:
