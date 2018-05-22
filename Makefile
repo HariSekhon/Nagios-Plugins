@@ -97,6 +97,7 @@ submodules:
 system-packages:
 	if [ -x /sbin/apk ];        then $(MAKE) apk-packages; fi
 	if [ -x /usr/bin/apt-get ]; then $(MAKE) apt-packages; fi
+	if [ -x /usr/local/bin/brew -a `uname` = Darwin ]; then $(MAKE) homebrew-packages; fi
 	if [ -x /usr/bin/yum ];     then $(MAKE) yum-packages; fi
 	
 .PHONY: perl
@@ -252,6 +253,10 @@ apt-packages-remove:
 	$(SUDO) apt-get purge -y `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/deb-packages-dev.txt`
 	$(SUDO) apt-get purge -y libmariadbd-dev || :
 	$(SUDO) apt-get purge -y libmysqlclient-dev || :
+
+.PHONY: homebrew-packages
+homebrew-packages:
+	$(SUDO) brew install `sed 's/#.*//; /^[[:space:]]*$$/d' setup/brew-packages.txt`
 
 .PHONY: yum-packages
 yum-packages:
