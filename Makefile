@@ -261,7 +261,11 @@ apt-packages-remove:
 
 .PHONY: homebrew-packages
 homebrew-packages:
-	$(SUDO) brew install `sed 's/#.*//; /^[[:space:]]*$$/d' setup/brew-packages.txt`
+	# no sudo is required here, attempting it results in:
+	#
+	# Error: Running Homebrew as root is extremely dangerous and no longer supported.
+	# As Homebrew does not drop privileges on installation you would be giving all build scripts full access to your system.
+	brew install `sed 's/#.*//; /^[[:space:]]*$$/d' setup/brew-packages.txt`
 
 .PHONY: yum-packages
 yum-packages:
