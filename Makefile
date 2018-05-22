@@ -86,7 +86,12 @@ quick:
 
 .PHONY: common
 common: system-packages submodules
-	:
+	# Workaround for Mac OS X not finding the OpenSSL libraries when building
+	if [ -d /usr/local/opt/openssl/include -a \
+	     -d /usr/local/opt/openssl/lib     -a \
+	     `uname` = Darwin ]; then \
+	     sudo OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib cpan Crypt::SSLeay; \
+	fi
 
 .PHONY: submodules
 submodules:
