@@ -415,7 +415,7 @@ The automated build will use 'sudo' to install required Perl CPAN & Python PyPI 
 
 ##### Mac OS X
 
-The automated build also works on Mac OS X but will not handle basic OS system package dependencies for Mac, and you will likely need to download and install [Apple XCode](https://developer.apple.com/download/) development libraries to provide the headers to build some of the upstream library modules. I also recommend you get [HomeBrew](https://brew.sh/) to install other useful tools and libraries you may need like OpenSSL, Snappy and MySQL for their development headers and tools such as wget:
+The automated build also works on Mac OS X but you will need to download and install [Apple XCode](https://developer.apple.com/download/) development libraries. I also recommend you get [HomeBrew](https://brew.sh/) to install other useful tools and libraries you may need like OpenSSL, Snappy and MySQL for their development headers and tools such as wget (these packages are automatically installed if Homebrew is installed on Mac OS X):
 
 ```
 brew install openssl snappy mysql wget
@@ -479,6 +479,9 @@ git submodule update
 ```
 
 Then install the Perl CPAN and Python PyPI modules as listed in the next sections.
+
+For Mac OS X see the [Mac OS X](https://github.com/HariSekhon/nagios-plugins#mac-os-x) section from Automated Build instructions.
+
 
 ##### Perl CPAN Modules #####
 
