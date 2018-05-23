@@ -262,7 +262,8 @@ apt-packages-remove:
 .PHONY: homebrew-packages
 homebrew-packages:
 	# Sudo is not required as running Homebrew as root is extremely dangerous and no longer supported as Homebrew does not drop privileges on installation you would be giving all build scripts full access to your system
-	brew install `sed 's/#.*//; /^[[:space:]]*$$/d' setup/brew-packages.txt`
+	# Fails if any of the packages are already installed, ignore and continue - if it's a problem the latest build steps will fail with missing headers
+	brew install `sed 's/#.*//; /^[[:space:]]*$$/d' setup/brew-packages.txt` || :
 
 .PHONY: yum-packages
 yum-packages:
