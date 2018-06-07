@@ -70,10 +70,10 @@ class CheckDiskMountsReadOnly(NagiosPlugin):
     def add_options(self):
         super(CheckDiskMountsReadOnly, self).add_options()
         self.add_opt('-i', '--include', metavar='regex',
-                     help='Inclusion regex of which disk partitions or ' + \
+                     help='Inclusion regex of which ' + \
                           'mount points to check (case insensitive)')
         self.add_opt('-e', '--exclude', metavar='regex',
-                     help='Exclusion regex of which disk partitions or ' + \
+                     help='Exclusion regex of which ' + \
                           'mount points to not check (case insensitive, takes priority over --include)')
 
     def process_options(self):
