@@ -398,7 +398,9 @@ run: docker-run
 
 .PHONY: docker-mount
 docker-mount:
-	docker run -ti --rm -v $$PWD:/pl harisekhon/nagios-plugins bash -c "cd /pl; exec bash"
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins bash -c "cd /pl; exec bash"
 
 .PHONY: mount
 mount: docker-mount
