@@ -95,7 +95,10 @@ class CheckDiskMountsReadOnly(NagiosPlugin):
                    .format(num_read_only, plural(num_read_only), num_checked, plural(num_checked))
         if num_read_only == 0:
             self.ok()
-        elif num_read_only > 0:
+        if num_checked == 0:
+            self.warning()
+            self.msg += ' (no matching mount points?)'
+        if num_read_only > 0:
             self.critical()
             self.msg += '!'
             if self.verbose:
