@@ -22,6 +22,7 @@ services:
     command: tail -f /dev/null
     networks:
       - debian_github
+    privileged: true
 
 networks:
   debian_github:
