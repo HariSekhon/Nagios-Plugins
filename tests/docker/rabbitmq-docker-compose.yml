@@ -38,7 +38,7 @@ services:
     networks:
       - rabbitmq
     volumes:
-      - ../../haproxy:/conf:ro
+      - ../../haproxy-configs:/conf:ro
 
 networks:
   rabbitmq:

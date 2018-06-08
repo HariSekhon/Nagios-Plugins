@@ -42,7 +42,7 @@ services:
       - graphite:carbon-relay
       - graphite:graphite-web
     volumes:
-      - ../../haproxy:/conf:ro
+      - ../../haproxy-configs:/conf:ro
 
   graphite-collectd:
     image: harisekhon/collectd

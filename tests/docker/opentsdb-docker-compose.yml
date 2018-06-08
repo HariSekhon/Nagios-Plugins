@@ -32,7 +32,7 @@ services:
     networks:
       - opentsdb
     volumes:
-      - ../../haproxy:/conf:ro
+      - ../../haproxy-configs:/conf:ro
 
   # 89 metrics ids-used
   # XXX: Collectd doesn't send through HAProxy correctly even though Telegraf does

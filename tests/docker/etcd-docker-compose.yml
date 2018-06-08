@@ -85,7 +85,7 @@ services:
     networks:
       - etcd
     volumes:
-      - ../../haproxy:/conf:ro
+      - ../../haproxy-configs:/conf:ro
 
 networks:
   etcd:

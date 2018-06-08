@@ -31,7 +31,7 @@ services:
     networks:
       - grafana
     volumes:
-      - ../../haproxy:/conf:ro
+      - ../../haproxy-configs:/conf:ro
 
 networks:
   grafana:

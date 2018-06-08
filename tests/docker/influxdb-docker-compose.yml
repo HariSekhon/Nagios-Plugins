@@ -35,7 +35,7 @@ services:
     networks:
       - influxdb
     volumes:
-      - ../../haproxy:/conf:ro
+      - ../../haproxy-configs:/conf:ro
 
   chronograf:
     image: chronograf:alpine

@@ -31,7 +31,7 @@ services:
     networks:
       - postgres
     volumes:
-      - ../../haproxy:/conf:ro
+      - ../../haproxy-configs:/conf:ro
 
 networks:
   postgres:

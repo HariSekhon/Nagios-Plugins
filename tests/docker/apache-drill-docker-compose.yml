@@ -50,7 +50,7 @@ services:
     networks:
       - apache_drill
     volumes:
-      - ../../haproxy:/conf:ro
+      - ../../haproxy-configs:/conf:ro
 
 networks:
   apache_drill:

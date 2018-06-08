@@ -29,7 +29,7 @@ services:
     networks:
       - presto_dev
     volumes:
-      - ../../haproxy:/conf:ro
+      - ../../haproxy-configs:/conf:ro
 
 networks:
   presto_dev:

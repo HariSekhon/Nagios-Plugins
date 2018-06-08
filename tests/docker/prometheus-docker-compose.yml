@@ -38,7 +38,7 @@ services:
     networks:
       - prometheus
     volumes:
-      - ../../haproxy:/conf:ro
+      - ../../haproxy-configs:/conf:ro
 
   prometheus-collectd:
     image: harisekhon/collectd
