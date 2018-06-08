@@ -29,7 +29,7 @@ services:
 
   influxdb-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/influxdb.cfg -d
+    command: -f /conf/10-global.cfg -f /conf/influxdb.cfg -d
     ports:
       - 8086
     networks:

@@ -39,8 +39,8 @@ services:
       - apache_drill
   apache-drill-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/apache-drill.cfg -d
-    # -f /conf/30-stats.cfg
+    command: -f /conf/10-global.cfg -f /conf/apache-drill.cfg -d
+    # -f /conf/20-stats.cfg
     ports:
       - 8047
       #- 9000:9000

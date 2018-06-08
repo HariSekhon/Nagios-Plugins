@@ -29,7 +29,7 @@ services:
     #  - ELASTICSEARCH_URL=http://elasticsearch:9200 # default
   kibana-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/kibana.cfg -d
+    command: -f /conf/10-global.cfg -f /conf/kibana.cfg -d
     ports:
       - 5601
     networks:

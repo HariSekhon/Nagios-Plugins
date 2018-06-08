@@ -25,7 +25,7 @@ services:
       - riak
   riak-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/riak.cfg -d
+    command: -f /conf/10-global.cfg -f /conf/riak.cfg -d
     ports:
       - 8098
     networks:

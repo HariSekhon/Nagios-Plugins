@@ -26,7 +26,7 @@ services:
       - cassandra
   cassandra-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/cassandra.cfg -d
+    command: -f /conf/10-global.cfg -f /conf/cassandra.cfg -d
     ports:
       - 9042
       - 7199

@@ -31,7 +31,7 @@ services:
 
   graphite-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/graphite-web.cfg -f /conf/graphite-carbon-relay.cfg -d
+    command: -f /conf/10-global.cfg -f /conf/graphite-web.cfg -f /conf/graphite-carbon-relay.cfg -d
     ports:
       - 2003:2003
       - 2004:2004

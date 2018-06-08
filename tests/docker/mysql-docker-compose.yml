@@ -30,7 +30,7 @@ services:
       - mysql
   mysql-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/mysql.cfg -d
+    command: -f /conf/10-global.cfg -f /conf/mysql.cfg -d
     ports:
       - 3306
     networks:

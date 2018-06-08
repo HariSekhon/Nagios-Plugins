@@ -32,7 +32,7 @@ services:
 
   prometheus-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/prometheus.cfg -d
+    command: -f /conf/10-global.cfg -f /conf/prometheus.cfg -d
     ports:
       - 9090:9090
     networks:

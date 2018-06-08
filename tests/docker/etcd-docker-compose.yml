@@ -79,7 +79,7 @@ services:
       - etcd
   etcd-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/etcd.cfg -d
+    command: -f /conf/10-global.cfg -f /conf/etcd.cfg -d
     ports:
       - 2379
     networks:
