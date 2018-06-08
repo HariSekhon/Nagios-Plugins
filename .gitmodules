@@ -10,3 +10,6 @@
 	path = bash-tools
 	url = https://github.com/harisekhon/bash-tools
 	branch = master
+[submodule "haproxy-configs"]
+	path = haproxy-configs
+	url = https://github.com/harisekhon/haproxy-configs
