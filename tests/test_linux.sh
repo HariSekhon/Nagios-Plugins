@@ -55,15 +55,15 @@ EOF
         exit 0
     fi
 
-    docker_exec check_disk_mounts_read_only.py --include /mnt/ramdisk1
+    docker_exec check_linux_disk_mounts_read_only.py --include /mnt/ramdisk1
 
     # TODO: extend docker_exec to support $ERRCODE then enable this
-    #ERRCODE=2 docker_exec check_disk_mounts_read_only.py --include '/mnt/ramdisk?'
-    docker_exec check_disk_mounts_read_only.py || :
+    #ERRCODE=2 docker_exec check_linux_disk_mounts_read_only.py --include '/mnt/ramdisk?'
+    docker_exec check_linux_disk_mounts_read_only.py || :
 
-    docker_exec check_disk_mounts_read_only.py --include '/mnt/ramdisk?' || :
+    docker_exec check_linux_disk_mounts_read_only.py --include '/mnt/ramdisk?' || :
 
-    docker_exec check_disk_mounts_read_only.py -e /mnt/ramdisk2
+    docker_exec check_linux_disk_mounts_read_only.py -e /mnt/ramdisk2
 
     docker_exec check_disk_write.pl -d .
 
