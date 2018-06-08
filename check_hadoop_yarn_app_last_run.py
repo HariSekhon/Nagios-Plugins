@@ -21,6 +21,11 @@ Nagios Plugin to check the last completed run of a specific yarn application via
 
 Useful for checking the latest state of a given batch job eg. Finished Success, Failed, Killed etc
 
+Spark - beware Spark Shell interactive sessions always seem to exit with Success status so don't run your Spark jobs as
+scripts but rather spark-submit them to get the proper per job status result as otherwise in an interactive Spark
+session with lots of commands there is no way for the Spark Shell to report the right status when exiting as it
+cannot differentiate between different jobs / actions in a single session as to know which one to report the status for
+
 Can optionally check the following additional aspects of the job:
 
 - ran as a specific user
