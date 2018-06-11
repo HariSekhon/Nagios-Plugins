@@ -3,9 +3,9 @@
 
 This is a list of the best and most interesting 3rd party plugins, several of which I have used or come across over the years that deserve mention, usually due to their better quality than the typical Nagios Exchange / Icinga Exchange plugins.
 
-- [check_openmanage](http://folk.uio.no/trondham/software/check_openmanage.html) - Dell OpenManage hardware monitoring plugin by Trond Hasle Amundsen - checks RAID, Processors, Memory, Fans, Temperature etc. Top quality widely used plugin - one of my all time favourites
+- [check_openmanage](http://folk.uio.no/trondham/software/check_openmanage.html) - Dell OpenManage hardware monitoring plugin by Trond Hasle Amundsen - checks RAID, Processors, Memory, Fans, Temperature, Power Supplies etc. Top quality widely used plugin - one of my all time favourites
 - [Consol Labs](https://labs.consol.de/) checks - one of the very best quality publishers of Nagios Plugins (I have a lot of respect for this team):
-  - [check_hpasm](https://labs.consol.de/nagios/check_hpasm/index.html) - HP ASM hardware monitoring plugin include RAID, Processors, Power supplies, Memory modules, Fans, Temperature
+  - [check_hpasm](https://labs.consol.de/nagios/check_hpasm/index.html) - HP ASM hardware monitoring plugin - checks RAID, Processors, Memory, Fans, Temperature, Power supplies
   - [check_logfiles](https://labs.consol.de/nagios/check_logfiles/index.html) - the best log monitoring Nagios Plugin I've seen, even accounts for log rotations
   - [check_webinject](https://labs.consol.de/nagios/check_webinject/index.html) - see below
 - [WebInject](http://www.webinject.org/plugin.html) - authenticate through HTTP Login portals and check the inside. Widely used and flexible via external XML config. Excellent  - I used to use this a lot and it's probably the best of it's kind
