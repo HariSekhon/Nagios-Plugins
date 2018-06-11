@@ -39,14 +39,14 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import CriticalError, UnknownError, support_msg, log
+    from harisekhon.utils import CriticalError, UnknownError, support_msg, log, linux_only
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 # pylint: disable=too-few-public-methods
@@ -62,6 +62,7 @@ class CheckLinuxHugepagesDisabled(NagiosPlugin):
 
     # must be a method for inheritance purposes
     def run(self):  # pylint: disable=no-self-use
+        linux_only()
         regex = re.compile(r'^HugePages_Total:\s+(\d+)\s*$')
         hugepages_total = None
         with open('/proc/meminfo') as meminfo:
