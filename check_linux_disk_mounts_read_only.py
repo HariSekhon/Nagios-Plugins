@@ -46,14 +46,14 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, plural, UnknownError, validate_regex
+    from harisekhon.utils import log, plural, UnknownError, validate_regex, linux_only, LinuxOnlyException
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckDiskMountsReadOnly(NagiosPlugin):
@@ -89,6 +89,11 @@ class CheckDiskMountsReadOnly(NagiosPlugin):
             self.exclude = re.compile(self.exclude, re.I)
 
     def run(self):
+        try:
+            linux_only(' as it reads /proc/mounts for more reliable information than the mount command provides' + \
+                       ', see --help description for more details')
+        except LinuxOnlyException as _:
+            raise UnknownError('LinuxOnlyException: {}'.format(_))
         mount_lines = self.get_mounts()
         (num_read_only, num_checked, read_only) = self.parse_mounts(mount_lines)
         self.msg = '{} read only mount point{} out of {} mount point{} checked'\
