@@ -11,7 +11,11 @@
 
 $DESCRIPTION = "Nagios Plugin to check a disk is writable and functioning properly by writing a tiny canary file with unique generated contents and then reading it back to make sure it was written properly.
 
-Useful to detect I/O errors and disks that have been re-mounted read-only as often happens when I/O errors in the disk subsystem are detected by the kernel.";
+Useful to detect I/O errors and disks that have been re-mounted read-only as often happens when I/O errors in the disk subsystem are detected by the kernel
+
+See also check_linux_disk_mounts_read_only.py
+
+Tested on various Linux distributions (CentOS / RHEL 5+, Debian, Ubuntu, Alpine) and Mac OS X for several years";
 
 $VERSION = "0.1";
 
