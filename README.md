@@ -233,7 +233,7 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 
 This code base is under active development and there are many more cool plugins pending import.
 
-See also [other 3rd Party Nagios Plugins](https://github.com/HariSekhon/nagios-plugins/blob/master/README-3rd_party_plugins.md) you might be interested in.
+See also [other 3rd Party Nagios Plugins](https://github.com/HariSekhon/nagios-plugins#more-3rd-party-nagios-plugins) you might be interested in.
 
 
 ##### Compatibility / Translation Plugins
