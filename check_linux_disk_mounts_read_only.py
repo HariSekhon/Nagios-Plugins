@@ -27,6 +27,8 @@ Reads /proc/mounts as this is much more reliable than the 'mount' command which 
 in this scenario due to its use of /etc/mtab which merely contains the last mount options executed, not
 the current state of mounts as updated by the Linux kernel
 
+See also check_disk_write.pl
+
 Tested on CentOS 7
 
 """
