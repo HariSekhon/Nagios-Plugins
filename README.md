@@ -41,7 +41,7 @@ Supports a a wide variety of [compatible Enterprise Monitoring systems](https://
 
 Most enterprise monitoring systems come with basic generic checks, while this project extends their monitoring capabilities significantly further in to advanced infrastructure, application layer, APIs etc.
 
-Also useful to be run on the command line for testing or in scripts for dependency availability checking, and comes with a selection of [advanced HAProxy configurations](https://github.com/harisekhon/nagios-plugins/tree/master/haproxy) for these technologies to make monitoring and scripting easier for clustered technologies.
+Also useful to be run on the command line for testing or in scripts for dependency availability checking, and comes with a selection of [advanced HAProxy configurations](https://github.com/harisekhon/haproxy-configs) for these technologies to make monitoring and scripting easier for clustered technologies.
 
 Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/harisekhon/nagios-plugins/issues) or [pull requests](https://github.com/harisekhon/nagios-plugins/pulls) (in which case GitHub will give you credit and mark you as a contributor to the project :) ).
 
@@ -262,7 +262,7 @@ For HTTP based plugins Kerberos is implicitly supported by LWP as long as the LW
 
 Testing high availability and multi-master setups is best done through a load balancer.
 
-HAProxy configurations are provided for all the major technologies under the [haproxy/](https://github.com/HariSekhon/nagios-plugins/tree/master/haproxy) directory for many of the technologies tested in this project, including:
+HAProxy configurations are provided for all the major technologies under the [haproxy-configs/](https://github.com/HariSekhon/haproxy-configs) directory for many of the technologies tested in this project, including:
 
 - Hadoop HDFS NameNodes
 - Hadoop Yarn Resource Managers
