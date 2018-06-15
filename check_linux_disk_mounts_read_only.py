@@ -55,14 +55,14 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
-class CheckDiskMountsReadOnly(NagiosPlugin):
+class CheckLinuxDiskMountsReadOnly(NagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckDiskMountsReadOnly, self).__init__()
+        super(CheckLinuxDiskMountsReadOnly, self).__init__()
         # Python 3.x
         # super().__init__()
         self.include = None
@@ -70,7 +70,7 @@ class CheckDiskMountsReadOnly(NagiosPlugin):
         self.msg = 'Mounts message not defined yet'
 
     def add_options(self):
-        super(CheckDiskMountsReadOnly, self).add_options()
+        super(CheckLinuxDiskMountsReadOnly, self).add_options()
         self.add_opt('-i', '--include', metavar='regex',
                      help='Inclusion regex of which ' + \
                           'mount points to check (case insensitive)')
@@ -79,7 +79,7 @@ class CheckDiskMountsReadOnly(NagiosPlugin):
                           'mount points to not check (case insensitive, takes priority over --include)')
 
     def process_options(self):
-        super(CheckDiskMountsReadOnly, self).process_options()
+        super(CheckLinuxDiskMountsReadOnly, self).process_options()
         self.no_args()
         self.include = self.get_opt('include')
         self.exclude = self.get_opt('exclude')
@@ -157,4 +157,4 @@ class CheckDiskMountsReadOnly(NagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckDiskMountsReadOnly().main()
+    CheckLinuxDiskMountsReadOnly().main()
