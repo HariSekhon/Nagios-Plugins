@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.3'
 
 
 class CheckAmbariClusterHdfsRackResilience(RestNagiosPlugin):
@@ -105,6 +105,7 @@ class CheckAmbariClusterHdfsRackResilience(RestNagiosPlugin):
             self.warning()
             self.msg += ' (no rack resilience!)'
         default_rack = '/default-rack'
+        num_nodes_left_in_default_rack = 0
         if default_rack in racks:
             self.warning()
             num_nodes_left_in_default_rack = len(racks[default_rack])
