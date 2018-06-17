@@ -21,6 +21,8 @@ Nagios Plugin to check InfluxDB is available via its Rest API
 
 Sends a simple API ping request and checks the response code and headers to ensure it is InfluxDB
 
+Uses wait_for_leader=Ns where N is 1 less than the --timeout, with a minimum value of 1 second, this requires 0.9.5+
+
 Tested on InfluxDB 0.12, 0.13, 1.0, 1.1, 1.2, 1.3, 1.4 and InfluxDB Relay
 
 """
@@ -45,7 +47,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class CheckInfluxDBApiPing(RestNagiosPlugin):
@@ -70,6 +72,9 @@ class CheckInfluxDBApiPing(RestNagiosPlugin):
         super(CheckInfluxDBApiPing, self).process_options()
         # Override default RequestHandler() error checking
         self.request.check_response_code = self.check_response_code
+        self.path += '?wait_for_leader={}s'.format(max(self.timeout - 1, 1))
+        #if self.user and self.password:
+        #    self.path += 'u={user}&p={password}'.format(user=self.user, password=self.password)
 
     def parse(self, req):
         # validate X-Influxdb-Build and X-Influxdb-Version to ensure it is in fact InfluxDB
