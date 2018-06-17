@@ -48,7 +48,7 @@ test_logstash(){
     fi
     docker_compose_pull
     # force restarting the container so the uptime so the check_logstash_status.py checks get the right success and failure results for the amount of uptime
-    docker-compose stop || :
+    [ -n "${NODOCKER:-}" ] || docker-compose stop || :
     VERSION="$version" docker-compose up -d
     hr
     echo "getting Logstash dynamic port mapping:"
@@ -80,14 +80,12 @@ test_logstash(){
     echo "waiting for Logstash JVM uptime to come online:"
     retry 40 ./check_logstash_status.py -w 1
 
+    run ./check_logstash_status.py -w 1
+
     echo "checking will alert warning on logstash recently started:"
     run_fail 1 ./check_logstash_status.py
 
     run_fail 1 ./check_logstash_status.py -v
-
-    run ./check_logstash_status.py -w 1
-
-    run ./check_logstash_status.py -v -w 1
 
     run_conn_refused ./check_logstash_status.py -v
 
@@ -98,9 +96,25 @@ test_logstash(){
     if [ "$version" = "latest" -o "${version:0:1}" = 5 ]; then
         logstash_5="--logstash-5"
     fi
+    # ============================================================================ #
+    echo "waiting for pipeline(s) to come online:"
+    retry 20 ./check_logstash_pipelines.py $logstash_5
+    hr
 
+    run_fail 3 ./check_logstash_pipelines.py -l $logstash_5
+
+    run ./check_logstash_pipelines.py -v $logstash_5
+
+    # Logstash 6 has 2 pipelines by default - 'main' and '.monitoring-logstash'
+    run_fail 1 ./check_logstash_pipelines.py -v $logstash_5 -w 3
+
+    run_fail 2 ./check_logstash_pipelines.py -v $logstash_5 -c 3
+
+    run_conn_refused ./check_logstash_pipelines.py -v $logstash_5
+
+    # ============================================================================ #
     local pipeline="main"
-    echo "waiting for pipeline API endpoint to online:"
+    echo "waiting for pipeline API endpoint to come online:"
     retry 20 ./check_logstash_pipeline.py $logstash_5
     hr
 
@@ -140,6 +154,34 @@ test_logstash(){
     run_fail 2 ./check_logstash_plugins.py -c 20
 
     run_conn_refused ./check_logstash_plugins.py
+
+    # ============================================================================ #
+
+    echo "waiting for Logstash::Runner cpu percentage to come down to normal:"
+    retry 80 ./check_logstash_hot_threads.py
+
+    run ./check_logstash_hot_threads.py
+
+    run ./check_logstash_hot_threads.py -v
+
+    echo "setting warning threshold low to test warning scenario for top hot thread:"
+    run_fail 1 ./check_logstash_hot_threads.py -w 0.1 -c 100
+
+    echo "setting critical threshold low to test critical scenario for top hot thread:"
+    run_fail 2 ./check_logstash_hot_threads.py -c 0.1
+
+    echo "setting warning threshold high to test ok scenario:"
+    run ./check_logstash_hot_threads.py --top-3 -w 90
+
+    run ./check_logstash_hot_threads.py --top-3 -w 90 -v
+
+    echo "setting warning threshold low to test warning failure:"
+    run_fail 1 ./check_logstash_hot_threads.py --top-3 -w 0.1
+
+    echo "setting critical threshold low to test critical failure:"
+    run_fail 2 ./check_logstash_hot_threads.py --top-3 -c 0.1
+
+    run_conn_refused ./check_logstash_hot_threads.py -v
 
     echo "Completed $run_count Logstash tests"
     hr
