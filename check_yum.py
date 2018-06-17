@@ -33,7 +33,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.8.3"
+__version__ = "0.8.7"
 
 # Standard Nagios return codes
 OK = 0
@@ -91,6 +91,8 @@ class YumTester(object):
         self.no_warn_on_lock = False
         self.enable_repo = ""
         self.disable_repo = ""
+        self.disable_plugin = ""
+        self.yum_config = ""
         self.timeout = DEFAULT_TIMEOUT
         self.verbosity = 0
         self.warn_on_any_update = False
@@ -138,6 +140,16 @@ class YumTester(object):
         if self.disable_repo:
             for repo in self.disable_repo.split(","):
                 cmd += " --disablerepo=%s" % repo
+
+        if self.disable_plugin:
+            # --disableplugin can take a comma separated list directly
+            #for plugin in self.disable_plugin.split(","):
+                #cmd += " --disableplugin=%s" % plugin
+            cmd += " --disableplugin=%s" % self.disable_plugin
+
+        if self.yum_config:
+            for repo in self.yum_config.split(","):
+                cmd += " --config=%s" % repo
 
         self.vprint(3, "running command: %s" % cmd)
 
@@ -292,7 +304,9 @@ class YumTester(object):
             pass
         else:
             for line in output2[1].split("\n"):
-                if len(line.split()) > 1 and line[0:1] != " " and "Obsoleting Packages" not in line:
+                if len(line.split()) > 1 and \
+                   line[0:1] != " " and \
+                   "Obsoleting Packages" not in line:
                     number_packages += 1
 
         try:
@@ -307,7 +321,8 @@ class YumTester(object):
         # to fail on error rather than pass silently leaving you with an
         # insecure system
         count = 0
-        re_exclude = re.compile(r' excluded ')
+        re_kernel_security_update = re.compile('^Security: kernel-.+ is an installed security update')
+        re_kernel_update = re.compile('^Security: kernel-.+ is the currently running version')
         re_package_format = \
                 re.compile(r'^.+\.(i[3456]86|x86_64|noarch)\s+.+\s+.+$')
         # This is to work around a yum truncation issue effectively changing
@@ -318,12 +333,16 @@ class YumTester(object):
         #        re.compile("^[\w-]+-kmod-\d[\d\.-]+.*\s+.+\s+.+$")
         obsoleting_packages = False
         for line in output:
-            if re_exclude.search(line):
+            if ' excluded ' in line:
                 continue
-            if "Obsoleting Packages" in line:
+            elif obsoleting_packages and line[0:1] == " ":
+                continue
+            elif "Obsoleting Packages" in line:
                 obsoleting_packages = True
                 continue
-            if obsoleting_packages and line[0:1] == " ":
+            elif re_kernel_security_update.match(line):
+                end(WARNING, 'Kernel security update is installed but requires a reboot')
+            elif re_kernel_update.match(line):
                 continue
             if re_package_format.match(line):
                 count += 1
@@ -349,6 +368,7 @@ class YumTester(object):
         re_summary_rhel6 = re.compile(r'(\d+) package\(s\) needed for security, out of (\d+) available')
         re_no_sec_updates = \
                 re.compile(r'No packages needed,? for security[;,] (\d+) (?:packages )?available')
+        re_kernel_update = re.compile(r'^Security: kernel-.+ is an installed security update')
         summary_line_found = False
         for line in output:
             _ = re_summary_rhel6.match(line)
@@ -369,6 +389,9 @@ class YumTester(object):
                 number_security_updates = _.group(1)
                 number_total_updates = _.group(2)
                 break
+            _ = re_kernel_update.match(line)
+            if _:
+                end(CRITICAL, "Kernel security update is installed but requires a reboot")
 
         if not summary_line_found:
             end(WARNING, "Cannot find summary line in yum output. " + support_msg)
@@ -423,6 +446,8 @@ class YumTester(object):
             else:
                 message = "%s Updates Available" % number_updates
 
+        message += " | total_updates_available=%s" % number_updates
+
         return status, message
 
 
@@ -454,6 +479,8 @@ class YumTester(object):
             else:
                 message += ". %s Non-Security Updates Available" \
                                                         % number_other_updates
+        message += " | security_updates_available=%s non_security_updates_available=%s total_updates_available=%s" \
+                   % (number_security_updates, number_other_updates, number_security_updates + number_other_updates)
 
         return status, message
 
@@ -507,6 +534,12 @@ def main():
                          + "check itself doesn't have to do it, possibly "  \
                          + "speeding up execution (by 1-2 seconds in tests)")
 
+    parser.add_option("-c",
+                      "--config",
+                      dest="yum_config",
+                      help="Run with custom repository config in order to use " \
+                         + "custom repositories in case of special setup for")
+
     parser.add_option("-N",
                       "--no-warn-on-lock",
                       action="store_true",
@@ -530,6 +563,11 @@ def main():
                       dest="repository_to_disable",
                       help="Explicitly disables a repository when calling yum. " \
                          + "Can take a comma separated list of repositories")
+
+    parser.add_option("--disableplugin",
+                      dest="plugin_to_disable",
+                      help="Explicitly disables a plugin when calling yum. " \
+                         + "Can take a comma separated list of plugins")
 
     parser.add_option("-t",
                       "--timeout",
@@ -564,6 +602,8 @@ def main():
     tester.no_warn_on_lock = options.no_warn_on_lock
     tester.enable_repo = options.repository_to_enable
     tester.disable_repo = options.repository_to_disable
+    tester.disable_plugin = options.plugin_to_disable
+    tester.yum_config = options.yum_config
     tester.timeout = options.timeout
     tester.verbosity = options.verbosity
     tester.warn_on_any_update = options.warn_on_any_update

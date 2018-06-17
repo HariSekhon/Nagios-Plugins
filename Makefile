@@ -72,21 +72,26 @@ build :
 	@echo Nagios Plugins Build
 	@echo ====================
 
-	make common
-	make perl-libs
-	make python-libs
+	$(MAKE) common
+	$(MAKE) perl-libs
+	$(MAKE) python-libs
 	@echo
-	#make jar-plugins
+	#$(MAKE) jar-plugins
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins)"
 
 .PHONY: quick
 quick:
-	QUICK=1 make build
+	QUICK=1 $(MAKE) build
 
 .PHONY: common
 common: system-packages submodules
-	:
+	# Workaround for Mac OS X not finding the OpenSSL libraries when building
+	if [ -d /usr/local/opt/openssl/include -a \
+	     -d /usr/local/opt/openssl/lib     -a \
+	     `uname` = Darwin ]; then \
+	     sudo OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib cpan Crypt::SSLeay; \
+	fi
 
 .PHONY: submodules
 submodules:
@@ -95,9 +100,10 @@ submodules:
 
 .PHONY: system-packages
 system-packages:
-	if [ -x /sbin/apk ];        then make apk-packages; fi
-	if [ -x /usr/bin/apt-get ]; then make apt-packages; fi
-	if [ -x /usr/bin/yum ];     then make yum-packages; fi
+	if [ -x /sbin/apk ];        then $(MAKE) apk-packages; fi
+	if [ -x /usr/bin/apt-get ]; then $(MAKE) apt-packages; fi
+	if [ -x /usr/local/bin/brew -a `uname` = Darwin ]; then $(MAKE) homebrew-packages; fi
+	if [ -x /usr/bin/yum ];     then $(MAKE) yum-packages; fi
 	
 .PHONY: perl
 perl:
@@ -105,8 +111,8 @@ perl:
 	@echo "Nagios Plugins Build (Perl)"
 	@echo ===========================
 
-	make common
-	make perl-libs
+	$(MAKE) common
+	$(MAKE) perl-libs
 
 .PHONY: perl-libs
 perl-libs:
@@ -169,8 +175,8 @@ python:
 	@echo "Nagios Plugins Build (Python)"
 	@echo =============================
 
-	make common
-	make python-libs
+	$(MAKE) common
+	$(MAKE) python-libs
 
 .PHONY: python-libs
 python-libs:
@@ -182,7 +188,7 @@ python-libs:
 	$(SUDO) easy_install pip || :
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	# upgrade required to get install to work properly on Debian
-	$(SUDO) pip install --upgrade pip
+	#$(SUDO) pip install --upgrade pip
 	$(SUDO_PIP) pip install --upgrade -r requirements.txt
 	# in requirements.txt now
 	#$(SUDO_PIP) pip install cassandra-driver scales blist lz4 python-snappy
@@ -233,7 +239,7 @@ apk-packages:
 
 .PHONY: apk-packages-remove
 apk-packages-remove:
-	cd lib && make apk-packages-remove
+	cd lib && $(MAKE) apk-packages-remove
 	$(SUDO) apk del `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/apk-packages-dev.txt` || :
 	$(SUDO) rm -fr /var/cache/apk/*
 
@@ -248,10 +254,16 @@ apt-packages:
 
 .PHONY: apt-packages-remove
 apt-packages-remove:
-	cd lib && make apt-packages-remove
+	cd lib && $(MAKE) apt-packages-remove
 	$(SUDO) apt-get purge -y `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/deb-packages-dev.txt`
 	$(SUDO) apt-get purge -y libmariadbd-dev || :
 	$(SUDO) apt-get purge -y libmysqlclient-dev || :
+
+.PHONY: homebrew-packages
+homebrew-packages:
+	# Sudo is not required as running Homebrew as root is extremely dangerous and no longer supported as Homebrew does not drop privileges on installation you would be giving all build scripts full access to your system
+	# Fails if any of the packages are already installed, ignore and continue - if it's a problem the latest build steps will fail with missing headers
+	brew install `sed 's/#.*//; /^[[:space:]]*$$/d' setup/brew-packages.txt` || :
 
 .PHONY: yum-packages
 yum-packages:
@@ -263,7 +275,7 @@ yum-packages:
 	# python-pip requires EPEL, so try to get the correct EPEL rpm
 	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
 	# must instead do wget 
-	rpm -q epel-release      || yum install -y epel-release || { wget -t 100 --retry-connrefused -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`grep -o '[[:digit:]]' /etc/*release | head -n1`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
+	rpm -q epel-release      || yum install -y epel-release || { wget -t 5 --retry-connrefused -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`grep -o '[[:digit:]]' /etc/*release | head -n1`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
 
 	# installing packages individually to catch package install failure, otherwise yum succeeds even if it misses a package
 	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages.txt setup/rpm-packages-dev.txt`; do rpm -q $$x || $(SUDO) yum install -y $$x; done
@@ -277,26 +289,26 @@ yum-packages:
 
 .PHONY: yum-packages-remove
 yum-packages-remove:
-	cd lib && make yum-packages-remove
+	cd lib && $(MAKE) yum-packages-remove
 	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/rpm-packages-dev.txt`; do if rpm -q $$x; then $(SUDO) yum remove -y $$x; fi; done
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
 # doesn't build on Mac < 3.4.7 / 3.5.1 / 3.6.0 but the others are in the public mirrors yet
 # https://issues.apache.org/jira/browse/ZOOKEEPER-2049
-ZOOKEEPER_VERSION = 3.4.11
+ZOOKEEPER_VERSION = 3.4.12
 .PHONY: zookeeper
 zookeeper:
-	[ -x /sbin/apk ]        && make apk-packages || :
-	[ -x /usr/bin/apt-get ] && make apt-packages || :
-	[ -x /usr/bin/yum ]     && make yum-packages || :
-	[ -f zookeeper-$(ZOOKEEPER_VERSION).tar.gz ] || wget -t 100 --retry-connrefused -O zookeeper-$(ZOOKEEPER_VERSION).tar.gz "http://www.apache.org/dyn/closer.lua?filename=zookeeper/zookeeper-${ZOOKEEPER_VERSION}/zookeeper-${ZOOKEEPER_VERSION}.tar.gz&action=download"
+	[ -x /sbin/apk ]        && $(MAKE) apk-packages || :
+	[ -x /usr/bin/apt-get ] && $(MAKE) apt-packages || :
+	[ -x /usr/bin/yum ]     && $(MAKE) yum-packages || :
+	[ -f zookeeper-$(ZOOKEEPER_VERSION).tar.gz ] || wget -O zookeeper-$(ZOOKEEPER_VERSION).tar.gz "http://www.apache.org/dyn/closer.lua?filename=zookeeper/zookeeper-${ZOOKEEPER_VERSION}/zookeeper-${ZOOKEEPER_VERSION}.tar.gz&action=download" || wget -t 2 --retry-connrefused -O zookeeper-$(ZOOKEEPER_VERSION).tar.gz "https://archive.apache.org/dist/zookeeper/zookeeper-$(ZOOKEEPER_VERSION)/zookeeper-$(ZOOKEEPER_VERSION).tar.gz"
 	[ -d zookeeper-$(ZOOKEEPER_VERSION) ] || tar zxf zookeeper-$(ZOOKEEPER_VERSION).tar.gz
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				./configure
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				make
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				$(SUDO) make install
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				$(SUDO) $(MAKE) install
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	perl Makefile.PL --zookeeper-include=/usr/local/include --zookeeper-lib=/usr/local/lib
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	LD_RUN_PATH=/usr/local/lib $(SUDO) make
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	$(SUDO) make install
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	$(SUDO) $(MAKE) install
 	perl -e "use Net::ZooKeeper"
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins perl zookeeper)"
@@ -310,10 +322,10 @@ jar-plugins:
 	@echo Fetching Kafka Scala Nagios Plugin
 	@echo fetching jar wrapper shell script
 	# if removing and re-uploading latest this would get 404 and exit immediately without the rest of the retries
-	#wget -c -t 100 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/blob/latest/check_kafka
+	#wget -c -t 5 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/blob/latest/check_kafka
 	for x in {1..6}; do wget -c https://github.com/HariSekhon/nagios-plugin-kafka/blob/latest/check_kafka && break; sleep 10; done
 	@echo fetching jar
-	#wget -c -t 100 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/releases/download/latest/check_kafka.jar
+	#wget -c -t 5 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/releases/download/latest/check_kafka.jar
 	for x in {1..6}; do wget -c https://github.com/HariSekhon/nagios-plugin-kafka/releases/download/latest/check_kafka.jar && break; sleep 10; done
 
 .PHONY: sonar
@@ -322,9 +334,9 @@ sonar:
 
 .PHONY: lib-test
 lib-test:
-	cd lib && make test
+	cd lib && $(MAKE) test
 	rm -fr lib/cover_db || :
-	cd pylib && make test
+	cd pylib && $(MAKE) test
 
 .PHONY: test
 test: lib-test
@@ -361,10 +373,10 @@ updatem: update-submodules
 
 .PHONY: clean
 clean:
-	cd lib && make clean
-	cd pylib && make clean
+	cd lib && $(MAKE) clean
+	cd pylib && $(MAKE) clean
 	@find . -maxdepth 3 -iname '*.py[co]' -o -iname '*.jy[co]' | xargs rm -f || :
-	@make clean-zookeeper
+	@$(MAKE) clean-zookeeper
 	rm -fr tests/spark-*-bin-hadoop*
 
 .PHONY: clean-zookeeper
@@ -373,8 +385,8 @@ clean-zookeeper:
 
 .PHONY: deep-clean
 deep-clean: clean clean-zookeeper
-	cd lib && make deep-clean
-	cd pylib && make deep-clean
+	cd lib && $(MAKE) deep-clean
+	cd pylib && $(MAKE) deep-clean
 
 .PHONY: docker-run
 docker-run:
@@ -386,7 +398,9 @@ run: docker-run
 
 .PHONY: docker-mount
 docker-mount:
-	docker run -ti --rm -v $$PWD:/pl harisekhon/nagios-plugins bash -c "cd /pl; exec bash"
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins bash -c "cd /pl; exec bash"
 
 .PHONY: mount
 mount: docker-mount

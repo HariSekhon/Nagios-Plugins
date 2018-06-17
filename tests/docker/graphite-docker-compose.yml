@@ -31,7 +31,7 @@ services:
 
   graphite-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/graphite-web.cfg -f /conf/graphite-carbon-relay.cfg -d
+    command: -f /conf/10-global.cfg -f /conf/graphite-web.cfg -f /conf/graphite-carbon-relay.cfg -d
     ports:
       - 2003:2003
       - 2004:2004
@@ -42,7 +42,7 @@ services:
       - graphite:carbon-relay
       - graphite:graphite-web
     volumes:
-      - ../../haproxy:/conf
+      - ../../haproxy-configs:/conf:ro
 
   graphite-collectd:
     image: harisekhon/collectd
@@ -51,7 +51,7 @@ services:
     links:
       - graphite-haproxy:graphite
     volumes:
-      - ../conf/collectd.d/write_graphite.conf:/etc/collectd.d/write_graphite.conf
+      - ../conf/collectd.d/write_graphite.conf:/etc/collectd.d/write_graphite.conf:ro
 
   graphite-telegraf:
     image: telegraf:${TELEGRAF_VERSION:-alpine}
@@ -60,7 +60,7 @@ services:
     links:
       - graphite-haproxy:graphite
     volumes:
-      - ../conf/telegraf-graphite.conf:/etc/telegraf/telegraf.conf
+      - ../conf/telegraf-graphite.conf:/etc/telegraf/telegraf.conf:ro
 
 networks:
   graphite:

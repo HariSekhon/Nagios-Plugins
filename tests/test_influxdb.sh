@@ -25,7 +25,7 @@ cd "$srcdir/.."
 section "I n f l u x D B"
 
 # there is no alpine version of 0.12
-export INFLUXDB_VERSIONS="${@:-${INFLUXDB_VERSIONS:-alpine 0.12 0.13-alpine 1.0-alpine 1.1-alpine 1.2-alpine 1.3-alpine 1.4-alpine}}"
+export INFLUXDB_VERSIONS="${@:-${INFLUXDB_VERSIONS:-0.12 0.13-alpine 1.0-alpine 1.1-alpine 1.2-alpine 1.3-alpine 1.4-alpine 1.5-alpine alpine}}"
 
 INFLUXDB_HOST="${DOCKER_HOST:-${INFLUXDB_HOST:-${HOST:-localhost}}}"
 INFLUXDB_HOST="${INFLUXDB_HOST##*/}"

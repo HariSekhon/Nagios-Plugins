@@ -68,7 +68,8 @@ install:
   - make && make zookeeper
 
 script:
-  make test
+  - sudo sysctl -w net.ipv4.conf.all.forwarding=1
+  - make test
 
 after_success:
   - echo "After Success"

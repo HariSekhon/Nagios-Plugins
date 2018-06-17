@@ -23,13 +23,14 @@ cd "$srcdir/..";
 
 section "Z o o K e e p e r"
 
-export ZOOKEEPER_VERSIONS="${@:-${ZOOKEEPER_VERSIONS:-latest 3.3 3.4}}"
+export ZOOKEEPER_VERSIONS="${@:-${ZOOKEEPER_VERSIONS:-3.3 3.4 latest}}"
 
 ZOOKEEPER_HOST="${DOCKER_HOST:-${ZOOKEEPER_HOST:-${HOST:-localhost}}}"
 ZOOKEEPER_HOST="${ZOOKEEPER_HOST##*/}"
 ZOOKEEPER_HOST="${ZOOKEEPER_HOST%%:*}"
 export ZOOKEEPER_HOST
 export ZOOKEEPER_PORT_DEFAULT=2181
+export HAPROXY_PORT_DEFAULT=2181
 #export ZOOKEEPER_PORTS="$ZOOKEEPER_PORT_DEFAULT 3181 4181"
 
 export DOCKER_MOUNT_DIR="/pl"
@@ -48,8 +49,10 @@ test_zookeeper(){
     hr
     echo "getting ZooKeeper dynammic port mapping:"
     docker_compose_port "ZooKeeper"
+    DOCKER_SERVICE=zookeeper-haproxy docker_compose_port HAProxy
     hr
-    when_ports_available "$ZOOKEEPER_HOST" "$ZOOKEEPER_PORT"
+    when_ports_available "$ZOOKEEPER_HOST" "$ZOOKEEPER_PORT" "$HAPROXY_PORT"
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -67,6 +70,29 @@ test_zookeeper(){
 
     run_conn_refused ./check_zookeeper_version.py -e "$expected_version"
 
+    zookeeper_tests
+
+    docker_exec check_zookeeper_child_znodes.pl -H localhost -z / --no-ephemeral-check -v
+
+    echo "checking connection refused:"
+    ERRCODE=2 docker_exec check_zookeeper_child_znodes.pl -H localhost -z / --no-ephemeral-check -v -P "$wrong_port"
+
+    docker_exec check_zookeeper_znode.pl -H localhost -z / -v -n --child-znodes
+
+    echo "checking connection refused:"
+    ERRCODE=2 docker_exec check_zookeeper_znode.pl -H localhost -z / -v -n --child-znodes -P "$wrong_port"
+    echo
+    section2 "Now checking HAProxy ZooKeeper checks:"
+    ZOOKEEPER_PORT="$HAPROXY_PORT" \
+    zookeeper_tests
+
+    echo "Completed $run_count ZooKeeper tests"
+    hr
+    [ -n "${KEEPDOCKER:-}" ] ||
+    docker-compose down
+}
+
+zookeeper_tests(){
     if [ "${version:0:3}" = "3.3" ]; then
         run_fail 3 $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
     else
@@ -79,21 +105,6 @@ test_zookeeper(){
 
     echo "checking connection refused:"
     ERRCODE=2 docker_exec check_zookeeper_config.pl -H localhost -C "/zookeeper/conf/zoo.cfg" -v -P "$wrong_port"
-
-    docker_exec check_zookeeper_child_znodes.pl -H localhost -z / --no-ephemeral-check -v
-
-    echo "checking connection refused:"
-    ERRCODE=2 docker_exec check_zookeeper_child_znodes.pl -H localhost -z / --no-ephemeral-check -v -P "$wrong_port"
-
-    docker_exec check_zookeeper_znode.pl -H localhost -z / -v -n --child-znodes
-
-    echo "checking connection refused:"
-    ERRCODE=2 docker_exec check_zookeeper_znode.pl -H localhost -z / -v -n --child-znodes -P "$wrong_port"
-
-    echo "Completed $run_count ZooKeeper tests"
-    hr
-    [ -n "${KEEPDOCKER:-}" ] ||
-    docker-compose down
 }
 
 run_test_versions ZooKeeper

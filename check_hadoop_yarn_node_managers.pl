@@ -11,7 +11,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check Hadoop Yarn Node Managers via Resource Manager JMX API
 
-Thresholds apply lost + unhealthy Node Managers
+Thresholds apply to the total of lost + unhealthy Node Managers
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0) and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8";
 

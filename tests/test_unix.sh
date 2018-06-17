@@ -75,6 +75,8 @@ hr
 # test real login against HP iLO or similar if local environment is configured for it
 if [ -n "${SSH_HOST:-}" -a -n "${SSH_USER:-}" -a -n "${SSH_PASSWORD:-}" ]; then
     run $perl -T ./check_ssh_login.pl -H "$SSH_HOST" -u "$SSH_USER" -p "$SSH_PASSWORD"
+    echo "testing via environment variables:"
+    run $perl -T ./check_ssh_login.pl
 fi
 
 echo "check fails on non-existent user when SSH'ing localhost:"

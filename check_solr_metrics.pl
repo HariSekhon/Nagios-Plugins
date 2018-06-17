@@ -29,7 +29,7 @@ Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 6.
 # Replication status
 # Synthetic queries
 
-our $VERSION = "0.5.1";
+our $VERSION = "0.5.2";
 
 use strict;
 use warnings;
@@ -125,7 +125,7 @@ if($list_keys){
 }
 
 unless(isHash($mbeans[1]) and %{$mbeans[1]}){
-    quit "UNKNOWN", "no metrics returned for category '$category'" . ( defined($key) ? " key '$key'" : "" ). ", did you specify a correct category as listed by --list-categories" . ( defined($key) ? " and correct key as listed by --list-keys?" : "");
+    quit "UNKNOWN", "no metrics returned for category '$category'" . ( defined($key) ? " key '$key'" : "" ). ", did you specify a correct category as listed by --list-categories" . ( defined($key) ? " and correct key as listed by --list-keys?" : "?");
 }
 
 #my $key_found  = 0;
@@ -210,7 +210,7 @@ foreach my $key (sort keys %stats){
     foreach(sort keys %{$stats{$key}}){
         #print "$_=$stats{$_}\n";
         $msg  .= "$_=$stats{$key}{$_}, ";
-        $msg2 .= " '${key} => $_'=$stats{$key}{$_}";
+        $msg2 .= " '${key} $_'=$stats{$key}{$_}";
         if($num_stats == 1){
             check_thresholds($stats{$key}{$_});
         }

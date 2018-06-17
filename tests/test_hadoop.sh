@@ -23,7 +23,7 @@ cd "$srcdir/.."
 
 section "H a d o o p"
 
-export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-latest 2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9}}"
+export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 latest}}"
 
 HADOOP_HOST="${DOCKER_HOST:-${HADOOP_HOST:-${HOST:-localhost}}}"
 HADOOP_HOST="${HADOOP_HOST##*/}"
@@ -290,6 +290,10 @@ EOF
     ERRCODE=1 docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --max-blocks -w 0 -c 1
 
     ERRCODE=2 docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --max-blocks -w 0 -c 0
+
+    # TODO: FIXME: this shouldn't require docker module to be installed as don't use docker nagios plugin class
+    #docker exec $DOCKER_CONTAINER pip install docker
+    ERRCODE="0 1" docker_exec check_hadoop_hdfs_rack_resilience.py
 
     run $perl -T ./check_hadoop_hdfs_space.pl
 

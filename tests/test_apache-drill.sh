@@ -24,7 +24,7 @@ cd "$srcdir/.."
 
 section "A p a c h e   D r i l l"
 
-export APACHE_DRILL_VERSIONS="${@:-${APACHE_DRILL_VERSIONS:-latest 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 1.10 1.11}}"
+export APACHE_DRILL_VERSIONS="${@:-${APACHE_DRILL_VERSIONS:-0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 1.10 1.11 1.12 1.13 latest}}"
 
 APACHE_DRILL_HOST="${DOCKER_HOST:-${APACHE_DRILL_HOST:-${HOST:-localhost}}}"
 APACHE_DRILL_HOST="${APACHE_DRILL_HOST##*/}"
@@ -43,6 +43,8 @@ test_apache_drill(){
     local version="$1"
     section2 "Setting up Apache Drill $version test container"
     docker_compose_pull
+    # protects against using a stale ZooKeeper storage plugin config from a higher version which will result in an error as see in DRILL-4383
+    #docker-compose down
     VERSION="$version" docker-compose up -d
     hr
     echo "getting Apache Drill dynamic port mappings:"
@@ -77,17 +79,150 @@ test_apache_drill(){
 }
 
 test_drill(){
-    #run ./check_apache_drill_version.py -v -e "$version"
+    expected_version="$version"
+    if [ "$version" = "latest" ]; then
+        expected_version=".*"
+    fi
+    # API endpoint not available < 1.10
+    if egrep -q '^0|^1\.[0-9]$' <<< "$version"; then
+        run_fail 2 ./check_apache_drill_version.py -v -e "$expected_version"
+    else
+        run ./check_apache_drill_version.py -v -e "$expected_version"
+    fi
 
-    #run_fail 2 ./check_apache_drill_version.py -v -e "fail-version"
+    run_fail 2 ./check_apache_drill_version.py -v -e "fail-version"
+
+    run_conn_refused ./check_apache_drill_version.py -v
+
+    # ============================================================================ #
 
     run ./check_apache_drill_status.py -v
 
     run_conn_refused ./check_apache_drill_status.py -v
 
+    # ============================================================================ #
+
+    # API endpoint not available < 1.7
+    if [[ "$version" =~ ^0.[7-9]|^1.[0-6]$ ]]; then
+        run_fail 2 ./check_apache_drill_status2.py -v
+    else
+        run ./check_apache_drill_status2.py -v
+    fi
+
+    run_conn_refused ./check_apache_drill_status2.py -v
+
+    # ============================================================================ #
+
+    local node="not_set"
+    # API endpoint not available < 1.10
+    if egrep -q '^0|^1\.[0-9]$' <<< "$version"; then
+        run_fail 2 ./check_apache_drill_cluster_nodes.py -w 1
+
+        run_fail 2 ./check_apache_drill_cluster_nodes.py
+
+        run_fail 2 ./check_apache_drill_cluster_node.py --list
+
+        run_fail 2 ./check_apache_drill_cluster_node.py --node "doesntmatter"
+    else
+        run ./check_apache_drill_cluster_nodes.py -w 1
+
+        run_fail 1 ./check_apache_drill_cluster_nodes.py
+
+        run_fail 3 ./check_apache_drill_cluster_node.py --list
+
+        local node="$(./check_apache_drill_cluster_node.py -l | sed -n '6p' | awk '{print $1}')"
+        run ./check_apache_drill_cluster_node.py --node "$node"
+    fi
+
+    run_fail 2 ./check_apache_drill_cluster_nodes.py -w 3 -c 2
+
+    run_fail 2 ./check_apache_drill_cluster_node.py --node nonexistentnode
+
+    run_conn_refused ./check_apache_drill_cluster_nodes.py
+
+    run_conn_refused ./check_apache_drill_cluster_node.py -n "$node"
+
+    # ============================================================================ #
+
+    # API endpoint does not have the state field < 1.12
+    if [[ "$version" =~ 1.1[01] ]]; then
+        run_fail 3 ./check_apache_drill_cluster_nodes_offline.py
+    elif [[ "$version" =~ ^0|^1\.[0-9]$ ]]; then
+        run_fail 2 ./check_apache_drill_cluster_nodes_offline.py
+    else
+        run ./check_apache_drill_cluster_nodes_offline.py
+    fi
+
+    run_conn_refused ./check_apache_drill_cluster_nodes_offline.py
+
+    # ============================================================================ #
+
+    run_fail 3 ./check_apache_drill_config.py --list
+
+    run ./check_apache_drill_config.py --key exec.errors.verbose -e false
+
+    run ./check_apache_drill_config.py -k exec.errors.verbose -e f.*
+
+    run ./check_apache_drill_config.py -k exec.errors.verbose
+
+    run_fail 2 ./check_apache_drill_config.py -k exec.errors.verbose -e true
+
+    run_fail 2 ./check_apache_drill_config.py --key exec.errors.verbose --expected 1
+
+    run_conn_refused ./check_apache_drill_config.py --key exec.errors.verbose -e false
+
+    # ============================================================================ #
+
+    # Encryption is available only in Apache Drill 1.11+
+    # field not available in 1.10
+    if [[ "$version" =~ 1.10 ]]; then
+        run_fail 3 ./check_apache_drill_encryption_enabled.py
+    else
+        # encryption is not enabled in Docker image
+        # < 1.9 gets "500 Internal Server Error"
+        run_fail 2 ./check_apache_drill_encryption_enabled.py
+    fi
+
+    run_conn_refused ./check_apache_drill_encryption_enabled.py
+
+    # ============================================================================ #
+
+    # API endpoint not available < 1.10
+    if egrep -q '^0|^1\.[0-9]$' <<< "$version"; then
+        run_fail 2 ./check_apache_drill_cluster_mismatched_versions.py
+    else
+        run ./check_apache_drill_cluster_mismatched_versions.py
+    fi
+
+    run_conn_refused ./check_apache_drill_cluster_mismatched_versions.py
+
+    # ============================================================================ #
+
     run $perl -T ./check_apache_drill_metrics.pl -v
 
     run_conn_refused $perl -T ./check_apache_drill_metrics.pl -v
+
+    # ============================================================================ #
+
+    run_fail 3 ./check_apache_drill_storage_plugin.py --list
+
+    run ./check_apache_drill_storage_plugin.py --name dfs
+
+    run ./check_apache_drill_storage_plugin.py --name dfs --type file
+
+    run_fail 2 ./check_apache_drill_storage_plugin.py --name dfs --type wrong
+
+    run ./check_apache_drill_storage_plugin.py -n cp --type file
+
+    run_fail 2 ./check_apache_drill_storage_plugin.py -n hive --type hive
+
+    run_fail 2 ./check_apache_drill_storage_plugin.py -n hbase --type hbase
+
+    run_fail 2 ./check_apache_drill_storage_plugin.py -n mongo --type mongo
+
+    run_conn_refused ./check_apache_drill_storage_plugin.py --name dfs
+
+    # ============================================================================ #
 
     # check container query capability is working
     #
@@ -101,10 +236,11 @@ test_drill(){
     #
     #docker_exec sqlline -u jdbc:drill:zk=zookeeper <<< "select * from sys.options limit 1;"
     # more reliable for some versions of drill eg. 0.7
-    docker_exec sqlline -u jdbc:drill:zk=zookeeper -f /dev/stdin <<< "select * from sys.options limit 1;"
+    #docker_exec sqlline -u jdbc:drill:zk=zookeeper -f /dev/stdin <<< "select * from sys.options limit 1;"
+    docker_exec sqlline -u jdbc:drill:zk=zookeeper -f /dev/stdin <<< "select * from sys.drillbits;"
 
 }
 
-startupwait 50
+startupwait 70
 
 run_test_versions "Apache Drill"

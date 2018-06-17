@@ -22,6 +22,7 @@ services:
     command: tail -f /dev/null
     networks:
       - alpine_github
+    privileged: true
 
 networks:
   alpine_github:

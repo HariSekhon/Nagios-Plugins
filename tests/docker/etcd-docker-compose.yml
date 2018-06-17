@@ -1,0 +1,91 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2018-03-17 09:56:18 +0000 (Sat, 17 Mar 2018)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+version: '2.2'
+services:
+  etcd1:
+    extends:
+      file: common.yml
+      service: common
+    image: quay.io/coreos/etcd:${VERSION:-latest}
+    ports:
+      - 2379
+    command:
+      >
+      /usr/local/bin/etcd
+        --name etcd1
+        --data-dir=/etcd-data
+        --initial-advertise-peer-urls http://etcd1:2380
+        --advertise-client-urls http://etcd1:2379
+        --listen-peer-urls http://0.0.0.0:2380
+        --listen-client-urls http://0.0.0.0:2379
+        --initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
+        --initial-cluster-state new
+        --initial-cluster-token myToken
+    networks:
+      - etcd
+  etcd2:
+    extends:
+      file: common.yml
+      service: common
+    image: quay.io/coreos/etcd:${VERSION:-latest}
+    ports:
+      - 2379
+    command:
+      >
+      /usr/local/bin/etcd
+        --name etcd2
+        --data-dir=/etcd-data
+        --initial-advertise-peer-urls http://etcd2:2380
+        --advertise-client-urls http://etcd2:2379
+        --listen-peer-urls http://0.0.0.0:2380
+        --listen-client-urls http://0.0.0.0:2379
+        --initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
+        --initial-cluster-state new
+        --initial-cluster-token myToken
+    networks:
+      - etcd
+  etcd3:
+    extends:
+      file: common.yml
+      service: common
+    image: quay.io/coreos/etcd:${VERSION:-latest}
+    ports:
+      - 2379
+    command:
+      >
+      /usr/local/bin/etcd
+        --name etcd3
+        --data-dir=/etcd-data
+        --initial-advertise-peer-urls http://etcd3:2380
+        --advertise-client-urls http://etcd3:2379
+        --listen-peer-urls http://0.0.0.0:2380
+        --listen-client-urls http://0.0.0.0:2379
+        --initial-cluster etcd1=http://etcd1:2380,etcd2=http://etcd2:2380,etcd3=http://etcd3:2380
+        --initial-cluster-state new
+        --initial-cluster-token myToken
+    networks:
+      - etcd
+  etcd-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/etcd.cfg -d
+    ports:
+      - 2379
+    networks:
+      - etcd
+    volumes:
+      - ../../haproxy-configs:/conf:ro
+
+networks:
+  etcd:

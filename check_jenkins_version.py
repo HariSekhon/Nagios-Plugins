@@ -52,7 +52,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.1.1'
 
 
 # pylint: disable=too-few-public-methods
@@ -90,7 +90,7 @@ class CheckJenkinsVersion(RestVersionNagiosPlugin):
         if not version:
             raise UnknownError('failed to retrieve version')
         log.debug('extracting version for Jenkins version string: %s', version)
-        _ = re.match(r'Jenkins ver\. ({0})'.format(version_regex), version)
+        _ = re.match(r'Jenkins ver\. ({0})'.format(version_regex), str(version))
         if not _:
             raise UnknownError('failed to parse version string, format may have changed. {0}'.format(support_msg()))
         version = _.group(1)

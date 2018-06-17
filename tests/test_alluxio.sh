@@ -23,7 +23,7 @@ cd "$srcdir/.."
 
 section "A l l u x i o"
 
-export ALLUXIO_VERSIONS="${@:-${ALLUXIO_VERSIONS:-latest 1.0 1.1 1.2 1.3 1.4 1.5 1.6}}"
+export ALLUXIO_VERSIONS="${@:-${ALLUXIO_VERSIONS:-1.0 1.1 1.2 1.3 1.4 1.5 1.6 latest}}"
 
 ALLUXIO_HOST="${DOCKER_HOST:-${ALLUXIO_HOST:-${HOST:-localhost}}}"
 ALLUXIO_HOST="${ALLUXIO_HOST##*/}"

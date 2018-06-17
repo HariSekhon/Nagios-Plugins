@@ -29,13 +29,13 @@ services:
       - consul
   consul-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/20-defaults.cfg -f /conf/consul.cfg -d
+    command: -f /conf/10-global.cfg -f /conf/consul.cfg -d
     ports:
       - 8500
     networks:
       - consul
     volumes:
-      - ../../haproxy:/conf
+      - ../../haproxy-configs:/conf:ro
 
 networks:
   consul:

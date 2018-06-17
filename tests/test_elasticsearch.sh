@@ -24,7 +24,9 @@ cd "$srcdir/..";
 section "E l a s t i c s e a r c h"
 
 # Elasticsearch 6.0+ only available on new docker.elastic.co which uses full sub-version x.y.z and does not have x.y tags
-export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-latest 1.3 1.4 1.5 1.6 1.7 2.0 2.1 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5 5.6 6.0.1 6.1.1}}"
+# Any version given as x.y.z will use docker.elastic.co repo, otherwise old dockerhub images
+# Platinum edition with X-Pack is only available from 6.x onwards from docker.elastic.co
+export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-1.3 1.4 1.5 1.6 1.7 2.0 2.1 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5 5.6  5.2.1 5.3.3 5.4.3 5.5.3 5.6.8 6.0.1 6.1.4 6.2.4  6.0.1-x-pack 6.1.4-x-pack 6.2.4-x-pack  latest}}"
 
 ELASTICSEARCH_HOST="${DOCKER_HOST:-${ELASTICSEARCH_HOST:-${HOST:-localhost}}}"
 ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST##*/}"
@@ -49,13 +51,41 @@ startupwait 120
 #  sudo sysctl -w vm.max_map_count=232144
 #  grep vm.max_map_count /etc/sysctl.d/99-elasticsearch.conf || echo vm.max_map_count=232144 >> /etc/sysctl.d/99-elasticsearch.conf
 
+remove_shard_replicas(){
+        echo "removing replicas of all indices to avoid failing tests with unassigned shards:"
+        set +o pipefail
+        $perl -T ./check_elasticsearch_index_exists.pl --list-indices |
+        tail -n +2 |
+        grep -v "^[[:space:]]*$" |
+        while read index; do
+            echo "reducing replicas for index '$index'"
+            curl -u "${ELASTICSEARCH_USER:-}:${ELASTICSEARCH_PASSWORD:-}" -H "content-type: application/json" -XPUT "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$index/_settings" -d '
+            {
+                "index": {
+                    "number_of_replicas": 0
+                }
+            }
+            '
+            echo
+        done
+        set -o pipefail
+}
+
 test_elasticsearch(){
     local version="$1"
     section2 "Setting up Elasticsearch $version test container"
     # re-enable this when Elastic.co finally support 'latest' tag
-    #if [ "$version" = "latest" ] || [ "${version:0:1}" -ge 6 ]; then
-    if [ "$version" != "latest" ] && [ "${version:0:1}" -ge 6 ]; then
+    #if [ "$version" != "latest" ] && [ "${version:0:1}" -ge 6 ]; then
+    if egrep -q '^[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$' <<< "$version"; then
         local export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-elastic.co-docker-compose.yml"
+    elif egrep -q '^[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+-x-pack$' <<< "$version"; then
+        local version="${version%-x-pack}"
+        local export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-platinum-docker-compose.yml"
+        export ELASTICSEARCH_USER="elastic"
+        export ELASTICSEARCH_PASSWORD="password"
+        local export HAPROXY_USER="elastic"
+        local export HAPROXY_PASSWORD="password"
+        local export X_PACK=1
     fi
     docker_compose_pull
     VERSION="$version" docker-compose up -d
@@ -66,10 +96,10 @@ test_elasticsearch(){
     hr
     when_ports_available "$ELASTICSEARCH_HOST" "$ELASTICSEARCH_PORT" "$HAPROXY_PORT"
     hr
-    when_url_content "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT" "lucene_version"
+    when_url_content "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT" "lucene_version" -u "${ELASTICSEARCH_USER:-}:${ELASTICSEARCH_PASSWORD:-}"
     hr
     echo "checking HAProxy Elasticsearch with authentication:"
-    when_url_content "http://$ELASTICSEARCH_HOST:$HAPROXY_PORT" "lucene_version" -u esuser:espass
+    when_url_content "http://$ELASTICSEARCH_HOST:$HAPROXY_PORT" "lucene_version" -u "$HAPROXY_USER:$HAPROXY_PASSWORD"
     hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
@@ -84,7 +114,7 @@ test_elasticsearch(){
         if ! $perl -T ./check_elasticsearch_index_exists.pl --list-indices | grep "^[[:space:]]*$ELASTICSEARCH_INDEX[[:space:]]*$"; then
             echo "creating test Elasticsearch index '$ELASTICSEARCH_INDEX'"
             # Elasticsearch 6.0 insists on application/json header otherwise index is not created
-            curl -iv -H "content-type: application/json" -XPUT "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX/" -d '
+            curl -iv -u "${ELASTICSEARCH_USER:-}:${ELASTICSEARCH_PASSWORD:-}" -H "content-type: application/json" -XPUT "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX/" -d '
             {
                 "settings": {
                     "index": {
@@ -97,23 +127,7 @@ test_elasticsearch(){
             echo
         fi
         hr
-        echo "removing replicas of all indices to avoid failing tests with unassigned shards:"
-        set +o pipefail
-        $perl -T ./check_elasticsearch_index_exists.pl --list-indices |
-        tail -n +2 |
-        grep -v "^[[:space:]]*$" |
-        while read index; do
-            echo "reducing replicas for index '$index'"
-            curl -H "content-type: application/json" -XPUT "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$index/_settings" -d '
-            {
-                "index": {
-                    "number_of_replicas": 0
-                }
-            }
-            '
-            echo
-        done
-        set -o pipefail
+        remove_shard_replicas
         echo
         echo "Setup done, starting checks ..."
     fi
@@ -143,6 +157,36 @@ elasticsearch_tests(){
 
     run_conn_refused $perl -T ./check_elasticsearch.pl -v --es-version "$version"
 
+    if [ "$X_PACK" = 1 ]; then
+        run ./check_elasticsearch_x-pack_license_expiry.py --trial -w 20
+
+        run_fail 1 ./check_elasticsearch_x-pack_license_expiry.py -w 20
+
+        run_fail 1 ./check_elasticsearch_x-pack_license_expiry.py --trial
+
+        run_fail 2 ./check_elasticsearch_x-pack_license_expiry.py -c 30
+
+        run_conn_refused ./check_elasticsearch_x-pack_license_expiry.py
+
+        run_fail 3 ./check_elasticsearch_x-pack_feature_enabled.py -l
+
+        run ./check_elasticsearch_x-pack_feature_enabled.py -f security
+
+        run ./check_elasticsearch_x-pack_feature_enabled.py -f monitoring
+
+        run ./check_elasticsearch_x-pack_feature_enabled.py -f logstash
+
+        run ./check_elasticsearch_x-pack_feature_enabled.py -f ml
+
+        run ./check_elasticsearch_x-pack_feature_enabled.py -f graph
+
+        run ./check_elasticsearch_x-pack_feature_enabled.py -f watcher
+
+        run_fail 2 ./check_elasticsearch_x-pack_feature_enabled.py -f nonexistentfeature
+
+        run_conn_refused ./check_elasticsearch_x-pack_feature_enabled.py -f security
+    fi
+
     # Listing checks return UNKNOWN
     set +e
     # _cat/fielddata API is no longer outputs lines for 0b fielddata nodes in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
@@ -163,10 +207,13 @@ elasticsearch_tests(){
 
     run_conn_refused $perl -T ./check_elasticsearch_cluster_disk_balance.pl -v
 
+    # recent versions of Elasticsearch create indices with shard replicas later so call this again late to ensure we don't hit unassigned shards
+    remove_shard_replicas
+
     # no longer necessary since reducing monitoring index replication to zero
     #echo "waiting for shards to be allocated (takes longer in Elasticsearch 6.0):"
     #retry 10 $perl -T ./check_elasticsearch_cluster_shards.pl -v
-    #hr
+    hr
 
     run $perl -T ./check_elasticsearch_cluster_shards.pl -v
 
@@ -190,6 +237,7 @@ elasticsearch_tests(){
 
     run_conn_refused $perl -T ./check_elasticsearch_cluster_status.pl -v
 
+    remove_shard_replicas
     # didn't help with default monitoring index due to replication factor > 1 node, setting replication to zero was the fix
     #echo "waiting for cluster status, nodes and shards to pass (takes longer on Elasticsearch 6.0):"
     #retry 10 $perl -T ./check_elasticsearch_cluster_status_nodes_shards.pl -v

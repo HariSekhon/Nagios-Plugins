@@ -41,10 +41,29 @@ test_linux(){
     docker_compose_pull
     VERSION="$version" docker-compose up -d
     hr
+    echo "mounting ramdisks for read only disk mounts check:"
     #docker exec "$DOCKER_CONTAINER" yum install -y net-tools
+    # this requires --privileged=true to work
+    docker exec -i "$DOCKER_CONTAINER" bash <<EOF
+    mkdir -pv /mnt/ramdisk{1,2}
+    for x in 1 2; do umount /mnt/ramdisk\$x &>/dev/null; done
+    mount -t tmpfs -o size=1m    tmpfs /mnt/ramdisk1
+    mount -t tmpfs -o size=1m,ro tmpfs /mnt/ramdisk2
+EOF
+    hr
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
+
+    docker_exec check_linux_disk_mounts_read_only.py --include /mnt/ramdisk1
+
+    # TODO: extend docker_exec to support $ERRCODE then enable this
+    #ERRCODE=2 docker_exec check_linux_disk_mounts_read_only.py --include '/mnt/ramdisk?'
+    docker_exec check_linux_disk_mounts_read_only.py || :
+
+    docker_exec check_linux_disk_mounts_read_only.py --include '/mnt/ramdisk?' || :
+
+    docker_exec check_linux_disk_mounts_read_only.py -e /mnt/ramdisk2
 
     docker_exec check_disk_write.pl -d .
 
@@ -54,6 +73,8 @@ test_linux(){
     docker_exec check_linux_context_switches.pl || : ; sleep 1; docker_exec check_linux_context_switches.pl -w 50000 -c 70000
 
     docker_exec check_linux_duplicate_IDs.pl
+
+    docker_exec check_linux_hugepages_disabled.py
 
     # temporary fix until slow DockerHub automated builds trickle through ethtool in docker images
 #    docker exec -i "$DOCKER_CONTAINER" sh <<EOF

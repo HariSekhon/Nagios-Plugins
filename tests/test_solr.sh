@@ -23,7 +23,7 @@ cd "$srcdir/.."
 
 section "S o l r"
 
-export SOLR_VERSIONS="${@:-${SOLR_VERSIONS:-latest 3.1 3.6 4.10 5.5 6.0 6.1 6.2 6.3 6.4 6.5 6.6 7.0 7.1}}"
+export SOLR_VERSIONS="${@:-${SOLR_VERSIONS:-3.1 3.6 4.10 5.5 6.0 6.1 6.2 6.3 6.4 6.5 6.6 7.0 7.1 latest}}"
 
 SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
@@ -118,6 +118,11 @@ solr_tests(){
 
     if ! [[ "$version" =~ ^3|^4 ]]; then
         run $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
+
+        # several categories return no metrics at this point
+        for category in $(./check_solr_metrics.pl --list-categories | tail -n +3 | egrep -v -e 'CONTAINER|QUERYPARSER|SPELLCHECKER|SEARCHER|TLOG|INDEX|DIRECTORY|HTTP|OTHER'); do
+            run $perl -T ./check_solr_metrics.pl --category $category
+        done
     fi
 
     num_expected_docs=5

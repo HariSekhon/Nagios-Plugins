@@ -47,7 +47,8 @@ python-pyasn1
 # Class::Accessor pre-packaged
 #libclass-accessor-perl
 
-python-jenkins
+# has become python3-jenkins on ubuntu now - leave to pip
+#python-jenkins
 
 # for Cassandra's Python driver
 #libev4

@@ -1,0 +1,39 @@
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  Author: Hari Sekhon
+#  Date: 2018-03-14 17:57:36 +0000 (Wed, 14 Mar 2018)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+version: '2.2'
+services:
+  vault:
+    extends:
+      file: common.yml
+      service: common
+    image: vault:${VERSION:-latest}
+    ports:
+      - 8200
+    #command:
+    #  server -dev
+    networks:
+      - vault
+  vault-haproxy:
+    image: haproxy:alpine
+    command: -f /conf/10-global.cfg -f /conf/vault.cfg -d
+    ports:
+      - 8200
+    networks:
+      - vault
+    volumes:
+      - ../../haproxy-configs:/conf:ro
+
+networks:
+  vault:

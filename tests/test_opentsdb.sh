@@ -24,7 +24,7 @@ cd "$srcdir/.."
 
 section "O p e n T S D B"
 
-export OPENTSDB_VERSIONS="${@:-${OPENTSDB_VERSIONS:-latest 2.2}}"
+export OPENTSDB_VERSIONS="${@:-${OPENTSDB_VERSIONS:-2.2 latest}}"
 
 OPENTSDB_HOST="${DOCKER_HOST:-${OPENTSDB_HOST:-${HOST:-localhost}}}"
 OPENTSDB_HOST="${OPENTSDB_HOST##*/}"

@@ -38,6 +38,8 @@ run_conn_refused $perl -T check_ambari_cluster_alerts_host_summary.pl
 
 run_conn_refused $perl -T check_ambari_cluster_alerts_summary.pl
 
+run_conn_refused ./check_ambari_cluster_hdfs_rack_resilience.py
+
 run_conn_refused $perl -T check_ambari_cluster_health_report.pl
 
 run_conn_refused $perl -T check_ambari_cluster_kerberized.pl
@@ -86,6 +88,8 @@ else
     run_fail "0 1 2" $perl -T check_ambari_cluster_alerts_summary.pl
 
     run_fail "0 1 2" $perl -T check_ambari_cluster_health_report.pl
+
+    run_fail "0 1" ./check_ambari_cluster_hdfs_rack_resilience.py
 
     run_fail "0 2" $perl -T check_ambari_cluster_kerberized.pl
 
