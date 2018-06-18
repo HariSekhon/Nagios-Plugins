@@ -21,11 +21,6 @@ Nagios Plugin to check the last completed run of a specific yarn application via
 
 Useful for checking the latest state of a given batch job eg. Finished Success, Failed, Killed etc
 
-Spark - beware Spark Shell interactive sessions always seem to exit with Success status so don't run your Spark jobs as
-scripts but rather spark-submit them to get the proper per job status result as otherwise in an interactive Spark
-session with lots of commands there is no way for the Spark Shell to report the right status when exiting as it
-cannot differentiate between different jobs / actions in a single session as to know which one to report the status for
-
 Can optionally check the following additional aspects of the job:
 
 - ran as a specific user
@@ -34,6 +29,11 @@ Can optionally check the following additional aspects of the job:
 
 The --app name is a regex and the first matching job to is checked and optionally can apply --warn-on-duplicate
 if multiple running jobs match the given regex
+
+Spark - BEWARE: Spark jobs in Yarn Client mode always return SUCCEEDED in Yarn due to a Spark driver API limitation.
+        This include Spark Shells. As a result you should always run Spark jobs in Yarn Cluster mode for reliable
+        exit status that you can test from this program (it's also more resilient in case your local driver host fails)
+        See https://issues.apache.org/jira/browse/SPARK-11058 for more details.
 
 Tested on HDP 2.6.1 and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8
 
