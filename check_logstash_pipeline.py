@@ -71,7 +71,7 @@ class CheckLogstashPipeline(RestNagiosPlugin):
         self.path = '/_node/pipelines'
         self.auth = False
         self.json = True
-        self.msg = 'Logstash piplines msg not defined yet'
+        self.msg = 'Logstash pipeline msg not defined yet'
         self.pipeline = None
 
     def add_options(self):

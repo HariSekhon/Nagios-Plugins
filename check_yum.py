@@ -33,7 +33,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.8.7"
+__version__ = "0.8.8"
 
 # Standard Nagios return codes
 OK = 0
@@ -194,10 +194,9 @@ class YumTester(object):
         with an appropriate message if any are found"""
 
         if returncode == 0:
-            if "You must run this command as root" in output[2]:
-                end(UNKNOWN, "You must run this plugin as root")
-            else:
-                pass
+            for line in output:
+                if "You must run this command as root" in line:
+                    end(UNKNOWN, "You must run this plugin as root")
         elif returncode == 100:
             # Updates Available
             pass

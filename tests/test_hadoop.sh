@@ -291,6 +291,10 @@ EOF
 
     ERRCODE=2 docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log --max-blocks -w 0 -c 0
 
+    # TODO: FIXME: this shouldn't require docker module to be installed as don't use docker nagios plugin class
+    #docker exec $DOCKER_CONTAINER pip install docker
+    ERRCODE="0 1" docker_exec check_hadoop_hdfs_rack_resilience.py
+
     run $perl -T ./check_hadoop_hdfs_space.pl
 
     run_conn_refused $perl -T ./check_hadoop_hdfs_space.pl
