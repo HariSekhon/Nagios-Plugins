@@ -29,6 +29,10 @@ HDP 2.1 (Hadoop 2.4.0)
 HDP 2.2 (Hadoop 2.6.0)
 Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9
 
+See also check_hadoop_jmx.pl which can report Missing and Corrupt blocks, but be aware that the calculation mechanism between JMX and dfsadmin differ, see this ticket:
+
+    https://issues.apache.org/jira/browse/HDFS-8533
+
 Recommend you also investigate check_hadoop_cloudera_manager_metrics.pl (disclaimer I used to work for Cloudera but seriously it's good it gives you access to a wealth of information)";
 
 # TODO:
