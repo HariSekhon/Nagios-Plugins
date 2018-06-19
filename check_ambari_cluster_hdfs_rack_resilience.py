@@ -24,6 +24,11 @@ Nagios Plugin to check HDFS Rack Resilience is configured via Ambari API
   - reports number of nodes left in default rack and in verbose mode lists the nodes
 - perfdata of the number of configured racks and number of nodes left in /default-rack
 
+This will report on all nodes, whereas you might only be interested in Datanodes. This is a
+limitation of the Ambari API as documented here:
+
+    https://issues.apache.org/jira/browse/AMBARI-24144
+
 See also check_hadoop_hdfs_rack_resilience.py for clusters without Ambari
 
 Tested on Hortonworks HDP 2.6 with Ambari 2.6
