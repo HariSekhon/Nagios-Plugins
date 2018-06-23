@@ -20,7 +20,7 @@ usage(){
     echo "
 Upgrades a Nagios Plugin's status to CRITICAL if WARNING is returned
 
-usage: $0 <nagios_plugin> <args>
+usage: ${0##*/} <nagios_plugin> <args>
 "
     exit 3
 }
