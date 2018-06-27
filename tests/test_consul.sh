@@ -154,7 +154,9 @@ consul_tests(){
     local session="$(curl -s -X PUT -d '{"Name": "nagios"}' "http://$CONSUL_HOST:$CONSUL_PORT/v1/session/create" | awk -F'"' '/ID/{print $4}')"
     echo
     echo "deleting last session lock if it exists:"
+    set +o pipefail
     old_session="$(curl -s "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$leader_lock" | python -mjson.tool | awk -F'"' '/Session/ {print $4}')"
+    set -o pipefail
     curl -X PUT -d '<body>' "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$leader_lock?release=$old_session" || :
     echo
     echo
