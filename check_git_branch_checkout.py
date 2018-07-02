@@ -39,6 +39,7 @@ srcdir = os.path.abspath(os.path.dirname(__file__))
 libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
+    from git import InvalidGitRepositoryError
     # pylint: disable=wrong-import-position
     from harisekhon.utils import CriticalError, log_option, validate_directory
     from harisekhon import NagiosPlugin
@@ -47,7 +48,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.1'
+__version__ = '0.4.0'
 
 
 class CheckGitBranchCheckout(NagiosPlugin):
@@ -75,7 +76,10 @@ class CheckGitBranchCheckout(NagiosPlugin):
             self.usage('Invalid branch name given, must be alphanumeric' + \
                        ', may contain dashes and spaces for detached HEADs')
         log_option('expected branch', expected_branch)
-        repo = git.Repo(directory)
+        try:
+            repo = git.Repo(directory)
+        except InvalidGitRepositoryError as _:
+            raise CriticalError("directory '{}' does not contain a valid Git repository!".format(directory))
         try:
             current_branch = repo.active_branch.name
         # happens with detached HEAD checkout like Travis CI does
