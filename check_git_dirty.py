@@ -26,6 +26,7 @@ Requires the 'git' command in the $PATH, otherwise you can set the path to the g
 executable using the environment variable GIT_PYTHON_GIT_EXECUTABLE
 
 See also check_git_branch_checkout.py
+         check_git_uncommitted_changes.py - handles untracked files and gives better feedback
 
 """
 
