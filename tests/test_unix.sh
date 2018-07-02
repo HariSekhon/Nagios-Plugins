@@ -34,7 +34,7 @@ run $perl -T ./check_git_branch_checkout.pl -d . -b "$current_branch"
 if is_travis; then
     ERRCODE=2 run_grep "CRITICAL: HEAD is a detached symbolic reference as it points to '[a-z0-9]+'" ./check_git_branch_checkout.py -d . -b "$current_branch"
 else
-    run      ./check_git_branch_checkout.py -d . -b "$current_branch"
+    run ./check_git_branch_checkout.py -d . -b "$current_branch"
 fi
 
 # ============================================================================ #
@@ -49,6 +49,71 @@ echo "checking directory not defined results in usage error:"
 run_usage $perl -T ./check_git_branch_checkout.pl -b "$current_branch"
 
 run_usage          ./check_git_branch_checkout.py -b "$current_branch"
+
+# ============================================================================ #
+echo "setting up git root in /tmp for git checks:"
+GIT_TMP="$(mktemp -d /tmp/git.XXXXXX)"
+trap "rm -vfr $GIT_TMP" EXIT
+
+pushd "$GIT_TMP"
+git init
+popd
+hr
+
+run ./check_git_branch_checkout.py -d "$GIT_TMP" -b "$current_branch"
+
+run ./check_git_dirty.py -d "$GIT_TMP"
+
+run ./check_git_uncommitted_changes.py -d "$GIT_TMP"
+
+gitfile="myfile"
+touch "$GIT_TMP/$gitfile"
+
+run ./check_git_branch_checkout.py -d "$GIT_TMP" -b "$current_branch"
+
+echo "check_git_dirty.py doesn't count untracked files:"
+run ./check_git_dirty.py -d "$GIT_TMP"
+
+run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP"
+
+run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP" -v
+
+pushd "$GIT_TMP"
+git add "$gitfile"
+popd
+hr
+
+run ./check_git_branch_checkout.py -d "$GIT_TMP" -b master
+
+run_fail 2 ./check_git_dirty.py -d "$GIT_TMP"
+
+run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP"
+
+run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP" -v
+
+echo "committing git file $gitfile"
+pushd "$GIT_TMP"
+git commit -m "added $gitfile"
+popd
+hr
+echo "now checking for no untracked changes:"
+
+run ./check_git_dirty.py -d "$GIT_TMP"
+
+run ./check_git_uncommitted_changes.py -d "$GIT_TMP"
+
+echo "modifying committed file:"
+pushd "$GIT_TMP"
+echo test >> "$gitfile"
+popd
+hr
+
+run_fail 2 ./check_git_dirty.py -d "$GIT_TMP"
+
+run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP"
+
+rm -fr "$GIT_TMP"
+trap '' EXIT
 
 # ============================================================================ #
 tmpfile="$(mktemp /tmp/check_file_checksum.txt.XXXXXX)"
