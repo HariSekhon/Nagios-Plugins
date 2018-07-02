@@ -64,8 +64,8 @@ class CheckGitBranchCheckout(NagiosPlugin):
         self.msg = 'CheckGitBranchCheckout msg not defined'
 
     def add_options(self):
-        self.add_opt('-d', '--directory', action='store', help='Directory path to git working copy')
-        self.add_opt('-b', '--branch', action='store', help='Branch to expect working copy checkout to be')
+        self.add_opt('-d', '--directory', action='store', help='Path to git checkout directory')
+        self.add_opt('-b', '--branch', action='store', help='Branch to expect in git checkout directory')
 
     def run(self):
         self.no_args()
