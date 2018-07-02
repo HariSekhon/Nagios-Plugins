@@ -39,8 +39,8 @@ srcdir = os.path.abspath(os.path.dirname(__file__))
 libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
-    from git import InvalidGitRepositoryError
     # pylint: disable=wrong-import-position
+    from git import InvalidGitRepositoryError
     from harisekhon.utils import CriticalError, log_option, validate_directory
     from harisekhon import NagiosPlugin
 except ImportError as _:
