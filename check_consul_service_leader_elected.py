@@ -48,7 +48,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckConsulServiceLeaderElected(RestNagiosPlugin):
@@ -113,7 +113,7 @@ class CheckConsulServiceLeaderElected(RestNagiosPlugin):
         for item in json_data:
             if 'Session' in item:
                 return item['Session']
-        raise CriticalError('no leader found for service associated with key \'{}\' (no session)!'.format(self.key))
+        return None
 
     def validate_session(self, req, session):
         json_data = self.parse_consul_json('session', req.content)
@@ -139,6 +139,8 @@ class CheckConsulServiceLeaderElected(RestNagiosPlugin):
         start = time.time()
         req = self.query()
         session = self.extract_session(req)
+        if not session:
+            raise CriticalError('no leader found for service associated with key \'{}\' (no session)!'.format(self.key))
         log.info("session = '%s'", session)
         self.msg = 'Consul service leader found'
         #if self.verbose:
