@@ -14,7 +14,10 @@ $DESCRIPTION = "Nagios Plugin to check a Git working copy is in the right branch
 Primarily written for puppetmasters to make sure prod and staging
 environment dirs had the right branches checked out in them
 
-See also check_git_branch_checkout.py";
+See also check_git_branch_checkout.py
+         check_git_dirty.py
+         check_git_uncommitted_changes.py
+";
 
 $VERSION = "0.3.3";
 
