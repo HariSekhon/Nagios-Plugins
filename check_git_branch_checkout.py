@@ -21,6 +21,9 @@ Nagios Plugin to check a Git working copy is in the right branch.
 Port of Perl version originally written for puppetmasters to make sure prod
 and staging environment dirs had the right branches checked out in them
 
+Requires the 'git' command in the $PATH, otherwise you can set the path to the git
+executable using the environment variable GIT_PYTHON_GIT_EXECUTABLE
+
 See also check_git_branch_checkout.pl
 
 """
