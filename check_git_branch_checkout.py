@@ -90,10 +90,10 @@ class CheckGitBranchCheckout(NagiosPlugin):
             raise CriticalError(_)
         if current_branch == expected_branch:
             self.ok()
-            self.msg = "branch '{0}' currently checked out in directory '{1}'"\
+            self.msg = "git branch '{0}' currently checked out in directory '{1}'"\
                        .format(current_branch, directory)
         else:
-            raise CriticalError("branch '{0}' checked out, expecting '{1}' in directory '{2}'"
+            raise CriticalError("git branch '{0}' checked out, expecting '{1}' in directory '{2}'"
                                 .format(current_branch, expected_branch, directory))
 
 
