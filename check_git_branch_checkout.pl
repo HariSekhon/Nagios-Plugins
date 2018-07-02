@@ -12,9 +12,11 @@
 $DESCRIPTION = "Nagios Plugin to check a Git working copy is in the right branch.
 
 Primarily written for puppetmasters to make sure prod and staging
-environment dirs had the right branches checked out in them";
+environment dirs had the right branches checked out in them
 
-$VERSION = "0.3.2";
+See also check_git_branch_checkout.py";
+
+$VERSION = "0.3.3";
 
 use strict;
 use warnings;
@@ -63,7 +65,7 @@ foreach(@output){
 defined($branch_checkout) or quit "CRITICAL", "Failed to determine current branch checkout for directory '$directory'";
 
 if($branch_checkout eq $branch){
-    quit "OK", "branch '$branch_checkout' currently checked out in directory '$directory'";
+    quit "OK", "git branch '$branch_checkout' currently checked out in directory '$directory'";
 } else {
-    quit "CRITICAL", "branch '$branch_checkout' checked out, expecting '$branch' in directory '$directory'";
+    quit "CRITICAL", "git branch '$branch_checkout' checked out, expecting '$branch' in directory '$directory'";
 }
