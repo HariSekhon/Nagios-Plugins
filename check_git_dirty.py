@@ -17,16 +17,17 @@
 """
 
 Nagios Plugin to check a Git checking working directory isn't 'dirty' - ie has no uncommitted changes
-(doesn't count new uncommitted files though)
 
-Written for environments where deployment servers are running off git checkouts
-to ensure that the files haven't been modified and not backported
+Written for environments where deployment servers are running off Git checkouts
+to ensure that any modifications have been backported to Git
 
 Requires the 'git' command in the $PATH, otherwise you can set the path to the git
 executable using the environment variable GIT_PYTHON_GIT_EXECUTABLE
 
+Caveat: doesn't detect untracked files, see check_git_uncommitted_changes.py to cover that
+
 See also check_git_branch_checkout.py
-         check_git_uncommitted_changes.py - handles untracked files and gives better feedback
+         check_git_uncommitted_changes.py - handles untracked files and gives better feedback, reporting and stats
 
 """
 
