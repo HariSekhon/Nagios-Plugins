@@ -16,7 +16,7 @@
 
 """
 
-Nagios Plugin to check a Git checking working directory isn't 'dirty' - ie has no uncommitted changes
+Nagios Plugin to check a Git checkout working directory isn't 'dirty' - ie has no uncommitted changes
 
 Written for environments where deployment servers are running off Git checkouts
 to ensure that any modifications have been backported to Git
@@ -56,14 +56,14 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
 
-class CheckGitDirty(NagiosPlugin):
+class CheckGitDirtyCheckout(NagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckGitDirty, self).__init__()
+        super(CheckGitDirtyCheckout, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.msg = 'CheckGitDirty msg not defined'
+        self.msg = 'CheckGitDirtyCheckout msg not defined'
         self.ok()
 
     def add_options(self):
@@ -85,4 +85,4 @@ class CheckGitDirty(NagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckGitDirty().main()
+    CheckGitDirtyCheckout().main()
