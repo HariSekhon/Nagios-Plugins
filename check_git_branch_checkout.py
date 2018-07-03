@@ -24,7 +24,7 @@ and staging environment dirs had the right branches checked out in them
 Requires the 'git' command in the $PATH, otherwise you can set the path to the git
 executable using the environment variable GIT_PYTHON_GIT_EXECUTABLE
 
-See also check_git_branch_checkout.pl
+See also check_git_checkout_branch.pl
 
 """
 
@@ -51,17 +51,17 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4.0'
+__version__ = '0.5.0'
 
 
-class CheckGitBranchCheckout(NagiosPlugin):
+class CheckGitCheckoutBranch(NagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckGitBranchCheckout, self).__init__()
+        super(CheckGitCheckoutBranch, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.msg = 'CheckGitBranchCheckout msg not defined'
+        self.msg = 'CheckGitCheckoutBranch msg not defined'
 
     def add_options(self):
         self.add_opt('-d', '--directory', action='store', help='Path to git checkout directory')
@@ -98,4 +98,4 @@ class CheckGitBranchCheckout(NagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckGitBranchCheckout().main()
+    CheckGitCheckoutBranch().main()
