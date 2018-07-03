@@ -62,7 +62,7 @@ hr
 
 run ./check_git_branch_checkout.py -d "$GIT_TMP" -b "$current_branch"
 
-run ./check_git_dirty.py -d "$GIT_TMP"
+run ./check_git_dirty_checkout.py -d "$GIT_TMP"
 
 run ./check_git_uncommitted_changes.py -d "$GIT_TMP"
 
@@ -71,8 +71,8 @@ touch "$GIT_TMP/$gitfile"
 
 run ./check_git_branch_checkout.py -d "$GIT_TMP" -b "$current_branch"
 
-echo "check_git_dirty.py doesn't count untracked files:"
-run ./check_git_dirty.py -d "$GIT_TMP"
+echo "check_git_dirty_checkout.py doesn't count untracked files:"
+run ./check_git_dirty_checkout.py -d "$GIT_TMP"
 
 run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP"
 
@@ -85,7 +85,7 @@ hr
 
 run ./check_git_branch_checkout.py -d "$GIT_TMP" -b master
 
-run_fail 2 ./check_git_dirty.py -d "$GIT_TMP"
+run_fail 2 ./check_git_dirty_checkout.py -d "$GIT_TMP"
 
 run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP"
 
@@ -98,7 +98,7 @@ popd
 hr
 echo "now checking for no untracked changes:"
 
-run ./check_git_dirty.py -d "$GIT_TMP"
+run ./check_git_dirty_checkout.py -d "$GIT_TMP"
 
 run ./check_git_uncommitted_changes.py -d "$GIT_TMP"
 
@@ -108,7 +108,7 @@ echo test >> "$gitfile"
 popd
 hr
 
-run_fail 2 ./check_git_dirty.py -d "$GIT_TMP"
+run_fail 2 ./check_git_dirty_checkout.py -d "$GIT_TMP"
 
 run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP"
 
