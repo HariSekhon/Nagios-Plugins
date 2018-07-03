@@ -31,8 +31,8 @@ Checks:
 Requires the 'git' command in the $PATH, otherwise you can set the path to the git
 executable using the environment variable GIT_PYTHON_GIT_EXECUTABLE
 
-See also check_git_branch_checkout.py
-         check_git_dirty.py
+See also check_git_checkout_branch.py
+         check_git_checkout_dirty.py
 
 """
 
