@@ -26,7 +26,7 @@ executable using the environment variable GIT_PYTHON_GIT_EXECUTABLE
 
 Caveat: doesn't detect untracked files, see check_git_uncommitted_changes.py to cover that
 
-See also check_git_branch_checkout.py
+See also check_git_checkout_branch.py
          check_git_uncommitted_changes.py - handles untracked files and gives better feedback, reporting and stats
 
 """
@@ -56,14 +56,14 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1'
 
 
-class CheckGitDirtyCheckout(NagiosPlugin):
+class CheckGitCheckoutDirty(NagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckGitDirtyCheckout, self).__init__()
+        super(CheckGitCheckoutDirty, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.msg = 'CheckGitDirtyCheckout msg not defined'
+        self.msg = 'CheckGitCheckoutDirty msg not defined'
         self.ok()
 
     def add_options(self):
@@ -85,4 +85,4 @@ class CheckGitDirtyCheckout(NagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckGitDirtyCheckout().main()
+    CheckGitCheckoutDirty().main()
