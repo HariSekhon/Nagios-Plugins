@@ -28,27 +28,27 @@ run $perl -T ./check_disk_write.pl -d .
 # ============================================================================ #
 current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 
-run $perl -T ./check_git_branch_checkout.pl -d . -b "$current_branch"
+run $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 
 # Travis CI runs in a detached head which throws CriticalError
 if is_travis; then
-    ERRCODE=2 run_grep "CRITICAL: HEAD is a detached symbolic reference as it points to '[a-z0-9]+'" ./check_git_branch_checkout.py -d . -b "$current_branch"
+    ERRCODE=2 run_grep "CRITICAL: HEAD is a detached symbolic reference as it points to '[a-z0-9]+'" ./check_git_checkout_branch.py -d . -b "$current_branch"
 else
-    run ./check_git_branch_checkout.py -d . -b "$current_branch"
+    run ./check_git_checkout_branch.py -d . -b "$current_branch"
 fi
 
 # ============================================================================ #
 echo "Testing failure detection of wrong git branch:"
-run_fail 2 $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch
+run_fail 2 $perl -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
 
 # in Travis this will result in CRITICAL: HEAD is a detached symbolic reference as it points to '<hashref>' but will still pass with the right exit code
-run_fail 2          ./check_git_branch_checkout.py -d . -b nonexistentbranch
+run_fail 2          ./check_git_checkout_branch.py -d . -b nonexistentbranch
 
 # ============================================================================ #
 echo "checking directory not defined results in usage error:"
-run_usage $perl -T ./check_git_branch_checkout.pl -b "$current_branch"
+run_usage $perl -T ./check_git_checkout_branch.pl -b "$current_branch"
 
-run_usage          ./check_git_branch_checkout.py -b "$current_branch"
+run_usage          ./check_git_checkout_branch.py -b "$current_branch"
 
 # ============================================================================ #
 echo "setting up git root in /tmp for git checks:"
@@ -60,19 +60,19 @@ git init
 popd
 hr
 
-run ./check_git_branch_checkout.py -d "$GIT_TMP" -b "$current_branch"
+run ./check_git_checkout_branch.py -d "$GIT_TMP" -b "$current_branch"
 
-run ./check_git_dirty_checkout.py -d "$GIT_TMP"
+run ./check_git_checkout_dirty.py -d "$GIT_TMP"
 
 run ./check_git_uncommitted_changes.py -d "$GIT_TMP"
 
 gitfile="myfile"
 touch "$GIT_TMP/$gitfile"
 
-run ./check_git_branch_checkout.py -d "$GIT_TMP" -b "$current_branch"
+run ./check_git_checkout_branch.py -d "$GIT_TMP" -b "$current_branch"
 
-echo "check_git_dirty_checkout.py doesn't count untracked files:"
-run ./check_git_dirty_checkout.py -d "$GIT_TMP"
+echo "check_git_checkout_dirty.py doesn't count untracked files:"
+run ./check_git_checkout_dirty.py -d "$GIT_TMP"
 
 run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP"
 
@@ -83,9 +83,9 @@ git add "$gitfile"
 popd
 hr
 
-run ./check_git_branch_checkout.py -d "$GIT_TMP" -b master
+run ./check_git_checkout_branch.py -d "$GIT_TMP" -b master
 
-run_fail 2 ./check_git_dirty_checkout.py -d "$GIT_TMP"
+run_fail 2 ./check_git_checkout_dirty.py -d "$GIT_TMP"
 
 run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP"
 
@@ -98,7 +98,7 @@ popd
 hr
 echo "now checking for no untracked changes:"
 
-run ./check_git_dirty_checkout.py -d "$GIT_TMP"
+run ./check_git_checkout_dirty.py -d "$GIT_TMP"
 
 run ./check_git_uncommitted_changes.py -d "$GIT_TMP"
 
@@ -108,7 +108,7 @@ echo test >> "$gitfile"
 popd
 hr
 
-run_fail 2 ./check_git_dirty_checkout.py -d "$GIT_TMP"
+run_fail 2 ./check_git_checkout_dirty.py -d "$GIT_TMP"
 
 run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP"
 
