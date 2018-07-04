@@ -16,7 +16,7 @@
 
 """
 
-Nagios Plugin to check a Git working copy is in the right branch.
+Nagios Plugin to check a Git checkout is in the right branch
 
 Port of Perl version originally written for puppetmasters to make sure prod
 and staging environment dirs had the right branches checked out in them
