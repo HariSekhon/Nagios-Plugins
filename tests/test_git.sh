@@ -35,6 +35,15 @@ else
     run ./check_git_checkout_branch.py -d . -b "$current_branch"
 fi
 
+run ./check_git_repo_bare.py --directory . --not-bare
+
+run_fail 2 ./check_git_repo_bare.py --directory .
+
+# probably dirty
+run_fail "0 2" ./check_git_checkout_dirty.py --directory .
+
+run_fail "0 2" ./check_git_checkout_not_remote.py --directory .
+
 # because we test before pushing upstream, this will often fail
 run_fail "0 2" ./check_git_checkout_up_to_date.py --directory . --no-fetch
 
@@ -56,7 +65,11 @@ run_usage $perl -T ./check_git_checkout_branch.pl -b "$current_branch"
 
 run_usage          ./check_git_checkout_branch.py -b "$current_branch"
 
+run_usage ./check_git_repo_bare.py
+
 run_usage ./check_git_checkout_dirty.py
+
+run_usage ./check_git_checkout_not_remote.py
 
 run_usage ./check_git_checkout_up_to_date.py
 
@@ -64,6 +77,7 @@ run_usage ./check_git_checkout_up_to_date.py
 echo "setting up git root in /tmp for git checks:"
 GIT_TMP="$(mktemp -d /tmp/git.XXXXXX)"
 GIT_TMP2="$GIT_TMP-clone"
+GIT_TMP_BARE="$GIT_TMP-bare"
 trap "rm -vfr $GIT_TMP $GIT_TMP2" EXIT
 
 pushd "$GIT_TMP"
@@ -71,8 +85,12 @@ echo "initializing test repo:"
 git init
 echo "cloning test repo:"
 git clone "$GIT_TMP" "$GIT_TMP2"
+echo "cloning bare repo:"
+git clone --bare "$GIT_TMP" "$GIT_TMP_BARE"
 popd
 hr
+
+run ./check_git_repo_bare.py -d "$GIT_TMP_BARE"
 
 run ./check_git_checkout_branch.py -d "$GIT_TMP" -b "$current_branch"
 
