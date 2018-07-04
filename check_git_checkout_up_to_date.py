@@ -108,6 +108,7 @@ class CheckGitCheckoutUpToDate(NagiosPlugin):
             self.critical()
             self.msg += '{} commits behind, {} commits ahead of'.format(num_commits_behind, num_commits_ahead)
         self.msg += " remote '{}'".format(self.remote)
+        self.msg += ' | commits_behind={};0;0 commits_ahead={};0;0'.format(num_commits_behind, num_commits_ahead)
 
 if __name__ == '__main__':
     CheckGitCheckoutUpToDate().main()
