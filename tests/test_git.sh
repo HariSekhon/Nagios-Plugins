@@ -42,6 +42,12 @@ run_fail 2 ./check_git_repo_bare.py --directory .
 # probably dirty
 run_fail "0 2" ./check_git_checkout_dirty.py --directory .
 
+if is_travis; then
+    run_fail 2 ./check_git_checkout_not_detached.py --directory .
+else
+    run ./check_git_checkout_not_detached.py --directory .
+fi
+
 run_fail "0 2" ./check_git_checkout_not_remote.py --directory .
 
 # because we test before pushing upstream, this will often fail
@@ -51,6 +57,10 @@ run_fail "0 2" ./check_git_checkout_up_to_date.py --directory . --no-fetch
 run_fail "0 2 3" ./check_git_checkout_up_to_date.py -d . -t 30
 
 run_fail 2 ./check_git_checkout_up_to_date.py -d . -r nonexistent
+
+run ./check_git_checkout_valid.py -d .
+
+run_fail 2 ./check_git_checkout_valid.py -d /tmp
 
 # ============================================================================ #
 echo "Testing failure detection of wrong git branch:"
