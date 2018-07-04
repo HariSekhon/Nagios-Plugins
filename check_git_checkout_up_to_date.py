@@ -99,7 +99,7 @@ class CheckGitCheckoutUpToDate(NagiosPlugin):
         except TypeError as _:
             raise CriticalError(_)
         except GitCommandError as _:
-            raise CriticalError(''.join(str(_.stderr).split('\n')))
+            raise CriticalError(', '.join(str(_.stderr).split('\n')))
         self.msg = "git checkout branch '{}' is ".format(branch)
         if num_commits_ahead + num_commits_behind == 0:
             self.ok()
