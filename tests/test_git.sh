@@ -79,9 +79,13 @@ run_usage ./check_git_repo_bare.py
 
 run_usage ./check_git_checkout_dirty.py
 
+run_usage ./check_git_checkout_not_detached.py
+
 run_usage ./check_git_checkout_not_remote.py
 
 run_usage ./check_git_checkout_up_to_date.py
+
+run_usage ./check_git_checkout_valid.py
 
 # ============================================================================ #
 echo "setting up git root in /tmp for git checks:"
