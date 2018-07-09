@@ -81,10 +81,10 @@ class CheckHBaseBalancerEnabled(RestNagiosPlugin):
     def parse(self, req):
         if 'Load Balancer is not enabled' in req.content:
             self.warning()
-            self.msg = 'HBase balancer not enabled!'
+            self.msg = 'HBase balancer is not enabled!'
         else:
             self.ok()
-            self.msg = 'HBase balancer enabled'
+            self.msg = 'HBase balancer is enabled'
 
 
 if __name__ == '__main__':
