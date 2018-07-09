@@ -29,6 +29,9 @@ Would prefer to get this out of the JMX but the info isn't available, see:
 
 https://issues.apache.org/jira/browse/HBASE-20857
 
+See also check_hbase_balancr_enabled2.py for a version which parses the HTML properly
+and is more likely to detect the balancer being disabled
+
 Tested on HBase 1.3.1
 
 """
