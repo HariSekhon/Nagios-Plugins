@@ -89,12 +89,12 @@ class CheckHBaseBalancerEnabled(RestNagiosPlugin):
         link = soup.find('div', {'class': 'alert alert-warning'}, text=re.compile('balancer', re.I))
         if link is None:
             self.ok()
-            self.msg = 'HBase Balancer is enabled'
+            self.msg = 'HBase balancer is enabled'
         else:
             self.warning()
             text = link.get_text()
             text = ' '.join([_.strip() for _ in text.split('\n')])
-            self.msg = 'HBase Balancer is not enabled! {}'.format(text)
+            self.msg = 'HBase balancer is not enabled! {}'.format(text)
 
 
 if __name__ == '__main__':
