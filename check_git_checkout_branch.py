@@ -16,12 +16,15 @@
 
 """
 
-Nagios Plugin to check a Git working copy is in the right branch.
+Nagios Plugin to check a Git checkout is in the right branch
 
 Port of Perl version originally written for puppetmasters to make sure prod
 and staging environment dirs had the right branches checked out in them
 
-See also check_git_branch_checkout.pl
+Requires the 'git' command in the $PATH, otherwise you can set the path to the git
+executable using the environment variable GIT_PYTHON_GIT_EXECUTABLE
+
+See also check_git_checkout_branch.pl
 
 """
 
@@ -40,6 +43,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
+    from git import InvalidGitRepositoryError
     from harisekhon.utils import CriticalError, log_option, validate_directory
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -47,21 +51,21 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.1'
+__version__ = '0.5.0'
 
 
-class CheckGitBranchCheckout(NagiosPlugin):
+class CheckGitCheckoutBranch(NagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckGitBranchCheckout, self).__init__()
+        super(CheckGitCheckoutBranch, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.msg = 'CheckGitBranchCheckout msg not defined'
+        self.msg = 'CheckGitCheckoutBranch msg not defined'
 
     def add_options(self):
-        self.add_opt('-d', '--directory', action='store', help='Directory path to git working copy')
-        self.add_opt('-b', '--branch', action='store', help='Branch to expect working copy checkout to be')
+        self.add_opt('-d', '--directory', action='store', help='Path to git checkout directory')
+        self.add_opt('-b', '--branch', action='store', help='Branch to expect in git checkout directory')
 
     def run(self):
         self.no_args()
@@ -75,7 +79,10 @@ class CheckGitBranchCheckout(NagiosPlugin):
             self.usage('Invalid branch name given, must be alphanumeric' + \
                        ', may contain dashes and spaces for detached HEADs')
         log_option('expected branch', expected_branch)
-        repo = git.Repo(directory)
+        try:
+            repo = git.Repo(directory)
+        except InvalidGitRepositoryError as _:
+            raise CriticalError("directory '{}' does not contain a valid Git repository!".format(directory))
         try:
             current_branch = repo.active_branch.name
         # happens with detached HEAD checkout like Travis CI does
@@ -83,12 +90,12 @@ class CheckGitBranchCheckout(NagiosPlugin):
             raise CriticalError(_)
         if current_branch == expected_branch:
             self.ok()
-            self.msg = "branch '{0}' currently checked out in directory '{1}'"\
+            self.msg = "git branch '{0}' currently checked out in directory '{1}'"\
                        .format(current_branch, directory)
         else:
-            raise CriticalError("branch '{0}' checked out, expecting '{1}' in directory '{2}'"
+            raise CriticalError("git branch '{0}' checked out, expecting '{1}' in directory '{2}'"
                                 .format(current_branch, expected_branch, directory))
 
 
 if __name__ == '__main__':
-    CheckGitBranchCheckout().main()
+    CheckGitCheckoutBranch().main()

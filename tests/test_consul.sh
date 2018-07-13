@@ -108,7 +108,7 @@ consul_tests(){
     set +e
     found_version=$(docker-compose exec "$DOCKER_SERVICE" consul version | tr -d '\r' | head -n1 | tee /dev/stderr | sed 's/.*v//')
     set -e
-    if [[ "$found_version" != $expected_version* ]]; then
+    if ! [[ "$found_version" =~ ^$expected_version.*$ ]]; then
         echo "Docker container version does not match expected version! (found '$found_version', expected '$expected_version')"
         exit 1
     fi
@@ -123,25 +123,73 @@ consul_tests(){
 
     run_conn_refused ./check_consul_peer_count.py
 
-    run ./check_consul_key.py -k /nagios/consul/testkey1 -r "^$random_val$" -v
+    run ./check_consul_key.py -k "$testkey" -r "^$random_val$" -v
 
-    run_conn_refused ./check_consul_key.py -k /nagios/consul/testkey1 -r "^$random_val$" -v
+    run_conn_refused ./check_consul_key.py -k "$testkey" -r "^$random_val$" -v
 
     echo "writing deterministic test key to check thresholds"
     curl -X PUT -d "5" "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$testkey"
     echo
     hr
-    run ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 5 -v
+    run ./check_consul_key.py -k "$testkey" -r '^\d$' -w 5 -v
 
-    run ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -c 5 -v
+    run ./check_consul_key.py -k "$testkey" -r '^\d$' -c 5 -v
 
-    run ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 5 -c 5 -v
+    run ./check_consul_key.py -k "$testkey" -r '^\d$' -w 5 -c 5 -v
 
     echo "checking threshold failures are caught correctly:"
 
-    ERRCODE=1 run_grep '^WARNING' ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 5 -v
+    ERRCODE=1 run_grep '^WARNING' ./check_consul_key.py -k "$testkey" -r '^\d$' -w 4 -c 5 -v
 
-    ERRCODE=2 run_grep '^CRITICAL' ./check_consul_key.py -k /nagios/consul/testkey1 -r '^\d$' -w 4 -c 4 -v
+    ERRCODE=2 run_grep '^CRITICAL' ./check_consul_key.py -k "$testkey" -r '^\d$' -w 4 -c 4 -v
+
+    local leader_lock="nagios/consul/leader"
+    echo "checking key doesn't exist:"
+    run_fail 2 ./check_consul_service_leader_elected.py -k "nonexistent"
+
+    echo "checking regular key doesn't have a leader lock:"
+    run_fail 2 ./check_consul_service_leader_elected.py -k "$testkey"
+
+    echo "creating session:"
+    local session="$(curl -s -X PUT -d '{"Name": "nagios"}' "http://$CONSUL_HOST:$CONSUL_PORT/v1/session/create" | awk -F'"' '/ID/{print $4}')"
+    echo
+    echo "deleting last session lock if it exists:"
+    set +o pipefail
+    old_session="$(curl -s "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$leader_lock" | python -mjson.tool | awk -F'"' '/Session/ {print $4}')"
+    set -o pipefail
+    curl -X PUT -d '<body>' "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$leader_lock?release=$old_session" || :
+    echo
+    echo
+    echo "creating leader key $leader_lock:"
+    local result="$(curl -s -X PUT -d '<body>' "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$leader_lock?acquire=$session")"
+    if [ "$result" != "true" ]; then
+        echo "Failed to acquire leader lock!"
+        echo
+        echo "$result"
+        exit 1
+    fi
+    echo
+    hr
+    echo "checking leader lock is now there:"
+    run ./check_consul_service_leader_elected.py -k "$leader_lock"
+
+    echo "checking leader lock is now and expected server matches regex:"
+    run ./check_consul_service_leader_elected.py -k "$leader_lock" -r '^[A-Za-z0-9]+$'
+
+    echo "checking leader lock exists but doesn't contain the expected server name"
+    run_fail 2 ./check_consul_service_leader_elected.py -k "$leader_lock" -r 'wronghost'
+
+    echo "releasing leader lock:"
+    local result="$(curl -s -X PUT -d '<body>' "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$leader_lock?release=$session")"
+    if [ "$result" != "true" ]; then
+        echo "Failed to release leader lock!"
+        exit 1
+    fi
+
+    echo "checking key no longer has a leader lock:"
+    run_fail 2 ./check_consul_service_leader_elected.py -k "$testkey"
+
+    run_conn_refused ./check_consul_service_leader_elected.py -k "$leader_lock"
 
     run ./check_consul_write.py -v
 

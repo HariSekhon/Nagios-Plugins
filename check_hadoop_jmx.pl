@@ -15,6 +15,12 @@ Specify ports depending on which daemon you're trying to get JMX from: HDFS Name
 
 Make sure you specify --mbean in prod, leave it out with --all-metrics and -vv only for exploring what is available. Nagios has a char limit and will truncate the output, and the perfdata at the end would be lost.
 
+See metrics documentation for detailed description of important metrics to query:
+
+https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-common/Metrics.html
+https://hbase.apache.org/metrics.html
+https://hbase.apache.org/book.html#hbase_metrics
+
 Tested on Hadoop NameNode & DataNode and HBase Master & RegionServer on:
 
 Hortonworks HDP 2.2 / 2.3
@@ -73,11 +79,11 @@ if($progname =~ /namenode/){
 @usage_order = qw/host port bean metrics all-metrics warning critical expected list-beans/;
 get_options();
 
-$host       = validate_host($host);
-$host       = validate_resolvable($host);
-$port       = validate_port($port);
-$bean       = validate_java_bean($bean) if defined($bean);
-my $url     = "http://$host:$port/jmx";
+$host   = validate_host($host);
+$host   = validate_resolvable($host);
+$port   = validate_port($port);
+$bean   = validate_java_bean($bean) if defined($bean);
+my $url = "http://$host:$port/jmx";
 my %stats;
 my @stats;
 unless($list_beans){

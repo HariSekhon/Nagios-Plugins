@@ -9,12 +9,17 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check a Git working copy is in the right branch.
+$DESCRIPTION = "Nagios Plugin to check a Git checkout is in the right branch
 
 Primarily written for puppetmasters to make sure prod and staging
-environment dirs had the right branches checked out in them";
+environment dirs had the right branches checked out in them
 
-$VERSION = "0.3.2";
+See also check_git_checkout_branch.py
+         check_git_checkout_dirty.py
+         check_git_uncommitted_changes.py
+";
+
+$VERSION = "0.3.3";
 
 use strict;
 use warnings;
@@ -31,8 +36,8 @@ my $branch_checkout;
 my $git_default = "git";
 my $git = $git_default;
 %options = (
-    "d|directory=s" => [ \$directory, "Directory path to git working copy" ],
-    "b|branch=s"    => [ \$branch,    "Branch to expect working copy checkout to be" ],
+    "d|directory=s" => [ \$directory, "Path to git checkout directory" ],
+    "b|branch=s"    => [ \$branch,    "Branch to expect in git checkout directory" ],
     "git-binary=s"  => [ \$git,       "Path to git binary. Defaults to '$git_default'. Without relative or fully qualified path to binary will use \$PATH" ],
 );
 @usage_order = qw/directory branch/;
@@ -63,7 +68,7 @@ foreach(@output){
 defined($branch_checkout) or quit "CRITICAL", "Failed to determine current branch checkout for directory '$directory'";
 
 if($branch_checkout eq $branch){
-    quit "OK", "branch '$branch_checkout' currently checked out in directory '$directory'";
+    quit "OK", "git branch '$branch_checkout' currently checked out in directory '$directory'";
 } else {
-    quit "CRITICAL", "branch '$branch_checkout' checked out, expecting '$branch' in directory '$directory'";
+    quit "CRITICAL", "git branch '$branch_checkout' checked out, expecting '$branch' in directory '$directory'";
 }
