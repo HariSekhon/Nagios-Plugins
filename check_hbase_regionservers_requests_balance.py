@@ -42,7 +42,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import isInt, support_msg, UnknownError
+    from harisekhon.utils import isInt, support_msg, UnknownError, plural
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
@@ -111,32 +111,34 @@ class CheckHBaseRegionServerBalance(RestNagiosPlugin):
         #    raise UnknownError('failed to parse HBase Master UI status page. {}'.format(support_msg()))
 
     def process_stats(self, stats):
-        min_reqs = None
-        max_reqs = None
-        max_rs = None
-        min_rs = None
+        lowest_requests = None
+        highest_requests = None
+        lowest_regionserver = None
+        highest_regionserver = None
         for regionserver in stats:
-            if min_reqs is None:
-                min_reqs = stats[regionserver]
-                max_rs = regionserver
-            if max_reqs is None:
-                max_reqs = stats[regionserver]
-                min_rs = regionserver
-            if stats[regionserver] > max_reqs:
-                max_reqs = stats[regionserver]
-                max_rs = regionserver
-            if stats[regionserver] < min_reqs:
-                min_reqs = stats[regionserver]
-                min_rs = regionserver
+            if lowest_requests is None:
+                lowest_requests = stats[regionserver]
+                lowest_regionserver = regionserver
+            if highest_requests is None:
+                highest_requests = stats[regionserver]
+                highest_regionserver = regionserver
+            if stats[regionserver] > highest_requests:
+                highest_requests = stats[regionserver]
+                highest_regionserver = regionserver
+            if stats[regionserver] < lowest_requests:
+                lowest_requests = stats[regionserver]
+                lowest_regionserver = regionserver
         # simple algo - let me know if you think can be a better calculation
-        diff = max(max_reqs - min_reqs, 1) / max(max_reqs, 1) * 100
-        self.msg = 'HBase RegionServers Reqs/sec Balance = {:.0f}% across {} RegionServers'.format(diff, len(stats))
+        diff = max(highest_requests - lowest_requests, 1) / max(highest_requests, 1) * 100
+        num_regionservers = len(stats)
+        self.msg = 'HBase RegionServers Reqs/sec Balance = {:.0f}% across {} RegionServer{}'\
+                   .format(diff, num_regionservers, plural(num_regionservers))
         self.check_thresholds(diff)
         if self.verbose or not self.is_ok():
             self.msg += ' [min reqs/sec={} on {} / max reqs/sec={} on {}]'\
-                        .format(min_reqs, min_rs, max_reqs, max_rs)
-        self.msg += ' | reqs_per_sec_balance={:.2f}%{} min_reqs_per_sec={} max_reqs_per_sec={}'\
-                    .format(diff, self.get_perf_thresholds(), min_reqs, max_reqs)
+                        .format(lowest_requests, lowest_regionserver, highest_requests, highest_regionserver)
+        self.msg += ' | reqs_per_sec_balance={:.2f}%{} lowest_requests_per_sec={} highest_requests_per_sec={}'\
+                    .format(diff, self.get_perf_thresholds(), lowest_requests, highest_requests)
 
 
 if __name__ == '__main__':
