@@ -49,7 +49,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckHBaseRegionServerBalance(RestNagiosPlugin):
@@ -72,7 +72,7 @@ class CheckHBaseRegionServerBalance(RestNagiosPlugin):
 
     def process_options(self):
         super(CheckHBaseRegionServerBalance, self).process_options()
-        self.validate_thresholds(percent=True, optional=True)
+        self.validate_thresholds(simple='lower', percent=True, optional=True)
 
     def parse(self, req):
         soup = BeautifulSoup(req.content, 'html.parser')
@@ -129,7 +129,7 @@ class CheckHBaseRegionServerBalance(RestNagiosPlugin):
                 min_reqs = stats[regionserver]
                 min_rs = regionserver
         # simple algo - let me know if you think can be a better calculation
-        diff = max_reqs - min_reqs / max(max_reqs, 1)
+        diff = max(max_reqs - min_reqs, 1) / max(max_reqs, 1) * 100
         self.msg = 'HBase RegionServers Reqs/sec Balance = {:.0f}% across {} RegionServers'.format(diff, len(stats))
         self.check_thresholds(diff)
         if self.verbose or not self.is_ok():
