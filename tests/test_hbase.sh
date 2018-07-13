@@ -412,6 +412,10 @@ EOF
 
     run_conn_refused $perl -T ./check_hbase_regionservers_jsp.pl
 
+    run ./check_hbase_regionservers_requests_balance.py
+
+    run_conn_refused ./check_hbase_regionservers_requests_balance.py
+
 # ============================================================================ #
 
     for x in "$perl -T ./check_hbase_cell.pl" ./check_hbase_cell.py "$perl -T ./check_hbase_cell_stargate.pl"; do
