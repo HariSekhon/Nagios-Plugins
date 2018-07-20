@@ -167,6 +167,7 @@ test_hbase(){
         put 't1', 'r2', 'cf1:q1', 'test'
         put 't1', 'r3', 'cf1:q1', '5'
         list
+        balance_switch false
 EOF2
     # don't actually use this table in tests, only in pytools repo
     #hbase org.apache.hadoop.hbase.util.RegionSplitter UniformSplitTable UniformSplit -c 100 -f cf1
@@ -213,7 +214,7 @@ EOF
 
     run_fail 1 ./check_hbase_hbck.py -f tests/data/hbck.log -a 3
 
-    docker_exec check_hbase_hbck.py -f /tmp/hbase-hbck.log -a 30
+    docker_exec check_hbase_hbck.py -f /tmp/hbase-hbck.log -a 60
 
     ERRCODE=1 docker_exec check_hbase_hbck.py -f /tmp/hbase-hbck.log -a 1
 
@@ -222,6 +223,29 @@ EOF
     run_fail 2 ./check_hbase_hbck.py -f tests/data/hbck-inconsistencies.log -a 3
 
     run_fail 3 ./check_hbase_hbck.py -f nonexistent_file
+
+# ============================================================================ #
+
+    run_fail 1 ./check_hbase_balancer_enabled.py
+
+    run_fail 1 ./check_hbase_balancer_enabled2.py
+
+    docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
+    export JAVA_HOME=/usr
+    /hbase/bin/hbase shell <<-EOF2
+        balance_switch true
+EOF2
+EOF
+
+    retry 10 ./check_hbase_balancer_enabled2.py
+
+    run ./check_hbase_balancer_enabled.py
+
+    run ./check_hbase_balancer_enabled2.py
+
+    run_conn_refused ./check_hbase_balancer_enabled.py
+
+    run_conn_refused ./check_hbase_balancer_enabled2.py
 
 # ============================================================================ #
 
@@ -494,26 +518,26 @@ EOF
 
     # HBase <= 0.94 gets CRITICAL: IOError(message='t1')
     if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
-        run_fail "0 2" ./check_hbase_write_spray.py -T t1 -w 700 --precision 3 -t 20
+        run_fail "0 2" ./check_hbase_write_spray.py -T t1 -w 700 --precision 3 -t 60
     else
-        run ./check_hbase_write_spray.py -T t1 -w 700 --precision 3 -t 20
+        run ./check_hbase_write_spray.py -T t1 -w 700 --precision 3 -t 60
     fi
 
-    run_conn_refused ./check_hbase_write_spray.py -T t1 -w 500 --precision 3 -t 20
+    run_conn_refused ./check_hbase_write_spray.py -T t1 -w 500 --precision 3 -t 60
 
     # HBase <= 0.94 gets CRITICAL: IOError(message='t1')
     if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
-        run_fail "0 2" ./check_hbase_write_spray.py -T t1 -w 500 --precision 3 -t 20
-        run_fail "0 2" ./check_hbase_write_spray.py -T EmptyTable -w 500 --precision 3 -t 20
+        run_fail "0 2" ./check_hbase_write_spray.py -T t1 -w 500 --precision 3 -t 60
+        run_fail "0 2" ./check_hbase_write_spray.py -T EmptyTable -w 500 --precision 3 -t 60
     else
         # this will also be checked later by check_hbase_rowcount that it returns to zero rows, ie. delete succeeded
-        run ./check_hbase_write_spray.py -T EmptyTable -w 700 --precision 3 -t 20
+        run ./check_hbase_write_spray.py -T EmptyTable -w 700 --precision 3 -t 60
 
     fi
 
     # not sure why this succeeds on HBase 0.94 but check_hbase_write.py does not
     # write to 100 regions...
-    run ./check_hbase_write_spray.py -T HexStringSplitTable -w 700 --precision 3 -t 20
+    run ./check_hbase_write_spray.py -T HexStringSplitTable -w 700 --precision 3 -t 60
 
     run_fail 2 ./check_hbase_write_spray.py -T DisabledTable -t 5
 
