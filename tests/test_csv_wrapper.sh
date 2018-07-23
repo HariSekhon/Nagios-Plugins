@@ -43,13 +43,13 @@ run_grep '^OK,' ./csv_wrapper.py --shell "echo 'test message | perf1=10s;1;2 per
 
 run ./csv_wrapper.py $perl -T ./check_disk_write.pl -d .
 
-run ./csv_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^*/{print $2}')"
+run ./csv_wrapper.py $perl -T ./check_git_checkout_branch.pl -d . -b "$(git branch | awk '/^*/{print $2}')"
 
 echo "Testing failure detection of wrong git branch (perl)"
-run_grep '^CRITICAL,' ./csv_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch
+run_grep '^CRITICAL,' ./csv_wrapper.py $perl -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
 
 echo "Testing failure detection of wrong git branch (python)"
-run_grep '^CRITICAL', ./geneos_wrapper.py ./check_git_branch_checkout.py -d . -b nonexistentbranch
+run_grep '^CRITICAL', ./geneos_wrapper.py ./check_git_checkout_branch.py -d . -b nonexistentbranch
 
 tmpfile="$(mktemp /tmp/csv_wrapper.txt.XXXXXX)"
 echo test > "$tmpfile"
