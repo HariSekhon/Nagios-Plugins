@@ -43,7 +43,7 @@ run_grep '^0 ' ./check_mk_wrapper.py -n 'basic shell test' --shell "echo 'test m
 
 run ./check_mk_wrapper.py $perl -T ./check_disk_write.pl -d .
 
-run ./check_mk_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b "$(git branch | awk '/^\*/{print $2}')"
+run ./check_mk_wrapper.py $perl -T ./check_git_checkout_branch.pl -d . -b "$(git branch | awk '/^\*/{print $2}')"
 
 echo "testing stripping of numbered Python interpreter:"
 if which python2.7 &>/dev/null; then
@@ -53,13 +53,13 @@ elif which python2.6 &>/dev/null; then
 else
     python=python
 fi
-run_grep '^0 check_git_branch_checkout.py' ./check_mk_wrapper.py $python ./check_git_branch_checkout.py -d . -b "$(git branch | awk '/^\*/{print $2}')"
+run_grep '^0 check_git_checkout_branch.py' ./check_mk_wrapper.py $python ./check_git_checkout_branch.py -d . -b "$(git branch | awk '/^\*/{print $2}')"
 
 echo "Testing failure detection of wrong git branch (perl):"
-run_grep '^2 check_git_branch_checkout.pl ' ./check_mk_wrapper.py $perl -T ./check_git_branch_checkout.pl -d . -b nonexistentbranch
+run_grep '^2 check_git_checkout_branch.pl ' ./check_mk_wrapper.py $perl -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
 
 echo "Testing failure detection of wrong git branch (python):"
-run_grep '^2 check_git_branch_checkout.py ' ./check_mk_wrapper.py python ./check_git_branch_checkout.py -d . -b nonexistentbranch
+run_grep '^2 check_git_checkout_branch.py ' ./check_mk_wrapper.py python ./check_git_checkout_branch.py -d . -b nonexistentbranch
 
 tmpfile="$(mktemp /tmp/check_mk_wrapper.txt.XXXXXX)"
 echo test > "$tmpfile"

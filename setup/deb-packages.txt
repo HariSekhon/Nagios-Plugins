@@ -19,7 +19,7 @@ python-pip
 python-setuptools
 
 # needed to fetch the library submodule at end of build
-# and also for check_git_branch_checkout.pl and Git-Python / check_git_branch_checkout.py
+# and also for check_git_checkout_branch.pl and Git-Python / check_git_checkout_branch.py
 git
 
 libwww-perl

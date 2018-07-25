@@ -18,7 +18,7 @@ $DESCRIPTION = "Nagios Plugin to check a file's checksum against an expected val
 
 Useful if you want to check a file has been deployed and is the same version as stored in say Git
 
-Consider combining with check_git_branch_checkout.pl to ensure you're checking the right file from the right Git branch to check against the deployed version
+Consider combining with check_git_checkout_branch.pl to ensure you're checking the right file from the right Git branch to check against the deployed version
 
 --verbose mode shows which algorithm has been used in the output";
 
