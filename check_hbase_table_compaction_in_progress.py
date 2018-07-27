@@ -58,7 +58,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5'
+__version__ = '0.6'
 
 
 class CheckHBaseTableCompacting(NagiosPlugin):
@@ -165,6 +165,9 @@ class CheckHBaseTableCompacting(NagiosPlugin):
                 for _ in ('NONE', 'Unknown'):
                     if _ in compaction_state:
                         return False
+                # MAJOR_AND_MINOR shows during major compaction
+                if compaction_state == 'MINOR':
+                    return False
                 if len(compaction_state.split('\n')) > 1:
                     raise UnknownError('parsing error - table data next to Compaction > 1 line' + \
                                        ', old version of HBase < 0.96? Otherwise HBase UI may have changed' + \
