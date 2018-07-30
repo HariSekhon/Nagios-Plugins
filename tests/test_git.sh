@@ -180,7 +180,7 @@ run_fail 2 ./check_git_checkout_dirty.py -d "$GIT_TMP"
 run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP"
 
 pushd "$GIT_TMP"
-git ci -m "modified file" "$gitfile"
+git commit -m "modified file" "$gitfile"
 popd
 hr
 
