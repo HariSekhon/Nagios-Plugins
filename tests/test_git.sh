@@ -143,6 +143,15 @@ run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP"
 
 run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP" -v
 
+if [ -z "`git config user.name`" ]; then
+    echo "setting git user.name Hari Sekhon in local repo to allow commit"
+    git config user.name "Hari Sekhon"
+fi
+if [ -z "`git config user.email`" ]; then
+    echo "setting git user.email harisekhon@gmail.com in local repo to allow commit"
+    git config user.email "harisekhon@gmail.com"
+fi
+
 echo "committing git file $gitfile:"
 pushd "$GIT_TMP"
 git commit -m "added $gitfile"
