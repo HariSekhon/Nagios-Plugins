@@ -31,7 +31,7 @@ Supports most major open source NoSQL technologies, Pub-Sub / Message Buses, CI,
 - [Jenkins](https://jenkins.io/)
 - [Travis CI](https://travis-ci.org/)
 - [Puppet](https://puppet.com/)
-- Linux - various including the widely used [RHEL](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux) / [CentOS](https://www.centos.org/) yum security updates check
+- Linux - various including the widely used ```check_yum.py``` for [RHEL](https://www.redhat.com/en/technologies/linux-platforms/enterprise-linux) / [CentOS](https://www.centos.org/) yum security updates
 - SSL Certificate expiry in days & validations
 - Whois domain expiry in days & validations
 - advanced DNS record checks (MX, NS, SRV etc)
