@@ -441,7 +441,7 @@ mv -f lib nagios-plugins/
 
 Proceed to install CPAN and PyPI modules for whichever programs you want to use using your usual procedure - usually an internal mirror or proxy server to CPAN and PyPI, or rpms / debs (some libraries are packaged by Linux distributions).
 
-All CPAN modules are listed in ```setup/cpan-requirements.txt``` and all PyPI modules are listed in the ```requirements.txt``` file.
+All CPAN modules are listed in ```setup/cpan-requirements.txt``` and all PyPI modules are listed in ```requirements.txt```.
 
 
 ##### Mac OS X
