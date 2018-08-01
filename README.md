@@ -409,9 +409,11 @@ This has become quite a large project and will take at least 10 minutes to build
 
 Make sure /usr/local/bin is in your ` $PATH ` when running make as otherwise it'll fail to find ` cpanm `
 
+
 ##### Python VirtualEnv / Perlbrew localized installs
 
 The automated build will use 'sudo' to install required Perl CPAN & Python PyPI libraries to the system unless running as root or it detects being inside Perlbrew or VirtualEnv. If you want to install some of the common Perl / Python libraries such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN / PyPI then follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead.
+
 
 #### Offline Setup
 
@@ -423,9 +425,24 @@ https://github.com/HariSekhon/lib/archive/master.zip
 
 https://github.com/HariSekhon/pylib/archive/master.zip
 
-Unzip all and move Lib and Pylib to the ```lib``` and ```pylib``` folder under the folder containing the nagios plugins.
+Unzip all and move Lib and Pylib to the ```lib``` and ```pylib``` folders under nagios plugins.
 
-Proceed to install CPAN and PyPI modules for whichever programs you want to use using your internal mirror or standard procedure. All CPAN modules are listed in ```setup/cpan-requirements.txt``` and all PyPI modules are listed in the ```requirements.txt``` file.
+```
+unzip nagios-plugins-master.zip
+unzip pylib-master.zip
+unzip lib-master.zip
+
+mv nagios-plugins-master nagios-plugins
+mv pylib-master pylib
+mv lib-master lib
+mv -f pylib nagios-plugins/
+mv -f lib nagios-plugins/
+```
+
+Proceed to install CPAN and PyPI modules for whichever programs you want to use using your usual procedure - usually an internal mirror or proxy server to CPAN and PyPI, or rpms / debs (some libraries are packaged by Linux distributions).
+
+All CPAN modules are listed in ```setup/cpan-requirements.txt``` and all PyPI modules are listed in the ```requirements.txt``` file.
+
 
 ##### Mac OS X
 
