@@ -413,6 +413,20 @@ Make sure /usr/local/bin is in your ` $PATH ` when running make as otherwise it'
 
 The automated build will use 'sudo' to install required Perl CPAN & Python PyPI libraries to the system unless running as root or it detects being inside Perlbrew or VirtualEnv. If you want to install some of the common Perl / Python libraries such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN / PyPI then follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead.
 
+#### Offline Setup
+
+Download the Nagios Plugins, Lib and Pylib git repos as zip files:
+
+https://github.com/HariSekhon/nagios-plugins/archive/master.zip
+
+https://github.com/HariSekhon/lib/archive/master.zip
+
+https://github.com/HariSekhon/pylib/archive/master.zip
+
+Unzip all and move Lib and Pylib to the ```lib``` and ```pylib``` folder under the folder containing the nagios plugins.
+
+Proceed to install CPAN and PyPI modules for whichever programs you want to use using your internal mirror or standard procedure. All CPAN modules are listed in ```setup/cpan-requirements.txt``` and all PyPI modules are listed in the ```requirements.txt``` file.
+
 ##### Mac OS X
 
 The automated build also works on Mac OS X but you will need to download and install [Apple XCode](https://developer.apple.com/download/) development libraries. I also recommend you get [HomeBrew](https://brew.sh/) to install other useful tools and libraries you may need like OpenSSL, Snappy and MySQL for their development headers and tools such as wget (these packages are automatically installed if Homebrew is installed on Mac OS X):
