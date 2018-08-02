@@ -36,6 +36,7 @@ trap "exit $UNKNOWN" EXIT
 
 host="${APACHE_DRILL_HOST:-${DRILL_HOST:-${HOST:-localhost}}}"
 zookeepers="${ZOOKEEPERS:-}"
+cli="sqlline"
 
 usage(){
     if [ -n "$*" ]; then
@@ -82,15 +83,15 @@ check_bin(){
         exit $UNKNOWN
     fi
 }
-check_bin sqlline
+check_bin "$cli"
 
 check_apache_drill(){
     local query="select * from sys.version;"
     if [ -n "$zookeepers" ]; then
-        output="$(sqlline -u "jdbc:drill:zk=$zookeepers" -f /dev/stdin <<< "$query" 2>&1)"
+        output="$("$cli" -u "jdbc:drill:zk=$zookeepers" -f /dev/stdin <<< "$query" 2>&1)"
         retcode=$?
     else
-        output="$(sqlline -u "jdbc:drill:drillbit=$host" -f /dev/stdin <<< "$query" 2>&1)"
+        output="$("$cli" -u "jdbc:drill:drillbit=$host" -f /dev/stdin <<< "$query" 2>&1)"
         retcode=$?
     fi
     trap '' EXIT
