@@ -672,7 +672,8 @@ If you end up with an error like:
 ```
 It can be caused by an issue with the underlying Python + libraries due to changes in OpenSSL and certificates. One quick fix is to do the following:
 ```
-pip uninstall -y certifi && pip install certifi==2015.04.28
+sudo pip uninstall -y certifi &&
+sudo pip install certifi==2015.04.28
 ```
 
 ### Further Utilities ###
