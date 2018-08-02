@@ -54,7 +54,7 @@ Specify --host to check a specific Drill node (defaults to localhost), or --zook
 
 ZooKeeper ensemble takes priority over --host
 
-Tested on Apache Drill 1.13
+Tested on Apache Drill 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13
 
 usage: ${0##*/}
 
