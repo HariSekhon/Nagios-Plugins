@@ -113,7 +113,8 @@ There are over 400 programs in this repo so these are just some of the highlight
 
 ###### Quick Links:
 
-* [Hadoop Ecosystem](https://github.com/HariSekhon/nagios-plugins#hadoop-ecosystem) - HDFS, Yarn, HBase, Ambari, Hortonworks, Cloudera, MapR, Drill, Presto, Hive, Atlas, Ranger
+* [Hadoop Ecosystem](https://github.com/HariSekhon/nagios-plugins#hadoop-ecosystem) - HDFS, Yarn, HBase, Ambari, Hortonworks, Cloudera, MapR, Atlas, Ranger
+  * [SQL-on-Hadoop](https://github.com/HariSekhon/nagios-plugins#sql-on-hadoop) - Hive, Drill, Presto
 * [Service Discovery & Coordination](https://github.com/HariSekhon/nagios-plugins#service-discovery--coordination) - ZooKeeper, Consul, Vault
 * [Docker / Containerization](https://github.com/HariSekhon/nagios-plugins#docker--containerization) - Docker & Docker Swarm, Mesos
 * [Search](https://github.com/HariSekhon/nagios-plugins#search) - Elasticsearch, Solr / SolrCloud
@@ -137,21 +138,24 @@ There are over 400 programs in this repo so these are just some of the highlight
 - ```check_cloudera_manager_*.pl``` - Hadoop cluster checks via [Cloudera Manager](https://www.cloudera.com/) API - checks states and health of cluster services/roles/nodes, management services, config staleness, Cloudera Enterprise license expiry, Cloudera Manager and CDH cluster versions, utility switches to list clusters/services/roles/nodes as well as list users and their role privileges, fetch a wealth of Hadoop & OS monitoring metrics from Cloudera Manager and compare to thresholds. Disclaimer: I worked for Cloudera, but seriously CM collects an impressive amount of metrics making check_cloudera_manager_metrics.pl alone a very versatile program from which to create hundreds of checks to flexibly alert on
 - ```check_mapr*.pl``` - Hadoop cluster checks via [MapR](https://mapr.com/) Control System API - checks services and nodes, MapR-FS space (cluster and per volume), volume states, volume block replication, volume snapshots and mirroring, MapR-FS per disk space utilization on nodes, failed disks, CLDB heartbeats, MapR alarms, MapReduce mode and memory utilization, disk and role balancer metrics. These are noticeably faster than running equivalent maprcli commands (exceptions: disk/role balancer use maprcli).
 - ```check_ibm_biginsights_*.pl``` - Hadoop cluster checks via IBM BigInsights Console API - checks services, nodes, agents, BigSheets workbook runs, dfs paths and properties, HDFS space and block replication, BI console version, BI console applications deployed
-- ```check_apache_drill_*.py/.pl``` - [Apache Drill](https://drill.apache.org/) checks for:
-  - cluster wide: number of online / offline cluster nodes, mismatched versions across cluster
-  - per drill node: status, cluster membership, encryption enabled, config settings, storage plugins enabled, version, metrics with optional thresholds
 - ```check_atlas_*.py``` - [Apache Atlas](http://atlas.apache.org/) metadata server instance status, as well as metadata entity checks including entity existence, state=ACTIVE, expected type, expected tags are assigned to entity (eg. PII - important because Ranger ACLs to allow or deny access to data can be assigned based on tags)
-- ```check_hiveserver2_llap_*.py``` - [Apache Hive](https://hive.apache.org/) - HiveServer2 LLAP Interactive server status and uptime, peer count, check for a specific peer host fqdn via regex
-- ```check_presto_*.py``` - [Presto SQL DB](https://prestodb.io/)
-  - cluster checks (via coordinator API) - number of current queries, running/failed/blocked/queued queries, tasks, worker nodes, failed worker nodes, workers with response lag to coordinator, workers with recent failures and recent failure ratios vs thresholds, version
-  - per node checks - status, if coordinator, environment
-  - per worker checks (via coordinator API) - specific worker registered with coordinator, response age to coordinator, recent requests vs threshold, recent successes, recent failures & failure ratio vs thresholds
 - ```check_ranger_*.pl/.py``` - [Apache Ranger](https://ranger.apache.org/) checks:
   - policy checks - existence, enabled, has auditing enabled, is recursive, last updated vs thresholds (to catch changes), repository name and type that the policy belongs to
   - repository checks - existence, active, type (eg. hive, hdfs), last updated vs thresholds (to catch changes)
   - number of policies and repositories vs thresholds
 
 Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for those proprietary products related to [Hadoop](http://hadoop.apache.org/).
+
+##### SQL-on-Hadoop
+
+- ```check_hiveserver2_llap_*.py``` - [Apache Hive](https://hive.apache.org/) - HiveServer2 LLAP Interactive server status and uptime, peer count, check for a specific peer host fqdn via regex
+- ```check_apache_drill_*.py/.pl``` - [Apache Drill](https://drill.apache.org/) checks for:
+  - cluster wide: number of online / offline cluster nodes, mismatched versions across cluster
+  - per drill node: status, cluster membership, encryption enabled, config settings, storage plugins enabled, version, metrics with optional thresholds
+- ```check_presto_*.py``` - [Presto SQL DB](https://prestodb.io/)
+  - cluster checks (via coordinator API) - number of current queries, running/failed/blocked/queued queries, tasks, worker nodes, failed worker nodes, workers with response lag to coordinator, workers with recent failures and recent failure ratios vs thresholds, version
+  - per node checks - status, if coordinator, environment
+  - per worker checks (via coordinator API) - specific worker registered with coordinator, response age to coordinator, recent requests vs threshold, recent successes, recent failures & failure ratio vs thresholds
 
 ##### Service Discovery & Coordination
 
