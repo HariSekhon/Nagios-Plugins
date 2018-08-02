@@ -44,7 +44,7 @@ usage(){
     fi
     cat <<EOF
 
-Nagios Plugin to check Apache Drill via local sqlline shell query
+Nagios Plugin to check Apache Drill via local sqlline shell SQL query
 
 Specify --host to check a single Drill node, otherwise --zookeeper to test that some node is up. ZooKeeper ensemble takes priority
 
