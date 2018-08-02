@@ -247,6 +247,8 @@ apk-packages-remove:
 apt-packages:
 	$(SUDO) apt-get update
 	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages.txt setup/deb-packages-dev.txt`
+	$(SUDO) apt-get install -y python-mysqldb || :
+	$(SUDO) apt-get install -y python3-mysqldb || :
 	$(SUDO) apt-get install -y libmysqlclient-dev || :
 	$(SUDO) apt-get install -y libmariadbd-dev || :
 	# for check_whois.pl - looks like this has been removed from repos :-/
@@ -402,8 +404,48 @@ docker-mount:
 	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
 	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins bash -c "cd /pl; exec bash"
 
+.PHONY: docker-mount-alpine
+docker-mount-alpine:
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins:alpine bash -c "cd /pl; exec bash"
+
+.PHONY: docker-mount-debian
+docker-mount-debian:
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins:debian bash -c "cd /pl; exec bash"
+
+.PHONY: docker-mount-centos
+docker-mount-centos:
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins:centos bash -c "cd /pl; exec bash"
+
+.PHONY: docker-mount-ubuntu
+docker-mount-ubuntu:
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins:ubuntu bash -c "cd /pl; exec bash"
+
 .PHONY: mount
 mount: docker-mount
+	:
+
+.PHONY: mount-alpine
+mount-alpine: docker-mount-alpine
+	:
+
+.PHONY: mount-debian
+mount-debian: docker-mount-debian
+	:
+
+.PHONY: mount-centos
+mount-centos: docker-mount-centos
+	:
+
+.PHONY: mount-ubuntu
+mount-ubuntu: docker-mount-ubuntu
 	:
 
 .PHONY: push
