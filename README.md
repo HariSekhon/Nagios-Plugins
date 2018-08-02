@@ -120,15 +120,15 @@ There are over 400 programs in this repo so these are just some of the highlight
 * [Docker / Containerization](https://github.com/HariSekhon/nagios-plugins#docker--containerization) - Docker & Docker Swarm, Mesos
 * [Search](https://github.com/HariSekhon/nagios-plugins#search) - Elasticsearch, Solr / SolrCloud
 * [NoSQL](https://github.com/HariSekhon/nagios-plugins#nosql) - Cassandra, Redis, Riak, Memcached, CouchDB
+* [SQL Databases](https://github.com/HariSekhon/nagios-plugins#sql-databases) - MySQL
 * [Pub-Sub / Message Queues](https://github.com/HariSekhon/nagios-plugins#publish---subscribe--message-queues) - Kafka, Redis, RabbitMQ
 * [CI - Continuous Integration & Build Systems](https://github.com/HariSekhon/nagios-plugins#ci---continuous-integration--build-systems---git-jenkins-travis-ci--dockerhub-automated-builds) - Jenkins, Travis CI, DockerHub, Git
-* [RDBMS / Databases](https://github.com/HariSekhon/nagios-plugins#rdbms---databases) - MySQL
 * [Infrastructure - Internet](https://github.com/HariSekhon/nagios-plugins#infrastructure---internet---web-dns-domains) - Web, DNS, Domains
 * [Infrastructure - Linux](https://github.com/HariSekhon/nagios-plugins#infrastructure---linux---os-network-puppet-raid-ssh-clusters-yum-security-updates) - OS, Network, Puppet, RAID, SSH, Clusters, Yum Security Updates
 
 ##### Hadoop Ecosystem
 
-- `check_hadoop_*.pl/py` - various [Apache Hadoop](http://hadoop.apache.org/) monitoring utilities for HDFS, YARN and MapReduce (both MRv1 & MRv2):
+- ```check_hadoop_*.pl/py``` - various [Apache Hadoop](http://hadoop.apache.org/) monitoring utilities for HDFS, YARN and MapReduce (both MRv1 & MRv2):
   - Hadoop - Masters' status and High Availability (ZKFC, Active/Standby state), Worker nodes counts, dead nodes / blacklisted / unhealthy nodes, heap usage, metrics and JMX information with optional thresholds & graph data
   - HDFS - NameNode & DataNode checks, cluster space, balance, block replication, block count limits per datanode / cluster total, safe mode, failed name dirs, WebHDFS (with HDFS HA failover support), HttpFS, HDFS writeability, rack resilience configuration (checks more than 1 rack configured, finds nodes with default rack configured), HDFS fsck status / last check / run time / max blocks, HDFS file / directory existence & metadata attributes
   - Yarn:
@@ -197,6 +197,11 @@ See also DockerHub build status nagios plugin further down in the [CI section](h
 - ```check_riak_*.pl``` - [Riak](http://basho.com/products/riak-kv/) API writes/reads/deletes with timings, check a specific key's value against regex or value range, check all riak diagnostics, check node states, check all nodes agree on ring status, gather statistics, alert on any single stat
 - ```check_redis_*.pl``` - [Redis](https://redis.io/) API writes/reads/deletes with timings, check specific key's value against regex or value range, replication slaves I/O, replicated writes (write on master -> read from slave), publish/subscribe, connected clients, validate redis.conf against running server to check deployments or remote compliance checks, gather statistics, alert on any single stat
 
+##### SQL Databases
+
+- ```check_mysql_query.pl``` - flexible free-form [MySQL](https://www.mysql.com/) SQL queries - can check almost anything - obsoleted a dozen custom MySQL plugins and prevented writing many more. Tested against many versions of [MySQL](https://www.mysql.com/) and [MariaDB](https://mariadb.org/). You may also be interested in [Percona's plugins](https://www.percona.com/doc/percona-monitoring-plugins/latest/index.html)
+- ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline. Tested against many versions of [MySQL](https://www.mysql.com/) and [MariaDB](https://mariadb.org/)
+
 ##### Publish - Subscribe / Message Queues
 
 These programs check these message brokers end-to-end via their API, by acting as both a producer and a consumer and checking that a unique generated message passes through the broker cluster and is received by the consumer at the other side successfully. They report the publish, consumer and total timings taken, against which thresholds can be applied, and are also available as perfdata for graphing.
@@ -214,11 +219,6 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 - ```check_travis_ci_last_build.py``` - [Travis CI](https://travis-ci.org/) repo's last build status - includes showing build number, build duration with optional thresholds, start/stop date & time, if there are currently any builds in progress and perfdata for graphing last build time and number of builds in progress. Verbose mode gives the commit details as well such as commit id and message
 - ```check_dockerhub_repo_build_status.py``` - [DockerHub](https://hub.docker.com/u/harisekhon/) Automated Build status check for a given DockerHub repository's latest build or latest build for a given tag. Returns status and tag of last build along with perfdata for graphing build latency (time between build creation and completion) and query timing. Optionally also returns in verbose mode what triggered the build (webhook, revision control change, API / website trigger), created and last updated date timestamps and build URL to investigate
 - ```check_git_*``` - checks a [Git](https://git-scm.com/) checkout is valid, up to date with upstream remote/origin, has no uncommitted changes (staged or unstaged), no untracked files, isn't dirty, is in the right branch, isn't remote, isn't detached, is / isn't bare. Useful for monitoring deployment servers running off Git checkouts (a common scenario for things like [PuppetMasters](https://puppet.com/), [Ansible](https://www.ansible.com/) [AWX](https://github.com/ansible/awx) / [Tower](https://www.ansible.com/products/tower) etc) to ensure your automation is deploying the right thing and that any ad-hoc modifications and tests have been properly backported to Git
-
-##### RDBMS - Databases
-
-- ```check_mysql_query.pl``` - flexible free-form [MySQL](https://www.mysql.com/) SQL queries - can check almost anything - obsoleted a dozen custom MySQL plugins and prevented writing many more. Tested against many versions of [MySQL](https://www.mysql.com/) and [MariaDB](https://mariadb.org/). You may also be interested in [Percona's plugins](https://www.percona.com/doc/percona-monitoring-plugins/latest/index.html)
-- ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline. Tested against many versions of [MySQL](https://www.mysql.com/) and [MariaDB](https://mariadb.org/)
 
 ##### Infrastructure - Internet - Web, DNS, Domains
 
