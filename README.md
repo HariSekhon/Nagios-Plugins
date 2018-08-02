@@ -154,7 +154,7 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
 ##### SQL-on-Hadoop
 
 - ```check_hiveserver2_llap_*.py``` - [Apache Hive](https://hive.apache.org/) - HiveServer2 LLAP Interactive server status and uptime, peer count, check for a specific peer host fqdn via regex
-- ```check_apache_drill_*.py/.pl``` - [Apache Drill](https://drill.apache.org/) checks for:
+- ```check_apache_drill_*.py/.pl``` - [Apache Drill](https://drill.apache.org/) checks:
   - cluster wide: number of online / offline cluster nodes, mismatched versions across cluster
   - per drill node: status, cluster membership, encryption enabled, config settings, storage plugins enabled, version, metrics with optional thresholds
 - ```check_presto_*.py``` - [Presto SQL DB](https://prestodb.io/)
