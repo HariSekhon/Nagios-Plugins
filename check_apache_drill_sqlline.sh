@@ -28,7 +28,7 @@ WARNING=1
 CRITICAL=2
 UNKNOWN=3
 
-trap "exit $UNKNOWN" EXIT
+trap "echo UNKNOWN; exit $UNKNOWN" EXIT
 
 # nice try but doesn't work
 #export TMOUT=10
@@ -37,6 +37,9 @@ trap "exit $UNKNOWN" EXIT
 host="${APACHE_DRILL_HOST:-${DRILL_HOST:-${HOST:-localhost}}}"
 zookeepers="${ZOOKEEPERS:-}"
 cli="sqlline"
+krb5_host=""
+krb5_princ=""
+krb5_realm=""
 
 usage(){
     if [ -n "$*" ]; then
@@ -55,11 +58,15 @@ Tested on Apache Drill 1.13
 
 usage: ${0##*/}
 
--H --host       Apache Drill Host (default: localhost, \$APACHE_DRILL_HOST, \$DRILL_HOST, \$HOST)
--z --zookeeper  ZooKeeper ensemble (comma separated list of hosts, \$ZOOKEEPERS)
+-H --host           Apache Drill Host (default: localhost, \$APACHE_DRILL_HOST, \$DRILL_HOST, \$HOST)
+-z --zookeeper      ZooKeeper ensemble (comma separated list of hosts, \$ZOOKEEPERS)
+   --krb5-host      Kerberos host component of remote Drillbit if using Kerberos via local TGT cache
+   --krb5-princ     Kerberos principal of remote Drillbit if using Kerberos via local TGT cache
+   --krb5-realm     Kerberos realm if using Kerberos via local TGT cache
 
 EOF
-    exit 1
+    trap '' EXIT
+    exit $UNKNOWN
 }
 
 until [ $# -lt 1 ]; do
@@ -67,7 +74,16 @@ until [ $# -lt 1 ]; do
          -H|--host)     host="${2:-}"
                         shift
                         ;;
-   -z|--zookeepers)     zookeeper="${2:-}"
+   -z|--zookeepers)     zookeepers="${2:-}"
+                        shift
+                        ;;
+       --krb5-host)     krb5_host="${2:-}"
+                        shift
+                        ;;
+      --krb5-princ)     krb5_princ="${2:-}"
+                        shift
+                        ;;
+      --krb5-realm)     krb5_realm="${2:-}"
                         shift
                         ;;
          -h|--help)     usage
@@ -77,6 +93,15 @@ until [ $# -lt 1 ]; do
     esac
     shift || :
 done
+
+if [ -z "$zookeepers" -a -z "$host" ]; then
+    usage "--host / --zookeeper not specified"
+fi
+if [ -n "$krb5_host" -o -n "$krb5_princ" -o -n "$krb5_realm" ]; then
+   if [ -z "$krb5_host" -o -z "$krb5_princ" -o -z "$krb5_realm" ]; then
+        usage "Kerberos requires --krb5-host, --krb5-princ and --krb5-realm to all be specified if any are used"
+    fi
+fi
 
 check_bin(){
     local bin="$1"
@@ -89,23 +114,30 @@ check_bin "$cli"
 
 check_apache_drill(){
     local query="select * from sys.version;"
+    local krb5=""
+    if [ "$krb5_host" -a "$krb5_princ" -a "$krb5_realm" ]; then
+        krb5=";principal=$krb5_princ/$krb5_host@$krb5_realm"
+    fi
     if [ -n "$zookeepers" ]; then
-        output="$("$cli" -u "jdbc:drill:zk=$zookeepers" -f /dev/stdin <<< "$query" 2>&1)"
+        output="$("$cli" -u "jdbc:drill:zk=${zookeepers}${krb5}" -f /dev/stdin <<< "$query" 2>&1)"
         retcode=$?
     else
-        output="$("$cli" -u "jdbc:drill:drillbit=$host" -f /dev/stdin <<< "$query" 2>&1)"
+        output="$("$cli" -u "jdbc:drill:drillbit=${host}${krb5}" -f /dev/stdin <<< "$query" 2>&1)"
         retcode=$?
     fi
     trap '' EXIT
     if [ $retcode = 0 ]; then
         if grep -q "1 row selected" <<< "$output"; then
-            echo "OK: Apache Drill query succeeded, SQL engine running"
+            echo "OK: Apache Drill sqlline query succeeded, SQL engine running"
             exit $OK
         fi
     fi
-    echo "CRITICAL: Apache Drill query failed, SQL engine not running"
+    err=""
+    if [ -n "$krb5" ]; then
+        err=" or Kerberos credentials or options invalid"
+    fi
+    echo "CRITICAL: Apache Drill sqlline query failed, SQL engine not running$err"
     exit $CRITICAL
 }
 
-#sleep 11
 check_apache_drill
