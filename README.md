@@ -527,6 +527,18 @@ For Mac OS X see the [Mac OS X](https://github.com/HariSekhon/nagios-plugins#mac
 
 If installing the Perl CPAN or Python PyPI modules via your package manager or by hand instead of via the [Automated Build From Source](https://github.com/harisekhon/nagios-plugins#automated-build-from-source) section, then read the [requirements.txt](https://github.com/HariSekhon/nagios-plugins/blob/master/requirements.txt) and [setup/cpan-requirements.txt](https://github.com/HariSekhon/nagios-plugins/blob/master/setup/cpan-requirements.txt) files for the lists of Python PyPI and Perl CPAN modules respectively that you need to install.
 
+You can install the full list of CPAN modules using this command:
+
+```
+sudo cpan $(sed 's/#.*//' < setup/cpan-requirements.txt
+```
+
+and install the full list of PyPI modules using this command:
+
+```
+sudo pip install -r requirements.txt
+```
+
 ###### Net::ZooKeeper (for various ZooKeeper content checks for Kafka, HBase, SolrCloud etc) ######
 
 ```
