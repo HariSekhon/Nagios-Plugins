@@ -123,7 +123,7 @@ There are over 400 programs in this repo so these are just some of the highlight
 * [SQL Databases](https://github.com/HariSekhon/nagios-plugins#sql-databases) - MySQL
 * [Pub-Sub / Message Queues](https://github.com/HariSekhon/nagios-plugins#publish---subscribe--message-queues) - Kafka, Redis, RabbitMQ
 * [CI - Continuous Integration & Build Systems](https://github.com/HariSekhon/nagios-plugins#ci---continuous-integration--build-systems---git-jenkins-travis-ci--dockerhub-automated-builds) - Jenkins, Travis CI, DockerHub, Git
-* [Infrastructure - Internet](https://github.com/HariSekhon/nagios-plugins#infrastructure---internet---web-dns-domains) - Web, DNS, SSL & Domains Expiry
+* [Infrastructure - Internet](https://github.com/HariSekhon/nagios-plugins#infrastructure---internet---web-dns-ssl-domains) - Web, DNS, SSL & Domain Expiry
 * [Infrastructure - Linux](https://github.com/HariSekhon/nagios-plugins#infrastructure---linux---os-network-puppet-raid-ssh-clusters-yum-security-updates) - OS, Network, Puppet, RAID, SSH, Clusters, Yum Security Updates
 
 ##### Hadoop Ecosystem
@@ -220,7 +220,7 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 - ```check_dockerhub_repo_build_status.py``` - [DockerHub](https://hub.docker.com/u/harisekhon/) Automated Build status check for a given DockerHub repository's latest build or latest build for a given tag. Returns status and tag of last build along with perfdata for graphing build latency (time between build creation and completion) and query timing. Optionally also returns in verbose mode what triggered the build (webhook, revision control change, API / website trigger), created and last updated date timestamps and build URL to investigate
 - ```check_git_*``` - checks a [Git](https://git-scm.com/) checkout is valid, up to date with upstream remote/origin, has no uncommitted changes (staged or unstaged), no untracked files, isn't dirty, is in the right branch, isn't remote, isn't detached, is / isn't bare. Useful for monitoring deployment servers running off Git checkouts (a common scenario for things like [PuppetMasters](https://puppet.com/), [Ansible](https://www.ansible.com/) [AWX](https://github.com/ansible/awx) / [Tower](https://www.ansible.com/products/tower) etc) to ensure your automation is deploying the right thing and that any ad-hoc modifications and tests have been properly backported to Git
 
-##### Infrastructure - Internet - Web, DNS, Domains
+##### Infrastructure - Internet - Web, DNS, SSL, Domains
 
 - ```check_ssl_cert.pl``` - SSL certificate checker - checks certificate expiry (days), validates domain, chain of trust, SNI, wildcard domains, SAN certs with multi-domain support. Chain of Trust support is important when building your JKS or certificate bundles to include intermediate certs otherwise certain mobile devices don't validate the SSL even though it may work in your desktop browser
 - ```check_whois.pl``` - check domain expiry days left and registration details match expected
