@@ -483,9 +483,9 @@ make
 You may get errors trying to install to Python library paths even as root on newer versions of Mac, sometimes this is caused by pip 10 vs pip 9 and downgrading will work around it:
 
 ```
-pip install --upgrade pip==9.0.1
+sudo pip install --upgrade pip==9.0.1
 make
-pip install --upgrade pip
+sudo pip install --upgrade pip
 make
 ```
 
@@ -526,6 +526,18 @@ For Mac OS X see the [Mac OS X](https://github.com/HariSekhon/nagios-plugins#mac
 ##### Perl CPAN Modules #####
 
 If installing the Perl CPAN or Python PyPI modules via your package manager or by hand instead of via the [Automated Build From Source](https://github.com/harisekhon/nagios-plugins#automated-build-from-source) section, then read the [requirements.txt](https://github.com/HariSekhon/nagios-plugins/blob/master/requirements.txt) and [setup/cpan-requirements.txt](https://github.com/HariSekhon/nagios-plugins/blob/master/setup/cpan-requirements.txt) files for the lists of Python PyPI and Perl CPAN modules respectively that you need to install.
+
+You can install the full list of CPAN modules using this command:
+
+```
+sudo cpan $(sed 's/#.*//' < setup/cpan-requirements.txt
+```
+
+and install the full list of PyPI modules using this command:
+
+```
+sudo pip install -r requirements.txt
+```
 
 ###### Net::ZooKeeper (for various ZooKeeper content checks for Kafka, HBase, SolrCloud etc) ######
 
@@ -660,7 +672,8 @@ If you end up with an error like:
 ```
 It can be caused by an issue with the underlying Python + libraries due to changes in OpenSSL and certificates. One quick fix is to do the following:
 ```
-pip uninstall -y certifi && pip install certifi==2015.04.28
+sudo pip uninstall -y certifi &&
+sudo pip install certifi==2015.04.28
 ```
 
 ### Further Utilities ###
