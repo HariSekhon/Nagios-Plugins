@@ -143,13 +143,17 @@ run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP"
 
 run_fail 2 ./check_git_uncommitted_changes.py -d "$GIT_TMP" -v
 
+global=""
+if is_inside_docker; then
+    global="--global"
+fi
 if [ -z "`git config user.name`" ]; then
     echo "setting git user.name Hari Sekhon in local repo to allow commit"
-    git config user.name "Hari Sekhon"
+    git config $global user.name "Hari Sekhon"
 fi
 if [ -z "`git config user.email`" ]; then
     echo "setting git user.email harisekhon@gmail.com in local repo to allow commit"
-    git config user.email "harisekhon@gmail.com"
+    git config $global user.email "harisekhon@gmail.com"
 fi
 
 echo "committing git file $gitfile:"
