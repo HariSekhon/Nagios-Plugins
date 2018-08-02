@@ -239,6 +239,8 @@ test_drill(){
     #docker_exec sqlline -u jdbc:drill:zk=zookeeper -f /dev/stdin <<< "select * from sys.options limit 1;"
     docker_exec sqlline -u jdbc:drill:zk=zookeeper -f /dev/stdin <<< "select * from sys.drillbits;"
 
+    docker_exec ./check_apache_drill.sh
+
 }
 
 startupwait 70
