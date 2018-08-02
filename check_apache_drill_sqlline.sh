@@ -47,7 +47,9 @@ usage(){
 
 Nagios Plugin to check Apache Drill via local sqlline shell SQL query
 
-Specify --host to check a single Drill node, otherwise --zookeeper to test that some node is up. ZooKeeper ensemble takes priority
+Specify --host to check a specific Drill node (defaults to localhost), or --zookeeper to test that any node is up
+
+ZooKeeper ensemble takes priority over --host
 
 Tested on Apache Drill 1.13
 
