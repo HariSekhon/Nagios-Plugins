@@ -85,11 +85,12 @@ check_bin(){
 check_bin sqlline
 
 check_apache_drill(){
+    local query="select * from sys.version;"
     if [ -n "$zookeepers" ]; then
-        output="$(sqlline -u "jdbc:drill:zk=$zookeepers" -f /dev/stdin <<< "select * from sys.version;" 2>&1)"
+        output="$(sqlline -u "jdbc:drill:zk=$zookeepers" -f /dev/stdin <<< "$query" 2>&1)"
         retcode=$?
     else
-        output="$(sqlline -u "jdbc:drill:drillbit=$host" -f /dev/stdin <<< "select * from sys.version;" 2>&1)"
+        output="$(sqlline -u "jdbc:drill:drillbit=$host" -f /dev/stdin <<< "$query" 2>&1)"
         retcode=$?
     fi
     trap '' EXIT
