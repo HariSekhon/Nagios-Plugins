@@ -242,6 +242,9 @@ test_drill(){
     docker_exec sqlline -u jdbc:drill:zk=zookeeper -f /dev/stdin <<< "select * from sys.drillbits;"
 
     docker_exec "$MNTDIR/check_apache_drill_sqlline.sh"
+    docker_exec "$MNTDIR/check_apache_drill_sqlline.sh" --jdbc-url drillbit=localhost
+    docker_exec "$MNTDIR/check_apache_drill_sqlline.sh" -u zk=zookeeper
+    docker_exec "$MNTDIR/check_apache_drill_sqlline.sh" -u jdbc:drill:drillbit=localhost
 }
 
 startupwait 70
