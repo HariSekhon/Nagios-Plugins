@@ -25,18 +25,14 @@ WARNING=1
 CRITICAL=2
 UNKNOWN=3
 
-trap "echo UNKNOWN; exit $UNKNOWN" EXIT
+trap "echo 'CRITICAL: HiveServer2 check failed'; exit $CRITICAL" EXIT
 
 # nice try but doesn't work
 #export TMOUT=10
 #exec
 
-host="${HIVESERVER2_HOST:-${HIVE_HOST:-${HOST:-localhost}}}"
-zookeepers="${ZOOKEEPERS:-}"
 cli="beeline"
-krb5_host=""
-krb5_princ=""
-krb5_realm=""
+jdbc_url=""
 
 usage(){
     if [ -n "$*" ]; then
@@ -47,19 +43,15 @@ usage(){
 
 Nagios Plugin to check HiveServer2 via local beeline SQL query
 
-Specify --host to check a specific HiveServer2 instance (defaults to localhost), or --zookeeper to test that any HiveServer2 instance is up
+Specify the host in the JDBC Url to check a specific HiveServer2 instance (defaults to localhost), or zookeeper to test that any HiveServer2 instance is up
 
-ZooKeeper ensemble takes priority over --host
+JDBC URL can be copied and pasted from the Hive Summary page in Ambari (there is a clipboard button to the right of JDBC Url)
 
 Tested on Hortonworks HDP 2.6
 
 usage: ${0##*/}
 
--H --host           Hive Host (default: localhost, \$HIVESERVER2_HOST, \$HIVE_HOST, \$HOST)
--z --zookeeper      ZooKeeper ensemble (comma separated list of hosts, \$ZOOKEEPERS)
-   --krb5-host      Kerberos host component of remote Drillbit if using Kerberos via local TGT cache
-   --krb5-princ     Kerberos principal of remote Drillbit if using Kerberos via local TGT cache
-   --krb5-realm     Kerberos realm if using Kerberos via local TGT cache
+-u   --jdbc-url     JDBC url to use to connect to HiveServer2, can omit jdbc:hive2:// prefix (defaults to jdbc:hive2://localhost:10000/default)
 
 EOF
     trap '' EXIT
@@ -68,20 +60,8 @@ EOF
 
 until [ $# -lt 1 ]; do
     case $1 in
-         -H|--host)     host="${2:-}"
-                        shift
-                        ;;
-   -z|--zookeepers)     zookeepers="${2:-}"
-                        shift
-                        ;;
-       --krb5-host)     krb5_host="${2:-}"
-                        shift
-                        ;;
-      --krb5-princ)     krb5_princ="${2:-}"
-                        shift
-                        ;;
-      --krb5-realm)     krb5_realm="${2:-}"
-                        shift
+     -u|--jdbc-url)     jdbc_url="${2:-}"
+                        shift || :
                         ;;
          -h|--help)     usage
                         ;;
@@ -91,14 +71,11 @@ until [ $# -lt 1 ]; do
     shift || :
 done
 
-if [ -z "$zookeepers" -a -z "$host" ]; then
-    usage "--host / --zookeeper not specified"
+jdbc_url="${jdbc_url#jdbc:hive2://}"
+if [ -z "$jdbc_url" ]; then
+    jdbc_url="localhost:10000/default"
 fi
-if [ -n "$krb5_host" -o -n "$krb5_princ" -o -n "$krb5_realm" ]; then
-   if [ -z "$krb5_host" -o -z "$krb5_princ" -o -z "$krb5_realm" ]; then
-        usage "Kerberos requires --krb5-host, --krb5-princ and --krb5-realm to all be specified if any are used"
-    fi
-fi
+jdbc_url="jdbc:hive2://$jdbc_url"
 
 check_bin(){
     local bin="$1"
@@ -111,17 +88,8 @@ check_bin "$cli"
 
 check_hiveserver_beeline(){
     local query="select 1;"
-    local krb5=""
-    if [ "$krb5_host" -a "$krb5_princ" -a "$krb5_realm" ]; then
-        krb5=";principal=$krb5_princ/$krb5_host@$krb5_realm"
-    fi
-    if [ -n "$zookeepers" ]; then
-        output="$("$cli" -u "jdbc:hive:zk=${zookeepers}${krb5}" -f /dev/stdin <<< "$query" 2>&1)"
-        retcode=$?
-    else
-        output="$("$cli" -u "jdbc:hive:host=${host}${krb5}" -f /dev/stdin <<< "$query" 2>&1)"
-        retcode=$?
-    fi
+    output="$("$cli" -u "$jdbc_url" -f /dev/stdin <<< "$query" 2>&1)"
+    retcode=$?
     trap '' EXIT
     if [ $retcode = 0 ]; then
         if grep -q "1 row selected" <<< "$output"; then
@@ -129,11 +97,7 @@ check_hiveserver_beeline(){
             exit $OK
         fi
     fi
-    err=""
-    if [ -n "$krb5" ]; then
-        err=" or Kerberos credentials or options invalid"
-    fi
-    echo "CRITICAL: HiveServer2 beeline query failed, SQL engine not running$err"
+    echo "CRITICAL: HiveServer2 beeline query failed, SQL engine not running or wrong jdbc-url / options"
     exit $CRITICAL
 }
 

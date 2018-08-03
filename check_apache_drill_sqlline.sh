@@ -28,18 +28,14 @@ WARNING=1
 CRITICAL=2
 UNKNOWN=3
 
-trap "echo UNKNOWN; exit $UNKNOWN" EXIT
+trap "echo 'CRITICAL: Apache Drill check failed'; exit $CRITICAL" EXIT
 
 # nice try but doesn't work
 #export TMOUT=10
 #exec
 
-host="${APACHE_DRILL_HOST:-${DRILL_HOST:-${HOST:-localhost}}}"
-zookeepers="${ZOOKEEPERS:-}"
 cli="sqlline"
-krb5_host=""
-krb5_princ=""
-krb5_realm=""
+jdbc_url=""
 
 usage(){
     if [ -n "$*" ]; then
@@ -50,19 +46,13 @@ usage(){
 
 Nagios Plugin to check Apache Drill via local sqlline shell SQL query
 
-Specify --host to check a specific Drill node (defaults to localhost), or --zookeeper to test that any node is up
-
-ZooKeeper ensemble takes priority over --host
+Specify host in the JDBC Url to check a specific Drill node (defaults to localhost), or zookeeper to test that any node is up
 
 Tested on Apache Drill 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13
 
 usage: ${0##*/}
 
--H --host           Apache Drill Host (default: localhost, \$APACHE_DRILL_HOST, \$DRILL_HOST, \$HOST)
--z --zookeeper      ZooKeeper ensemble (comma separated list of hosts, \$ZOOKEEPERS)
-   --krb5-host      Kerberos host component of remote Drillbit if using Kerberos via local TGT cache
-   --krb5-princ     Kerberos principal of remote Drillbit if using Kerberos via local TGT cache
-   --krb5-realm     Kerberos realm if using Kerberos via local TGT cache
+-u   --jdbc-url     JDBC url to use to connect to Apache Drill, can omit jdbc:drill: prefix (defaults to jdbc:drill:drillbit=localhost)
 
 EOF
     trap '' EXIT
@@ -71,20 +61,8 @@ EOF
 
 until [ $# -lt 1 ]; do
     case $1 in
-         -H|--host)     host="${2:-}"
-                        shift
-                        ;;
-   -z|--zookeepers)     zookeepers="${2:-}"
-                        shift
-                        ;;
-       --krb5-host)     krb5_host="${2:-}"
-                        shift
-                        ;;
-      --krb5-princ)     krb5_princ="${2:-}"
-                        shift
-                        ;;
-      --krb5-realm)     krb5_realm="${2:-}"
-                        shift
+     -u|--jdbc-url)     jdbc_url="${2:-}"
+                        shift || :
                         ;;
          -h|--help)     usage
                         ;;
@@ -94,14 +72,11 @@ until [ $# -lt 1 ]; do
     shift || :
 done
 
-if [ -z "$zookeepers" -a -z "$host" ]; then
-    usage "--host / --zookeeper not specified"
+jdbc_url="${jdbc_url#jdbc:drill:}"
+if [ -z "$jdbc_url" ]; then
+    jdbc_url="drillbit=localhost"
 fi
-if [ -n "$krb5_host" -o -n "$krb5_princ" -o -n "$krb5_realm" ]; then
-   if [ -z "$krb5_host" -o -z "$krb5_princ" -o -z "$krb5_realm" ]; then
-        usage "Kerberos requires --krb5-host, --krb5-princ and --krb5-realm to all be specified if any are used"
-    fi
-fi
+jdbc_url="jdbc:drill:$jdbc_url"
 
 check_bin(){
     local bin="$1"
@@ -114,17 +89,8 @@ check_bin "$cli"
 
 check_apache_drill(){
     local query="select * from sys.version;"
-    local krb5=""
-    if [ "$krb5_host" -a "$krb5_princ" -a "$krb5_realm" ]; then
-        krb5=";principal=$krb5_princ/$krb5_host@$krb5_realm"
-    fi
-    if [ -n "$zookeepers" ]; then
-        output="$("$cli" -u "jdbc:drill:zk=${zookeepers}${krb5}" -f /dev/stdin <<< "$query" 2>&1)"
-        retcode=$?
-    else
-        output="$("$cli" -u "jdbc:drill:drillbit=${host}${krb5}" -f /dev/stdin <<< "$query" 2>&1)"
-        retcode=$?
-    fi
+    output="$("$cli" -u "$jdbc_url" -f /dev/stdin <<< "$query" 2>&1)"
+    retcode=$?
     trap '' EXIT
     if [ $retcode = 0 ]; then
         if grep -q "1 row selected" <<< "$output"; then
@@ -132,11 +98,7 @@ check_apache_drill(){
             exit $OK
         fi
     fi
-    err=""
-    if [ -n "$krb5" ]; then
-        err=" or Kerberos credentials or options invalid"
-    fi
-    echo "CRITICAL: Apache Drill sqlline query failed, SQL engine not running$err"
+    echo "CRITICAL: Apache Drill sqlline query failed, SQL engine not running or wrong jdbc-url / options"
     exit $CRITICAL
 }
 
