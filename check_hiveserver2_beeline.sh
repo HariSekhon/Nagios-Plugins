@@ -86,7 +86,7 @@ check_bin(){
 }
 check_bin "$cli"
 
-check_hiveserver_beeline(){
+check_hiveserver2_beeline(){
     local query="select 1;"
     output="$("$cli" -u "$jdbc_url" -f /dev/stdin <<< "$query" 2>&1)"
     retcode=$?
