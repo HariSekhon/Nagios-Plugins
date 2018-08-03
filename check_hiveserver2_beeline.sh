@@ -47,7 +47,7 @@ Specify the host in the JDBC Url to check a specific HiveServer2 instance (defau
 
 JDBC URL can be copied and pasted from the Hive Summary page in Ambari (there is a clipboard button to the right of JDBC Url)
 
-Tested on Hortonworks HDP 2.6
+Tested on Hive 1.2.1 on Hortonworks HDP 2.6
 
 usage: ${0##*/}
 
@@ -76,6 +76,9 @@ if [ -z "$jdbc_url" ]; then
     jdbc_url="localhost:10000/default"
 fi
 jdbc_url="jdbc:hive2://$jdbc_url"
+jdbc_url="${jdbc_url//\'}"
+jdbc_url="${jdbc_url//\`}"
+# could strip $() here too but probably not worth the fork to sed
 
 check_bin(){
     local bin="$1"
