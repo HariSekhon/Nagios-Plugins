@@ -275,11 +275,11 @@ if is_docker_available; then
         run ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((800 * 1024 * 1024))
 
         echo "checking thresholds fail as expected:"
-        run_fail 1 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((300 * 1024 * 1024))
-        run_fail 1 ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((300 * 1024 * 1024))
+        run_fail 1 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((200 * 1024 * 1024))
+        run_fail 1 ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((200 * 1024 * 1024))
 
-        run_fail 2 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:$tag" --critical $((300 * 1024 * 1024))
-        run_fail 2 ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:$tag" --critical $((300 * 1024 * 1024))
+        run_fail 2 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:$tag" --critical $((200 * 1024 * 1024))
+        run_fail 2 ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:$tag" --critical $((200 * 1024 * 1024))
     done
     echo "getting docker image id"
     # This fails set -e, possibly because docker images command is interrupted by the abrupt exit of awk
