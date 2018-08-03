@@ -77,6 +77,9 @@ if [ -z "$jdbc_url" ]; then
     jdbc_url="drillbit=localhost"
 fi
 jdbc_url="jdbc:drill:$jdbc_url"
+jdbc_url="${jdbc_url//\'}"
+jdbc_url="${jdbc_url//\`}"
+# could strip $() here too but probably not worth the fork to sed
 
 check_bin(){
     local bin="$1"
