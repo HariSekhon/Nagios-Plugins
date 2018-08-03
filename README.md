@@ -698,7 +698,7 @@ sudo pip install certifi==2015.04.28
 * ```watch_url.pl``` - debugs load balanced web farms via multiple queries to a URL - returns HTTP status codes, % success across all requests, timestamps, round trip times, and optionally the output
 * tools for Ambari, Pig, Hive, Spark + IPython Notebook, Solr CLI
 * code reCaser for SQL / Pig / Neo4j / Hive HQL / Cassandra / MySQL / PostgreSQL / Impala / MSSQL / Oracle / Dockerfiles
-* ```scrub.pl``` - anonymizes configs / logs for posting online - replaces hostnames/domains/FQDNs, IPs, passwords/keys in Cisco/Juniper configs, custom extensible phrases like your name or your company name
+* ```anonymize.pl``` - anonymizes configs / logs for posting online - replaces hostnames/domains/FQDNs, IPs, passwords/keys in Cisco/Juniper configs, custom extensible phrases like your name or your company name
 * ```validate_json/yaml/ini/xml/avro/parquet.py``` - validates JSON, YAML, INI (Java Properties), XML, Avro, Parquet including directory trees, standard input and even optionally 'single quoted json' and multi-record bulk JSON data formats as found in MongoDB and Hadoop / Big Data systems.
 * PySpark Avro / CSV / JSON / Parquet data converters
 * Ambari Blueprints tool & templates
