@@ -13,13 +13,13 @@
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Linux MD Software RAID"
-__version__ = "0.7.3"
+__version__ = "0.7.4"
 
 # pylint: disable=wrong-import-position
 import os
 import re
 import sys
-from optparse import OptionParser
+import argparse
 
 # Standard Nagios return codes
 OK = 0
@@ -35,16 +35,16 @@ def end(status, message):
     arg as the message to output"""
 
     if status == OK:
-        print "RAID OK: %s" % message
+        print("RAID OK: %s" % message)
         sys.exit(OK)
     elif status == WARNING:
-        print "RAID WARNING: %s" % message
+        print("RAID WARNING: %s" % message)
         sys.exit(WARNING)
     elif status == CRITICAL:
-        print "RAID CRITICAL: %s" % message
+        print("RAID CRITICAL: %s" % message)
         sys.exit(CRITICAL)
     else:
-        print "UNKNOWN: %s" % message
+        print("UNKNOWN: %s" % message)
         sys.exit(UNKNOWN)
 
 
@@ -63,14 +63,14 @@ def find_arrays(verbosity):
     them, or exits UNKNOWN if no MD arrays are found"""
 
     if verbosity >= 3:
-        print "finding all MD arrays via: %s --detail --scan" % BIN
+        print("finding all MD arrays via: %s --detail --scan" % BIN)
     devices_output = os.popen("%s --detail --scan" % BIN).readlines()
     raid_devices = []
     for line in devices_output:
         if "ARRAY" in line:
             raid_device = line.split()[1]
             if verbosity >= 2:
-                print "found array %s" % raid_device
+                print("found array %s" % raid_device)
             raid_devices.append(raid_device)
 
     if not raid_devices:
@@ -91,13 +91,13 @@ def test_raid(verbosity):
     number_arrays = len(raid_devices)
     for array in raid_devices:
         if verbosity >= 2:
-            print 'Now testing raid device "%s"' % array
+            print('Now testing raid device "%s"' % array)
 
         detailed_output = os.popen("%s --detail %s" % (BIN, array)).readlines()
 
         if verbosity >= 3:
             for line in detailed_output:
-                print line,
+                print(line,)
 
         state = "unknown"
         for line in detailed_output:
@@ -153,36 +153,22 @@ def test_raid(verbosity):
 
     return status, message
 
-
-def main():
+def parse_arguments():
     """parses args and calls func to test MD arrays"""
 
-    parser = OptionParser()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-v", "--verbose", action="count", dest="verbosity", default=0, help="Verbose mode. Good for testing plugin. By default\ only one result line is printed as per Nagios standards")
+    parser.add_argument("-V", "--version", action="store_true", dest="version", help="Print version number and exit")
 
-    parser.add_option("-v",
-                      "--verbose",
-                      action="count",
-                      dest="verbosity",
-                      help="Verbose mode. Good for testing plugin. By default\
- only one result line is printed as per Nagios standards")
+    args = parser.parse_args()
 
-    parser.add_option("-V",
-                      "--version",
-                      action="store_true",
-                      dest="version",
-                      help="Print version number and exit")
+    return args.verbosity, args.version
 
-    (options, args) = parser.parse_args()
-
-    if args:
-        parser.print_help()
-        sys.exit(UNKNOWN)
-
-    verbosity = options.verbosity
-    version = options.version
+def main():
+    verbosity, version = parse_arguments()
 
     if version:
-        print __version__
+        print(__version__)
         sys.exit(OK)
 
     result, message = test_raid(verbosity)
