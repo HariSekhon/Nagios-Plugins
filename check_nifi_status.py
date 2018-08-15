@@ -17,7 +17,7 @@
 
 """
 
-Nagios Plugin to check the version of a Nifi instance via its API
+Nagios Plugin to check Nifi is online via its API
 
 Tested on Apache Nifi 1.7
 
@@ -47,11 +47,11 @@ __version__ = '0.1'
 
 
 # pylint: disable=too-few-public-methods
-class CheckNifiVersion(RestNagiosPlugin):
+class CheckNifiStatus(RestNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckNifiVersion, self).__init__()
+        super(CheckNifiStatus, self).__init__()
         # Python 3.x
         # super().__init__()
         self.name = 'Nifi'
@@ -76,4 +76,4 @@ class CheckNifiVersion(RestNagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckNifiVersion().main()
+    CheckNifiStatus().main()
