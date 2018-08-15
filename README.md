@@ -706,6 +706,8 @@ sudo pip install certifi==2015.04.28
 * AWS CloudFormation templates
 * DockerHub API tools including more search results and fetching repo tags (not available in official Docker tooling)
 
+[Dockerfiles repo](https://github.com/harisekhon/Dockerfiles) containing dozens of docker images source builds for many of the technologies covered in this repo (this is where many of the dockerized CI tests come from).
+
 ### See Also ###
 
 * [My Perl library](https://github.com/harisekhon/lib) - used throughout this code as a submodule to make the programs in this repo short
