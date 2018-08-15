@@ -19,6 +19,8 @@
 
 Nagios Plugin to check the version of a Nifi instance via its API
 
+Tested on Apache Nifi 1.7
+
 """
 
 from __future__ import absolute_import
