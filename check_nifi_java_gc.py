@@ -49,11 +49,11 @@ __version__ = '0.1'
 
 
 # pylint: disable=too-few-public-methods
-class CheckNifiGc(RestNagiosPlugin):
+class CheckNifiJavaGc(RestNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckNifiGc, self).__init__()
+        super(CheckNifiJavaGc, self).__init__()
         # Python 3.x
         # super().__init__()
         self.name = 'Nifi'
@@ -64,11 +64,11 @@ class CheckNifiGc(RestNagiosPlugin):
         self.msg = 'Nifi message not defined'
 
     def add_options(self):
-        super(CheckNifiGc, self).add_options()
+        super(CheckNifiJavaGc, self).add_options()
         self.add_thresholds(default_warning=3, default_critical=10)
 
     def process_options(self):
-        super(CheckNifiGc, self).process_options()
+        super(CheckNifiJavaGc, self).process_options()
         self.validate_thresholds()
 
     # must be a method for inheritance to work
@@ -86,4 +86,4 @@ class CheckNifiGc(RestNagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckNifiGc().main()
+    CheckNifiJavaGc().main()
