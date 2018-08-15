@@ -219,7 +219,7 @@ python-libs:
 		find_active_solrcloud.py \
 		find_active_elasticsearch.py \
 		; do \
-		wget -O $$x.tmp https://raw.githubusercontent.com/HariSekhon/pytools/master/$$x && \
+		wget -O $$x.tmp https://raw.githubusercontent.com/HariSekhon/devops-python-tools/master/$$x && \
 		mv -vf $$x.tmp $$x; \
 		chmod +x $$x; \
 	done
