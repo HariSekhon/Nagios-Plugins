@@ -71,8 +71,7 @@ class CheckNifiJavaGc(RestNagiosPlugin):
         super(CheckNifiJavaGc, self).process_options()
         self.validate_thresholds()
 
-    # must be a method for inheritance to work
-    def parse_json(self, json_data):  # pylint: disable=no-self-use
+    def parse_json(self, json_data):
         gcs = json_data['systemDiagnostics']['aggregateSnapshot']['garbageCollection']
         gc_millis = max([_['collectionMillis'] for _ in gcs])
         if not isInt(gc_millis):
