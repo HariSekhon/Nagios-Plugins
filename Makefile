@@ -145,7 +145,7 @@ perl-libs:
 	if [ -d /usr/local/opt/openssl/include -a \
 	     -d /usr/local/opt/openssl/lib     -a \
 	     `uname` = Darwin ]; then \
-	     yes "" | $(SUDO_PERL) sudo OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib $(CPANM) Crypt::SSLeay; \
+	     yes "" | $(SUDO_PERL) sudo OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib $(CPANM) --notest Crypt::SSLeay; \
 	fi
 
 	# on Perl 5.10 List::MoreUtils::XS has starte failing to install first time, workaround is too run this twice
