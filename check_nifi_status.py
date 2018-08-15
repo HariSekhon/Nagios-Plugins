@@ -61,8 +61,7 @@ class CheckNifiStatus(RestNagiosPlugin):
         self.auth = 'optional'
         self.msg = 'Nifi message not defined'
 
-    # must be a method for inheritance to work
-    def parse_json(self, json_data):  # pylint: disable=no-self-use
+    def parse_json(self, json_data):
         processors = json_data['systemDiagnostics']['aggregateSnapshot']['availableProcessors']
         if not isInt(processors):
             raise CriticalError('availableProcessors \'{}\' is not an integer!!'.format(processors))
