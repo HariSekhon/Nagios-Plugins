@@ -42,8 +42,8 @@ using_docker=""
 
 # Mac JWhois 4.0 has more issues than CentOS JWhois 4.0 such as "error while checking domain 'google.com': [Unable to connect to remote host]" so use dockerized test on Mac too
 if ! which jwhois &>/dev/null || is_mac; then
-    if ! is_docker_available && grep Debian /etc/os-release &>/dev/null; then
-        echo "WARNING: jwhois not found in \$PATH, Docker is not available and distribution is Debian, skipping whois checks as Debian doesn't provide jwhois package"
+    if ! is_docker_available && grep -e Debian -e Ubuntu /etc/os-release &>/dev/null; then
+        echo "WARNING: jwhois not found in \$PATH, Docker is not available and distribution is Debian/Ubuntu, skipping whois checks as Debian/Ubuntu don't provide jwhois package"
         echo
         echo
         exit 0

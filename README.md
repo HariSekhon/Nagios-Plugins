@@ -113,45 +113,54 @@ There are over 400 programs in this repo so these are just some of the highlight
 
 ###### Quick Links:
 
-* [Hadoop Ecosystem](https://github.com/HariSekhon/nagios-plugins#hadoop-ecosystem) - HDFS, Yarn, HBase, Ambari, Hortonworks, Cloudera, MapR, Drill, Presto, Hive, Atlas, Ranger
+* [Hadoop Ecosystem](https://github.com/HariSekhon/nagios-plugins#hadoop-ecosystem) - HDFS, Yarn, HBase, Ambari, Atlas, Ranger
+  * [Hadoop Distributions](https://github.com/HariSekhon/nagios-plugins#hadoop-distributions) - Hortonworks, Cloudera, MapR, IBM BigInsights
+  * [SQL-on-Hadoop](https://github.com/HariSekhon/nagios-plugins#sql-on-hadoop) - Hive, Drill, Presto
 * [Service Discovery & Coordination](https://github.com/HariSekhon/nagios-plugins#service-discovery--coordination) - ZooKeeper, Consul, Vault
 * [Docker / Containerization](https://github.com/HariSekhon/nagios-plugins#docker--containerization) - Docker & Docker Swarm, Mesos
 * [Search](https://github.com/HariSekhon/nagios-plugins#search) - Elasticsearch, Solr / SolrCloud
 * [NoSQL](https://github.com/HariSekhon/nagios-plugins#nosql) - Cassandra, Redis, Riak, Memcached, CouchDB
+* [SQL Databases](https://github.com/HariSekhon/nagios-plugins#sql-databases) - MySQL
 * [Pub-Sub / Message Queues](https://github.com/HariSekhon/nagios-plugins#publish---subscribe--message-queues) - Kafka, Redis, RabbitMQ
 * [CI - Continuous Integration & Build Systems](https://github.com/HariSekhon/nagios-plugins#ci---continuous-integration--build-systems---git-jenkins-travis-ci--dockerhub-automated-builds) - Jenkins, Travis CI, DockerHub, Git
-* [RDBMS / Databases](https://github.com/HariSekhon/nagios-plugins#rdbms---databases) - MySQL
-* [Infrastructure - Internet](https://github.com/HariSekhon/nagios-plugins#infrastructure---internet---web-dns-domains) - Web, DNS, Domains
+* [Infrastructure - Internet](https://github.com/HariSekhon/nagios-plugins#infrastructure---internet---web-dns-ssl-domains) - Web, DNS, SSL & Domain Expiry
 * [Infrastructure - Linux](https://github.com/HariSekhon/nagios-plugins#infrastructure---linux---os-network-puppet-raid-ssh-clusters-yum-security-updates) - OS, Network, Puppet, RAID, SSH, Clusters, Yum Security Updates
 
 ##### Hadoop Ecosystem
 
-- `check_hadoop_*.pl/py` - various [Apache Hadoop](http://hadoop.apache.org/) monitoring utilities for HDFS, YARN and MapReduce (both MRv1 & MRv2):
+- ```check_hadoop_*.pl/py``` - various [Apache Hadoop](http://hadoop.apache.org/) monitoring utilities for HDFS, YARN and MapReduce (both MRv1 & MRv2):
   - Hadoop - Masters' status and High Availability (ZKFC, Active/Standby state), Worker nodes counts, dead nodes / blacklisted / unhealthy nodes, heap usage, metrics and JMX information with optional thresholds & graph data
   - HDFS - NameNode & DataNode checks, cluster space, balance, block replication, block count limits per datanode / cluster total, safe mode, failed name dirs, WebHDFS (with HDFS HA failover support), HttpFS, HDFS writeability, rack resilience configuration (checks more than 1 rack configured, finds nodes with default rack configured), HDFS fsck status / last check / run time / max blocks, HDFS file / directory existence & metadata attributes
   - Yarn:
     - Infrastructure - Resource Manager and NodeManager checks, unhealthy NodeManagers, queue state, queue capacity, app stats, % of memory allocated, metrics with optional thresholds to check things such as activeNodes, appsPending, lostNodes, unhealthyNodes etc.
     - Apps - app last finished state / user / queue / elapsed time (batch job SLAs), queue apps allowed/disallowed (catch Spark Shells on production queue), app running (check long living yarn service is still alive), long running apps/jobs detection with name and queue include/exclude regexes (detect SLAs breaches for in-progress batch jobs or forgotten Spark Shells holding resources, both Spark Scala and PySpark)
 - ```check_hbase_*.py/pl``` - various [Apache HBase](https://hbase.apache.org/) monitoring utilities using Thrift + Stargate APIs, checks Masters / Backup Masters, RegionServers, table availability (exists, is enabled, and has minimum number of column families), number of expected table regions, unassigned table regions, regions stuck in transition, region count balance across RegionServers, requests per sec balance across RegionServers, compaction in progress (by table and by regionserver), number of regions in transition, longest current region migration time, hbck status for any inconsistencies, cell content vs optional regex + thresholds, table write and read back of unique generated values with write/read/delete latency checks against all detected column families, table write spray and read back of unique values across all regions for all column families with write/read/delete latency checks, gather metrics
-- ```check_ambari_*.pl``` - [Apache Ambari](https://ambari.apache.org/) API checks for Hadoop clusters written running the standard open source [Hortonworks](https://hortonworks.com/) distribution - checks the service status, node(s) status, stale configs, cluster alerts summary, host alerts summary, cluster health report, hdfs rack resilience configured (checks more than 1 rack configured, finds nodes with default rack configured), kerberos enabled, cluster version, service config compatible with stack and cluster
-- ```check_cloudera_manager_*.pl``` - Hadoop cluster checks via [Cloudera Manager](https://www.cloudera.com/) API - checks states and health of cluster services/roles/nodes, management services, config staleness, Cloudera Enterprise license expiry, Cloudera Manager and CDH cluster versions, utility switches to list clusters/services/roles/nodes as well as list users and their role privileges, fetch a wealth of Hadoop & OS monitoring metrics from Cloudera Manager and compare to thresholds. Disclaimer: I worked for Cloudera, but seriously CM collects an impressive amount of metrics making check_cloudera_manager_metrics.pl alone a very versatile program from which to create hundreds of checks to flexibly alert on
-- ```check_mapr*.pl``` - Hadoop cluster checks via [MapR](https://mapr.com/) Control System API - checks services and nodes, MapR-FS space (cluster and per volume), volume states, volume block replication, volume snapshots and mirroring, MapR-FS per disk space utilization on nodes, failed disks, CLDB heartbeats, MapR alarms, MapReduce mode and memory utilization, disk and role balancer metrics. These are noticeably faster than running equivalent maprcli commands (exceptions: disk/role balancer use maprcli).
-- ```check_ibm_biginsights_*.pl``` - Hadoop cluster checks via IBM BigInsights Console API - checks services, nodes, agents, BigSheets workbook runs, dfs paths and properties, HDFS space and block replication, BI console version, BI console applications deployed
-- ```check_apache_drill_*.py/.pl``` - [Apache Drill](https://drill.apache.org/) checks for:
-  - cluster wide: number of online / offline cluster nodes, mismatched versions across cluster
-  - per drill node: status, cluster membership, encryption enabled, config settings, storage plugins enabled, version, metrics with optional thresholds
 - ```check_atlas_*.py``` - [Apache Atlas](http://atlas.apache.org/) metadata server instance status, as well as metadata entity checks including entity existence, state=ACTIVE, expected type, expected tags are assigned to entity (eg. PII - important because Ranger ACLs to allow or deny access to data can be assigned based on tags)
-- ```check_hiveserver2_llap_*.py``` - [Apache Hive](https://hive.apache.org/) - HiveServer2 LLAP Interactive server status and uptime, peer count, check for a specific peer host fqdn via regex
-- ```check_presto_*.py``` - [Presto SQL DB](https://prestodb.io/)
-  - cluster checks (via coordinator API) - number of current queries, running/failed/blocked/queued queries, tasks, worker nodes, failed worker nodes, workers with response lag to coordinator, workers with recent failures and recent failure ratios vs thresholds, version
-  - per node checks - status, if coordinator, environment
-  - per worker checks (via coordinator API) - specific worker registered with coordinator, response age to coordinator, recent requests vs threshold, recent successes, recent failures & failure ratio vs thresholds
 - ```check_ranger_*.pl/.py``` - [Apache Ranger](https://ranger.apache.org/) checks:
   - policy checks - existence, enabled, has auditing enabled, is recursive, last updated vs thresholds (to catch changes), repository name and type that the policy belongs to
   - repository checks - existence, active, type (eg. hive, hdfs), last updated vs thresholds (to catch changes)
   - number of policies and repositories vs thresholds
+- ```check_ambari_*.pl``` - [Apache Ambari](https://ambari.apache.org/) API checks for Hadoop clusters written running the standard open source [Hortonworks](https://hortonworks.com/) distribution - checks the service status, node(s) status, stale configs, cluster alerts summary, host alerts summary, cluster health report, hdfs rack resilience configured (checks more than 1 rack configured, finds nodes with default rack configured), kerberos enabled, cluster version, service config compatible with stack and cluster
 
 Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for those proprietary products related to [Hadoop](http://hadoop.apache.org/).
+
+##### Hadoop Distributions
+
+- [Hortonworks](https://hortonworks.com/) - as this is the standard modern Hadoop distribution, see ```check_ambari.pl``` in the section above
+- ```check_cloudera_manager_*.pl``` - Hadoop cluster checks via [Cloudera Manager](https://www.cloudera.com/) API - checks states and health of cluster services/roles/nodes, management services, config staleness, Cloudera Enterprise license expiry, Cloudera Manager and CDH cluster versions, utility switches to list clusters/services/roles/nodes as well as list users and their role privileges, fetch a wealth of Hadoop & OS monitoring metrics from Cloudera Manager and compare to thresholds. Disclaimer: I worked for Cloudera, but seriously CM collects an impressive amount of metrics making check_cloudera_manager_metrics.pl alone a very versatile program from which to create hundreds of checks to flexibly alert on
+- ```check_mapr*.pl``` - Hadoop cluster checks via [MapR](https://mapr.com/) Control System API - checks services and nodes, MapR-FS space (cluster and per volume), volume states, volume block replication, volume snapshots and mirroring, MapR-FS per disk space utilization on nodes, failed disks, CLDB heartbeats, MapR alarms, MapReduce mode and memory utilization, disk and role balancer metrics. These are noticeably faster than running equivalent maprcli commands (exceptions: disk/role balancer use maprcli).
+- ```check_ibm_biginsights_*.pl``` - Hadoop cluster checks via IBM BigInsights Console API - checks services, nodes, agents, BigSheets workbook runs, dfs paths and properties, HDFS space and block replication, BI console version, BI console applications deployed
+
+##### SQL-on-Hadoop
+
+- ```check_hiveserver2_llap_*.py``` - [Apache Hive](https://hive.apache.org/) - HiveServer2 LLAP Interactive server status and uptime, peer count, check for a specific peer host fqdn via regex
+- ```check_apache_drill_*.py/.pl``` - [Apache Drill](https://drill.apache.org/) checks:
+  - cluster wide: number of online / offline cluster nodes, mismatched versions across cluster
+  - per drill node: status, cluster membership, encryption enabled, config settings, storage plugins enabled, version, metrics with optional thresholds
+- ```check_presto_*.py``` - [Presto SQL DB](https://prestodb.io/)
+  - cluster checks (via coordinator API) - number of current queries, running/failed/blocked/queued queries, tasks, worker nodes, failed worker nodes, workers with response lag to coordinator, workers with recent failures and recent failure ratios vs thresholds, version
+  - per node checks - status, if coordinator, environment
+  - per worker checks (via coordinator API) - specific worker registered with coordinator, response age to coordinator, recent requests vs threshold, recent successes, recent failures & failure ratio vs thresholds
 
 ##### Service Discovery & Coordination
 
@@ -188,6 +197,11 @@ See also DockerHub build status nagios plugin further down in the [CI section](h
 - ```check_riak_*.pl``` - [Riak](http://basho.com/products/riak-kv/) API writes/reads/deletes with timings, check a specific key's value against regex or value range, check all riak diagnostics, check node states, check all nodes agree on ring status, gather statistics, alert on any single stat
 - ```check_redis_*.pl``` - [Redis](https://redis.io/) API writes/reads/deletes with timings, check specific key's value against regex or value range, replication slaves I/O, replicated writes (write on master -> read from slave), publish/subscribe, connected clients, validate redis.conf against running server to check deployments or remote compliance checks, gather statistics, alert on any single stat
 
+##### SQL Databases
+
+- ```check_mysql_query.pl``` - flexible free-form [MySQL](https://www.mysql.com/) SQL queries - can check almost anything - obsoleted a dozen custom MySQL plugins and prevented writing many more. Tested against many versions of [MySQL](https://www.mysql.com/) and [MariaDB](https://mariadb.org/). You may also be interested in [Percona's plugins](https://www.percona.com/doc/percona-monitoring-plugins/latest/index.html)
+- ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline. Tested against many versions of [MySQL](https://www.mysql.com/) and [MariaDB](https://mariadb.org/)
+
 ##### Publish - Subscribe / Message Queues
 
 These programs check these message brokers end-to-end via their API, by acting as both a producer and a consumer and checking that a unique generated message passes through the broker cluster and is received by the consumer at the other side successfully. They report the publish, consumer and total timings taken, against which thresholds can be applied, and are also available as perfdata for graphing.
@@ -206,12 +220,7 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 - ```check_dockerhub_repo_build_status.py``` - [DockerHub](https://hub.docker.com/u/harisekhon/) Automated Build status check for a given DockerHub repository's latest build or latest build for a given tag. Returns status and tag of last build along with perfdata for graphing build latency (time between build creation and completion) and query timing. Optionally also returns in verbose mode what triggered the build (webhook, revision control change, API / website trigger), created and last updated date timestamps and build URL to investigate
 - ```check_git_*``` - checks a [Git](https://git-scm.com/) checkout is valid, up to date with upstream remote/origin, has no uncommitted changes (staged or unstaged), no untracked files, isn't dirty, is in the right branch, isn't remote, isn't detached, is / isn't bare. Useful for monitoring deployment servers running off Git checkouts (a common scenario for things like [PuppetMasters](https://puppet.com/), [Ansible](https://www.ansible.com/) [AWX](https://github.com/ansible/awx) / [Tower](https://www.ansible.com/products/tower) etc) to ensure your automation is deploying the right thing and that any ad-hoc modifications and tests have been properly backported to Git
 
-##### RDBMS - Databases
-
-- ```check_mysql_query.pl``` - flexible free-form [MySQL](https://www.mysql.com/) SQL queries - can check almost anything - obsoleted a dozen custom MySQL plugins and prevented writing many more. Tested against many versions of [MySQL](https://www.mysql.com/) and [MariaDB](https://mariadb.org/). You may also be interested in [Percona's plugins](https://www.percona.com/doc/percona-monitoring-plugins/latest/index.html)
-- ```check_mysql_config.pl``` - detect differences in your /etc/my.cnf and running MySQL config to catch DBAs making changes to running databases without saving to /etc/my.cnf or backporting to Puppet. Can also be used to remotely validate configuration compliance against a known good baseline. Tested against many versions of [MySQL](https://www.mysql.com/) and [MariaDB](https://mariadb.org/)
-
-##### Infrastructure - Internet - Web, DNS, Domains
+##### Infrastructure - Internet - Web, DNS, SSL, Domains
 
 - ```check_ssl_cert.pl``` - SSL certificate checker - checks certificate expiry (days), validates domain, chain of trust, SNI, wildcard domains, SAN certs with multi-domain support. Chain of Trust support is important when building your JKS or certificate bundles to include intermediate certs otherwise certain mobile devices don't validate the SSL even though it may work in your desktop browser
 - ```check_whois.pl``` - check domain expiry days left and registration details match expected
@@ -278,9 +287,9 @@ HAProxy configurations are provided for all the major technologies under the [ha
 
 #### See Also
 
-The following is pulled from my [PyTools repo](https://github.com/harisekhon/pytools#hari-sekhon-pytools) (currently one of my favourite repos):
+The following is pulled from my [DevOps Python Tools repo](https://github.com/harisekhon/devops-python-tools) (currently one of my favourite repos):
 
-- ```find_active_server.py``` - returns the first available healthy server or determines the active master in high availability setups. Configurable tests include socket, http, https, ping, url with optional regex content match and is multi-threaded for speed. Useful for pre-determining a server to be passed to tools that only take a single ```--host``` argument but for which the technology has later added multi-master support or active-standby masters (eg. Hadoop, HBase) or where you want to query cluster wide information available from any online peer (eg. Elasticsearch, RabbitMQ clusters). This is downloaded from my [PyTools repo](https://github.com/harisekhon/pytools#hari-sekhon-pytools) as part of the build and placed at the top level. It has the ability to extend any nagios plugin to support multiple hosts in a generic way if you don't have a front end load balancer to run the check through. Example usage:
+- ```find_active_server.py``` - returns the first available healthy server or determines the active master in high availability setups. Configurable tests include socket, http, https, ping, url with optional regex content match and is multi-threaded for speed. Useful for pre-determining a server to be passed to tools that only take a single ```--host``` argument but for which the technology has later added multi-master support or active-standby masters (eg. Hadoop, HBase) or where you want to query cluster wide information available from any online peer (eg. Elasticsearch, RabbitMQ clusters). This is downloaded from my [DevOps Python Tools repo](https://github.com/harisekhon/devops-python-tools) as part of the build and placed at the top level. It has the ability to extend any nagios plugin to support multiple hosts in a generic way if you don't have a front end load balancer to run the check through. Example usage:
 
 ```
 ./check_elasticsearch_cluster_status.pl --host $(./find_active_server.py --http --port 9200 node1 node2 node3)
@@ -378,7 +387,7 @@ Since there are a lot of programs covering a lot of different technologies in th
 
 Please make sure you have run ```make update``` first to pull the latest updates including library sub-modules and build the latest CPAN / PyPI module dependencies, (see [Quick Setup](https://github.com/harisekhon/nagios-plugins#quick-setup) above).
 
-Make sure you run the code by hand on the command line with ```-v -v -v``` for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` tool found in my [Tools repo](https://github.com/harisekhon/tools).
+Make sure you run the code by hand on the command line with ```-v -v -v``` for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` tool found in my [DevOps Perl Tools repo](https://github.com/harisekhon/devops-perl-tools).
 
 
 ### Detailed Build Instructions
@@ -441,7 +450,21 @@ mv -f lib nagios-plugins/
 
 Proceed to install CPAN and PyPI modules for whichever programs you want to use using your usual procedure - usually an internal mirror or proxy server to CPAN and PyPI, or rpms / debs (some libraries are packaged by Linux distributions).
 
-All CPAN modules are listed in ```setup/cpan-requirements.txt``` and all PyPI modules are listed in ```requirements.txt```.
+All CPAN modules are listed in ```setup/cpan-requirements.txt```.
+
+All PyPI modules are listed in ```requirements.txt```.
+
+Internal PyPI Mirror example ([JFrog Artifactory](https://jfrog.com/artifactory/) or similar):
+
+```
+sudo pip install --index https://host.domain.com/api/pypi/repo/simple --trusted host.domain.com -r requirements.txt
+```
+
+Proxy example:
+
+```
+sudo pip install --proxy hari:mypassword@proxy-host:8080 -r requirements.txt
+```
 
 
 ##### Mac OS X
@@ -474,9 +497,9 @@ make
 You may get errors trying to install to Python library paths even as root on newer versions of Mac, sometimes this is caused by pip 10 vs pip 9 and downgrading will work around it:
 
 ```
-pip install --upgrade pip==9.0.1
+sudo pip install --upgrade pip==9.0.1
 make
-pip install --upgrade pip
+sudo pip install --upgrade pip
 make
 ```
 
@@ -517,6 +540,18 @@ For Mac OS X see the [Mac OS X](https://github.com/HariSekhon/nagios-plugins#mac
 ##### Perl CPAN Modules #####
 
 If installing the Perl CPAN or Python PyPI modules via your package manager or by hand instead of via the [Automated Build From Source](https://github.com/harisekhon/nagios-plugins#automated-build-from-source) section, then read the [requirements.txt](https://github.com/HariSekhon/nagios-plugins/blob/master/requirements.txt) and [setup/cpan-requirements.txt](https://github.com/HariSekhon/nagios-plugins/blob/master/setup/cpan-requirements.txt) files for the lists of Python PyPI and Perl CPAN modules respectively that you need to install.
+
+You can install the full list of CPAN modules using this command:
+
+```
+sudo cpan $(sed 's/#.*//' < setup/cpan-requirements.txt
+```
+
+and install the full list of PyPI modules using this command:
+
+```
+sudo pip install -r requirements.txt
+```
 
 ###### Net::ZooKeeper (for various ZooKeeper content checks for Kafka, HBase, SolrCloud etc) ######
 
@@ -651,29 +686,33 @@ If you end up with an error like:
 ```
 It can be caused by an issue with the underlying Python + libraries due to changes in OpenSSL and certificates. One quick fix is to do the following:
 ```
-pip uninstall -y certifi && pip install certifi==2015.04.28
+sudo pip uninstall -y certifi &&
+sudo pip install certifi==2015.04.28
 ```
 
 ### Further Utilities ###
 
-[Python Tools](https://github.com/harisekhon/pytools) & [Perl Tools](https://github.com/harisekhon/tools) repos - contains another 75+ programs including useful tools such as:
+[DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) & [DevOps Perl Tools](https://github.com/harisekhon/devops-perl-tools) repos - contains another 75+ programs including useful tools such as:
+
 * Hive / Pig => Elasticsearch / SolrCloud indexers
 * Hadoop HDFS performance debugger, native checksum extractor, HDFS file retention & snapshot retention policy scripts, HDFS file stats, XML & running Hadoop cluster config differ
 * ```watch_url.pl``` - debugs load balanced web farms via multiple queries to a URL - returns HTTP status codes, % success across all requests, timestamps, round trip times, and optionally the output
 * tools for Ambari, Pig, Hive, Spark + IPython Notebook, Solr CLI
 * code reCaser for SQL / Pig / Neo4j / Hive HQL / Cassandra / MySQL / PostgreSQL / Impala / MSSQL / Oracle / Dockerfiles
-* ```scrub.pl``` - anonymizes configs / logs for posting online - replaces hostnames/domains/FQDNs, IPs, passwords/keys in Cisco/Juniper configs, custom extensible phrases like your name or your company name
+* ```anonymize.pl``` - anonymizes configs / logs for posting online - replaces hostnames/domains/FQDNs, IPs, passwords/keys in Cisco/Juniper configs, custom extensible phrases like your name or your company name
 * ```validate_json/yaml/ini/xml/avro/parquet.py``` - validates JSON, YAML, INI (Java Properties), XML, Avro, Parquet including directory trees, standard input and even optionally 'single quoted json' and multi-record bulk JSON data formats as found in MongoDB and Hadoop / Big Data systems.
 * PySpark Avro / CSV / JSON / Parquet data converters
 * Ambari Blueprints tool & templates
 * AWS CloudFormation templates
 * DockerHub API tools including more search results and fetching repo tags (not available in official Docker tooling)
 
+[Dockerfiles repo](https://github.com/harisekhon/Dockerfiles) containing dozens of docker images source builds for many of the technologies covered in this repo (this is where many of the dockerized CI tests come from).
+
 ### See Also ###
 
 * [My Perl library](https://github.com/harisekhon/lib) - used throughout this code as a submodule to make the programs in this repo short
 * [My Python library](https://github.com/harisekhon/pylib) - Python version of the above library, also heavily leveraged to keep programs in this repo short
-* [Spark => Elasticsearch](https://github.com/harisekhon/spark-apps) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of ```pig-text-to-elasticsearch.pig``` from my [PyTools](https://github.com/harisekhon/pytools) repo
+* [Spark => Elasticsearch](https://github.com/harisekhon/spark-apps) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of ```pig-text-to-elasticsearch.pig``` from my [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) repo
 
 ### Enterprise Monitoring Systems
 

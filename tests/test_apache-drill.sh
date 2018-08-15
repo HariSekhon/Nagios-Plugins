@@ -35,6 +35,8 @@ export HAPROXY_PORT_DEFAULT=8047
 
 export DOCKER_CONTAINER="nagios-plugins-apache-drill"
 
+export MNTDIR="/pl"
+
 check_docker_available
 
 trap_debug_env apache_drill
@@ -239,6 +241,10 @@ test_drill(){
     #docker_exec sqlline -u jdbc:drill:zk=zookeeper -f /dev/stdin <<< "select * from sys.options limit 1;"
     docker_exec sqlline -u jdbc:drill:zk=zookeeper -f /dev/stdin <<< "select * from sys.drillbits;"
 
+    docker_exec "$MNTDIR/check_apache_drill_sqlline.sh"
+    docker_exec "$MNTDIR/check_apache_drill_sqlline.sh" --jdbc-url drillbit=localhost
+    docker_exec "$MNTDIR/check_apache_drill_sqlline.sh" -u zk=zookeeper
+    docker_exec "$MNTDIR/check_apache_drill_sqlline.sh" -u jdbc:drill:drillbit=localhost
 }
 
 startupwait 70

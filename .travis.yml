@@ -65,11 +65,11 @@ install:
   #
   # Travis has python install before in $PATH even in Perl builds so need to install PyPI modules here otherwise they're not found, but perms not set correctly on Travis build to do this, better than modifying $PATH to put /usr/bin first which is likely to affect many other things including potentially not find the perlbrew installation first
   - sudo chown -R travis /opt/python /usr/local /usr/lib/python*
-  - make && make zookeeper
+  - travis_retry make && travis_retry make zookeeper
 
 script:
   - sudo sysctl -w net.ipv4.conf.all.forwarding=1
-  - make test
+  - travis_retry make test
 
 after_success:
   - echo "After Success"

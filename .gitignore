@@ -1,7 +1,12 @@
 *.pyc
+*.pyo
 *.log
 find_active_*.py
 tests/bin/rabbitmqadmin
 zookeeper-*.tar.gz
 zookeeper-*/
 .sonar/
+# dist/
+# bundle/
+# check_*.spec
+# *_wrapper.spec

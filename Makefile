@@ -86,12 +86,7 @@ quick:
 
 .PHONY: common
 common: system-packages submodules
-	# Workaround for Mac OS X not finding the OpenSSL libraries when building
-	if [ -d /usr/local/opt/openssl/include -a \
-	     -d /usr/local/opt/openssl/lib     -a \
-	     `uname` = Darwin ]; then \
-	     sudo OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib cpan Crypt::SSLeay; \
-	fi
+	:
 
 .PHONY: submodules
 submodules:
@@ -145,8 +140,16 @@ perl-libs:
 	# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
 	
 	which cpanm || { yes "" | $(SUDO_PERL) cpan App::cpanminus; }
+
+	# Workaround for Mac OS X not finding the OpenSSL libraries when building
+	if [ -d /usr/local/opt/openssl/include -a \
+	     -d /usr/local/opt/openssl/lib     -a \
+	     `uname` = Darwin ]; then \
+	     yes "" | $(SUDO_PERL) sudo OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib $(CPANM) --notest Crypt::SSLeay; \
+	fi
+
 	# on Perl 5.10 List::MoreUtils::XS has starte failing to install first time, workaround is too run this twice
-	for x in 1 2; do yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < setup/cpan-requirements.txt`; done
+	for x in 1 2; do yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < setup/cpan-requirements.txt` && break; done
 	
 	# newer versions of the Redis module require Perl >= 5.10, this will install the older compatible version for RHEL5/CentOS5 servers still running Perl 5.8 if the latest module fails
 	# the backdated version might not be the perfect version, found by digging around in the git repo
@@ -216,7 +219,7 @@ python-libs:
 		find_active_solrcloud.py \
 		find_active_elasticsearch.py \
 		; do \
-		wget -O $$x.tmp https://raw.githubusercontent.com/HariSekhon/pytools/master/$$x && \
+		wget -O $$x.tmp https://raw.githubusercontent.com/HariSekhon/devops-python-tools/master/$$x && \
 		mv -vf $$x.tmp $$x; \
 		chmod +x $$x; \
 	done
@@ -247,8 +250,12 @@ apk-packages-remove:
 apt-packages:
 	$(SUDO) apt-get update
 	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages.txt setup/deb-packages-dev.txt`
+	$(SUDO) apt-get install -y python-mysqldb || :
+	$(SUDO) apt-get install -y python3-mysqldb || :
 	$(SUDO) apt-get install -y libmysqlclient-dev || :
 	$(SUDO) apt-get install -y libmariadbd-dev || :
+	# for Ubuntu builds otherwise autoremove in docker removes this so mysql python library doesn't work
+	$(SUDO) apt-get install -y libmariadbclient18 || :
 	# for check_whois.pl - looks like this has been removed from repos :-/
 	$(SUDO) apt-get install -y jwhois || :
 
@@ -402,8 +409,48 @@ docker-mount:
 	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
 	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins bash -c "cd /pl; exec bash"
 
+.PHONY: docker-mount-alpine
+docker-mount-alpine:
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins:alpine bash -c "cd /pl; exec bash"
+
+.PHONY: docker-mount-debian
+docker-mount-debian:
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins:debian bash -c "cd /pl; exec bash"
+
+.PHONY: docker-mount-centos
+docker-mount-centos:
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins:centos bash -c "cd /pl; exec bash"
+
+.PHONY: docker-mount-ubuntu
+docker-mount-ubuntu:
+	# --privileged=true is needed to be able to:
+	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
+	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins:ubuntu bash -c "cd /pl; exec bash"
+
 .PHONY: mount
 mount: docker-mount
+	:
+
+.PHONY: mount-alpine
+mount-alpine: docker-mount-alpine
+	:
+
+.PHONY: mount-debian
+mount-debian: docker-mount-debian
+	:
+
+.PHONY: mount-centos
+mount-centos: docker-mount-centos
+	:
+
+.PHONY: mount-ubuntu
+mount-ubuntu: docker-mount-ubuntu
 	:
 
 .PHONY: push
