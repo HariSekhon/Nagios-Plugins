@@ -71,6 +71,8 @@ test_nifi(){
 
     run_conn_refused ./check_nifi_version.py -e "$version"
 
+    # ============================================================================ #
+
     run ./check_nifi_java_gc.py
 
     run_fail 1 ./check_nifi_java_gc.py -w 1
