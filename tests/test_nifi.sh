@@ -81,6 +81,16 @@ test_nifi(){
 
     run_conn_refused ./check_nifi_java_gc.py
 
+    # ============================================================================ #
+
+    run ./check_nifi_processor_load_average.py
+
+    run_fail 1 ./check_nifi_processor_load_average.py -w 0.01
+
+    run_fail 2 ./check_nifi_processor_load_average.py -c 0.01
+
+    run_conn_refused ./check_nifi_processor_load_average.py
+
     echo "Completed $run_count Nifi tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
