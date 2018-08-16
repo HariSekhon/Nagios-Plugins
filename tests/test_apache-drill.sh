@@ -83,7 +83,9 @@ test_apache_drill(){
 test_drill(){
     expected_version="$version"
     if [ "$version" = "latest" ]; then
-        expected_version=".*"
+        echo "latest version, fetching latest version from DockerHub master branch"
+        local version="$(dockerhub_latest_version apache-drill)"
+        echo "expecting version '$version'"
     fi
     # API endpoint not available < 1.10
     if egrep -q '^0|^1\.[0-9]$' <<< "$version"; then

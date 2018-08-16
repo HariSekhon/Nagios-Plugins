@@ -21,7 +21,7 @@ Nagios Plugin to check the status of an Atlas metadata server instance via the H
 By default it expects Atlas to be in an active state, for --high-availability setups it will permit a passive state.
 
 If you want to ensure at least one of the Atlas servers is active you can either check a load balancer endpoint or
-combine this check with find_active_server.py from PyTools (see project README.md for more details).
+combine this check with find_active_server.py from DevOps Python Tools (see project README.md for more details).
 
 This plugin will raise a Warning if the Atlas instance is transitioning between active and passive states
 as that means a failover is occurring.
