@@ -441,11 +441,11 @@ unzip nagios-plugins-master.zip
 unzip pylib-master.zip
 unzip lib-master.zip
 
-mv nagios-plugins-master nagios-plugins
-mv pylib-master pylib
-mv lib-master lib
-mv -f pylib nagios-plugins/
-mv -f lib nagios-plugins/
+mv -v nagios-plugins-master nagios-plugins
+mv -v pylib-master pylib
+mv -v lib-master lib
+mv -vf pylib nagios-plugins/
+mv -vf lib nagios-plugins/
 ```
 
 Proceed to install CPAN and PyPI modules for whichever programs you want to use using your usual procedure - usually an internal mirror or proxy server to CPAN and PyPI, or rpms / debs (some libraries are packaged by Linux distributions).
