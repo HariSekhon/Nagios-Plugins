@@ -78,7 +78,7 @@ class CheckNifiJavaGc(RestNagiosPlugin):
         gc_millis = int(gc_millis)
         gc_secs = '{:.2f}'.format(gc_millis / 1000)
         self.ok()
-        self.msg = 'Nifi Java GC collection time = {} secs'.format(gc_secs)
+        self.msg = 'Nifi Java GC last collection time = {} secs'.format(gc_secs)
         self.check_thresholds(gc_secs)
         self.msg += ' | gc_collection={}s{}'.format(gc_secs, self.get_perf_thresholds())
 
