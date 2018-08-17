@@ -17,7 +17,7 @@
 
 """
 
-Nagios Plugin to check Hadoop NameNode Java GC last duration is within bounds via JMX API
+Nagios Plugin to check Hadoop NameNode Java GC last duration via JMX API
 
 Thresholds apply to Java Garbage Collection last duration in seconds
 
