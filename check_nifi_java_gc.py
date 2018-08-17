@@ -17,7 +17,7 @@
 
 """
 
-Nagios Plugin to check Nifi Java GC time is within bounds via its API
+Nagios Plugin to check Nifi Java GC collection time is within bounds via its API
 
 Thresholds apply to Java Garbage Collection time in seconds
 
