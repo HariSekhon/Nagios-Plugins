@@ -45,7 +45,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckNifiJavaGc(RestNagiosPlugin):
@@ -68,7 +68,7 @@ class CheckNifiJavaGc(RestNagiosPlugin):
 
     def process_options(self):
         super(CheckNifiJavaGc, self).process_options()
-        self.validate_thresholds()
+        self.validate_thresholds(integer=False)
 
     def parse_json(self, json_data):
         gcs = json_data['systemDiagnostics']['aggregateSnapshot']['garbageCollection']
