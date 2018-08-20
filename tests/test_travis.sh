@@ -34,11 +34,11 @@ run_fail "1 2" ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v -
 echo "check critical threshold to induce failure as builds should always take longer than 10 secs:"
 run_fail 2 ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v -c 10
 
-run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/tools
+run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/devops-perl-tools
 
 run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/spotify-tools
 
-run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/pytools
+run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/devops-python-tools
 
 run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/pylib
 
