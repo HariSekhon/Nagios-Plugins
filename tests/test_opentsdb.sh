@@ -87,6 +87,10 @@ opentsdb_tests(){
 
     run ./check_opentsdb_latest_metric_age.py
 
+    run_fail 1 ./check_opentsdb_latest_metric_age.py -w 1
+
+    run_fail 2 ./check_opentsdb_latest_metric_age.py -c 1
+
     run ./check_opentsdb_latest_metric_age.py -m load.load.shortterm
 
     run ./check_opentsdb_latest_metric_age.py -m telegraf.kernel_context_switches
