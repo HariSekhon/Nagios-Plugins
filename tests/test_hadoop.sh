@@ -352,6 +352,21 @@ EOF
 
     run_conn_refused $perl -T ./check_hadoop_replication.pl
 
+    run ./check_hadoop_namenode_java_gc.py
+    run ./check_hadoop_datanode_java_gc.py
+    run ./check_hadoop_resource_manager_java_gc.py
+    run ./check_hadoop_node_manager_java_gc.py
+
+    run_fail 2 ./check_hadoop_namenode_java_gc.py -c 1
+    run_fail 2 ./check_hadoop_datanode_java_gc.py -c 1
+    run_fail 2 ./check_hadoop_resource_manager_java_gc.py -c 1
+    run_fail 2 ./check_hadoop_node_manager_java_gc.py -c 1
+
+    run_conn_refused ./check_hadoop_namenode_java_gc.py
+    run_conn_refused ./check_hadoop_datanode_java_gc.py
+    run_conn_refused ./check_hadoop_resource_manager_java_gc.py
+    run_conn_refused ./check_hadoop_node_manager_java_gc.py
+
     # ================================================
     check_newer_plugins
 
