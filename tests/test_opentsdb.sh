@@ -85,6 +85,13 @@ opentsdb_tests(){
 
     run_conn_refused ./check_opentsdb_version.py -v -e "$expected_version"
 
+    run ./check_opentsdb_latest_metric_age.py
+
+    run ./check_opentsdb_latest_metric_age.py -m load.load.shortterm
+
+    run ./check_opentsdb_latest_metric_age.py -m telegraf.kernel_context_switches
+
+    run_conn_refused ./check_opentsdb_latest_metric_age.py -m telegraf.kernel_context_switches
 }
 
 run_test_versions "OpenTSDB"
