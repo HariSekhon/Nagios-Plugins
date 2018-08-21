@@ -59,6 +59,8 @@ class CheckOpenTSDBLatestMetricAge(RestNagiosPlugin):
         # super().__init__()
         self.name = 'OpenTSDB'
         self.default_port = 4242
+        # requires metadata tracking to be enabled, not as universal across environments
+        #self.path = '/api/query/last?timeseries='
         self.path = '/api/query?start=1m-ago&m=count:'
         self.auth = 'optional'
         self.json = True
