@@ -224,6 +224,15 @@ EOF
 
     run_fail 3 ./check_hbase_hbck.py -f nonexistent_file
 
+    run ./check_hbase_master_java_gc.py
+    run ./check_hbase_regionserver_java_gc.py
+
+    run_fail 2 ./check_hbase_master_java_gc.py -c 1
+    run_fail 2 ./check_hbase_regionserver_java_gc.py -c 1
+
+    run_conn_refused ./check_hbase_master_java_gc.py
+    run_conn_refused ./check_hbase_regionserver_java_gc.py
+
 # ============================================================================ #
 
     run_fail 1 ./check_hbase_balancer_enabled.py
