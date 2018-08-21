@@ -22,6 +22,8 @@ Nagios Plugin to check the time since the last OpenTSDB metric was ingested via 
 This check ensures that OpenTSDB is still collecting metric data by checking that a default well known
 metric has been collected in the last minute
 
+You should choose a metric that is likely to change and not get deduplicated by collectors like TCollector
+
 Tested on OpenTSDB 2.3 on HBase 1.4
 
 """
@@ -72,8 +74,8 @@ class CheckOpenTSDBLatestMetricAge(RestNagiosPlugin):
                      help='Metric to query, should be a simple standard metric ' + \
                           '(default: \'proc.loadavg.1min\' from TCollector' + \
                           ', for Collectd specify \'load.load.shortterm\'' + \
-                          ', for Telegraf specify \'\'')
-        self.add_thresholds(default_warning=20, default_critical=40)
+                          ', for Telegraf specify \'telegraf.kernel_context_switches\')')
+        self.add_thresholds(default_warning=30, default_critical=45)
 
     def process_options(self):
         super(CheckOpenTSDBLatestMetricAge, self).process_options()
