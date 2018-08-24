@@ -34,7 +34,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils qw/:DEFAULT :regex/;
-use HariSekhon::Cassandra::Nodetool2;
+use HariSekhon::Cassandra::Nodetool;
 
 set_threshold_defaults(0, 1);
 
