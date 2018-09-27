@@ -24,7 +24,7 @@ cd "$srcdir/.."
 
 section "A p a c h e   D r i l l"
 
-export APACHE_DRILL_VERSIONS="${@:-${APACHE_DRILL_VERSIONS:-0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 1.10 1.11 1.12 1.13 latest}}"
+export APACHE_DRILL_VERSIONS="${@:-${APACHE_DRILL_VERSIONS:-0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 1.10 1.11 1.12 1.13 1.14 latest}}"
 
 APACHE_DRILL_HOST="${DOCKER_HOST:-${APACHE_DRILL_HOST:-${HOST:-localhost}}}"
 APACHE_DRILL_HOST="${APACHE_DRILL_HOST##*/}"
@@ -84,8 +84,8 @@ test_drill(){
     expected_version="$version"
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
-        local version="$(dockerhub_latest_version apache-drill)"
-        echo "expecting version '$version'"
+        local expected_version="$(dockerhub_latest_version apache-drill)"
+        echo "expecting version '$expected_version'"
     fi
     # API endpoint not available < 1.10
     if egrep -q '^0|^1\.[0-9]$' <<< "$version"; then
