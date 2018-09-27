@@ -17,7 +17,7 @@
 
 Nagios Plugin to check the version of Apache Drill via its Rest API
 
-Tested on Apache Drill 1.10, 1.11, 1.12, 1.13
+Tested on Apache Drill 1.10, 1.11, 1.12, 1.13, 1.14
 
 (API endpoint is not available in Apache Drill versions < 1.10)
 
