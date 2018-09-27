@@ -25,7 +25,7 @@ This is an additional layer because the Drill status API is not always accurate 
 Recommend to combine this with the Drill HAProxy config from the haproxy/ directory
 to run this via any node in the cluster (or combine with find_active_apache_drill.py, see README)
 
-Tested on Apache Drill 1.10, 1.11, 1.12, 1.13
+Tested on Apache Drill 1.10, 1.11, 1.12, 1.13, 1.14
 
 (API endpoint is not available in Apache Drill versions < 1.10, but this
 plugin works best in Apache Drill 1.12+ which has a state field to verify for additional assurance)
