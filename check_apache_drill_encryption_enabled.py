@@ -19,7 +19,7 @@ Nagios Plugin to check an Apache Drill node has encryption enabled via its Rest 
 
 Encryption is only available from Drill 1.11+
 
-Tested on Apache Drill 1.11, 1.12, 1.13
+Tested on Apache Drill 1.11, 1.12, 1.13, 1.14
 
 """
 
