@@ -31,7 +31,7 @@ services:
     #-f /conf/20-stats.cfg
     ports:
       - 2181
-      #- 9000:9000
+      #- 1936:1936
     networks:
       - zookeeper
     volumes:
