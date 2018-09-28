@@ -48,7 +48,7 @@ Nagios Plugin to check Apache Drill via local sqlline shell SQL query
 
 Specify host in the JDBC Url to check a specific Drill node (defaults to localhost), or zookeeper to test that any node is up
 
-Tested on Apache Drill 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13
+Tested on Apache Drill 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14
 
 usage: ${0##*/}
 

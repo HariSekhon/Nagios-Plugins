@@ -28,7 +28,7 @@ Recommend if running a cluster to also use:
     ./check_apache_drill_cluster_nodes.py - to check minimum number of nodes in cluster
     ./check_apache_drill_cluster_nodes_offline.py - to check for number of down nodes
 
-Tested on Apache Drill 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13
+Tested on Apache Drill 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14
 
 """
 

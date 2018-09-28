@@ -44,7 +44,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckInfluxDBVersion(RestVersionNagiosPlugin):
@@ -84,6 +84,8 @@ class CheckInfluxDBVersion(RestVersionNagiosPlugin):
         if 'X-Influxdb-Version' not in req.headers:
             raise UnknownError('X-Influxdb-Version header not found in response - not InfluxDB?')
         version = req.headers['X-Influxdb-Version']
+        # Enterprise may have versions like 1.6.2-c1.6.2 so remove the suffix
+        version = version.split('-')[0]
         return version
 
     def extra_info(self):

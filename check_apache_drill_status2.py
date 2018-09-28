@@ -28,7 +28,7 @@ Recommend if running a cluster to also use:
     ./check_apache_drill_cluster_nodes.py - to check minimum number of nodes in cluster
     ./check_apache_drill_cluster_nodes_offline.py - to check for number of down nodes
 
-Tested on Apache Drill 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13
+Tested on Apache Drill 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14
 
 (API endpoint is not available in Apache Drill versions < 1.7, see check_apache_drill_status.py instead)
 
