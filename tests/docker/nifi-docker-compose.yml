@@ -29,7 +29,7 @@ services:
     # -f /conf/20-stats.cfg
     ports:
       - 8080
-      #- 9000:9000
+      #- 1936:1936
     networks:
       - nifi
     volumes:
