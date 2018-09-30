@@ -9,11 +9,17 @@
 #  License: see accompanying LICENSE file
 #
 
-$DESCRIPTION = "Nagios Plugin to check if a given file is present in AWS S3 via the HTTP Rest API
+$DESCRIPTION = "Nagios Plugin to check an S3 file exists via the AWS S3 API for any S3 compatible storage
 
-Useful for checking latest ETL files are available or _SUCCESS type files that a job has completed
+Useful for checking:
+
+1. latest ETL files are available
+2. job status files like _SUCCESS
+3. internal private cloud storage is online and known data is accessible
 
 Bucket names must follow the more restrictive 3 to 63 alphanumeric character international standard, dots are not supported in the bucket name due to using strict DNS shortname regex validation
+
+./check_aws_s3_file.pl --bucket bucket1 --file data-\$(date '+%Y-%m-%d')
 
 Tested on AWS S3 and Minio (open source private cloud S3 storage)
 ";
