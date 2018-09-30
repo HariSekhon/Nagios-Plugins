@@ -99,9 +99,6 @@ if(defined($ssl_ca_path)){
 }
 if($no_ssl){
     vlog_option "ssl enabled",  "false";
-    if($port eq 443){
-        $port = 80;
-    }
 } else {
     vlog_option "ssl enabled",  "true";
     vlog_option "SSL CA Path",  $ssl_ca_path  if defined($ssl_ca_path);
