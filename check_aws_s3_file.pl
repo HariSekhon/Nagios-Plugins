@@ -61,7 +61,7 @@ my $ssl_noverify;
 %options = (
     %hostoptions,
     "b|bucket=s"       => [ \$bucket,           "AWS S3 bucket" ],
-    "f|file=s"         => [ \$file,             "AWS S3 object path for the file" ],
+    "f|file=s"         => [ \$file,             "AWS S3 file path" ],
     "aws-access-key=s" => [ \$aws_access_key,   "AWS Access Key (\$AWS_ACCESS_KEY)" ],
     "aws-secret-key=s" => [ \$aws_secret_key,   "AWS Secret Key (\$AWS_SECRET_KEY)" ],
     "G|get"            => [ \$GET,              "Perform full HTTP GET request instead of default HTTP HEAD. This will download the whole file, useful if you want to see the full download time from AWS S3. You may need to increase the --timeout to fetch file if more than a few MB" ],
