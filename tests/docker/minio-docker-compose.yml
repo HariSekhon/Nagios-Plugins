@@ -21,10 +21,14 @@ services:
     image: minio/minio:${VERSION:-latest}
     ports:
       - 9000
-      - 1936:1936
     command: ['server', '/data']
+    environment:
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-MyMinioAccessKey}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-MyMinioSecretKey}
     networks:
       - minio
+    volumes:
+      - ../data:/data/
   minio-haproxy:
     image: haproxy:alpine
     command: -f /conf/10-global.cfg -f /conf/minio.cfg -d

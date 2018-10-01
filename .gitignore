@@ -3,6 +3,7 @@
 *.log
 find_active_*.py
 tests/bin/rabbitmqadmin
+tests/data/.minio.sys/
 zookeeper-*.tar.gz
 zookeeper-*/
 .sonar/
