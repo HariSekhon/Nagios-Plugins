@@ -48,7 +48,8 @@
 Class::Accessor
 Compress::Snappy
 Const::Fast
-Data::Dumper
+# pinning version to stop it breaking Travis CI Perl 5.10 builds
+Data::Dumper@2.161
 DBI
 # finicky on Alpine and installed via packages on all major distros now
 #DBD::mysql

@@ -21,8 +21,7 @@ perl:
   #- "5.18-shrplib"
   #- "5.16"
   # latest Redis cpan module requires Perl >= 5.10
-  # 5.10 build has broken without code change
-  #- "5.10"
+  - "5.10"
   # there is workaround in build now to install older version if latest fails for RHEL5/CentOS5 servers
   # other CPAN modules are broken for Perl 5.8, re-visit
   #- "5.8"
