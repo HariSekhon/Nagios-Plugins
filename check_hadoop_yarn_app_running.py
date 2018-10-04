@@ -137,7 +137,7 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         num_apps = len(app_list)
         log.info("processing {0:d} running apps returned by Yarn Resource Manager{1}".format(num_apps, host_info))
         if num_apps > self.limit:
-            raise UnknownError('num_apps > limit {}'.format(self.limit))
+            raise UnknownError('num_apps {} > limit {}'.format(num_apps, self.limit))
         if self.list_apps:
             self.print_apps(app_list)
             sys.exit(ERRORS['UNKNOWN'])
