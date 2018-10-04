@@ -61,7 +61,7 @@ class CheckAtlasVersion(RestVersionNagiosPlugin):
 
     def parse_json(self, json_data):
         if json_data['Name'] != 'apache-atlas':
-            raise UnknownError('Name != apache-atlas')
+            raise UnknownError('Name {} != apache-atlas'.format(json_data['Name']))
         version = json_data['Version']
         version = version.split('-')[0]
         if not self.verbose:
