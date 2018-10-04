@@ -127,7 +127,7 @@ class CheckCouchDBDatabaseExists(RestNagiosPlugin):
         # exception handling wrapped further up in class hierarchy
         if self.is_ok():
             if json_data['db_name'] != self.database:
-                raise UnknownError('db_name != {}'.format(self.database))
+                raise UnknownError('db_name {} != {}'.format(json_data['db_name'], self.database))
             self.msg += 'exists'
 
 
