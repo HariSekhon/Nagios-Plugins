@@ -55,7 +55,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.7.0'
+__version__ = '0.7.1'
 
 
 class CheckHadoopYarnAppRunning(RestNagiosPlugin):
@@ -136,7 +136,8 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
                                .format(host_info))
         num_apps = len(app_list)
         log.info("processing {0:d} running apps returned by Yarn Resource Manager{1}".format(num_apps, host_info))
-        assert num_apps <= self.limit
+        if num_apps > self.limit:
+            raise UnknownError('num_apps > limit {}'.format(self.limit))
         if self.list_apps:
             self.print_apps(app_list)
             sys.exit(ERRORS['UNKNOWN'])
