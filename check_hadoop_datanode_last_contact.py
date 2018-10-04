@@ -50,7 +50,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.7'
+__version__ = '0.7.1'
 
 
 class CheckHadoopDatanodeLastContact(RestNagiosPlugin):
@@ -150,7 +150,8 @@ class CheckHadoopDatanodeLastContact(RestNagiosPlugin):
                 raise UnknownError("non-integer '{0}' returned for last contact seconds by namenode '{1}:{2}'"\
                                    .format(last_contact_secs, self.host, self.port))
             last_contact_secs = int(last_contact_secs)
-            assert last_contact_secs >= 0
+            if last_contact_secs < 0:
+                raise UnknownError('last_contact_secs < 0!')
             self.msg += "HDFS datanode '{0}' last contact with namenode was {1} sec{2} ago"\
                        .format(self.datanode, last_contact_secs, plural(last_contact_secs))
             self.check_thresholds(last_contact_secs)
