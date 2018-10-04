@@ -42,7 +42,7 @@ libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import ERRORS, UnknownError, CriticalError, validate_host, isInt, support_msg
+    from harisekhon.utils import ERRORS, UnknownError, CriticalError, validate_host, isInt, support_msg, code_error
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print('module import failed: %s' % _, file=sys.stderr)
@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 
 class CheckTachyonWorkerHeartbeat(RestNagiosPlugin):
@@ -97,7 +97,8 @@ class CheckTachyonWorkerHeartbeat(RestNagiosPlugin):
             self.list_workers(soup)
             heartbeat_col_header = soup.find('th', text='Node Name').find_next_sibling().get_text()
             # make sure ordering of columns is as we expect so we're parsing the correct number for heartbeat lag
-            assert heartbeat_col_header == 'Last Heartbeat'
+            if heartbeat_col_header != 'Last Heartbeat':
+                code_error("heartbeat column header '{}' != Last Heartbeat".format(heartbeat_col_header))
             last_heartbeat = soup.find('th', text=self.node).find_next_sibling().get_text()
             if last_heartbeat is None:
                 raise AttributeError
