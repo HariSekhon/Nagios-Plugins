@@ -55,7 +55,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2.1'
 
 
 class CheckHBaseLongestRegionMigration(NagiosPlugin):
@@ -189,10 +189,13 @@ class CheckHBaseLongestRegionMigration(NagiosPlugin):
     @staticmethod
     def assert_headers(header_cols):
         try:
-            assert header_cols[0].get_text().strip() == 'Region'
-            assert header_cols[1].get_text().strip() == 'State'
-            assert header_cols[2].get_text().strip() == 'RIT time (ms)'
-        except AssertionError as _:
+            if not header_cols[0].get_text().strip() == 'Region':
+                raise ValueError('Region')
+            if not header_cols[1].get_text().strip() == 'State':
+                raise ValueError('State')
+            if header_cols[2].get_text().strip() == 'RIT time (ms)':
+                raise ValueError('RIT time (ms)')
+        except ValueError as _:
             qquit('UNKNOWN', 'parsing failed, headers did not match expected - {0}'.format(_))
 
 
