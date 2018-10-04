@@ -61,7 +61,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.7.1'
+__version__ = '0.7.2'
 
 
 class CheckHadoopYarnAppLastFinishedState(RestNagiosPlugin):
@@ -172,7 +172,8 @@ class CheckHadoopYarnAppLastFinishedState(RestNagiosPlugin):
         user = app['user']
         queue = app['queue']
         elapsed_time = app['elapsedTime']
-        assert isInt(elapsed_time)
+        if not isInt(elapsed_time):
+            raise UnknownError('elapsed_time {} is not an integer!'.format(elapsed_time))
         elapsed_time = int(elapsed_time / 1000)
         self.msg = "Yarn application '{0}' state = '{1}'".format(app['name'], state)
 #
