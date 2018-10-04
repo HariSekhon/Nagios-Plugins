@@ -238,7 +238,8 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
             for col in columns:
                 val = app[cols[col]]
                 if col == 'Elapsed Time':
-                    assert isInt(val)
+                    if not isInt(val):
+                        raise UnknownError('Elapsed Time {} is not an integer!'.format(val))
                     val = int(val / 1000)
                 print('{0:{1}}  '.format(val, widths[col]), end='')
             print()
