@@ -55,7 +55,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.7.1'
+__version__ = '0.7.2'
 
 
 class CheckHadoopYarnAppRunning(RestNagiosPlugin):
@@ -171,7 +171,8 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         running_containers = None
         if 'runningContainers' in app:
             running_containers = app['runningContainers']
-            assert isInt(running_containers, allow_negative=True)
+            if not isInt(running_containers, allow_negative=True):
+                raise UnknownError('running_containers {} is not an integer!'.format(running_containers))
             running_containers = int(running_containers)
         elapsed_time = app['elapsedTime']
         assert isInt(elapsed_time)
