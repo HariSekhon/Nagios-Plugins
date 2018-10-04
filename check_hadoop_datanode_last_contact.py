@@ -151,7 +151,7 @@ class CheckHadoopDatanodeLastContact(RestNagiosPlugin):
                                    .format(last_contact_secs, self.host, self.port))
             last_contact_secs = int(last_contact_secs)
             if last_contact_secs < 0:
-                raise UnknownError('last_contact_secs < 0!')
+                raise UnknownError('last_contact_secs {} < 0!'.format(last_contact_secs))
             self.msg += "HDFS datanode '{0}' last contact with namenode was {1} sec{2} ago"\
                        .format(self.datanode, last_contact_secs, plural(last_contact_secs))
             self.check_thresholds(last_contact_secs)
