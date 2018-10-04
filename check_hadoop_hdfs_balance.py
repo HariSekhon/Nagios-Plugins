@@ -54,7 +54,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5'
+__version__ = '0.5.1'
 
 
 class CheckHadoopHDFSBalance(RestNagiosPlugin):
@@ -104,9 +104,11 @@ class CheckHadoopHDFSBalance(RestNagiosPlugin):
             if divisor < 1:
                 log.info('min used space < 1, resetting divisor to 1 (% will likely be very high)')
                 divisor = 1
-            assert max_space >= min_space
+            if max_space < min_space:
+                raise UnknownError('max_space < min_space')
             largest_imbalance_pc = float('{0:.2f}'.format(((max_space - min_space) / divisor) * 100))
-            assert largest_imbalance_pc >= 0
+            if largest_imbalance_pc < 0:
+                raise UnknownError('largest_imbalance_pc < 0')
             self.ok()
             self.msg = '{0}% HDFS imbalance on space used'.format(largest_imbalance_pc)
             self.check_thresholds(largest_imbalance_pc)
