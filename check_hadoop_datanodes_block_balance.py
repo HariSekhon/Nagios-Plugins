@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5'
+__version__ = '0.5.1'
 
 
 class CheckHadoopDatanodesBlockBalance(RestNagiosPlugin):
@@ -99,7 +99,8 @@ class CheckHadoopDatanodesBlockBalance(RestNagiosPlugin):
                     min_blocks = blocks
             log.info("max blocks on a single datanode = %s", max_blocks)
             log.info("min blocks on a single datanode = %s", min_blocks)
-            assert min_blocks is not None
+            if min_blocks is None:
+                raise UnknownError('min_blocks is None')
             divisor = min_blocks
             if min_blocks < 1:
                 log.info("min blocks < 1, resetting divisor to 1 (% will be very high)")
