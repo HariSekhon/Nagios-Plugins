@@ -76,7 +76,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 
 
 class CheckZaloniBedrockWorkflow(NagiosPlugin):
@@ -403,7 +403,8 @@ class CheckZaloniBedrockWorkflow(NagiosPlugin):
                              .format(_))
 
     def req(self, url, method='post', body=None):
-        assert isStr(method)
+        if not isStr(method):
+            code_error('non-string method passed to req()')
         log.debug('%s %s', method.upper(), url)
         headers = {"Content-Type": "application/json",
                    "Accept": "application/json",
