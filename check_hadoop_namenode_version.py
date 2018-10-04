@@ -65,7 +65,7 @@ class CheckHadoopNameNodeVersion(RestVersionNagiosPlugin):
     def parse_json(self, json_data):  # pylint: disable=no-self-use
         data = json_data['beans'][0]
         if data['name'] != 'Hadoop:service=NameNode,name=NameNodeInfo':
-            raise UnknownError('name != Hadoop:service=NameNode,name=NameNodeInfo')
+            raise UnknownError('name {} != Hadoop:service=NameNode,name=NameNodeInfo'.format(data['name']))
         version = data['Version']
         #log.info("raw version = '%s'", version)
         version = version.split(',')[0]
