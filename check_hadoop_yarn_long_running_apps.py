@@ -57,7 +57,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.8.1'
+__version__ = '0.8.2'
 
 
 class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
@@ -188,7 +188,8 @@ class CheckHadoopYarnLongRunningApps(RestNagiosPlugin):
             name = app['name']
             matching_apps += 1
             elapsed_time = app['elapsedTime']
-            assert isInt(elapsed_time)
+            if not isInt(elapsed_time):
+                raise UnknownError('elapsed_time {} is not an integer!'.format(elapsed_time))
             elapsed_time = int(elapsed_time / 1000)
             threshold_msg = self.check_thresholds(elapsed_time)
             if threshold_msg:
