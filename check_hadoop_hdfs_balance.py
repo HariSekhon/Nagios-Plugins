@@ -93,7 +93,7 @@ class CheckHadoopHDFSBalance(RestNagiosPlugin):
             for datanode in live_node_data:
                 used_space = live_node_data[datanode]['usedSpace']
                 if not isInt(used_space):
-                    raise UnknownError('usedSpace is not an integer! {0}'.format(support_msg_api()))
+                    raise UnknownError('usedSpace {} is not an integer! {}'.format(used_space, support_msg_api()))
                 used_space = int(used_space)
                 log.info("datanode '%s' used space = %s", datanode, used_space)
                 if min_space is None or used_space < min_space:
