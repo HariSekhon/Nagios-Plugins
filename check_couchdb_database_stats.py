@@ -110,7 +110,7 @@ class CheckCouchDBDatabaseStats(RestNagiosPlugin):
     def parse_json(self, json_data):
         self.list_databases(json_data)
         if json_data['db_name'] != self.database:
-            raise UnknownError('db_name != {}'.format(self.database))
+            raise UnknownError('db_name {} != {}'.format(json_data['db_name'], self.database))
         self.msg += "'{0}' ".format(self.database)
         self.check_couchdb_stats(json_data)
 
