@@ -43,7 +43,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
 class CheckCouchDBDatabaseExists(RestNagiosPlugin):
@@ -126,7 +126,8 @@ class CheckCouchDBDatabaseExists(RestNagiosPlugin):
         # now using direct /{db} call instead for specific database
         # exception handling wrapped further up in class hierarchy
         if self.is_ok():
-            assert json_data['db_name'] == self.database
+            if json_data['db_name'] != self.database:
+                raise UnknownError('db_name != {}'.format(self.database))
             self.msg += 'exists'
 
 
