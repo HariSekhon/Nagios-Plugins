@@ -264,7 +264,11 @@ Make sure to run the [automated build](https://github.com/harisekhon/nagios-plug
 
 ### Kerberos Security Support ###
 
-For HTTP based plugins Kerberos is implicitly supported by LWP as long as the LWP::Authen::Negotiate CPAN module is installed (part of the automated ```make``` build). This will look for a valid TGT in the environment and if found will use it for SPNego.
+Perl HTTP Rest-based plugins have implicit Kerberos support via LWP as long as the LWP::Authen::Negotiate CPAN module is installed (part of the automated ```make``` build). This will look for a valid TGT in the environment ($KRB5CCNAME) and if found will use it for SPNego.
+
+Most Python HTTP Rest-base plugins have a `--kerberos` switch which will either use the TGT from the environment cache ($KRB5CCNAME) or if $KRB5_CLIENT_KTNAME is present will kinit from the keytab specified in $KRB5_CLIENT_KTNAME to a unique path per plugin to prevent credential clashes.
+
+If using a TGT then you should `kinit` before running the plugin or run the standard `k5start` kerberos utility as a service to auto-renew your TGT.
 
 
 ### High Availability / Multi-Master testing
