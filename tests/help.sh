@@ -29,23 +29,17 @@ help_start_time="$(start_timer)"
 
 test_help(){
     local prog="$1"
-    optional_cmd=""
-    if [[ $prog =~ .*\.pl$ ]]; then
-        optional_cmd="$perl -T "
+
+    # quick hack for older programs which return zero for --help due to python OptParse module
+    if [ "$prog" = "check_dhcpd_leases.py" -o \
+         "$prog" = "check_linux_ram.py"    -o \
+         "$prog" = "check_logserver.py"    -o \
+         "$prog" = "check_syslog_mysql.py" -o \
+         "$prog" = "check_yum.py" ]; then
+        run ./$prog --help
+    else
+        run_usage ./$prog --help
     fi
-    echo "$optional_cmd./$prog --help"
-    set +e
-    $optional_cmd ./$prog --help # >/dev/null
-    status=$?
-    set -e
-    [[ "$prog" = *.py ]] && [ $status = 0 ] && { echo "allowing python program $prog to have exit code zero instead of 3"; return 0; }
-    # quick hack for older programs
-#    [ "$prog" = "check_dhcpd_leases.py" -o \
-#      "$prog" = "check_linux_ram.py"    -o \
-#      "$prog" = "check_logserver.py"    -o \
-#      "$prog" = "check_syslog_mysql.py" -o \
-#      "$prog" = "check_yum.py" ] && [ $status = 0 ] && { echo "allowing $prog to have zero exit code"; continue; }
-    [ $status = 3 ] || { echo "status code for $prog --help was $status not expected 3"; exit 1; }
 }
 
 # Capturing and uploading logs when run in Travis CI as jobs to fail once they exceed the 4MB log length limit
@@ -76,7 +70,6 @@ for x in $(ls *.pl *.py *.rb */*.pl */*.py */*.rb 2>/dev/null | sort); do
         [ $(($RANDOM % 3)) = 0 ] || continue
     fi
     test_help "$x" 2>&1 >> "$log"
-    hr >> "$log"
 done
 
 untrap
