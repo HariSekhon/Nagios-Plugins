@@ -49,7 +49,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.1'
+__version__ = '0.3.0'
 
 
 class CheckHBaseRegionServerBalance(RestNagiosPlugin):
@@ -85,11 +85,15 @@ class CheckHBaseRegionServerBalance(RestNagiosPlugin):
         rows = table.findChildren('tr')
         if len(rows) < 2:
             raise UnknownError('no regionserver rows found in base stats table! {}'.format(support_msg()))
+        # HBase 1.1 in HDP 2.3: ServerName | Start time | Requests Per Second | Num. Regions
+        # HBase 1.2 (Apache):   ServerName | Start time | Version | Requests per Second | Num. Regions
+        # HBase 1.4 (Apache):   ServerName | Start time | Last Contact | Version | Requests Per Second | Num. Regions
         th_list = rows[0].findChildren('th')
         if len(th_list) < 4:
             raise UnknownError('no table header for base stats table!')
         expected_header = 'Requests Per Second'
-        found_header = th_list[3].get_text()
+        col_index = len(th_list) - 2
+        found_header = th_list[col_index].text
         if found_header != expected_header:
             raise UnknownError("wrong table header found for column 4! Expected '{}' but got '{}'. {}"\
                                .format(expected_header, found_header, support_msg()))
@@ -98,10 +102,10 @@ class CheckHBaseRegionServerBalance(RestNagiosPlugin):
             cols = row.findChildren('td')
             if len(cols) < 4:
                 raise UnknownError('4th column in table not found! {}'.format(support_msg()))
-            regionserver = cols[0].get_text().strip().split(',')[0]
+            regionserver = cols[0].text.strip().split(',')[0]
             if 'Total:' in regionserver:
                 break
-            reqs_per_sec = cols[3].get_text().strip()
+            reqs_per_sec = cols[col_index].text.strip()
             if not isInt(reqs_per_sec):
                 raise UnknownError("non-integer found in Requests Per Second column for regionserver '{}'. {}"\
                                    .format(regionserver, support_msg()))
