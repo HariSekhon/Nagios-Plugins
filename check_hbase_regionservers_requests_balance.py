@@ -16,7 +16,7 @@
 
 """
 
-Nagios Plugin to check HBase RegionServer requests balance via the HMaster UI
+Nagios Plugin to check HBase RegionServer requests imbalance via the HMaster UI
 
 Tested on Apache HBase 1.3
 
@@ -49,7 +49,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 class CheckHBaseRegionServerBalance(RestNagiosPlugin):
@@ -72,7 +72,7 @@ class CheckHBaseRegionServerBalance(RestNagiosPlugin):
 
     def process_options(self):
         super(CheckHBaseRegionServerBalance, self).process_options()
-        self.validate_thresholds(simple='lower', percent=True, optional=True)
+        self.validate_thresholds(percent=True, optional=True)
 
     def parse(self, req):
         soup = BeautifulSoup(req.content, 'html.parser')
@@ -129,16 +129,16 @@ class CheckHBaseRegionServerBalance(RestNagiosPlugin):
                 lowest_requests = stats[regionserver]
                 lowest_regionserver = regionserver
         # simple algo - let me know if you think can be a better calculation
-        diff = max(highest_requests - lowest_requests, 1) / max(highest_requests, 1) * 100
+        imbalance = (highest_requests - lowest_requests) / max(highest_requests, 1) * 100
         num_regionservers = len(stats)
-        self.msg = 'HBase RegionServers Reqs/sec Balance = {:.0f}% across {} RegionServer{}'\
-                   .format(diff, num_regionservers, plural(num_regionservers))
-        self.check_thresholds(diff)
+        self.msg = 'HBase RegionServers reqs/sec imbalance = {:.0f}% across {} RegionServer{}'\
+                   .format(imbalance, num_regionservers, plural(num_regionservers))
+        self.check_thresholds(imbalance)
         if self.verbose or not self.is_ok():
             self.msg += ' [min reqs/sec={} on {} / max reqs/sec={} on {}]'\
                         .format(lowest_requests, lowest_regionserver, highest_requests, highest_regionserver)
         self.msg += ' | reqs_per_sec_balance={:.2f}%{} lowest_requests_per_sec={} highest_requests_per_sec={}'\
-                    .format(diff, self.get_perf_thresholds(), lowest_requests, highest_requests)
+                    .format(imbalance, self.get_perf_thresholds(), lowest_requests, highest_requests)
 
 
 if __name__ == '__main__':
