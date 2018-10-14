@@ -22,7 +22,7 @@ Nagios Plugin to check the Active / Standby state of an HBase Master via it's JM
 Tip: run this against a load balancer in front of your HBase Masters or with
 find_active_hbase_master.py to check that you always have an active available
 
-Tested on Hortonworks HDP 2.6.1 and Apache HBase 0.90, 0.92, 0.94, 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3
+Tested on Hortonworks HDP 2.6.1 and Apache HBase 0.90, 0.92, 0.94, 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3, 1.4
 
 """
 

@@ -15,7 +15,7 @@ More simplistic than check_hbase_tables.pl program which uses the better program
 
 This plugin only checks to see if the given tables have regions listed on the cluster status page of the Stargate. Recommend to use check_hbase_tables.pl instead if possible
 
-Tested on CDH 4.2, 4.3, 4.4, 4.5 and Apache HBase 0.90, 0.92, 0.94, 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3
+Tested on CDH 4.2, 4.3, 4.4, 4.5 and Apache HBase 0.90, 0.92, 0.94, 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3, 1.4
 
 Known Limitations:
 
