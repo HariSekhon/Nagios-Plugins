@@ -25,7 +25,7 @@ Raises Critical if the given table is not found.
 See also check_hbase_regionserver_compaction_in_progress.py which checks for compactions on any table compacting on a
 RegionServer by RegionServer basis.
 
-Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3, 1.4
+Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3, 1.4, 2.0
 
 """
 
@@ -58,7 +58,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6'
+__version__ = '0.6.1'
 
 
 class CheckHBaseTableCompacting(NagiosPlugin):
@@ -99,6 +99,8 @@ class CheckHBaseTableCompacting(NagiosPlugin):
             if 'TableNotFoundException' in req.content:
                 info = 'table not found'
             raise CriticalError("%s %s %s" % (req.status_code, req.reason, info))
+        elif 'Table not found' in req.content:
+            raise CriticalError("table '{}' not found".format(table))
         is_table_compacting = self.parse_is_table_compacting(req.content)
         self.msg = 'HBase table \'{0}\' '.format(table)
         if is_table_compacting:
