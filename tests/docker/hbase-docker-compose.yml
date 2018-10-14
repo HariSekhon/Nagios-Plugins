@@ -27,14 +27,14 @@ services:
       - 9095
       - 16000
       - 16010
-      - 16030 # HBase 0.9x / 2.x RegionServer
+      - 16030 # HBase 2.x RegionServer
       - 16201
-      - 16301 # HBase RegionServer 1.x when run standalone
+      - 16301 # HBase 1.x RegionServer standalone
       # older ports for HBase 0.96
       - 60000
       - 60010
       - 60201
-      - 60301
+      - 60301 # HBase 0.9x RegionServer
     networks:
       - hbase
   hbase-haproxy:
