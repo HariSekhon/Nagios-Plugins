@@ -36,14 +36,14 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    #from harisekhon.utils import log
+    from harisekhon.utils import UnknownError
     from harisekhon import RestVersionNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 # pylint: disable=too-few-public-methods
@@ -64,7 +64,8 @@ class CheckHadoopNameNodeVersion(RestVersionNagiosPlugin):
     # must override, cannot change to @staticmethod
     def parse_json(self, json_data):  # pylint: disable=no-self-use
         data = json_data['beans'][0]
-        assert data['name'] == 'Hadoop:service=NameNode,name=NameNodeInfo'
+        if data['name'] != 'Hadoop:service=NameNode,name=NameNodeInfo':
+            raise UnknownError('name {} != Hadoop:service=NameNode,name=NameNodeInfo'.format(data['name']))
         version = data['Version']
         #log.info("raw version = '%s'", version)
         version = version.split(',')[0]

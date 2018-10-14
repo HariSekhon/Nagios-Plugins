@@ -55,7 +55,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.4.1'
 
 
 class CheckHadoopHDFSBalance(RestNagiosPlugin):
@@ -92,7 +92,8 @@ class CheckHadoopHDFSBalance(RestNagiosPlugin):
             if not isFloat(space_used_pc):
                 raise UnknownError("non-float returned for PercentUsed by namenode '{0}:{1}'"\
                                    .format(self.host, self.port))
-            assert space_used_pc >= 0
+            if space_used_pc < 0:
+                raise UnknownError('space_used_pc {} < 0'.format(space_used_pc))
             stats = {}
             for stat in ('Total', 'TotalBlocks', 'TotalFiles', 'Used'):
                 stats[stat] = bean[stat]

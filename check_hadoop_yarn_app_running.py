@@ -55,7 +55,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.7.0'
+__version__ = '0.7.3'
 
 
 class CheckHadoopYarnAppRunning(RestNagiosPlugin):
@@ -136,7 +136,8 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
                                .format(host_info))
         num_apps = len(app_list)
         log.info("processing {0:d} running apps returned by Yarn Resource Manager{1}".format(num_apps, host_info))
-        assert num_apps <= self.limit
+        if num_apps > self.limit:
+            raise UnknownError('num_apps {} > limit {}'.format(num_apps, self.limit))
         if self.list_apps:
             self.print_apps(app_list)
             sys.exit(ERRORS['UNKNOWN'])
@@ -170,10 +171,12 @@ class CheckHadoopYarnAppRunning(RestNagiosPlugin):
         running_containers = None
         if 'runningContainers' in app:
             running_containers = app['runningContainers']
-            assert isInt(running_containers, allow_negative=True)
+            if not isInt(running_containers, allow_negative=True):
+                raise UnknownError('running_containers {} is not an integer!'.format(running_containers))
             running_containers = int(running_containers)
         elapsed_time = app['elapsedTime']
-        assert isInt(elapsed_time)
+        if not isInt(elapsed_time):
+            raise UnknownError('elapsed time {} is not an integer'.format(elapsed_time))
         elapsed_time = int(elapsed_time / 1000)
         self.msg = "Yarn application '{0}' state = '{1}'".format(app['name'], state)
         if state != 'RUNNING':

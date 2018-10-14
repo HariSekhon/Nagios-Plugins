@@ -53,14 +53,14 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import isList
-    from harisekhon.utils import ERRORS, CriticalError, UnknownError, jsonpp
+    from harisekhon.utils import ERRORS, CriticalError, UnknownError
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 
 
 class CheckRangerRepository(RestNagiosPlugin):
@@ -151,7 +151,8 @@ class CheckRangerRepository(RestNagiosPlugin):
         repository_name = repository['name']
         repository_id = repository['id']
         if self.repository_id:
-            assert str(repository_id) == str(self.repository_id)
+            if str(repository_id) != str(self.repository_id):
+                raise UnknownError('repository id {} differs from id queried'.format(repository_id))
         self.msg = "Ranger repository id '{0}' name '{1}'".format(repository_id, repository_name)
         if self.repository_name is not None and self.repository_name != repository_name:
             self.critical()

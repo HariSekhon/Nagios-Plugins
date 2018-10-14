@@ -58,14 +58,14 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import isList
-    from harisekhon.utils import ERRORS, CriticalError, UnknownError, jsonpp
+    from harisekhon.utils import ERRORS, CriticalError, UnknownError
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.1'
+__version__ = '0.3.2'
 
 
 class CheckRangerPolicy(RestNagiosPlugin):
@@ -161,7 +161,8 @@ class CheckRangerPolicy(RestNagiosPlugin):
         policy_name = policy['policyName']
         policy_id = policy['id']
         if self.policy_id:
-            assert str(policy_id) == str(self.policy_id)
+            if str(policy_id) != str(self.policy_id):
+                raise UnknownError('policy id {} differs from that queried'.format(policy_id))
         self.msg = "Ranger policy id '{0}' name '{1}'".format(policy_id, policy_name)
         if self.policy_name is not None and self.policy_name != policy_name:
             self.critical()

@@ -63,7 +63,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 
 
 class CheckKafka(PubSubNagiosPlugin):
@@ -248,7 +248,8 @@ class CheckKafka(PubSubNagiosPlugin):
         if topic not in self.get_topics():
             raise CriticalError("topic '{0}' does not exist on Kafka broker".format(topic))
         partitions = self.consumer.partitions_for_topic(topic)
-        assert isSet(partitions)
+        if not isSet(partitions):
+            raise UnknownError('partitions returned type is {}, not a set as expected'.format(type(partitions)))
         return partitions
 
     def print_topic_partitions(self, topic):

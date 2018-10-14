@@ -38,13 +38,13 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon import RestNagiosPlugin
-    from harisekhon.utils import validate_chars, ERRORS
+    from harisekhon.utils import validate_chars, ERRORS, UnknownError
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckJenkinsJob(RestNagiosPlugin):
@@ -88,7 +88,8 @@ class CheckJenkinsJob(RestNagiosPlugin):
                 print(job['name'])
             sys.exit(ERRORS['UNKNOWN'])
         displayname = json_data['displayName']
-        assert displayname == self.job
+        if displayname != self.job:
+            raise UnknownError('displayname {} != job {}'.format(displayname, self.job))
         buildable = json_data['buildable']
         if not buildable:
             self.critical()

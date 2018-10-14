@@ -35,14 +35,14 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    #from harisekhon.utils import support_msg_api
+    from harisekhon.utils import UnknownError
     from harisekhon import RestVersionNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 # pylint: disable=too-few-public-methods
@@ -60,7 +60,8 @@ class CheckAtlasVersion(RestVersionNagiosPlugin):
         self.ok()
 
     def parse_json(self, json_data):
-        assert json_data['Name'] == 'apache-atlas'
+        if json_data['Name'] != 'apache-atlas':
+            raise UnknownError('Name {} != apache-atlas'.format(json_data['Name']))
         version = json_data['Version']
         version = version.split('-')[0]
         if not self.verbose:
