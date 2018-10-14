@@ -26,11 +26,9 @@ srcdir="$srcdir2"
 
 section "H B a s e"
 
-# tested on all these versions but we want to test recent production versions more
-if is_CI; then
-    export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-0.98 1.0 1.1 1.2 1.3 latest}}"
-else
-    export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-0.90 0.92 0.94 0.95 0.96 0.98 0.99 1.0 1.1 1.2 1.3 latest}}"
+export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-0.98 1.0 1.1 1.2 1.3 1.4 2.0 2.1 latest}}"
+if ! is_CI; then
+    export HBASE_VERSIONS="0.90 0.92 0.94 0.95 0.96 $HBASE_VERSIONS"
 fi
 
 HBASE_HOST="${DOCKER_HOST:-${HBASE_HOST:-${HOST:-localhost}}}"
@@ -39,7 +37,7 @@ HBASE_HOST="${HBASE_HOST%%:*}"
 export HBASE_HOST
 export HBASE_MASTER_PORT_DEFAULT=16010
 export HAPROXY_MASTER_PORT_DEFAULT=16010
-export HBASE_REGIONSERVER_PORT_DEFAULT=16301
+export HBASE_REGIONSERVER_PORT_DEFAULT=16030
 export HBASE_STARGATE_PORT_DEFAULT=8080
 export HAPROXY_STARGATE_PORT_DEFAULT=8080
 export HBASE_STARGATE_UI_PORT_DEFAULT=8085
@@ -85,14 +83,16 @@ test_hbase(){
     fi
     VERSION="$version" docker-compose up -d
     hr
-    # HBase 0.99 redirects 16010 to 16030 so hit that directly to avoid localhost:16030 redirect which won't map properly
-    if [[ "${version:0:4}" =~ ^0\.99$ ]]; then
-        local export HBASE_MASTER_PORT_DEFAULT=16030
+    # HBase 0.9x / 2.x uses RegionServer port 16030, 1.x series changed to 16301 then changed back in 2.x
+    if [[ "${version:0:2}" =~ ^1\. ]]; then
+        local export HBASE_REGIONSERVER_PORT_DEFAULT=16301
+    elif [[ "${version:0:3}" =~ ^0\.9 ]]; then
+        local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
+    fi
     # HBase <= 0.99 uses older port numbers
-    elif [[ "${version:0:4}" =~ ^0\.9[0-8]$ ]]; then
+    if [[ "${version:0:4}" =~ ^0\.9[0-8]$ ]]; then
         local export HBASE_MASTER_PORT_DEFAULT=60010
         local export HAPROXY_MASTER_PORT_DEFAULT=60010
-        local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
     fi
     echo "getting HBase dynamic port mappings:"
     docker_compose_port "HBase Master"
@@ -224,20 +224,23 @@ EOF
 
     run_fail 3 ./check_hbase_hbck.py -f nonexistent_file
 
-    run ./check_hbase_master_java_gc.py
-    run ./check_hbase_regionserver_java_gc.py
+    run ./check_hbase_master_java_gc.py -w 10 -c 10
+    run ./check_hbase_regionserver_java_gc.py -w 10 -c 10
 
-    run_fail 2 ./check_hbase_master_java_gc.py -c 1
-    run_fail 2 ./check_hbase_regionserver_java_gc.py -c 1
+    run_fail 2 ./check_hbase_master_java_gc.py -c 0
+    run_fail 2 ./check_hbase_regionserver_java_gc.py -c 0
 
     run_conn_refused ./check_hbase_master_java_gc.py
     run_conn_refused ./check_hbase_regionserver_java_gc.py
 
 # ============================================================================ #
 
-    run_fail 1 ./check_hbase_balancer_enabled.py
+    # HBase versions 1.0 and <= 0.96 don't seem to report when balancer is disabled in UI
+    if ! [[ "${version:0:4}" =~ ^0\.9[0-6]|^1.0 ]]; then
+        run_fail 1 ./check_hbase_balancer_enabled.py
 
-    run_fail 1 ./check_hbase_balancer_enabled2.py
+        run_fail 1 ./check_hbase_balancer_enabled2.py
+    fi
 
     docker exec -i "$DOCKER_CONTAINER" /bin/bash <<-EOF
     export JAVA_HOME=/usr
