@@ -18,7 +18,7 @@
 
 Nagios Plugin to check HBase RegionServer requests imbalance via the HMaster UI
 
-Tested on Apache HBase 1.3, 1.4, 2.0, 2.1
+Tested on Apache HBase 0.95, 0.96, 0.98, 1.0, 1.1, 1.2, 1.3, 1.4, 2.0, 2.1
 
 """
 
