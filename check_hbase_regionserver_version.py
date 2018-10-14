@@ -21,7 +21,7 @@ Nagios Plugin to check the deployed version of an HBase HRegionserver matches wh
 This is also used in the accompanying test suite to ensure we're checking the right version of HBase
 for compatibility for all my other HBase nagios plugins.
 
-Tested on Apache HBase 0.92, 0.94, 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3, 1.4
+Tested on Apache HBase 0.92, 0.94, 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3, 1.4, 2.0, 2.1
 
 """
 

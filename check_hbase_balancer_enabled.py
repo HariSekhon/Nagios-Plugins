@@ -32,7 +32,7 @@ https://issues.apache.org/jira/browse/HBASE-20857
 See also check_hbase_balancr_enabled2.py for a version which parses the HTML properly
 and is more likely to detect the balancer being disabled
 
-Tested on HBase 1.3, 1.4
+Tested on HBase 1.3, 1.4, 2.0, 2.1
 
 """
 

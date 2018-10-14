@@ -28,7 +28,7 @@ Checks:
 5. outputs the conect and query times to a given precision for reporting and graphing
 6. optionally outputs the cell's value for graphing purposes
 
-Tested on Apache HBase 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3, 1.4
+Tested on Apache HBase 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3, 1.4, 2.0, 2.1
 
 """
 

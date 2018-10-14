@@ -28,7 +28,7 @@ Would prefer to get this out of the JMX but the info isn't available, see:
 
 https://issues.apache.org/jira/browse/HBASE-20857
 
-Tested on HBase 1.3, 1.4
+Tested on HBase 1.3, 1.4, 2.0, 2.1
 
 """
 

@@ -21,7 +21,7 @@ Nagios Plugin to check HBase RegionServer Java GC last duration via JMX API
 
 Thresholds apply to Java Garbage Collection last duration in seconds
 
-Tested on Apache HBase 1.3, 1.4
+Tested on Apache HBase 1.3, 1.4, 2.0, 2.1
 
 """
 

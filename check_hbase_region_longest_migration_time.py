@@ -22,7 +22,7 @@ as well as graph the time this takes via the perfdata)
 See also check_hbase_regions_stuck_in_transition.py which just focuses on the number of regions that have been in
 transition for more than the defined number of milliseconds which is another angle of monitoring.
 
-Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 0.90, 0.92, 0.94, 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3, 1.4
+Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 0.90, 0.92, 0.94, 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3, 1.4, 2.0, 2.1
 
 """
 
