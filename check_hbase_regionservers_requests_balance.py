@@ -109,7 +109,9 @@ class CheckHBaseRegionServerBalance(RestNagiosPlugin):
             if not isInt(reqs_per_sec):
                 raise UnknownError("non-integer found in Requests Per Second column for regionserver '{}'. {}"\
                                    .format(regionserver, support_msg()))
-            stats[regionserver] = int(reqs_per_sec)
+            # fix for this is to cast string '1.0' to float and then cast to int
+            # ValueError: invalid literal for int() with base 10: '1.0'
+            stats[regionserver] = int(float(reqs_per_sec))
         self.process_stats(stats)
         #except (AttributeError, TypeError):
         #    raise UnknownError('failed to parse HBase Master UI status page. {}'.format(support_msg()))
