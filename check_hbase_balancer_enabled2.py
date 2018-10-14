@@ -28,7 +28,9 @@ Would prefer to get this out of the JMX but the info isn't available, see:
 
 https://issues.apache.org/jira/browse/HBASE-20857
 
-Tested on HBase 1.3, 1.4, 2.0, 2.1
+Requires HBase versions > 1.0 as older versions don't report the balancer being disabled in the UI
+
+Tested on HBase 1.1, 1.2, 1.3, 1.4, 2.0, 2.1
 
 """
 
