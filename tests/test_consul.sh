@@ -23,7 +23,7 @@ cd "$srcdir/.."
 
 section "C o n s u l"
 
-export CONSUL_VERSIONS="${@:-${CONSUL_VERSIONS:-0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 latest}}"
+export CONSUL_VERSIONS="${@:-${CONSUL_VERSIONS:-0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 latest}}"
 
 CONSUL_HOST="${DOCKER_HOST:-${CONSUL_HOST:-${HOST:-localhost}}}"
 CONSUL_HOST="${CONSUL_HOST##*/}"
@@ -170,11 +170,13 @@ consul_tests(){
     fi
     echo
     hr
-    echo "checking leader lock is now there:"
-    run ./check_consul_service_leader_elected.py -k "$leader_lock"
+    if ! [[ "$version" =~ ^0.[12]$ ]]; then
+        echo "checking leader lock is now there:"
+        run ./check_consul_service_leader_elected.py -k "$leader_lock"
 
-    echo "checking leader lock is now and expected server matches regex:"
-    run ./check_consul_service_leader_elected.py -k "$leader_lock" -r '^[A-Za-z0-9]+$'
+        echo "checking leader lock is now and expected server matches regex:"
+        run ./check_consul_service_leader_elected.py -k "$leader_lock" -r '^[A-Za-z0-9]+$'
+    fi
 
     echo "checking leader lock exists but doesn't contain the expected server name"
     run_fail 2 ./check_consul_service_leader_elected.py -k "$leader_lock" -r 'wronghost'
