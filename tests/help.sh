@@ -31,12 +31,26 @@ test_help(){
     local prog="$1"
 
     # quick hack for older programs which return zero for --help due to python OptParse module
-    if [ "$prog" = "check_dhcpd_leases.py" -o \
-         "$prog" = "check_linux_ram.py"    -o \
-         "$prog" = "check_logserver.py"    -o \
-         "$prog" = "check_syslog_mysql.py" -o \
-         "$prog" = "check_yum.py" ]; then
+    if [[ "$prog" =~ check_dhcpd_leases.py  ||
+          "$prog" =~ check_linux_ram.py     ||
+          "$prog" =~ check_logserver.py     ||
+          "$prog" =~ check_syslog_mysql.py  ||
+          "$prog" =~ check_sftp.py          ||
+          "$prog" =~ check_svn.py           ||
+          "$prog" =~ check_yum.py ]]; then
         run ./$prog --help
+    elif [[ "$prog" =~ check_3ware_raid.py && $EUID != 0 ]]; then
+        echo "skipping check_3ware_raid.py which needs root as $USER has \$EUID $EUID != 0"
+    elif [[ "$prog" =~ check_md_raid.py && $EUID != 0 ]]; then
+        echo "skipping check_md_raid.py which needs root as $USER has \$EUID $EUID != 0"
+    elif [[ "$prog" =~ check_lsi_megaraid.py && $EUID != 0 ]]; then
+        echo "skipping check_lsi_megaraid.py which needs root as $USER has \$EUID $EUID != 0"
+    elif [[ "$prog" =~ check_gentoo_portage.py ]]; then
+        echo "skipping check_gentoo_portage.py"
+    elif [[ "$prog" =~ check_vnc.py ]]; then
+        echo "skipping check_vnc.py"
+    elif [[ "$prog" =~ /lib_.*.py ]]; then
+        echo "skipping $x"
     else
         run_usage ./$prog --help
     fi
@@ -63,7 +77,7 @@ upload_logs(){
 
 trap upload_logs $TRAP_SIGNALS
 
-for x in $(ls *.pl *.py *.rb */*.pl */*.py */*.rb 2>/dev/null | sort); do
+for x in ${@:-$(ls *.pl *.py *.rb */*.pl */*.py */*.rb 2>/dev/null | sort)}; do
     isExcluded "$x" && continue
     # this is taking too much time and failing Travis CI builds
     if is_travis; then
