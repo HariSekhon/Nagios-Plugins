@@ -22,7 +22,7 @@ See also check_hbase_table_region_balance.py which uses the HBase Thrift API and
 region balance for a given table to detect table hotspotting, or region balance for global region
 counts like this program.
 
-Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3
+Tested on Hortonworks HDP 2.3 (HBase 1.1.2) and Apache HBase 0.95, 0.96, 0.98, 0.99, 1.0, 1.1, 1.2, 1.3, 1.4
 
 """
 
@@ -56,7 +56,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1.1'
+__version__ = '0.2.0'
 
 
 class CheckHBaseRegionBalance(NagiosPlugin):
@@ -122,31 +122,28 @@ class CheckHBaseRegionBalance(NagiosPlugin):
             #for table in basestats:
             rows = table.findAll('tr')
             headers = rows[0].findAll('th')
-            header_server = headers[0].get_text()
-            header_regions = headers[3].get_text()
-            wider_table = len(headers) > 4
+            header_server = headers[0].text
             # HBase 1.1 in HDP 2.3: ServerName | Start time | Requests Per Second | Num. Regions
             # HBase 1.2 (Apache):   ServerName | Start time | Version | Requests per Second | Num. Regions
-            if wider_table:
-                header_regions = headers[4].get_text()
+            # HBase 1.4 (Apache):   ServerName | Start time | Last Contact | Version | Requests Per Second | Num. Regions
+            num_regions_index = len(headers) - 1
+            header_num_regions = headers[num_regions_index].text
             if header_server != 'ServerName':
                 qquit('UNKNOWN', "Table headers in Master UI have changed" +
                       " (got {0}, expected 'ServerName'). ".format(header_server) + support_msg())
-            if header_regions != 'Num. Regions':
+            if header_num_regions != 'Num. Regions':
                 qquit('UNKNOWN', "Table headers in Master UI have changed" +
-                      " (got {0}, expected 'Num. Regions'). ".format(header_regions) + support_msg())
+                      " (got {0}, expected 'Num. Regions'). ".format(header_num_regions) + support_msg())
             log.debug('%-50s\tnum_regions', 'server')
             for row in rows[1:]:
                 # this can be something like:
                 # 21689588ba40,16201,1473775984259
                 # so don't apply isHost() validation because it'll fail FQDN / IP address checks
                 cols = row.findAll('td')
-                server = cols[0].get_text()
+                server = cols[0].text
                 if self.total_regex.match(server):
                     continue
-                num_regions = cols[3].get_text()
-                if wider_table:
-                    num_regions = cols[4].get_text()
+                num_regions = cols[num_regions_index].text
                 if not isInt(num_regions):
                     qquit('UNKNOWN', "parsing error - got '{0}' for num regions".format(num_regions) +
                           " for server '{1}', was expecting integer.".format(server) +
