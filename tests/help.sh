@@ -30,6 +30,12 @@ help_start_time="$(start_timer)"
 test_help(){
     local prog="$1"
 
+    optional_cmd=""
+    # for Travis CI running in a perlbrew we must use the perl we find
+    if [[ $prog =~ .*\.pl$ ]]; then
+        optional_cmd="$perl -T "
+    fi
+
     # quick hack for older programs which return zero for --help due to python OptParse module
     if [[ "$prog" =~ check_dhcpd_leases.py  ||
           "$prog" =~ check_linux_ram.py     ||
@@ -38,7 +44,7 @@ test_help(){
           "$prog" =~ check_sftp.py          ||
           "$prog" =~ check_svn.py           ||
           "$prog" =~ check_yum.py ]]; then
-        run ./$prog --help
+        run $optional_cmd ./$prog --help
     elif [[ "$prog" =~ check_3ware_raid.py && $EUID != 0 ]]; then
         echo "skipping check_3ware_raid.py which needs root as $USER has \$EUID $EUID != 0"
     elif [[ "$prog" =~ check_md_raid.py && $EUID != 0 ]]; then
@@ -52,7 +58,7 @@ test_help(){
     elif [[ "$prog" =~ /lib_.*.py ]]; then
         echo "skipping $x"
     else
-        run_usage ./$prog --help
+        run_usage $optional_cmd ./$prog --help
     fi
 }
 
