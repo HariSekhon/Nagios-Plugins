@@ -18,7 +18,7 @@ $DESCRIPTION = "Nagios Plugin to check max shard imbalance in number of shards b
 
 In order to account for client nodes like co-located LogStash this code ignores nodes with 0 shards (see check_elasticsearch_node_shards.pl to cover that which automatically alerts warning on on 0 shard nodes).
 
-Tested on Elasticsearch 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 2.0, 2.1, 2.2, 2.3, 2.4, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.0, 6.1, 6.2";
+Tested on Elasticsearch 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 2.0, 2.1, 2.2, 2.3, 2.4, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 6.0, 6.1, 6.2, 6.3, 6.4";
 
 $VERSION = "0.3.0";
 
