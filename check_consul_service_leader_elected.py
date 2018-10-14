@@ -21,7 +21,7 @@ Nagios Plugin to check a Consul service's leader election for a specific leader 
 Optional regex check applies to the elected leader to ensure one of the nodes we expect is actually what is elected as
 the leader for the service
 
-Tested on Consul 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0
+Tested on Consul 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3
 
 """
 
