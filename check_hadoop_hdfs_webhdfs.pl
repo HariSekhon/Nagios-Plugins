@@ -154,7 +154,7 @@ if($write){
     }
 
     if($file_checks{"type"} eq "DIRECTORY" and $file_checks{"size"}){
-        usage "cannot specify non-zero for a directory, directory length is always zero";
+        usage "cannot specify size for a directory, directory length is always zero";
     }
 
     if($file_checks{"type"} eq "DIRECTORY" and $file_checks{"replication"}){
