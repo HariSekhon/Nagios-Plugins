@@ -23,7 +23,7 @@ cd "$srcdir/.."
 
 section "C o n s u l"
 
-export CONSUL_VERSIONS="${@:-${CONSUL_VERSIONS:-0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 latest}}"
+export CONSUL_VERSIONS="${@:-${CONSUL_VERSIONS:-0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 latest}}"
 
 CONSUL_HOST="${DOCKER_HOST:-${CONSUL_HOST:-${HOST:-localhost}}}"
 CONSUL_HOST="${CONSUL_HOST##*/}"
