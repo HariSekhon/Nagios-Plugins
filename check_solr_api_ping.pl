@@ -15,7 +15,7 @@ Must specify collection name if differing from the default 'collection1' since t
 
 Configurable warning/critical thresholds apply to this API call's millisecond time, as reported by Solr (QTime). To check write QTime, see the adjacent program check_solr_write.pl
 
-Tested on Solr / SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 6.2, 6.2, 6.3, 6.4, 6.5, 6.6, 7.0, 7.1
+Tested on Solr / SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 6.2, 6.2, 6.3, 6.4, 6.5, 6.6, 7.0, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6
 
 (API Ping not available on Solr <= 3.x)
 ";
