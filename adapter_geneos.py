@@ -21,7 +21,7 @@ Nagios Plugins from the Advanced Nagios Plugins Collection or elsewhere.
 
 Usage:
 
-Put 'geneos_wrapper.py' at the front of any nagios plugin command line and it will call the plugin and translate the
+Put 'adapter_geneos.py' at the front of any nagios plugin command line and it will call the plugin and translate the
 output for you to CSV format for Geneos, with STATUS and DETAIL columns and optionally additional columns for each
 perfdata metric if present.
 
