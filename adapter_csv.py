@@ -16,11 +16,11 @@
 
 """
 
-CSV Wrapper program to convert any Nagios Plugin results to CSV format
+CSV Adapter program to convert any Nagios Plugin results to CSV format
 
 Usage:
 
-Put 'csv_wrapper.py' at the front of any nagios plugin command line and it will call the plugin and translate the
+Put 'adapter_csv.py' at the front of any nagios plugin command line and it will call the plugin and translate the
 output for you to CSV format with STATUS, MESSAGE and optionally additional PERF1 ... PERFN columns for each perfdata
 metric present.
 
