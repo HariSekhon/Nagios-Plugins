@@ -21,7 +21,7 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-section "G e n e o s"
+section "G e n e o s   A d a p t e r"
 
 # Try to make these local tests with no dependencies for simplicity
 
@@ -64,15 +64,15 @@ run ./adapter_geneos.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localti
 echo "Testing induced failures:"
 echo
 # should return zero exit code regardless but raise non-OK statuses in STATUS field
-run_grep '^exit,OK,<no output>' ./adapter_geneos.py --shell exit 0
+run_grep '^exit,OK,<no output>$' ./adapter_geneos.py --shell exit 0
 
-run_grep '^exit,WARNING,<no output>' ./adapter_geneos.py --shell exit 1
+run_grep '^exit,WARNING,<no output>$' ./adapter_geneos.py --shell exit 1
 
-run_grep '^exit,CRITICAL,<no output>' ./adapter_geneos.py --shell exit 2
+run_grep '^exit,CRITICAL,<no output>$' ./adapter_geneos.py --shell exit 2
 
-run_grep '^exit,UNKNOWN,<no output>' ./adapter_geneos.py --shell exit 3
+run_grep '^exit,UNKNOWN,<no output>$' ./adapter_geneos.py --shell exit 3
 
-run_grep '^exit,UNKNOWN,<no output>' ./adapter_geneos.py --shell exit 5
+run_grep '^exit,UNKNOWN,<no output>$' ./adapter_geneos.py --shell exit 5
 
 run_grep '^nonexistentcommand,UNKNOWN,' ./adapter_geneos.py nonexistentcommand arg1 arg2
 
