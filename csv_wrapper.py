@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 class CSVWrapper(CLI):
@@ -63,7 +63,7 @@ class CSVWrapper(CLI):
         # super().__init__()
         # special case to make all following args belong to the passed in command and not to this program
         self._CLI__parser.disable_interspersed_args()
-        self._CLI__parser.set_usage('{prog} [options] <check_nagios_plugin_name> <plugin_args> ...'.format(prog=prog))
+        self._CLI__parser.set_usage('{prog} [options] <nagios_plugin> <plugin_args> ...'.format(prog=prog))
         self.timeout_default = 60
         log.setLevel(logging.ERROR)
         self.returncodes = {}
