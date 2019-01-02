@@ -50,7 +50,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3.1'
+__version__ = '0.4.0'
 
 # pylint: disable=too-few-public-methods
 
@@ -63,7 +63,14 @@ class GeneosWrapper(CSVWrapper):
         # Python 3.x
         # super().__init__()
         # special case to make all following args belong to the passed in command and not to this program
-        self.headers = ["STATUS", "DETAIL"]
+        self.headers = ['NAME', 'STATUS', 'DETAILS']
+
+    def output(self):
+        output = "{name},{status},{message}".format(name=os.path.basename(self.args[0]), status=self.status, message=self.message)
+        for val in self.perfdata:
+            output += self.separator + val
+        print(self.separator.join(self.headers))
+        print(output)
 
 
 if __name__ == '__main__':
