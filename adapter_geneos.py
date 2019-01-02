@@ -66,7 +66,7 @@ class AdapterGeneos(AdapterCSV):
         self.headers = ['NAME', 'STATUS', 'DETAILS']
 
     def output(self):
-        output = "{name},{status},{message}".format(name=os.path.basename(self.args[0]), status=self.status, message=self.message)
+        output = "{name},{status},{message}".format(name=os.path.basename(self.args[0].split()[0]), status=self.status, message=self.message)
         for val in self.perfdata:
             output += self.separator + val
         print(self.separator.join(self.headers))
