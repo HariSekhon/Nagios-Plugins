@@ -54,11 +54,11 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.5'
 
 
-class CSVWrapper(CLI):
+class AdapterCSV(CLI):
 
     def __init__(self):
         # Python 2.x
-        super(CSVWrapper, self).__init__()
+        super(AdapterCSV, self).__init__()
         # Python 3.x
         # super().__init__()
         # special case to make all following args belong to the passed in command and not to this program
@@ -214,6 +214,6 @@ class CSVWrapper(CLI):
 
 
 if __name__ == '__main__':
-    CSVWrapper().main()
+    AdapterCSV().main()
     # Must always exit zero for Geneos otherwise it won't take the output and will show as raw error
     sys.exit(0)
