@@ -16,7 +16,7 @@
 
 """
 
-Geneos Wrapper program to convert any Nagios Plugin to Geneos CSV format for immediate re-use of all existing
+Geneos Adapter program to convert any Nagios Plugin to Geneos CSV format for immediate re-use of all existing
 Nagios Plugins from the Advanced Nagios Plugins Collection or elsewhere.
 
 Usage:
