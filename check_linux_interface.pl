@@ -383,28 +383,28 @@ if(defined($link)){
     quit "UNKNOWN", "Link status not found in '$ethtool' output for interface '$interface'! ";
 }
 
-if(defined($duplex)){
-    if(defined($expected_duplex)){
+if(defined($expected_duplex)){
+    if(defined($duplex)){
         if($duplex ne $expected_duplex){
             push(@mismatch, "Duplex");
         }
+    } elsif($interface =~ $exempted_interfaces){
+        # pass
+    } else {
+        quit "UNKNOWN", "Duplex not found in '$ethtool' output for interface '$interface'!";
     }
-} elsif($interface =~ $exempted_interfaces){
-    # pass
-} else {
-    quit "UNKNOWN", "Duplex not found in '$ethtool' output for interface '$interface'!";
 }
 
-if(defined($speed)){
-    if(defined($expected_speed)){
+if(defined($expected_speed)){
+    if(defined($speed)){
         if($speed ne $expected_speed){
             push(@mismatch, "Speed");
         }
+    } elsif($interface =~ $exempted_interfaces){
+        # pass
+    } else {
+        quit "UNKNOWN", "Speed not found in '$ethtool' output for interface '$interface'!";
     }
-} elsif($interface =~ $exempted_interfaces){
-    # pass
-} else {
-    quit "UNKNOWN", "Speed not found in '$ethtool' output for interface '$interface'!";
 }
 
 my %interface_errors;
