@@ -51,7 +51,7 @@ run_grep '^CRITICAL,' ./adapter_csv.py $perl -T ./check_git_checkout_branch.pl -
 echo "Testing failure detection of wrong git branch (python)"
 run_grep '^CRITICAL', ./adapter_csv.py ./check_git_checkout_branch.py -d . -b nonexistentbranch
 
-tmpfile="$(mktemp /tmp/csv_wrapper.txt.XXXXXX)"
+tmpfile="$(mktemp /tmp/adapter_csv.txt.XXXXXX)"
 echo test > "$tmpfile"
 run ./adapter_csv.py $perl -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
 rm -vf "$tmpfile"
@@ -77,8 +77,8 @@ run_grep '^UNKNOWN,' ./adapter_csv.py --shell nonexistentcommand arg1 arg2
 
 run_grep '^UNKNOWN,usage: check_disk_write.pl ' ./adapter_csv.py $perl -T check_disk_write.pl --help
 
-echo "Completed $run_count CSV wrapper tests"
+echo "Completed $run_count CSV adapter tests"
 echo
-echo "All CSV wrapper tests completed successfully"
+echo "All CSV adapter tests completed successfully"
 echo
 echo
