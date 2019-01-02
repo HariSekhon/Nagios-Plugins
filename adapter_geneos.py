@@ -44,7 +44,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from csv_wrapper import CSVWrapper
+    from adapter_csv import AdapterCSV
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
@@ -55,11 +55,11 @@ __version__ = '0.4.0'
 # pylint: disable=too-few-public-methods
 
 
-class GeneosWrapper(CSVWrapper):
+class AdapterGeneos(AdapterCSV):
 
     def __init__(self):
         # Python 2.x
-        super(GeneosWrapper, self).__init__()
+        super(AdapterGeneos, self).__init__()
         # Python 3.x
         # super().__init__()
         # special case to make all following args belong to the passed in command and not to this program
@@ -74,6 +74,6 @@ class GeneosWrapper(CSVWrapper):
 
 
 if __name__ == '__main__':
-    GeneosWrapper().main()
+    AdapterGeneos().main()
     # Must always exit zero for Geneos otherwise it won't take the output and will show as raw error
     sys.exit(0)
