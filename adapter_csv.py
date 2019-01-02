@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5'
+__version__ = '0.6.0'
 
 
 class AdapterCSV(CLI):
@@ -87,6 +87,9 @@ class AdapterCSV(CLI):
         self.add_opt('-r', '--result', metavar='<exitcode>',
                      help='Specify exitcode and use args as Nagios Plugin data results ' \
                         + 'rather than nagios plugin command to execute')
+        # Don't provide this to subclasses AdapterGeneos
+        if type(self).__name__ == 'AdapterCSV':
+            self.add_opt('--no-header', action='store_true', help='Do not output CSV header')
 
     def run(self):
         argstr = ' '.join(self.args)
@@ -209,7 +212,8 @@ class AdapterCSV(CLI):
         output = "{status},{message}".format(status=self.status, message=self.message)
         for val in self.perfdata:
             output += self.separator + val
-        print(self.separator.join(self.headers))
+        if not self.get_opt('no_header'):
+            print(self.separator.join(self.headers))
         print(output)
 
 
