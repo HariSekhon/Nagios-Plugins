@@ -61,7 +61,7 @@ run_grep '^2 check_git_checkout_branch.pl ' ./adapter_check_mk.py $perl -T ./che
 echo "Testing failure detection of wrong git branch (python):"
 run_grep '^2 check_git_checkout_branch.py ' ./adapter_check_mk.py python ./check_git_checkout_branch.py -d . -b nonexistentbranch
 
-tmpfile="$(mktemp /tmp/check_mk_wrapper.txt.XXXXXX)"
+tmpfile="$(mktemp /tmp/adapter_check_mk.txt.XXXXXX)"
 echo test > "$tmpfile"
 run ./adapter_check_mk.py $perl -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
 rm -f "$tmpfile"
@@ -87,7 +87,7 @@ run_grep '^3 ' ./adapter_check_mk.py --shell nonexistentcommand arg1 arg2
 
 run_grep '^3 ' ./adapter_check_mk.py $perl -T check_disk_write.pl --help
 
-echo "Completed $run_count Check_MK wrapper tests"
+echo "Completed $run_count Check_MK adapter tests"
 echo
 echo "All Check_MK adapter tests passed succesfully"
 echo
