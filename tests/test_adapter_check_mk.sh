@@ -21,29 +21,29 @@ cd "$srcdir/..";
 
 . ./tests/utils.sh
 
-section "C h e c k   M K   W r a p p e r"
+section "C h e c k   M K   A d a p t e r"
 
 # Try to make these local tests with no dependencies for simplicity
 
-run_grep '^0 ' ./check_mk_wrapper.py --name 'basic test' echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
+run_grep '^0 ' ./adapter_check_mk.py --name 'basic test' echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
 
-run_grep '^0' ./check_mk_wrapper.py -n 'basic test result' --shell --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000
+run_grep '^0' ./adapter_check_mk.py -n 'basic test result' --shell --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000
 
-run_grep '^0 ' ./check_mk_wrapper.py -n 'basic test result trailing args' --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000 --shell
+run_grep '^0 ' ./adapter_check_mk.py -n 'basic test result trailing args' --result 0 test 'message | perf1=10s;1;2 perf2=5%;80;90;0;100' perf3=1000 --shell
 
-run_grep '^1 ' ./check_mk_wrapper.py -n 'basic test result 1' --result 1 'test 1 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
+run_grep '^1 ' ./adapter_check_mk.py -n 'basic test result 1' --result 1 'test 1 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
 
-run_grep '^2 ' ./check_mk_wrapper.py -n 'basic test result 2' --result 2 'test 2 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
+run_grep '^2 ' ./adapter_check_mk.py -n 'basic test result 2' --result 2 'test 2 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
 
-run_grep '^3 ' ./check_mk_wrapper.py -n 'basic test result 3' --result 3 'test 3 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
+run_grep '^3 ' ./adapter_check_mk.py -n 'basic test result 3' --result 3 'test 3 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
 
-run_grep '^4 ' ./check_mk_wrapper.py -n 'basic test result 4' --result 4 'test 4 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
+run_grep '^4 ' ./adapter_check_mk.py -n 'basic test result 4' --result 4 'test 4 message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
 
-run_grep '^0 ' ./check_mk_wrapper.py -n 'basic shell test' --shell "echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'"
+run_grep '^0 ' ./adapter_check_mk.py -n 'basic shell test' --shell "echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'"
 
-run ./check_mk_wrapper.py $perl -T ./check_disk_write.pl -d .
+run ./adapter_check_mk.py $perl -T ./check_disk_write.pl -d .
 
-run ./check_mk_wrapper.py $perl -T ./check_git_checkout_branch.pl -d . -b "$(git branch | awk '/^\*/{print $2}')"
+run ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$(git branch | awk '/^\*/{print $2}')"
 
 echo "testing stripping of numbered Python interpreter:"
 if which python2.7 &>/dev/null; then
@@ -53,42 +53,42 @@ elif which python2.6 &>/dev/null; then
 else
     python=python
 fi
-run_grep '^0 check_git_checkout_branch.py' ./check_mk_wrapper.py $python ./check_git_checkout_branch.py -d . -b "$(git branch | awk '/^\*/{print $2}')"
+run_grep '^0 check_git_checkout_branch.py' ./adapter_check_mk.py $python ./check_git_checkout_branch.py -d . -b "$(git branch | awk '/^\*/{print $2}')"
 
 echo "Testing failure detection of wrong git branch (perl):"
-run_grep '^2 check_git_checkout_branch.pl ' ./check_mk_wrapper.py $perl -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
+run_grep '^2 check_git_checkout_branch.pl ' ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
 
 echo "Testing failure detection of wrong git branch (python):"
-run_grep '^2 check_git_checkout_branch.py ' ./check_mk_wrapper.py python ./check_git_checkout_branch.py -d . -b nonexistentbranch
+run_grep '^2 check_git_checkout_branch.py ' ./adapter_check_mk.py python ./check_git_checkout_branch.py -d . -b nonexistentbranch
 
 tmpfile="$(mktemp /tmp/check_mk_wrapper.txt.XXXXXX)"
 echo test > "$tmpfile"
-run ./check_mk_wrapper.py $perl -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
+run ./adapter_check_mk.py $perl -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
 rm -f "$tmpfile"
 
-run ./check_mk_wrapper.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
+run ./adapter_check_mk.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
 
 echo "Testing induced failures:"
 echo
 # should return zero exit code regardless but raise non-OK statuses in STATUS field
-run_grep '^0 ' ./check_mk_wrapper.py --shell exit 0
+run_grep '^0 ' ./adapter_check_mk.py --shell exit 0
 
-run_grep '^1 ' ./check_mk_wrapper.py --shell exit 1
+run_grep '^1 ' ./adapter_check_mk.py --shell exit 1
 
-run_grep '^2 ' ./check_mk_wrapper.py --shell exit 2
+run_grep '^2 ' ./adapter_check_mk.py --shell exit 2
 
-run_grep '^3 ' ./check_mk_wrapper.py --shell exit 3
+run_grep '^3 ' ./adapter_check_mk.py --shell exit 3
 
-run_grep '^3 ' ./check_mk_wrapper.py --shell exit 5
+run_grep '^3 ' ./adapter_check_mk.py --shell exit 5
 
-run_grep '^3 ' ./check_mk_wrapper.py nonexistentcommand arg1 arg2
+run_grep '^3 ' ./adapter_check_mk.py nonexistentcommand arg1 arg2
 
-run_grep '^3 ' ./check_mk_wrapper.py --shell nonexistentcommand arg1 arg2
+run_grep '^3 ' ./adapter_check_mk.py --shell nonexistentcommand arg1 arg2
 
-run_grep '^3 ' ./check_mk_wrapper.py $perl -T check_disk_write.pl --help
+run_grep '^3 ' ./adapter_check_mk.py $perl -T check_disk_write.pl --help
 
 echo "Completed $run_count Check_MK wrapper tests"
 echo
-echo "All Check_MK wrapper tests passed succesfully"
+echo "All Check_MK adapter tests passed succesfully"
 echo
 echo
