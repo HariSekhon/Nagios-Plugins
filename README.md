@@ -265,11 +265,13 @@ Make sure to run the [automated build](https://github.com/harisekhon/nagios-plug
 
 ### Kerberos Security Support ###
 
-Perl HTTP Rest-based plugins have implicit Kerberos support via LWP as long as the LWP::Authen::Negotiate CPAN module is installed (part of the automated ```make``` build). This will look for a valid TGT in the environment (`$KRB5CCNAME`) and if found will use it for SPNego. To use different kerberos credentials per plugin you can set different `$KRB5CCNAME` environment variables for each one.
+Perl HTTP Rest-based plugins have implicit Kerberos support via LWP as long as the LWP::Authen::Negotiate CPAN module is installed (part of the automated ```make``` build). This will look for a valid TGT in the environment (`$KRB5CCNAME`) and if found will use it for SPNego.
 
-Most Python HTTP Rest-base plugins for technologies / APIs with authentication have a `--kerberos` switch which supercedes `--username/--password` and can be used on technologies that support SPNego Kerberos authentication. It will either use the TGT from the environment cache (`$KRB5CCNAME`) or if `$KRB5_CLIENT_KTNAME` is present will kinit from the keytab specified in `$KRB5_CLIENT_KTNAME` to a unique path per plugin to prevent credential cache clashes if needing to use different credentials for different technologies.
+Most Python HTTP Rest-based plugins for technologies / APIs with authentication have a `--kerberos` switch which supercedes `--username/--password` and can be used on technologies that support SPNego Kerberos authentication. It will either use the TGT from the environment cache (`$KRB5CCNAME`) or if `$KRB5_CLIENT_KTNAME` is present will kinit from the keytab specified in `$KRB5_CLIENT_KTNAME` to a unique path per plugin to prevent credential cache clashes if needing to use different credentials for different technologies.
 
-If using a TGT then you should `kinit` before running the plugin or run the standard `k5start` kerberos utility as a service to auto-renew your TGT.
+Automating Kerberos Tickets - if running a plugin by hand for testing then you can initiate your TGT via the `kinit` command before running the plugin but if running automatically in a monitoring server then use the standard `k5start` kerberos utility as a service to auto-initiate and auto-renew your TGT so that your plugins always authenticate to Kerberized services with a current valid TGT.
+
+To use different kerberos credentials per plugin you can `export KRB5CCNAME=/different/path` before executing each plugin, and have multiple `k5start` instances maintaining each one.
 
 
 ### High Availability / Multi-Master testing
