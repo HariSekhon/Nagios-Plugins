@@ -51,7 +51,7 @@ run_grep '^perl,CRITICAL,' ./adapter_geneos.py $perl -T ./check_git_checkout_bra
 echo "Testing failure detection of wrong git branch (python):"
 run_grep '^check_git_checkout_branch.py,CRITICAL,' ./adapter_geneos.py ./check_git_checkout_branch.py -d . -b nonexistentbranch
 
-tmpfile="$(mktemp /tmp/geneos_wrapper.txt.XXXXXX)"
+tmpfile="$(mktemp /tmp/adapter_geneos.txt.XXXXXX)"
 echo test > "$tmpfile"
 
 run ./adapter_geneos.py $perl -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
@@ -80,7 +80,7 @@ run_grep '^nonexistentcommand,UNKNOWN,' ./adapter_geneos.py --shell nonexistentc
 
 run_grep '^perl,UNKNOWN,usage: check_disk_write.pl ' ./adapter_geneos.py $perl -T check_disk_write.pl --help
 
-echo "Completed $run_count Geneos tests"
+echo "Completed $run_count Geneos adapter tests"
 echo
 echo "All Geneos adapter tests completed successfully"
 echo
