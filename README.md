@@ -249,8 +249,9 @@ See also [other 3rd Party Nagios Plugins](https://github.com/HariSekhon/nagios-p
 
 These allow you to use any standard nagios plugin with other non-Nagios style monitoring systems by prefixing the nagios plugin command with these programs, which will execute and translate the outputs:
 
+- ```adapter_csv.py``` - executes and translates output from any standard nagios plugin to CSV format
 - ```adapter_check_mk.py``` - executes and translates output from any standard nagios plugin to Check_MK local plugin format
-- ```adapter_geneos.py / adapter_csv.py``` - executes and translates output from any standard nagios plugin to Geneos / CSV format
+- ```adapter_geneos.py``` - executes and translates output from any standard nagios plugin to Geneos CSV format
 
 
 ### Usage --help ###
