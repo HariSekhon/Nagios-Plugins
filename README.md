@@ -759,6 +759,8 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```adapter_geneos.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program
 
+* [SolarWinds](https://www.solarwinds.com/) - proprietary monitoring solution but can take Nagios Plugins, see [doc](http://www.solarwinds.com/documentation/en/flarehelp/sam/content/SAM-Nagios-Script-Monitor-sw3266.htm)
+
 * [Microsoft SCOM](https://www.microsoft.com/en-us/cloud-platform/system-center) - Microsoft Systems Center Operations Manager, can run Nagios Plugins as arbitrary Unix shell scripts with health / warning / error expression checks, see the [Microsoft technet documentation](https://technet.microsoft.com/en-us/library/jj126087(v=sc.12).aspx)
 
 #### Incompatible Monitoring Solutions
@@ -787,6 +789,17 @@ You can also execute these Nagios Plugins outside of any nagios-compatible monit
 
 * [PNP4Nagios](http://docs.pnp4nagios.org/start) - widely used open source auto-graphing add-on for Nagios open source and similar Nagios-based monitoring systems, see list of [enterprise monitoring systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems) above to see which ones bundle this
 * [Graphios](https://github.com/shawn-sterling/graphios) - sends perfdata collected by Nagios to metrics graphing systems like [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) (via Graphite protocol)
+
+###### Antiquated Monitoring Solutions You Probably Shouldn't Still Be Using Today
+
+- [Cacti](https://www.cacti.net/)
+- [Ganglia](http://ganglia.sourceforge.net/)
+- [Munin](http://munin-monitoring.org/)
+- [Mon](https://sourceforge.net/projects/mon/)
+- HP OpenView
+- IBM Tivoli
+etc...
+
 
 ### More 3rd Party Nagios Plugins
 
