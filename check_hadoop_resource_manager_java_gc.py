@@ -44,14 +44,14 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
-class CheckHadoopYarnResourceManagerJavaGC(CheckHadoopNameNodeJavaGC):
+class CheckHadoopResourceManagerJavaGC(CheckHadoopNameNodeJavaGC):
 
     def __init__(self):
         # Python 2.x
-        super(CheckHadoopYarnResourceManagerJavaGC, self).__init__()
+        super(CheckHadoopResourceManagerJavaGC, self).__init__()
         # Python 3.x
         # super().__init__()
         self.name = ['Hadoop Yarn Resource Manager', 'Hadoop']
@@ -64,4 +64,4 @@ class CheckHadoopYarnResourceManagerJavaGC(CheckHadoopNameNodeJavaGC):
 
 
 if __name__ == '__main__':
-    CheckHadoopYarnResourceManagerJavaGC().main()
+    CheckHadoopResourceManagerJavaGC().main()
