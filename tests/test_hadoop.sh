@@ -357,10 +357,10 @@ EOF
     run ./check_hadoop_resource_manager_java_gc.py
     run ./check_hadoop_node_manager_java_gc.py
 
-    run_fail 2 ./check_hadoop_namenode_java_gc.py -c 1
-    run_fail 2 ./check_hadoop_datanode_java_gc.py -c 1
-    run_fail 2 ./check_hadoop_resource_manager_java_gc.py -c 1
-    run_fail 2 ./check_hadoop_node_manager_java_gc.py -c 1
+    run_fail 2 ./check_hadoop_namenode_java_gc.py -c 0
+    run_fail 2 ./check_hadoop_datanode_java_gc.py -c 0
+    run_fail 2 ./check_hadoop_resource_manager_java_gc.py -c 0
+    run_fail 2 ./check_hadoop_node_manager_java_gc.py -c 0
 
     run_conn_refused ./check_hadoop_namenode_java_gc.py
     run_conn_refused ./check_hadoop_datanode_java_gc.py
@@ -419,10 +419,12 @@ EOF
     echo
     echo "running mapreduce job from sample jar"
     echo
+    output='&>/dev/null'
     if [ -n "${DEBUG:-}" ]; then
+        output=''
         set -x
     fi
-    hadoop jar /hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar pi 20 20 &>/dev/null &
+    eval hadoop jar /hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar pi 20 20 \$output &
     set +x
     echo
     echo "triggered mapreduce job"
@@ -743,7 +745,7 @@ EOF
 EOF
                 echo
                 hr
-                dump_fsck_fail_log "$fsck_fail_log"
+                dump_fsck_log "$fsck_fail_log"
                 ERRCODE=2 docker_exec check_hadoop_hdfs_fsck.pl -f "/tmp/hdfs-fsck.log" # --last-fsck -w 1 -c 200000000
 
             fi
