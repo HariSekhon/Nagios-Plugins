@@ -37,7 +37,7 @@ services:
       - hadoop
   hadoop-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/hadoop-namenode.cfg -f /conf/hadoop-yarn-resource-manager.cfg -f /conf/hadoop-yarn-history-server.cfg -d
+    command: -f /conf/10-global.cfg -f /conf/hadoop-namenode.cfg -f /conf/hadoop-namenode-2.x.cfg -f /conf/hadoop-yarn-resource-manager.cfg -f /conf/hadoop-yarn-history-server.cfg -d
     ports:
       - 8088    # ResourceManager UI
       - 9870    # NameNode UI (Hadoop 3.0+)
