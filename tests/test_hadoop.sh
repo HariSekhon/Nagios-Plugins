@@ -76,7 +76,7 @@ test_hadoop(){
     hr
     if [ "${version:0:1}" = 3 ]; then
         local export HADOOP_NAMENODE_PORT_DEFAULT=9870
-        local export HADOOP_DATANODE_PORT_DEFAULT=9864
+        local export HADOOP_DATANODE_PORT_DEFAULT=9868
     fi
     echo "getting Hadoop dynamic port mappings:"
     docker_compose_port HADOOP_NAMENODE_PORT "HDFS NN"
