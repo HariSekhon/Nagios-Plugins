@@ -24,7 +24,7 @@ cd "$srcdir/.."
 
 section "A p a c h e   D r i l l"
 
-export APACHE_DRILL_VERSIONS="${@:-${APACHE_DRILL_VERSIONS:-0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 1.10 1.11 1.12 1.13 1.14 latest}}"
+export APACHE_DRILL_VERSIONS="${@:-${APACHE_DRILL_VERSIONS:-0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 1.10 1.11 1.12 1.13 1.14 1.15 latest}}"
 
 APACHE_DRILL_HOST="${DOCKER_HOST:-${APACHE_DRILL_HOST:-${HOST:-localhost}}}"
 APACHE_DRILL_HOST="${APACHE_DRILL_HOST##*/}"
