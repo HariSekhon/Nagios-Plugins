@@ -41,6 +41,8 @@ check_docker_available
 
 trap_debug_env cassandra
 
+proxy_host="cassandra-proxy"
+
 test_cassandra(){
     local version="$1"
     section2 "Setting up Cassandra $version test container"
@@ -71,7 +73,7 @@ test_cassandra(){
     #set -e
     #hr
     echo "waiting for nodetool status to succeed:"
-    retry 40 docker-compose exec "$DOCKER_SERVICE" nodetool status
+    retry 40 docker-compose exec "$DOCKER_SERVICE" nodetool status --host "$proxy_host"
     hr
     docker_exec check_cassandra_version_nodetool.py -e "$version"
 
@@ -81,35 +83,35 @@ test_cassandra(){
 
     docker_exec check_cassandra_balance.pl -v
 
-    docker_exec check_cassandra_balance.pl --nodetool /cassandra/bin/nodetool -v
+    docker_exec check_cassandra_balance.pl --nodetool /cassandra/bin/nodetool -v --host "$proxy_host"
 
     echo "checking connection refused:"
     ERRCODE=2 docker_exec check_cassandra_balance.pl -v -P 719
 
     docker_exec check_cassandra_heap.pl -w 70 -c 90 -v
 
-    docker_exec check_cassandra_heap.pl --nodetool /cassandra/bin/nodetool -w 70 -c 90 -v
+    docker_exec check_cassandra_heap.pl --nodetool /cassandra/bin/nodetool -w 70 -c 90 -v --host "$proxy_host"
 
     echo "checking connection refused:"
     ERRCODE=2 docker_exec check_cassandra_heap.pl -w 70 -c 90 -v -P 719
 
     docker_exec check_cassandra_netstats.pl -v
 
-    docker_exec check_cassandra_netstats.pl --nodetool /cassandra/bin/nodetool -v
+    docker_exec check_cassandra_netstats.pl --nodetool /cassandra/bin/nodetool -v --host "$proxy_host"
 
     echo "checking connection refused:"
     ERRCODE=2 docker_exec check_cassandra_netstats.pl -v -P 719
 
     docker_exec check_cassandra_nodes.pl -v
 
-    docker_exec check_cassandra_nodes.pl --nodetool /cassandra/bin/nodetool -v
+    docker_exec check_cassandra_nodes.pl --nodetool /cassandra/bin/nodetool -v --host "$proxy_host"
 
     echo "checking connection refused:"
     ERRCODE=2 docker_exec check_cassandra_nodes.pl -v -P 719
 
     docker_exec check_cassandra_tpstats.pl -v
 
-    docker_exec check_cassandra_tpstats.pl --nodetool /cassandra/bin/nodetool -v
+    docker_exec check_cassandra_tpstats.pl --nodetool /cassandra/bin/nodetool -v --host "$proxy_host"
 
     echo "checking connection refused:"
     ERRCODE=2 docker_exec check_cassandra_tpstats.pl -P 719
