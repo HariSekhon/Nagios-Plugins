@@ -292,7 +292,7 @@ yum-packages:
 
 	# for check_yum.pl / check_yum.py:
 	# can't do this in setup/yum-packages.txt as one of these two packages will be missing depending on the RHEL version
-	rpm -q yum-security yum-plugin-security || yum install -y yum-security yum-plugin-security
+	rpm -q yum-security yum-plugin-security || $(SUDO) yum install -y yum-security yum-plugin-security
 
 .PHONY: yum-packages-remove
 yum-packages-remove:
