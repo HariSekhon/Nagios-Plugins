@@ -45,12 +45,12 @@ test_help(){
           "$prog" =~ check_svn.py           ||
           "$prog" =~ check_yum.py ]]; then
         run $optional_cmd ./$prog --help
-    elif [[ "$prog" =~ check_3ware_raid.py && $EUID != 0 ]]; then
-        echo "skipping check_3ware_raid.py which needs root as $USER has \$EUID $EUID != 0"
-    elif [[ "$prog" =~ check_md_raid.py && $EUID != 0 ]]; then
-        echo "skipping check_md_raid.py which needs root as $USER has \$EUID $EUID != 0"
-    elif [[ "$prog" =~ check_lsi_megaraid.py && $EUID != 0 ]]; then
-        echo "skipping check_lsi_megaraid.py which needs root as $USER has \$EUID $EUID != 0"
+    elif [[ "$prog" =~ check_3ware_raid.py ]]; then # && $EUID != 0 ]]; then
+        echo "skipping check_3ware_raid.py" # which needs root as $USER has \$EUID $EUID != 0"
+    elif [[ "$prog" =~ check_md_raid.py ]]; then # && $EUID != 0 ]]; then
+        echo "skipping check_md_raid.py" # which needs root as $USER has \$EUID $EUID != 0"
+    elif [[ "$prog" =~ check_lsi_megaraid.py ]]; then # && $EUID != 0 ]]; then
+        echo "skipping check_lsi_megaraid.py" # which needs root as $USER has \$EUID $EUID != 0"
     elif [[ "$prog" =~ check_gentoo_portage.py ]]; then
         echo "skipping check_gentoo_portage.py"
     elif [[ "$prog" =~ check_vnc.py ]]; then
