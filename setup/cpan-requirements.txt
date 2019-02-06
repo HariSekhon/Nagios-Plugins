@@ -105,7 +105,8 @@ Sub::Util
 TAP::Harness::Env
 Test::More
 Test::SharedFork
-Thrift@0.10.0
+# installs but returns an error code
+#Thrift
 Time::HiRes
 Type::Tiny::XS
 URI::Escape
