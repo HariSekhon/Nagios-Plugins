@@ -20,11 +20,9 @@ from lib_nagios import OK, WARNING, CRITICAL, UNKNOWN, DEFAULT_TIMEOUT
 
 __author__      = "Hari Sekhon"
 __title__       = "Nagios Plugin for Subversion"
-__version__     = '0.6.1'
+__version__     = '0.6.2'
 
 nagios.CHECK_NAME = "SVN"
-
-BIN = which("svn")
 
 
 class SvnTester(NagiosTester):
@@ -117,7 +115,8 @@ class SvnTester(NagiosTester):
 
         self.vprint(3, "subversion server address is '%s'" % uri)
 
-        cmd = BIN + " ls " + uri + " --no-auth-cache --non-interactive"
+        cmd = which("svn") + " ls " + uri + " --no-auth-cache --non-interactive"
+
         if self.username:
             cmd += " --username=%s" % self.username
         if self.password:
