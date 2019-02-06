@@ -53,6 +53,8 @@ test_help(){
         echo "skipping check_lsi_megaraid.py" # which needs root as $USER has \$EUID $EUID != 0"
     elif [[ "$prog" =~ check_gentoo_portage.py ]]; then
         echo "skipping check_gentoo_portage.py"
+    elif [[ "$prog" =~ check_svn.py ]]; then
+        echo "skipping check_svn.py"
     elif [[ "$prog" =~ check_vnc.py ]]; then
         echo "skipping check_vnc.py"
     elif [[ "$prog" =~ /lib_.*.py ]]; then
