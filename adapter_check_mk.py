@@ -57,16 +57,16 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, ERRORS, isFloat
-    from csv_wrapper import CSVWrapper
+    from adapter_csv import AdapterCSV
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.3'
+__version__ = '0.4'
 
 
-class AdapterCheckMK(CSVWrapper):
+class AdapterCheckMK(AdapterCSV):
 
     def __init__(self):
         # Python 2.x
