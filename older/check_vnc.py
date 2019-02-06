@@ -21,13 +21,12 @@ from lib_nagios import OK, WARNING, CRITICAL, UNKNOWN, DEFAULT_TIMEOUT
 
 __author__      = "Hari Sekhon"
 __title__       = "Nagios Plugin for VNC"
-__version__     = '0.6.1'
+__version__     = '0.6.2'
 
 nagios.CHECK_NAME = "VNC"
 # The standard VNC port
 DEFAULT_PORT      = 5900
 
-BIN = which("vncsnapshot")
 
 class VncTester(NagiosTester):
     """Holds state for the vnc test"""
@@ -98,7 +97,7 @@ class VncTester(NagiosTester):
         self.vprint(2, "now running vnc test")
 
         cmd = "%s -compresslevel 0 -passwd %s -vncQuality 0 %s /dev/null" \
-              % (BIN, self.passwdfile, self.server)
+              % (which("vncsnapshot"), self.passwdfile, self.server)
 
         result, output = self.run(cmd)
 
