@@ -14,8 +14,9 @@
 #                    Mac OS X - Homebrew Package Requirements
 # ============================================================================ #
 
+jq
+mysql
 openssl
 snappy
-mysql
 wget
 whois
