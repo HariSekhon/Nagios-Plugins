@@ -35,3 +35,4 @@ py-mysqldb
 py2-pip
 #ruby
 jwhois
+jq
