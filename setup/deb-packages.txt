@@ -31,6 +31,9 @@ net-tools
 # used for tests
 curl
 
+# used to parse api.github.com repo contents for downloading find_active_*.py
+jq
+
 # either of these should do to ensure ping command is present for find_active_server.py's ping mode
 iputils-ping
 #inetutils-ping
