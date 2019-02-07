@@ -211,14 +211,7 @@ python-libs:
 
 	@echo
 	unalias mv 2>/dev/null; \
-	for x in \
-		find_active_server.py \
-		find_active_hadoop_namenode.py \
-		find_active_hadoop_yarn_resource_manager.py \
-		find_active_hbase_master.py \
-		find_active_solrcloud.py \
-		find_active_elasticsearch.py \
-		; do \
+	for x in $$(curl https://api.github.com/repos/harisekhon/devops-python-tools/contents | jq '.[].name' | sed 's/"//g' | grep '^find_active_.*.py' ); do \
 		wget -O $$x.tmp https://raw.githubusercontent.com/HariSekhon/devops-python-tools/master/$$x && \
 		mv -vf $$x.tmp $$x; \
 		chmod +x $$x; \
