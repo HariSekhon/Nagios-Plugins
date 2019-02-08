@@ -49,6 +49,10 @@ for x in $@; do
     esac
 done
 
+if [ "$(uname -s)" != "Linux" ]; then
+    usage "UNKNOWN: this plugin only works on Linux"
+fi
+
 if [ -z "$*" ]; then
     usage "no directories given as arguments"
 fi
