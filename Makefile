@@ -196,7 +196,7 @@ python-libs:
 	# in requirements.txt now
 	#$(SUDO_PIP) pip install cassandra-driver scales blist lz4 python-snappy
 	# prevents https://urllib3.readthedocs.io/en/latest/security.html#insecureplatformwarning
-	$(SUDO_PIP) pip install --upgrade ndg-httpsclient
+	#$(SUDO_PIP) pip install --upgrade ndg-httpsclient
 	#. tests/utils.sh; $(SUDO) $$perl couchbase-csdk-setup
 	#$(SUDO_PIP) pip install couchbase
 	
@@ -211,14 +211,7 @@ python-libs:
 
 	@echo
 	unalias mv 2>/dev/null; \
-	for x in \
-		find_active_server.py \
-		find_active_hadoop_namenode.py \
-		find_active_hadoop_yarn_resource_manager.py \
-		find_active_hbase_master.py \
-		find_active_solrcloud.py \
-		find_active_elasticsearch.py \
-		; do \
+	for x in $$(curl https://api.github.com/repos/harisekhon/devops-python-tools/contents | jq '.[].name' | sed 's/"//g' | grep '^find_active_.*.py' ); do \
 		wget -O $$x.tmp https://raw.githubusercontent.com/HariSekhon/devops-python-tools/master/$$x && \
 		mv -vf $$x.tmp $$x; \
 		chmod +x $$x; \
@@ -292,7 +285,10 @@ yum-packages:
 
 	# for check_yum.pl / check_yum.py:
 	# can't do this in setup/yum-packages.txt as one of these two packages will be missing depending on the RHEL version
-	rpm -q yum-security yum-plugin-security || yum install -y yum-security yum-plugin-security
+	rpm -q yum-security yum-plugin-security || $(SUDO) yum install -y yum-security yum-plugin-security
+
+	# App::CPANMinus is in CentOS/base so install the rpm instead of directly installing the perl module in /usr/local
+	rpm -q perl-App-cpanminus || $(SUDO) yum install -y perl-App-cpanminus
 
 .PHONY: yum-packages-remove
 yum-packages-remove:

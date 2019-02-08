@@ -16,12 +16,12 @@
 
 """
 
-Wrapper program to convert any Nagios Plugin to Check MK local check format for immediate re-use of all existing
+Adapter program to convert any Nagios Plugin to Check MK local check format for immediate re-use of all existing
 Nagios Plugins from the Advanced Nagios Plugins Collection or elsewhere.
 
 Usage:
 
-Put 'check_mk_wrapper.py' at the front of any nagios plugin command line and it will call the plugin and
+Put 'adapter_check_mk.py' at the front of any nagios plugin command line and it will call the plugin and
 translate the output for you to Check MK format.
 
 Alternatively you can feed it literal output from a nagios plugin combined with the --result <exitcode> switch.
@@ -57,20 +57,20 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, ERRORS, isFloat
-    from csv_wrapper import CSVWrapper
+    from adapter_csv import AdapterCSV
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.4'
 
 
-class CheckMKWrapper(CSVWrapper):
+class AdapterCheckMK(AdapterCSV):
 
     def __init__(self):
         # Python 2.x
-        super(CheckMKWrapper, self).__init__()
+        super(AdapterCheckMK, self).__init__()
         # Python 3.x
         # super().__init__()
         self.name = None
@@ -79,7 +79,7 @@ class CheckMKWrapper(CSVWrapper):
     def add_options(self):
         self.add_opt('-n', '--name', metavar='<check_name>',
                      help='Name of the check (defaults to the basename of the plugin)')
-        super(CheckMKWrapper, self).add_options()
+        super(AdapterCheckMK, self).add_options()
 
     def process_options(self):
         self.name = self.get_opt('name')
@@ -122,6 +122,6 @@ class CheckMKWrapper(CSVWrapper):
 
 
 if __name__ == '__main__':
-    CheckMKWrapper().main()
+    AdapterCheckMK().main()
     # Must always exit zero for Geneos otherwise it won't take the output and will show as raw error
     sys.exit(0)

@@ -249,8 +249,9 @@ See also [other 3rd Party Nagios Plugins](https://github.com/HariSekhon/nagios-p
 
 These allow you to use any standard nagios plugin with other non-Nagios style monitoring systems by prefixing the nagios plugin command with these programs, which will execute and translate the outputs:
 
-- ```check_mk_wrapper.py``` - executes and translates output from any standard nagios plugin to Check_MK local plugin format
-- ```geneos_wrapper.py / csv_wrapper.py``` - executes and translates output from any standard nagios plugin to Geneos / CSV format
+- ```adapter_csv.py``` - executes and translates output from any standard nagios plugin to CSV format
+- ```adapter_check_mk.py``` - executes and translates output from any standard nagios plugin to Check_MK local plugin format
+- ```adapter_geneos.py``` - executes and translates output from any standard nagios plugin to Geneos CSV format
 
 
 ### Usage --help ###
@@ -264,11 +265,13 @@ Make sure to run the [automated build](https://github.com/harisekhon/nagios-plug
 
 ### Kerberos Security Support ###
 
-Perl HTTP Rest-based plugins have implicit Kerberos support via LWP as long as the LWP::Authen::Negotiate CPAN module is installed (part of the automated ```make``` build). This will look for a valid TGT in the environment (`$KRB5CCNAME`) and if found will use it for SPNego. To use different kerberos credentials per plugin you can set different `$KRB5CCNAME` environment variables for each one.
+Perl HTTP Rest-based plugins have implicit Kerberos support via LWP as long as the LWP::Authen::Negotiate CPAN module is installed (part of the automated ```make``` build). This will look for a valid TGT in the environment (`$KRB5CCNAME`) and if found will use it for SPNego.
 
-Most Python HTTP Rest-base plugins for technologies / APIs with authentication have a `--kerberos` switch which supercedes `--username/--password` and can be used on technologies that support SPNego Kerberos authentication. It will either use the TGT from the environment cache (`$KRB5CCNAME`) or if `$KRB5_CLIENT_KTNAME` is present will kinit from the keytab specified in `$KRB5_CLIENT_KTNAME` to a unique path per plugin to prevent credential cache clashes if needing to use different credentials for different technologies.
+Most Python HTTP Rest-based plugins for technologies / APIs with authentication have a `--kerberos` switch which supercedes `--username/--password` and can be used on technologies that support SPNego Kerberos authentication. It will either use the TGT from the environment cache (`$KRB5CCNAME`) or if `$KRB5_CLIENT_KTNAME` is present will kinit from the keytab specified in `$KRB5_CLIENT_KTNAME` to a unique path per plugin to prevent credential cache clashes if needing to use different credentials for different technologies.
 
-If using a TGT then you should `kinit` before running the plugin or run the standard `k5start` kerberos utility as a service to auto-renew your TGT.
+Automating Kerberos Tickets - if running a plugin by hand for testing then you can initiate your TGT via the `kinit` command before running the plugin but if running automatically in a monitoring server then use the standard `k5start` kerberos utility as a service to auto-initiate and auto-renew your TGT so that your plugins always authenticate to Kerberized services with a current valid TGT.
+
+To use different kerberos credentials per plugin you can `export KRB5CCNAME=/different/path` before executing each plugin, and have multiple `k5start` instances maintaining each one.
 
 
 ### High Availability / Multi-Master testing
@@ -744,7 +747,7 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [Sensu](https://sensuapp.org/) - open-core distributed monitoring system, compatible with both Nagios and Zabbix plugins. Enterprise Edition contains metrics graphing integrations for [Graphite](https://sensuapp.org/docs/1.2/enterprise/integrations/graphite.html), [InfluxDB](https://sensuapp.org/docs/1.2/enterprise/integrations/influxdb.html) or [OpenTSDB](https://sensuapp.org/docs/1.2/enterprise/integrations/opentsdb.html) to graph the plugins' metrics perfdata
 
-* [Check_MK](http://mathias-kettner.com/check_mk.html) - open-core Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html). See ```check_mk_wrapper.py``` which can run any Nagios Plugin and convert its output to Check_MK local check format. Has built-in metrics graphing via [PNP4Nagios](http://docs.pnp4nagios.org/start), Enterprise Edition can send metrics to [Graphite](https://graphiteapp.org/) and [InfluxDB](https://www.influxdata.com/) via the Graphite protocol, see [documentation](https://mathias-kettner.com/cms_graphing.html)
+* [Check_MK](http://mathias-kettner.com/check_mk.html) - open-core Nagios-based monitoring solution with rule-based configuration, service discovery and agent-based multi-checks integrating [MRPE - MK's Remote Plugin Executor](https://mathias-kettner.de/checkmk_mrpe.html). See ```adapter_check_mk.py``` which can run any Nagios Plugin and convert its output to Check_MK local check format. Has built-in metrics graphing via [PNP4Nagios](http://docs.pnp4nagios.org/start), Enterprise Edition can send metrics to [Graphite](https://graphiteapp.org/) and [InfluxDB](https://www.influxdata.com/) via the Graphite protocol, see [documentation](https://mathias-kettner.com/cms_graphing.html)
 
 * [ZenOSS](https://www.zenoss.com/) - open-core monitoring solution that can run Nagios Plugins, see [documentation](http://wiki.zenoss.org/Working_With_Nagios_Plugins)
 
@@ -754,7 +757,9 @@ The following enterprise monitoring systems are compatible with this project:
 
 * [GroundWork Monitor](http://www.gwos.com/) - commercial Nagios-based monitoring distribution with RRD metrics graphing and [InfluxDB integration](https://kb.groundworkopensource.com/display/DOC72/How+to+configure+GroundWork+InfluxDB)
 
-* [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```geneos_wrapper.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program
+* [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```adapter_geneos.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program
+
+* [SolarWinds](https://www.solarwinds.com/) - proprietary monitoring solution but can take Nagios Plugins, see [doc](http://www.solarwinds.com/documentation/en/flarehelp/sam/content/SAM-Nagios-Script-Monitor-sw3266.htm)
 
 * [Microsoft SCOM](https://www.microsoft.com/en-us/cloud-platform/system-center) - Microsoft Systems Center Operations Manager, can run Nagios Plugins as arbitrary Unix shell scripts with health / warning / error expression checks, see the [Microsoft technet documentation](https://technet.microsoft.com/en-us/library/jj126087(v=sc.12).aspx)
 
@@ -784,6 +789,17 @@ You can also execute these Nagios Plugins outside of any nagios-compatible monit
 
 * [PNP4Nagios](http://docs.pnp4nagios.org/start) - widely used open source auto-graphing add-on for Nagios open source and similar Nagios-based monitoring systems, see list of [enterprise monitoring systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems) above to see which ones bundle this
 * [Graphios](https://github.com/shawn-sterling/graphios) - sends perfdata collected by Nagios to metrics graphing systems like [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) (via Graphite protocol)
+
+###### Antiquated Monitoring Solutions You Probably Shouldn't Still Be Using Today
+
+- [Cacti](https://www.cacti.net/)
+- [Ganglia](http://ganglia.sourceforge.net/)
+- [Munin](http://munin-monitoring.org/)
+- [Mon](https://sourceforge.net/projects/mon/)
+- HP OpenView
+- IBM Tivoli
+etc...
+
 
 ### More 3rd Party Nagios Plugins
 

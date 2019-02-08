@@ -16,7 +16,7 @@ Checks one or more given metrics. If none are specified returns all metrics.
 
 Optional thresholds may be applied if a single metric is given.
 
-Tested on Apache Drill 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14
+Tested on Apache Drill 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14, 1.15
 ";
 
 $VERSION = "0.1";

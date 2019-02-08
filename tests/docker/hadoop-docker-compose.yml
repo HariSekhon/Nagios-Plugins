@@ -20,26 +20,29 @@ services:
       service: common
     image: harisekhon/hadoop-dev:${VERSION:-latest}
     ports:
-      #- 8020
-      - 8042
-      - 8088
-      #- 9000
-      #- 10020
-      - 19888
-      - 50010
-      - 50020
-      - 50070
-      - 50075
-      - 50090
+      #- 8020   # NameNode RPC
+      - 8042    # NodeManager UI
+      - 8088    # ResourceManager UI
+      #- 9000   # NameNode RPC old
+      - 9868    # DataNode UI (Hadoop 3.0+)
+      - 9870    # NameNode UI (Hadoop 3.0+)
+      #- 10020  # Yarn Job History
+      - 19888   # Yarn Job History UI
+      #- 50010  # DataNode RPC
+      #- 50020  # DataNode RPC
+      - 50070   # NameNode UI (Hadoop <= 2.x)
+      - 50075   # DataNode UI (Hadoop <= 2.x)
+      - 50090   # SNameNode UI
     networks:
       - hadoop
   hadoop-haproxy:
     image: haproxy:alpine
-    command: -f /conf/10-global.cfg -f /conf/hadoop-namenode.cfg -f /conf/hadoop-yarn-resource-manager.cfg -f /conf/hadoop-yarn-history-server.cfg -d
+    command: -f /conf/10-global.cfg -f /conf/hadoop-namenode.cfg -f /conf/hadoop-namenode-2.x.cfg -f /conf/hadoop-yarn-resource-manager.cfg -f /conf/hadoop-yarn-history-server.cfg -d
     ports:
-      - 8088
-      - 19888
-      - 50070
+      - 8088    # ResourceManager UI
+      - 9870    # NameNode UI (Hadoop 3.0+)
+      - 19888   # Yarn Job History UI
+      - 50070   # NameNode UI (Hadoop <= 2.x)
     networks:
       - hadoop
     volumes:

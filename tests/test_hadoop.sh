@@ -76,10 +76,15 @@ test_hadoop(){
     hr
     if [ "${version:0:1}" = 3 ]; then
         local export HADOOP_NAMENODE_PORT_DEFAULT=9870
-        local export HADOOP_DATANODE_PORT_DEFAULT=9864
+        local export HADOOP_DATANODE_PORT_DEFAULT=9868
     fi
     echo "getting Hadoop dynamic port mappings:"
-    docker_compose_port HADOOP_NAMENODE_PORT "HDFS NN"
+    # let it use default port which should go via haproxy, testing haproxy config at the same time as the plugins
+    #docker_compose_port HADOOP_NAMENODE_PORT "HDFS NN"
+    #local export HADOOP_NAMENODE_PORT="$(COMPOSE_PROJECT_NAME=nagios-plugins docker-compose -f "$srcdir/tests/docker/hadoop-docker-compose.yml" port hadoop-haproxy "$HADOOP_NAMENODE_PORT")"
+    echo -n "HADOOP_NAMENODE_HAPROXY_PORT => "
+    local export HADOOP_NAMENODE_PORT="$(docker-compose port hadoop-haproxy "$HADOOP_NAMENODE_PORT_DEFAULT" | sed 's/.*://')"
+    echo "$HADOOP_NAMENODE_PORT"
     docker_compose_port HADOOP_DATANODE_PORT "HDFS DN"
     docker_compose_port HADOOP_YARN_RESOURCE_MANAGER_PORT "Yarn RM"
     docker_compose_port HADOOP_YARN_NODE_MANAGER_PORT "Yarn NM"
@@ -357,10 +362,10 @@ EOF
     run ./check_hadoop_resource_manager_java_gc.py
     run ./check_hadoop_node_manager_java_gc.py
 
-    run_fail 2 ./check_hadoop_namenode_java_gc.py -c 1
-    run_fail 2 ./check_hadoop_datanode_java_gc.py -c 1
-    run_fail 2 ./check_hadoop_resource_manager_java_gc.py -c 1
-    run_fail 2 ./check_hadoop_node_manager_java_gc.py -c 1
+    run_fail 2 ./check_hadoop_namenode_java_gc.py -c 0
+    run_fail 2 ./check_hadoop_datanode_java_gc.py -c 0
+    run_fail 2 ./check_hadoop_resource_manager_java_gc.py -c 0
+    run_fail 2 ./check_hadoop_node_manager_java_gc.py -c 0
 
     run_conn_refused ./check_hadoop_namenode_java_gc.py
     run_conn_refused ./check_hadoop_datanode_java_gc.py
@@ -419,10 +424,12 @@ EOF
     echo
     echo "running mapreduce job from sample jar"
     echo
+    output='&>/dev/null'
     if [ -n "${DEBUG:-}" ]; then
+        output=''
         set -x
     fi
-    hadoop jar /hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar pi 20 20 &>/dev/null &
+    eval hadoop jar /hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-*.jar pi 20 20 \$output &
     set +x
     echo
     echo "triggered mapreduce job"
@@ -743,7 +750,7 @@ EOF
 EOF
                 echo
                 hr
-                dump_fsck_fail_log "$fsck_fail_log"
+                dump_fsck_log "$fsck_fail_log"
                 ERRCODE=2 docker_exec check_hadoop_hdfs_fsck.pl -f "/tmp/hdfs-fsck.log" # --last-fsck -w 1 -c 200000000
 
             fi

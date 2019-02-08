@@ -24,7 +24,7 @@ For Apache Drill 1.12+ it will also check if each node is listed as ONLINE befor
 Recommend to combine this with the Drill HAProxy config from the haproxy/ directory
 to run this via any node in the cluster (or combine with find_active_apache_drill.py, see README)
 
-Tested on Apache Drill 1.10, 1.11, 1.12, 1.13, 1.14
+Tested on Apache Drill 1.10, 1.11, 1.12, 1.13, 1.14, 1.15
 
 (API endpoint is not available in Apache Drill versions < 1.10)
 

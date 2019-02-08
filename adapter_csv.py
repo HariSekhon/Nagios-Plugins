@@ -16,11 +16,11 @@
 
 """
 
-CSV Wrapper program to convert any Nagios Plugin results to CSV format
+CSV Adapter program to convert any Nagios Plugin results to CSV format
 
 Usage:
 
-Put 'csv_wrapper.py' at the front of any nagios plugin command line and it will call the plugin and translate the
+Put 'adapter_csv.py' at the front of any nagios plugin command line and it will call the plugin and translate the
 output for you to CSV format with STATUS, MESSAGE and optionally additional PERF1 ... PERFN columns for each perfdata
 metric present.
 
@@ -51,19 +51,19 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.6.0'
 
 
-class CSVWrapper(CLI):
+class AdapterCSV(CLI):
 
     def __init__(self):
         # Python 2.x
-        super(CSVWrapper, self).__init__()
+        super(AdapterCSV, self).__init__()
         # Python 3.x
         # super().__init__()
         # special case to make all following args belong to the passed in command and not to this program
         self._CLI__parser.disable_interspersed_args()
-        self._CLI__parser.set_usage('{prog} [options] <check_nagios_plugin_name> <plugin_args> ...'.format(prog=prog))
+        self._CLI__parser.set_usage('{prog} [options] <nagios_plugin> <plugin_args> ...'.format(prog=prog))
         self.timeout_default = 60
         log.setLevel(logging.ERROR)
         self.returncodes = {}
@@ -87,6 +87,9 @@ class CSVWrapper(CLI):
         self.add_opt('-r', '--result', metavar='<exitcode>',
                      help='Specify exitcode and use args as Nagios Plugin data results ' \
                         + 'rather than nagios plugin command to execute')
+        # Don't provide this to subclasses AdapterGeneos
+        if type(self).__name__ == 'AdapterCSV':
+            self.add_opt('--no-header', action='store_true', help='Do not output CSV header')
 
     def run(self):
         argstr = ' '.join(self.args)
@@ -209,11 +212,12 @@ class CSVWrapper(CLI):
         output = "{status},{message}".format(status=self.status, message=self.message)
         for val in self.perfdata:
             output += self.separator + val
-        print(self.separator.join(self.headers))
+        if not self.get_opt('no_header'):
+            print(self.separator.join(self.headers))
         print(output)
 
 
 if __name__ == '__main__':
-    CSVWrapper().main()
+    AdapterCSV().main()
     # Must always exit zero for Geneos otherwise it won't take the output and will show as raw error
     sys.exit(0)

@@ -22,6 +22,9 @@ gcc
 # used for tests
 curl
 
+# used to parse api.github.com repo contents for downloading find_active_*.py
+jq
+
 # needed to fetch the library submodule at end of build
 # and also for check_git_checkout_branch.pl and Git-Python / check_git_checkout_branch.py
 git
