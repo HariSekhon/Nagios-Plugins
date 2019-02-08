@@ -43,7 +43,7 @@ EOF
 }
 
 for x in $@; do
-    case "$x" in 
+    case "$x" in
         -*) usage
             ;;
     esac
