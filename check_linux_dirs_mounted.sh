@@ -32,7 +32,7 @@ Nagios Plugin to check directories given as arguments are mounted
 
 The directories given must be the mount points and will be checked against /proc/mounts
 
-Does not use the 'mount' command because this can be outdate mtab information
+Does not use the 'mount' command because this can be outdated mtab information
 
 This will catch disks that fail to mount or are not currently mounted, which often causes applications to end up writing to and filling up the root filesystem
 
