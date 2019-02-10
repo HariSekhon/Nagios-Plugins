@@ -13,6 +13,8 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
+{
+
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 
@@ -68,3 +70,5 @@ done
 
 echo "OK: all directories mounted"
 exit "$OK"
+
+} 2>&1
