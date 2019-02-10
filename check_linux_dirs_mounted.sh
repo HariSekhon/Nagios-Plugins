@@ -38,6 +38,8 @@ Does not use the 'mount' command because this can be outdated mtab information
 
 This will catch disks that fail to mount or are not currently mounted, which often causes applications to end up writing to and filling up the root filesystem
 
+Tested on CentOS 7
+
 usage: ${0##*/} <dir1> <dir2> ...
 
 EOF
