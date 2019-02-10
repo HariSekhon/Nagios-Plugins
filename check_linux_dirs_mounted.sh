@@ -50,7 +50,8 @@ for x in $@; do
 done
 
 if [ "$(uname -s)" != "Linux" ]; then
-    usage "UNKNOWN: this plugin only works on Linux"
+    echo "UNKNOWN: this plugin only works on Linux"
+    exit "$UNKNOWN"
 fi
 
 if [ -z "$*" ]; then
