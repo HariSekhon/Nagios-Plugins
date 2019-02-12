@@ -13,14 +13,13 @@
 #                            RPM Package Requirements
 # ============================================================================ #
 
+git
 perl
 python
 python-pip
 python-setuptools
 
 epel-release
-perl-libwww-perl
-perl-DBD-MySQL
 tar
 wget
 which
@@ -66,3 +65,12 @@ python-jenkins
 
 # for timezone checks
 tzdata
+
+perl-DBD-MySQL
+perl-Digest
+perl-Digest-MD5
+perl-Digest-SHA
+perl-Digest-SHA1
+perl-LWP-Authen-Negotiate
+perl-URI
+perl-libwww-perl
