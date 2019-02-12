@@ -1,0 +1,24 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                             CPAN Modules Packaged
+# ============================================================================ #
+
+DBI
+DBD::mysql
+Digest::CRC
+Digest::MD5
+Digest::SHA
+Digest::SHA1
+LWP::Authen::Negotiate
+SMS::AQL
+URI::Escape
