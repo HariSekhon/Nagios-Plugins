@@ -45,11 +45,8 @@
 # Proc::Daemon needed by Kafka::TestInternals
 # Proc::Daemon fails on tests, force install anyway to appease Travis
 
-Class::Accessor
 Compress::Snappy
-Const::Fast
-# pinning version to stop it breaking Travis CI Perl 5.10 builds
-Data::Dumper@2.161
+#Const::Fast
 DBI
 # finicky on Alpine and installed via packages on all major distros now
 #DBD::mysql
@@ -61,41 +58,20 @@ Digest::SHA
 Digest::SHA1
 Exporter::Tiny
 ExtUtils::Config
-ExtUtils::Constant
 ExtUtils::Helpers
 ExtUtils::InstallPaths
 IO::Pty
-IO::Socket::IP
 IO::Socket::SSL
-JSON
-JSON::XS
 Kafka
 LWP::Authen::Negotiate
-LWP::Simple
-LWP::UserAgent
 List::MoreUtils
 List::MoreUtils::XS
-Math::Round
 Module::Build::Tiny
 Module::CPANfile::Result
 Module::Install::Admin
-MongoDB
-MongoDB::MongoClient
 #Net::Async::CassandraCQL
-# downgrading Net::DNS as a workaround for taint mode bug:
-# https://rt.cpan.org/Public/Bug/Display.html?id=114819
-Net::DNS@1.05
-Net::LDAP
-Net::LDAPI
-Net::LDAPS
-Net::SSH::Expect
 Proc::Daemon
-Readonly
-Readonly::XS
 Ref::Util
-# newer versions of the Redis module require Perl >= 5.10, this will install the older compatible version for RHEL5/CentOS5 servers still running Perl 5.8 if the latest module fails
-# the backdated version might not be the perfect version, found by digging around in the git repo
-#Redis || $(SUDO2) $(CPANM) --notest DAMS/Redis-1.976.tar.gz
 Search::Elasticsearch
 SMS::AQL
 Socket6
@@ -103,14 +79,6 @@ Sub::Exporter::Progressive
 Sub::Name
 Sub::Util
 TAP::Harness::Env
-Test::More
 Test::SharedFork
-# installs but returns an error code
-#Thrift
-Time::HiRes
 Type::Tiny::XS
 URI::Escape
-XML::SAX
-XML::Simple
-YAML
-List::MoreUtils::XS
