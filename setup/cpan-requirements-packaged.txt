@@ -19,6 +19,7 @@ Digest::CRC
 Digest::MD5
 Digest::SHA
 Digest::SHA1
+IO::Socket::SSL
 LWP::Authen::Negotiate
 SMS::AQL
 URI::Escape
