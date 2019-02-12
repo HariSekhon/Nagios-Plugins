@@ -140,16 +140,22 @@ perl-libs:
 	# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
 	
 	which cpanm || { yes "" | $(SUDO_PERL) cpan App::cpanminus; }
-
+	@echo
 	# Workaround for Mac OS X not finding the OpenSSL libraries when building
 	if [ -d /usr/local/opt/openssl/include -a \
 	     -d /usr/local/opt/openssl/lib     -a \
 	     `uname` = Darwin ]; then \
+		 @echo "Installing Crypt::SSLeay with local openssl library locations"; \
 	     yes "" | $(SUDO_PERL) sudo OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib $(CPANM) --notest Crypt::SSLeay; \
 	fi
-
-	# on Perl 5.10 List::MoreUtils::XS has starte failing to install first time, workaround is too run this twice
-	for x in 1 2; do yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' setup/cpan-requirements.txt` && break; done
+	@echo
+	@echo "Installing CPAN Modules"
+	yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' setup/cpan-requirements.txt`
+	@echo
+	@echo "Installing any CPAN Modules missed by system packages"
+	for cpan_module in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/cpan-requirements-packaged.txt`; do \
+		perl -e "use $$cpan_module;" || $(SUDO_PERL) $(CPANM) --notest "$$cpan_module" || exit $$?; \
+	done
 	
 	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
 	#
