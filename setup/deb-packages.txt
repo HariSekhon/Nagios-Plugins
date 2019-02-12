@@ -67,3 +67,12 @@ procps
 
 # for timezone checks
 tzdata
+
+# libio-pty-perl
+libdigest-crc-perl
+libdigest-perl-md5-perl
+libdigest-sha-perl
+libio-socket-ssl-perl
+liblwp-authen-negotiate-perl
+libsms-aql-perl
+liburi-escape-xs-perl
