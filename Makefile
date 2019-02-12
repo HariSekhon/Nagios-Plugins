@@ -149,12 +149,8 @@ perl-libs:
 	fi
 
 	# on Perl 5.10 List::MoreUtils::XS has starte failing to install first time, workaround is too run this twice
-	for x in 1 2; do yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < setup/cpan-requirements.txt` && break; done
+	for x in 1 2; do yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' setup/cpan-requirements.txt` && break; done
 	
-	# newer versions of the Redis module require Perl >= 5.10, this will install the older compatible version for RHEL5/CentOS5 servers still running Perl 5.8 if the latest module fails
-	# the backdated version might not be the perfect version, found by digging around in the git repo
-	$(SUDO_PERL) $(CPANM) --notest Redis || $(SUDO_PERL) $(CPANM) --notest DAMS/Redis-1.976.tar.gz
-
 	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
 	#
 	# This now fails with permission denied even with sudo to root on Mac OSX Sierra due to System Integrity Protection:
@@ -236,7 +232,7 @@ apk-packages:
 .PHONY: apk-packages-remove
 apk-packages-remove:
 	cd lib && $(MAKE) apk-packages-remove
-	$(SUDO) apk del `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/apk-packages-dev.txt` || :
+	$(SUDO) apk del `sed 's/#.*//; /^[[:space:]]*$$/d' setup/apk-packages-dev.txt` || :
 	$(SUDO) rm -fr /var/cache/apk/*
 
 .PHONY: apt-packages
@@ -255,7 +251,7 @@ apt-packages:
 .PHONY: apt-packages-remove
 apt-packages-remove:
 	cd lib && $(MAKE) apt-packages-remove
-	$(SUDO) apt-get purge -y `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/deb-packages-dev.txt`
+	$(SUDO) apt-get purge -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-dev.txt`
 	$(SUDO) apt-get purge -y libmariadbd-dev || :
 	$(SUDO) apt-get purge -y libmysqlclient-dev || :
 
@@ -290,7 +286,7 @@ yum-packages:
 .PHONY: yum-packages-remove
 yum-packages-remove:
 	cd lib && $(MAKE) yum-packages-remove
-	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/rpm-packages-dev.txt`; do if rpm -q $$x; then $(SUDO) yum remove -y $$x; fi; done
+	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages-dev.txt`; do if rpm -q $$x; then $(SUDO) yum remove -y $$x; fi; done
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
 # doesn't build on Mac < 3.4.7 / 3.5.1 / 3.6.0 but the others are in the public mirrors yet
