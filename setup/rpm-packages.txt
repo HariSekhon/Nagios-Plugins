@@ -65,14 +65,3 @@ python-jenkins
 
 # for timezone checks
 tzdata
-
-perl-DBD-MySQL
-perl-Digest
-perl-Digest-MD5
-perl-Digest-SHA
-perl-Digest-SHA1
-perl-LWP-Authen-Negotiate
-perl-Socket6
-perl-URI
-perl-libwww-perl
-perl-thrift
