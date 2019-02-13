@@ -17,6 +17,7 @@ Compress::Snappy
 Digest::Adler32
 Kafka
 Net::SSH::Expect
+Ref::Util
 
 # needed for Kafka
 inc::Module::Install
@@ -33,9 +34,7 @@ inc::Module::Install
 #TAP::Harness::Env
 #Test::SharedFork
 #Type::Tiny::XS
-#Socket6
 #Proc::Daemon
-#Ref::Util
 #Module::CPANfile::Result
 #Module::Install::Admin
 #Devel::CheckLib
