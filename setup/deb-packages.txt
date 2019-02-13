@@ -67,14 +67,3 @@ procps
 
 # for timezone checks
 tzdata
-
-# libio-pty-perl
-libdigest-crc-perl
-libdigest-sha-perl
-libio-socket-ssl-perl
-liblwp-authen-negotiate-perl
-liburi-escape-xs-perl
-
-# not available on Ubuntu Trusty so done as optional in Makefile
-#libdigest-perl-md5-perl
-#libsms-aql-perl
