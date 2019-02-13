@@ -44,4 +44,5 @@ perl-digest-sha1
 perl-libwww
 perl-lwp-protocol-https
 perl-lwp-useragent-determined
+perl-socket6
 perl-uri
