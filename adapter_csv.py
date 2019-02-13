@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6.0'
+__version__ = '0.6.1'
 
 
 class AdapterCSV(CLI):
@@ -131,7 +131,7 @@ class AdapterCSV(CLI):
         try:
             returncode = int(returncode)
         except ValueError:
-            pass
+            log.info("returncode '%s' failed to convert to int", returncode)
         if returncode in self.returncodes:
             log.debug("translating exit code '%s' => '%s'", returncode, self.returncodes[returncode])
             self._status = self.returncodes[returncode]
