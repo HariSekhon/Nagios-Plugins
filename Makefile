@@ -275,6 +275,7 @@ yum-packages:
 
 	# installing packages individually to catch package install failure, otherwise yum succeeds even if it misses a package
 	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages.txt setup/rpm-packages-dev.txt`; do rpm -q $$x || $(SUDO) yum install -y $$x; done
+	$(SUDO) yum install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages-cpan.txt` || :
 
 	# breaks on CentOS 7.0 on Docker, fakesystemd conflicts with systemd, 7.2 works though
 	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel || :
