@@ -22,4 +22,5 @@ Digest::SHA1
 IO::Socket::SSL
 LWP::Authen::Negotiate
 SMS::AQL
+Socket6
 URI::Escape
