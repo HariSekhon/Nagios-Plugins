@@ -249,6 +249,9 @@ apt-packages:
 	$(SUDO) apt-get install -y python3-mysqldb || :
 	$(SUDO) apt-get install -y libmysqlclient-dev || :
 	$(SUDO) apt-get install -y libmariadbd-dev || :
+	# these two aren't available on Ubuntu Trusty for Travis CI, so make them optional and rely on CPAN installing optional modules
+	$(SUDO) apt-get install -y libdigest-perl-md5-perl || :
+	$(SUDO) apt-get install -y libsms-aql-perl || :
 	# for Ubuntu builds otherwise autoremove in docker removes this so mysql python library doesn't work
 	$(SUDO) apt-get install -y libmariadbclient18 || :
 	# for check_whois.pl - looks like this has been removed from repos :-/
