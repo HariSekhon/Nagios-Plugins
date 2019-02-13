@@ -246,14 +246,7 @@ apt-packages:
 	$(SUDO) apt-get update
 	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages.txt setup/deb-packages-dev.txt`
 	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-cpan.txt`
-	$(SUDO) apt-get install -y python-mysqldb || :
-	$(SUDO) apt-get install -y python3-mysqldb || :
-	$(SUDO) apt-get install -y libmysqlclient-dev || :
-	$(SUDO) apt-get install -y libmariadbd-dev || :
-	# for Ubuntu builds otherwise autoremove in docker removes this so mysql python library doesn't work
-	$(SUDO) apt-get install -y libmariadbclient18 || :
-	# for check_whois.pl - looks like this has been removed from repos :-/
-	$(SUDO) apt-get install -y jwhois || :
+	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-optional.txt` || :
 
 .PHONY: apt-packages-remove
 apt-packages-remove:
