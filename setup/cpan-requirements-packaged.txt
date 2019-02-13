@@ -23,4 +23,5 @@ IO::Socket::SSL
 LWP::Authen::Negotiate
 SMS::AQL
 Socket6
+Thrift
 URI::Escape
