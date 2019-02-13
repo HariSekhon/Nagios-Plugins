@@ -1,0 +1,25 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                         Deb Package Requirements Optional
+# ============================================================================ #
+
+# Installed if available in repos
+
+python-mysqldb
+python3-mysqldb
+libmysqlclient-dev
+libmariadbd-dev
+# for Ubuntu builds otherwise autoremove in docker removes this so mysql python library doesn't work
+libmariadbclient18
+# for check_whois.pl - looks like this has been removed from repos :-/
+jwhois
