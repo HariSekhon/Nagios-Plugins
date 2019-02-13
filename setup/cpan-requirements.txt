@@ -13,9 +13,12 @@
 #                            CPAN Module Requirements
 # ============================================================================ #
 
-# needed for Kafka
+# needed for Kafka module
 inc::Module::Install
 Data::HexDump::Range
+
+# needed for Kafka execution on CentOS
+Sub::Util
 
 Compress::Snappy
 Digest::Adler32
@@ -34,7 +37,6 @@ Class::Accessor
 
 #Sub::Exporter::Progressive
 #Sub::Name
-#Sub::Util
 #TAP::Harness::Env
 #Test::SharedFork
 #Type::Tiny::XS
