@@ -75,3 +75,4 @@ perl-LWP-Authen-Negotiate
 perl-Socket6
 perl-URI
 perl-libwww-perl
+perl-thrift
