@@ -39,7 +39,6 @@ iputils-ping
 #inetutils-ping
 
 libdbd-mysql-perl
-python-mysqldb
 
 # for check_ssl_cert.pl
 openssl
