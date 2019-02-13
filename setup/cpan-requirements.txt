@@ -13,14 +13,15 @@
 #                            CPAN Module Requirements
 # ============================================================================ #
 
+# needed for Kafka
+inc::Module::Install
+Data::HexDump::Range
+
 Compress::Snappy
 Digest::Adler32
 Kafka
 Net::SSH::Expect
 Ref::Util
-
-# needed for Kafka
-inc::Module::Install
 
 # There are problems with the tests for this module dependency of Net::Async::CassandraCQL, forcing install works and allows us to use check_cassandra_write.pl
 #sudo cpan -f IO::Async::Stream
