@@ -18,5 +18,5 @@ python-dnspython
 python-git
 python-happybase
 python-humanize
-#python-krbv
+python-jenkins
 python-thrift
