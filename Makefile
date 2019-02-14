@@ -191,14 +191,23 @@ python-libs:
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
 	$(SUDO) easy_install -U setuptools || $(SUDO_PIP) easy_install -U setuptools || :
 	$(SUDO) easy_install pip || :
+
+	# fixes bug in cffi version detection when installing requests-kerberos
+	$(SUDO_PIP) pip install --upgrade pip
+
+	# only install pip packages not installed via system packages
+	#$(SUDO_PIP) pip install --upgrade -r requirements.txt
+	for pip_module in `sed 's/#.*//; s/[>=].*//; s/-/_/g; /^[[:space:]]*$$/d' requirements.txt`; do \
+		python -c "import $$pip_module" || $(SUDO_PIP) pip install "$$pip_module" || exit 1; \
+	done
+
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
-	# upgrade required to get install to work properly on Debian
-	#$(SUDO) pip install --upgrade pip
-	$(SUDO_PIP) pip install --upgrade -r requirements.txt
 	# in requirements.txt now
 	#$(SUDO_PIP) pip install cassandra-driver scales blist lz4 python-snappy
+
 	# prevents https://urllib3.readthedocs.io/en/latest/security.html#insecureplatformwarning
-	#$(SUDO_PIP) pip install --upgrade ndg-httpsclient
+	$(SUDO_PIP) pip install --upgrade ndg-httpsclient || $(SUDO_PIP) pip install --upgrade ndg-httpsclient
+
 	#. tests/utils.sh; $(SUDO) $$perl couchbase-csdk-setup
 	#$(SUDO_PIP) pip install couchbase
 	
@@ -206,7 +215,8 @@ python-libs:
 	# fails if MySQL isn't installed locally
 	# Mac fails to import module, one workaround is:
 	# sudo install_name_tool -change libmysqlclient.18.dylib /usr/local/mysql/lib/libmysqlclient.18.dylib /Library/Python/2.7/site-packages/_mysql.so
-	$(SUDO_PIP) pip install MySQL-python
+	# in requirements.txt now
+	#$(SUDO_PIP) pip install MySQL-python
 	
 	# must downgrade happybase library to work on Python 2.6
 	if [ "$$(python -c 'import sys; sys.path.append("pylib"); import harisekhon; print(harisekhon.utils.getPythonVersion())')" = "2.6" ]; then $(SUDO_PIP) pip install --upgrade "happybase==0.9"; fi
@@ -234,6 +244,7 @@ elasticsearch2:
 apk-packages:
 	$(SUDO) apk update
 	$(SUDO) apk add `sed 's/#.*//; /^[[:space:]]*$$/d' setup/apk-packages.txt setup/apk-packages-dev.txt`
+	for package in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/apk-packages-pip.txt`; do $(SUDO) apk add "$$package" || : ; done
 
 .PHONY: apk-packages-remove
 apk-packages-remove:
@@ -247,6 +258,7 @@ apt-packages:
 	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages.txt setup/deb-packages-dev.txt`
 	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-cpan.txt` || :
 	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-optional.txt` || :
+	for package in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-pip.txt`; do $(SUDO) apt-get install -y "$$package" || : ; done
 
 .PHONY: apt-packages-remove
 apt-packages-remove:
@@ -276,6 +288,8 @@ yum-packages:
 	# installing packages individually to catch package install failure, otherwise yum succeeds even if it misses a package
 	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages.txt setup/rpm-packages-dev.txt`; do rpm -q $$x || $(SUDO) yum install -y $$x; done
 	$(SUDO) yum install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages-cpan.txt` || :
+
+	yum install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages-pip.txt` || :
 
 	# breaks on CentOS 7.0 on Docker, fakesystemd conflicts with systemd, 7.2 works though
 	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel || :
