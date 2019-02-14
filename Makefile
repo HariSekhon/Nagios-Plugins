@@ -140,21 +140,23 @@ perl-libs:
 	# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
 	
 	which cpanm || { yes "" | $(SUDO_PERL) cpan App::cpanminus; }
-
+	@echo
 	# Workaround for Mac OS X not finding the OpenSSL libraries when building
 	if [ -d /usr/local/opt/openssl/include -a \
 	     -d /usr/local/opt/openssl/lib     -a \
 	     `uname` = Darwin ]; then \
+		 @echo "Installing Crypt::SSLeay with local openssl library locations"; \
 	     yes "" | $(SUDO_PERL) sudo OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib $(CPANM) --notest Crypt::SSLeay; \
 	fi
-
-	# on Perl 5.10 List::MoreUtils::XS has starte failing to install first time, workaround is too run this twice
-	for x in 1 2; do yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' < setup/cpan-requirements.txt` && break; done
+	@echo
+	@echo "Installing CPAN Modules"
+	yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' setup/cpan-requirements.txt`
+	@echo
+	@echo "Installing any CPAN Modules missed by system packages"
+	for cpan_module in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/cpan-requirements-packaged.txt`; do \
+		perl -e "use $$cpan_module;" || $(SUDO_PERL) $(CPANM) --notest "$$cpan_module" || exit 1; \
+	done
 	
-	# newer versions of the Redis module require Perl >= 5.10, this will install the older compatible version for RHEL5/CentOS5 servers still running Perl 5.8 if the latest module fails
-	# the backdated version might not be the perfect version, found by digging around in the git repo
-	$(SUDO_PERL) $(CPANM) --notest Redis || $(SUDO_PERL) $(CPANM) --notest DAMS/Redis-1.976.tar.gz
-
 	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
 	#
 	# This now fails with permission denied even with sudo to root on Mac OSX Sierra due to System Integrity Protection:
@@ -189,14 +191,23 @@ python-libs:
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
 	$(SUDO) easy_install -U setuptools || $(SUDO_PIP) easy_install -U setuptools || :
 	$(SUDO) easy_install pip || :
+
+	# fixes bug in cffi version detection when installing requests-kerberos
+	$(SUDO_PIP) pip install --upgrade pip
+
+	# only install pip packages not installed via system packages
+	#$(SUDO_PIP) pip install --upgrade -r requirements.txt
+	for pip_module in `sed 's/#.*//; s/[>=].*//; s/-/_/g; /^[[:space:]]*$$/d' requirements.txt`; do \
+		python -c "import $$pip_module" || $(SUDO_PIP) pip install "$$pip_module" || exit 1; \
+	done
+
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
-	# upgrade required to get install to work properly on Debian
-	#$(SUDO) pip install --upgrade pip
-	$(SUDO_PIP) pip install --upgrade -r requirements.txt
 	# in requirements.txt now
 	#$(SUDO_PIP) pip install cassandra-driver scales blist lz4 python-snappy
+
 	# prevents https://urllib3.readthedocs.io/en/latest/security.html#insecureplatformwarning
-	#$(SUDO_PIP) pip install --upgrade ndg-httpsclient
+	$(SUDO_PIP) pip install --upgrade ndg-httpsclient || $(SUDO_PIP) pip install --upgrade ndg-httpsclient
+
 	#. tests/utils.sh; $(SUDO) $$perl couchbase-csdk-setup
 	#$(SUDO_PIP) pip install couchbase
 	
@@ -204,7 +215,8 @@ python-libs:
 	# fails if MySQL isn't installed locally
 	# Mac fails to import module, one workaround is:
 	# sudo install_name_tool -change libmysqlclient.18.dylib /usr/local/mysql/lib/libmysqlclient.18.dylib /Library/Python/2.7/site-packages/_mysql.so
-	$(SUDO_PIP) pip install MySQL-python
+	# in requirements.txt now
+	#$(SUDO_PIP) pip install MySQL-python
 	
 	# must downgrade happybase library to work on Python 2.6
 	if [ "$$(python -c 'import sys; sys.path.append("pylib"); import harisekhon; print(harisekhon.utils.getPythonVersion())')" = "2.6" ]; then $(SUDO_PIP) pip install --upgrade "happybase==0.9"; fi
@@ -232,30 +244,26 @@ elasticsearch2:
 apk-packages:
 	$(SUDO) apk update
 	$(SUDO) apk add `sed 's/#.*//; /^[[:space:]]*$$/d' setup/apk-packages.txt setup/apk-packages-dev.txt`
+	for package in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/apk-packages-pip.txt`; do $(SUDO) apk add "$$package" || : ; done
 
 .PHONY: apk-packages-remove
 apk-packages-remove:
 	cd lib && $(MAKE) apk-packages-remove
-	$(SUDO) apk del `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/apk-packages-dev.txt` || :
+	$(SUDO) apk del `sed 's/#.*//; /^[[:space:]]*$$/d' setup/apk-packages-dev.txt` || :
 	$(SUDO) rm -fr /var/cache/apk/*
 
 .PHONY: apt-packages
 apt-packages:
 	$(SUDO) apt-get update
 	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages.txt setup/deb-packages-dev.txt`
-	$(SUDO) apt-get install -y python-mysqldb || :
-	$(SUDO) apt-get install -y python3-mysqldb || :
-	$(SUDO) apt-get install -y libmysqlclient-dev || :
-	$(SUDO) apt-get install -y libmariadbd-dev || :
-	# for Ubuntu builds otherwise autoremove in docker removes this so mysql python library doesn't work
-	$(SUDO) apt-get install -y libmariadbclient18 || :
-	# for check_whois.pl - looks like this has been removed from repos :-/
-	$(SUDO) apt-get install -y jwhois || :
+	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-cpan.txt` || :
+	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-optional.txt` || :
+	for package in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-pip.txt`; do $(SUDO) apt-get install -y "$$package" || : ; done
 
 .PHONY: apt-packages-remove
 apt-packages-remove:
 	cd lib && $(MAKE) apt-packages-remove
-	$(SUDO) apt-get purge -y `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/deb-packages-dev.txt`
+	$(SUDO) apt-get purge -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-dev.txt`
 	$(SUDO) apt-get purge -y libmariadbd-dev || :
 	$(SUDO) apt-get purge -y libmysqlclient-dev || :
 
@@ -274,11 +282,14 @@ yum-packages:
 	#
 	# python-pip requires EPEL, so try to get the correct EPEL rpm
 	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
-	# must instead do wget 
+	# must instead do wget
 	rpm -q epel-release      || yum install -y epel-release || { wget -t 5 --retry-connrefused -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`grep -o '[[:digit:]]' /etc/*release | head -n1`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
 
 	# installing packages individually to catch package install failure, otherwise yum succeeds even if it misses a package
 	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages.txt setup/rpm-packages-dev.txt`; do rpm -q $$x || $(SUDO) yum install -y $$x; done
+	$(SUDO) yum install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages-cpan.txt` || :
+
+	yum install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages-pip.txt` || :
 
 	# breaks on CentOS 7.0 on Docker, fakesystemd conflicts with systemd, 7.2 works though
 	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel || :
@@ -290,7 +301,7 @@ yum-packages:
 .PHONY: yum-packages-remove
 yum-packages-remove:
 	cd lib && $(MAKE) yum-packages-remove
-	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' < setup/rpm-packages-dev.txt`; do if rpm -q $$x; then $(SUDO) yum remove -y $$x; fi; done
+	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages-dev.txt`; do if rpm -q $$x; then $(SUDO) yum remove -y $$x; fi; done
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
 # doesn't build on Mac < 3.4.7 / 3.5.1 / 3.6.0 but the others are in the public mirrors yet

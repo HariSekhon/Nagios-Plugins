@@ -13,8 +13,47 @@
 #                            CPAN Module Requirements
 # ============================================================================ #
 
+# needed for Kafka module
+inc::Module::Install
+Data::HexDump::Range
+
+# needed for Kafka execution on CentOS
+Sub::Util
+
+Compress::Snappy
+Digest::Adler32
+Kafka
+Net::SSH::Expect
+Ref::Util
+
+# needed for check_hbase_cell.pl on CentOS
+Class::Accessor
+
 # There are problems with the tests for this module dependency of Net::Async::CassandraCQL, forcing install works and allows us to use check_cassandra_write.pl
 #sudo cpan -f IO::Async::Stream
+
+#Net::Async::CassandraCQL
+#Search::Elasticsearch
+
+#Sub::Exporter::Progressive
+#Sub::Name
+#TAP::Harness::Env
+#Test::SharedFork
+#Type::Tiny::XS
+#Proc::Daemon
+#Module::CPANfile::Result
+#Module::Install::Admin
+#Devel::CheckLib
+#Exporter::Tiny
+#ExtUtils::Config
+#ExtUtils::Helpers
+#ExtUtils::InstallPaths
+#IO::Pty
+#Const::Fast
+#List::MoreUtils
+#List::MoreUtils::XS
+#Module::Build::Tiny
+
 
 # XXX: there is a bug in the Readonly module that MongoDB::MongoClient uses. It tries to call Readonly::XS but there is some kind of MAGIC_COOKIE mismatch and Readonly::XS errors out with:
 #
@@ -44,73 +83,3 @@
 # Module::Build::Tiny and Const::Fast must be built before Kafka, doesn't auto-pull in correct order
 # Proc::Daemon needed by Kafka::TestInternals
 # Proc::Daemon fails on tests, force install anyway to appease Travis
-
-Class::Accessor
-Compress::Snappy
-Const::Fast
-# pinning version to stop it breaking Travis CI Perl 5.10 builds
-Data::Dumper@2.161
-DBI
-# finicky on Alpine and installed via packages on all major distros now
-#DBD::mysql
-Devel::CheckLib
-Digest::Adler32
-Digest::CRC
-Digest::MD5
-Digest::SHA
-Digest::SHA1
-Exporter::Tiny
-ExtUtils::Config
-ExtUtils::Constant
-ExtUtils::Helpers
-ExtUtils::InstallPaths
-IO::Pty
-IO::Socket::IP
-IO::Socket::SSL
-JSON
-JSON::XS
-Kafka
-LWP::Authen::Negotiate
-LWP::Simple
-LWP::UserAgent
-List::MoreUtils
-List::MoreUtils::XS
-Math::Round
-Module::Build::Tiny
-Module::CPANfile::Result
-Module::Install::Admin
-MongoDB
-MongoDB::MongoClient
-#Net::Async::CassandraCQL
-# downgrading Net::DNS as a workaround for taint mode bug:
-# https://rt.cpan.org/Public/Bug/Display.html?id=114819
-Net::DNS@1.05
-Net::LDAP
-Net::LDAPI
-Net::LDAPS
-Net::SSH::Expect
-Proc::Daemon
-Readonly
-Readonly::XS
-Ref::Util
-# newer versions of the Redis module require Perl >= 5.10, this will install the older compatible version for RHEL5/CentOS5 servers still running Perl 5.8 if the latest module fails
-# the backdated version might not be the perfect version, found by digging around in the git repo
-#Redis || $(SUDO2) $(CPANM) --notest DAMS/Redis-1.976.tar.gz
-Search::Elasticsearch
-SMS::AQL
-Socket6
-Sub::Exporter::Progressive
-Sub::Name
-Sub::Util
-TAP::Harness::Env
-Test::More
-Test::SharedFork
-# installs but returns an error code
-#Thrift
-Time::HiRes
-Type::Tiny::XS
-URI::Escape
-XML::SAX
-XML::Simple
-YAML
-List::MoreUtils::XS

@@ -23,12 +23,22 @@ cd "$srcdir/..";
 . ./tests/utils.sh
 . ./tests/excluded.sh
 
-section "Testing --help for all programs"
+EXT="${EXT:-all}"
+
+section "Testing --help for $EXT programs"
 
 help_start_time="$(start_timer)"
 
+# Breaks on CentOS Docker without this, although works on Debian, Ubuntu and Alpine without
+export LINES="${LINES:-25}"
+export COLUMNS="${COLUMNS:-80}"
+
 test_help(){
     local prog="$1"
+
+    if [ "$EXT" != "all" -a "$EXT" != "${prog##*.}" ]; then
+        return 0
+    fi
 
     optional_cmd=""
     # for Travis CI running in a perlbrew we must use the perl we find

@@ -13,14 +13,13 @@
 #                            RPM Package Requirements
 # ============================================================================ #
 
+git
 perl
 python
 python-pip
 python-setuptools
 
 epel-release
-perl-libwww-perl
-perl-DBD-MySQL
 tar
 wget
 which
