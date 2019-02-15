@@ -20,6 +20,7 @@ perl-Digest
 perl-Digest-MD5
 perl-Digest-SHA
 perl-Digest-SHA1
+perl-IO-Tty
 perl-LWP-Authen-Negotiate
 perl-Socket6
 perl-URI
