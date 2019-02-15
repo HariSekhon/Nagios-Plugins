@@ -466,17 +466,17 @@ push:
 docker-alpine:
 	docker run -ti -v $$PWD:/pl alpine sh -c 'apk add --no-cache make && cd /pl && make build test'
 
-# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/nagios-plugins:debian
+# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/debian-github
 .PHONY: docker-debian
 docker-debian:
-	docker run -ti -v $$PWD:/pl debian sh -c 'apk add --no-cache make && cd /pl && make build test'
+	docker run -ti -v $$PWD:/pl debian sh -c 'cd /pl && apt-get update && apt-get install -y make && make build test'
 
-# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/nagios-plugins:centos
+# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/centos-github
 .PHONY: docker-centos
 docker-centos:
-	docker run -ti -v $$PWD:/pl centos sh -c 'apk add --no-cache make && cd /pl && make build test'
+	docker run -ti -v $$PWD:/pl centos sh -c 'cd /pl && yum install -y make && make build test'
 
-# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/nagios-plugins:ubuntu
+# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/ubuntu-github
 .PHONY: docker-ubuntu
 docker-ubuntu:
-	docker run -ti -v $$PWD:/pl ubuntu sh -c 'apk add --no-cache make && cd /pl && make build test'
+	docker run -ti -v $$PWD:/pl ubuntu sh -c 'cd /pl && apt-get update && apt-get install -y make && make build test'
