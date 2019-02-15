@@ -194,7 +194,8 @@ python-libs:
 
 	# only install pip packages not installed via system packages
 	#$(SUDO_PIP) pip install --upgrade -r requirements.txt
-	@bash-tools/python_pip_install_if_absent.sh requirements.txt
+	#@bash-tools/python_pip_install_if_absent.sh requirements.txt
+	$(SUDO_PIP) pip install -r requirements.txt
 
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	# in requirements.txt now
