@@ -464,7 +464,7 @@ push:
 # For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/nagios-plugins:alpine
 .PHONY: docker-alpine
 docker-alpine:
-	docker run -ti -v $$PWD:/pl alpine /pl/bash-tools/exec-interactive.sh 'apk add --no-cache make && cd /pl && make build test'
+	docker run -ti -v $$PWD:/pl alpine sh /pl/bash-tools/exec-interactive.sh 'apk add --no-cache make && cd /pl && make build test'
 
 # For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/debian-github
 .PHONY: docker-debian
