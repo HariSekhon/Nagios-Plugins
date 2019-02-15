@@ -48,7 +48,6 @@ Class::Accessor
 #ExtUtils::Config
 #ExtUtils::Helpers
 #ExtUtils::InstallPaths
-#IO::Pty
 #Const::Fast
 #List::MoreUtils
 #List::MoreUtils::XS
