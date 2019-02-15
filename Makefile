@@ -460,3 +460,8 @@ mount-ubuntu: docker-mount-ubuntu
 .PHONY: push
 push:
 	git push
+
+# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/alpine-github
+.PHONY: docker-alpine
+docker-alpine:
+	docker run -ti -v $$PWD:/pl alpine sh -c 'apk add --no-cache make && cd /pl && make build test'
