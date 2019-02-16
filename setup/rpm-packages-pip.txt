@@ -15,6 +15,7 @@
 
 GitPython
 MySQL-python
+pytest
 python-boto
 python-dns
 python-humanize
