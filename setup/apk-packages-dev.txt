@@ -17,7 +17,7 @@ alpine-sdk
 expat-dev
 krb5-dev
 #libxml2-dev
-#mariadb-dev
+mariadb-dev
 # conflicts with libressl-dev which is required by mariadb-dev
 #openssl-dev
 #libressl-dev
