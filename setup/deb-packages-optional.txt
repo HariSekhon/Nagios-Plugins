@@ -17,9 +17,15 @@
 
 python-mysqldb
 python3-mysqldb
-libmysqlclient-dev
-libmariadbd-dev
-# for Ubuntu builds otherwise autoremove in docker removes this so mysql python library doesn't work
-libmariadbclient18
+
 # for check_whois.pl - looks like this has been removed from repos :-/
 jwhois
+
+# Ubuntu 12 Precise which is still used in Travis CI uses libmysqlclient-dev, but Debian 9 Stretch and Ubuntu 16 Xenial
+# use libmariadbd-dev so this must now be handled separately in Makefile to try installing
+# libmariadbd-dev and if failing then try falling back to libmysqlclient-dev
+libmysqlclient-dev
+libmariadbd-dev
+
+# for Ubuntu builds otherwise autoremove in docker removes this so mysql python library doesn't work
+libmariadbclient18
