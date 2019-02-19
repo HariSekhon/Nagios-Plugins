@@ -64,6 +64,7 @@ perl:
 
 	$(MAKE) init
 	if [ -z "$(CPANM)" ]; then make perl; exit $?; fi
+	$(MAKE) system-packages
 	$(MAKE) perl-libs
 
 .PHONY: perl-libs
@@ -136,6 +137,8 @@ python:
 
 	$(MAKE) init
 	if [ -z "$(CPANM)" ]; then make perl; exit $?; fi
+	$(MAKE) system-packages
+	$(MAKE) perl-libs
 	$(MAKE) python-libs
 
 .PHONY: python-libs
