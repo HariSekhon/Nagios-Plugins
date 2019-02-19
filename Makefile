@@ -93,10 +93,7 @@ perl-libs:
 	# You may need to set this to get the DBD::mysql module to install if you have mysql installed locally to /usr/local/mysql
 	#export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/usr/local/mysql/lib/"
 	
-	@echo "Installing CPAN Modules"
-	yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' setup/cpan-requirements.txt`
-	@echo
-	@bash-tools/perl_cpanm_install_if_absent.sh setup/cpan-requirements-packaged.txt
+	@bash-tools/perl_cpanm_install_if_absent.sh setup/cpan-requirements.txt setup/cpan-requirements-packaged.txt
 	
 	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
 	#
