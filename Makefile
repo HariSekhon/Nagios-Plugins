@@ -12,41 +12,11 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
-export PATH := $(PATH):/usr/local/bin
-
-CPANM = cpanm
-
-SUDO := sudo
-SUDO_PIP := sudo -H
-SUDO_PERL := sudo
-
-ifdef PERLBREW_PERL
-	# can't put this here otherwise gets error - "commands commence before first target.  Stop."
-	#@echo "Perlbrew environment detected, not calling sudo"
-	SUDO_PERL =
+ifneq ("$(wildcard bash-tools/Makefile.in)", "")
+	include bash-tools/Makefile.in
 endif
 
-# Travis has custom python install earlier in $PATH even in Perl builds so need to install PyPI modules locally to non-system python otherwise they're not found by programs.
-# Perms not set correctly on custom python install in Travis perl build so workaround is done to chown to travis user in .travis.yml
-# Better than modifying $PATH to put /usr/bin first which is likely to affect many other things including potentially not finding the perlbrew installation first
-# Looks like Perl travis builds are now using system Python - do not use TRAVIS env
-ifdef VIRTUAL_ENV
-	#@echo "Virtual Env / Conda detected, not calling sudo"
-	SUDO_PIP :=
-endif
-ifdef CONDA_DEFAULT_ENV
-	SUDO_PIP :=
-endif
-
-# must come after to reset SUDO_PERL/SUDO_PIP to blank if root
-# EUID /  UID not exported in Make
-# USER not populated in Docker
-ifeq '$(shell id -u)' '0'
-	#@echo "root UID detected, not calling sudo"
-	SUDO :=
-	SUDO_PERL :=
-	SUDO_PIP :=
-endif
+DOCKER_IMAGE := harisekhon/nagios-plugins
 
 # ===================
 # bootstrap commands:
@@ -57,11 +27,11 @@ endif
 
 # Debian / Ubuntu:
 #
-#   apt-get update && apt-get install -y make git && git clone https://github.com/harisekhon/nagios-plugins && cd nagios-plugins && make
+#   apt-get update && apt-get install -y git make && git clone https://github.com/harisekhon/nagios-plugins && cd nagios-plugins && make
 
 # RHEL / CentOS:
 #
-#   yum install -y make git && git clone https://github.com/harisekhon/nagios-plugins && cd nagios-plugins && make
+#   yum install -y git make && git clone https://github.com/harisekhon/nagios-plugins && cd nagios-plugins && make
 
 # ===================
 
@@ -72,7 +42,9 @@ build :
 	@echo Nagios Plugins Build
 	@echo ====================
 
+	$(MAKE) init
 	$(MAKE) common
+	$(MAKE) system-packages
 	$(MAKE) perl-libs
 	$(MAKE) python-libs
 	@echo
@@ -80,26 +52,14 @@ build :
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins)"
 
-.PHONY: quick
-quick:
-	QUICK=1 $(MAKE) build
+.PHONY: init
+init:
+	#ifndef (MAKE_INCLUDED)
+	#	include bash-tools/Makefile.in
+	#endif
+	git submodule update --init
+	if [ -z "${CPANM}" ]; then make ${ARGS}; exit $?; fi
 
-.PHONY: common
-common: system-packages submodules
-	:
-
-.PHONY: submodules
-submodules:
-	git submodule init
-	git submodule update --recursive
-
-.PHONY: system-packages
-system-packages:
-	if [ -x /sbin/apk ];        then $(MAKE) apk-packages; fi
-	if [ -x /usr/bin/apt-get ]; then $(MAKE) apt-packages; fi
-	if [ -x /usr/bin/yum ];     then $(MAKE) yum-packages; fi
-	if [ -x /usr/local/bin/brew -a `uname` = Darwin ]; then $(MAKE) homebrew-packages; fi
-	
 .PHONY: perl
 perl:
 	@echo ===========================
@@ -186,8 +146,8 @@ python-libs:
 
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
-	$(SUDO) easy_install -U setuptools || $(SUDO_PIP) easy_install -U setuptools || :
-	$(SUDO) easy_install pip || :
+	#$(SUDO) easy_install -U setuptools || $(SUDO_PIP) easy_install -U setuptools || :
+	#$(SUDO) easy_install pip || :
 
 	# fixes bug in cffi version detection when installing requests-kerberos
 	$(SUDO_PIP) pip install --upgrade pip
@@ -231,74 +191,6 @@ python-libs:
 	@echo
 	@echo
 
-.PHONY: elasticsearch2
-elasticsearch2:
-	$(SUDO_PIP) pip install --upgrade 'elasticsearch>=2.0.0,<3.0.0'
-	$(SUDO_PIP) pip install --upgrade 'elasticsearch-dsl>=2.0.0,<3.0.0'
-
-.PHONY: apk-packages
-apk-packages:
-	$(SUDO) apk update
-	$(SUDO) apk add `sed 's/#.*//; /^[[:space:]]*$$/d' setup/apk-packages.txt setup/apk-packages-dev.txt`
-	for package in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/apk-packages-pip.txt`; do $(SUDO) apk add "$$package" || : ; done
-
-.PHONY: apk-packages-remove
-apk-packages-remove:
-	cd lib && $(MAKE) apk-packages-remove
-	$(SUDO) apk del `sed 's/#.*//; /^[[:space:]]*$$/d' setup/apk-packages-dev.txt` || :
-	$(SUDO) rm -fr /var/cache/apk/*
-
-.PHONY: apt-packages
-apt-packages:
-	$(SUDO) apt-get update
-	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages.txt setup/deb-packages-dev.txt`
-	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-cpan.txt` || :
-	$(SUDO) apt-get install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-optional.txt` || :
-	for package in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-pip.txt`; do $(SUDO) apt-get install -y "$$package" || : ; done
-
-.PHONY: apt-packages-remove
-apt-packages-remove:
-	cd lib && $(MAKE) apt-packages-remove
-	$(SUDO) apt-get purge -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/deb-packages-dev.txt`
-	$(SUDO) apt-get purge -y libmariadbd-dev || :
-	$(SUDO) apt-get purge -y libmysqlclient-dev || :
-
-.PHONY: homebrew-packages
-homebrew-packages:
-	# Sudo is not required as running Homebrew as root is extremely dangerous and no longer supported as Homebrew does not drop privileges on installation you would be giving all build scripts full access to your system
-	# Fails if any of the packages are already installed, ignore and continue - if it's a problem the latest build steps will fail with missing headers
-	brew install `sed 's/#.*//; /^[[:space:]]*$$/d' setup/brew-packages.txt` || :
-
-.PHONY: yum-packages
-yum-packages:
-	# to fetch and untar ZooKeeper, plus wget epel rpm
-	rpm -q wget || yum install -y wget
-	
-	# epel-release is in the list of rpms to install via yum in setup/rpm-packages.txt but this is a more backwards compatible method of installing that will work on older versions of RHEL / CentOS as well so is left here for compatibility purposes
-	#
-	# python-pip requires EPEL, so try to get the correct EPEL rpm
-	# this doesn't work for some reason CentOS 5 gives 'error: skipping https://dl.fedoraproject.org/pub/epel/epel-release-latest-5.noarch.rpm - transfer failed - Unknown or unexpected error'
-	# must instead do wget
-	rpm -q epel-release      || yum install -y epel-release || { wget -t 5 --retry-connrefused -O /tmp/epel.rpm "https://dl.fedoraproject.org/pub/epel/epel-release-latest-`grep -o '[[:digit:]]' /etc/*release | head -n1`.noarch.rpm" && $(SUDO) rpm -ivh /tmp/epel.rpm && rm -f /tmp/epel.rpm; }
-
-	# installing packages individually to catch package install failure, otherwise yum succeeds even if it misses a package
-	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages.txt setup/rpm-packages-dev.txt`; do rpm -q $$x || $(SUDO) yum install -y $$x; done
-	$(SUDO) yum install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages-cpan.txt` || :
-
-	yum install -y `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages-pip.txt` || :
-
-	# breaks on CentOS 7.0 on Docker, fakesystemd conflicts with systemd, 7.2 works though
-	rpm -q cyrus-sasl-devel || $(SUDO) yum install -y cyrus-sasl-devel || :
-
-	# for check_yum.pl / check_yum.py:
-	# can't do this in setup/yum-packages.txt as one of these two packages will be missing depending on the RHEL version
-	rpm -q yum-security yum-plugin-security || $(SUDO) yum install -y yum-security yum-plugin-security
-
-.PHONY: yum-packages-remove
-yum-packages-remove:
-	cd lib && $(MAKE) yum-packages-remove
-	for x in `sed 's/#.*//; /^[[:space:]]*$$/d' setup/rpm-packages-dev.txt`; do if rpm -q $$x; then $(SUDO) yum remove -y $$x; fi; done
-
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
 # doesn't build on Mac < 3.4.7 / 3.5.1 / 3.6.0 but the others are in the public mirrors yet
 # https://issues.apache.org/jira/browse/ZOOKEEPER-2049
@@ -335,10 +227,6 @@ jar-plugins:
 	#wget -c -t 5 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/releases/download/latest/check_kafka.jar
 	for x in {1..6}; do wget -c https://github.com/HariSekhon/nagios-plugin-kafka/releases/download/latest/check_kafka.jar && break; sleep 10; done
 
-.PHONY: sonar
-sonar:
-	sonar-scanner
-
 .PHONY: lib-test
 lib-test:
 	cd lib && $(MAKE) test
@@ -358,26 +246,6 @@ basic-test: lib-test
 install:
 	@echo "No installation needed, just add '$(PWD)' to your \$$PATH and Nagios commands.cfg"
 
-.PHONY: update
-update: update2 build
-	:
-
-.PHONY: update2
-update2: update-no-recompile
-	:
-
-.PHONY: update-no-recompile
-update-no-recompile:
-	git pull
-	git submodule update --init --recursive
-
-.PHONY: update-submodules
-update-submodules:
-	git submodule update --init --remote
-.PHONY: updatem
-updatem: update-submodules
-	:
-
 .PHONY: clean
 clean:
 	cd lib && $(MAKE) clean
@@ -394,85 +262,3 @@ clean-zookeeper:
 deep-clean: clean clean-zookeeper
 	cd lib && $(MAKE) deep-clean
 	cd pylib && $(MAKE) deep-clean
-
-.PHONY: docker-run
-docker-run:
-	docker run -ti --rm harisekhon/nagios-plugins ${ARGS}
-
-.PHONY: run
-run: docker-run
-	:
-
-.PHONY: docker-mount
-docker-mount:
-	# --privileged=true is needed to be able to:
-	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
-	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins bash -c "cd /pl; exec bash"
-
-.PHONY: docker-mount-alpine
-docker-mount-alpine:
-	# --privileged=true is needed to be able to:
-	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
-	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins:alpine bash -c "cd /pl; exec bash"
-
-.PHONY: docker-mount-debian
-docker-mount-debian:
-	# --privileged=true is needed to be able to:
-	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
-	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins:debian bash -c "cd /pl; exec bash"
-
-.PHONY: docker-mount-centos
-docker-mount-centos:
-	# --privileged=true is needed to be able to:
-	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
-	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins:centos bash -c "cd /pl; exec bash"
-
-.PHONY: docker-mount-ubuntu
-docker-mount-ubuntu:
-	# --privileged=true is needed to be able to:
-	# mount -t tmpfs -o size=1m tmpfs /mnt/ramdisk
-	docker run -ti --rm --privileged=true -v $$PWD:/pl harisekhon/nagios-plugins:ubuntu bash -c "cd /pl; exec bash"
-
-.PHONY: mount
-mount: docker-mount
-	:
-
-.PHONY: mount-alpine
-mount-alpine: docker-mount-alpine
-	:
-
-.PHONY: mount-debian
-mount-debian: docker-mount-debian
-	:
-
-.PHONY: mount-centos
-mount-centos: docker-mount-centos
-	:
-
-.PHONY: mount-ubuntu
-mount-ubuntu: docker-mount-ubuntu
-	:
-
-.PHONY: push
-push:
-	git push
-
-# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/nagios-plugins:alpine
-.PHONY: docker-alpine
-docker-alpine:
-	bash-tools/docker_mount_build_exec.sh alpine
-
-# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/debian-github
-.PHONY: docker-debian
-docker-debian:
-	bash-tools/docker_mount_build_exec.sh debian
-
-# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/centos-github
-.PHONY: docker-centos
-docker-centos:
-	bash-tools/docker_mount_build_exec.sh centos
-
-# For quick testing only - for actual Dockerfile builds see https://hub.docker.com/r/harisekhon/ubuntu-github
-.PHONY: docker-ubuntu
-docker-ubuntu:
-	bash-tools/docker_mount_build_exec.sh ubuntu
