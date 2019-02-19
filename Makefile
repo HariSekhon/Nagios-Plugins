@@ -43,7 +43,7 @@ build :
 	@echo ====================
 
 	$(MAKE) init
-	$(MAKE) common
+	if [ -z "$(CPANM)" ]; then make; exit $?; fi
 	$(MAKE) system-packages
 	$(MAKE) perl-libs
 	$(MAKE) python-libs
@@ -54,11 +54,7 @@ build :
 
 .PHONY: init
 init:
-	#ifndef (MAKE_INCLUDED)
-	#	include bash-tools/Makefile.in
-	#endif
 	git submodule update --init
-	if [ -z "${CPANM}" ]; then make ${ARGS}; exit $?; fi
 
 .PHONY: perl
 perl:
@@ -66,7 +62,8 @@ perl:
 	@echo "Nagios Plugins Build (Perl)"
 	@echo ===========================
 
-	$(MAKE) common
+	$(MAKE) init
+	if [ -z "$(CPANM)" ]; then make perl; exit $?; fi
 	$(MAKE) perl-libs
 
 .PHONY: perl-libs
@@ -137,7 +134,8 @@ python:
 	@echo "Nagios Plugins Build (Python)"
 	@echo =============================
 
-	$(MAKE) common
+	$(MAKE) init
+	if [ -z "$(CPANM)" ]; then make perl; exit $?; fi
 	$(MAKE) python-libs
 
 .PHONY: python-libs
