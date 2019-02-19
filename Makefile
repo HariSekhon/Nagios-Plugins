@@ -54,7 +54,7 @@ build :
 
 .PHONY: init
 init:
-	git submodule update --init
+	git submodule update --init --recursive
 
 .PHONY: perl
 perl:
