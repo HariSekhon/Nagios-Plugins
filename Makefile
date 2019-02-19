@@ -92,21 +92,7 @@ perl-libs:
 
 	# You may need to set this to get the DBD::mysql module to install if you have mysql installed locally to /usr/local/mysql
 	#export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/usr/local/mysql/lib/"
-
-	@#@ [ $$EUID -eq 0 ] || { echo "error: must be root to install cpan modules"; exit 1; }
 	
-	# add -E to sudo to preserve http proxy env vars or run this manually if needed (only works on Mac)
-	
-	which cpanm || { yes "" | $(SUDO_PERL) cpan App::cpanminus; }
-	@echo
-	# Workaround for Mac OS X not finding the OpenSSL libraries when building
-	if [ -d /usr/local/opt/openssl/include -a \
-	     -d /usr/local/opt/openssl/lib     -a \
-	     `uname` = Darwin ]; then \
-		 @echo "Installing Crypt::SSLeay with local openssl library locations"; \
-	     yes "" | $(SUDO_PERL) sudo OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib $(CPANM) --notest Crypt::SSLeay; \
-	fi
-	@echo
 	@echo "Installing CPAN Modules"
 	yes "" | $(SUDO_PERL) $(CPANM) --notest `sed 's/#.*//; /^[[:space:]]*$$/d;' setup/cpan-requirements.txt`
 	@echo
