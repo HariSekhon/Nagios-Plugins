@@ -16,10 +16,13 @@
 # Installed if available in repos, otherwise installed via cpanm
 
 # libio-pty-perl
+libdbd-mysql-perl
 libdigest-crc-perl
+libdigest-perl-md5-perl
 libdigest-sha-perl
 libio-socket-ssl-perl
 liblwp-authen-negotiate-perl
-liburi-escape-xs-perl
-libdigest-perl-md5-perl
 libsms-aql-perl
+liburi-escape-xs-perl
+libwww-perl
+
