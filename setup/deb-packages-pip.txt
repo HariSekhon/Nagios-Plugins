@@ -21,3 +21,6 @@ python-humanize
 python-jenkins
 python-mysqldb
 python-thrift
+
+# for ndg-httpsclient
+python-pyasn1
