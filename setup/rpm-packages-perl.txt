@@ -14,6 +14,8 @@
 # ============================================================================ #
 
 perl
+perl-CPAN
+perl-App-cpanminus
 
 # ethtool for ./check_linux_interface.pl
 ethtool
