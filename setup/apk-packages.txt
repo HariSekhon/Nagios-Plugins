@@ -15,8 +15,6 @@
 
 bash
 ca-certificates
-# ethtool needed for ./check_linux_interface.pl
-ethtool
 
 # used for tests
 curl
@@ -29,11 +27,6 @@ jq
 git
 
 make
-acf-openssl
-perl
-perl-utils
-perl-doc
 py-mysqldb
 py2-pip
 #ruby
-jwhois
