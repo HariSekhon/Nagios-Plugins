@@ -1,0 +1,29 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                         RPM Perl Package Requirements
+# ============================================================================ #
+
+perl
+
+# ethtool for ./check_linux_interface.pl
+ethtool
+net-tools
+
+# for check_ssl_cert.pl
+openssl
+
+# for check_whois.pl
+jwhois
+
+# for timezone checks
+tzdata
