@@ -15,9 +15,6 @@
 
 git
 perl
-python
-python-pip
-python-setuptools
 
 epel-release
 tar
@@ -35,12 +32,6 @@ net-tools
 
 # used for tests
 curl
-
-# used to parse api.github.com repo contents for downloading find_active_*.py
-jq
-
-# for ping mode of find_active_server.py
-iputils
 
 # for check_ssl_cert.pl
 openssl
