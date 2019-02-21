@@ -13,7 +13,6 @@
 #                      RPM Python Dev Package Requirements
 # ============================================================================ #
 
-python-devel
 snappy-devel
 
 # needed for ndg-httpsclient upgrade
