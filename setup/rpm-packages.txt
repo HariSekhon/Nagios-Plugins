@@ -17,7 +17,6 @@ git
 
 epel-release
 tar
-wget
 which
 
 # needed to fetch the library submodule at end of build
