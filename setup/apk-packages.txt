@@ -17,7 +17,6 @@ bash
 ca-certificates
 # ethtool needed for ./check_linux_interface.pl
 ethtool
-gcc
 
 # used for tests
 curl
