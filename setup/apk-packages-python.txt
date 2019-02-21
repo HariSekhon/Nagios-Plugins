@@ -1,0 +1,19 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                       Alpine Python Package Requirements
+# ============================================================================ #
+
+# used to parse api.github.com repo contents for downloading find_active_*.py
+jq
+
+py2-pip
