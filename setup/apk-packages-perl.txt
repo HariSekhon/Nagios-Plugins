@@ -16,7 +16,10 @@
 perl
 perl-utils
 perl-doc
+
 jwhois
+
 # ethtool needed for ./check_linux_interface.pl
 ethtool
+
 acf-openssl
