@@ -42,14 +42,6 @@ openssl
 # Class::Accessor pre-packaged
 #libclass-accessor-perl
 
-# has become python3-jenkins on ubuntu now - leave to pip
-#python-jenkins
-
-# for Cassandra's Python driver
-#libev4
-#libev-dev
-#libsnappy-dev
-
 # for check_whois.pl - looks like this has been removed from repos :-/
 # trying in Makefile with error suppression
 #jwhois
