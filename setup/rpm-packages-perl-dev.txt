@@ -13,5 +13,3 @@
 #                       RPM Perl Dev Package Requirements
 # ============================================================================ #
 
-perl-CPAN
-perl-App-cpanminus
