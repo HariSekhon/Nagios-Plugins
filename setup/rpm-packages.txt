@@ -14,7 +14,6 @@
 # ============================================================================ #
 
 git
-perl
 
 epel-release
 tar
@@ -26,18 +25,5 @@ which
 # only available on EPEL in CentOS 5
 git
 
-# ethtool for ./check_linux_interface.pl
-ethtool
-net-tools
-
 # used for tests
 curl
-
-# for check_ssl_cert.pl
-openssl
-
-# for check_whois.pl
-jwhois
-
-# for timezone checks
-tzdata
