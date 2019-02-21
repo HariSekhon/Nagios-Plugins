@@ -20,8 +20,5 @@ git
 # used for tests
 curl
 
-# used to parse api.github.com repo contents for downloading find_active_*.py
-jq
-
 # for 'make test'
 procps
