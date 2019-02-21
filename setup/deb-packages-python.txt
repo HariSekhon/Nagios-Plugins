@@ -1,0 +1,22 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  License: see accompanying Hari Sekhon LICENSE file
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+# ============================================================================ #
+#                        Deb Python Package Requirements
+# ============================================================================ #
+
+python
+python-pip
+python-setuptools
+
+# either of these should do to ensure ping command is present for find_active_server.py's ping mode
+iputils-ping
+#inetutils-ping
