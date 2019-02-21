@@ -13,15 +13,9 @@
 #                            Deb Package Requirements
 # ============================================================================ #
 
-perl
-
 # needed to fetch the library submodule at end of build
 # and also for check_git_checkout_branch.pl and Git-Python / check_git_checkout_branch.py
 git
-
-# ethtool needed for ./check_linux_interface.pl
-ethtool
-net-tools
 
 # used for tests
 curl
@@ -29,15 +23,5 @@ curl
 # used to parse api.github.com repo contents for downloading find_active_*.py
 jq
 
-# for check_ssl_cert.pl
-openssl
-
-# for check_whois.pl - looks like this has been removed from repos :-/
-# trying in Makefile with error suppression
-#jwhois
-
 # for 'make test'
 procps
-
-# for timezone checks
-tzdata
