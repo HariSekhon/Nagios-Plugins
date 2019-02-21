@@ -27,3 +27,11 @@ python2-psutil
 
 #python-krbV
 #python-linecache2
+
+# for ndg-httpsclient
+python-pyasn1
+
+# for Cassandra's Python driver
+#libev
+#libev-devel
+#snappy-devel
