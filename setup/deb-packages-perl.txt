@@ -13,7 +13,10 @@
 #                         Deb Perl Package Requirements
 # ============================================================================ #
 
+# contains cpan
 perl
+
+cpanminus
 
 # ethtool needed for ./check_linux_interface.pl
 ethtool
