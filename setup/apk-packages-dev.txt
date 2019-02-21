@@ -22,7 +22,6 @@ mariadb-dev
 # conflicts with libressl-dev which is required by mariadb-dev
 #openssl-dev
 #libressl-dev
-perl-dev
 #postgresql-dev
 wget
 # needed to build Net::SSLeay
