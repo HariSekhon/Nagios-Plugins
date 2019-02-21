@@ -22,17 +22,8 @@ gcc
 gcc-c++
 libev-devel
 
-# needed for ndg-httpsclient upgrade
-libffi-devel
-
 # to build DBD::mysql if building from CPAN
 mysql-devel
 
 # needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 openssl-devel
-
-python-devel
-snappy-devel
-
-# needed to build pyhs2
-# libgsasl-devel saslwrapper-devel
