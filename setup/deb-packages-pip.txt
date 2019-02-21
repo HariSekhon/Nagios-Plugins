@@ -24,3 +24,9 @@ python-thrift
 
 # for ndg-httpsclient
 python-pyasn1
+
+# for Cassandra's Python driver
+#libev4
+#libev-dev
+#libsnappy-dev
+
