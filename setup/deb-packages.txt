@@ -39,9 +39,6 @@ iputils-ping
 # for check_ssl_cert.pl
 openssl
 
-# Class::Accessor pre-packaged
-#libclass-accessor-perl
-
 # for check_whois.pl - looks like this has been removed from repos :-/
 # trying in Makefile with error suppression
 #jwhois
