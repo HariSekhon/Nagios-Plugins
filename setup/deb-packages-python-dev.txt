@@ -13,8 +13,6 @@
 #                          Deb Python Dev Package Requirements
 # ============================================================================ #
 
-python-dev
-
 # needed for ndg-httpsclient upgrade
 libffi-dev
 
