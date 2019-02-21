@@ -26,6 +26,10 @@ Kafka
 Net::SSH::Expect
 Ref::Util
 
+# packaged version is not new enough:
+# ./check_mongodb_master.pl:  CRITICAL: IO::Socket::IP version 0.32 required--this is only version 0.21 at /usr/local/share/perl5/MongoDB/_Link.pm line 53.
+IO::Socket::IP
+
 # needed for check_hbase_cell.pl on CentOS
 Class::Accessor
 
