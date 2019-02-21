@@ -39,9 +39,6 @@ iputils-ping
 # for check_ssl_cert.pl
 openssl
 
-# for ndg-httpsclient
-python-pyasn1
-
 # Class::Accessor pre-packaged
 #libclass-accessor-perl
 
