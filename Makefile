@@ -95,6 +95,10 @@ perl-libs:
 	
 	@bash-tools/perl_cpanm_install_if_absent.sh setup/cpan-requirements.txt setup/cpan-requirements-packaged.txt
 	
+	# packaged version is not new enough:
+	# ./check_mongodb_master.pl:  CRITICAL: IO::Socket::IP version 0.32 required--this is only version 0.21 at /usr/local/share/perl5/MongoDB/_Link.pm line 53.
+	$(SUDO_PERL) $(CPANM) --notest IO::Socket::IP
+
 	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
 	#
 	# This now fails with permission denied even with sudo to root on Mac OSX Sierra due to System Integrity Protection:
