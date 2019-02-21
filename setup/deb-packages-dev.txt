@@ -22,9 +22,6 @@ libev-dev
 # for XML::Simple building
 libexpat1-dev
 
-# needed for ndg-httpsclient upgrade
-libffi-dev
-
 # for LWP::Authenticate - prompts for realm + KDC, use libkrb5-dev instead
 #krb5-config
 libkrb5-dev
@@ -32,6 +29,3 @@ libkrb5-dev
 # needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 libssl-dev
 libsasl2-dev
-
-#libsnappy-dev
-python-dev
