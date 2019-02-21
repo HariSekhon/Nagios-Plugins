@@ -37,12 +37,3 @@ py-mysqldb
 py2-pip
 #ruby
 jwhois
-
-perl-dbd-mysql
-perl-digest-md5
-perl-digest-sha1
-perl-libwww
-perl-lwp-protocol-https
-perl-lwp-useragent-determined
-perl-socket6
-perl-uri
