@@ -13,6 +13,7 @@
 #                        Alpine Dev Package Requirements
 # ============================================================================ #
 
+gcc
 alpine-sdk
 expat-dev
 krb5-dev
