@@ -18,5 +18,4 @@ jq
 mysql
 openssl
 snappy
-wget
 whois
