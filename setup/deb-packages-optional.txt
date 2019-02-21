@@ -28,6 +28,7 @@ jwhois
 # libmariadbd-dev and if failing then try falling back to libmysqlclient-dev
 libmysqlclient-dev
 libmariadbd-dev
+libmariadb-dev-compat
 
 # for Ubuntu builds otherwise autoremove in docker removes this so mysql python library doesn't work
 libmariadbclient18
