@@ -21,7 +21,7 @@ Checks:
 4. Subject Alternative Names supported by certificate (optional)
 5. SNI - Server Name Identification - supply hostname identifier for servers that contain multiple certificates to tell the server which SSL certificate to use (optional)";
 
-$VERSION = "0.9.14";
+$VERSION = "0.9.15";
 
 use warnings;
 use strict;
@@ -127,7 +127,9 @@ unless(defined($CApath)){
     unless(defined($CApath)){
         usage "CApath to root certs was not specified and could not be found from openssl binary";
     }
-    if($CApath eq "/usr/lib/ssl"){
+    # fix for Debian / Alpine systems openssl binaries points to the base dir instead of the certs dir
+    #if($CApath eq "/usr/lib/ssl" or $CApath eq "/etc/ssl"){
+    if($CApath =~ /\/ssl\/?$/){
         $CApath = "$CApath/certs/";
     }
     $CApath = validate_dir($CApath, "CA path");
