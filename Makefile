@@ -123,7 +123,7 @@ python:
 	@echo =============================
 
 	$(MAKE) init
-	if [ -z "$(PIP)" ]; then make python; exit $?; fi
+	if [ -z "$(CPANM)" ]; then make python; exit $?; fi
 	$(MAKE) system-packages
 	$(MAKE) python-libs
 
