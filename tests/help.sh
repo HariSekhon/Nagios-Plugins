@@ -29,10 +29,6 @@ section "Testing --help for $EXT programs"
 
 help_start_time="$(start_timer)"
 
-# Breaks on CentOS Docker without this, although works on Debian, Ubuntu and Alpine without
-export LINES="${LINES:-25}"
-export COLUMNS="${COLUMNS:-80}"
-
 test_help(){
     local prog="$1"
 

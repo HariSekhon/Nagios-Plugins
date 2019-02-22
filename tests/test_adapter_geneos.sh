@@ -23,10 +23,6 @@ cd "$srcdir/..";
 
 section "G e n e o s   A d a p t e r"
 
-# Breaks on CentOS Docker without this, although works on Debian, Ubuntu and Alpine without
-export LINES="${LINES:-25}"
-export COLUMNS="${COLUMNS:-80}"
-
 # Try to make these local tests with no dependencies for simplicity
 
 run_grep '^echo,OK,test message,10,5,1001$' ./adapter_geneos.py echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1001'

@@ -25,6 +25,10 @@ cd "$srcdir/..";
 
 section "Running Nagios Plugins ALL"
 
+# Breaks on CentOS Docker without this, although works on Debian, Ubuntu and Alpine without
+export LINES="${LINES:-25}"
+export COLUMNS="${COLUMNS:-80}"
+
 declare_if_inside_docker
 
 nagios_plugins_start_time="$(start_timer)"
