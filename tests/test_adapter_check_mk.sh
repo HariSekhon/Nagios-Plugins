@@ -23,6 +23,10 @@ cd "$srcdir/..";
 
 section "C h e c k   M K   A d a p t e r"
 
+# Breaks on CentOS Docker without this, although works on Debian, Ubuntu and Alpine without
+export LINES="${LINES:-25}"
+export COLUMNS="${COLUMNS:-80}"
+
 # Try to make these local tests with no dependencies for simplicity
 
 run_grep '^0 ' ./adapter_check_mk.py --name 'basic test' echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'
