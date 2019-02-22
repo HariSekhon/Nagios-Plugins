@@ -123,9 +123,8 @@ python:
 	@echo =============================
 
 	$(MAKE) init
-	if [ -z "$(CPANM)" ]; then make perl; exit $?; fi
+	if [ -z "$(PIP)" ]; then make python; exit $?; fi
 	$(MAKE) system-packages
-	$(MAKE) perl-libs
 	$(MAKE) python-libs
 
 .PHONY: python-libs
