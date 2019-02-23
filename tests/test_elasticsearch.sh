@@ -26,7 +26,7 @@ section "E l a s t i c s e a r c h"
 # Elasticsearch 6.0+ only available on new docker.elastic.co which uses full sub-version x.y.z and does not have x.y tags
 # Any version given as x.y.z will use docker.elastic.co repo, otherwise old dockerhub images
 # Platinum edition with X-Pack is only available from 6.x onwards from docker.elastic.co
-export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-1.3 1.4 1.5 1.6 1.7 2.0 2.1 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5 5.6  5.2.1 5.3.3 5.4.3 5.5.3 5.6.8 6.0.1 6.1.4 6.2.4 6.3.2 6.4.2  6.0.1-x-pack 6.1.4-x-pack 6.2.4-x-pack }}"  # latest tag was removed from dockerhub :-/
+export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-1.3 1.4 1.5 1.6 1.7 2.0 2.1 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5 5.6  5.2.1 5.3.3 5.4.3 5.5.3 5.6.8 6.0.1 6.1.4 6.2.4 6.3.2 6.4.3 6.5.4 6.6.1  6.0.1-x-pack 6.1.4-x-pack 6.2.4-x-pack }}"  # latest tag was removed from dockerhub :-/
 
 ELASTICSEARCH_HOST="${DOCKER_HOST:-${ELASTICSEARCH_HOST:-${HOST:-localhost}}}"
 ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST##*/}"
@@ -318,13 +318,36 @@ elasticsearch_tests(){
 
     run_conn_refused $perl -T ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
 
-    run $perl -T ./check_elasticsearch_pending_tasks.pl -v
-
-    run_conn_refused $perl -T ./check_elasticsearch_pending_tasks.pl -v
 
     run $perl -T ./check_elasticsearch_shards_state_detail.pl -v
 
     run_conn_refused $perl -T ./check_elasticsearch_shards_state_detail.pl -v
+
+    run $perl -T ./check_elasticsearch_tasks_pending.pl -v
+
+    run_conn_refused $perl -T ./check_elasticsearch_tasks_pending.pl -v
+
+    run ./check_elasticsearch_tasks_slow.py
+
+    run ./check_elasticsearch_tasks_slow.py --cluster-tasks
+
+    run ./check_elasticsearch_tasks_slow.py --search-tasks
+
+    run_usage ./check_elasticsearch_tasks_slow.py --cluster-tasks --search-tasks
+
+    run_fail 1 ./check_elasticsearch_tasks_slow.py --warning 0.1
+
+    run_fail 1 ./check_elasticsearch_tasks_slow.py --warning 0.1 --cluster-tasks
+
+    run ./check_elasticsearch_tasks_slow.py --warning 0.1 --search-tasks
+
+    run_fail 2 ./check_elasticsearch_tasks_slow.py --warning 0.1 --critical 0.1
+
+    run_fail 2 ./check_elasticsearch_tasks_slow.py --warning 0.1 --critical 0.1 --cluster-tasks
+
+    run ./check_elasticsearch_tasks_slow.py --warning 0.1 --critical 0.1 --search-tasks
+
+    run_conn_refused ./check_elasticsearch_tasks_slow.py
 }
 
 run_test_versions Elasticsearch
