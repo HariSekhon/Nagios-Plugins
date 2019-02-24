@@ -53,7 +53,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckElasticsearchTasksSlow(RestNagiosPlugin):
@@ -65,7 +65,7 @@ class CheckElasticsearchTasksSlow(RestNagiosPlugin):
         # super().__init__()
         self.name = 'Elasticsearch'
         self.default_port = 9200
-        self.path = '/_tasks'
+        self.path = '/_tasks?'
         self.search_type = ''
         self.auth = 'optional'
         self.json = True
@@ -87,11 +87,15 @@ class CheckElasticsearchTasksSlow(RestNagiosPlugin):
         if search_tasks and cluster_tasks:
             self.usage('cannot specify both --search-tasks and --cluster-tasks, they are mutually exclusive')
         if cluster_tasks:
-            self.path += '?actions=cluster:*'
+            self.path += 'actions=cluster:*'
             self.search_type = 'cluster '
         if search_tasks:
-            self.path += '?actions=search:*'
+            self.path += 'actions=search:*'
             self.search_type = 'search '
+        if self.get_opt('list_tasks'):
+            if self.path[-1] != '?':
+                self.path += '&'
+            self.path += 'detailed'
         self.validate_thresholds(simple='upper', positive=True, integer=False)
 
     def parse_json(self, json_data):
@@ -147,8 +151,8 @@ class CheckElasticsearchTasksSlow(RestNagiosPlugin):
     def list_tasks(self, json_data):
         print('Elasticsearch {}tasks:\n'.format(self.search_type))
         print('=' * 80)
-        format_string = '{: <10}\t{: <10}\t{: <20}\t{}'
-        print(format_string.format('Node', 'Task ID', 'Running Time in Nanos', 'Action'))
+        format_string = '{: <10}\t{: <10}\t{: <20}\t{: <30}\t{}'
+        print(format_string.format('Node', 'Task ID', 'Running Time in Nanos', 'Action', 'Description'))
         print('=' * 80)
         nodes = json_data['nodes']
         for node_id in nodes:
@@ -156,7 +160,15 @@ class CheckElasticsearchTasksSlow(RestNagiosPlugin):
             tasks = node['tasks']
             for task_id in tasks:
                 task = tasks[task_id]
-                print(format_string.format(node['host'], task['id'], task['running_time_in_nanos'], task['action']))
+                print(
+                    format_string.format(
+                        node['host'],
+                        task['id'],
+                        task['running_time_in_nanos'],
+                        task['action'],
+                        task['description']
+                    )
+                )
         sys.exit(ERRORS['UNKNOWN'])
 
 
