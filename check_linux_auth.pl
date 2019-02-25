@@ -16,8 +16,9 @@ $DESCRIPTION = "Nagios Plugin to check authentication mechanisms are working by 
 - groups.allow contains the expected groups and no others
 
 Useful for checking that AD integrated Linux servers are still able to authenticate AD users
+
+See also adjacent check_file_checksum.pl for checking pam.d system-auth has the expected checksum of contents (ie. is configured as expected)
 ";
-# - TODO: system-auth-ac matches the expected checksum
 
 $VERSION = "0.8.4";
 
