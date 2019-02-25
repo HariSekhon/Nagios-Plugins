@@ -329,9 +329,9 @@ elasticsearch_tests(){
 
     run ./check_elasticsearch_tasks_slow.py
 
-    run ./check_elasticsearch_tasks_slow.py --list-tasks
+    run_fail 3 ./check_elasticsearch_tasks_slow.py --list-tasks
 
-    run ./check_elasticsearch_tasks_slow.py --list-tasks --cluster-tasks
+    run_fail 3 ./check_elasticsearch_tasks_slow.py --list-tasks --cluster-tasks
 
     run ./check_elasticsearch_tasks_slow.py --cluster-tasks
 
