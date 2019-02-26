@@ -30,3 +30,5 @@ python-pyasn1
 #libev-dev
 #libsnappy-dev
 
+python-mysqldb
+python3-mysqldb

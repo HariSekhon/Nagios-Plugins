@@ -15,9 +15,6 @@
 
 # Installed if available in repos
 
-python-mysqldb
-python3-mysqldb
-
 # for check_whois.pl - looks like this has been removed from repos :-/
 jwhois
 
