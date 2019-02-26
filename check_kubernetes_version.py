@@ -17,6 +17,8 @@
 
 Nagios Plugin to check the version of Kubernetes via its API
 
+Verbose mode also outputs the build date
+
 Tested on Kubernetes 1.13
 
 """
@@ -41,7 +43,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 # pylint: disable=too-few-public-methods
@@ -58,10 +60,17 @@ class CheckKubernetesVersion(RestVersionNagiosPlugin):
         self.json = True
         self.auth = 'optional'
         self.msg = 'Kubernetes msg not defined'
+        self.build_date = ''
 
     # must be a method for inheritance to work
     def parse_json(self, json_data):  # pylint: disable=no-self-use
+        self.build_date = json_data['buildDate']
         return json_data['gitVersion'].lstrip('v')
+
+    def extra_info(self):
+        if self.verbose:
+            return ', build date = {}'.format(self.build_date)
+        return ''
 
 
 if __name__ == '__main__':
