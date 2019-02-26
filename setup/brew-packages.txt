@@ -15,7 +15,8 @@
 # ============================================================================ #
 
 jq
-mysql
+#mysql
+#mysql-connector-c
 openssl
 snappy
 whois
