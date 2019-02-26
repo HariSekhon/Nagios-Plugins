@@ -117,7 +117,7 @@ There are over 400 programs in this repo so these are just some of the highlight
   * [Hadoop Distributions](https://github.com/HariSekhon/nagios-plugins#hadoop-distributions) - Hortonworks, Cloudera, MapR, IBM BigInsights
   * [SQL-on-Hadoop](https://github.com/HariSekhon/nagios-plugins#sql-on-hadoop) - Hive, Drill, Presto
 * [Service Discovery & Coordination](https://github.com/HariSekhon/nagios-plugins#service-discovery--coordination) - ZooKeeper, Consul, Vault
-* [Docker / Containerization](https://github.com/HariSekhon/nagios-plugins#docker--containerization) - Docker & Docker Swarm, Mesos
+* [Docker / Containerization](https://github.com/HariSekhon/nagios-plugins#docker--containerization) - Docker & Docker Swarm, Mesos, Kubernetes
 * [Search](https://github.com/HariSekhon/nagios-plugins#search) - Elasticsearch, Solr / SolrCloud
 * [NoSQL](https://github.com/HariSekhon/nagios-plugins#nosql) - Cassandra, Redis, Riak, Memcached, CouchDB
 * [SQL Databases](https://github.com/HariSekhon/nagios-plugins#sql-databases) - MySQL
@@ -173,7 +173,8 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
 
 - ```check_docker_*.py``` - [Docker](https://www.docker.com/) API checks including API ping, counts of running / paused / stopped / total containers with thresholds, specific container status by name or id, images count with thresholds, specific image:tag availability including size and checksum, counts of networks / volumes with thresholds, docker engine version
 - ```check_docker_swarm_*.py``` - [Docker Swarm](https://docs.docker.com/engine/swarm/) API checks including is swarm enabled, swarm node status, is the node a swarm manager, swarm service status including number of live replicas / tasks and if the service was updated recently, counts of services, swarm manager and worker nodes with thresholds, swarm errors, swarm version
-- ```check_mesos_*.pl``` - [Mesos](http://mesos.apache.org/) master health API, master & slaves state information including leader and versions, activated & deactivated slaves, number of Chronos jobs, master & slave metrics. Warning: Mesos & Mesosphere DC/OS is legacy semi-proprietary - major momentum has shifted to the open source [Kubernetes](https://kubernetes.io/) project (Kubernetes Nagios Plugins coming soon)
+- ```check_mesos_*.pl``` - [Mesos](http://mesos.apache.org/) master health API, master & slaves state information including leader and versions, activated & deactivated slaves, number of Chronos jobs, master & slave metrics. Warning: Mesos & Mesosphere DC/OS is legacy semi-proprietary - major momentum has shifted to the open source [Kubernetes](https://kubernetes.io/) project
+- ```check_kubernetes_*.py``` - [Kubernetes](https://kubernetes.io/) API health and version
 
 If running docker checks from within the [nagios plugins docker image](https://hub.docker.com/r/harisekhon/nagios-plugins/) then you will need to expose the socket within the container, like so:
 ```
@@ -312,6 +313,7 @@ There are now also simplified subclassed programs so you don't have to figure ou
 - ```find_active_presto_coordinator.py```
 - ```find_active_apache_drill.py```
 - ```find_active_impala.py```
+- ```find_active_kubernetes_api.py```
 - ```find_active_consul.py```
 - ```find_active_solrcloud.py```
 - ```find_active_elasticsearch.py```
