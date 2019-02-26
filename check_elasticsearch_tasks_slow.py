@@ -30,17 +30,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-#import logging
 import os
-#import re
 import sys
-#import time
 import traceback
-#try:
-#    from bs4 import BeautifulSoup
-#except ImportError:
-#    print(traceback.format_exc(), end='')
-#    sys.exit(4)
 srcdir = os.path.abspath(os.path.dirname(__file__))
 libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
@@ -108,8 +100,6 @@ class CheckElasticsearchTasksSlow(RestNagiosPlugin):
         # convert threshold in secs to nanos to compare with running time
         warn_nanos = warning_threshold * 1000 * 1000
         crit_nanos = critical_threshold * 1000 * 1000
-        # dict
-        #node = json_data['node']
         nodes = json_data['nodes']
         selected_node = self.get_opt('node')
         #found_node = 0
