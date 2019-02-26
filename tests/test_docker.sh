@@ -260,7 +260,7 @@ if is_docker_available; then
     run ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:latest"
 
     for image in ${DOCKER_IMAGES[*]}; do
-        max_size=$((600 * 1024 * 1024))
+        max_size=$((700 * 1024 * 1024))
 #        if grep nagios <<< "$image"; then
 #            max_size=$((600 * 1024 * 1024))
 #        fi
