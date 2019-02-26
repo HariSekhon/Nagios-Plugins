@@ -54,6 +54,7 @@ class CheckKubernetesHealth(RestNagiosPlugin):
         # super().__init__()
         self.name = 'Kubernetes API'
         self.default_port = 8001
+        # or just /healthz
         self.path = '/healthz/ping'
         self.auth = 'optional'
         self.json = False
