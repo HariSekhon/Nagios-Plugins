@@ -13,9 +13,6 @@
 #                        Alpine Dev Package Requirements
 # ============================================================================ #
 
-gcc
-alpine-sdk
-expat-dev
 krb5-dev
 #libxml2-dev
 mariadb-dev
@@ -23,5 +20,3 @@ mariadb-dev
 #openssl-dev
 #libressl-dev
 #postgresql-dev
-# needed to build Net::SSLeay
-zlib-dev
