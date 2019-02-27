@@ -13,11 +13,6 @@
 #                        Deb Python Package Requirements
 # ============================================================================ #
 
-python
-python-dev
-python-pip
-python-setuptools
-
 # either of these should do to ensure ping command is present for find_active_server.py's ping mode
 iputils-ping
 #inetutils-ping
