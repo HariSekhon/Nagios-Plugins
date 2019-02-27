@@ -13,8 +13,7 @@
 #                          Deb Dev Package Requirements
 # ============================================================================ #
 
-# needed to fetch and build CPAN modules and fetch the library submodule at end of build
-build-essential
+gcc
 
 libev-dev
 
