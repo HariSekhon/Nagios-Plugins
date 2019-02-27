@@ -13,8 +13,6 @@
 #                        Alpine Dev Package Requirements
 # ============================================================================ #
 
-krb5-dev
-
 mariadb-dev
 
 #postgresql-dev
