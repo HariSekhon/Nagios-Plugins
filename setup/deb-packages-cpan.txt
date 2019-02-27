@@ -24,4 +24,3 @@ libio-socket-ssl-perl
 liblwp-authen-negotiate-perl
 libsms-aql-perl
 liburi-escape-xs-perl
-libwww-perl
