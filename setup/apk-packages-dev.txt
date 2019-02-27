@@ -20,3 +20,5 @@ mariadb-dev
 # conflicts with libressl-dev which is required by mariadb-dev
 #openssl-dev
 #libressl-dev
+
+snappy-dev
