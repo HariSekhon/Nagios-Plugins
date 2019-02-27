@@ -19,6 +19,3 @@
 
 # used for tests
 curl
-
-# for 'make test'
-procps
