@@ -20,7 +20,6 @@ python-dns
 python-humanize
 python-jenkins
 python-psycopg2
-python-py
 python-thrift
 python2-pika
 python2-psutil
