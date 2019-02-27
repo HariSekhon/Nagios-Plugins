@@ -13,15 +13,11 @@
 #                            RPM Package Requirements
 # ============================================================================ #
 
-git
-
 epel-release
 tar
 which
 
-# needed to fetch the library submodule at end of build
-# and also for check_git_checkout_branch.pl and Git-Python / check_git_checkout_branch.py
-# only available on EPEL in CentOS 5
+# needed to fetch the library submodules and also for check_git_checkout_branch.pl and Git-Python / check_git_checkout_branch.py
 git
 
 # used for tests
