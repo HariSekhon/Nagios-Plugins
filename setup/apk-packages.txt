@@ -23,5 +23,4 @@ curl
 # included by library
 #git
 
-make
 #ruby
