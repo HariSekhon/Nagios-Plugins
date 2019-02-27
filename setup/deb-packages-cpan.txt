@@ -16,7 +16,6 @@
 # Installed if available in repos, otherwise installed via cpanm
 
 libclass-accessor-perl
-libdbd-mysql-perl
 libdigest-crc-perl
 libdigest-perl-md5-perl
 libdigest-sha-perl
