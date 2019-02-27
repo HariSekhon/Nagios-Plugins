@@ -18,12 +18,12 @@
 # for check_whois.pl - looks like this has been removed from repos :-/
 jwhois
 
-# for DBD::mysql
+# needed to build perl's DBD::mysql and python's MySQL-python
 #
 # Ubuntu 12 Precise which is still used in Travis CI uses libmysqlclient-dev, but Debian 9 Stretch and Ubuntu 16 Xenial
 # use libmariadbd-dev so this must now be handled separately in Makefile to try installing
 # libmariadbd-dev and if failing then try falling back to libmysqlclient-dev
-# included in library
+# included from perl library
 #libmariadbd-dev
 #libmysqlclient-dev
 #libmariadb-dev-compat
