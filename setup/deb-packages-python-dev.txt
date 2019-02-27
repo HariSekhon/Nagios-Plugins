@@ -13,7 +13,4 @@
 #                          Deb Python Dev Package Requirements
 # ============================================================================ #
 
-# needed for ndg-httpsclient upgrade
-libffi-dev
-
 #libsnappy-dev
