@@ -13,11 +13,6 @@
 #                        RPM Python Package Requirements
 # ============================================================================ #
 
-python
-python-devel
-python-pip
-python-setuptools
-
 # used to parse api.github.com repo contents for downloading find_active_*.py
 jq
 
