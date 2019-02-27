@@ -13,16 +13,4 @@
 #                          Deb Dev Package Requirements
 # ============================================================================ #
 
-gcc
-
 libev-dev
-
-# for XML::Simple building
-libexpat1-dev
-
-# for LWP::Authenticate - prompts for realm + KDC, use libkrb5-dev instead
-#krb5-config
-
-# needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
-libssl-dev
-libsasl2-dev
