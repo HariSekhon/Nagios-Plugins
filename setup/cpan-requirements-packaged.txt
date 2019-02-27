@@ -13,8 +13,6 @@
 #                             CPAN Modules Packaged
 # ============================================================================ #
 
-DBI
-DBD::mysql
 Digest::CRC
 Digest::MD5
 Digest::SHA
@@ -22,5 +20,4 @@ Digest::SHA1
 IO::Socket::SSL
 SMS::AQL
 Socket6
-Thrift
 URI::Escape
