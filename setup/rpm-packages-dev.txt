@@ -16,8 +16,6 @@
 # breaks on CentOS 7.0 on Docker, fakesystemd conflicts with systemd, 7.2 works though
 #cyrus-sasl-devel
 
-# for XML::Simple
-expat-devel
 gcc
 gcc-c++
 libev-devel
