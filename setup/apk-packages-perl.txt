@@ -13,12 +13,6 @@
 #                        Alpine Perl Package Requirements
 # ============================================================================ #
 
-perl
-perl-dev  # contains CPAN
-perl-app-cpanminus
-perl-utils
-perl-doc
-
 jwhois
 
 # ethtool needed for ./check_linux_interface.pl
