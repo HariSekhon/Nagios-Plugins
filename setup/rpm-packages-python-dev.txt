@@ -15,8 +15,5 @@
 
 snappy-devel
 
-# needed for ndg-httpsclient upgrade
-libffi-devel
-
 # needed to build pyhs2
 # libgsasl-devel saslwrapper-devel
