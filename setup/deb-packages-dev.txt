@@ -22,7 +22,6 @@ libexpat1-dev
 
 # for LWP::Authenticate - prompts for realm + KDC, use libkrb5-dev instead
 #krb5-config
-libkrb5-dev
 
 # needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 libssl-dev
