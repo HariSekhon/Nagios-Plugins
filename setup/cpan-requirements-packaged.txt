@@ -13,6 +13,7 @@
 #                             CPAN Modules Packaged
 # ============================================================================ #
 
+DBD::mysql
 Digest::CRC
 Digest::MD5
 Digest::SHA
