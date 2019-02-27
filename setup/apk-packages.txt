@@ -13,7 +13,6 @@
 #                          Alpine Package Requirements
 # ============================================================================ #
 
-bash
 ca-certificates
 
 # used for tests
@@ -21,7 +20,8 @@ curl
 
 # needed to fetch the library submodule at end of build
 # and also for check_git_checkout_branch.pl and Git-Python / check_git_checkout_branch.py
-git
+# included by library
+#git
 
 make
 #ruby
