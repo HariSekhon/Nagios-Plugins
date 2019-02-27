@@ -14,7 +14,9 @@
 # ============================================================================ #
 
 # needed for Kafka module
-inc::Module::Install
+# included by library
+#inc::Module::Install
+
 Data::HexDump::Range
 
 # needed for Kafka execution on CentOS
