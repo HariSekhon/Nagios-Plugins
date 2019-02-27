@@ -22,4 +22,3 @@ perl-Digest-SHA
 perl-Digest-SHA1
 perl-Socket6
 perl-URI
-perl-libwww-perl
