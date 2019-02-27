@@ -19,6 +19,7 @@ py>=1.4.31
 #pyhs2>=0.6.0
 #PyInstaller>=3.3.1
 python-jenkins>=0.4.14
+# auto-pulled in by snakebite[kerberos]
 #python-krbV>=1.0.90
 # PyLint fails some checks in Travis that pass locally
 #python-snappy>=0.5.0
