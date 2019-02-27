@@ -27,7 +27,8 @@ Net::SSH::Expect
 Ref::Util
 
 # needed for check_hbase_cell.pl on CentOS
-Class::Accessor
+# included by library
+#Class::Accessor
 
 # There are problems with the tests for this module dependency of Net::Async::CassandraCQL, forcing install works and allows us to use check_cassandra_write.pl
 #sudo cpan -f IO::Async::Stream
