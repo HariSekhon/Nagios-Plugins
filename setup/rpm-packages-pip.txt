@@ -14,7 +14,11 @@
 # ============================================================================ #
 
 GitPython
+
 MySQL-python
+python2-mysql
+python3-mysql
+
 python-boto
 python-dns
 python-humanize
@@ -23,9 +27,6 @@ python-psycopg2
 python-thrift
 python2-pika
 python2-psutil
-
-#python-krbV
-#python-linecache2
 
 # for ndg-httpsclient
 python-pyasn1
