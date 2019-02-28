@@ -45,8 +45,8 @@ build :
 	$(MAKE) init
 	if [ -z "$(CPANM)" ]; then make; exit $$?; fi
 	$(MAKE) system-packages
-	$(MAKE) perl-libs
-	$(MAKE) python-libs
+	$(MAKE) perl
+	$(MAKE) python
 	@echo
 	#$(MAKE) jar-plugins
 	@echo
