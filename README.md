@@ -289,6 +289,7 @@ HAProxy configurations are provided for all the major technologies under the [ha
 - Impala
 - Presto SQL Coordinators
 - Kubernetes API
+- Oozie
 - SolrCloud
 - Elasticsearch
 
@@ -315,7 +316,7 @@ There are now also simplified subclassed programs so you don't have to figure ou
 - ```find_active_impala.py```
 - ```find_active_presto_coordinator.py```
 - ```find_active_kubernetes_api.py```
-- ```find_active_consul.py```
+- ```find_active_oozie.py```
 - ```find_active_solrcloud.py```
 - ```find_active_elasticsearch.py```
 
