@@ -20,5 +20,6 @@ perl-Digest
 perl-Digest-MD5
 perl-Digest-SHA
 perl-Digest-SHA1
+perl-Net-DNS
 perl-Socket6
 perl-URI
