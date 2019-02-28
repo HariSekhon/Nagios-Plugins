@@ -289,7 +289,6 @@ HAProxy configurations are provided for all the major technologies under the [ha
 - Impala
 - Presto SQL Coordinators
 - Kubernetes API
-- Consul
 - SolrCloud
 - Elasticsearch
 
