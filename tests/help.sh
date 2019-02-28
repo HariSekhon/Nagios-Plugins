@@ -27,6 +27,10 @@ EXT="${EXT:-all}"
 
 section "Testing --help for $EXT programs"
 
+# Breaks on CentOS Docker without this, although works on Debian, Ubuntu and Alpine without
+export LINES="${LINES:-25}"
+export COLUMNS="${COLUMNS:-80}"
+
 help_start_time="$(start_timer)"
 
 test_help(){
