@@ -288,6 +288,7 @@ HAProxy configurations are provided for all the major technologies under the [ha
 - Apache Drill
 - Impala
 - Presto SQL Coordinators
+- Kubernetes API
 - Consul
 - SolrCloud
 - Elasticsearch
@@ -310,9 +311,10 @@ There are now also simplified subclassed programs so you don't have to figure ou
 - ```find_active_hbase_master.py```
 - ```find_active_hbase_thrift.py```
 - ```find_active_hbase_stargate.py```
-- ```find_active_presto_coordinator.py```
+- ```find_active_cassandra.py```
 - ```find_active_apache_drill.py```
 - ```find_active_impala.py```
+- ```find_active_presto_coordinator.py```
 - ```find_active_kubernetes_api.py```
 - ```find_active_consul.py```
 - ```find_active_solrcloud.py```
