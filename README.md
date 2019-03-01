@@ -85,7 +85,7 @@ eg.
 docker run harisekhon/nagios-plugins check_ssl_cert.pl --help
 ```
 
-There are also `:centos` (`:latest`), `:alpine`, `:debian` and `:ubuntu` tagged docker images available.
+There are also `:centos` (`:latest`), `:alpine`, `:debian`, `:fedora` and `:ubuntu` tagged docker images available, as well as `:python` and `:perl` only images.
 
 You should tag the build locally as `:stable` or date-time stamped and run off that tag to avoid it getting auto-replaced by newer `:latest` builds, to control updates to suit your schedule and prevent random delays from `docker run`s pulling down newer builds from DockerHub.
 
