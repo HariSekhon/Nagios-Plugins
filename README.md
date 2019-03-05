@@ -703,7 +703,7 @@ sudo pip install certifi==2015.04.28
 
 ### Further Utilities ###
 
-[DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) & [DevOps Perl Tools](https://github.com/harisekhon/devops-perl-tools) repos - contains another 75+ programs including useful tools such as:
+[DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) & [DevOps Perl Tools](https://github.com/harisekhon/devops-perl-tools) repos - contains another 100+ programs including useful tools such as:
 
 * Hive / Pig => Elasticsearch / SolrCloud indexers
 * Hadoop HDFS performance debugger, native checksum extractor, HDFS file retention & snapshot retention policy scripts, HDFS file stats, XML & running Hadoop cluster config differ
