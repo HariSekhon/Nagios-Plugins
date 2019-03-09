@@ -187,7 +187,7 @@ pycompile:
 # https://issues.apache.org/jira/browse/ZOOKEEPER-2049
 ZOOKEEPER_VERSION = 3.4.12
 .PHONY: zookeeper
-zookeeper:
+zookeeper: perl
 	[ -x /sbin/apk ]        && $(MAKE) apk-packages || :
 	[ -x /usr/bin/apt-get ] && $(MAKE) apt-packages || :
 	[ -x /usr/bin/yum ]     && $(MAKE) yum-packages || :
