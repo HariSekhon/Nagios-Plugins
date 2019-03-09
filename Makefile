@@ -188,9 +188,6 @@ pycompile:
 ZOOKEEPER_VERSION = 3.4.12
 .PHONY: zookeeper
 zookeeper: perl
-	[ -x /sbin/apk ]        && $(MAKE) apk-packages || :
-	[ -x /usr/bin/apt-get ] && $(MAKE) apt-packages || :
-	[ -x /usr/bin/yum ]     && $(MAKE) yum-packages || :
 	[ -f zookeeper-$(ZOOKEEPER_VERSION).tar.gz ] || wget -qO zookeeper-$(ZOOKEEPER_VERSION).tar.gz "http://www.apache.org/dyn/closer.lua?filename=zookeeper/zookeeper-${ZOOKEEPER_VERSION}/zookeeper-${ZOOKEEPER_VERSION}.tar.gz&action=download" || wget -t 2 --retry-connrefused -qO zookeeper-$(ZOOKEEPER_VERSION).tar.gz "https://archive.apache.org/dist/zookeeper/zookeeper-$(ZOOKEEPER_VERSION)/zookeeper-$(ZOOKEEPER_VERSION).tar.gz"
 	[ -d zookeeper-$(ZOOKEEPER_VERSION) ] || tar zxf zookeeper-$(ZOOKEEPER_VERSION).tar.gz
 	# TODO: remove first try with  -Wno-error=format-overflow= when ZooKeeper code is fixed and updated https://issues.apache.org/jira/projects/ZOOKEEPER/issues/ZOOKEEPER-3293
