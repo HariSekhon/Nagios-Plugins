@@ -201,7 +201,7 @@ zookeeper:
 		$(SUDO) $(MAKE) install
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl && \
 		perl Makefile.PL --zookeeper-include=/usr/local/include --zookeeper-lib=/usr/local/lib && \
-		LD_RUN_PATH=/usr/local/lib $(SUDO) make ||
+		LD_RUN_PATH=/usr/local/lib $(SUDO) make || \
 		perl -pi -e 's/-Werror=format-security//' Makefile && $(SUDO) make
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl && \
 		$(SUDO) $(MAKE) install
