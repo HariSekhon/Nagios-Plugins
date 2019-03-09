@@ -193,12 +193,16 @@ zookeeper:
 	[ -x /usr/bin/yum ]     && $(MAKE) yum-packages || :
 	[ -f zookeeper-$(ZOOKEEPER_VERSION).tar.gz ] || wget -qO zookeeper-$(ZOOKEEPER_VERSION).tar.gz "http://www.apache.org/dyn/closer.lua?filename=zookeeper/zookeeper-${ZOOKEEPER_VERSION}/zookeeper-${ZOOKEEPER_VERSION}.tar.gz&action=download" || wget -t 2 --retry-connrefused -qO zookeeper-$(ZOOKEEPER_VERSION).tar.gz "https://archive.apache.org/dist/zookeeper/zookeeper-$(ZOOKEEPER_VERSION)/zookeeper-$(ZOOKEEPER_VERSION).tar.gz"
 	[ -d zookeeper-$(ZOOKEEPER_VERSION) ] || tar zxf zookeeper-$(ZOOKEEPER_VERSION).tar.gz
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				./configure
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				make
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c; 				$(SUDO) $(MAKE) install
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	perl Makefile.PL --zookeeper-include=/usr/local/include --zookeeper-lib=/usr/local/lib
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	LD_RUN_PATH=/usr/local/lib $(SUDO) make
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl; 	$(SUDO) $(MAKE) install
+	# TODO: remove first try with  -Wno-error=format-overflow= when ZooKeeper code is fixed and updated https://issues.apache.org/jira/projects/ZOOKEEPER/issues/ZOOKEEPER-3293
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c && \
+		CFLAGS="$$CFLAGS -Wno-error=format-overflow=" ./configure && make || \
+		./configure && $(MAKE)
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c && \
+		$(SUDO) $(MAKE) install
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl && \
+		perl Makefile.PL --zookeeper-include=/usr/local/include --zookeeper-lib=/usr/local/lib && \
+		LD_RUN_PATH=/usr/local/lib $(SUDO) make && \
+		$(SUDO) $(MAKE) install
 	perl -e "use Net::ZooKeeper"
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins perl zookeeper)"
