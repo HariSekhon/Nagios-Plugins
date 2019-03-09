@@ -211,6 +211,10 @@ zookeeper:
 	@echo
 	@echo
 
+.PHONY: zkperl
+zkperl: zookeeper
+	:
+
 .PHONY: jar-plugins
 jar-plugins:
 	@echo Fetching pre-compiled Java / Scala plugins
