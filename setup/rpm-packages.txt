@@ -13,7 +13,6 @@
 #                            RPM Package Requirements
 # ============================================================================ #
 
-wget
 tar
 
 # needed by check_git_checkout_branch.pl and Git-Python / check_git_checkout_branch.py
