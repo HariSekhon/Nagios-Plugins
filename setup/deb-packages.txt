@@ -17,7 +17,5 @@
 # included by library
 #git
 
-wget
-
 # used for tests
 curl
