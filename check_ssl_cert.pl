@@ -132,10 +132,12 @@ unless(defined($CApath)){
     if($CApath =~ /\/ssl\/?$/ and -d "$CApath/certs"){
         $CApath = "$CApath/certs/";
     # workaround for Fedora 29 in docker not working with CApath = /etc/pki/tls as found from openssl binary
-    } elsif ($CApath =~ /tls/){
-        $CApath = undef;
     }
-    $CApath = validate_dir($CApath, "CA path");
+    if ($CApath =~ /tls/){
+        $CApath = undef;
+    } else {
+        $CApath = validate_dir($CApath, "CA path");
+    }
 }
 
 vlog2;
