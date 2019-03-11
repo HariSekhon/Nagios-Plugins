@@ -21,7 +21,7 @@ Checks:
 4. Subject Alternative Names supported by certificate (optional)
 5. SNI - Server Name Identification - supply hostname identifier for servers that contain multiple certificates to tell the server which SSL certificate to use (optional)";
 
-$VERSION = "0.9.16";
+$VERSION = "0.9.17";
 
 use warnings;
 use strict;
@@ -131,6 +131,9 @@ unless(defined($CApath)){
     #if($CApath eq "/usr/lib/ssl" or $CApath eq "/etc/ssl"){
     if($CApath =~ /\/ssl\/?$/ and -d "$CApath/certs"){
         $CApath = "$CApath/certs/";
+    # workaround for Fedora 29 in docker not working with CApath = /etc/pki/tls as found from openssl binary
+    } elsif ($CApath =~ /tls/){
+        $CApath = undef;
     }
     $CApath = validate_dir($CApath, "CA path");
 }
