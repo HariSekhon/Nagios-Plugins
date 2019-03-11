@@ -192,7 +192,7 @@ zookeeper: perl
 	[ -d zookeeper-$(ZOOKEEPER_VERSION) ] || tar zxf zookeeper-$(ZOOKEEPER_VERSION).tar.gz
 	# if first compile fails, it's probably newer GCC so set -Wno-error=format-overflow=
 	# https://issues.apache.org/jira/projects/ZOOKEEPER/issues/ZOOKEEPER-3293
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c && ./configure && $(MAKE) ||
+	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c && ./configure && $(MAKE) || \
 		CFLAGS="$$CFLAGS -Wno-error=format-overflow=" ./configure && $(MAKE)
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c && $(SUDO) $(MAKE) install
 	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl && \
