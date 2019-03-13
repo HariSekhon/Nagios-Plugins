@@ -26,3 +26,4 @@ IO::Socket::SSL
 SMS::AQL
 Socket6
 URI::Escape
+LWP::Protocol::https
