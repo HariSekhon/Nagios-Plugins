@@ -8,7 +8,6 @@
 #
 #  License: see accompanying LICENSE file
 #
-
 $DESCRIPTION = "Nagios Plugin to check an S3 file exists via the AWS S3 API for any S3 compatible storage
 
 Useful for checking:
@@ -16,6 +15,7 @@ Useful for checking:
 1. latest ETL files are available
 2. job status files like _SUCCESS
 3. internal private cloud storage is online and known data is accessible
+4. files are being updated often
 
 Bucket names must follow the more restrictive 3 to 63 alphanumeric character international standard, dots are not supported in the bucket name due to using strict DNS shortname regex validation
 
@@ -33,7 +33,7 @@ BEGIN {
     use lib dirname(__FILE__) . "/lib";
 }
 use HariSekhonUtils;
-use Digest::SHA 'hmac_sha1';
+use Digest::SHA qw(sha256_hex hmac_sha256 hmac_sha256_hex);
 use LWP::UserAgent;
 use MIME::Base64;
 use POSIX 'strftime';
@@ -57,6 +57,8 @@ my $GET    = 0;
 my $no_ssl = 0;
 my $ssl_ca_path;
 my $ssl_noverify;
+my $region;
+my $age;
 
 %options = (
     %hostoptions,
@@ -68,8 +70,10 @@ my $ssl_noverify;
     "no-ssl"           => [ \$no_ssl,           "Don't use SSL, connect to AWS S3 with plaintext HTTP instead of HTTPS (not recommended unless you're using a private cloud storage like Minio)" ],
     "ssl-CA-path=s"    => [ \$ssl_ca_path,      "Path to CA certificate directory for validating SSL certificate" ],
     "ssl-noverify"     => [ \$ssl_noverify,     "Do not verify SSL certificate from AWS S3 (not recommended)" ],
+    "region=s"         => [ \$region,           "AWS Region, i.e. us-east-1" ],
+    "age=s"            => [ \$age,              "Maximum duration in seconds since the last-modified for the file to be deemed as valid" ],
 );
-@usage_order = qw/host port bucket file aws-access-key aws-secret-key get no-ssl ssl-CA-path ssl-noverify/;
+@usage_order = qw/host port bucket file aws-access-key aws-secret-key get no-ssl ssl-CA-path ssl-noverify region age/;
 
 if(not defined($aws_access_key) and defined($ENV{"AWS_ACCESS_KEY"})){
     $aws_access_key = $ENV{"AWS_ACCESS_KEY"};
@@ -113,31 +117,49 @@ $ua->show_progress(1) if $debug;
 
 $status = "OK";
 
+my @now = gmtime;
 my $host_header = "$bucket.$host";
-my $date_header = strftime("%a, %d %b %Y %T %z", gmtime);
+my $date_header = strftime("%a, %d %b %Y %T %z", @now);
 
 $file =~ s/^\///;
 
 my $protocol = "https";
 $protocol = "http" if $no_ssl;
-my $url = "$protocol://$host:$port/$bucket/$file";
+my $url = "$protocol://$bucket.$host/$file";
 
 my $request_type = "HEAD";
 $request_type = "GET" if $GET;
 
-# http://docs.aws.amazon.com/AmazonS3/latest/dev/RESTAuthentication.html
-my $canonicalized_string = "$request_type\n\n\n$date_header\n/$bucket/$file";
-# converts in place
-utf8::encode($canonicalized_string);
-#vlog_option "canonicalized_string", "'$canonicalized_string'";
+my $isodate = strftime("%Y%m%dT%H%M%SZ", @now);
+my $isoday = strftime("%Y%m%d", @now);
 
+my $content_hash = sha256_hex("");
+my $signed_headers = "host;x-amz-content-sha256;x-amz-date";
+my $canonical_request = "$request_type\n/$file\n\nhost:$host_header\nx-amz-content-sha256:$content_hash\nx-amz-date:$isodate\n\n$signed_headers\n$content_hash";
+
+my $hash_of_canonicals = sha256_hex($canonical_request);
+
+my $string_to_sign = "AWS4-HMAC-SHA256\n$isodate\n$isoday/$region/s3/aws4_request\n$hash_of_canonicals";
+
+my $kDate = hmac_sha256($isoday,"AWS4" . $aws_secret_key);
+my $kRegion = hmac_sha256($region,$kDate);
+my $kService = hmac_sha256("s3",$kRegion);
+my $signing_key = hmac_sha256("aws4_request",$kService);
+
+my $signature = hmac_sha256_hex($string_to_sign, $signing_key);
+my $credential = "$aws_access_key/$isoday/$region/s3/aws4_request";
+
+my $authorization_header = "AWS4-HMAC-SHA256 Credential=$credential, SignedHeaders=$signed_headers, Signature=$signature";
+
+vlog3 "authorization_header: '$authorization_header'";
 vlog2 "crafting authenticated request";
+
 my $request = HTTP::Request->new($request_type => $url);
 $request->header("Host" => $host_header);
 $request->header("Date" => $date_header);
-my $signature = encode_base64(hmac_sha1($canonicalized_string, $aws_secret_key));
-my $authorization_header = "AWS $aws_access_key:$signature";
 $request->header("Authorization" => $authorization_header);
+$request->header("X-Amz-Content-SHA256" => $content_hash);
+$request->header("X-Amz-Date" => $isodate);
 
 validate_resolvable($host);
 vlog2 "querying $request_type $url";
@@ -153,6 +175,11 @@ if($res->code eq 200){
         $msg = "retrieved file '$file' from";
     } else {
         $msg = "verified file '$file' exists in";
+    }
+    
+    if($age && $res->last_modified < time - $age){
+        critical;
+        $msg .= " but is too old : " . (time - $res->last_modified);
     }
     $msg .= " $host in $time_taken secs | time_taken=${time_taken}s";
 } else {
