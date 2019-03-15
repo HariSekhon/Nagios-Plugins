@@ -15,6 +15,7 @@ Useful for checking:
 1. latest ETL files are available
 2. job status files like _SUCCESS
 3. internal private cloud storage is online and known data is accessible
+4. files are being updated often
 
 Bucket names must follow the more restrictive 3 to 63 alphanumeric character international standard, dots are not supported in the bucket name due to using strict DNS shortname regex validation
 
@@ -57,6 +58,7 @@ my $no_ssl = 0;
 my $ssl_ca_path;
 my $ssl_noverify;
 my $region;
+my $age;
 
 %options = (
     %hostoptions,
@@ -69,8 +71,9 @@ my $region;
     "ssl-CA-path=s"    => [ \$ssl_ca_path,      "Path to CA certificate directory for validating SSL certificate" ],
     "ssl-noverify"     => [ \$ssl_noverify,     "Do not verify SSL certificate from AWS S3 (not recommended)" ],
     "region=s"         => [ \$region,           "AWS Region, i.e. us-east-1" ],
+    "age=s"            => [ \$age,              "Maximum duration in seconds since the last-modified for the file to be deemed as valid" ],
 );
-@usage_order = qw/host port bucket file aws-access-key aws-secret-key get no-ssl ssl-CA-path ssl-noverify/;
+@usage_order = qw/host port bucket file aws-access-key aws-secret-key get no-ssl ssl-CA-path ssl-noverify region age/;
 
 if(not defined($aws_access_key) and defined($ENV{"AWS_ACCESS_KEY"})){
     $aws_access_key = $ENV{"AWS_ACCESS_KEY"};
@@ -172,6 +175,11 @@ if($res->code eq 200){
         $msg = "retrieved file '$file' from";
     } else {
         $msg = "verified file '$file' exists in";
+    }
+    
+    if($age && $res->last_modified < time - $age){
+        critical;
+        $msg .= " but is too old : " . (time - $res->last_modified);
     }
     $msg .= " $host in $time_taken secs | time_taken=${time_taken}s";
 } else {
