@@ -24,7 +24,7 @@ Bucket names must follow the more restrictive 3 to 63 alphanumeric character int
 Tested on AWS S3 and Minio (open source private cloud S3 storage)
 ";
 
-$VERSION = "0.5";
+$VERSION = "0.6.0";
 
 use strict;
 use warnings;
@@ -176,7 +176,7 @@ if($res->code eq 200){
     } else {
         $msg = "verified file '$file' exists in";
     }
-    
+
     if($age && $res->last_modified < time - $age){
         critical;
         $msg .= " but is too old : " . (time - $res->last_modified);
