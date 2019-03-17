@@ -16,7 +16,6 @@
 perl-dbd-mysql
 perl-digest-md5
 perl-digest-sha1
-perl-libwww
 perl-lwp-useragent-determined
 perl-net-dns
 perl-socket6
