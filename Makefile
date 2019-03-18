@@ -43,7 +43,7 @@ build :
 	@echo ====================
 
 	$(MAKE) init
-	if [ -z "$(CPANM)" ]; then make; exit $$?; fi
+	if [ -z "$(CPANM)" ]; then $(MAKE); exit $$?; fi
 	$(MAKE) perl
 	$(MAKE) python
 	@echo
