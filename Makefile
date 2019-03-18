@@ -37,14 +37,12 @@ DOCKER_IMAGE := harisekhon/nagios-plugins
 
 .PHONY: build
 # space here prevents weird validation warning from check_makefile.sh => Makefile:40: warning: undefined variable `D'
-build :
+build : init
 	@echo ====================
 	@echo Nagios Plugins Build
 	@echo ====================
 
-	$(MAKE) init
-	if [ -z "$(CPANM)" ]; then make; exit $$?; fi
-	$(MAKE) system-packages
+	if [ -z "$(CPANM)" ]; then $(MAKE); exit $$?; fi
 	$(MAKE) perl
 	$(MAKE) python
 	@echo
@@ -57,13 +55,12 @@ init:
 	git submodule update --init --recursive
 
 .PHONY: perl
-perl:
+perl: init
 	@echo ===========================
 	@echo "Nagios Plugins Build (Perl)"
 	@echo ===========================
 
-	$(MAKE) init
-	if [ -z "$(CPANM)" ]; then make perl; exit $$?; fi
+	if [ -z "$(CPANM)" ]; then $(MAKE) perl; exit $$?; fi
 	$(MAKE) system-packages-perl
 	$(MAKE) perl-libs
 
@@ -117,13 +114,12 @@ perl-libs:
 
 
 .PHONY: python
-python:
+python: init
 	@echo =============================
 	@echo "Nagios Plugins Build (Python)"
 	@echo =============================
 
-	$(MAKE) init
-	if [ -z "$(CPANM)" ]; then make python; exit $$?; fi
+	if [ -z "$(CPANM)" ]; then $(MAKE) python; exit $$?; fi
 	$(MAKE) system-packages-python
 	$(MAKE) python-libs
 
