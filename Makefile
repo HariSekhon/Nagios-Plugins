@@ -37,12 +37,11 @@ DOCKER_IMAGE := harisekhon/nagios-plugins
 
 .PHONY: build
 # space here prevents weird validation warning from check_makefile.sh => Makefile:40: warning: undefined variable `D'
-build :
+build : init
 	@echo ====================
 	@echo Nagios Plugins Build
 	@echo ====================
 
-	$(MAKE) init
 	if [ -z "$(CPANM)" ]; then $(MAKE); exit $$?; fi
 	$(MAKE) perl
 	$(MAKE) python
