@@ -26,19 +26,19 @@ section "T r a v i s   C I"
 # this repo should always be working
 run ./check_travis_ci_last_build.py -r HariSekhon/bash-tools
 
-run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins
+run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/Nagios-Plugins
 
 echo "check warning threshold to induce failure as builds should always take longer than 10 secs:"
-run_fail "1 2" ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v -w 10
+run_fail "1 2" ./check_travis_ci_last_build.py -r HariSekhon/Nagios-Plugins -v -w 10
 
 echo "check critical threshold to induce failure as builds should always take longer than 10 secs:"
-run_fail 2 ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugins -v -c 10
+run_fail 2 ./check_travis_ci_last_build.py -r HariSekhon/Nagios-Plugins -v -c 10
 
-run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/devops-perl-tools
+run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/DevOps-Perl-tools
 
 run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/spotify-tools
 
-run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/devops-python-tools
+run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/DevOps-Python-tools
 
 run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/pylib
 
@@ -46,19 +46,19 @@ run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/lib
 
 run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/lib-java
 
-run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/nagios-plugin-kafka
+run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/Nagios-Plugin-Kafka
 
 run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/spark-apps
 
 echo "checking no builds returned:"
-run_fail 3 ./check_travis_ci_last_build.py -r harisekhon/nagios-plugins -v
+run_fail 3 ./check_travis_ci_last_build.py -r harisekhon/Nagios-Plugins -v
 
 echo "checking wrong repo name/format:"
 run_usage ./check_travis_ci_last_build.py -r test -v
 
 run_usage ./check_travis_ci_last_build.py -r harisekhon/ -v
 
-run_usage ./check_travis_ci_last_build.py -r /nagios-plugins -v
+run_usage ./check_travis_ci_last_build.py -r /Nagios-Plugins -v
 
 run_usage ./check_travis_ci_last_build.py -r tools -v
 
