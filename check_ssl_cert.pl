@@ -21,7 +21,7 @@ Checks:
 4. Subject Alternative Names supported by certificate (optional)
 5. SNI - Server Name Identification - supply hostname identifier for servers that contain multiple certificates to tell the server which SSL certificate to use (optional)";
 
-$VERSION = "0.9.17";
+$VERSION = "0.9.18";
 
 use warnings;
 use strict;
@@ -131,15 +131,20 @@ unless(defined($CApath)){
     #if($CApath eq "/usr/lib/ssl" or $CApath eq "/etc/ssl"){
     if($CApath =~ /\/ssl\/?$/ and -d "$CApath/certs"){
         $CApath = "$CApath/certs/";
-    # workaround for Fedora 29 in docker not working with CApath = /etc/pki/tls as found from openssl binary
     }
-    if ($CApath =~ /tls/){
+    # workaround for Fedora 29 in docker not working with CApath = /etc/pki/tls as found from openssl binary
+    # openssl only works if you don't specify it, and doesn't work with /certs appended either like versions on Debian and Alpine
+    #
+    # https://github.com/HariSekhon/Nagios-Plugins/issues/205
+    #
+    if ($CApath =~ /\/pki\/tls\/?/){
         $CApath = undef;
-    } else {
-        $CApath = validate_dir($CApath, "CA path");
     }
 }
 
+if(defined($CApath)){
+    $CApath = validate_dir($CApath, "CA path");
+}
 vlog2;
 
 $status = "OK";
