@@ -132,7 +132,11 @@ class CheckPuppet
     # should consider adding validation of the conf file to make sure it's a
     # valid puppet conf file
     Puppet[:config] = OPTIONS[:conf]
-    Puppet.parse_config
+    begin
+        Puppet.initialize_settings unless Puppet.settings.send(:global_defaults_initialized?)
+    rescue NameError
+        Puppet.parse_config
+    end
 
     if OPTIONS[:lockfile].empty?
         OPTIONS[:lockfile] = Puppet.settings.value(:agent_disabled_lockfile)
