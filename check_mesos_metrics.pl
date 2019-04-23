@@ -96,10 +96,12 @@ if($progname =~ /master/){
 my $metrics;
 my @metrics;
 my $short;
+my $include_framework;
 
 %options = (
     %hostoptions,
     "m|metrics=s" => [ \$metrics, "Metric(s) to fetch, comma separated (defaults to fetching all metrics)" ],
+    "f|include-framework" => [ \$include_framework, "Include framework related metrics" ],
     # can't use short option since event_queue_dispatches appears under both master/ and allocator/
     #"s|short"     => [ \$short, "Use short metric names by stripping the leading master/ or slave/ prefixes" ],
     %thresholdoptions,
@@ -142,6 +144,9 @@ my $msg2;
 my %metrics;
 foreach(sort keys %{$json}){
     my $key = $_;
+    if (!$include_framework and $key =~ /^master\/frameworks\//) {
+        next
+    }
     #$key =~ s/^\w+\/// if($short);
     defined($metrics{$key}) and quit "UNKNOWN", "duplicate metric '$key' found! $nagios_plugins_support_msg_api";
     $metrics{$key} = $json->{$_};
