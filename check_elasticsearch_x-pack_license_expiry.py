@@ -19,7 +19,7 @@
 
 Nagios Plugin to check Elasticsearch X-Pack license expiry in days via the X-Pack API
 
-Tested on Elasticsearch with X-Pack 6.0, 6.1, 6.2
+Tested on Elasticsearch with X-Pack 6.0, 6.1, 6.2, 7.1
 
 """
 
@@ -43,7 +43,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckElasticsearchXPackLicenseExpiry(RestNagiosPlugin):
@@ -57,12 +57,13 @@ class CheckElasticsearchXPackLicenseExpiry(RestNagiosPlugin):
         self.default_port = 9200
         # /_xpack contains info on enabled features but less expiry info (no expiry date or start_date_in_millis)
         self.path = '/_xpack/license?human=true'
-        self.auth = True
+        self.auth = 'optional'
         self.json = True
         self.msg = 'Elasticsearch msg not defined yet'
 
     def add_options(self):
         super(CheckElasticsearchXPackLicenseExpiry, self).add_options()
+        self.add_opt('-B', '--basic', action='store_true', help='Do not raise WARNING for basic license')
         self.add_opt('-T', '--trial', action='store_true', help='Do not raise WARNING for trial license')
         self.add_thresholds(default_warning=30, default_critical=7)
 
@@ -75,9 +76,6 @@ class CheckElasticsearchXPackLicenseExpiry(RestNagiosPlugin):
         status = license_data['status']
         license_type = license_data['type']
         start_millis = license_data['start_date_in_millis']
-        expiry_millis = license_data['expiry_date_in_millis']
-        # start_date is only available with ?human=true which is not enabled by default
-        expiry_date = license_data['expiry_date']
         self.msg = "Elasticsearch X-Pack license '{}'".format(status)
         if status != 'active':
             self.critical()
@@ -87,6 +85,14 @@ class CheckElasticsearchXPackLicenseExpiry(RestNagiosPlugin):
             if not self.get_opt('trial'):
                 self.warning()
                 self.msg += '(!)'
+        elif license_type == 'basic':
+            if not self.get_opt('basic'):
+                self.warning()
+                self.msg += '(!)'
+            return
+        expiry_millis = license_data['expiry_date_in_millis']
+        # start_date is only available with ?human=true which is not enabled by default
+        expiry_date = license_data['expiry_date']
         days_left = int((expiry_millis - time.time() * 1000) / 1000 / 86400)
         if days_left < 0:
             self.critical()
