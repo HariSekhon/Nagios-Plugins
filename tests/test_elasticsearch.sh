@@ -25,8 +25,12 @@ section "E l a s t i c s e a r c h"
 
 # Elasticsearch 6.0+ only available on new docker.elastic.co which uses full sub-version x.y.z and does not have x.y tags
 # Any version given as x.y.z will use docker.elastic.co repo, otherwise old dockerhub images
-# Platinum edition with X-Pack is only available from 6.x onwards from docker.elastic.co
-export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-1.3 1.4 1.5 1.6 1.7 2.0 2.1 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5 5.6  5.2.1 5.3.3 5.4.3 5.5.3 5.6.8 6.0.1 6.1.4 6.2.4 6.3.2 6.4.3 6.5.4 6.6.1  6.0.1-x-pack 6.1.4-x-pack 6.2.4-x-pack }}"  # latest tag was removed from dockerhub :-/
+# Platinum edition with X-Pack is only available from 6.x onwards from docker.elastic.co - no longer available in 7.x due to being rolled in to standard
+export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-
+    1.3 1.4 1.5 1.6 1.7 2.0 2.1 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5 5.6
+        5.2.1 5.3.3 5.4.3 5.5.3 5.6.8 6.0.1 6.1.4 6.2.4 6.3.2 6.4.3 6.5.4 6.6.2 6.7.2 6.8.0 7.0.1 7.1.1
+            6.0.1-x-pack 6.1.4-x-pack 6.2.4-x-pack
+}}"  # latest tag was removed from dockerhub :-/
 
 ELASTICSEARCH_HOST="${DOCKER_HOST:-${ELASTICSEARCH_HOST:-${HOST:-localhost}}}"
 ELASTICSEARCH_HOST="${ELASTICSEARCH_HOST##*/}"
