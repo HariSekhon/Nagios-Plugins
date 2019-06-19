@@ -41,6 +41,8 @@ Supports a a wide variety of [compatible Enterprise Monitoring systems](https://
 
 Most enterprise monitoring systems come with basic generic checks, while this project extends their monitoring capabilities significantly further in to advanced infrastructure, application layer, APIs etc.
 
+If running against services in Cloud or Kubernetes, just target the load balancer address or the Kubernetes Service or Ingress addresses.
+
 Also useful to be run on the command line for testing or in scripts for dependency availability checking, and comes with a selection of [advanced HAProxy configurations](https://github.com/harisekhon/haproxy-configs) for these technologies to make monitoring and scripting easier for clustered technologies.
 
 Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/harisekhon/nagios-plugins/issues) or [pull requests](https://github.com/harisekhon/nagios-plugins/pulls) (in which case GitHub will give you credit and mark you as a contributor to the project :) ).
