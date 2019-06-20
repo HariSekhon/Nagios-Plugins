@@ -705,6 +705,8 @@ sudo pip install certifi==2015.04.28
 
 ### Further Utilities ###
 
+[Kafka Scala Nagios Plugin](https://github.com/HariSekhon/nagios-plugin-kafka) - Scala version of the Python and Perl Kafka plugins found here, build provides a self-contained jar with Kerberos support.
+
 [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) & [DevOps Perl Tools](https://github.com/harisekhon/devops-perl-tools) repos - contains another 100+ programs including useful tools such as:
 
 * Hive / Pig => Elasticsearch / SolrCloud indexers
