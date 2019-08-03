@@ -58,9 +58,22 @@ class CheckKubernetesVersion(RestVersionNagiosPlugin):
         self.path = '/version'
         self.default_port = 8001
         self.json = True
-        self.auth = 'optional'
+        self.auth = False
         self.msg = 'Kubernetes msg not defined'
         self.build_date = ''
+
+#    def add_options(self):
+#        super(CheckKubernetesVersion, self).add_options()
+#        self.add_opt('-T', '--token', default=os.getenv('KUBERNETES_TOKEN', os.getenv('TOKEN')),
+#                     help='Token to authenticate with ' + \
+#                          '(optional, not needed if running through kubectl proxy ($K8S_TOKEN, $TOKEN)')
+
+    def process_options(self):
+        super(CheckKubernetesVersion, self).process_options()
+        self.no_args()
+#        token = self.get_opt('token')
+#        if token:
+#            self.headers['Authorization'] = 'Bearer {}'.format(token)
 
     # must be a method for inheritance to work
     def parse_json(self, json_data):  # pylint: disable=no-self-use
