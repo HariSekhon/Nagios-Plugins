@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6.1'
+__version__ = '0.6.2'
 
 
 class AdapterCSV(CLI):
@@ -219,5 +219,3 @@ class AdapterCSV(CLI):
 
 if __name__ == '__main__':
     AdapterCSV().main()
-    # Must always exit zero for Geneos otherwise it won't take the output and will show as raw error
-    sys.exit(0)
