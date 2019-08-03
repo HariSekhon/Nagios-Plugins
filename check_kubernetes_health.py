@@ -42,7 +42,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckKubernetesHealth(RestNagiosPlugin):
@@ -56,16 +56,22 @@ class CheckKubernetesHealth(RestNagiosPlugin):
         self.default_port = 8001
         # or just /healthz
         self.path = '/healthz/ping'
-        self.auth = 'optional'
+        self.auth = False
         self.json = False
         self.msg = 'Kubernetes msg not defined yet'
 
-    #def add_options(self):
-    #    super(CheckKubernetesHealth, self).add_options()
+    def add_options(self):
+        super(CheckKubernetesHealth, self).add_options()
+        self.add_opt('-T', '--token', default=os.getenv('KUBERNETES_TOKEN', os.getenv('TOKEN')),
+                     help='Token to authenticate with ' + \
+                          '(optional, not needed if running through kubectl proxy ($K8S_TOKEN, $TOKEN)')
 
     def process_options(self):
         super(CheckKubernetesHealth, self).process_options()
         self.no_args()
+        token = self.get_opt('token')
+        if token:
+            self.headers['Authorization'] = 'Bearer {}'.format(token)
 
     def parse(self, req):
         content = req.content
