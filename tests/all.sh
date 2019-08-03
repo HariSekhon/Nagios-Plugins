@@ -21,7 +21,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$srcdir/..";
 
 . tests/utils.sh
-. bash-tools/docker.sh
+. bash-tools/lib/docker.sh
 
 section "Running Nagios Plugins ALL"
 
