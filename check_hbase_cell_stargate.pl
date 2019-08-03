@@ -31,7 +31,7 @@ since this is all the Stargate server gives us for a response.
 Another option is to use check_hbase_cell.pl / check_hbase_cell_thrift.pl which uses the Thrift API and has better error reporting
 ";
 
-$VERSION = "0.6";
+$VERSION = "0.6.1";
 
 use strict;
 use warnings;
@@ -50,7 +50,7 @@ use XML::Simple;
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-set_port_default(20550);
+set_port_default(8080);
 
 my $table;
 my $row;
