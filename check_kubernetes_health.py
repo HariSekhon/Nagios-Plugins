@@ -64,7 +64,7 @@ class CheckKubernetesHealth(RestNagiosPlugin):
         super(CheckKubernetesHealth, self).add_options()
         self.add_opt('-T', '--token', default=os.getenv('KUBERNETES_TOKEN', os.getenv('TOKEN')),
                      help='Token to authenticate with ' + \
-                          '(optional, not needed if running through kubectl proxy ($K8S_TOKEN, $TOKEN)')
+                          '(optional, not needed if running through kubectl proxy ($KUBERNETES_TOKEN, $TOKEN)')
 
     def process_options(self):
         super(CheckKubernetesHealth, self).process_options()
