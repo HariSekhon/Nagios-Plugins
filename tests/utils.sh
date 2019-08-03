@@ -19,8 +19,8 @@ srcdir_nagios_plugins_utils="${srcdir:-}"
 srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 . "$srcdir/excluded.sh"
-. "$srcdir/../bash-tools/utils.sh"
-. "$srcdir/../bash-tools/docker.sh"
+. "$srcdir/../bash-tools/lib/utils.sh"
+. "$srcdir/../bash-tools/lib/docker.sh"
 
 export COMPOSE_PROJECT_NAME="nagios-plugins"
 
