@@ -50,7 +50,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 # pylint: disable=too-few-public-methods
 
@@ -66,7 +66,10 @@ class AdapterGeneos(AdapterCSV):
         self.headers = ['NAME', 'STATUS', 'DETAILS']
 
     def output(self):
-        output = "{name},{status},{message}".format(name=os.path.basename(self.args[0].split()[0]), status=self.status, message=self.message)
+        output = "{name},{status},{message}"\
+                 .format(name=os.path.basename(self.args[0].split()[0]),
+                         status=self.status,
+                         message=self.message)
         for val in self.perfdata:
             output += self.separator + val
         print(self.separator.join(self.headers))
@@ -74,6 +77,11 @@ class AdapterGeneos(AdapterCSV):
 
 
 if __name__ == '__main__':
-    AdapterGeneos().main()
     # Must always exit zero for Geneos otherwise it won't take the output and will show as raw error
-    sys.exit(0)
+    try:
+        AdapterGeneos().main()
+    except Exception as _:  # pylint: disable=broad-except
+        print(traceback.format_exc(), end='')
+        sys.exit(0)
+    except SystemExit:
+        sys.exit(0)
