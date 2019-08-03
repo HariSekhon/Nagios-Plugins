@@ -29,6 +29,8 @@
 
 # ===================
 
+REPO := HariSekhon/Nagios-Plugins
+
 ifneq ("$(wildcard bash-tools/Makefile.in)", "")
 	include bash-tools/Makefile.in
 endif
@@ -270,7 +272,3 @@ dockerhub:
 	curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/7170c9dc-10b5-42b8-9df9-f1ea830cc32f/trigger/e0648979-3bf6-48f0-89c9-486588d2e657/call/
 	# Ubuntu Github
 	curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/8b3dc094-d4ca-4c92-861e-1e842b5fac42/trigger/abd4dbf0-14bc-454f-9cde-081ec014bc48/call/
-
-.PHONY: travis
-travis:
-	travis_last_log.py /Nagios-Plugins
