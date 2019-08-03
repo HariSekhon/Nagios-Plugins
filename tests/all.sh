@@ -35,7 +35,7 @@ nagios_plugins_start_time="$(start_timer)"
 
 . tests/excluded.sh
 
-. bash-tools/all.sh
+bash-tools/all.sh
 
 #is_travis ||
 time tests/help.sh
