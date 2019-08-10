@@ -48,6 +48,7 @@ test_help(){
 
     # quick hack for older programs which return zero for --help due to python OptParse module
     if [[ "$prog" =~ adapter_geneos.py      ||
+          "$prog" =~ geneos_adapter.py      ||
           "$prog" =~ check_dhcpd_leases.py  ||
           "$prog" =~ check_linux_ram.py     ||
           "$prog" =~ check_logserver.py     ||
