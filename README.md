@@ -11,7 +11,7 @@ Advanced Nagios Plugins Collection
 
 ##### Largest, most advanced collection of production-grade Nagios monitoring code (over 400 programs).
 
-Specialised plugins for Hadoop, Big Data & NoSQL technologies, written by a former Clouderan ([Cloudera](http://www.cloudera.com) was the first Hadoop Big Data vendor) and modern [Hortonworks](http://www.hortonworks.com) partner/consultant.
+Specialised plugins for Hadoop, Big Data & NoSQL technologies, written by a former Clouderan ([Cloudera](http://www.cloudera.com) was the first Hadoop Big Data vendor) and ex-[Hortonworks](http://www.hortonworks.com) consultant.
 
 Supports most major open source NoSQL technologies, Pub-Sub / Message Buses, CI, Web and Linux based infrastructure, including:
 
