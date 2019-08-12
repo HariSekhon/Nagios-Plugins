@@ -709,13 +709,13 @@ sudo pip install certifi==2015.04.28
 [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) & [DevOps Perl Tools](https://github.com/harisekhon/devops-perl-tools) repos - contains another 100+ programs including useful tools such as:
 
 * ```anonymize.pl``` / ```anonymize.py``` - anonymizes configs / logs for posting online - replaces hostnames/domains/FQDNs, IPs, passwords/keys in Cisco/Juniper configs, custom extensible phrases like your name or your company name
+* ```validate_json/yaml/ini/xml/avro/parquet.py``` - validates JSON, YAML, INI (Java Properties), XML, Avro, Parquet including directory trees, standard input and even optionally 'single quoted json' and multi-record bulk JSON data formats as found in MongoDB and Hadoop / Big Data systems.
+* PySpark Avro / CSV / JSON / Parquet data converters
+* code reCaser for SQL / Pig / Neo4j / Hive HQL / Cassandra / MySQL / PostgreSQL / Impala / MSSQL / Oracle / Dockerfiles
 * Hive / Pig => Elasticsearch / SolrCloud indexers
 * Hadoop HDFS performance debugger, native checksum extractor, HDFS file retention & snapshot retention policy scripts, HDFS file stats, XML & running Hadoop cluster config differ
 * ```watch_url.pl``` - debugs load balanced web farms via multiple queries to a URL - returns HTTP status codes, % success across all requests, timestamps, round trip times, and optionally the output
 * tools for Ambari, Pig, Hive, Spark + IPython Notebook, Solr CLI
-* code reCaser for SQL / Pig / Neo4j / Hive HQL / Cassandra / MySQL / PostgreSQL / Impala / MSSQL / Oracle / Dockerfiles
-* ```validate_json/yaml/ini/xml/avro/parquet.py``` - validates JSON, YAML, INI (Java Properties), XML, Avro, Parquet including directory trees, standard input and even optionally 'single quoted json' and multi-record bulk JSON data formats as found in MongoDB and Hadoop / Big Data systems.
-* PySpark Avro / CSV / JSON / Parquet data converters
 * Ambari Blueprints tool & templates
 * AWS CloudFormation templates
 * DockerHub API tools including more search results and fetching repo tags (not available in official Docker tooling)
