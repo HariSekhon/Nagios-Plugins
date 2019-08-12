@@ -31,6 +31,8 @@
 
 REPO := HariSekhon/Nagios-Plugins
 
+CODE_FILES := $(shell find . -type f -name '*.py' -o -type f -name '*.pl' -o -type f -name '*.sh' -o -type f -name '*.wsf' | grep -v -e bash-tools -e /lib/ -e /pylib/ -e TODO)
+
 ifneq ("$(wildcard bash-tools/Makefile.in)", "")
 	include bash-tools/Makefile.in
 endif
