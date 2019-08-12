@@ -15,7 +15,7 @@ Specialised plugins for Hadoop, Big Data & NoSQL technologies, written by a form
 
 Supports most major open source NoSQL technologies, Pub-Sub / Message Buses, CI, Web and Linux based infrastructure, including:
 
-- [Hadoop](http://hadoop.apache.org/) - extensive API integration to all major Hadoop vendors ([Hortonworks](http://www.hortonworks.com), [Cloudera](http://www.cloudera.com), [MapR](http://www.mapr.com), [IBM BigInsights](http://www-03.ibm.com/software/products/en/ibm-biginsights-for-apache-hadoop))
+- [Hadoop](http://hadoop.apache.org/) - extensive API integration to all major Hadoop vendors ([Cloudera](http://www.cloudera.com), [Hortonworks](http://www.hortonworks.com), [MapR](http://www.mapr.com), [IBM BigInsights](http://www-03.ibm.com/software/products/en/ibm-biginsights-for-apache-hadoop))
 - [Docker](https://www.docker.com/)
 - [Kafka](http://kafka.apache.org/)
 - [RabbitMQ](http://www.rabbitmq.com/)
@@ -115,7 +115,7 @@ There are over 400 programs in this repo so these are just some of the highlight
 ###### Quick Links:
 
 * [Hadoop Ecosystem](https://github.com/HariSekhon/nagios-plugins#hadoop-ecosystem) - HDFS, Yarn, HBase, Ambari, Atlas, Ranger
-  * [Hadoop Distributions](https://github.com/HariSekhon/nagios-plugins#hadoop-distributions) - Hortonworks, Cloudera, MapR, IBM BigInsights
+  * [Hadoop Distributions](https://github.com/HariSekhon/nagios-plugins#hadoop-distributions) - Cloudera, Hortonworks, MapR, IBM BigInsights
   * [SQL-on-Hadoop](https://github.com/HariSekhon/nagios-plugins#sql-on-hadoop) - Hive, Drill, Presto
 * [Service Discovery & Coordination](https://github.com/HariSekhon/nagios-plugins#service-discovery--coordination) - ZooKeeper, Consul, Vault
 * [Docker / Containerization](https://github.com/HariSekhon/nagios-plugins#docker--containerization) - Docker & Docker Swarm, Mesos, Kubernetes
@@ -147,8 +147,8 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
 
 ##### Hadoop Distributions
 
-- [Hortonworks](https://hortonworks.com/) - as this is the standard modern Hadoop distribution, see ```check_ambari.pl``` in the section above
 - ```check_cloudera_manager_*.pl``` - Hadoop cluster checks via [Cloudera Manager](https://www.cloudera.com/) API - checks states and health of cluster services/roles/nodes, management services, config staleness, Cloudera Enterprise license expiry, Cloudera Manager and CDH cluster versions, utility switches to list clusters/services/roles/nodes as well as list users and their role privileges, fetch a wealth of Hadoop & OS monitoring metrics from Cloudera Manager and compare to thresholds. Disclaimer: I worked for Cloudera, but seriously CM collects an impressive amount of metrics making check_cloudera_manager_metrics.pl alone a very versatile program from which to create hundreds of checks to flexibly alert on
+- [Hortonworks](https://hortonworks.com/) - the standard modern Hadoop distribution - see ```check_ambari_*.pl``` in the [Hadoop Ecosystem](https://github.com/HariSekhon/nagios-plugins#hadoop-ecosystem) section above
 - ```check_mapr*.pl``` - Hadoop cluster checks via [MapR](https://mapr.com/) Control System API - checks services and nodes, MapR-FS space (cluster and per volume), volume states, volume block replication, volume snapshots and mirroring, MapR-FS per disk space utilization on nodes, failed disks, CLDB heartbeats, MapR alarms, MapReduce mode and memory utilization, disk and role balancer metrics. These are noticeably faster than running equivalent maprcli commands (exceptions: disk/role balancer use maprcli).
 - ```check_ibm_biginsights_*.pl``` - Hadoop cluster checks via IBM BigInsights Console API - checks services, nodes, agents, BigSheets workbook runs, dfs paths and properties, HDFS space and block replication, BI console version, BI console applications deployed
 
