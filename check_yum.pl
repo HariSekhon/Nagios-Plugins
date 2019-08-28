@@ -21,7 +21,7 @@ See also: check_yum.py (the original, also part of the Advanced Nagios Plugins C
 Tested on CentOS 5 / 6 / 7
 ";
 
-$VERSION = "0.7.5";
+$VERSION = "0.7.6";
 
 use strict;
 use warnings;
@@ -117,7 +117,9 @@ sub check_yum_returncode($$){
             quit "UNKNOWN", "could't find loading plugin line in output: @output2";
         }
     } else {
-        if(!grep /Loading "security" plugin/, @output or grep /Command line error: no such option: --security/, @output){
+        if(grep /No more mirrors to try/, @output){
+            quit "UNKNOWN", "connectivity issue to repos: 'No more mirrors to try'. You could also try running --cache-only and scheduling a separate 'yum makecache' via cron or similar";
+        } elsif(!grep /Loading "security" plugin/, @output or grep /Command line error: no such option: --security/, @output){
             quit "UNKNOWN", "Security plugin for yum is required. Try to 'yum install yum-security' (RHEL5) or 'yum install yum-plugin-security' (RHEL6) and then re-run this plugin. Alternatively, to just alert on any update which does not require the security plugin, try --all-updates";
         } else {
             quit "UNKNOWN", "@output";
