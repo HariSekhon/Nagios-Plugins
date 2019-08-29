@@ -33,7 +33,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.8.8"
+__version__ = "0.8.9"
 
 # Standard Nagios return codes
 OK = 0
@@ -212,7 +212,11 @@ class YumTester(object):
                 output = self.strip_output(output)
                 end(UNKNOWN, "%s" % output)
         else:
-            if (not ('Loading "security" plugin' in output or 'Loaded plugins:.*security' in output)) \
+            if 'No more mirrors to try' in output:
+                end(UNKNOWN, 'connectivity issue to repos: \'No more mirrors to try\'. ' + \
+                             'You could also try running --cache-only and ' + \
+                             'scheduling a separate \'yum makecache\' via cron or similar')
+            elif (not ('Loading "security" plugin' in output or 'Loaded plugins:.*security' in output)) \
                or "Command line error: no such option: --security" in output:
                 end(UNKNOWN, "Security plugin for yum is required. Try to "    \
                            + "'yum install yum-security' (RHEL5) or " \
