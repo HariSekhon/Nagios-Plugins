@@ -25,8 +25,9 @@ services:
     environment:
       - ELASTIC_PASSWORD=password
     # starts quicker but doesn't enable API features needed for tests
-    #environment:
-    #  - discovery.type=single-node
+    # needed to boot now in 7.1
+    environment:
+      - discovery.type=single-node
     networks:
       - elasticsearch
   elasticsearch-haproxy:
