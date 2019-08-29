@@ -45,7 +45,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 class CheckElasticsearchXPackFeatureEnabled(RestNagiosPlugin):
@@ -59,7 +59,7 @@ class CheckElasticsearchXPackFeatureEnabled(RestNagiosPlugin):
         self.default_port = 9200
         #self.path = '/_xpack?categories=license,features'
         self.path = '/_xpack?categories=features&human=false'
-        self.auth = True
+        self.auth = 'optional'
         self.json = True
         self.msg = 'Elasticsearch msg not defined yet'
         self.feature = None
