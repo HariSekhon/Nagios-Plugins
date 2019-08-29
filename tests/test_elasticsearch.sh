@@ -162,30 +162,47 @@ elasticsearch_tests(){
 
     run_conn_refused $perl -T ./check_elasticsearch.pl -v --es-version "$version"
 
-    if [ "$X_PACK" = 1 ]; then
-        run ./check_elasticsearch_x-pack_license_expiry.py --trial -w 20
+    if [ "$X_PACK" = 1 ] || [  "${version:0:1}" -ge 7 ]; then
+        local license_opts="--trial"
+        if [ "${version:0:1}" -ge 7 ]; then
+            license_opts="--basic"
+        fi
+        run ./check_elasticsearch_x-pack_license_expiry.py -w 20 $license_opts
 
+        # fail with warning without --trial or --basic
         run_fail 1 ./check_elasticsearch_x-pack_license_expiry.py -w 20
 
-        run_fail 1 ./check_elasticsearch_x-pack_license_expiry.py --trial
+        # fail with warning without --trial or --basic
+        run_fail 1 ./check_elasticsearch_x-pack_license_expiry.py
 
-        run_fail 2 ./check_elasticsearch_x-pack_license_expiry.py -c 30
+        # basic license doesn't expire
+        if [[ "$license_opts" =~ --basic ]]; then
+            run ./check_elasticsearch_x-pack_license_expiry.py -c 30 $license_opts
+        else
+            run_fail 2 ./check_elasticsearch_x-pack_license_expiry.py -c 30 $license_opts
+        fi
 
-        run_conn_refused ./check_elasticsearch_x-pack_license_expiry.py
+        run_conn_refused ./check_elasticsearch_x-pack_license_expiry.py $license_opts
 
         run_fail 3 ./check_elasticsearch_x-pack_feature_enabled.py -l
 
-        run ./check_elasticsearch_x-pack_feature_enabled.py -f security
+        if [[ "$license_opts" =~ --basic ]]; then
+            # available but not enabled in the basic deployment
+            run_fail 2 ./check_elasticsearch_x-pack_feature_enabled.py -f security
+            # not available
+            run_fail 2 ./check_elasticsearch_x-pack_feature_enabled.py -f logstash
+            run_fail 2 ./check_elasticsearch_x-pack_feature_enabled.py -f ml
+            run_fail 2 ./check_elasticsearch_x-pack_feature_enabled.py -f graph
+            run_fail 2 ./check_elasticsearch_x-pack_feature_enabled.py -f watcher
+        else
+            run ./check_elasticsearch_x-pack_feature_enabled.py -f security
+            run ./check_elasticsearch_x-pack_feature_enabled.py -f logstash
+            run ./check_elasticsearch_x-pack_feature_enabled.py -f ml
+            run ./check_elasticsearch_x-pack_feature_enabled.py -f graph
+            run ./check_elasticsearch_x-pack_feature_enabled.py -f watcher
+        fi
 
         run ./check_elasticsearch_x-pack_feature_enabled.py -f monitoring
-
-        run ./check_elasticsearch_x-pack_feature_enabled.py -f logstash
-
-        run ./check_elasticsearch_x-pack_feature_enabled.py -f ml
-
-        run ./check_elasticsearch_x-pack_feature_enabled.py -f graph
-
-        run ./check_elasticsearch_x-pack_feature_enabled.py -f watcher
 
         run_fail 2 ./check_elasticsearch_x-pack_feature_enabled.py -f nonexistentfeature
 
