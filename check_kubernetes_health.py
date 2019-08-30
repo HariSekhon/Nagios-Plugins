@@ -42,7 +42,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2'
+__version__ = '0.2.1'
 
 
 class CheckKubernetesHealth(RestNagiosPlugin):
@@ -56,7 +56,7 @@ class CheckKubernetesHealth(RestNagiosPlugin):
         self.default_port = 8001
         # or just /healthz
         self.path = '/healthz/ping'
-        self.auth = False
+        self.auth = 'optional'
         self.json = False
         self.msg = 'Kubernetes msg not defined yet'
 
