@@ -15,32 +15,34 @@
 
 matrix:
   include:
+
     - os: linux
       language: perl
       perl:
         # this build has thread support
         - "5.24-shrplib"
-        #- "5.22"
-        #- "5.18-shrplib"
-        #- "5.16"
-        # latest Redis cpan module requires Perl >= 5.10
-        - "5.10"
-        # there is workaround in build now to install older version if latest fails for RHEL5/CentOS5 servers
-        # other CPAN modules are broken for Perl 5.8, re-visit
-        #- "5.8"
+
     - os: osx
       language: perl
       perl:
         # this build has thread support
         - "5.24-shrplib"
-        #- "5.22"
-        #- "5.18-shrplib"
-        #- "5.16"
+
+    # matrix include doesn't seem to build the later perl array items for 5.10, so use a separate include for them
+    - os: linux
+      language: perl
+      perl:
         # latest Redis cpan module requires Perl >= 5.10
         - "5.10"
         # there is workaround in build now to install older version if latest fails for RHEL5/CentOS5 servers
         # other CPAN modules are broken for Perl 5.8, re-visit
         #- "5.8"
+
+    - os: osx
+      language: perl
+      perl:
+        - "5.10"
+
     - os: linux
       language: python
       python:
@@ -55,7 +57,8 @@ matrix:
         # here: https://travis-ci.org/HariSekhon/pylib/jobs/283211758#L654
         #- "pypy"
         #- "pypy3"
-    # workaround is to use generic and install to system python
+
+    # Travis CI doesn't support Python virtual envs on Mac OS X yet, workaround is to use generic and install to system python
     - os: osx
       language: generic
 
