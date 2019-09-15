@@ -67,15 +67,15 @@ dist: trusty
 
 sudo: required
 
-env:
-  - DOCKER_COMPOSE_VERSION=1.16.1 PYTHONUNBUFFERED=1
-
 notifications:
   email: false
 
 branches:
   only:
     - master
+
+env:
+  - DOCKER_COMPOSE_VERSION=1.16.1 PYTHONUNBUFFERED=1
 
 before_install:
   - sudo rm /usr/local/bin/docker-compose || :
