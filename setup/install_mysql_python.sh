@@ -18,6 +18,7 @@
 
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
+srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [ "$(uname -s)" = Darwin ]; then
     echo "Running workaround installation for MySQL-Python on Mac OS X"
@@ -32,7 +33,7 @@ if [ "$(uname -s)" = Darwin ]; then
     #export OPENSSL_INCLUDE=/usr/local/opt/openssl/include
     #export OPENSSL_LIB=/usr/local/opt/openssl/lib
     #export LIBRARY_PATH="${LIBRARY_PATH:-}:/usr/local/opt/openssl/lib/"
-    ../bash-tools/python_pip_install.sh MySQL-python
+    "$srcdir/../bash-tools/python_pip_install.sh" MySQL-python
     brew unlink mysql-connector-c
     brew link --overwrite mysql
     python -c 'import MySQLdb'
