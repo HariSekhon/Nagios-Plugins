@@ -22,15 +22,17 @@ set -euo pipefail
 if [ "$(uname -s)" = Darwin ]; then
     echo "Running workaround installation for MySQL-Python on Mac OS X"
     set -x
-    brew install --force mysql openssl
+    # avoid erroring if it is already installed but not latest version
+    brew install --force mysql openssl || :
     brew unlink mysql
-    brew install --force mysql-connector-c
+    brew install --force mysql-connector-c || :
     brew link mysql-connector-c
     #sed -i -e 's/libs="$libs -l "/libs="$libs -lmysqlclient -lssl -lcrypto"/g' /usr/local/bin/mysql_config
-    export OPENSSL_INCLUDE=/usr/local/opt/openssl/include
-    export OPENSSL_LIB=/usr/local/opt/openssl/lib
-    export LIBRARY_PATH="${LIBRARY_PATH:-}:/usr/local/opt/openssl/lib/"
-    pip install --user MySQL-python
+    # handled in ../bash-tools/python_pip_install.sh
+    #export OPENSSL_INCLUDE=/usr/local/opt/openssl/include
+    #export OPENSSL_LIB=/usr/local/opt/openssl/lib
+    #export LIBRARY_PATH="${LIBRARY_PATH:-}:/usr/local/opt/openssl/lib/"
+    ../bash-tools/python_pip_install.sh MySQL-python
     brew unlink mysql-connector-c
     brew link --overwrite mysql
     python -c 'import MySQLdb'
