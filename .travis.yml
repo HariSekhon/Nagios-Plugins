@@ -78,7 +78,7 @@ branches:
     - master
 
 env:
-  - DOCKER_COMPOSE_VERSION=1.16.1 PYTHONUNBUFFERED=1
+  - DOCKER_COMPOSE_VERSION=1.16.1 PYTHONUNBUFFERED=1 PYTHON_USER_INSTALL=1
 
 before_install:
   - sudo rm -f /usr/local/bin/docker-compose
