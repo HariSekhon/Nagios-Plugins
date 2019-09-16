@@ -139,6 +139,8 @@ python-libs:
 	# fixes bug in cffi version detection when installing requests-kerberos
 	$(SUDO_PIP) pip install --upgrade pip
 
+	setup/install_mysql_python.sh
+
 	# only install pip packages not installed via system packages
 	#$(SUDO_PIP) pip install --upgrade -r requirements.txt
 	#$(SUDO_PIP) pip install -r requirements.txt
