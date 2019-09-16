@@ -22,7 +22,7 @@ set -euo pipefail
 if [ "$(uname -s)" = Darwin ]; then
     echo "Running workaround installation for MySQL-Python on Mac OS X"
     set -x
-    brew install --force mysql
+    brew install --force mysql openssl
     brew unlink mysql
     brew install --force mysql-connector-c
     brew link mysql-connector-c
