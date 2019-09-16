@@ -106,7 +106,7 @@ install:
   # chown root still same error... must be because pure python submodules don't sudo in Travis
   #
   # Travis has python install before in $PATH even in Perl builds so need to install PyPI modules here otherwise they're not found, but perms not set correctly on Travis build to do this, better than modifying $PATH to put /usr/bin first which is likely to affect many other things including potentially not find the perlbrew installation first
-  - sudo chown -fR travis /opt/python /usr/local /usr/lib/python*
+  - sudo chown -fR travis /usr/local /usr/lib/python*
   - travis_retry make && travis_retry make zookeeper
 
 script:
