@@ -52,18 +52,26 @@ tests_succeeded=""
 tests_failed=""
 
 SECONDS=0
-test_scripts="$(find tests -name 'test*.sh' | sort)"
-if is_CI && [ $((RANDOM % 2)) = 0 ]; then
-    echo "Reversing test script list to give more likely coverage to scripts at the end of the list within the limited build time limits"
-    test_scripts="$(tail -r <<< "$test_scripts")"
-fi
+
+#test_scripts="$(find tests -name 'test*.sh' | sort)"
+#if is_CI && [ $((RANDOM % 2)) = 0 ]; then
+#    echo "Reversing test script list to give more likely coverage to scripts at the end of the list within the limited build time limits"
+#    test_scripts="$(tail -r <<< "$test_scripts")"
+#fi
+
+# better than above
+# randomize and take top 5 results since we need to limit runtime
+# more important than deterministic ordering and better than random ordered skips
+test_scripts="$(find tests -name 'test*.sh' | perl -MList::Util=shuffle -e 'print shuffle<STDIN>' | head -n 5)"
+
 for script in $test_scripts; do
     if [ -n "${NOTESTS:-}" ] && [ "$script" = "run_tests.sh" ]; then
         echo "NOTESTS env var specified, skipping dockerized tests"
         continue
     fi
     if is_CI; then
-        [ $((RANDOM % 4)) = 0 ] || continue
+        # limiting test scripts above now due to too many builds and cumulative run times causing failures
+        #[ $((RANDOM % 4)) = 0 ] || continue
         max_mins=12
         if is_travis && [ $SECONDS -gt $((max_mins*60)) ]; then
             echo "Build has been running for longer than $max_mins minutes and is inside Travis CI, skipping rest of test_*.sh scripts"
