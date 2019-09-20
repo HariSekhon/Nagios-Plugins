@@ -20,7 +20,9 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
+# shellcheck disable=SC1091
 . tests/utils.sh
+# shellcheck disable=SC1091
 . bash-tools/lib/docker.sh
 
 section "Running Nagios Plugins ALL"
@@ -33,6 +35,7 @@ declare_if_inside_docker
 
 nagios_plugins_start_time="$(start_timer)"
 
+# shellcheck disable=SC1091
 . tests/excluded.sh
 
 bash-tools/all.sh
@@ -49,22 +52,27 @@ tests_succeeded=""
 tests_failed=""
 
 SECONDS=0
-for script in $(find tests -name 'test*.sh' | sort); do
-    if [ -n "${NOTESTS:-}" -a "$script" = "run_tests.sh" ]; then
+test_scripts="$(find tests -name 'test*.sh' | sort)"
+if is_CI && [ $((RANDOM % 2)) = 0 ]; then
+    echo "Reversing test script list to give more likely coverage to scripts at the end of the list within the limited build time limits"
+    test_scripts="$(tail -r <<< "$test_scripts")"
+fi
+for script in $test_scripts; do
+    if [ -n "${NOTESTS:-}" ] && [ "$script" = "run_tests.sh" ]; then
         echo "NOTESTS env var specified, skipping dockerized tests"
         continue
     fi
     if is_CI; then
-        [ $(($RANDOM % 4)) = 0 ] || continue
-        max_mins=15
-        if is_travis && [ $SECONDS -gt $(($max_mins*60)) ]; then
+        [ $((RANDOM % 4)) = 0 ] || continue
+        max_mins=12
+        if is_travis && [ $SECONDS -gt $((max_mins*60)) ]; then
             echo "Build has been running for longer than $max_mins minutes and is inside Travis CI, skipping rest of test_*.sh scripts"
             break
         fi
         tests_run="$tests_run
 $script"
         declare_if_inside_docker
-        if time $script ${VERSION:-}; then
+        if time "$script" "${VERSION:-}"; then
             tests_succeeded="$tests_succeeded
 $script"
         else
@@ -73,7 +81,7 @@ $script"
         fi
     else
         declare_if_inside_docker
-        time $script ${VERSION:-}
+        time "$script" "${VERSION:-}"
     fi
 done
 
