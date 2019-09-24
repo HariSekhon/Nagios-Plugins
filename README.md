@@ -487,30 +487,28 @@ The automated build also works on Mac OS X but you will need to download and ins
 brew install openssl snappy mysql wget
 ```
 
-CPAN's Crypt::SSLeay may not find the OpenSSL header and error like so:
+###### OpenSSL Fixes
+
+####### Perl CPAN Crypt::SSLeay
+
+To avoid the following cpan install error:
 
 ```
 fatal error: 'openssl/opensslv.h' file not found
 #include <openssl/opensslv.h>
 ```
 
-In this case, give it the path to the OpenSSL lib to build:
+specify the path to the OpenSSL lib installed by HomeBrew:
 
 ```
 sudo OPENSSL_INCLUDE=/usr/local/opt/openssl/include OPENSSL_LIB=/usr/local/opt/openssl/lib cpan Crypt::SSLeay
 ```
 
-then continue with the rest of the build:
+###### Perl CPAN DBD::mysql
 
-```
-make
-```
+Ensure the `DBI` cpan module is installed as well as the `openssl` HomeBrew package.
 
-###### Perl CPAN MySQL module DBD::mysql
-
-Ensure the `DBI` module is installed as well as the `openssl` HomeBrew package.
-
-You may also need to add OpenSSL library path explicitly in `mysql_config` to avoid the following error:
+You may need to add the OpenSSL library path explicitly in `mysql_config` to avoid the following error:
 ```
 Checking if libs are available for compiling...
 Can't link/include C library 'ssl', 'crypto', aborting.
@@ -525,9 +523,9 @@ to
 libs="-L$pkglibdir -L/usr/local/opt/openssl/lib"
 ```
 
-You may get errors trying to install to Python library paths even as root on newer versions of Mac, sometimes this is caused by pip 10 vs pip 9 and downgrading will work around it:
-
 ###### Pip
+
+You may get errors trying to install to Python library paths even as root on newer versions of Mac, sometimes this is caused by pip 10 vs pip 9 and downgrading will work around it:
 
 ```
 sudo pip install --upgrade pip==9.0.1
