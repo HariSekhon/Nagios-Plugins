@@ -506,7 +506,28 @@ then continue with the rest of the build:
 make
 ```
 
+###### Perl CPAN MySQL module DBD::mysql
+
+Ensure the `DBI` module is installed as well as the `openssl` HomeBrew package.
+
+You may also need to add OpenSSL library path explicitly in `mysql_config` to avoid the following error:
+```
+Checking if libs are available for compiling...
+Can't link/include C library 'ssl', 'crypto', aborting.
+```
+Once you're sure that OpenSSL is installed via HomeBrew (done as part of the automated build), find `mysql_config` and edit the line
+
+```
+libs="-L$pkglibdir"
+```
+to
+```
+libs="-L$pkglibdir -L/usr/local/opt/openssl/lib"
+```
+
 You may get errors trying to install to Python library paths even as root on newer versions of Mac, sometimes this is caused by pip 10 vs pip 9 and downgrading will work around it:
+
+###### Pip
 
 ```
 sudo pip install --upgrade pip==9.0.1
