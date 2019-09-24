@@ -93,9 +93,9 @@ perl-libs:
 
 	# You may need to set this to get the DBD::mysql module to install if you have mysql installed locally to /usr/local/mysql
 	#export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/usr/local/mysql/lib/"
-	
+
 	@bash-tools/perl_cpanm_install_if_absent.sh setup/cpan-requirements.txt setup/cpan-requirements-packaged.txt
-	
+
 	# packaged version is not new enough:
 	# ./check_mongodb_master.pl:  CRITICAL: IO::Socket::IP version 0.32 required--this is only version 0.21 at /usr/local/share/perl5/MongoDB/_Link.pm line 53.
 	$(SUDO_PERL) $(CPANM) --notest IO::Socket::IP
@@ -155,14 +155,14 @@ python-libs:
 
 	#. tests/utils.sh; $(SUDO) $$perl couchbase-csdk-setup
 	#$(SUDO_PIP) pip install couchbase
-	
+
 	# install MySQLdb python module for check_logserver.py / check_syslog_mysql.py
 	# fails if MySQL isn't installed locally
 	# Mac fails to import module, one workaround is:
 	# sudo install_name_tool -change libmysqlclient.18.dylib /usr/local/mysql/lib/libmysqlclient.18.dylib /Library/Python/2.7/site-packages/_mysql.so
 	# in requirements.txt now
 	#$(SUDO_PIP) pip install MySQL-python
-	
+
 	# must downgrade happybase library to work on Python 2.6
 	if [ "$$(python -c 'import sys; sys.path.append("pylib"); import harisekhon; print(harisekhon.utils.getPythonVersion())')" = "2.6" ]; then $(SUDO_PIP) pip install --upgrade "happybase==0.9"; fi
 
@@ -242,7 +242,7 @@ basic-test: lib-test
 	tests/help.sh
 
 .PHONY: install
-install:
+install: build
 	@echo "No installation needed, just add '$(PWD)' to your \$$PATH and Nagios commands.cfg"
 
 .PHONY: clean
