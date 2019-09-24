@@ -489,7 +489,7 @@ brew install openssl snappy mysql wget
 
 ###### OpenSSL Fixes
 
-####### Perl CPAN Crypt::SSLeay
+###### Perl CPAN Crypt::SSLeay
 
 To avoid the following cpan install error:
 
