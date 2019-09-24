@@ -523,7 +523,7 @@ to
 libs="-L$pkglibdir -L/usr/local/opt/openssl/lib"
 ```
 
-###### Pip
+###### Python Pip
 
 You may get errors trying to install to Python library paths even as root on newer versions of Mac, sometimes this is caused by pip 10 vs pip 9 and downgrading will work around it:
 
