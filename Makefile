@@ -191,20 +191,7 @@ pycompile:
 ZOOKEEPER_VERSION = 3.4.12
 .PHONY: zookeeper
 zookeeper: perl
-	[ -f zookeeper-$(ZOOKEEPER_VERSION).tar.gz ] || wget -qO zookeeper-$(ZOOKEEPER_VERSION).tar.gz "http://www.apache.org/dyn/closer.lua?filename=zookeeper/zookeeper-${ZOOKEEPER_VERSION}/zookeeper-${ZOOKEEPER_VERSION}.tar.gz&action=download" || wget -t 2 --retry-connrefused -qO zookeeper-$(ZOOKEEPER_VERSION).tar.gz "https://archive.apache.org/dist/zookeeper/zookeeper-$(ZOOKEEPER_VERSION)/zookeeper-$(ZOOKEEPER_VERSION).tar.gz"
-	[ -d zookeeper-$(ZOOKEEPER_VERSION) ] || tar zxf zookeeper-$(ZOOKEEPER_VERSION).tar.gz
-	# if first compile fails, it's probably newer GCC so set -Wno-error=format-overflow=
-	# https://issues.apache.org/jira/projects/ZOOKEEPER/issues/ZOOKEEPER-3293
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c && ./configure && $(MAKE) || \
-		CFLAGS="$$CFLAGS -Wno-error=format-overflow=" ./configure && $(MAKE)
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/c && $(SUDO) $(MAKE) install
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl && \
-		perl Makefile.PL --zookeeper-include=/usr/local/include --zookeeper-lib=/usr/local/lib && \
-		LD_RUN_PATH=/usr/local/lib $(SUDO) make || \
-		perl -pi -e 's/-Werror=format-security//' Makefile && \
-		LD_RUN_PATH=/usr/local/lib $(SUDO) make
-	cd zookeeper-$(ZOOKEEPER_VERSION)/src/contrib/zkperl && $(SUDO) $(MAKE) install
-	perl -e "use Net::ZooKeeper"
+	ZOOKEEPER_VERSION="$(ZOOKEEPER_VERSION)" setup/install_zookeeper_perl.sh
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins zkperl)"
 	@echo
