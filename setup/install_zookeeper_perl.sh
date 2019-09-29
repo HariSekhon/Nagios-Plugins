@@ -32,7 +32,11 @@ TARDIR="${TARBALL%.tar.gz}"
 make="${MAKE:-make}"
 
 sudo=""
-[ "${EUID:-}" = 0 ] || sudo=sudo
+if [ $EUID != 0 ] &&
+   [ -z "${PERLBREW_PERL:-}" ]; then
+    SUDO=sudo
+fi
+
 
 check_installed(){
     echo "checking zkperl installation:"
