@@ -164,7 +164,8 @@ python-libs:
 	#$(SUDO_PIP) pip install MySQL-python
 
 	# must downgrade happybase library to work on Python 2.6
-	if [ "$$(python -c 'import sys; sys.path.append("pylib"); import harisekhon; print(harisekhon.utils.getPythonVersion())')" = "2.6" ]; then $(SUDO_PIP) pip install --upgrade "happybase==0.9"; fi
+	#if [ "$$(python -c 'import sys; sys.path.append("pylib"); import harisekhon; print(harisekhon.utils.getPythonVersion())')" = "2.6" ]; then $(SUDO_PIP) pip install --upgrade "happybase==0.9"; fi
+	if python -V 2>&1 | grep -q '^Python 2.6'; then $(SUDO_PIP) pip install --upgrade "happybase==0.9"; fi
 
 	@echo
 	unalias mv 2>/dev/null; \
