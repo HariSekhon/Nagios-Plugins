@@ -32,8 +32,7 @@ TARDIR="${TARBALL%.tar.gz}"
 make="${MAKE:-make}"
 
 sudo=""
-if [ $EUID != 0 ] &&
-   [ -z "${PERLBREW_PERL:-}" ]; then
+if [ $EUID != 0 ]; then
     SUDO=sudo
 fi
 
