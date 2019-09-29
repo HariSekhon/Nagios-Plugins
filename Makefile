@@ -190,16 +190,16 @@ pycompile:
 # https://issues.apache.org/jira/browse/ZOOKEEPER-2049
 ZOOKEEPER_VERSION = 3.4.12
 .PHONY: zookeeper
-zookeeper: perl
+zookeeper: perl zkperl
+	@:
+
+.PHONY: zkperl
+zkperl:
 	ZOOKEEPER_VERSION="$(ZOOKEEPER_VERSION)" setup/install_zookeeper_perl.sh
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins zkperl)"
 	@echo
 	@echo
-
-.PHONY: zkperl
-zkperl: zookeeper
-	:
 
 .PHONY: jar-plugins
 jar-plugins:
