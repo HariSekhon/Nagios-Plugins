@@ -88,7 +88,7 @@ cd "../contrib/zkperl"
 perl Makefile.PL --zookeeper-include=/usr/local/include --zookeeper-lib=/usr/local/lib
 
 make_lib(){
-    LD_RUN_PATH=/usr/local/lib $sudo "$make"
+    $sudo LD_RUN_PATH=/usr/local/lib "$make"
 }
 
 make_lib || {
