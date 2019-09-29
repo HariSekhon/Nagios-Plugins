@@ -36,8 +36,9 @@ sudo=""
 
 check_installed(){
     echo "checking zkperl installation:"
-    echo "perl 'use Net::ZooKeeper'"
-    perl -e "use Net::ZooKeeper"
+    local cmd="perl -e 'use Net::ZooKeeper'"
+    echo "$cmd"
+    eval $cmd
 
 }
 
