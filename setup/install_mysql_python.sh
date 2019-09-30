@@ -22,6 +22,10 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [ "$(uname -s)" = Darwin ]; then
     echo "Running workaround installation for MySQL-Python on Mac OS X"
+    if python -c 'import MySQLdb'; then
+        echo "MySQLdb is already installed, skipping installation"
+        exit 0
+    fi
     set -x
     # avoid erroring if it is already installed but not latest version
     brew install --force mysql openssl || :
