@@ -20,9 +20,13 @@ set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+check_mysql_python(){
+    python -c 'import MySQLdb'
+}
+
 if [ "$(uname -s)" = Darwin ]; then
     echo "Running workaround installation for MySQL-Python on Mac OS X"
-    if python -c 'import MySQLdb'; then
+    if check_mysql_python 2>/dev/null; then
         echo "MySQLdb is already installed, skipping installation"
         exit 0
     fi
@@ -40,7 +44,7 @@ if [ "$(uname -s)" = Darwin ]; then
     "$srcdir/../bash-tools/python_pip_install.sh" MySQL-python
     brew unlink mysql-connector-c
     brew link --overwrite mysql
-    python -c 'import MySQLdb'
+    check_mysql_python
     echo "SUCCESS!!"
 else
     echo "MySQL-Python workaround install only needed on Mac, install via regular methods on other platforms"
