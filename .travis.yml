@@ -13,7 +13,7 @@
 #  http://www.linkedin.com/in/harisekhon
 #
 
-language: perl
+language: generic
 
 perl:
   #- "5.10"
