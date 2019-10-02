@@ -62,9 +62,9 @@ matrix:
       # numpy has gone 2.7+ only now
       python: "2.7"
 
-    - os: linux
-      language: python
-      python: "3.6"
+#    - os: linux
+#      language: python
+#      python: "3.6"
 
 #    - os: linux
 #      language: python
