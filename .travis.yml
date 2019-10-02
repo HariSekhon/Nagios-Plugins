@@ -13,6 +13,11 @@
 #  http://www.linkedin.com/in/harisekhon
 #
 
+language:
+  - perl
+  - python
+  - generic
+
 matrix:
   include:
 
