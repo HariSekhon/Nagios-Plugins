@@ -62,9 +62,12 @@ matrix:
     - os: osx
       language: generic
 
-#os:
-#  - linux
-#  - osx
+  allowed_failures:
+    - os: osx
+
+os:
+  - linux
+  - osx
 
 dist: trusty
 
