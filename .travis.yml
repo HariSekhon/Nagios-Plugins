@@ -64,6 +64,10 @@ matrix:
 
     - os: linux
       language: python
+      python: "3.6"
+
+    - os: linux
+      language: python
       python: "pypy"
 
     - os: linux
@@ -76,6 +80,8 @@ matrix:
 
   allow_failures:
     - os: osx
+    - python: "3.6"
+    - python: "pypy3"
 
 os:
   - linux
