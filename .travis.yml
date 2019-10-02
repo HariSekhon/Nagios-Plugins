@@ -13,19 +13,23 @@
 #  http://www.linkedin.com/in/harisekhon
 #
 
-language:
-  - perl
-  - python
-  - generic
+perl:
+  - "5.10"
+  - "5.24-shrplib"
+
+python:
+  - "2.7"
+  - "3.6"
+  - "pypy"
+  - "pypy3"
 
 matrix:
   include:
 
     - os: linux
       language: perl
-      perl:
-        # this build has thread support
-        - "5.24-shrplib"
+      # this build has thread support
+      perl: "5.24-shrplib"
 
 #    - os: osx
 #      language: perl
@@ -50,18 +54,20 @@ matrix:
 
     - os: linux
       language: python
-      python:
-        # numpy has gone 2.7+ only now
-        #- "2.6"
-        - "2.7"
-        #- "3.2"
-        #- "3.3"
-        #- "3.4"
-        #- "3.5"
-        # PyPy is getting UnicodeEncodeError: 'ascii' codec can't encode characters in position 9-12: ordinal not in range(128)
-        # here: https://travis-ci.org/HariSekhon/pylib/jobs/283211758#L654
+      # numpy has gone 2.7+ only now
+      python: "2.7"
         #- "pypy"
         #- "pypy3"
+
+    - os: linux
+      language: python
+      # numpy has gone 2.7+ only now
+      python: "pypy"
+
+    - os: linux
+      language: python
+      # numpy has gone 2.7+ only now
+      python: "pypy3"
 
     # Travis CI doesn't support Python virtual envs on Mac OS X yet, workaround is to use generic and install to system python
     - os: osx
