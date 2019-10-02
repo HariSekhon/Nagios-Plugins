@@ -34,11 +34,11 @@ matrix:
 #        - "5.24-shrplib"
 
     # matrix include doesn't seem to build the later perl array items for 5.10, so use a separate include for them
-    - os: linux
-      language: perl
-      perl:
+    #- os: linux
+    #  language: perl
+    #  perl:
         # latest Redis cpan module requires Perl >= 5.10
-        - "5.10"
+    #    - "5.10"
         # there is workaround in build now to install older version if latest fails for RHEL5/CentOS5 servers
         # other CPAN modules are broken for Perl 5.8, re-visit
         #- "5.8"
