@@ -13,10 +13,10 @@
 #  http://www.linkedin.com/in/harisekhon
 #
 
-#language:
-#  - perl
-#  - python
-#  - generic
+language:
+  - perl
+  - python
+  - generic
 
 perl:
   - "5.10"
