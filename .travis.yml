@@ -13,6 +13,11 @@
 #  http://www.linkedin.com/in/harisekhon
 #
 
+language:
+  - perl
+  - python
+  - generic
+
 perl:
   - "5.10"
   - "5.24-shrplib"
@@ -56,17 +61,13 @@ matrix:
       language: python
       # numpy has gone 2.7+ only now
       python: "2.7"
-        #- "pypy"
-        #- "pypy3"
 
     - os: linux
       language: python
-      # numpy has gone 2.7+ only now
       python: "pypy"
 
     - os: linux
       language: python
-      # numpy has gone 2.7+ only now
       python: "pypy3"
 
     # Travis CI doesn't support Python virtual envs on Mac OS X yet, workaround is to use generic and install to system python
