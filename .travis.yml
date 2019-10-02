@@ -14,10 +14,14 @@
 #
 
 language:
-  perl:
+  - perl
+  - python
+
+perl:
     #- "5.10"
     - "5.24-shrplib"
-  python:
+
+python:
     - "2.7"
   #  - "3.6"
   #  - "pypy"
