@@ -76,8 +76,8 @@ matrix:
 
     # Travis CI doesn't support Python virtual envs on Mac OS X yet, workaround is to use generic and install to system python
     # results in a duplicate matrix multiplier giving 2 x osx generic
-    - os: osx
-      language: generic
+    #- os: osx
+    #  language: generic
 
   allow_failures:
     - os: osx
