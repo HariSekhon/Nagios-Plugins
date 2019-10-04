@@ -10,7 +10,7 @@
 
 export PATH=$PATH:/usr/lib64/nagios/plugins:/usr/lib/nagios/plugins:/usr/nagios/libexec:/usr/local/nagios/libexec
 
-if ! which check_nt &>/dev/null; then
+if ! type -P check_nt &>/dev/null; then
     echo "CRITICAL: check_nt was not found in path"
     exit $CRITICAL
 fi

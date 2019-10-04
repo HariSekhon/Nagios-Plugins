@@ -46,7 +46,7 @@ run_conn_refused ./check_zaloni_bedrock_workflow.py --all -v --min-runtime 0
 if [ -z "${ZALONI_BEDROCK_HOST:-}" ]; then
     echo "WARNING: \$ZALONI_BEDROCK_HOST not set, skipping real Zaloni checks"
 else
-    if which nc &>/dev/null && ! echo | nc -w 1 "$ZALONI_BEDROCK_HOST" "$ZALONI_BEDROCK_PORT"; then
+    if type -P nc &>/dev/null && ! echo | nc -w 1 "$ZALONI_BEDROCK_HOST" "$ZALONI_BEDROCK_PORT"; then
         echo "WARNING: Zaloni Bedrock host $ZALONI_BEDROCK_HOST:$ZALONI_BEDROCK_PORT not up, skipping Zaloni checks"
     else
         run_fail 3 ./check_zaloni_bedrock_ingestion.py -l

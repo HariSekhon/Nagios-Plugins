@@ -131,7 +131,7 @@ riak_tests(){
     # riak-admin doesn't work in Dockerized environments, fails trying to stat '/proc/sys/net/core/wmem_default'
     #docker_exec check_riak_diag.pl --ignore-warnings -v
     # must attempt to check this locally if available - but may get "CRITICAL: 'riak-admin diag' returned 1 -  Node is not running!"
-    if which riak-admin; then
+    if type -P riak-admin; then
         run_fail "0 2" $perl -T check_riak_diag.pl --ignore-warnings -v
     else
         echo "WARNING: riak-admin not available locally, skipping test of check_riak_diag.pl as it doesn't work in dockerized environments (fails to stat  '/proc/sys/net/core/wmem_default')"

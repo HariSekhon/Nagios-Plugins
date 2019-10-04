@@ -100,7 +100,7 @@ resolve_name(){
     #if ! [[ "$name" == [0-9]*.[0-9]*.[0-9]*.[0-9]* ]]; then
     # TODO Improve this Regex
     if grep -E "([12]?[0-9]{1,2}\.){3}[12]?[0-9]{1,2}" <<< "$target" &>/dev/null; then
-        if ! which host &>/dev/null; then
+        if ! type -P host &>/dev/null; then
             echo "Host command not found, unable to resolve ip to hostname for event handler"
             return 1
         fi
@@ -138,7 +138,7 @@ netsend(){
     #
     # netsend hostname "X has gone wrong with Y"
     #
-    if ! which smbclient >/dev/null 2>&1; then
+    if ! type -P smbclient >/dev/null 2>&1; then
         echo "ERROR: SMBCLIENT NOT FOUND, CANNOT NET SEND"
         return 1
     fi
@@ -172,7 +172,7 @@ mail_msg(){
     #
     # mail_msg "X has gone wrong with Y"
     #
-    if ! which mail >/dev/null 2>&1; then
+    if ! type -P mail >/dev/null 2>&1; then
         echo "ERROR: MAIL COMMAND NOT FOUND IN PATH"
         return 1
     fi

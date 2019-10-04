@@ -186,7 +186,7 @@ else
 
     # Make sure we have send_nsca before we begin
     if [ "$send_nsca" = "send_nsca" ]; then
-        if ! which "$send_nsca" >/dev/null 2>&1; then
+        if ! type -P "$send_nsca" >/dev/null 2>&1; then
             die "send_nsca was not found in the PATH!"
         fi
     else

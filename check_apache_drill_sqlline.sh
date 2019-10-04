@@ -83,7 +83,7 @@ jdbc_url="${jdbc_url//\`}"
 
 check_bin(){
     local bin="$1"
-    if ! which $bin &>/dev/null; then
+    if ! type -P $bin &>/dev/null; then
         echo "'$bin' command not found in \$PATH ($PATH)"
         exit $UNKNOWN
     fi

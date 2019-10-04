@@ -46,9 +46,9 @@ run ./adapter_check_mk.py $perl -T ./check_disk_write.pl -d .
 run ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$(git branch | awk '/^\*/{print $2}')"
 
 echo "testing stripping of numbered Python interpreter:"
-if which python2.7 &>/dev/null; then
+if type -P python2.7 &>/dev/null; then
     python=python2.7
-elif which python2.6 &>/dev/null; then
+elif type -P python2.6 &>/dev/null; then
     python=python2.6
 else
     python=python
