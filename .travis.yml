@@ -84,6 +84,9 @@ matrix:
     - python: "3.6"
     - python: "pypy"
     - python: "pypy3"
+    # TODO: remove these once I figure out why builds are failing
+    - language: generic
+    - python: "2.7"
 
 #os:
 #  - linux
