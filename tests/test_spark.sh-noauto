@@ -36,7 +36,7 @@ TAR="$SPARK.tgz"
 
 if ! [ -e "$TAR" ]; then
     echo "fetching Spark tarball '$TAR'"
-    if which wget &>/dev/null; then
+    if type -P wget &>/dev/null; then
         wget -t 100 --retry-connrefused "http://www.us.apache.org/dist/spark/spark-$SPARK_VERSION/$TAR"
     else
         curl -L "http://www.us.apache.org/dist/spark/spark-$SPARK_VERSION/$TAR" > "$TAR"
