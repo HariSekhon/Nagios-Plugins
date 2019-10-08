@@ -751,9 +751,9 @@ sudo pip install certifi==2015.04.28
 
 #### Compatible Monitoring Solutions
 
-The biggest advantage of Nagios compatible monitoring systems is the multitude of Nagios Plugins created by domain experts in each field to monitor almost everything out there.
+The biggest advantage of Nagios-compatible monitoring systems is the multitude of Nagios Plugins created by domain experts in each field to monitor almost everything out there.
 
-Nagios Plugins are widely and freely available across the internet, especially at the original [Nagios Exchange](https://exchange.nagios.org/) and the newer [Monitoring Exchange](https://exchange.icinga.com/) (at which you'll see this project at the top of the most viewed list).
+Nagios Plugins are widely and freely available across the internet, especially at the original [Nagios Exchange](https://exchange.nagios.org/) and the newer [Icinga Exchange](https://exchange.icinga.com/) (at which you'll see this project at the top of the most viewed list).
 
 The following enterprise monitoring systems are compatible with Nagios Plugins and this project:
 
