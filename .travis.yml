@@ -13,18 +13,6 @@
 #  http://www.linkedin.com/in/harisekhon
 #
 
-language: generic
-
-perl:
-  #- "5.10"
-  - "5.24-shrplib"
-
-python:
-  - "2.7"
-  - "3.6"
-  - "pypy"
-  - "pypy3"
-
 matrix:
   include:
 
