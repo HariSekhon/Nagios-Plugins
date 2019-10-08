@@ -107,6 +107,15 @@ Now run any plugin with ```--help``` to find out which switches to use.
 
 Make sure to read [Detailed Build Instructions](https://github.com/HariSekhon/nagios-plugins#detailed-build-instructions) further down for more information.
 
+#### Optional: Generate self-contained Perl scripts with all dependencies built in to each file for easy distribution
+
+After the `make` build has finished, if you want to make self-contained versions of all the perl scripts with all dependencies included for copying around, run:
+
+```
+make fatpacks
+```
+
+The self-contained scripts will be available in the `fatpacks/` directory.
 
 ## Quick Plugins Guide
 
