@@ -3,6 +3,8 @@
 *.pyc
 *.pyo
 *.log
+fatpacks/
+fatlib/
 find_active_*.py
 tests/bin/rabbitmqadmin
 tests/data/.minio.sys/
