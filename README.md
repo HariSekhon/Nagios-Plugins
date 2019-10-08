@@ -826,6 +826,7 @@ You can also execute these Nagios Plugins outside of any nagios-compatible monit
 - [IBM Tivoli](https://www.ibm.com/developerworks/community/wikis/home?lang=en#!/wiki/Tivoli+Monitoring)
 etc...
 
+You may also be interested in the feature matrix on the [Wikipedia page - Comparison of network monitoring systems](https://en.wikipedia.org/wiki/Comparison_of_network_monitoring_systems).
 
 ### More 3rd Party Nagios Plugins
 
