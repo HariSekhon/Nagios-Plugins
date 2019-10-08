@@ -129,6 +129,7 @@ script:
   - sudo sysctl -w net.ipv4.conf.all.forwarding=1
   # hitting 60 min timeout overall across all builds, retries will mask real error and cut off at random points making debugging harder
   - make test
+  - make fatpacks
 
 after_success:
   - echo "After Success"
