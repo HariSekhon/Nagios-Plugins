@@ -751,13 +751,19 @@ sudo pip install certifi==2015.04.28
 
 #### Compatible Monitoring Solutions
 
-The following enterprise monitoring systems are compatible with this project:
+The biggest advantage of Nagios compatible monitoring systems is the multitude of Nagios Plugins created by domain experts in each field to monitor almost everything out there.
 
-* [Nagios](https://www.nagios.org/) - the original widely used open source monitoring system that set the standard
+Nagios Plugins are widely and freely available across the internet, especially at the original [Nagios Exchange](https://exchange.nagios.org/) and the newer [Monitoring Exchange](https://exchange.icinga.com/) (at which you'll see this project at the top of the most viewed list).
+
+The following enterprise monitoring systems are compatible with Nagios Plugins and this project:
+
+* [Nagios Core](https://www.nagios.org/) - the original widely used open source monitoring system that set the standard
   * [Nagios Command Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#command)
   * [Nagios Service Configuration](http://nagios.sourceforge.net/docs/3_0/objectdefinitions.html#service)
   * [NRPE - Nagios Remote Plugin Executor](https://assets.nagios.com/downloads/nagioscore/docs/nrpe/NRPE.pdf) - most plugins check network services like NoSQL datastores but you can use NRPE for plugins that check the local system eg. ```check_linux_*``` / ```older/check_*raid*.py```)
   * [PNP4Nagios](http://docs.pnp4nagios.org/start) - widely used metrics auto graphing add-on for Nagios
+
+* [Nagios IX](https://www.nagios.com/products/nagios-xi/) - commercial version of the open source Nagios Core with more features and enterprise support. Most people using Nagios use the free version since most of the benefit is in the plugins themselves.
 
 * [Icinga2](https://www.icinga.org/) - popular open source Nagios fork rewritten with more features, Icinga retains the all important Nagios Plugin compatibility, but also has native [distributed monitoring](https://www.icinga.com/docs/icinga2/latest/doc/06-distributed-monitoring/), [rule based configuration](https://www.icinga.com/2014/03/31/icinga-2-0-0-9-introducing-configuration-apply-rules/), a REST API and native metrics graphing integrations via [Graphite](https://www.icinga.com/docs/icinga2/latest/doc/09-object-types/#graphitewriter), [InfluxDB](https://www.icinga.com/docs/icinga2/latest/doc/09-object-types/#influxdbwriter) and [OpenTSDB](https://www.icinga.com/docs/icinga2/latest/doc/09-object-types/#opentsdbwriter) to create graphs from the plugins' perfdata
 
