@@ -852,11 +852,4 @@ This is a list of the best and most interesting 3rd party plugins, several of wh
 - [check_prometheus_metric.sh](https://github.com/prometheus/nagios_plugins/blob/master/check_prometheus_metric.sh) - I don't normally rate bash scripts as Nagios Plugins but this is in the official project so it's worth a look
 - [collectd-nagios](https://collectd.org/documentation/manpages/collectd-nagios.1.shtml) - queries Collectd metrics for Nagios alerting
 - [collectd exec-nagios.px](https://github.com/collectd/collectd/blob/master/contrib/exec-nagios.px) - executes a Nagios Plugin and returns the metrics to Collectd to forward on to one of the many compatible metrics graphing solutions
-
-### Datameer
-
-Datameer plugins referenced in [Datameer docs](https://www.datameer.com/documentation/current/Home) from version 3 onwards in the Links section along with the official Nagios links. See here for more information on Datameer monitoring with Nagios:
-
-* https://www.datameer.com/documentation/current/Monitoring+Hadoop+and+Datameer+using+Nagios
-
-After trying the 1 example plugin there, return to try the 9 plugins in this collection to extend your Datameer monitoring further.
+- [Datameer](https://www.datameer.com/) references this project in the [Datameer docs](https://www.datameer.com/documentation/current/Monitoring+Hadoop+and+Datameer+using+Nagios) from version 3 onwards in the links section at the bottom along with the official Nagios links. Datameer wrote 1 example nagios plugin on that page, then referenced the additional plugins here
