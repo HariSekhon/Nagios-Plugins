@@ -822,8 +822,8 @@ You can also execute these Nagios Plugins outside of any nagios-compatible monit
 - [Ganglia](http://ganglia.sourceforge.net/)
 - [Munin](http://munin-monitoring.org/)
 - [Mon](https://sourceforge.net/projects/mon/)
-- HP OpenView
-- IBM Tivoli
+- [HP OpenView / BTO](https://en.wikipedia.org/wiki/HP_OpenView)
+- [IBM Tivoli](https://www.ibm.com/developerworks/community/wikis/home?lang=en#!/wiki/Tivoli+Monitoring)
 etc...
 
 
