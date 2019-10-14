@@ -35,9 +35,14 @@ endif
 
 REPO := HariSekhon/Nagios-Plugins
 
-CODE_FILES := $(shell find . -type f -name '*.py' -o -type f -name '*.pl' -o -type f -name '*.sh' -o -type f -name '*.wsf' | grep -v -e bash-tools -e /lib/ -e /pylib/ -e TODO)
+# cannot differentiate symlinks which I want to ignore even if committed as it hyperinflates the code counts
+#CODE_FILES := $(shell git ls-files | grep -Ee '\.py$$' -e '\.pl$$' -e '\.sh$$' -e '\.wsf$$' | grep -Ev -e bash-tools -e /lib/ -e /pylib/ -e TODO)
+CODE_FILES := $(shell find . -type f -name '*.py' -o -type f -name '*.pl' -o -type f -name '*.sh' -o -type f -name '*.wsf' | grep -Eve bash-tools -e /lib/ -e /pylib/ -e TODO -e '/zookeeper-[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+/' -e /fatpacks/)
 
 DOCKER_IMAGE := harisekhon/nagios-plugins
+
+# tested, this works
+.PHONY: *
 
 .PHONY: build
 # space here prevents weird validation warning from check_makefile.sh => Makefile:40: warning: undefined variable `D'
@@ -180,10 +185,6 @@ python-libs:
 	@echo "BUILD SUCCESSFUL (nagios-plugins python)"
 	@echo
 	@echo
-
-.PHONY: pycompile
-pycompile:
-	bash-tools/python_compile.sh
 
 # Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
 # doesn't build on Mac < 3.4.7 / 3.5.1 / 3.6.0 but the others are in the public mirrors yet
