@@ -4,6 +4,7 @@ update: insecure
 assignees: HariSekhon
 
 # ignore setup/cpan-requirements.txt, don't search
+#search: False
 requirements:
   - requirements.txt
   - pylib/requirements.txt
