@@ -123,13 +123,12 @@ install:
   - sudo chown -fR travis /usr/local /usr/lib/python*
   # hitting 60 min timeout overall across all builds, retries will mask real error and cut off at random points making debugging harder
   #- travis_retry make && travis_retry make zookeeper
-  - make build zookeeper
+  - make build zookeeper fatpacks
 
 script:
   - sudo sysctl -w net.ipv4.conf.all.forwarding=1
   # hitting 60 min timeout overall across all builds, retries will mask real error and cut off at random points making debugging harder
   - make test
-  - make fatpacks
 
 after_success:
   - echo "After Success"
