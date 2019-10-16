@@ -1,0 +1,9 @@
+# https://pyup.io/docs/configuration/
+
+update: insecure
+assignees: HariSekhon
+
+# ignore setup/cpan-requirements.txt, don't search
+requirements:
+  - requirements.txt
+  - pylib/requirements.txt
