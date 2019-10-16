@@ -17,7 +17,7 @@ pika==1.1.0
 #psycopg2==2.7.3.1
 #pyhs2==0.6.0
 PyInstaller==3.5
-python-jenkins==0.4.14
+python-jenkins==1.5.0
 # auto-pulled in by snakebite[kerberos]
 #python-krbV==1.0.90
 # PyLint fails some checks in Travis that pass locally
