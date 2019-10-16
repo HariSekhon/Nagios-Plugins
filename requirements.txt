@@ -3,8 +3,8 @@
 #cassandra-driver==3.6.0
 #cm-api==13.0.0
 #dnspython==1.15.0
-#elasticsearch-dsl==5.0.0,<6.0.0
-#elasticsearch==5.0.0,<6.0.0
+#elasticsearch-dsl>=5.0.0,<6.0.0
+#elasticsearch>=5.0.0,<6.0.0
 GitPython==2.0.8
 happybase==1.0.0
 humanize==0.5.1
