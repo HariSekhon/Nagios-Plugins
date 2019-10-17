@@ -19,7 +19,7 @@ See also check_git_checkout_branch.py
          check_git_uncommitted_changes.py
 ";
 
-$VERSION = "0.3.3";
+$VERSION = "0.3.4";
 
 use strict;
 use warnings;
@@ -70,5 +70,5 @@ defined($branch_checkout) or quit "CRITICAL", "Failed to determine current branc
 if($branch_checkout eq $branch){
     quit "OK", "git branch '$branch_checkout' currently checked out in directory '$directory'";
 } else {
-    quit "CRITICAL", "git branch '$branch_checkout' checked out, expecting '$branch' in directory '$directory'";
+    quit "CRITICAL", "git branch '$branch_checkout' checked out, expecting branch '$branch' in directory '$directory'";
 }

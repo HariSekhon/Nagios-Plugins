@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.0'
+__version__ = '0.5.1'
 
 
 class CheckGitCheckoutBranch(NagiosPlugin):
@@ -93,8 +93,10 @@ class CheckGitCheckoutBranch(NagiosPlugin):
             self.msg = "git branch '{0}' currently checked out in directory '{1}'"\
                        .format(current_branch, directory)
         else:
-            raise CriticalError("git branch '{0}' checked out, expecting '{1}' in directory '{2}'"
-                                .format(current_branch, expected_branch, directory))
+            raise CriticalError("git branch '{current_branch}' checked out".format(current_branch=current_branch) +
+                                ", expecting branch '{expected_branch}' in directory '{directory}'"
+                                .format(expected_branch=expected_branch,
+                                        directory=directory))
 
 
 if __name__ == '__main__':
