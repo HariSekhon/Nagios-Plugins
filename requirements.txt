@@ -5,7 +5,9 @@
 #dnspython==1.15.0
 #elasticsearch-dsl>=5.0.0,<6.0.0
 #elasticsearch>=5.0.0,<6.0.0
-GitPython==3.0.3
+# Python >= 3
+#GitPython==3.0.3
+GitPython==2.1.14
 happybase==1.2.0
 humanize==0.5.1
 kafka-python==1.4.7
