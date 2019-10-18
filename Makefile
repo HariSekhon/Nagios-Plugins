@@ -64,7 +64,7 @@ init:
 	git submodule update --init --recursive
 
 .PHONY: perl
-perl: init
+perl : init
 	@echo ===========================
 	@echo "Nagios Plugins Build (Perl)"
 	@echo ===========================
@@ -191,7 +191,7 @@ python-libs:
 # https://issues.apache.org/jira/browse/ZOOKEEPER-2049
 ZOOKEEPER_VERSION = 3.4.12
 .PHONY: zookeeper
-zookeeper: perl zkperl
+zookeeper : perl zkperl
 	@:
 
 .PHONY: zkperl
@@ -231,7 +231,7 @@ basic-test: lib-test
 	tests/help.sh
 
 .PHONY: install
-install: build
+install : build
 	@echo "No installation needed, just add '$(PWD)' to your \$$PATH and Nagios commands.cfg"
 
 .PHONY: clean
