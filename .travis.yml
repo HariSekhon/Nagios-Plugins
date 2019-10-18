@@ -99,6 +99,10 @@ before_install:
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
+  # avoid package checksum mismatches when installing packages
+  - sudo rm -rf "${TRAVIS_ROOT}/etc/apt/apt.conf.d/99-travis-apt-proxy"
+  - sudo rm -rf "${TRAVIS_ROOT}/var/lib/apt/lists/"*
+
 
 # after_failure doesn't trigger from install failure
 # perlbrew and cpanm are not installed without an install section
