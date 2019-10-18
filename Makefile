@@ -239,6 +239,7 @@ clean:
 	cd lib && $(MAKE) clean
 	cd pylib && $(MAKE) clean
 	@find . -maxdepth 3 -iname '*.py[co]' -o -iname '*.jy[co]' | xargs rm -f || :
+	@find . -iname '*.spec' | xargs rm -f
 	@$(MAKE) clean-zookeeper
 	rm -fr tests/spark-*-bin-hadoop*
 
