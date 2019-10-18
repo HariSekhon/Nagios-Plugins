@@ -100,7 +100,7 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
   # avoid package checksum mismatches when installing packages
-  - sudo rm -rf "${TRAVIS_ROOT}/etc/apt/apt.conf.d/99-travis-apt-proxy"
+  - sudo rm -f "${TRAVIS_ROOT}/etc/apt/apt.conf.d/99-travis-apt-proxy"
   - sudo rm -rf "${TRAVIS_ROOT}/var/lib/apt/lists/"*
 
 
