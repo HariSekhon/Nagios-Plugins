@@ -24,7 +24,7 @@ Bucket names must follow the more restrictive 3 to 63 alphanumeric character int
 Tested on AWS S3 and Minio (open source private cloud S3 storage)
 ";
 
-$VERSION = "0.6.0";
+$VERSION = "0.6.1";
 
 use strict;
 use warnings;
@@ -62,6 +62,7 @@ my $age;
 
 %options = (
     %hostoptions,
+    "r|region=s"         => [ \$region,           "AWS Region, i.e. us-east-1" ],
     "b|bucket=s"       => [ \$bucket,           "AWS S3 bucket" ],
     "f|file=s"         => [ \$file,             "AWS S3 file path" ],
     "aws-access-key=s" => [ \$aws_access_key,   "AWS Access Key (\$AWS_ACCESS_KEY)" ],
@@ -70,7 +71,6 @@ my $age;
     "no-ssl"           => [ \$no_ssl,           "Don't use SSL, connect to AWS S3 with plaintext HTTP instead of HTTPS (not recommended unless you're using a private cloud storage like Minio)" ],
     "ssl-CA-path=s"    => [ \$ssl_ca_path,      "Path to CA certificate directory for validating SSL certificate" ],
     "ssl-noverify"     => [ \$ssl_noverify,     "Do not verify SSL certificate from AWS S3 (not recommended)" ],
-    "region=s"         => [ \$region,           "AWS Region, i.e. us-east-1" ],
     "age=s"            => [ \$age,              "Maximum duration in seconds since the last-modified for the file to be deemed as valid" ],
 );
 @usage_order = qw/host port bucket file aws-access-key aws-secret-key get no-ssl ssl-CA-path ssl-noverify region age/;
@@ -88,6 +88,7 @@ $host           = validate_host($host);
 $port           = validate_port($port);
 $file           = validate_filename($file);
 $bucket         = validate_aws_bucket($bucket);
+$region         = validate_chars($region, 'aws region', 'A-Za-z0-9-');
 $aws_access_key = validate_aws_access_key($aws_access_key);
 $aws_secret_key = validate_aws_secret_key($aws_secret_key);
 
