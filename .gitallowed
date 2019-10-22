@@ -1,0 +1,1 @@
+export AWS_SECRET_KEY=MyMinioSecretKey
