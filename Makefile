@@ -227,7 +227,7 @@ test: lib-test
 
 .PHONY: basic-test
 basic-test: lib-test
-	. tests/excluded.sh; bash-tools/all.sh
+	. tests/excluded.sh; bash-tools/check_all.sh
 	tests/help.sh
 
 .PHONY: install
