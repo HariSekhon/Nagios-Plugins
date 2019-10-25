@@ -689,7 +689,7 @@ You can find the location using `perl_find_library_path.pl NetAddr::IP::InetBase
 
 You may also need to install Socket6 from CPAN.
 
-This fix is now fully automated in the Make build by patching the ```NetAddr/IP/InetBase.pm``` file and always including Socket6 in dependencies.
+This fix is now fully automated in the Make build by patching the ```NetAddr/IP/InetBase.pm``` file and always including Socket6 in dependencies (UPDATE: this fix is broken on recent versions of Mac due to the additiona of System Integrity Protection which doesn't allow editing the system files even with sudo to root - a workaround would be to install the libraries to a local PERLBREW and fix there).
 
 Alternatively you can try the Python version ```check_kakfa.py``` which works in similar fashion.
 
