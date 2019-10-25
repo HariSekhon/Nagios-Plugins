@@ -24,7 +24,7 @@ Bucket names must follow the more restrictive 3 to 63 alphanumeric character int
 Tested on AWS S3 and Minio (open source private cloud S3 storage)
 ";
 
-$VERSION = "0.6.1";
+$VERSION = "0.6.2";
 
 use strict;
 use warnings;
@@ -62,7 +62,7 @@ my $age;
 
 %options = (
     %hostoptions,
-    "r|region=s"         => [ \$region,           "AWS Region, i.e. us-east-1" ],
+    "r|region=s"       => [ \$region,           "AWS Region, i.e. us-east-1" ],
     "b|bucket=s"       => [ \$bucket,           "AWS S3 bucket" ],
     "f|file=s"         => [ \$file,             "AWS S3 file path" ],
     "aws-access-key=s" => [ \$aws_access_key,   "AWS Access Key (\$AWS_ACCESS_KEY)" ],
@@ -177,12 +177,14 @@ if($res->code eq 200){
     } else {
         $msg = "verified file '$file' exists in";
     }
+    $msg .= " $host";
 
-    if($age && $res->last_modified < time - $age){
+    my $age_secs = int(time - $res->last_modified);
+    if($age and $age_secs > $age){
         critical;
-        $msg .= " but is too old : " . (time - $res->last_modified);
+        $msg .= " but it is too old ($age_secs > $age secs)";
     }
-    $msg .= " $host in $time_taken secs | time_taken=${time_taken}s";
+    $msg .= " | query_time=${time_taken}s";
 } else {
     critical;
     my $data;
