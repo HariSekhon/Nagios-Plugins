@@ -685,6 +685,7 @@ This is an upstream bug related to autoloader, which you can work around by edit
 ```use Socket;```
 
 On Linux this is often at ```/usr/local/lib64/perl5/NetAddr/IP/InetBase.pm``` and on Mac ```/System/Library/Perl/Extras/<version>/NetAddr/IP/InetBase.pm```.
+You can find the location using `perl_find_library_path.pl NetAddr::IP::InetBase` or `perl_find_library_path.sh NetAddr::IP::InetBase` from the [DevOps Perl Tools](https://github.com/HariSekhon/DevOps-Perl-tools) and [DevOps Bash Tools](https://github.com/HariSekhon/DevOps-Bash-tools) repos.
 
 You may also need to install Socket6 from CPAN.
 
