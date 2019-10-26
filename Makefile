@@ -252,8 +252,8 @@ deep-clean: clean clean-zookeeper
 	cd lib && $(MAKE) deep-clean
 	cd pylib && $(MAKE) deep-clean
 
-.PHONY: dockerhub
-dockerhub:
+.PHONY: dockerhub-hook
+dockerhub-hook:
 	# Nagios Plugins
 	curl --header "Content:Type:application/json" --data '{"build":true}' -X POST https://cloud.docker.com/api/build/v1/source/867fff52-9a87-4ca2-84e5-62603473083f/trigger/5b0d1a59-8b53-466a-87d7-8e99dfd01f16/call/
 	# Alpine Github
