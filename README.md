@@ -165,7 +165,7 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
 
 ##### SQL-on-Hadoop
 
-- ```check_hiveserver2_llap_*.py``` - [Apache Hive](https://hive.apache.org/) - HiveServer2 LLAP Interactive server status and uptime, peer count, check for a specific peer host fqdn via regex
+- ```check_hiveserver2*``` - [Apache Hive](https://hive.apache.org/) - HiveServer2 LLAP Interactive server status and uptime, peer count, check for a specific peer host fqdn via regex and a basic beeline connection trivial query test
 - ```check_apache_drill_*.py/.pl``` - [Apache Drill](https://drill.apache.org/) checks:
   - cluster wide: number of online / offline cluster nodes, mismatched versions across cluster
   - per drill node: status, cluster membership, encryption enabled, config settings, storage plugins enabled, version, metrics with optional thresholds
@@ -865,3 +865,7 @@ This is a list of the best and most interesting 3rd party plugins, several of wh
 - [collectd-nagios](https://collectd.org/documentation/manpages/collectd-nagios.1.shtml) - queries Collectd metrics for Nagios alerting
 - [collectd exec-nagios.px](https://github.com/collectd/collectd/blob/master/contrib/exec-nagios.px) - executes a Nagios Plugin and returns the metrics to Collectd to forward on to one of the many compatible metrics graphing solutions
 - [Datameer](https://www.datameer.com) references this project in the [Datameer docs](https://www.datameer.com/documentation/current/Monitoring+Hadoop+and+Datameer+using+Nagios) from version 3 onwards. Datameer wrote 1 example nagios plugin on that page, then referenced the 9 additional plugins here in the links section at the bottom along with the official Nagios links
+
+### Stargazers over time
+
+[![Stargazers over time](https://starchart.cc/HariSekhon/Nagios-Plugins.svg)](https://starchart.cc/HariSekhon/Nagios-Plugins)
