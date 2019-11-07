@@ -10,6 +10,7 @@
 GitPython==2.1.14
 happybase==1.2.0
 humanize==0.5.1
+#impyla==0.16.0
 kafka-python==1.4.7
 #kazoo==2.2.1
 #linecache2==1.0.0
@@ -17,7 +18,6 @@ kafka-python==1.4.7
 MySQL-python==1.2.5
 pika==1.1.0
 #psycopg2==2.7.3.1
-#pyhs2==0.6.0
 PyInstaller==3.3.1
 python-jenkins==1.5.0
 # auto-pulled in by snakebite[kerberos]
