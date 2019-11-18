@@ -20,7 +20,7 @@ Tested on Solr / SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 6.2, 6.2, 6.3, 6.4, 6.
 (API Ping not available on Solr <= 3.x)
 ";
 
-$VERSION = "0.3.3";
+$VERSION = "0.4.0";
 
 use strict;
 use warnings;
@@ -50,6 +50,10 @@ get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 unless($list_collections or $list_cores){
     $collection = validate_solr_collection($collection);
 }

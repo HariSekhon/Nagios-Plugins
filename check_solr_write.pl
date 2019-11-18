@@ -21,7 +21,7 @@ Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 6.
 
 # Originally designed for Solr 4.0 onwards due to using JSON and the standard update handler which only supports JSON from 4.0, later rewritten to support Solr 3 via XML document addition instead
 
-$VERSION = "0.4";
+$VERSION = "0.5.0";
 
 use strict;
 use warnings;
@@ -58,6 +58,10 @@ get_options();
 
 $host       = validate_host($host);
 $port       = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 unless($list_collections or $list_cores){
     $collection = validate_solr_collection($collection);
     #validate_int($sleep, "sleep", 1, 2000);

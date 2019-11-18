@@ -29,7 +29,7 @@ Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 6.
 # Replication status
 # Synthetic queries
 
-our $VERSION = "0.5.2";
+our $VERSION = "0.6.0";
 
 use strict;
 use warnings;
@@ -67,6 +67,10 @@ get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 $collection = validate_solr_collection($collection) unless $list_collections;
 unless($list_categories){
     $category = validate_alnum($category, "category");
