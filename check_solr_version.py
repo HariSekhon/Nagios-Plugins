@@ -37,7 +37,6 @@ import sys
 import traceback
 try:
     from bs4 import BeautifulSoup
-    import requests
 except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
@@ -47,7 +46,7 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, qquit, support_msg_api, isJson
-    from harisekhon import VersionNagiosPlugin
+    from harisekhon import RestVersionNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
@@ -58,27 +57,23 @@ __version__ = '0.2'
 # pylint: disable=too-few-public-methods
 
 
-class CheckSolrVersion(VersionNagiosPlugin):
+class CheckSolrVersion(RestVersionNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
         super(CheckSolrVersion, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.software = 'Solr'
+        self.name = 'Solr'
+        self.path = '/solr/admin/info/system'
         self.default_port = 8983
+        self.json = False
+        self.auth = 'optional'
+        self.msg = 'Solr version message not defined yet'
 
-    def get_version(self):
-        url = 'http://{host}:{port}/solr/admin/info/system'.format(host=self.host, port=self.port)
-        log.debug('GET %s', url)
-        try:
-            req = requests.get(url)
-        except requests.exceptions.RequestException as _:
-            qquit('CRITICAL', _)
-        log.debug('response: %s %s', req.status_code, req.reason)
-        log.debug('content:\n%s\n%s\n%s', '='*80, req.content.strip(), '='*80)
-        if req.status_code != 200:
-            qquit('CRITICAL', '%s %s' % (req.status_code, req.reason))
+    # must be a method for inheritance to work
+    # pylint: disable=no-self-use
+    def parse(self, req):
         # versions 7.0+
         if isJson(req.content):
             json_data = json.loads(req.content)
@@ -89,7 +84,7 @@ class CheckSolrVersion(VersionNagiosPlugin):
                 log.debug("BeautifulSoup prettified:\n{0}\n{1}".format(soup.prettify(), '='*80))
             try:
                 version = soup.find('str', {'name':'solr-spec-version'}).text
-            except (AttributeError, TypeError) as _:
+            except (AttributeError, TypeError):
                 qquit('UNKNOWN', 'failed to find parse Solr output. {0}\n{1}'\
                                  .format(support_msg_api(), traceback.format_exc()))
         return version
