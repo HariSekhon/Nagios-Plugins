@@ -19,7 +19,7 @@ Configurable warning/critical thresholds apply to the query (read) millisecond t
 
 Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.0, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6";
 
-$VERSION = "0.5";
+$VERSION = "0.6.0";
 
 use strict;
 use warnings;
@@ -54,6 +54,10 @@ get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 unless($list_collections or $list_cores){
     $collection = validate_solr_collection($collection);
     $query or usage "query not defined";

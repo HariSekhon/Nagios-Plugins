@@ -15,7 +15,7 @@ Optional thresholds on the core's index size, heap size, number of documents and
 
 Tested on Solr 3.1, 3.6.2 and Solr / SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.0, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6";
 
-our $VERSION = "0.3.1";
+our $VERSION = "0.4.0";
 
 use strict;
 use warnings;
@@ -47,6 +47,10 @@ get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 unless($list_cores){
     $core = validate_solr_core($core);
     validate_thresholds(0, 0, { 'simple' => 'upper', 'positive' => 1, 'integer' => 0 }, "core heap",  $core_heap_threshold);

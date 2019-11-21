@@ -17,7 +17,7 @@ See also check_solrcloud_live_nodes_zookeeper.pl which does the same as this plu
 
 Tested on SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.0, 7.1";
 
-$VERSION = "0.2";
+$VERSION = "0.3.0";
 
 use strict;
 use warnings;
@@ -40,6 +40,10 @@ get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 validate_ssl();
 $http_context = validate_solr_context($http_context);
 validate_thresholds(1, 1, { 'simple' => 'lower', 'positive' => 1, 'integer' => 1});

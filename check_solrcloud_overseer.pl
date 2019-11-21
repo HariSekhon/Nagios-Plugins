@@ -17,7 +17,7 @@ See also adjacent plugin check_solrcloud_overseer_zookeeper.pl which does the sa
 
 Tested on SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.0, 7.1";
 
-our $VERSION = "0.2";
+our $VERSION = "0.3.0";
 
 use strict;
 use warnings;
@@ -41,6 +41,10 @@ get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 validate_thresholds();
 $http_context = validate_solr_context($http_context);
 validate_ssl();

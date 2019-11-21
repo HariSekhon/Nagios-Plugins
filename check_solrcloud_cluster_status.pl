@@ -27,7 +27,7 @@ See also adjacent plugin check_solrcloud_cluster_status_zookeeper.pl which does 
 
 Tested on SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.0, 7.1";
 
-our $VERSION = "0.2.1";
+our $VERSION = "0.3.0";
 
 use strict;
 use warnings;
@@ -53,6 +53,10 @@ get_options();
 
 $host = validate_host($host);
 $port = validate_port($port);
+if($password){
+    $user = validate_user($user);
+    $password = validate_password($password);
+}
 $http_context = validate_solr_context($http_context);
 $collection = validate_solr_collection($collection) if $collection;
 validate_ssl();
