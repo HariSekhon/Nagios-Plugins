@@ -73,28 +73,53 @@ catch{
 vlog3(Dumper($json));
 
 my %scheduler_info = get_field_hash("scheduler.schedulerInfo");
-my @queues;
-my $fair_scheduler = 0;
-if(defined($scheduler_info{"rootQueue"})){
-    $fair_scheduler = 1;
-    $absolute = 1;
-    @queues = get_field2_array(\%scheduler_info, "rootQueue.childQueues.queue")
-} else {
-    @queues = get_field2_array(\%scheduler_info, "queues.queue");
-}
-$msg = "queue used capacity of " . ($absolute ? "total cluster" : "allocated" ) . ": ";
-
-if($list_queues){
-    foreach my $q (@queues){
-        print get_field2($q, "queueName") . "\n";
-    }
-    exit $ERRORS{"UNKNOWN"};
-}
 
 my $found;
 my $msg2;
 my $used_pc = "usedCapacity";
 $used_pc = "absoluteUsedCapacity" if $absolute;
+
+sub recurse_queues($);
+
+my $fair_scheduler = 0;
+if(defined($scheduler_info{"rootQueue"})){
+    $fair_scheduler = 1;
+    $absolute = 1;
+}
+
+$msg = "queue used capacity of " . ($absolute ? "total cluster" : "allocated" ) . ": ";
+
+if($fair_scheduler){
+    my %root_queue = get_field2_hash(\%scheduler_info, "rootQueue");
+    recurse_queues(\%root_queue);
+} else {
+    recurse_queues(\%scheduler_info);
+}
+
+sub recurse_queues($){
+    my $starting_point = shift;
+    my @queues;
+    if(get_field2($starting_point, "childQueues", "noquit")){
+        @queues = get_field2_array($starting_point, "childQueues.queue")
+    } else {
+        @queues = get_field2_array($starting_point, "queues.queue");
+    }
+    foreach my $q (@queues){
+        if(defined($q->{"childQueues"}) or
+           defined($q->{"queues"})){
+            recurse_queues($q);
+        }
+    }
+    if($list_queues){
+        foreach my $q (@queues){
+            print get_field2($q, "queueName") . "\n";
+        }
+    } else {
+        foreach my $q (@queues){
+            check_queue($q);
+        }
+    }
+}
 
 sub check_queue($){
     my $q = shift;
@@ -105,8 +130,8 @@ sub check_queue($){
     }
     my $used_capacity;
     if($fair_scheduler){
-        my $used_memory = sprintf("%.2f", get_field2_float($q, "usedResources.memory"));
-        my $cluster_memory = sprintf("%.2f", get_field2_float($q, "clusterResources.memory"));
+        my $used_memory = get_field2_float($q, "usedResources.memory");
+        my $cluster_memory = get_field2_float($q, "clusterResources.memory");
         $used_capacity = sprintf("%.2f", $used_memory / $cluster_memory * 100);
     } else {
         $used_capacity = sprintf("%.2f", get_field2_float($q, $used_pc));
@@ -117,18 +142,15 @@ sub check_queue($){
     $msg2 .= sprintf("'%s'=%s%%", $name, $used_capacity);
     $msg2 .= msg_perf_thresholds(1);
     $msg2 .= " ";
-}
-
-foreach my $q (@queues){
-    check_queue($q);
-    my $q2;
-    if(defined($q->{"queues"}) and $q2 = get_field2_array($q, "queues")){
-        check_queue($q2);
+    if($queue){
+        $found or quit "UNKNOWN", "queue '$queue' not found, check you specified the right queue name using --list-queues. If you're sure you've specified the right queue name then $nagios_plugins_support_msg_api";
     }
 }
-if($queue){
-    $found or quit "UNKNOWN", "queue '$queue' not found, check you specified the right queue name using --list-queues. If you're sure you've specified the right queue name then $nagios_plugins_support_msg_api";
+
+if($list_queues){
+    exit $ERRORS{"UNKNOWN"};
 }
+
 $msg =~ s/, $//;
 $msg .= " | $msg2";
 
