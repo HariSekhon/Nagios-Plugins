@@ -17,7 +17,7 @@ This supports the Capacity Scheduler and will not work for the Fifo Scheduler du
 
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0), HDP 2.6 (Hadoop 2.7.3) and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8";
 
-$VERSION = "0.1";
+$VERSION = "0.2";
 
 use strict;
 use warnings;
@@ -43,7 +43,7 @@ my $absolute;
 %options = (
     %hostoptions,
     "Q|queue=s"      =>  [ \$queue,         "Queue to check (defaults to checking all queues)" ],
-    "T|total"        =>  [ \$absolute,      "Checks % used of total cluster capacity (default checks queue's % used of queue's own configured capacity)" ],
+    "T|total"        =>  [ \$absolute,      "Checks % used of total cluster capacity (default for Fair Scheduler, for Capacity Scheduler checks queue's % used of queue's own configured capacity unless this is specified)" ],
     "list-queues"    =>  [ \$list_queues,   "List all queues" ],
     %thresholdoptions,
 );
@@ -72,8 +72,17 @@ catch{
 };
 vlog3(Dumper($json));
 
+my %scheduler_info = get_field_hash("scheduler.schedulerInfo");
+my @queues;
+my $fair_scheduler = 0;
+if(defined($scheduler_info{"rootQueue"})){
+    $fair_scheduler = 1;
+    $absolute = 1;
+    @queues = get_field2_array(\%scheduler_info, "rootQueue.childQueues.queue")
+} else {
+    @queues = get_field2_array(\%scheduler_info, "queues.queue");
+}
 $msg = "queue used capacity of " . ($absolute ? "total cluster" : "allocated" ) . ": ";
-my @queues = get_field_array("scheduler.schedulerInfo.queues.queue");
 
 if($list_queues){
     foreach my $q (@queues){
@@ -94,7 +103,14 @@ sub check_queue($){
         $queue eq $name or return;
         $found = 1;
     }
-    my $used_capacity = sprintf("%.2f", get_field2_float($q, $used_pc));
+    my $used_capacity;
+    if($fair_scheduler){
+        my $used_memory = sprintf("%.2f", get_field2_float($q, "usedResources.memory"));
+        my $cluster_memory = sprintf("%.2f", get_field2_float($q, "clusterResources.memory"));
+        $used_capacity = sprintf("%.2f", $used_memory / $cluster_memory * 100);
+    } else {
+        $used_capacity = sprintf("%.2f", get_field2_float($q, $used_pc));
+    }
     $msg .= sprintf("'%s' = %s%%", $name, $used_capacity);
     check_thresholds($used_capacity);
     $msg .= ", ";
