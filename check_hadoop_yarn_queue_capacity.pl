@@ -32,6 +32,7 @@ use LWP::Simple '$ua';
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
+our $protocol = "http";
 set_port_default(8088);
 
 env_creds(["HADOOP_YARN_RESOURCE_MANAGER", "HADOOP"], "Yarn Resource Manager");
@@ -45,14 +46,16 @@ my $absolute;
     "Q|queue=s"      =>  [ \$queue,         "Queue to check (defaults to checking all queues)" ],
     "T|total"        =>  [ \$absolute,      "Checks % used of total cluster capacity (default for Fair Scheduler, for Capacity Scheduler checks queue's % used of queue's own configured capacity unless this is specified)" ],
     "list-queues"    =>  [ \$list_queues,   "List all queues" ],
+    %ssloptions,
     %thresholdoptions,
 );
 splice @usage_order, 6, 0, qw/queue total list-queues/;
 
 get_options();
 
-$host       = validate_host($host);
-$port       = validate_port($port);
+$host = validate_host($host);
+$port = validate_port($port);
+validate_ssl();
 validate_thresholds(0, 0, { "simple" => "upper", "positive" => 1, "integer" => 0 });
 
 vlog2;
@@ -60,7 +63,7 @@ set_timeout();
 
 $status = "OK";
 
-my $url = "http://$host:$port/ws/v1/cluster/scheduler";
+my $url = "$protocol://$host:$port/ws/v1/cluster/scheduler";
 
 my $content = curl $url;
 
