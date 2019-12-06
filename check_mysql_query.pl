@@ -22,7 +22,7 @@ Tested on MySQL 5.0, 5.1, 5.5, 5.6, 5.7, 8.0 and MariaDB 5.5, 10.1, 10.2, 10.3
 
 # TODO: add retry switch if valid below threshold
 
-$VERSION = "1.1.7";
+$VERSION = "1.2.0";
 
 use strict;
 use warnings;
@@ -111,7 +111,7 @@ $label      = validate_label($label) if($label);
 $units      = validate_units($units) if($units);
 vlog2("output:    $output") if defined($output);
 vlog2("epoch:     on") if $epoch;
-validate_thresholds();
+validate_thresholds(0, 0, {'positive' => 0});
 $message_pre = 1 if($message eq $default_message);
 if($message =~ /^[^%]*\%s[^%]*$/){
     $message_printf = 1;
