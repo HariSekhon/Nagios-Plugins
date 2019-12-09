@@ -83,7 +83,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4.1'
+__version__ = '0.4.2'
 
 
 class CheckDockerhubRepoBuildStatus(NagiosPlugin):
@@ -118,11 +118,11 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
 
     def process_options(self):
         self.repo = self.get_opt('repo')
-        #validate_chars(self.repo, 'repo', 'A-Za-z0-9/_-')
+        validate_chars(self.repo, 'repo', 'A-Za-z0-9/_-')
         # official repos don't have slashes in them but then you can't check their build statuses either
-        #if '/' not in self.repo:
-        #    self.usage('--repo must contain a slash (/) in it - ' + \
-        #               'official repos are not supported as DockerHub doesn\'t expose their build info')
+        if '/' not in self.repo:
+            self.usage('--repo must contain a slash (/) in it - ' + \
+                       'official repos are not supported as DockerHub doesn\'t expose their build info')
         (namespace, repo) = self.repo.split('/', 1)
         validate_chars(namespace, 'namespace', 'A-Za-z0-9_-')
         validate_chars(repo, 'repo', 'A-Za-z0-9_-')
