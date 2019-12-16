@@ -92,7 +92,7 @@ class AWSAccessKeyAge(NagiosPlugin):
         for access_key_item in keys_response['AccessKeyMetadata']:
             assert username == access_key_item['UserName']
             status = access_key_item['Status']
-            if self.only_active_keys and not status:
+            if self.only_active_keys and status != 'Active':
                 continue
             create_date = access_key_item['CreateDate']
             # already cast to datetime.datetime with tzinfo
