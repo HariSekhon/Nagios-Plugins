@@ -129,7 +129,7 @@ There are over 400 programs in this repo so these are just some of the highlight
   * [Hadoop Distributions](https://github.com/HariSekhon/nagios-plugins#hadoop-distributions) - Cloudera, Hortonworks, MapR, IBM BigInsights
   * [SQL-on-Hadoop](https://github.com/HariSekhon/nagios-plugins#sql-on-hadoop) - Hive, Drill, Presto
 * [Service Discovery & Coordination](https://github.com/HariSekhon/nagios-plugins#service-discovery--coordination) - ZooKeeper, Consul, Vault
-* [Cloud](https://github.com/HariSekhon/nagios-plugins#cloud) - AWS
+* [Cloud](https://github.com/HariSekhon/nagios-plugins#cloud) - [AWS](https://aws.amazon.com/)
 * [Docker / Containerization](https://github.com/HariSekhon/nagios-plugins#docker--containerization) - Docker & Docker Swarm, Mesos, Kubernetes
 * [Search](https://github.com/HariSekhon/nagios-plugins#search) - Elasticsearch, Solr / SolrCloud
 * [NoSQL](https://github.com/HariSekhon/nagios-plugins#nosql) - Cassandra, Redis, Riak, Memcached, CouchDB
@@ -184,7 +184,7 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
 
 ##### Cloud
 
-- AWS:
+- [AWS](https://aws.amazon.com/):
   - ```check_aws_s3_file.pl``` - check for the existence of any arbitrary file on AWS S3, eg. to check backups have happened or _SUCCESS placeholder files are present for a job
   - ```check_aws_access_keys_age.py``` - checks for AWS access key age greater than N days to delete/rotate old keys as per best practice (optionally only alerts for active keys)
   - ```check_aws_access_keys_disabled.py``` - checks for AWS disabled access keys that should be removed
