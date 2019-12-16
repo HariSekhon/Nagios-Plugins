@@ -181,6 +181,13 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
 - ```check_consul_*.py``` - [Consul](https://www.consul.io/) API write / read back, arbitrary key-value content checks, cluster leader election, number of cluster peers, service leader election, version
 - ```check_vault_*.py``` - Hashicorp's [Vault](https://www.vaultproject.io/) API checks - health checks is initialized, is not standby, is vault sealed / unsealed, time skew between Vault server and local, is high availability enabled, is current leader, is leader found, version
 
+##### Cloud
+
+- AWS:
+  - ```check_aws_s3_file.pl``` - check for the existence of any arbitrary file on AWS S3, eg. to check backups have happened or _SUCCESS placeholder files are present for a job
+  - ```check_aws_access_keys_age.py``` - checks for AWS access key age greater than N days to delete/rotate old keys as per best practice (optionally only alerts for active keys)
+  - ```check_aws_access_keys_disabled.py``` - checks for AWS disabled access keys that should be removed
+
 ##### Docker / Containerization
 
 - ```check_docker_*.py``` - [Docker](https://www.docker.com/) API checks including API ping, counts of running / paused / stopped / total containers with thresholds, specific container status by name or id, images count with thresholds, specific image:tag availability including size and checksum, counts of networks / volumes with thresholds, docker engine version
@@ -237,7 +244,6 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 
 - ```check_ssl_cert.pl``` - SSL certificate checker - checks certificate expiry (days), validates domain, chain of trust, SNI, wildcard domains, SAN certs with multi-domain support. Chain of Trust support is important when building your JKS or certificate bundles to include intermediate certs otherwise certain mobile devices don't validate the SSL even though it may work in your desktop browser
 - ```check_whois.pl``` - check domain expiry days left and registration details match expected
-- ```check_aws_s3_file.pl``` - check for the existence of any arbitrary file on AWS S3, eg. to check backups have happened or _SUCCESS placeholder files are present for a job
 - ```check_dns.pl``` - advanced DNS query checker supporting NS records for your public domain name, MX records for your mail servers, SOA, SRV, TXT as well as A and PTR records. Can optionally specify `--expected` literal or `--regex` results (which is anchored for security) for strict validation to ensure all records returned are expected and authorized. The record, type and result(s) are output along with the DNS query timing perfdata for graphing DNS performance
 
 ##### Infrastructure - Linux - OS, Network, Puppet, RAID, SSH, Clusters, Yum Security Updates
