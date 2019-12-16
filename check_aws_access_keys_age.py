@@ -24,7 +24,8 @@ Iterates all AWS IAM users so if you have a lot of users you will need to increa
 
 Verbose mode will output the users, key status, key created date and age in days
 
-See also aws_users_access_key_age.py from DevOps Python Tools repo if you just want a list - https://github.com/harisekhon/devops-python-tools
+See also aws_users_access_key_age.py from DevOps Python Tools repo if you just want a list
+- https://github.com/harisekhon/devops-python-tools
 
 """
 
