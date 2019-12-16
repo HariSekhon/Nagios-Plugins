@@ -70,7 +70,8 @@ class AWSAccessKeyAge(NagiosPlugin):
         self.ok()
 
     def add_options(self):
-        self.add_opt('-a', '--age', default=365, type=int, help='Return warning on keys older than N days (default 365)')
+        self.add_opt('-a', '--age', default=365, type=int,
+                     help='Return warning on keys older than N days (default 365)')
         self.add_opt('-o', '--only-active', action='store_true', help='Only count keys with Active status')
 
     def process_args(self):
