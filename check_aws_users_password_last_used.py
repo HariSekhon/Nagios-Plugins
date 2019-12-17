@@ -24,8 +24,14 @@ Iterates all AWS IAM users so if you have a lot of users you will need to increa
 
 Verbose mode will output the users, date of last password use and days ago
 
-See also aws_users_pw_last_used.sh from DevOps Bash Tools repo if you just want a list
-- https://github.com/harisekhon/devops-bash-tools
+Uses Boto, read here for the list of ways to configure your AWS credentials:
+
+    https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html
+
+See also:
+
+    aws_users_pw_last_used.sh - from DevOps Bash Tools repo if you just want a list
+                              - https://github.com/harisekhon/devops-bash-tools
 
 """
 
