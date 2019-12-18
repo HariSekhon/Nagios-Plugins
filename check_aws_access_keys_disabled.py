@@ -49,14 +49,14 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log
+    from harisekhon.utils import log, plural
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 
 class AWSAccessKeysDisabled(NagiosPlugin):
@@ -73,17 +73,19 @@ class AWSAccessKeysDisabled(NagiosPlugin):
     def run(self):
         iam = boto3.client('iam')
         user_paginator = iam.get_paginator('list_users')
+        count = 0
         for users_response in user_paginator.paginate():
             for user_item in users_response['Users']:
                 username = user_item['UserName']
                 key_paginator = iam.get_paginator('list_access_keys')
                 for keys_response in key_paginator.paginate(UserName=username):
                     self.process_keys(keys_response, username)
-        count = self.disabled_access_key_count
-        if count:
+                    count += 1
+        disabled_count = self.disabled_access_key_count
+        if disabled_count:
             self.warning()
-        self.msg = '{} AWS access keys disabled'.format(count)
-        self.msg += ' | num_disabled_access_keys={}'.format(count)
+        self.msg = '{} AWS access key{} disabled'.format(disabled_count, plural(disabled_count))
+        self.msg += ' | num_disabled_access_keys={} num_access_keys={}'.format(disabled_count, count)
 
     def process_keys(self, keys_response, username):
         #assert not keys_response['IsTruncated']
@@ -96,7 +98,7 @@ class AWSAccessKeysDisabled(NagiosPlugin):
                 status=status,
                 date=create_date))
             if status != 'Active':
-                self.self.disabled_access_key_count += 1
+                self.disabled_access_key_count += 1
 
 
 if __name__ == '__main__':
