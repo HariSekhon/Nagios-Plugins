@@ -97,6 +97,7 @@ class AWSAccessKeysDisabled(NagiosPlugin):
                 user=username,
                 status=status,
                 date=create_date))
+            # alternative is 'Inactive'
             if status != 'Active':
                 self.disabled_access_key_count += 1
 
