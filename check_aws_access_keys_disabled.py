@@ -93,7 +93,7 @@ class AWSAccessKeysDisabled(NagiosPlugin):
             assert username == access_key_item['UserName']
             status = access_key_item['Status']
             create_date = access_key_item['CreateDate']
-            log.info('{user:20}\t{status}\t{date}'.format(
+            log.info('{user:20}\t{status:8}\t{date}'.format(
                 user=username,
                 status=status,
                 date=create_date))
