@@ -122,7 +122,7 @@ class AWSAccessKeyAge(NagiosPlugin):
             age_days = ceil(age_timedelta.total_seconds() / 86400.0)
             if age_days < self.age:
                 continue
-            log.info('{user:20}\t{status}\t{date}\t ({days} days)'.format(
+            log.info('{user:20}\t{status:8}\t{date}\t ({days} days)'.format(
                 user=username,
                 status=status,
                 date=create_date,
