@@ -51,14 +51,14 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, validate_float
+    from harisekhon.utils import log, plural, validate_float
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 
 class AWSAccessKeyAge(NagiosPlugin):
@@ -91,17 +91,19 @@ class AWSAccessKeyAge(NagiosPlugin):
         iam = boto3.client('iam')
         user_paginator = iam.get_paginator('list_users')
         self.now = datetime.datetime.utcnow()
+        count = 0
         for users_response in user_paginator.paginate():
             for user_item in users_response['Users']:
                 username = user_item['UserName']
                 key_paginator = iam.get_paginator('list_access_keys')
                 for keys_response in key_paginator.paginate(UserName=username):
                     self.process_keys(keys_response, username)
-        count = self.count_old_keys
-        if count:
+                    count += 1
+        old_count = self.count_old_keys
+        if old_count:
             self.warning()
-        self.msg = '{} AWS access keys older than {} days'.format(count, self.age)
-        self.msg += ' | num_old_access_keys={}'.format(count)
+        self.msg = '{} AWS access key{} older than {} days'.format(old_count, plural(old_count), self.age)
+        self.msg += ' | num_old_access_keys={} num_access_keys={}'.format(old_count, count)
 
     def process_keys(self, keys_response, username):
         #assert not keys_response['IsTruncated']
