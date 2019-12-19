@@ -18,8 +18,6 @@
 
 Nagios Plugin to check for any disabled AWS Access Keys which should probably be removed
 
-Uses Boto's standard AWS credentials mechanism from environment, config files etc
-
 Iterates all AWS IAM users so if you have a lot of users you will need to increase the --timeout
 
 Verbose mode will output the users, key status and key created date
