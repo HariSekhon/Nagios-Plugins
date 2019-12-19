@@ -18,8 +18,6 @@
 
 Nagios Plugin to check the age of AWS Access Keys to find and remove/rotate old keys as per best practices
 
-Uses Boto's standard AWS credentials mechanism from environment, config files etc
-
 Iterates all AWS IAM users so if you have a lot of users you will need to increase the --timeout
 
 Verbose mode will output the users, key status, key created date and age in days
