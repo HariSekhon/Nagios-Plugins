@@ -79,7 +79,7 @@ class AWSUsersUnused(NagiosPlugin):
         self.ok()
 
     def add_options(self):
-        self.add_opt('--days', default=90, type=int,
+        self.add_opt('-d', '--days', default=90, type=int,
                      help='Warn if accounts present that have been unused in the last N days (default: 90)')
 
     def process_args(self):
