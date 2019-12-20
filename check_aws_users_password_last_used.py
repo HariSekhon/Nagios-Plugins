@@ -16,7 +16,7 @@
 
 """
 
-Nagios Plugin to check the age of AWS user accounts last password used to find and remove old users
+Nagios Plugin to check the age of AWS IAM user accounts last password used to find and remove old users
 
 Iterates all AWS IAM users so if you have a lot of users you will need to increase the --timeout
 
