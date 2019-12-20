@@ -16,7 +16,9 @@
 
 """
 
-Nagios Plugin to warn if an AWS user account was used recently - designed to check on root account activity by default
+Nagios Plugin to warn if a given AWS IAM user account was used recently
+
+Designed to check on root account activity by default
 
 Generates an IAM credential report, then parses it to determine the time since each user's password
 and access keys were last used
