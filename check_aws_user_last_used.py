@@ -77,7 +77,7 @@ class AWSuserLastUsed(NagiosPlugin):
 
     def add_options(self):
         self.add_opt('-u', '--user', default='root', help='User to check on (default: root)')
-        self.add_opt('--days', default=7, type=int,
+        self.add_opt('-d', '--days', default=7, type=int,
                      help='Warn if the given account was used in the last N days (default: 7)')
 
     def process_args(self):
