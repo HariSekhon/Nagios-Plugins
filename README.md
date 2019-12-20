@@ -188,7 +188,9 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
   - ```check_aws_s3_file.pl``` - check for the existence of any arbitrary file on AWS S3, eg. to check backups have happened or _SUCCESS placeholder files are present for a job
   - ```check_aws_access_keys_age.py``` - checks for AWS access key age greater than N days to delete/rotate old keys as per best practice (optionally only alerts for active keys)
   - ```check_aws_access_keys_disabled.py``` - checks for AWS disabled access keys that should be removed
-  - ```check_aws_users_password_last_used.py``` - finds AWS IAM user accounts that haven't had their passwords used in N days and should probably be removed
+  - ```check_aws_user_last_used.py``` - checks if a given AWS IAM user account has been used within the last N days (eg. root account)
+  - ```check_aws_users_unused.py``` - detects old AWS IAM user accounts that haven't been used in the last N days, either passwords nor access keys, and should probably be removed
+  - ```check_aws_users_password_last_used.py``` - detects AWS IAM user accounts that haven't had their passwords used in N days and should probably be removed
 
 ##### Docker / Containerization
 
