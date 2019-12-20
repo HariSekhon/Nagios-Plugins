@@ -16,7 +16,7 @@
 
 """
 
-Nagios Plugin to find accounts that haven't been used in the last N days
+Nagios Plugin to find AWS IAM user accounts that haven't been used in the last N days
 
 Excludes root account which should not normally be used and should have a higher age
 
@@ -66,16 +66,16 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1.0'
 
 
-class AWSAccountsUnused(NagiosPlugin):
+class AWSUsersUnused(NagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(AWSAccountsUnused, self).__init__()
+        super(AWSUsersUnused, self).__init__()
         # Python 3.x
         # super().__init__()
         self.days = None
         self.now = None
-        self.msg = 'AWSAccountsUnused msg not defined'
+        self.msg = 'AWSUsersUnused msg not defined'
         self.ok()
 
     def add_options(self):
@@ -150,4 +150,4 @@ class AWSAccountsUnused(NagiosPlugin):
 
 
 if __name__ == '__main__':
-    AWSAccountsUnused().main()
+    AWSUsersUnused().main()
