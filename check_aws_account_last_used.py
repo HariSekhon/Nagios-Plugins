@@ -16,7 +16,7 @@
 
 """
 
-Nagios Plugin to warn if an AWS account was used recently - designed to check on root account activity by default
+Nagios Plugin to warn if an AWS user account was used recently - designed to check on root account activity by default
 
 Generates an IAM credential report, then parses it to determine the time since each user's password
 and access keys were last used
@@ -62,17 +62,17 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.1.0'
 
 
-class AWSAccountLastUsed(NagiosPlugin):
+class AWSuserLastUsed(NagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(AWSAccountLastUsed, self).__init__()
+        super(AWSuserLastUsed, self).__init__()
         # Python 3.x
         # super().__init__()
         self.user = None
         self.days = None
         self.now = None
-        self.msg = 'AWSAccountLastUsed msg not defined'
+        self.msg = 'AWSuserLastUsed msg not defined'
         self.ok()
 
     def add_options(self):
@@ -154,4 +154,4 @@ class AWSAccountLastUsed(NagiosPlugin):
 
 
 if __name__ == '__main__':
-    AWSAccountLastUsed().main()
+    AWSuserLastUsed().main()
