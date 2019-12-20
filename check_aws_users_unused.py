@@ -23,7 +23,8 @@ Excludes root account which should not normally be used and should have a higher
 Default days is 90 as per the CIS AWS Security whitepaper
 
 Generates an IAM credential report, then parses it to determine the time since each user's password
-and access keys were last used
+and access keys were last used, using the most recent timestamps among the password and access keys
+one as the last used age of the account
 
 Uses the Boto python library, read here for the list of ways to configure your AWS credentials:
 
