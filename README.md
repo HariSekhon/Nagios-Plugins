@@ -487,7 +487,7 @@ All CPAN modules are listed in ```setup/cpan-requirements.txt```.
 
 All PyPI modules are listed in ```requirements.txt```.
 
-Internal PyPI Mirror example ([JFrog Artifactory](https://jfrog.com/artifactory/) or similar):
+Internal PyPI Mirror example ([JFrog Artifactory](https://jfrog.com/artifactory/), [CloudRepo](https://cloudrepo.io) or similar):
 
 ```
 sudo pip install --index https://host.domain.com/api/pypi/repo/simple --trusted host.domain.com -r requirements.txt
