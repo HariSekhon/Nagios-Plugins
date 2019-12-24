@@ -13,10 +13,11 @@ Advanced Nagios Plugins Collection
 
 ##### Largest, most advanced collection of production-grade Nagios monitoring code (over 450 programs).
 
-Specialised plugins for Hadoop, Big Data & NoSQL technologies, written by a former Clouderan ([Cloudera](http://www.cloudera.com) was the first Hadoop Big Data vendor) and ex-[Hortonworks](http://www.hortonworks.com) consultant.
+Specialised plugins for AWS, Hadoop, Big Data & NoSQL technologies, written by a former Clouderan ([Cloudera](http://www.cloudera.com) was the first Hadoop Big Data vendor) and ex-[Hortonworks](http://www.hortonworks.com) consultant.
 
 Supports most major open source NoSQL technologies, Pub-Sub / Message Buses, CI, Web and Linux based infrastructure, including:
 
+- [AWS](https://aws.amazon.com/)
 - [Hadoop](http://hadoop.apache.org/) - extensive API integration to all major Hadoop vendors ([Cloudera](http://www.cloudera.com), [Hortonworks](http://www.hortonworks.com), [MapR](http://www.mapr.com), [IBM BigInsights](http://www-03.ibm.com/software/products/en/ibm-biginsights-for-apache-hadoop))
 - [Docker](https://www.docker.com/)
 - [Kafka](http://kafka.apache.org/)
@@ -50,7 +51,7 @@ Fix requests, suggestions, updates and improvements are most welcome via Github 
 
 Hari Sekhon
 
-Big Data Contractor, United Kingdom
+Cloud & Big Data Contractor, United Kingdom
 
 https://www.linkedin.com/in/harisekhon
 ###### (you're welcome to connect with me on LinkedIn)
