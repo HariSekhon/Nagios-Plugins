@@ -23,6 +23,8 @@ Designed to check on root account activity by default
 Generates an IAM credential report, then parses it to determine the time since the given user's
 password and access keys were last used
 
+Requires iam:GenerateCredentialReport on resource: *
+
 Uses the Boto python library, read here for the list of ways to configure your AWS credentials:
 
     https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html
