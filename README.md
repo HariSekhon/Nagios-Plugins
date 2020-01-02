@@ -744,11 +744,21 @@ sudo pip uninstall -y certifi &&
 sudo pip install certifi==2015.04.28
 ```
 
-### Further Utilities ###
+### See Also ###
 
-[Kafka Scala Nagios Plugin](https://github.com/HariSekhon/nagios-plugin-kafka) - Scala version of the Python and Perl Kafka plugins found here, build provides a self-contained jar with Kerberos support.
+* [Kafka Scala Nagios Plugin](https://github.com/HariSekhon/nagios-plugin-kafka) - Scala version of the Python and Perl Kafka plugins found here, build provides a self-contained jar with Kerberos support.
 
-[DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) & [DevOps Perl Tools](https://github.com/harisekhon/devops-perl-tools) repos - contains another 100+ programs including useful tools such as:
+* [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) - 75+ DevOps CLI tools for AWS, Hadoop, HBase, Spark, Log Anonymizer, Ambari Blueprints, AWS CloudFormation, Linux, Docker, Spark Data Converters & Validators (Avro / Parquet / JSON / CSV / INI / XML / YAML), Elasticsearch, Solr, Travis CI, Pig, IPython
+
+* [DevOps Bash Tools](https://github.com/harisekhon/devops-bash-tools) - 100+ DevOps Bash scripts, advanced `.bashrc`, `.vimrc`, `.screenrc`, `.tmux.conf`, `.toprc`, Utility Code Library used by CI and all my GitHub repos - includes code for AWS, Kubernetes, Kafka, Docker, Git, Code & build linting, package management for Linux / Mac / Perl / Python / Ruby / Golang, and lots more random goodies
+
+* [DevOps Perl Tools](https://github.com/harisekhon/perl-tools) - 25+ DevOps CLI tools for Hadoop, HDFS, Hive, Solr/SolrCloud CLI, Log Anonymizer, Nginx stats & HTTP(S) URL watchers for load balanced web farms, Dockerfiles & SQL ReCaser (Hive, Impala, MySQL, PostgreSQL, Cassandra CQL, Apache Drill, Couchbase N1QL, Microsoft SQL Server, Oracle, Pig Latin, Neo4j, InfluxDB), Ambari FreeIPA Kerberos, Datameer, Linux...
+
+* [HAProxy-configs](https://github.com/harisekhon/haproxy-configs) - 80+ HAProxy Configs for Hadoop, Big Data, NoSQL, Docker, Elasticsearch, SolrCloud, HBase, Cloudera, Hortonworks, MapR, MySQL, PostgreSQL, Apache Drill, Hive, Presto, Impala, ZooKeeper, OpenTSDB, InfluxDB, Prometheus, Kibana, Graphite, SSH, RabbitMQ, Redis, Riak, Rancher etc.
+
+* [Dockerfiles](https://github.com/HariSekhon/Dockerfiles) - 50+ DockerHub public images for Docker & Kubernetes - Hadoop, Kafka, ZooKeeper, HBase, Cassandra, Solr, SolrCloud, Presto, Apache Drill, Nifi, Spark, Mesos, Consul, Riak, OpenTSDB, Jython, Advanced Nagios Plugins & DevOps Tools repos on Alpine, CentOS, Debian, Fedora, Ubuntu, Superset, H2O, Serf, Alluxio / Tachyon, FakeS3. This is where many of the dockerized CI tests come from.
+
+The [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) & [DevOps Perl Tools](https://github.com/harisekhon/devops-perl-tools) repos contain over 100 useful programs including useful tools such as:
 
 * ```anonymize.pl``` / ```anonymize.py``` - anonymizes configs / logs for posting online - replaces hostnames/domains/FQDNs, IPs, passwords/keys in Cisco/Juniper configs, custom extensible phrases like your name or your company name
 * ```validate_json/yaml/ini/xml/avro/parquet.py``` - validates JSON, YAML, INI (Java Properties), XML, Avro, Parquet including directory trees, standard input and even optionally 'single quoted json' and multi-record bulk JSON data formats as found in MongoDB and Hadoop / Big Data systems.
@@ -762,13 +772,11 @@ sudo pip install certifi==2015.04.28
 * AWS CloudFormation templates
 * DockerHub API tools including more search results and fetching repo tags (not available in official Docker tooling)
 
-[Dockerfiles repo](https://github.com/harisekhon/Dockerfiles) containing dozens of docker images source builds for many of the technologies covered in this repo (this is where many of the dockerized CI tests come from).
-
-### See Also ###
-
 * [My Perl library](https://github.com/harisekhon/lib) - used throughout this code as a submodule to make the programs in this repo short
 * [My Python library](https://github.com/harisekhon/pylib) - Python version of the above library, also heavily leveraged to keep programs in this repo short
+<!--
 * [Spark => Elasticsearch](https://github.com/harisekhon/spark-apps) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of ```pig-text-to-elasticsearch.pig``` from my [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) repo
+-->
 
 ### Enterprise Monitoring Systems
 
