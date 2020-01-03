@@ -41,10 +41,6 @@ my $validate = 0;
 
 my $cm       = 0;
 
-# update: originally used v1 but Cloudera has removed APIs v1 - v5 from Cloudera Manager 6.x
-# https://docs.cloudera.com/documentation/enterprise/6/release-notes/topics/rg_deprecated_items.html
-$api = "/api/v6";
-
 %options = (
     %hostoptions,
     %useroptions,
