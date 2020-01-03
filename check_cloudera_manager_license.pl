@@ -15,9 +15,9 @@ Calculates the number of days left on license and compares against given thresho
 
 Also checks if the license is running free version either 'Cloudera Standard' or 'Cloudera Express' and if the license is in Trial Mode
 
-Tested on Cloudera Manager 4.8.2, 5.0.0, 5.7.0, 5.12.0";
+Tested on Cloudera Manager 4.8.2, 5.0.0, 5.7.0, 5.10.0, 5.12.0";
 
-$VERSION = "0.1";
+$VERSION = "0.1.0";
 
 use strict;
 use warnings;
