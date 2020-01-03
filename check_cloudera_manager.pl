@@ -23,9 +23,9 @@ You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) 
 
 This is still using v1 of the API for compatability purposes
 
-Tested on Cloudera Manager 4.8.2, 5.0.0, 5.7.0, 5.12.0";
+Tested on Cloudera Manager 4.8.2, 5.0.0, 5.7.0, 5.10.0, 5.12.0";
 
-$VERSION = "0.2";
+$VERSION = "0.3.0";
 
 use strict;
 use warnings;
@@ -77,13 +77,14 @@ if($list_users){
     check_cm_field("items");
     $msg = "users: ";
     foreach(@{$json->{"items"}}){
-        foreach my $field (qw/name roles/){
-            defined($_->{$field}) or quit "CRITICAL", "$field field not found in returned user items returned from '$url_prefix'. $nagios_plugins_support_msg_api";
+        #foreach my $field (qw/name roles/){
+        foreach my $field (qw/name/){
+            defined($_->{$field}) or quit "CRITICAL", "$field field not found in user items returned from '$url_prefix'. You may not have permissions to query this or $nagios_plugins_support_msg_api";
         }
         $msg .= $_->{"name"};
-        if($verbose){
+        if($verbose and isArray($_->{"roles"})){
             $msg .= "[";
-            isArray($_->{"roles"}) or quit "UNKNOWN", "roles returned for user not an array. $nagios_plugins_support_msg_api";
+            #isArray($_->{"roles"}) or quit "UNKNOWN", "roles returned for user not an array. You may not have permissions to query this or $nagios_plugins_support_msg_api";
             $msg .= join(",", @{$_->{"roles"}});
             $msg .= "]";
         }
@@ -91,7 +92,8 @@ if($list_users){
     }
     $msg =~ s/, $//;
     quit $status, $msg;
-} elsif($api_ping){
+#} elsif($api_ping){
+} else {
     my $api_message = random_alnum(20);
     vlog2 "random string to push through CM API: $api_message";
     $url = "$api/tools/echo?message=$api_message";
@@ -106,8 +108,8 @@ if($list_users){
     quit $status, $msg;
 }
 
-validate_cm_cluster_options();
+#validate_cm_cluster_options();
 
-cm_query();
+#cm_query();
 
 quit $status, $msg;
