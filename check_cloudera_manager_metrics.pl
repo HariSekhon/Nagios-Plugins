@@ -19,11 +19,11 @@ See the Charts section in CM or --all-metrics for a given --cluster --service [-
 
 You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) to allow the API to be used, but it should work on all versions of Cloudera Manager Enterprise Edition
 
-This is still using v1 of the API for compatability purposes
+Requires CM API <= v5 since v6 onwards changed the metrics API to the timeseries API so this doesn't support Cloudera Manager 6+
 
-Tested on Cloudera Manager 4.5, 4.6, 5.0.0, 5.7.0, 5.12.0";
+Tested on Cloudera Manager 4.5, 4.6, 5.0.0, 5.7.0, 5.10.0, 5.12.0";
 
-$VERSION = "0.7";
+$VERSION = "0.8.0";
 
 use strict;
 use warnings;
@@ -55,6 +55,8 @@ my @metrics_not_found;
 );
 
 get_options();
+
+$api        = "/api/v5";
 
 $host       = validate_host($host);
 $port       = validate_port($port);
