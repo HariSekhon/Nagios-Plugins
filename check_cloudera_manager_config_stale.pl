@@ -21,7 +21,7 @@ This is still using v1 of the API for compatability purposes
 
 Tested on Cloudera Manager 5.0.0, 5.7.0, 5.10.0, 5.12.0";
 
-our $VERSION = "0.2.0";
+our $VERSION = "0.3.0";
 
 use strict;
 use warnings;
@@ -38,10 +38,6 @@ my $stale    = 0;
 my $validate = 0;
 
 my $cm       = 0;
-
-# update: originally used v1 but Cloudera has removed APIs v1 - v5 from Cloudera Manager 6.x
-# https://docs.cloudera.com/documentation/enterprise/6/release-notes/topics/rg_deprecated_items.html
-$api = "/api/v6";
 
 %options = (
     %hostoptions,
@@ -86,11 +82,10 @@ if($cm_mgmt){
 
 cm_query();
 
-check_cm_field("configStale");
-my $configStale = $json->{"configStale"};
+my $configStalenessStatus = get_field("configStalenessStatus");
 # 'configStale' => bless( do{\(my $o = 0)}, 'JSON::PP::Boolean' ),
-#critical unless (grep { $configStale =~ /^$_$/i } qw/0 false/);
-warning if $configStale;
+#critical unless (grep { $configStalenessStatus =~ /^$_$/i } qw/0 false/);
+warning if $configStalenessStatus ne "FRESH";
 
 if(($cluster and $service) or $cm_mgmt){
     if($cm_mgmt){
@@ -109,6 +104,6 @@ if(($cluster and $service) or $cm_mgmt){
 } else {
     usage "must specify --cluster/--service or --CM-mgmt and optionally --role";
 }
-$msg .= " configStale=" . ($configStale ? "true" : "false");
+$msg .= " configStalenessStatus=$configStalenessStatus";
 
 quit $status, $msg;
