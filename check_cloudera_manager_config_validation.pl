@@ -21,9 +21,9 @@ You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) 
 
 This is still using v1 of the API for compatability purposes
 
-Tested on Cloudera Manager 5.0.0, 5.7.0, 5.12.0";
+Tested on Cloudera Manager 5.0.0, 5.7.0, 5.10.0, 5.12.0";
 
-our $VERSION = "0.1";
+our $VERSION = "0.2.0";
 
 use strict;
 use warnings;
@@ -41,7 +41,9 @@ my $validate = 0;
 
 my $cm       = 0;
 
-$api = "/api/v1";
+# update: originally used v1 but Cloudera has removed APIs v1 - v5 from Cloudera Manager 6.x
+# https://docs.cloudera.com/documentation/enterprise/6/release-notes/topics/rg_deprecated_items.html
+$api = "/api/v6";
 
 %options = (
     %hostoptions,
