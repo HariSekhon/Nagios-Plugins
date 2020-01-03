@@ -19,9 +19,9 @@ You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) 
 
 This is still using v1 of the API for compatability purposes
 
-Tested on Cloudera Manager 4.8.2, 5.0.0, 5.7.0, 5.12.0";
+Tested on Cloudera Manager 4.8.2, 5.0.0, 5.7.0, 5.10.0, 5.12.0";
 
-$VERSION = "0.1";
+$VERSION = "0.2.0";
 
 use strict;
 use warnings;
@@ -40,7 +40,7 @@ my $expected;
     %hostoptions,
     %useroptions,
     %cm_options_tls,
-    "e|expected=s"      =>  [ \$expected,           "Expected version regex (optional)" ],
+    "e|expected=s" => [ \$expected, "Expected version regex (optional)" ],
 );
 
 @usage_order = qw/host port user password tls ssl-CA-path tls-noverify expected/;
@@ -52,7 +52,7 @@ $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
 
-my $expected_regex = validate_regex($expected) if defined($expected);
+validate_regex($expected) if defined($expected);
 
 vlog2;
 set_timeout();
@@ -62,9 +62,10 @@ $status = "OK";
 $url = "$api/cm/version";
 cm_query();
 check_cm_field("version");
-$msg = "Cloudera Manager version '" . $json->{"version"} . "'";
-if(defined($expected_regex)){
-    unless($json->{"version"} =~ $expected_regex){
+my $version = get_field("version");
+$msg = "Cloudera Manager version '$version'";
+if(defined($expected)){
+    unless($version =~ /^$expected/){
         critical;
         $msg .= " (expected: '$expected')";
     }
