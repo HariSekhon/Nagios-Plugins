@@ -20,9 +20,9 @@ You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) 
 
 This is still using v1 of the API for compatability purposes
 
-Tested on Cloudera Manager 5.0.0, 5.7.0, 5.12.0";
+Tested on Cloudera Manager 5.0.0, 5.7.0, 5.10.0, 5.12.0";
 
-$VERSION = "0.3";
+$VERSION = "0.3.0";
 
 use strict;
 use warnings;
