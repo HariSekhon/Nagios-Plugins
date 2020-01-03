@@ -19,9 +19,9 @@ You may need to upgrade to Cloudera Manager 4.6 for the Standard Edition (free) 
 
 This is still using v1 of the API for compatability purposes
 
-Tested on Cloudera Manager 5.0.0, 5.7.0, 5.12.0 with CDH 4.6 and CDH 5.x clusters";
+Tested on Cloudera Manager 5.0.0, 5.7.0, 5.10.0, 5.12.0 with CDH 4.6 and CDH 5.x clusters";
 
-$VERSION = "0.1";
+$VERSION = "0.2.0";
 
 use strict;
 use warnings;
@@ -40,9 +40,9 @@ my $expected;
     %hostoptions,
     %useroptions,
     %cm_option_cluster,
-    "list-clusters"     =>  $cm_options_list{"list-clusters"},
+    "list-clusters" =>  $cm_options_list{"list-clusters"},
     %cm_options_tls,
-    "e|expected=s"      =>  [ \$expected,           "Expected cluster version regex (optional)" ],
+    "e|expected=s"  =>  [ \$expected, "Expected cluster version regex (optional)" ],
 );
 
 get_options();
@@ -52,7 +52,7 @@ $port       = validate_port($port);
 $user       = validate_user($user);
 $password   = validate_password($password);
 
-my $expected_regex = validate_regex($expected) if defined($expected);
+validate_regex($expected) if defined($expected);
 
 validate_thresholds();
 
@@ -66,10 +66,10 @@ list_cm_components();
 $cluster = validate_cm_cluster();
 $url = "$api/clusters/$cluster";
 cm_query();
-check_cm_field("version");
-$msg = "cluster '$cluster' version '" . $json->{"version"} . "'";
-if(defined($expected_regex)){
-    unless($json->{"version"} =~ $expected_regex){
+my $version = get_field("fullVersion");
+$msg = "cluster '$cluster' version '$version'";
+if(defined($expected)){
+    unless($version =~ /^$expected/){
         critical;
         $msg .= " (expected: '$expected')";
     }
