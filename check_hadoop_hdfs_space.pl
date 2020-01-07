@@ -87,10 +87,10 @@ foreach(@beans){
     }
     # CDH <= 5.x / Hadoop <= 2.7
     if(defined($_->{"TotalFiles"})){
-        $files   = get_field2_int($_, "TotalFiles");
+        $files = get_field2_int($_, "TotalFiles");
     # CDH 6.x / Hadoop 3.x
     } else {
-        $files   = get_field2_int($_, "FilesTotal");
+        $files = get_field2_int($_, "FilesTotal");
     }
     $blocks  = get_field2_int($_, "TotalBlocks");
     $used    = get_field2_int($_, "Used");
