@@ -40,7 +40,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import log, jsonpp
+    from harisekhon.utils import log, jsonpp, plural
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
@@ -75,7 +75,8 @@ class CheckAWSRootAccount(NagiosPlugin):
         access_keys = _['AccountAccessKeysPresent']
         if access_keys or not mfa_enabled:
             self.warning()
-        self.msg = 'AWS root account MFA enabled = {}, {} access keys found'.format(bool(mfa_enabled), access_keys)
+        self.msg = 'AWS root account MFA enabled = {}, {} access key{} found'\
+                   .format(bool(mfa_enabled), access_keys, plural(access_keys))
 
 
 if __name__ == '__main__':
