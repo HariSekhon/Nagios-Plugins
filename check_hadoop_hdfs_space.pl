@@ -15,9 +15,9 @@ See also check_hadoop_hdfs_space.py for a Python version or check_hadoop_dfs.pl 
 
 For CDH 6.x / Hadoop 3.x onwards you will need to use --port 9870
 
-Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0) and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8";
+Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0) and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 3.0";
 
-$VERSION = "0.3.1";
+$VERSION = "0.4.0";
 
 use strict;
 use warnings;
@@ -33,7 +33,7 @@ use POSIX 'floor';
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
-# Hadoop 3.x / CDH 6.x +
+# Hadoop 3.x / CDH 6.x+ - not enabling by default to maintain backwards compatibility with existing deployments
 #set_port_default(9870);
 set_port_default(50070);
 set_threshold_defaults(80, 90);
@@ -55,7 +55,9 @@ set_timeout();
 
 $status = "OK";
 
-my $url = "http://$host:$port/jmx?qry=Hadoop:service=NameNode,name=NameNodeInfo";
+my $mbean = "Hadoop:service=NameNode,name=FSNamesystemState";
+
+my $url = "http://$host:$port/jmx?qry=$mbean";
 
 my $content = curl $url;
 
@@ -76,25 +78,13 @@ my $blocks;
 my $used;
 my $total;
 foreach(@beans){
-    next unless get_field2($_, "name") eq "Hadoop:service=NameNode,name=NameNodeInfo";
+    next unless get_field2($_, "name") eq $mbean;
     $found_mbean = 1;
-    $pc_used = get_field2($_, "PercentUsed");
-    if($pc_used =~ /^\d\.\d+e-\d+$/){
-        $pc_used = 0;
-    }
-    if(! isFloat($pc_used)){
-        quit "UNKNOWN", "PercentUsed is not a float! $nagios_plugins_support_msg";
-    }
-    # CDH <= 5.x / Hadoop <= 2.7
-    if(defined($_->{"TotalFiles"})){
-        $files = get_field2_int($_, "TotalFiles");
-    # CDH 6.x / Hadoop 3.x
-    } else {
-        $files = get_field2_int($_, "FilesTotal");
-    }
-    $blocks  = get_field2_int($_, "TotalBlocks");
-    $used    = get_field2_int($_, "Used");
-    $total   = get_field2_int($_, "Total");
+    $files   = get_field2_int($_, "FilesTotal");
+    $blocks  = get_field2_int($_, "BlocksTotal");
+    $used    = get_field2_int($_, "CapacityUsed");
+    $total   = get_field2_int($_, "CapacityTotal");
+    $pc_used = $used / $total * 100;
     last;
 }
 quit "UNKNOWN", "failed to find namenode NameNodeInfo mbean" unless $found_mbean;
