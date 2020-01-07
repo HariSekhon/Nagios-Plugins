@@ -13,9 +13,11 @@ $DESCRIPTION = "Nagios Plugin to check Hadoop HDFS Space % used via NameNode JMX
 
 See also check_hadoop_hdfs_space.py for a Python version or check_hadoop_dfs.pl for an older implementation that parses dfsadmin output.
 
+For CDH 6.x / Hadoop 3.x onwards you will need to use --port 9870
+
 Tested on Hortonworks HDP 2.1 (Hadoop 2.4.0) and Apache Hadoop 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8";
 
-$VERSION = "0.3";
+$VERSION = "0.3.1";
 
 use strict;
 use warnings;
@@ -31,6 +33,8 @@ use POSIX 'floor';
 
 $ua->agent("Hari Sekhon $progname version $main::VERSION");
 
+# Hadoop 3.x / CDH 6.x +
+#set_port_default(9870);
 set_port_default(50070);
 set_threshold_defaults(80, 90);
 
@@ -81,7 +85,13 @@ foreach(@beans){
     if(! isFloat($pc_used)){
         quit "UNKNOWN", "PercentUsed is not a float! $nagios_plugins_support_msg";
     }
-    $files   = get_field2_int($_, "TotalFiles");
+    # CDH <= 5.x / Hadoop <= 2.7
+    if(defined($_->{"TotalFiles"})){
+        $files   = get_field2_int($_, "TotalFiles");
+    # CDH 6.x / Hadoop 3.x
+    } else {
+        $files   = get_field2_int($_, "FilesTotal");
+    }
     $blocks  = get_field2_int($_, "TotalBlocks");
     $used    = get_field2_int($_, "Used");
     $total   = get_field2_int($_, "Total");
