@@ -83,7 +83,7 @@ test_hadoop(){
     #docker_compose_port HADOOP_NAMENODE_PORT "HDFS NN"
     #local export HADOOP_NAMENODE_PORT="$(COMPOSE_PROJECT_NAME=nagios-plugins docker-compose -f "$srcdir/tests/docker/hadoop-docker-compose.yml" port hadoop-haproxy "$HADOOP_NAMENODE_PORT")"
     echo -n "HADOOP_NAMENODE_HAPROXY_PORT => "
-    local export HADOOP_NAMENODE_PORT="$(docker-compose port hadoop-haproxy "$HADOOP_NAMENODE_PORT_DEFAULT" | sed 's/.*://')"
+    export HADOOP_NAMENODE_PORT="$(docker-compose port hadoop-haproxy "$HADOOP_NAMENODE_PORT_DEFAULT" | sed 's/.*://')"
     echo "$HADOOP_NAMENODE_PORT"
     docker_compose_port HADOOP_DATANODE_PORT "HDFS DN"
     docker_compose_port HADOOP_YARN_RESOURCE_MANAGER_PORT "Yarn RM"
