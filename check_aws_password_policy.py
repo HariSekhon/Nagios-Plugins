@@ -103,6 +103,8 @@ class CheckAWSPasswordPolicy(NagiosPlugin):
         pw_max_age = password_policy['MaxPasswordAge']
         pw_min_len = password_policy['MinimumPasswordLength']
         pw_reuse = password_policy['PasswordReusePrevention']
+        for _ in [pw_max_age, pw_min_len, pw_reuse]:
+            assert isinstance(_, int)
 #        pw_expiry = password_policy['ExpirePasswords']
 #        pw_hard_expiry = password_policy['HardExpiry']
 #        pw_req_lowercase = password_policy['RequireLowercaseCharacters']
@@ -136,6 +138,7 @@ class CheckAWSPasswordPolicy(NagiosPlugin):
 
         for _ in boolean_fields:
             self.msg += ', {} = {}'.format(_, password_policy[_])
+            assert isinstance(password_policy[_], bool)
             if not password_policy[_]:
                 self.exclaim_and_warn()
 
