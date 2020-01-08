@@ -68,11 +68,11 @@ class CheckAWSRootAccount(NagiosPlugin):
     def run(self):
         iam = boto3.client('iam')
         log.info('getting account summary')
-        account_summary = iam.get_account_summary()
-        log.debug('%s', jsonpp(account_summary))
-        _ = account_summary['SummaryMap']
-        mfa_enabled = _['AccountMFAEnabled']
-        access_keys = _['AccountAccessKeysPresent']
+        _ = iam.get_account_summary()
+        log.debug('%s', jsonpp(_))
+        account_summary = _['SummaryMap']
+        mfa_enabled = account_summary['AccountMFAEnabled']
+        access_keys = account_summary['AccountAccessKeysPresent']
         if access_keys or not mfa_enabled:
             self.warning()
         self.msg = 'AWS root account MFA enabled = {}{}'.format(bool(mfa_enabled), ' (!)' if not mfa_enabled else "")
