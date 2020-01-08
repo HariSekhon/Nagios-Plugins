@@ -64,8 +64,6 @@ class AWSAPIPing(NagiosPlugin):
         super(AWSAPIPing, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.days = None
-        self.now = None
         self.msg = 'AWS API msg not defined'
         self.ok()
 
