@@ -192,6 +192,8 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
   - ```check_aws_user_last_used.py``` - checks if a given AWS IAM user account has been used within the last N days (eg. root account)
   - ```check_aws_users_unused.py``` - detects old AWS IAM user accounts that haven't been used in the last N days, either passwords nor access keys, and should probably be removed
   - ```check_aws_users_password_last_used.py``` - detects AWS IAM user accounts that haven't had their passwords used in N days and should probably be removed
+  - ```check_aws_root_account.py``` - checks the AWS root account has MFA enabled and no access keys as per best practice
+  - ```check_aws_password_policy.py``` - checks the AWS password policy including minimum length, maximum age, password reuse count, uppercase/lowercase/numbers/symbols and whether users are allowed to change their passwords
 
 ##### Docker / Containerization
 
