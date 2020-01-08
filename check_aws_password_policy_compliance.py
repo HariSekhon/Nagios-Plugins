@@ -72,7 +72,7 @@ class CheckAWSPasswordPolicy(NagiosPlugin):
         self.add_opt('-a', '--password-age', default=self.pw_max_age,
                      help='Maximum password age (default: {})'.format(self.pw_max_age))
         self.add_opt('-r', '--password-reuse', default=self.pw_reuse,
-                     help='Minimum password cycling reuse (default: {})'.format(self.pw_reuse))
+                     help='Minimum password reuse count (default: {})'.format(self.pw_reuse))
         self.add_opt('-c', '--password-disallow-change', action='store_true',
                      help="Don't allow users to change their passwords")
 
