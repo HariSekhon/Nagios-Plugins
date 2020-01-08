@@ -36,6 +36,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import collections
 import logging
 import os
 import sys
@@ -53,7 +54,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 
 class AWSAPIPing(NagiosPlugin):
@@ -77,10 +78,12 @@ class AWSAPIPing(NagiosPlugin):
         iam = boto3.client('iam')
         try:
             _ = iam.list_users()
+            # just in case we get an iterator, consume it to flush out any error
+            collections.deque(_, maxlen=0)
             if log.isEnabledFor(logging.DEBUG):
                 log.debug('\n\n%s', _)
                 log.debug('\n\n%s', jsonpp(_))
-        # pylint disable=broad-except
+        # pylint: disable=broad-except
         except Exception as _:
             if log.isEnabledFor(logging.DEBUG):
                 raise
