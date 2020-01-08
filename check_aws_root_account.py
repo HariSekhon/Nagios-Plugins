@@ -47,7 +47,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 
 class CheckAWSRootAccount(NagiosPlugin):
@@ -75,8 +75,8 @@ class CheckAWSRootAccount(NagiosPlugin):
         access_keys = _['AccountAccessKeysPresent']
         if access_keys or not mfa_enabled:
             self.warning()
-        self.msg = 'AWS root account MFA enabled = {}, {} access key{} found'\
-                   .format(bool(mfa_enabled), access_keys, plural(access_keys))
+        self.msg = 'AWS root account MFA enabled = {}{}'.format(bool(mfa_enabled), ' (!)' if not mfa_enabled else "")
+        self.msg += ', {} access key{} found{}'.format(access_keys, plural(access_keys), ' (!)' if access_keys else "")
 
 
 if __name__ == '__main__':
