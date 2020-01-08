@@ -140,10 +140,10 @@ class CheckAWSPasswordPolicy(NagiosPlugin):
                 self.exclaim_and_warn()
 
         self.msg += ', AllowUsersToChangePassword = {}'.format(pw_allow_users_change)
-        if pw_allow_users_change:
-            if self.pw_disallow_change:
+        if self.pw_disallow_change:
+            if pw_allow_users_change:
                 self.exclaim_and_warn()
-        elif self.pw_disallow_change:
+        elif not pw_allow_users_change:
             self.exclaim_and_warn()
 
     def exclaim_and_warn(self):
