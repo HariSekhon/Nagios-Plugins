@@ -61,7 +61,7 @@ class CheckAwsEC2InstanceCount(NagiosPlugin):
         super(CheckAwsEC2InstanceCount, self).__init__()
         # Python 3.x
         # super().__init__()
-        self.msg = 'AWS EC2 states msg not defined'
+        self.msg = 'AWS EC2 instance count msg not defined'
         self.ok()
 
     def add_options(self):
