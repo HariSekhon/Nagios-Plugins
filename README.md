@@ -191,7 +191,7 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
   - ```check_aws_access_keys_disabled.py``` - checks for AWS disabled access keys that should be removed
   - ```check_aws_api_ping.py``` - simple yes/no check for AWS API access, can be used to test access key credentials and as a dependency check for all other AWS checks
   - ```check_aws_ec2_instance_count.py``` - checks the number of running instances with optional range thresholds
-  - ```check_aws_ec2_instance_states.py``` - checks the state of all EC2 instances, raises warning for statuses other than 'running' unless specifying option switches to allow each state. Outputs perfdata counter of each state and total number of instances
+  - ```check_aws_ec2_instance_states.py``` - checks the state of all EC2 instances, outputting totals and checking warning thresholds for each status type each
   - ```check_aws_password_policy.py``` - checks the AWS password policy including minimum length, maximum age, password reuse count, uppercase/lowercase/numbers/symbols and whether users are allowed to change their passwords
   - ```check_aws_root_account.py``` - checks the AWS root account has MFA enabled and no access keys as per best practice
   - ```check_aws_user_last_used.py``` - checks if a given AWS IAM user account has been used within the last N days (eg. if root account was recently used this may indicate a security breach or is at the very least against best practice)
