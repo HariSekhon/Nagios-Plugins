@@ -16,9 +16,9 @@
 
 """
 
-Nagios Plugin to check AWS EC2 instance states
+Nagios Plugin to check AWS EC2 instance states, raising warnings for non-running states
 
-Checks thresholds for each status type (bundles stopped, stopping and shutting-down together)
+Checks warning thresholds for each status type (aggregates stopped / stopping / shutting-down states)
 
 Uses the Boto python library, read here for the list of ways to configure your AWS credentials:
 
