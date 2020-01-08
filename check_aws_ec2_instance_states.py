@@ -86,10 +86,10 @@ class CheckAwsEC2InstanceStates(NagiosPlugin):
         statuses = OrderedDict(
             [
                 ('running', 0),
+                ('terminated', 0),
                 ('stopped', 0),
                 ('stopping', 0),
                 ('shutting-down', 0),
-                ('terminated', 0)
             ]
         )
         allow_pending = self.get_opt('allow_pending')
