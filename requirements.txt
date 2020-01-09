@@ -20,7 +20,7 @@ MySQL-python==1.2.5
 pika==1.1.0
 #psycopg2==2.7.3.1
 #PyHive==0.6.1
-PyInstaller==3.3.1
+PyInstaller==3.6
 python-jenkins==1.5.0
 # auto-pulled in by snakebite[kerberos]
 #python-krbV==1.0.90
