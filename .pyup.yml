@@ -1,6 +1,8 @@
 # https://pyup.io/docs/configuration/
 
-update: insecure
+# buggy, keeps raising for every minor release of Boto, spamming Pull Requests
+#update: insecure
+update: False
 assignees: HariSekhon
 
 # ignore setup/cpan-requirements.txt, don't search
