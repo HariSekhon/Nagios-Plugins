@@ -108,6 +108,12 @@ class CheckAWSCloudTrailEventSelectors(NagiosPlugin):
                             mgt=num_management,
                             readwrite=num_readwrite_all)
         self.msg += ', trails without event selectors: {}'.format(trails_without_selectors)
+        self.msg += ' |'
+        self.msg += ' num_trails={}'.format(num_trails)
+        self.msg += ' trails_without_event_selectors={}'.format(trails_without_selectors)
+        self.msg += ' num_event_selectors={}'.format(num_event_selectors)
+        self.msg += ' num_management={}'.format(num_management)
+        self.msg += ' num_readwrite_all={}'.format(num_readwrite_all)
 
     def process_event_selectors(self, client, trail_list):
         total_event_selectors = 0
