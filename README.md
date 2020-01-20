@@ -190,6 +190,8 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
   - ```check_aws_access_keys_age.py``` - checks for AWS access key age greater than N days to delete/rotate old keys as per best practice (optionally only alerts for active keys)
   - ```check_aws_access_keys_disabled.py``` - checks for AWS disabled access keys that should be removed
   - ```check_aws_api_ping.py``` - simple yes/no check for AWS API access, can be used to test access key credentials and as a dependency check for all other AWS checks
+  - ```check_aws_cloudtrails_enabled.py``` - checks Cloud Trails have logging enabled, multi-region and logfile validation. Optionally check only a single named cloud trail
+  - ```check_aws_cloudtrails_event_selectors.py``` - checks Cloud Trails have at least one event selector each with management and read+write logging. Optionally check only a single named cloud trail
   - ```check_aws_ec2_instance_count.py``` - checks the number of running instances with optional range thresholds
   - ```check_aws_ec2_instance_states.py``` - checks the state of all EC2 instances, outputting totals and checking warning thresholds for each status type
   - ```check_aws_password_policy.py``` - checks the AWS password policy including minimum length, maximum age, password reuse count, uppercase/lowercase/numbers/symbols and whether users are allowed to change their passwords
