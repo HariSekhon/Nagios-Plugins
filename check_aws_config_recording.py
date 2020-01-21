@@ -117,6 +117,8 @@ class CheckAWSConfig(NagiosPlugin):
                 num_recording += 1
             if recorder['lastStatus']:
                 num_laststatus_success += 1
+        if num_recorders < 1:
+            self.warning()
         if num_recording != num_recorders:
             self.critical()
         elif num_laststatus_success != num_recorders:
