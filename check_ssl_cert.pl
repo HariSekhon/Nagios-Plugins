@@ -21,7 +21,7 @@ Checks:
 4. Subject Alternative Names supported by certificate (optional)
 5. SNI - Server Name Identification - supply hostname identifier for servers that contain multiple certificates to tell the server which SSL certificate to use (optional)";
 
-$VERSION = "0.9.18";
+$VERSION = "0.9.19";
 
 use warnings;
 use strict;
@@ -32,13 +32,13 @@ BEGIN {
 use HariSekhonUtils qw/:DEFAULT :regex/;
 use POSIX 'floor';
 
-my $openssl          = "/usr/bin/openssl";
-$port                = 443;
+my $openssl = "/usr/bin/openssl";
+$port = 443;
 my $default_critical = 15;
 my $default_warning  = 31;
 
-$critical            = $default_critical;
-$warning             = $default_warning;
+$critical = $default_critical;
+$warning  = $default_warning;
 
 my $CApath;
 my $cmd;
@@ -92,6 +92,7 @@ if($expected_domain){
 if($subject_alt_names){
     @subject_alt_names = split(",", $subject_alt_names);
     foreach(@subject_alt_names){
+        # Allow wildcards
         if(substr($_, 0 , 2) eq '*.'){
             validate_domain(substr($_, 2));
         } else {
