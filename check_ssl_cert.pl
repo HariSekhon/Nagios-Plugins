@@ -92,7 +92,11 @@ if($expected_domain){
 if($subject_alt_names){
     @subject_alt_names = split(",", $subject_alt_names);
     foreach(@subject_alt_names){
-        validate_domain($_);
+        if(substr($_, 0 , 2) eq '*.'){
+            validate_domain(substr($_, 2));
+        } else {
+            validate_domain($_);
+        }
     }
 }
 
