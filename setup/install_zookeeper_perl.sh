@@ -88,7 +88,9 @@ cd "../contrib/zkperl"
 perl Makefile.PL --zookeeper-include=/usr/local/include --zookeeper-lib=/usr/local/lib
 
 make_lib(){
-    $sudo LD_RUN_PATH=/usr/local/lib "$make"
+    # eval prevents error:
+    # LD_RUN_PATH=/usr/local/lib: No such file or directory
+    eval $sudo LD_RUN_PATH=/usr/local/lib "$make"
 }
 
 make_lib || {
