@@ -23,11 +23,11 @@ matrix:
       # this build has thread support
       perl: "5.24-shrplib"
 
-#    - os: osx
-#      language: perl
-#      perl:
-#        # this build has thread support
-#        - "5.24-shrplib"
+    - os: osx
+      language: perl
+      perl:
+        # this build has thread support
+        - "5.24-shrplib"
 
     # matrix include doesn't seem to build the later perl array items for 5.10, so use a separate include for them
     #- os: linux
@@ -66,8 +66,8 @@ matrix:
 
     # Travis CI doesn't support Python virtual envs on Mac OS X yet, workaround is to use generic and install to system python
     # results in a duplicate matrix multiplier giving 2 x osx generic
-    #- os: osx
-    #  language: generic
+    - os: osx
+      language: generic
 
   allow_failures:
     - os: osx
