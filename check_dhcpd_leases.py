@@ -14,7 +14,7 @@ be used to alert on the delegation of IPs to non-recognized MACs or Hostnames"""
 
 __author__  = "Hari Sekhon"
 __title__   = "Nagios Plugin for DHCPd Server Leases"
-__version__ = '0.8.2'
+__version__ = '0.8.3'
 
 # Due to the limited of characters that Nagios accepts from a plugin, this
 # output will be cut short if you have a lot of dhcp clients, which is why
@@ -49,16 +49,16 @@ def end(status, message):
     arg as the message to output"""
 
     if status == OK:
-        print "DHCP LEASES: %s" % message
+        print("DHCP LEASES: %s" % message)
         sys.exit(OK)
     elif status == WARNING:
-        print "WARNING: %s" % message
+        print("WARNING: %s" % message)
         sys.exit(WARNING)
     elif status == CRITICAL:
-        print "CRITICAL: %s" % message
+        print("CRITICAL: %s" % message)
         sys.exit(CRITICAL)
     else:
-        print "UNKNOWN: %s" % message
+        print("UNKNOWN: %s" % message)
         sys.exit(UNKNOWN)
 
 
@@ -67,7 +67,7 @@ def sort_keys_by_host(dictionary):
     sorts the keys by the host value, returns an ordered list of keys"""
 
     hosts = []
-    keys = dictionary.keys()
+    keys = list(dictionary.keys())
     keys.sort()
     keys_sorted = []
     for key in keys:
@@ -304,7 +304,7 @@ class DhcpdLeaseTester:
         host_blacklist = host_blacklist.split()
         host_blacklist = [host.upper() for host in host_blacklist]
 
-        for ip in self.address_dict.keys():
+        for ip in list(self.address_dict.keys()):
             hostname = self.address_dict[ip][0]
             mac      = self.address_dict[ip][1]
             if hostname.upper() in host_blacklist:
@@ -315,7 +315,7 @@ class DhcpdLeaseTester:
         """Checks the self.address_dict for any macname not in the mac
         whitelist and returns a list of unauthorized macnames"""
 
-        for ip in self.address_dict.keys():
+        for ip in list(self.address_dict.keys()):
             hostname = self.address_dict[ip][0]
             mac      = self.address_dict[ip][1]
             mac      = mac.replace(":", "")
@@ -328,7 +328,7 @@ class DhcpdLeaseTester:
         """Checks the self.address_dict for any macname not in the mac
         blacklist and returns a list of unauthorized macnames"""
 
-        for ip in self.address_dict.keys():
+        for ip in list(self.address_dict.keys()):
             hostname = self.address_dict[ip][0]
             mac      = self.address_dict[ip][1]
             mac      = mac.replace(":", "")
@@ -345,7 +345,7 @@ class DhcpdLeaseTester:
             self.sort_by_ip = True
 
         if self.sort_by_ip:
-            address_keys_sorted = self.address_dict.keys()
+            address_keys_sorted = list(self.address_dict.keys())
             address_keys_sorted.sort()
         else:
             address_keys_sorted = sort_keys_by_host(self.address_dict)
@@ -390,7 +390,7 @@ class DhcpdLeaseTester:
             self.sort_by_ip = True
 
         if self.sort_by_ip:
-            unauthorized_keys_sorted = self.unauthorized_dict.keys()
+            unauthorized_keys_sorted = list(self.unauthorized_dict.keys())
             unauthorized_keys_sorted.sort()
         else:
             unauthorized_keys_sorted = sort_keys_by_host(self.unauthorized_dict)
@@ -666,11 +666,11 @@ def main():
         sys.exit(UNKNOWN)
 
     if version:
-        print __version__
+        print(__version__)
         sys.exit(UNKNOWN)
 
     if not tester.leasefile:
-        print "UNKNOWN: no lease file specified. See --help for details\n"
+        print("UNKNOWN: no lease file specified. See --help for details\n")
         parser.print_help()
         sys.exit(UNKNOWN)
 
@@ -692,5 +692,5 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print "Caught Control-C..."
+        print("Caught Control-C...")
         sys.exit(UNKNOWN)
