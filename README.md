@@ -15,7 +15,7 @@ Advanced Nagios Plugins Collection
 [![CI Ubuntu](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Ubuntu/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Ubuntu%22)
 [![CI Alpine](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Alpine/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Alpine%22)
 [![CI Mac](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Mac/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Mac%22)
-[![CI Python 2.7](https://github.com/HariSekhon/pylib/workflows/CI%20Python%202.7/badge.svg)](https://github.com/HariSekhon/pylib/actions?query=workflow%3A%22CI+Python+2.7%22)
+[![CI Python 2.7](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Python%202.7/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Python+2.7%22)
 
 <!-- broken handling of Elasticsearch major version for Python library -->
 
