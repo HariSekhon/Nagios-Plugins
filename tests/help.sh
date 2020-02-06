@@ -13,6 +13,7 @@
 #  http://www.linkedin.com/in/harisekhon
 #
 
+set -x
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir_nagios_plugins_help="${srcdir:-}"
