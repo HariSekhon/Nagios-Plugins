@@ -142,35 +142,36 @@ python-libs:
 	#$(SUDO) easy_install pip || :
 
 	# fixes bug in cffi version detection when installing requests-kerberos
-	$(SUDO_PIP) pip install --upgrade pip
+	$(SUDO_PIP) pip install --quiet --upgrade pip
 
 	setup/install_mysql_python.sh
 
 	# only install pip packages not installed via system packages
-	#$(SUDO_PIP) pip install --upgrade -r requirements.txt
-	#$(SUDO_PIP) pip install -r requirements.txt
+	#$(SUDO_PIP) pip install --quiet --upgrade -r requirements.txt
+	#$(SUDO_PIP) pip install --quiet -r requirements.txt
 	@bash-tools/python_pip_install_if_absent.sh requirements.txt
 
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	# in requirements.txt now
-	#$(SUDO_PIP) pip install cassandra-driver scales blist lz4 python-snappy
+	#$(SUDO_PIP) pip install --quiet cassandra-driver scales blist lz4 python-snappy
 
 	# prevents https://urllib3.readthedocs.io/en/latest/security.html#insecureplatformwarning
-	$(SUDO_PIP) pip install --upgrade ndg-httpsclient || $(SUDO_PIP) pip install --upgrade ndg-httpsclient
+	$(SUDO_PIP) pip install --quiet --upgrade ndg-httpsclient || \
+	$(SUDO_PIP) pip install --quiet --upgrade ndg-httpsclient
 
 	#. tests/utils.sh; $(SUDO) $$perl couchbase-csdk-setup
-	#$(SUDO_PIP) pip install couchbase
+	#$(SUDO_PIP) pip install --quiet couchbase
 
 	# install MySQLdb python module for check_logserver.py / check_syslog_mysql.py
 	# fails if MySQL isn't installed locally
 	# Mac fails to import module, one workaround is:
 	# sudo install_name_tool -change libmysqlclient.18.dylib /usr/local/mysql/lib/libmysqlclient.18.dylib /Library/Python/2.7/site-packages/_mysql.so
 	# in requirements.txt now
-	#$(SUDO_PIP) pip install MySQL-python
+	#$(SUDO_PIP) pip install --quiet MySQL-python
 
 	# must downgrade happybase library to work on Python 2.6
 	#if [ "$$(python -c 'import sys; sys.path.append("pylib"); import harisekhon; print(harisekhon.utils.getPythonVersion())')" = "2.6" ]; then $(SUDO_PIP) pip install --upgrade "happybase==0.9"; fi
-	if python -V 2>&1 | grep -q '^Python 2.6'; then $(SUDO_PIP) pip install --upgrade "happybase==0.9"; fi
+	if python -V 2>&1 | grep -q '^Python 2.6'; then $(SUDO_PIP) pip install --quiet --upgrade "happybase==0.9"; fi
 
 	@echo
 	unalias mv 2>/dev/null; \
