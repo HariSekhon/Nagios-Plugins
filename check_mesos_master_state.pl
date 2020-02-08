@@ -50,7 +50,7 @@ $status = "OK";
 #         executor
 #         scheduler
 #         internal
-my $url = "http://$host:$port/state.json";
+my $url = "http://$host:$port/state";
 $json = curl_json $url, "Mesos Master state";
 vlog3 Dumper($json);
 
