@@ -10,7 +10,7 @@ boto3==1.10.40
 #GitPython==3.0.3
 GitPython==2.1.14
 happybase==1.2.0
-humanize==0.5.1
+humanize==1.0.0
 #impyla==0.16.0
 kafka-python==1.4.7
 #kazoo==2.2.1
