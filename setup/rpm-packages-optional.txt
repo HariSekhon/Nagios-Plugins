@@ -20,6 +20,11 @@
 # for check_whois.pl - no longer available on CentOS 8
 jwhois
 
+# CentOS <= 7
+snappy-devel
+# CentOS 8
+csnappy-devel
+
 cyrus-sasl-devel
 yum-security
 yum-plugin-security
