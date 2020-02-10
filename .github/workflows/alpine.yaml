@@ -30,16 +30,26 @@ jobs:
     timeout-minutes: 10
     runs-on: ubuntu-latest
     container: alpine
+    env:
+      repo: nagios-plugins
     steps:
     # untars repo in docker container so git submodule update fails
     #- uses: actions/checkout@v2
-    - name: build & test
+    - name: install git & make
       run: |
         ls -l /.dockerenv
         echo "pwd is $PWD"
         cat /etc/*release
-        apk add --no-cache git make &&
+        apk add --no-cache bash git make
+    - name: git clone
+      run: |
         cd /tmp &&
-        git clone https://github.com/harisekhon/nagios-plugins &&
-        cd nagios-plugins &&
-        make build test
+        git clone "https://github.com/harisekhon/$repo"
+    - name: build
+      run: |
+        cd "/tmp/$repo" &&
+        make
+    - name: test
+      run: |
+        cd "/tmp/$repo" &&
+        make test
