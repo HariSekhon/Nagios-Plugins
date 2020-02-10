@@ -260,7 +260,7 @@ if is_docker_available; then
     run ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:latest"
 
     for image in ${DOCKER_IMAGES[*]}; do
-        max_size=$((700 * 1024 * 1024))
+        max_size=$((1000 * 1024 * 1024))
 #        if grep nagios <<< "$image"; then
 #            max_size=$((600 * 1024 * 1024))
 #        fi
@@ -271,8 +271,8 @@ if is_docker_available; then
         run ./older/check_docker_image_old.py --docker-image "$image" --warning "$max_size"
     done
     for tag in $DOCKER_IMAGE_TAGS; do
-        run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((900 * 1024 * 1024))
-        run ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((900 * 1024 * 1024))
+        run ./check_docker_image.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((1000 * 1024 * 1024))
+        run ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((1000 * 1024 * 1024))
 
         echo "checking thresholds fail as expected:"
         run_fail 1 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:$tag" --warning $((200 * 1024 * 1024))
