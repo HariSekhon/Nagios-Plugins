@@ -50,7 +50,7 @@ if is_docker_available; then
 
     run ./check_docker_version.py
 
-    run ./check_docker_version.py --expected '^1.+'
+    run ./check_docker_version.py --expected '^\d\.\d+|\+azure$'
 
     run_fail 2 ./check_docker_version.py --expected 'wrong-version'
 
