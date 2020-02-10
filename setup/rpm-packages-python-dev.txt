@@ -13,7 +13,8 @@
 #                      RPM Python Dev Package Requirements
 # ============================================================================ #
 
-snappy-devel
+# called csnappy-devel on CentOS 8 - moved to optional packages to try both names
+#snappy-devel
 
 # needed to build pyhs2
 # libgsasl-devel saslwrapper-devel
