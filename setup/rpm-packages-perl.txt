@@ -20,8 +20,5 @@ net-tools
 # for check_ssl_cert.pl
 openssl
 
-# for check_whois.pl
-jwhois
-
 # for timezone checks
 tzdata
