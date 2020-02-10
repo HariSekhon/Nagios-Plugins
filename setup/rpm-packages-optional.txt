@@ -17,6 +17,9 @@
 
 # Ignore Failures for these packages
 
+# for check_whois.pl - no longer available on CentOS 8
+jwhois
+
 cyrus-sasl-devel
 yum-security
 yum-plugin-security
