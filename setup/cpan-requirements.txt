@@ -17,6 +17,9 @@
 # included by library
 #inc::Module::Install
 
+# for MongoDB dep
+Package::Stash::XS
+
 Data::HexDump::Range
 
 # needed for Kafka execution on CentOS
