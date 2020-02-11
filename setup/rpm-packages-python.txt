@@ -13,8 +13,10 @@
 #                        RPM Python Package Requirements
 # ============================================================================ #
 
+# installed by bash-tools submodule now
+
 # used to parse api.github.com repo contents for downloading find_active_*.py
-jq
+#jq
 
 # for ping mode of find_active_server.py
-iputils
+#iputils
