@@ -13,9 +13,11 @@
 #                            Deb Package Requirements
 # ============================================================================ #
 
+# installed by bash-tools submodule now
+
 # needed by check_git_checkout_branch.pl and Git-Python / check_git_checkout_branch.py
 # included by library
 #git
 
 # used for tests
-curl
+#curl
