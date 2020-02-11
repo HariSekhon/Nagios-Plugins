@@ -13,10 +13,12 @@
 #                          Alpine Package Requirements
 # ============================================================================ #
 
-ca-certificates
+# installed by bash-tools submodule now
+
+#ca-certificates
 
 # used for tests
-curl
+#curl
 
 # needed to fetch the library submodule at end of build
 # and also for check_git_checkout_branch.pl and Git-Python / check_git_checkout_branch.py
