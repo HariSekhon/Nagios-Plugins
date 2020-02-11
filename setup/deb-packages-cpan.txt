@@ -19,9 +19,7 @@ libclass-accessor-perl
 libdigest-crc-perl
 libdigest-perl-md5-perl
 libdigest-sha-perl
-libio-pty-perl
 libio-socket-ssl-perl
 liblwp-authen-negotiate-perl
-libnet-dns-perl
 libsms-aql-perl
 liburi-escape-xs-perl
