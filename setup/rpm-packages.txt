@@ -19,5 +19,6 @@ tar
 # included by library
 #git
 
+# installed by bash-tools submodule now
 # used for tests
-curl
+#curl
