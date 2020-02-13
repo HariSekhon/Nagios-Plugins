@@ -12,7 +12,13 @@ Advanced Nagios Plugins Collection
 [![](https://images.microbadger.com/badges/image/harisekhon/nagios-plugins.svg)](http://microbadger.com/#/images/harisekhon/nagios-plugins)
 
 [![CI CentOS](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20CentOS/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+CentOS%22)
+[![CI CentOS 7](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20CentOS%207/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+CentOS+7%22)
+[![CI CentOS 8](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20CentOS%208/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+CentOS+8%22)
+[![CI Fedora](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Fedora/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Fedora%22)
 [![CI Ubuntu](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Ubuntu/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Ubuntu%22)
+[![CI Ubuntu 14.04](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Ubuntu%2014.04/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Ubuntu+14.04%22)
+[![CI Ubuntu 16.04](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Ubuntu%2016.04/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Ubuntu+16.04%22)
+[![CI Ubuntu 18.04](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Ubuntu%2018.04/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Ubuntu+18.04%22)
 [![CI Alpine](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Alpine/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Alpine%22)
 [![CI Mac](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Mac/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Mac%22)
 [![CI Python 2.7](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Python%202.7/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Python+2.7%22)
