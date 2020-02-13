@@ -11,6 +11,8 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
+# Not supporting RHEL6 any more because it doesn't have GNU parallel package
+
 name: CI CentOS 6
 
 #env:
