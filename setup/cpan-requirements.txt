@@ -27,7 +27,7 @@ Sub::Util
 
 Compress::Snappy
 Digest::Adler32
-Kafka
+Kafka==1.3.5
 Net::SSH::Expect
 Ref::Util
 
