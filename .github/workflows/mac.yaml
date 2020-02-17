@@ -1,6 +1,6 @@
 #
 #  Author: Hari Sekhon
-#  Date: 2020-02-04 21:39:47 +0000 (Tue, 04 Feb 2020)
+#  Date: Tue Feb 4 09:53:28 2020 +0000
 #
 #  vim:ts=2:sts=2:sw=2:et
 #
@@ -34,15 +34,17 @@ jobs:
     - uses: actions/cache@v1
       with:
         path: ~/Library/Caches/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-pip-nagios-plugins  # -${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-
+          ${{ runner.os }}-pip-nagios-plugins
     - uses: actions/cache@v1
       with:
         path: ~/.cpanm
-        key: ${{ runner.os }}-cpanm-${{ hashFiles('**/cpan-requirements.txt') }}
+        key: ${{ runner.os }}-cpanm-nagios-plugins-${{ hashFiles('**/cpan-requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-cpanm-
+          ${{ runner.os }}-cpanm-nagios-plugins
+    - name: brew update
+      run: which brew && brew update || :
     - name: build
       run: make build zookeeper
     - name: test
