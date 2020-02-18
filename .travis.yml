@@ -129,7 +129,7 @@ install:
   - sudo chown -fR travis /usr/local /usr/lib/python*
   # hitting 60 min timeout overall across all builds, retries will mask real error and cut off at random points making debugging harder
   #- travis_retry make && travis_retry make zookeeper
-  - make build zookeeper fatpacks
+  - make build zookeeper
 
 script:
   - sudo sysctl -w net.ipv4.conf.all.forwarding=1
