@@ -29,7 +29,7 @@ on:
 jobs:
   build:
     #name: build
-    timeout-minutes: 60
+    timeout-minutes: 120
     runs-on: ubuntu-latest
     container: centos:6
     env:
