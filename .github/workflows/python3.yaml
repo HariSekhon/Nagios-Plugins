@@ -27,7 +27,7 @@ on:
 jobs:
   build:
     #name: build
-    timeout-minutes: 10
+    timeout-minutes: 120
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -51,5 +51,7 @@ jobs:
         key: ${{ runner.os }}-cpanm-${{ hashFiles('**/cpan-requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-cpanm-
-    - name: build & test
-      run: make build test
+    - name: build
+      run: make build zookeeper
+    - name: test
+      run: make test

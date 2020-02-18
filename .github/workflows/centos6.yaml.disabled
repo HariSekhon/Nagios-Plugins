@@ -29,7 +29,7 @@ on:
 jobs:
   build:
     #name: build
-    timeout-minutes: 10
+    timeout-minutes: 120
     runs-on: ubuntu-latest
     container: centos:6
     env:
@@ -50,7 +50,7 @@ jobs:
     - name: build
       run: |
         cd "/tmp/$repo" &&
-        make
+        make build zookeeper
     - name: test
       run: |
         cd "/tmp/$repo" &&

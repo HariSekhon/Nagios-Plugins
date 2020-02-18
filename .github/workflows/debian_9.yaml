@@ -27,9 +27,9 @@ on: # [push]
 jobs:
   build:
     #name: build
-    timeout-minutes: 10
+    timeout-minutes: 120
     runs-on: ubuntu-latest
-    container: debian:9-slim
+    container: debian:9  # -slim gets java install package conflicts
     env:
       repo: nagios-plugins
     steps:
@@ -49,7 +49,7 @@ jobs:
     - name: build
       run: |
         cd "/tmp/$repo" &&
-        make
+        make build zookeeper
     - name: test
       run: |
         cd "/tmp/$repo" &&

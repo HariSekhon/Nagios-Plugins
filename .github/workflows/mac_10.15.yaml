@@ -11,12 +11,12 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
-name: CI Ubuntu
+name: CI Mac 10.15
 
 #env:
 #  DEBUG: 1
 
-on: # [push]
+on:
   push:
     branches:
       - master
@@ -28,13 +28,13 @@ jobs:
   build:
     #name: build
     timeout-minutes: 120
-    runs-on: ubuntu-latest
+    runs-on: macos-10.15
     steps:
     - uses: actions/checkout@v2
     - uses: actions/cache@v1
       with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-nagios-plugins  # ${{ hashFiles('**/requirements.txt') }}
+        path: ~/Library/Caches/pip
+        key: ${{ runner.os }}-pip-nagios-plugins  # -${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-nagios-plugins
     - uses: actions/cache@v1
@@ -43,6 +43,8 @@ jobs:
         key: ${{ runner.os }}-cpanm-nagios-plugins-${{ hashFiles('**/cpan-requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-cpanm-nagios-plugins
+    - name: brew update
+      run: which brew && brew update || echo
     - name: build
       run: make build zookeeper
     - name: test
