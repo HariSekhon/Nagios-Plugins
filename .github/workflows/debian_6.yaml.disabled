@@ -49,7 +49,15 @@ jobs:
     - name: build
       run: |
         cd "/tmp/$repo" &&
-        make build zookeeper
+        make
+    - name: zookeeper
+      run: |
+        cd "/tmp/$repo" &&
+        make zookeeper
+    - name: fatpacks
+      run: |
+        cd "/tmp/$repo" &&
+        make fatpacks
     - name: test
       run: |
         cd "/tmp/$repo" &&

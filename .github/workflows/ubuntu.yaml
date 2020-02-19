@@ -44,6 +44,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-cpanm-nagios-plugins
     - name: build
-      run: make build zookeeper
+      run: make
+    - name: zookeeper
+      run: make zookeeper
+    - name: fatpacks
+      run: make fatpacks
     - name: test
       run: make test

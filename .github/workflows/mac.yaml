@@ -46,6 +46,10 @@ jobs:
     - name: brew update
       run: which brew && brew update || echo
     - name: build
-      run: make build zookeeper
+      run: make
+    - name: zookeeper
+      run: make zookeeper
+    - name: fatpacks
+      run: make fatpacks
     - name: test
       run: make test
