@@ -52,6 +52,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-cpanm-
     - name: build
-      run: make build zookeeper
+      run: make
+    - name: zookeeper
+      run: make zookeeper
+    - name: fatpacks
+      run: make fatpacks
     - name: test
       run: make test
