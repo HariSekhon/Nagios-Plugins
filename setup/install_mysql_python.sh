@@ -20,6 +20,9 @@ set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+sudo=""
+[ $EUID -eq 0 ] || sudo=sudo
+
 check_mysql_python(){
     python -c 'import MySQLdb'
 }
@@ -52,6 +55,6 @@ else
     # hacky workaround to changes in MariaDB :-(
     if rpm -q mariadb-devel &>/dev/null ||
        apk info mariadb-dev &>/dev/null; then
-        sed -i.bak '/st_mysql_options options;/a unsigned int reconnect;' /usr/include/mysql/mysql.h
+        $sudo sed -i.bak '/st_mysql_options options;/a unsigned int reconnect;' /usr/include/mysql/mysql.h
     fi
 fi
