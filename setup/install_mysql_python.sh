@@ -47,5 +47,11 @@ if [ "$(uname -s)" = Darwin ]; then
     check_mysql_python
     echo "SUCCESS!!"
 else
-    echo "MySQL-Python workaround install only needed on Mac, install via regular methods on other platforms"
+    #echo "MySQL-Python workaround install only needed on Mac, install via regular methods on other platforms"
+
+    # hacky workaround to changes in MariaDB :-(
+    if rpm -q mariadb-devel &>/dev/null ||
+       apk info mariadb-dev &>/dev/null; then
+        sed -i.bak '/st_mysql_options options;/a unsigned int reconnect;' /usr/include/mysql/mysql.h
+    fi
 fi
