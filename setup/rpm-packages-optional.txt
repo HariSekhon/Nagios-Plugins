@@ -32,3 +32,13 @@ yum-plugin-security
 # CentOS 8 workaround to
 # gcc: error: /usr/lib/rpm/redhat/redhat-hardened-cc1: No such file or directory
 redhat-rpm-config
+
+# ====================
+# CentOS 8 workaround:
+
+# if available choose to install this rather than mysql-devel and let setup/install_mysql_python.sh patch mysql.h to be compatible
+mariadb-devel
+
+# to build DBD::mysql if building from CPAN
+mysql-devel
+# ====================
