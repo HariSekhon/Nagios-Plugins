@@ -12,7 +12,7 @@ GitPython==2.1.14
 happybase==1.2.0
 humanize==0.5.1
 #impyla==0.16.0
-kafka-python==1.4.7
+kafka-python==2.0.1
 #kazoo==2.2.1
 #linecache2==1.0.0
 #lz4==0.8.2
