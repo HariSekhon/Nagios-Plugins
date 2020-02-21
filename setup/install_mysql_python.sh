@@ -51,10 +51,11 @@ if [ "$(uname -s)" = Darwin ]; then
     echo "SUCCESS!!"
 else
     # hacky workaround to changes in MariaDB :-(
-    if rpm -q mariadb-devel &>/dev/null ||
-       apk info mariadb-dev &>/dev/null; then
-        echo "Patching MariaDB library header to be compatible for MySQL-python library"
-        $sudo sed -i.bak '/st_mysql_options options;/a unsigned int reconnect;' /usr/include/mysql/mysql.h
-    fi
-    echo "MySQL-Python on Linux to be installed by pip"
+    # not necessary with newer fork 'mysqlclient' which replaces MySQL-python
+#    if rpm -q mariadb-devel &>/dev/null ||
+#       apk info mariadb-dev &>/dev/null; then
+#        echo "Patching MariaDB library header to be compatible for MySQL-python library"
+#        $sudo sed -i.bak '/st_mysql_options options;/a unsigned int reconnect;' /usr/include/mysql/mysql.h
+#    fi
+    echo "mysqlclient (MySQL-Python replacement) on Linux to be installed by pip"
 fi
