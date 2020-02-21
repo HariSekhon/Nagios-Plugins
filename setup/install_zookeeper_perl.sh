@@ -76,7 +76,7 @@ configure_make(){
 # if first compile fails, it's probably newer GCC so set -Wno-error=format-overflow=
 # https://issues.apache.org/jira/projects/ZOOKEEPER/issues/ZOOKEEPER-3293
 configure_make || {
-    export CFLAGS="$CFLAGS -Wno-error=format-overflow=";
+    export CFLAGS="${CFLAGS:-} -Wno-error=format-overflow=";
     echo "re-running $CFLAGS ./configure && make"
     CFLAGS="$CFLAGS" configure_make
 }
