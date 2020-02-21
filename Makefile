@@ -41,6 +41,10 @@ CODE_FILES := $(shell find . -type f -name '*.py' -o -type f -name '*.pl' -o -ty
 
 DOCKER_IMAGE := harisekhon/nagios-plugins
 
+ifndef CPANM
+	CPANM := cpanm
+endif
+
 # tested, this works
 .PHONY: *
 
@@ -51,7 +55,9 @@ build : init
 	@echo Nagios Plugins Build
 	@echo ====================
 
-	if [ -z "$(CPANM)" ]; then $(MAKE); exit $$?; fi
+	@# doesn't exit Make anyway, just line, and don't wanna use oneshell
+	@# doubles build time
+	@#if [ -z "$(CPANM)" ]; then $(MAKE); exit $$?; fi
 	$(MAKE) perl
 	$(MAKE) python
 	@echo
@@ -69,7 +75,9 @@ perl : init
 	@echo "Nagios Plugins Build (Perl)"
 	@echo ===========================
 
-	if [ -z "$(CPANM)" ]; then $(MAKE) perl; exit $$?; fi
+	@# doesn't exit Make anyway, just line, and don't wanna use oneshell
+	@# doubles build time
+	@#if [ -z "$(CPANM)" ]; then $(MAKE) perl; exit $$?; fi
 	$(MAKE) system-packages-perl
 	$(MAKE) perl-libs
 
@@ -128,7 +136,9 @@ python: init
 	@echo "Nagios Plugins Build (Python)"
 	@echo =============================
 
-	if [ -z "$(CPANM)" ]; then $(MAKE) python; exit $$?; fi
+	@# doesn't exit Make anyway, just line, and don't wanna use oneshell
+	@# doubles build time
+	@#if [ -z "$(CPANM)" ]; then $(MAKE) python; exit $$?; fi
 	$(MAKE) system-packages-python
 	$(MAKE) python-libs
 
