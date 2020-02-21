@@ -20,8 +20,8 @@ set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-sudo=""
-[ $EUID -eq 0 ] || sudo=sudo
+#sudo=""
+#[ $EUID -eq 0 ] || sudo=sudo
 
 check_mysql_python(){
     python -c 'import MySQLdb'
