@@ -16,7 +16,9 @@ kafka-python==1.4.7
 #kazoo==2.2.1
 #linecache2==1.0.0
 #lz4==0.8.2
-MySQL-python==1.2.5
+# MySQL-python is dead and replaced by fork mysqlclient which has Python 3 support
+#MySQL-python==1.2.5
+mysqlclient==1.4.6
 pika==1.1.0
 #psycopg2==2.7.3.1
 #PyHive==0.6.1
