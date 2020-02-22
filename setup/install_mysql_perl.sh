@@ -16,6 +16,11 @@
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 
+if [ "$(uname -s)" != Darwin ]; then
+    "OS is not Mac, skipping mysql_config workaround, install DBD::mysql normally via cpanm"
+    exit 0
+fi
+
 cpanm="${CPANM:-cpanm}"
 
 set +e
