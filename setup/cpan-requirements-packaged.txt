@@ -17,6 +17,8 @@
 # https://rt.cpan.org/Public/Bug/Display.html?id=114819
 Net::DNS@1.05
 
+# TODO: consider switching DBD::mysql to DBD::MariaDB which is a fork with fixes
+#DBD::MariaDB
 DBD::mysql
 Digest::CRC
 Digest::MD5
