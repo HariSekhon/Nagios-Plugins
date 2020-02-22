@@ -15,13 +15,17 @@
 
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
+srcdir="$(dirname "$0")"
 
 if [ "$(uname -s)" != Darwin ]; then
     "OS is not Mac, skipping mysql_config workaround, install DBD::mysql normally via cpanm"
     exit 0
 fi
 
-cpanm="${CPANM:-cpanm}"
+if perl -e 'use DBD::mysql;' &>/dev/null; then
+    echo "Perl DBD::mysql already installed, skipping mysql_config workaround"
+    exit 0
+fi
 
 set +e
 mysql_config="$(type -P mysql_config)"
@@ -34,4 +38,4 @@ fi
 # shellcheck disable=SC2016
 sed -ibak 's/^libs="$libs -lssl/libs="$libs -lmysqlclient -lssl/' "$mysql_config"
 
-$cpanm --notest DBD::mysql
+"$srcdir/../bash-tools/perl_cpanm_install_if_absent.sh" DBD::mysql
