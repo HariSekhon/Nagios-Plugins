@@ -18,7 +18,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin to check RAM used on Linux"
-__version__ = "0.3.1"
+__version__ = "0.4.0"
 
 # Standard Exit Codes for Nagios
 OK = 0
@@ -34,11 +34,11 @@ def check_ram(warning_threshold, critical_threshold, percent, verbosity, \
     ram is less than the thresholds"""
 
     if verbosity >= 3:
-        print "Opening /proc/meminfo"
+        print("Opening /proc/meminfo")
     try:
         meminfo = open('/proc/meminfo')
-    except IOError, _:
-        print "RAM CRITICAL: Error opening /proc/meminfo - %s" % _
+    except IOError as _:
+        print("RAM CRITICAL: Error opening /proc/meminfo - %s" % _)
         return CRITICAL
 
     output = meminfo.readlines()
@@ -54,7 +54,7 @@ def check_ram(warning_threshold, critical_threshold, percent, verbosity, \
 
     for _ in memtotal, memfree, memcached:
         if _ is None:
-            print "UNKNOWN: failed to get mem stats"
+            print("UNKNOWN: failed to get mem stats")
             return UNKNOWN
 
     if nocache is True:
@@ -84,27 +84,27 @@ def check_ram(warning_threshold, critical_threshold, percent, verbosity, \
 
     if percent is True:
         if percentage_free < critical_threshold:
-            print "RAM CRITICAL:",
-            print "%s" % stats
+            print("RAM CRITICAL:", end=' ')
+            print("%s" % stats)
             return CRITICAL
         elif percentage_free < warning_threshold:
-            print "RAM WARNING:",
-            print "%s" % stats
+            print("RAM WARNING:", end=' ')
+            print("%s" % stats)
             return WARNING
-        print "RAM OK:",
-        print "%s" % stats
+        print("RAM OK:", end=' ')
+        print("%s" % stats)
         return OK
     else:
         if total_free < critical_threshold:
-            print "RAM CRITICAL:",
-            print "%s" % stats
+            print("RAM CRITICAL:", end=' ')
+            print("%s" % stats)
             return CRITICAL
         if total_free < warning_threshold:
-            print "RAM WARNING:",
-            print "%s" % stats
+            print("RAM WARNING:", end=' ')
+            print("%s" % stats)
             return WARNING
-        print "RAM OK:",
-        print "%s" % stats
+        print("RAM OK:", end=' ')
+        print("%s" % stats)
         return OK
 
 
@@ -163,11 +163,11 @@ def main():
     #                  nice flexibility on the command line                    #
     #==========================================================================#
     if warning_threshold is None:
-        print "UNKNOWN: you did not specify a warning threshold\n"
+        print("UNKNOWN: you did not specify a warning threshold\n")
         parser.print_help()
         return UNKNOWN
     elif critical_threshold is None:
-        print "UNKNOWN: you did not specify a critical threshold\n"
+        print("UNKNOWN: you did not specify a critical threshold\n")
         parser.print_help()
         return UNKNOWN
     else:
@@ -186,7 +186,7 @@ def main():
         try:
             threshold = float(threshold)
         except ValueError:
-            print "UNKNOWN: invalid threshold given"
+            print("UNKNOWN: invalid threshold given")
             exit(UNKNOWN)
 
         return threshold
@@ -230,23 +230,23 @@ def main():
     elif warning_percent is False and critical_percent is False:
         percent_true = False
     else:
-        print "UNKNOWN: please make thresholds either units or percentages, \
-not one of each"
+        print("UNKNOWN: please make thresholds either units or percentages, \
+not one of each")
         return UNKNOWN
 
     # This assumes that the percentage units are numeric, which they must be to
     # have gotten through the get_threhold func above
     if warning_percent is True:
         if (warning_threshold < 0) or (warning_threshold > 100):
-            print "warning percentage must be between 0 and 100"
+            print("warning percentage must be between 0 and 100")
             exit(WARNING)
     if critical_percent is True:
         if (critical_threshold < 0) or (critical_threshold > 100):
-            print "critical percentage must be between 0 and 100"
+            print("critical percentage must be between 0 and 100")
             exit(CRITICAL)
 
     if warning_threshold <= critical_threshold:
-        print "UNKNOWN: Critical threshold must be less than Warning threshold"
+        print("UNKNOWN: Critical threshold must be less than Warning threshold")
         return UNKNOWN
 
     # End of Sanity Checks
