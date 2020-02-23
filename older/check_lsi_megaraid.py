@@ -16,12 +16,12 @@ megarc.bin program to be in the same directory as this plugin"""
 # pylint: disable=wrong-import-position
 import os
 import sys
-import commands
+import subprocess
 from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for LSI MegaRAID"
-__version__ = "0.8.2"
+__version__ = "0.9.0"
 
 # Standard Nagios return codes
 OK = 0
@@ -39,16 +39,16 @@ def end(status, message):
     arg as the message to output"""
 
     if status == OK:
-        print "RAID OK: %s" % message
+        print("RAID OK: %s" % message)
         sys.exit(OK)
     elif status == WARNING:
-        print "RAID WARNING: %s" % message
+        print("RAID WARNING: %s" % message)
         sys.exit(WARNING)
     elif status == CRITICAL:
-        print "RAID CRITICAL: %s" % message
+        print("RAID CRITICAL: %s" % message)
         sys.exit(CRITICAL)
     else:
-        print "UNKNOWN: %s" % message
+        print("UNKNOWN: %s" % message)
         sys.exit(UNKNOWN)
 
 
@@ -60,7 +60,7 @@ def make_megadev(devicenode):
         devices = open("/proc/devices", "r")
         lines = devices.read()
         devices.close()
-    except IOError, error:
+    except IOError as error:
         end(UNKNOWN, "Error reading /proc/devices while trying to create " \
                    + "device node '%s' - %s" % (devicenode, error))
     device = ""
@@ -77,15 +77,15 @@ def make_megadev(devicenode):
                    + "not found in /proc/devices. Please make sure you have " \
                    + "an Lsi MegaRaid card detected by your kernel first")
     cmd = "mknod /dev/megadev0 c %s 2" % major_number
-    print >> sys.stderr, "running in shell: %s" % cmd
+    print("running in shell: %s" % cmd, file=sys.stderr)
     try:
-        result, output = commands.getstatusoutput(cmd)
+        result, output = subprocess.getstatusoutput(cmd)
         if result != 0:
             end(UNKNOWN, "Error making device node '%s' - %s" \
                                                         % (devicenode, output))
-        print >> sys.stderr, "%s" % output
-        print >> sys.stderr, "now continuing with raid checks..."
-    except OSError, error:
+        print("%s" % output, file=sys.stderr)
+        print("now continuing with raid checks...", file=sys.stderr)
+    except OSError as error:
         end(UNKNOWN, "Error making '%s' device node - %s" % (devicenode, error))
 
 
@@ -99,19 +99,19 @@ if not os.access(BIN, os.X_OK):
     end(UNKNOWN, "Lsi MegaRaid utility '%s' is not executable" % BIN)
 
 if not os.path.exists(MEGADEV):
-    print >> sys.stderr, "Megaraid device node not found (possible first " \
-                       + "run?), creating it now..."
+    print("Megaraid device node not found (possible first " \
+                       + "run?), creating it now...", file=sys.stderr)
     make_megadev(MEGADEV)
 
 
 def run(args):
     """run megarc.bin util with passed in args and return output"""
     if not args:
-        print "UNKNOWN: internal python error",
-        print "- no cmd supplied for Lsi MegaRaid utility"
+        print("UNKNOWN: internal python error", end=' ')
+        print("- no cmd supplied for Lsi MegaRaid utility")
         sys.exit(UNKNOWN)
     cmd = "%s %s -nolog" % (BIN, args)
-    result, output = commands.getstatusoutput(cmd)
+    result, output = subprocess.getstatusoutput(cmd)
     lines = output.split("\n")
     if result != 0:
         if lines[0][-25:] == "No such file or directory":
@@ -119,8 +119,8 @@ def run(args):
         elif not lines:
             end(UNKNOWN, "No output from Lsi MegaRaid utility")
         elif len(lines) < 13:
-            print >> sys.stderr, "Error running '%s':" % cmd
-            print >> sys.stderr, "%s" % output
+            print("Error running '%s':" % cmd, file=sys.stderr)
+            print("%s" % output, file=sys.stderr)
             end(UNKNOWN, "Output from Lsi MegaRaid utility is too short, " \
                        + "try -vvv for debug")
         else:
@@ -143,7 +143,7 @@ def get_controllers(verbosity):
     for line in controller_lines:
         try:
             controller = int(line.split("\t")[1])
-        except OSError, error:
+        except OSError as error:
             end(UNKNOWN, "Exception occurred in code - %s" % str(error))
         controllers.append(controller)
 
@@ -151,7 +151,7 @@ def get_controllers(verbosity):
         end(WARNING, "No LSI controllers were found on this machine")
 
     if verbosity >= 2:
-        print "Found %s controller(s)" % len(controllers)
+        print("Found %s controller(s)" % len(controllers))
 
     return controllers
 
@@ -170,8 +170,8 @@ def test_raid(verbosity, no_summary=False):
         detailed_output = run("-dispCfg -a%s" % controller)
         if verbosity >= 3:
             for line in detailed_output:
-                print "%s" % line
-            print
+                print("%s" % line)
+            print()
         array_details = {}
         for line in detailed_output:
             if "Status:" in line:
@@ -188,7 +188,7 @@ def test_raid(verbosity, no_summary=False):
                 status = WARNING
             continue
 
-        array_keys = array_details.keys()
+        array_keys = list(array_details.keys())
         array_keys.sort()
         number_arrays += len(array_keys)
 
@@ -289,7 +289,7 @@ default only one result line is printed as per Nagios standards")
         sys.exit(UNKNOWN)
 
     if version:
-        print __version__
+        print(__version__)
         sys.exit(OK)
 
     result, message = test_raid(verbosity, no_summary)
@@ -301,5 +301,5 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print "Caught Control-C..."
+        print("Caught Control-C...")
         sys.exit(CRITICAL)
