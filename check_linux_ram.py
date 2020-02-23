@@ -13,6 +13,8 @@ Nagios plugin to check the amount of ram used on a Linux box. Takes in to
 account cache and returns performance data for graphing as well.
 """
 
+from __future__ import print_function
+
 from sys import exit  # pylint: disable=redefined-builtin
 from optparse import OptionParser
 
