@@ -14,6 +14,8 @@ end MySQL database to check that it was properly received"""
 
 # TODO: add a log delete switch to remove the just inserted log -h
 
+from __future__ import print_function
+
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin to check Syslog-NG/MySQL logservers"
 __version__ = "0.9.0"
