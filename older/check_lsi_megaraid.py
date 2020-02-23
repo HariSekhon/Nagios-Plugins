@@ -13,6 +13,8 @@ controllers on the local machine. Uses the megarc.bin program written by LSI to
 get the status of all arrays on all local LSI MegaRAID controllers. Expects the
 megarc.bin program to be in the same directory as this plugin"""
 
+from __future__ import print_function
+
 # pylint: disable=wrong-import-position
 import os
 import sys

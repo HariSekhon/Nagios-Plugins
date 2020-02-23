@@ -15,6 +15,8 @@ package alerts and optionally whether there are any non-security package updates
 
 """
 
+from __future__ import print_function
+
 import os
 import re
 import sys

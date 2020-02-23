@@ -14,6 +14,8 @@ Your mileage may vary if you try to use it with something else. -h """
 
 # TODO: meant to rewrite this with Paramiko years ago but didn't get round to it...
 
+from __future__ import print_function
+
 import os
 import signal
 import sys

@@ -14,6 +14,8 @@
    system. May be remotely executed via any of the standard remote nagios
    execution mechanisms"""
 
+from __future__ import print_function
+
 import os
 import re
 import sys
