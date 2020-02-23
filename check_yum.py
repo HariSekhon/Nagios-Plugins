@@ -18,6 +18,8 @@ See also: check_yum.pl (also part of the Advanced Nagios Plugins Collection)
 Tested on CentOS 5 / 6 / 7
 """
 
+from __future__ import print_function
+
 import os
 import re
 import sys
