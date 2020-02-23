@@ -24,14 +24,14 @@ import time
 try:
     from subprocess import Popen, PIPE, STDOUT
 except ImportError:
-    print "Failed to import subprocess module.",
-    print "Perhaps you are using a version of python older than 2.4?"
+    print("Failed to import subprocess module.", end=' ')
+    print("Perhaps you are using a version of python older than 2.4?")
     sys.exit(4)
 from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Gentoo Portage"
-__version__ = "0.8.5"
+__version__ = "0.9.0"
 
 # Standard Nagios return codes
 OK = 0
@@ -62,16 +62,16 @@ def end(status, message):
 
     check = "Portage "
     if status == OK:
-        print "%sOK: %s" % (check, message)
+        print("%sOK: %s" % (check, message))
         sys.exit(OK)
     elif status == WARNING:
-        print "%sWARNING: %s" % (check, message)
+        print("%sWARNING: %s" % (check, message))
         sys.exit(WARNING)
     elif status == CRITICAL:
-        print "%sCRITICAL: %s" % (check, message)
+        print("%sCRITICAL: %s" % (check, message))
         sys.exit(CRITICAL)
     else:
-        print "UNKNOWN: %s" % message
+        print("UNKNOWN: %s" % message)
         sys.exit(UNKNOWN)
 
 
@@ -149,7 +149,7 @@ class PortageTester(object):
                 exclusion_ids = ""
                 for exclusion in self.glsa_ids:
                     exclusion_ids += "%s " % exclusion
-                print "GLSA ids excluded: %s" % exclusion_ids
+                print("GLSA ids excluded: %s" % exclusion_ids)
 
     def validate_portage_tree_age(self):
         """Validates that given portage tree age variable"""
@@ -202,7 +202,7 @@ class PortageTester(object):
         self.vprint(3, "running command: %s" % cmd)
         try:
             process = Popen(cmd.split(), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-        except OSError, error:
+        except OSError as error:
             error = str(error)
             if error == "No such file or directory":
                 end(UNKNOWN, "Cannot find utility '%s'" % cmd.split()[0])
@@ -276,7 +276,7 @@ class PortageTester(object):
             timestamp = timestamp_fh.readline().strip()
             timestamp_fh.close()
             file_read = True
-        except IOError, io_error:
+        except IOError as io_error:
             end(CRITICAL, "Error reading timestamp information, cannot " \
                       + "verify Portage is current. Error - %s" % io_error)
         if not file_read:
@@ -492,7 +492,7 @@ class PortageTester(object):
         """Prints a message if the first arg is numerically greater than the
         verbosity level"""
         if self.verbosity >= threshold:
-            print "%s" % message
+            print("%s" % message)
 
 def main():
     """Parses command line options and calls the test function"""
@@ -616,7 +616,7 @@ def main():
     tester.warn_any_package = options.warn_any_package
 
     if options.version:
-        print "%s Version %s" % (__title__, __version__)
+        print("%s Version %s" % (__title__, __version__))
         sys.exit(OK)
 
     result, output = tester.test_for_updates()
@@ -627,5 +627,5 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print "Caught Control-C..."
+        print("Caught Control-C...")
         sys.exit(CRITICAL)
