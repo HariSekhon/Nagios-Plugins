@@ -17,8 +17,11 @@ set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$(dirname "$0")"
 
+sudo=""
+[ $EUID -eq 0 ] || sudo=sudo
+
 if [ "$(uname -s)" != Darwin ]; then
-    "OS is not Mac, skipping mysql_config workaround, install DBD::mysql normally via cpanm"
+    echo "OS is not Mac, skipping mysql_config workaround, install DBD::mysql normally via cpanm"
     exit 0
 fi
 
@@ -40,7 +43,7 @@ fi
 echo
 echo "patching $mysql_config"
 # shellcheck disable=SC2016
-sed -ibak 's/^libs="$libs -lssl/libs="$libs -lmysqlclient -lssl/' "$mysql_config"
+$sudo sed -ibak 's/^libs="$libs -lssl/libs="$libs -lmysqlclient -lssl/' "$mysql_config"
 echo
 
 "$mysql_config" || :
