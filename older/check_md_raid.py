@@ -11,6 +11,8 @@
 """ This plugin for Nagios uses the standard mdadm program to get the status
  of all the linux md arrays on the local machine using the mdadm utility"""
 
+from __future__ import print_function
+
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Linux MD Software RAID"
 __version__ = "0.7.4"
