@@ -41,11 +41,16 @@ fi
 "$mysql_config" || :
 
 echo
-echo "patching $mysql_config"
-# shellcheck disable=SC2016
-$sudo sed -ibak 's/^libs="$libs -lssl/libs="$libs -lmysqlclient -lssl/' "$mysql_config"
+if ! mysql_config | grep -q -- '--libs.*-lmysqlclient'; then
+    echo "patching mysql_config: $mysql_config"
+    # shellcheck disable=SC2016
+    $sudo sed -ibak 's/^libs="$libs/libs="$libs -lmysqlclient/' "$mysql_config"
+    echo
+    "$mysql_config" || :
+    echo
+else
+    echo "mysql_config patching not needed"
+fi
 echo
-
-"$mysql_config" || :
 
 "$srcdir/../bash-tools/perl_cpanm_install_if_absent.sh" DBD::mysql
