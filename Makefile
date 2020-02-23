@@ -163,6 +163,10 @@ python-libs:
 	#$(SUDO_PIP) pip install --quiet -r requirements.txt
 	@bash-tools/python_pip_install_if_absent.sh requirements.txt
 
+	@# python-krbV dependency doesn't build on Mac any more and is unmaintained and not ported to Python 3
+	@# python_pip_install_if_absent.sh would import snakebite module and not trigger to build the enhanced snakebite with [kerberos] bit
+	@bash-tools/python_pip_install.sh snakebite[kerberos] || :
+
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	# in requirements.txt now
 	#$(SUDO_PIP) pip install --quiet cassandra-driver scales blist lz4 python-snappy
