@@ -11,6 +11,8 @@
 """Nagios plugin to test the status of VNC on a remote machine. Requires
    the "vncsnapshot" program to be installed somewhere in the path"""
 
+from __future__ import print_function
+
 import os
 import sys
 import time
@@ -21,7 +23,7 @@ from lib_nagios import OK, WARNING, CRITICAL, UNKNOWN, DEFAULT_TIMEOUT
 
 __author__      = "Hari Sekhon"
 __title__       = "Nagios Plugin for VNC"
-__version__     = '0.6.2'
+__version__     = '0.7.0'
 
 nagios.CHECK_NAME = "VNC"
 # The standard VNC port
@@ -194,7 +196,7 @@ def main():
         sys.exit(UNKNOWN)
 
     if options.version:
-        print "%s version %s" % (__title__, __version__)
+        print(("%s version %s" % (__title__, __version__)))
         sys.exit(UNKNOWN)
 
     tester.passwdfile = options.passwdfile
@@ -225,5 +227,5 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print "Caught Control-C..."
+        print("Caught Control-C...")
         sys.exit(CRITICAL)
