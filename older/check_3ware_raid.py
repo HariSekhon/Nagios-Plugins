@@ -21,13 +21,13 @@ from optparse import OptionParser
 try:
     from subprocess import Popen, PIPE, STDOUT
 except ImportError:
-    print "Failed to import subprocess module.",
-    print "Perhaps you are using a version of python older than 2.4?"
+    print("Failed to import subprocess module.", end=' ')
+    print("Perhaps you are using a version of python older than 2.4?")
     sys.exit(4)
 
 __author__  = "Hari Sekhon"
 __title__   = "Nagios Plugin for 3ware RAID"
-__version__ = '1.1.1'
+__version__ = '1.2.0'
 
 # Standard Nagios return codes
 OK       = 0
@@ -46,16 +46,16 @@ def end(status, message, disks=False):
     if disks:
         check = "DISKS"
     if status == OK:
-        print "%s OK: %s" % (check, message)
+        print("%s OK: %s" % (check, message))
         sys.exit(OK)
     elif status == WARNING:
-        print "%s WARNING: %s" % (check, message)
+        print("%s WARNING: %s" % (check, message))
         sys.exit(WARNING)
     elif status == CRITICAL:
-        print "%s CRITICAL: %s" % (check, message)
+        print("%s CRITICAL: %s" % (check, message))
         sys.exit(CRITICAL)
     else:
-        print "UNKNOWN: %s" % message
+        print("UNKNOWN: %s" % message)
         sys.exit(UNKNOWN)
 
 
@@ -95,7 +95,7 @@ def run(cmd):
                    + "no cmd supplied for 3ware utility")
     try:
         process = Popen(BIN, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-    except OSError, error:
+    except OSError as error:
         error = str(error)
         if error == "No such file or directory":
             end(UNKNOWN, "Cannot find 3ware utility '%s'" % BIN)
@@ -107,7 +107,7 @@ def run(cmd):
 
     try:
         stdout, stderr = process.communicate(cmd)
-    except OSError, error:
+    except OSError as error:
         end(UNKNOWN, "unable to communicate with 3ware utility - %s" % error)
 
 
@@ -175,8 +175,8 @@ def test_arrays(verbosity, warn_true=False, no_summary=False):
         unit_lines = run("/%s show unitstatus" % controller)
         if verbosity >= 3:
             for unit_line in unit_lines:
-                print unit_line
-            print
+                print(unit_line)
+            print()
 
         for unit_line in unit_lines:
             number_arrays += 1
@@ -254,8 +254,8 @@ def test_drives(verbosity, warn_true=False, no_summary=False):
 
         if verbosity >= 3:
             for drive_line in drive_lines:
-                print drive_line
-            print
+                print(drive_line)
+            print()
 
         for drive_line in drive_lines:
             drive_line = drive_line.split()
@@ -430,22 +430,22 @@ def main():
     version      = options.version
 
     if version:
-        print __version__
+        print(__version__)
         sys.exit(OK)
 
     if arrays_only and drives_only:
-        print "You cannot use the -a and -d switches together, they are",
-        print "mutually exclusive\n"
+        print("You cannot use the -a and -d switches together, they are", end=' ')
+        print("mutually exclusive\n")
         parser.print_help()
         sys.exit(UNKNOWN)
     elif arrays_only and show_drives:
-        print "You cannot use the -a and -s switches together"
-        print "No drive information can be printed if you only check arrays\n"
+        print("You cannot use the -a and -s switches together")
+        print("No drive information can be printed if you only check arrays\n")
         parser.print_help()
         sys.exit(UNKNOWN)
     elif drives_only and warn_true:
-        print "You cannot use the -d and -w switches together"
-        print "Array warning states are invalid when testing only drives\n"
+        print("You cannot use the -d and -w switches together")
+        print("Array warning states are invalid when testing only drives\n")
         parser.print_help()
         sys.exit(UNKNOWN)
 
@@ -466,5 +466,5 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print "Caught Control-C..."
+        print("Caught Control-C...")
         sys.exit(CRITICAL)
