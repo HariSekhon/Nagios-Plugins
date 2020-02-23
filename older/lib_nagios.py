@@ -14,6 +14,8 @@
 """Library to standardize Nagios Plugin development in Python
    Hari Sekhon 2008"""
 
+from __future__ import print_function
+
 # pylint: disable=wrong-import-position
 import os
 import re
@@ -22,12 +24,12 @@ import signal
 try:
     from subprocess import Popen, PIPE, STDOUT
 except ImportError:
-    print "UNKNOWN: Failed to import python subprocess module.",
-    print "Perhaps you are using a version of python older than 2.4?"
+    print("UNKNOWN: Failed to import python subprocess module.", end=' ')
+    print("Perhaps you are using a version of python older than 2.4?")
     sys.exit(4)
 
 __author__ = "Hari Sekhon"
-__version__ = 0.4
+__version__ = '0.5.0'
 
 # Standard Nagios return codes
 OK = 0
@@ -70,17 +72,17 @@ def end(status, message):
         check_name = str(CHECK_NAME).strip() + " "
 
     if status == OK:
-        print "%sOK: %s" % (check_name, message)
+        print("%sOK: %s" % (check_name, message))
         sys.exit(OK)
     elif status == WARNING:
-        print "%sWARNING: %s" % (check_name, message)
+        print("%sWARNING: %s" % (check_name, message))
         sys.exit(WARNING)
     elif status == CRITICAL:
-        print "%sCRITICAL: %s" % (check_name, message)
+        print("%sCRITICAL: %s" % (check_name, message))
         sys.exit(CRITICAL)
     else:
         # This one is intentionally different
-        print "UNKNOWN: %s" % message
+        print("UNKNOWN: %s" % message)
         sys.exit(UNKNOWN)
 
 
@@ -170,7 +172,7 @@ class NagiosTester(object):
                             stdin=PIPE,
                             stdout=PIPE,
                             stderr=STDOUT)
-        except OSError, error:
+        except OSError as error:
             error = str(error)
             if error == "No such file or directory":
                 end(UNKNOWN, "Cannot find utility '%s'" % cmd.split()[0])
@@ -231,4 +233,4 @@ class NagiosTester(object):
         verbosity level"""
 
         if self.verbosity >= threshold:
-            print "%s" % message
+            print("%s" % message)
