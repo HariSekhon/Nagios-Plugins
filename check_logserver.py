@@ -16,7 +16,7 @@ end MySQL database to check that it was properly received"""
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin to check Syslog-NG/MySQL logservers"
-__version__ = "0.8.1"
+__version__ = "0.9.0"
 
 # Nagios Standard Exit Codes
 OK = 0
@@ -39,8 +39,8 @@ try:
     import MySQLdb
     from MySQLdb import MySQLError
 except ImportError:
-    print "You must have the MySQLdb python library",
-    print "installed to run this plugin"
+    print("You must have the MySQLdb python library", end=' ')
+    print("installed to run this plugin")
     sys.exit(CRITICAL)
 
 SCRIPTNAME = os.path.basename(sys.argv[0])
@@ -51,17 +51,17 @@ def end(exitcode, message):
     code and then the message to print"""
 
     if exitcode == OK:
-        print "LogServer OK: %s" % message
+        print("LogServer OK: %s" % message)
     elif exitcode == WARNING:
-        print "WARNING: %s" % message
+        print("WARNING: %s" % message)
     elif exitcode == CRITICAL:
-        print "CRITICAL: %s" % message
+        print("CRITICAL: %s" % message)
     elif exitcode == HELP:
-        print "UNKNOWN: %s. See --help for details" % message
+        print("UNKNOWN: %s. See --help for details" % message)
         # return UNKNOWN as standard, discard internal help code
         exitcode = UNKNOWN
     else:
-        print "UNKNOWN: %s" % message
+        print("UNKNOWN: %s" % message)
         # force safety net of anything unknown to be overridden
         # to a logical unknown status code to comply with Nagios
         exitcode = UNKNOWN
@@ -235,12 +235,12 @@ class LogServerTester(object):
         """Connects to the MySQL server and queries for log"""
 
         if self.verbosity >= 3:
-            print "creating connection to mysql server"
-            print "host = '%s'" % self.mysql_server
-            print "port = '%s'" % self.mysql_port
-            print "user = '%s'" % self.username
-            print "password = '%s'" % self.password
-            print "mysql_db = '%s'" % self.mysql_db
+            print("creating connection to mysql server")
+            print("host = '%s'" % self.mysql_server)
+            print("port = '%s'" % self.mysql_port)
+            print("user = '%s'" % self.username)
+            print("password = '%s'" % self.password)
+            print("mysql_db = '%s'" % self.mysql_db)
 
         try:
             db_connection = MySQLdb.connect(host=self.mysql_server,
@@ -248,7 +248,7 @@ class LogServerTester(object):
                                             passwd=self.password,
                                             db=self.mysql_db,
                                             port=self.mysql_port)
-        except MySQLError, mysql_error:
+        except MySQLError as mysql_error:
             end(CRITICAL, "error connecting to database - %s" % mysql_error[1])
 
         self.vprint(2, "connected to database")
@@ -283,7 +283,7 @@ class LogServerTester(object):
             # AS NOTED ABOVE, SECURITY IS HANDLED BY RESTRICTIVE REGEX OF
             # SAFE PARAMETERS IN MAIN FUNCTION -h
             cursor.execute(query, (log_message,))
-        except MySQLError, mysql_error:
+        except MySQLError as mysql_error:
             end(CRITICAL, "error querying mysql server for log - %s" \
                                                         % mysql_error[1])
         result = cursor.fetchall()
@@ -512,7 +512,7 @@ message has been inserted into the database")
         the minimum verbosity then the message is printed"""
 
         if self.verbosity >= verbosity:
-            print str(message)
+            print(str(message))
 
 
 def main():
@@ -648,7 +648,7 @@ def main():
     tester.verbosity = options.verbosity
 
     if options.version:
-        print __version__
+        print(__version__)
         sys.exit(UNKNOWN)
 
     start_time = time.time()
@@ -662,8 +662,8 @@ def main():
     #if output:
     #    print "%s. Test completed in %.3f seconds" % (output, total_time)
     #else:
-    print "No output returned by logserver test! Test took %.3f seconds" \
-                                                                    % total_time
+    print("No output returned by logserver test! Test took %.3f seconds" \
+                                                                    % total_time)
     sys.exit(returncode)
 
 
@@ -672,5 +672,5 @@ if __name__ == "__main__":
         main()
         sys.exit(UNKNOWN)
     except KeyboardInterrupt:
-        print "Caught Control-C..."
+        print("Caught Control-C...")
         sys.exit(CRITICAL)
