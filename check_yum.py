@@ -28,12 +28,12 @@ try:
     from subprocess import Popen, PIPE, STDOUT
 except ImportError:
     OLD_PYTHON = True
-    import commands
+    import subprocess
 from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.8.9"
+__version__ = "0.9.0"
 
 # Standard Nagios return codes
 OK = 0
@@ -54,16 +54,16 @@ def end(status, message):
 
     check = "YUM "
     if status == OK:
-        print "%sOK: %s" % (check, message)
+        print("%sOK: %s" % (check, message))
         sys.exit(OK)
     elif status == WARNING:
-        print "%sWARNING: %s" % (check, message)
+        print("%sWARNING: %s" % (check, message))
         sys.exit(WARNING)
     elif status == CRITICAL:
-        print "%sCRITICAL: %s" % (check, message)
+        print("%sCRITICAL: %s" % (check, message))
         sys.exit(CRITICAL)
     else:
-        print "UNKNOWN: %s" % message
+        print("UNKNOWN: %s" % message)
         sys.exit(UNKNOWN)
 
 YUM = "/usr/bin/yum"
@@ -157,14 +157,14 @@ class YumTester(object):
             self.vprint(3, "subprocess not available, probably old python " \
                          + "version, using shell instead")
             os.environ['LANG'] = "en_US"
-            returncode, stdout = commands.getstatusoutput(cmd)
+            returncode, stdout = subprocess.getstatusoutput(cmd)
             if returncode >= 256:
                 returncode = returncode / 256
         else:
             try:
                 env = {'LANG': 'en_US'}
                 process = Popen(cmd.split(), stdin=PIPE, stdout=PIPE, stderr=STDOUT, env=env)
-            except OSError, error:
+            except OSError as error:
                 error = str(error)
                 if error == "No such file or directory":
                     end(UNKNOWN, "Cannot find utility '%s'" % cmd.split()[0])
@@ -293,7 +293,7 @@ class YumTester(object):
         output2 = [_ for _ in "\n".join(output).split("\n\n") if  _]
         if self.verbosity >= 4:
             for section in output2:
-                print "\nSection:\n%s\n" % section
+                print("\nSection:\n%s\n" % section)
         if len(output2) > 2 or \
            not ("Setting up repositories" in output2[0] or \
                 "Loaded plugins: " in output2[0] or \
@@ -493,7 +493,7 @@ class YumTester(object):
         verbosity level"""
 
         if self.verbosity >= threshold:
-            print "%s" % message
+            print("%s" % message)
 
 
 def main():
@@ -612,8 +612,8 @@ def main():
     tester.warn_on_any_update = options.warn_on_any_update
 
     if options.version:
-        print "%s - Version %s\nAuthor: %s\n" \
-            % (__title__, __version__, __author__)
+        print("%s - Version %s\nAuthor: %s\n" \
+            % (__title__, __version__, __author__))
         sys.exit(OK)
 
     result, output = tester.test_yum_updates()
@@ -624,5 +624,5 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print "Caught Control-C..."
+        print("Caught Control-C...")
         sys.exit(CRITICAL)
