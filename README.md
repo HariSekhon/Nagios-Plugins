@@ -9,7 +9,12 @@ Advanced Nagios Plugins Collection
 
 [![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20OS%20X-blue.svg)](https://github.com/harisekhon/nagios-plugins#advanced-nagios-plugins-collection)
 [![DockerHub](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/harisekhon/nagios-plugins/)
-[![](https://images.microbadger.com/badges/image/harisekhon/nagios-plugins.svg)](http://microbadger.com/#/images/harisekhon/nagios-plugins)
+<!--
+[![Docker Pulls](https://img.shields.io/docker/pulls/harisekhon/nagios-plugins.svg)](https://hub.docker.com/r/harisekhon/nagios-plugins/)
+[![Docker Build Automated](https://img.shields.io/docker/automated/harisekhon/nagios-plugins.svg)](https://hub.docker.com/r/harisekhon/nagios-plugins/)
+[![DockerHub Build](https://img.shields.io/docker/build/harisekhon/nagios-plugins)](https://hub.docker.com/r/harisekhon/nagios-plugins/)
+-->
+[![MicroBadger](https://images.microbadger.com/badges/image/harisekhon/nagios-plugins.svg)](http://microbadger.com/#/images/harisekhon/nagios-plugins)
 
 [![CI Mac](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Mac/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Mac%22)
 [![CI Ubuntu](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Ubuntu/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Ubuntu%22)
