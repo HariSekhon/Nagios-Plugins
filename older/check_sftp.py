@@ -22,7 +22,7 @@ from optparse import OptionParser
 
 __author__  = "Hari Sekhon"
 __title__   = "Nagios Plugin for SFTP"
-__version__ = "0.5"
+__version__ = "0.6.0"
 
 # Nagios Standard Exit Codes
 OK       = 0
@@ -39,8 +39,8 @@ strictkeyoption = ""
 def sighandler(discarded, discarded2):
     """function to be called by signal.alarm to kill the plugin"""
 
-    print "SFTP CRITICAL: plugin has self terminated after exceeding the \
-timeout"
+    print("SFTP CRITICAL: plugin has self terminated after exceeding the \
+timeout")
     sys.exit(CRITICAL)
 
 
@@ -61,16 +61,16 @@ def end(status, message):
     arg as the message to output"""
 
     if status == OK:
-        print "SFTP OK: logged in successfully"
+        print("SFTP OK: logged in successfully")
         sys.exit(OK)
     elif status == WARNING:
-        print "WARNING: %s" % message
+        print("WARNING: %s" % message)
         sys.exit(WARNING)
     elif status == CRITICAL:
-        print "CRITICAL: %s" % message
+        print("CRITICAL: %s" % message)
         sys.exit(CRITICAL)
     else:
-        print "UNKNOWN: %s" % message
+        print("UNKNOWN: %s" % message)
         sys.exit(UNKNOWN)
 
 
@@ -79,13 +79,13 @@ def run(cmd, verbosity):
     a tuple of the exitcode and the output"""
 
     if verbosity >= 2:
-        print "%s" % cmd
+        print("%s" % cmd)
 
     process = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     output  = process.communicate("ls -la")[0]
 
     if verbosity >= 3:
-        print "%s" % output
+        print("%s" % output)
 
     return process.returncode, output
 
@@ -97,7 +97,7 @@ def test_sftp(sftp, server, port, user, sshkey, nostricthostkey, \
 
     if user:
         if verbosity >= 2:
-            print "setting username to %s" % user
+            print("setting username to %s" % user)
         useroption = "-oUser=%s " % user
     else:
         useroption = ""
@@ -108,7 +108,7 @@ def test_sftp(sftp, server, port, user, sshkey, nostricthostkey, \
         sshkeyoption = ""
 
     if nostricthostkey:
-        print "disabling strict host key checking"
+        print("disabling strict host key checking")
         nostricthostkeyoption = "-oStrictHostKeyChecking=no "
     else:
         nostricthostkeyoption = ""
@@ -165,7 +165,7 @@ def test_files(output, files, verbosity):
                 if filename == line[8] and line[0][0] == "-":
                     found = True
                     if verbosity >= 2:
-                        print "found file '%s'" % filename
+                        print("found file '%s'" % filename)
                     continue
         if not found:
             end(CRITICAL, "file '%s' not found on sftp server" % filename)
@@ -187,7 +187,7 @@ def test_dirs(output, dirs, verbosity):
                 if directory == line[8] and line[0][0] == "d":
                     found = True
                     if verbosity >= 2:
-                        print "found directory '%s'" % directory
+                        print("found directory '%s'" % directory)
                     continue
         if not found:
             end(CRITICAL, "directory '%s' not found on sftp server" % dir)
@@ -283,7 +283,7 @@ By default only 1 line of output is printed")
 
     if sshkey:
         if verbosity >= 2:
-            print "using private ssh key for authentication '%s'" % sshkey
+            print("using private ssh key for authentication '%s'" % sshkey)
         if not os.path.isfile(sshkey):
             end(UNKNOWN, "cannot find ssh key file \"%s\"" % sshkey)
         elif not os.access(sshkey,os.R_OK):
@@ -301,5 +301,5 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print "Caught Control-C..."
+        print("Caught Control-C...")
         sys.exit(CRITICAL)
