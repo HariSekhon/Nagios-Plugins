@@ -27,7 +27,7 @@ on: # [push]
 jobs:
   build:
     #name: build
-    timeout-minutes: 120
+    timeout-minutes: 180
     runs-on: ubuntu-latest
     container: ubuntu:18.04
     env:
