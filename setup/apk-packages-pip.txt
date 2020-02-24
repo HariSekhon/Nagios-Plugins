@@ -16,6 +16,6 @@
 py-boto
 py-dnspython
 py-mysqldb
-py-psycopg2
 py-py
-py2-jinja2
+py3-jinja2
+py3-psycopg2
