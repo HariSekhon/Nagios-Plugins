@@ -15,7 +15,9 @@ Can optionally alert on any available updates as well as just security related u
 
 See also: check_yum.pl (also part of the Advanced Nagios Plugins Collection)
 
-Tested on CentOS 5 / 6 / 7
+Updated for DNF on RHEL 8
+
+Tested on CentOS 5 / 6 / 7 / 8
 """
 
 from __future__ import print_function
@@ -35,7 +37,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.9.0"
+__version__ = "0.10.0"
 
 # Standard Nagios return codes
 OK = 0
@@ -69,6 +71,7 @@ def end(status, message):
         sys.exit(UNKNOWN)
 
 YUM = "/usr/bin/yum"
+DNF = '/usr/bin/dnf'
 
 def check_yum_usable():
     """Checks that the YUM program and path are correct and usable - that
@@ -178,6 +181,8 @@ class YumTester(object):
             #output = [open(os.path.dirname(__file__) + '/test_input.txt').read(), '']
             returncode = process.returncode
             stdout = output[0]
+            # decode bytes to string for Python 3
+            stdout = stdout.decode("utf-8")
 
         if not stdout:
             end(UNKNOWN, "No output from utility '%s'" % cmd.split()[0])
@@ -299,6 +304,7 @@ class YumTester(object):
         if len(output2) > 2 or \
            not ("Setting up repositories" in output2[0] or \
                 "Loaded plugins: " in output2[0] or \
+                "Last metadata expiration check" in output2[0] or \
                 re.search(r'Loading\s+".+"\s+plugin', output2[0])):
             end(WARNING, "Yum output signature does not match current known "  \
                        + "format. " + support_msg)
@@ -371,8 +377,8 @@ class YumTester(object):
         re_security_summary = \
                 re.compile(r'Needed (\d+) of (\d+) packages, for security')
         re_summary_rhel6 = re.compile(r'(\d+) package\(s\) needed for security, out of (\d+) available')
-        re_no_sec_updates = \
-                re.compile(r'No packages needed,? for security[;,] (\d+) (?:packages )?available')
+        re_no_sec_updates = re.compile(r'No packages needed,? for security[;,] (\d+) (?:packages )?available')
+        re_no_sec_updates_dnf = re.compile(r'No security updates needed, but (\d+) updates available')
         re_kernel_update = re.compile(r'^Security: kernel-.+ is an installed security update')
         summary_line_found = False
         for line in output:
@@ -383,6 +389,12 @@ class YumTester(object):
                 number_total_updates = _.group(2)
                 break
             _ = re_no_sec_updates.match(line)
+            if _:
+                summary_line_found = True
+                number_security_updates = 0
+                number_total_updates = _.group(1)
+                break
+            _ = re_no_sec_updates_dnf.match(line)
             if _:
                 summary_line_found = True
                 number_security_updates = 0
@@ -399,7 +411,12 @@ class YumTester(object):
                 end(CRITICAL, "Kernel security update is installed but requires a reboot")
 
         if not summary_line_found:
+            #if not os.path.exists(DNF):
             end(WARNING, "Cannot find summary line in yum output. " + support_msg)
+        if 'number_security_updates' not in locals():
+            end(UNKNOWN, "parsing failed - number of security updates could not be determined. " + support_msg)
+        if 'number_total_updates' not in locals():
+            end(UNKNOWN, "parsing failed - number of total updates could not be determined. " + support_msg)
 
         try:
             number_security_updates = int(number_security_updates)
@@ -494,6 +511,8 @@ class YumTester(object):
         """Prints a message if the first arg is numerically greater than the
         verbosity level"""
 
+        if self.verbosity is None:
+            self.verbosity = 0
         if self.verbosity >= threshold:
             print("%s" % message)
 
