@@ -15,14 +15,18 @@
 # ===================
 # bootstrap commands:
 
+# setup/bootstrap.sh
+#
+# OR
+#
 # Alpine:
 #
 #   apk add --no-cache git make && git clone https://github.com/harisekhon/nagios-plugins && cd nagios-plugins && make
-
+#
 # Debian / Ubuntu:
 #
 #   apt-get update && apt-get install -y git make && git clone https://github.com/harisekhon/nagios-plugins && cd nagios-plugins && make
-
+#
 # RHEL / CentOS:
 #
 #   yum install -y git make && git clone https://github.com/harisekhon/nagios-plugins && cd nagios-plugins && make
