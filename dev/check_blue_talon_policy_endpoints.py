@@ -22,7 +22,7 @@ Optional thresholds may be applied against the number of PEPs, defaulting to a l
 the min:max threshold format) to check we have the expected number of PEPs, for use in a stable environment when
 things shouldn't be changing that much.
 
-UNTESTED as the documentated API endpoint seems to not be implemented
+UNTESTED as the documented API endpoint seems to not be implemented
 
 """
 
