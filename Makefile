@@ -215,6 +215,10 @@ ZOOKEEPER_VERSION = 3.4.12
 zookeeper : perl zkperl
 	@:
 
+.PHONY: zookeeper-retry
+zookeeper-retry:
+	bash-tools/retry.sh $(MAKE) zookeeper
+
 .PHONY: zkperl
 zkperl:
 	ZOOKEEPER_VERSION="$(ZOOKEEPER_VERSION)" setup/install_zookeeper_perl.sh
