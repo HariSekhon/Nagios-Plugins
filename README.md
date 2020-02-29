@@ -23,7 +23,7 @@ Advanced Nagios Plugins Collection
 [![Wercker](https://app.wercker.com/status/76887616b9d1ea67f640e9001cd71662/s/master "wercker status")](https://app.wercker.com/project/byKey/76887616b9d1ea67f640e9001cd71662)
 
 [![Azure DevOps Pipeline](https://dev.azure.com/harisekhon/GitHub/_apis/build/status/HariSekhon.Nagios-Plugins?branchName=master)](https://dev.azure.com/harisekhon/GitHub/_build/latest?definitionId=9&branchName=master)
-[![BitBucket Pipeline](https://img.shields.io/bitbucket/pipelines/harisekhon/Nagios-Plugins/master?logo=bitbucket)](https://bitbucket.org/harisekhon/Nagios-Plugins/addon/pipelines/home#!/)
+[![BitBucket Pipeline](https://img.shields.io/bitbucket/pipelines/harisekhon/nagios-plugins/master?logo=bitbucket)](https://bitbucket.org/harisekhon/Nagios-Plugins/addon/pipelines/home#!/)
 [![GitLab Pipeline](https://img.shields.io/gitlab/pipeline/harisekhon/Nagios-Plugins?logo=gitlab)](https://gitlab.com/HariSekhon/Nagios-Plugins/pipelines)
 
 [![CI Mac](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Mac/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Mac%22)
