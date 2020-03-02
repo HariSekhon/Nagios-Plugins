@@ -1,6 +1,5 @@
 Advanced Nagios Plugins Collection
 ==================================
-[![Build Status](https://travis-ci.org/HariSekhon/Nagios-Plugins.svg?branch=master)](https://travis-ci.org/HariSekhon/Nagios-Plugins)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e6fcf7cb4dcc4905ab0a4cb91567fdda)](https://www.codacy.com/app/harisekhon/nagios-plugins)
 [![GitHub stars](https://img.shields.io/github/stars/harisekhon/nagios-plugins.svg)](https://github.com/harisekhon/nagios-plugins/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/harisekhon/nagios-plugins.svg)](https://github.com/harisekhon/nagios-plugins/network)
@@ -13,6 +12,19 @@ Advanced Nagios Plugins Collection
 [![DockerHub Build Automated](https://img.shields.io/docker/automated/harisekhon/nagios-plugins.svg)](https://hub.docker.com/r/harisekhon/nagios-plugins/)
 [![Docker Build Status](https://img.shields.io/docker/build/harisekhon/nagios-plugins.svg)](https://hub.docker.com/r/harisekhon/nagios-plugins/builds)
 [![MicroBadger](https://images.microbadger.com/badges/image/harisekhon/nagios-plugins.svg)](http://microbadger.com/#/images/harisekhon/nagios-plugins)
+
+[![Travis CI](https://img.shields.io/travis/harisekhon/Nagios-Plugins/master?logo=travis)](https://travis-ci.org/HariSekhon/Nagios-Plugins)
+[![AppVeyor](https://img.shields.io/appveyor/build/harisekhon/Nagios-Plugins/master?logo=appveyor)](https://ci.appveyor.com/project/HariSekhon/Nagios-Plugins/branch/master)
+[![Drone](https://img.shields.io/drone/build/HariSekhon/Nagios-Plugins/master?logo=drone)](https://cloud.drone.io/HariSekhon/Nagios-Plugins)
+[![CircleCI](https://circleci.com/gh/HariSekhon/Nagios-Plugins.svg?style=svg)](https://circleci.com/gh/HariSekhon/Nagios-Plugins)
+[![Codeship Status for HariSekhon/Nagios-Plugins](https://app.codeship.com/projects/e23f19f0-3c5f-0138-3476-32bf6ef9714a/status?branch=master)](https://app.codeship.com/projects/387256)
+[![Shippable](https://api.shippable.com/projects/5e52c636d79b7d00077bf5f5/badge?branch=master)](https://app.shippable.com/github/HariSekhon/Nagios-Plugins/dashboard/jobs)
+[![Codefresh](https://g.codefresh.io/api/badges/pipeline/harisekhon/GitHub%2FNagios%20Plugins?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWU1MmM5OGNiM2FiOWUzM2Y3ZDZmYjM3.O69674cW7vYom3v5JOGKXDbYgCVIJU9EWhXUMHl3zwA&type=cf-1)](https://g.codefresh.io/pipelines/Nagios-Plugins/builds)
+[![Wercker](https://app.wercker.com/status/76887616b9d1ea67f640e9001cd71662/s/master "wercker status")](https://app.wercker.com/project/byKey/76887616b9d1ea67f640e9001cd71662)
+
+[![Azure DevOps Pipeline](https://dev.azure.com/harisekhon/GitHub/_apis/build/status/HariSekhon.Nagios-Plugins?branchName=master)](https://dev.azure.com/harisekhon/GitHub/_build/latest?definitionId=9&branchName=master)
+[![BitBucket Pipeline](https://img.shields.io/bitbucket/pipelines/harisekhon/nagios-plugins/master?logo=bitbucket)](https://bitbucket.org/harisekhon/Nagios-Plugins/addon/pipelines/home#!/)
+[![GitLab Pipeline](https://img.shields.io/gitlab/pipeline/harisekhon/Nagios-Plugins?logo=gitlab)](https://gitlab.com/HariSekhon/Nagios-Plugins/pipelines)
 
 [![CI Mac](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Mac/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Mac%22)
 [![CI Ubuntu](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Ubuntu/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Ubuntu%22)
