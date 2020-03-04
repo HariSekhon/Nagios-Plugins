@@ -37,7 +37,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.10.0"
+__version__ = "0.10.1"
 
 # Standard Nagios return codes
 OK = 0
@@ -411,8 +411,11 @@ class YumTester(object):
                 end(CRITICAL, "Kernel security update is installed but requires a reboot")
 
         if not summary_line_found:
-            #if not os.path.exists(DNF):
-            end(WARNING, "Cannot find summary line in yum output. " + support_msg)
+            if os.path.exists(DNF) and re.match('Last metadata expiration check: ', ''.join(output)):
+                number_total_updates = 0
+                number_security_updates = 0
+            else:
+                end(WARNING, "Cannot find summary line in yum output. " + support_msg)
         if 'number_security_updates' not in locals():
             end(UNKNOWN, "parsing failed - number of security updates could not be determined. " + support_msg)
         if 'number_total_updates' not in locals():
@@ -496,11 +499,11 @@ class YumTester(object):
         if number_other_updates != 0:
             if self.warn_on_any_update and status != CRITICAL:
                 status = WARNING
-            if number_other_updates == 1:
-                message += ". 1 Non-Security Update Available"
-            else:
-                message += ". %s Non-Security Updates Available" \
-                                                        % number_other_updates
+        if number_other_updates == 1:
+            message += ". 1 Non-Security Update Available"
+        else:
+            message += ". %s Non-Security Updates Available" \
+                                                    % number_other_updates
         message += " | security_updates_available=%s non_security_updates_available=%s total_updates_available=%s" \
                    % (number_security_updates, number_other_updates, number_security_updates + number_other_updates)
 
