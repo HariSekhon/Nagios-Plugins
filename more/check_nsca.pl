@@ -11,7 +11,7 @@
 
 # TODO: reintegrate this with HariSekhonUtils
 
-$main::VERSION = "0.1";
+$main::VERSION = "0.1.1";
 
 use strict;
 use warnings;
@@ -60,7 +60,7 @@ our $output;
 our $result;
 
 sub usage{
-    print "@_\n" if defined(@_);
+    print "@_\n" if @_;
     print "usage: $progname [ options ]
 
 --host        -H    Remote NSCA Server to check (defaults to localhost. If supplied, does not check the log file)
