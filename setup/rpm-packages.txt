@@ -13,6 +13,22 @@
 #                            RPM Package Requirements
 # ============================================================================ #
 
+# for utils.sh - /usr/lib64/nagios/plugins/utils.sh
+nagios-plugins
+
+# don't install nagios-plugins-all as there are problems eg.
+#
+# # yum install nagios-plugins-all
+# Failed to set locale, defaulting to C.UTF-8
+# Last metadata expiration check: 0:01:17 ago on Thu Mar  5 14:48:43 2020.
+# Error:
+#  Problem: package nagios-plugins-all-2.2.2-2.20190926git1b8ad57.el8.x86_64 requires nagios-plugins-disk_smb, but none of the providers can be installed
+#   - package nagios-plugins-disk_smb-2.2.2-2.20190926git1b8ad57.el8.x86_64 requires perl(utf8::all), but none of the providers can be installed
+#   - conflicting requests
+#   - nothing provides perl(Import::Into) needed by perl-utf8-all-0.024-7.el8.noarch
+#   - nothing provides perl(PerlIO::utf8_strict) needed by perl-utf8-all-0.024-7.el8.noarch
+# (try to add '--skip-broken' to skip uninstallable packages or '--nobest' to use not only best candidate packages)
+
 tar
 
 # needed by check_git_checkout_branch.pl and Git-Python / check_git_checkout_branch.py
