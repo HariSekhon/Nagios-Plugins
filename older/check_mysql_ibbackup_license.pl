@@ -24,7 +24,7 @@ use lib '/usr/lib64/nagios/plugins';
 use lib '/usr/lib/nagios/plugins';
 #use lib '/usr/lib/icinga';
 # Mac Homebrew utils.pm install location
-use lib '/usr/local/sbin';
+use lib '/usr/local/nagios/libexec';
 use utils qw(%ERRORS);
 
 delete @ENV{qw(IFS CDPATH ENV BASH_ENV)};
