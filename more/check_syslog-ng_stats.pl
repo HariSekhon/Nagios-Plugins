@@ -11,7 +11,7 @@
 
 # Designed to be called from a log monitoring tool on receipt of a syslog-ng stats log and fed to Nagios via passive_wrapper and NSCA
 
-$main::VERSION = "0.5";
+$main::VERSION = "0.5.1";
 
 use strict;
 use warnings;
@@ -85,7 +85,7 @@ my $regex_dest = '[\w\s/\.\*\\\\"\':=-]+';
 my $regex_log_format = "$regex_log_prefix((?:$regex_types)=" . '\'\w+\(' . "$regex_dest" . '\)=\d+\'(?:,\s)?)+$';
 
 sub usage{
-    print "@_\n\n" if defined(@_);
+    print "@_\n\n" if @_;
     print "usage: $progname <-s|-l \"log string\"> [ -w <warning_count> -c <critical_count> -t <secs> ]
 
 Warning/Critical thresholds only apply to dropped/suppressed unless targeting --processed
