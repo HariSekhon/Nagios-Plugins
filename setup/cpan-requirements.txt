@@ -19,6 +19,8 @@
 
 # for MongoDB dep
 Package::Stash::XS
+Ref::Util::XS
+Type::Tiny::XS
 
 Data::HexDump::Range
 
