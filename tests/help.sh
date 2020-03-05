@@ -20,9 +20,10 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./bash-tools/lib/perl.sh
-. ./tests/utils.sh
+# pulled in by utils -> bash-tools/lib/utils.sh -> perl.sh
+#. ./bash-tools/lib/perl.sh
 . ./tests/excluded.sh
+. ./tests/utils.sh
 
 EXT="${EXT:-all}"
 
