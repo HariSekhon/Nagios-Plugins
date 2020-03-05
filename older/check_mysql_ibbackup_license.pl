@@ -55,7 +55,7 @@ sub quit{
 my $progname = basename $0;
 
 sub usage{
-    print "@_\n" if defined(@_);
+    print "@_\n" if @_;
     print "usage: $progname [ -p /path/to/ibbackup -w <days> -c <days> -v ]
 
 --path     -p    The path to the ibbackup binary (defaults to $default_ibbackup)
