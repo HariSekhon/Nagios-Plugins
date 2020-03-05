@@ -13,8 +13,8 @@
 #                            RPM Package Requirements
 # ============================================================================ #
 
-# for utils.sh - /usr/lib64/nagios/plugins/utils.sh
-nagios-plugins
+# for utils.pm - /usr/lib64/nagios/plugins/utils.pm
+nagios-plugins-perl
 
 # don't install nagios-plugins-all as there are problems eg.
 #
