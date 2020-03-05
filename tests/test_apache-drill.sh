@@ -249,6 +249,6 @@ test_drill(){
     docker_exec "$MNTDIR/check_apache_drill_sqlline.sh" -u jdbc:drill:drillbit=localhost
 }
 
-startupwait 70
+startupwait 120
 
 run_test_versions "Apache Drill"
