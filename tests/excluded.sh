@@ -58,12 +58,15 @@ isExcluded(){
             return 0
         fi
     fi
-    if grep -q "use[[:space:]]\+utils" "$prog"; then
-        echo
-        echo "skipping $prog due to use of utils.pm from standard nagios plugins collection which may not be available"
-        echo
-        return 0
-    fi
+
+    # dependency installed and plugins updated with standard library paths so these should work now
+    #if grep -q "use[[:space:]]\+utils" "$prog"; then
+    #    echo
+    #    echo "skipping $prog due to use of utils.pm from standard nagios plugins collection which may not be available"
+    #    echo
+    #    return 0
+    #fi
+
     # ignore zookeeper plugins if Net::ZooKeeper module is not available
     # [u] is a clever hack to not skip myself
     if grep -q "[u]se.*Net::ZooKeeper.*;" "$prog" && ! is_zookeeper_built; then
