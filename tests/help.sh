@@ -20,6 +20,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
+. ./bash-tools/lib/perl.sh
 . ./tests/utils.sh
 . ./tests/excluded.sh
 
@@ -43,7 +44,7 @@ test_help(){
     optional_cmd=""
     # for Travis CI running in a perlbrew we must use the perl we find
     if [[ $prog =~ .*\.pl$ ]]; then
-        optional_cmd="$perl -T "
+        optional_cmd="$perl -T"
     fi
 
     # quick hack for older programs which return zero for --help due to python OptParse module
