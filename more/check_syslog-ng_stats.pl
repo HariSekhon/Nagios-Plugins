@@ -23,6 +23,13 @@ BEGIN {
     use File::Basename;
     use lib dirname(__FILE__);
 }
+# Redhat RPM utils.pm install location from nagios-plugins skeleton rpm
+use lib '/usr/lib64/nagios/plugins';
+# Debian monitoring-plugins-common and Alpine nagios-plugins utils.pm install location
+use lib '/usr/lib/nagios/plugins';
+#use lib '/usr/lib/icinga';
+# Mac Homebrew utils.pm install location
+use lib '/usr/local/sbin';
 use utils qw(%ERRORS $TIMEOUT);
 
 # Make %ENV safer (taken from PerlSec)
