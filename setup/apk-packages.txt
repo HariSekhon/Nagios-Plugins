@@ -13,6 +13,10 @@
 #                          Alpine Package Requirements
 # ============================================================================ #
 
+# for /usr/lib/nagios/plugins/utils.pm
+nagios-plugins
+
+# =====================================
 # installed by bash-tools submodule now
 
 #ca-certificates
