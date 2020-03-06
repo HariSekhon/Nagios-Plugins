@@ -15,6 +15,11 @@
 
 # Installed if available in repos
 
+# installs /usr/lib/nagios/plugins/utils.pm
+monitoring-plugins-common  # newer deb distros, not available on Ubuntu 14.04
+nagios-plugins-common      # older deb distros, sometimes installs monitoring-plugins-common on newer systems, other times not found
+
+# =====================================
 # for check_whois.pl - looks like this has been removed from repos :-/
 jwhois
 
