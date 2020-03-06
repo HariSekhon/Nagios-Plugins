@@ -14,7 +14,9 @@
 # ============================================================================ #
 
 # installs /usr/lib/nagios/plugins/utils.pm
-monitoring-plugins-common
+# not available on Ubuntu 14.04
+#monitoring-plugins-common
+nagios-plugins-common  # installs monitoring-plugins-common on newer systems
 
 # =====================================
 # installed by bash-tools submodule now
