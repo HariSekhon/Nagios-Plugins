@@ -13,12 +13,6 @@
 #                            Deb Package Requirements
 # ============================================================================ #
 
-# installs /usr/lib/nagios/plugins/utils.pm
-# not available on Ubuntu 14.04
-#monitoring-plugins-common
-nagios-plugins-common  # installs monitoring-plugins-common on newer systems
-
-# =====================================
 # installed by bash-tools submodule now
 
 # needed by check_git_checkout_branch.pl and Git-Python / check_git_checkout_branch.py
