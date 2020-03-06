@@ -131,13 +131,8 @@ perl-libs:
 	#
 	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' "$$libfilepath" || $(SUDO_PERL) sed -i.bak "s/use strict;/use strict; use Socket;/" "$$libfilepath" || : # doesn't work on Mac right now
 
-	@for x in /usr/local/Cellar/nagios-plugins/*/libexec /usr/local/Cellar/monitoring-plugins/*/libexec; do \
-		if [ -d "$x"  ] && ! [ -e /usr/local/nagios/libexec  ]; then \
-			echo "symlinking nagios libexec on Mac for plugins that use utils.pm"
-			sudo mkdir -pv /usr/local/nagios && \
-			sudo ln -sv $x /usr/local/nagios/; \
-		fi; \
-	done
+	@setup/mac_symlink_nagios_plugins_libexec.sh
+
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins perl)"
 	@echo
