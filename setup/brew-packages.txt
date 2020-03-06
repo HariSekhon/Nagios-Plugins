@@ -14,8 +14,9 @@
 #                    Mac OS X - Homebrew Package Requirements
 # ============================================================================ #
 
-# either of these will do to provide /usr/local/nagios/libexec/utils.pm
+# provides /usr/local/nagios/libexec/utils.pm
 nagios-plugins
+# same but doesn't have an easy permanent link, would have to check /usr/local/Cellar/monitoring-plugins/<versions>/libexec/sbin/utils.pm
 # monitoring-plugins
 
 # If you have trouble installing MySQL-python on Mac OS X see the first solution at https://stackoverflow.com/a/51483898
