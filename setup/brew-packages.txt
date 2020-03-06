@@ -14,11 +14,13 @@
 #                    Mac OS X - Homebrew Package Requirements
 # ============================================================================ #
 
-# provides /usr/local/nagios/libexec/utils.pm
+# provides utils.pm
+# on Mac Makefile symlinks first found /usr/local/Cellar/nagios-plugins/<versions>/libexec or /usr/local/Cellar/monitoring-plugins/<versions>/libexec
+# using script setup/mac_symlink_nagios_plugins_libexec.sh
 nagios-plugins
-# same but doesn't have an easy permanent link, would have to check /usr/local/Cellar/monitoring-plugins/<versions>/libexec/sbin/utils.pm
-# monitoring-plugins
+# monitoring-elugins
 
+nstall nagios-plugins
 # If you have trouble installing MySQL-python on Mac OS X see the first solution at https://stackoverflow.com/a/51483898
 mysql
 # conflicts with mysql package linking, run script setup/install_mysql_python.sh to work around
