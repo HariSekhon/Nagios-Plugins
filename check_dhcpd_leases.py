@@ -164,7 +164,7 @@ class DhcpdLeaseTester:
         setattr(self, "mac_" + colourlist, maclist)
 
 
-    def sighandler(self, _, _):
+    def sighandler(self, _discarded, _discarded2):
         """Function to be called by signal.alarm to kill the plugin"""
 
         end(CRITICAL, "plugin has self terminated after exceeding " \
