@@ -37,7 +37,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.10.1"
+__version__ = "0.10.2"
 
 # Standard Nagios return codes
 OK = 0
@@ -262,12 +262,8 @@ class YumTester(object):
         signal.alarm(self.timeout)
 
 
-    def sighandler(self, discarded, discarded2):
+    def sighandler(self, _, _):
         """Function to be called by signal.alarm to kill the plugin"""
-
-        # Nop for these variables
-        discarded = discarded2
-        discarded2 = discarded
 
         end(CRITICAL, "Yum nagios plugin has self terminated after " \
                     + "exceeding the timeout (%s seconds)" % self.timeout)
