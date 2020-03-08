@@ -18,7 +18,7 @@ from __future__ import print_function
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin to check Syslog-NG/MySQL logservers"
-__version__ = "0.9.0"
+__version__ = "0.9.1"
 
 # Nagios Standard Exit Codes
 OK = 0
@@ -189,12 +189,8 @@ class LogServerTester(object):
         signal.alarm(self.timeout)
 
 
-    def sighandler(self, discarded, discarded2):
+    def sighandler(self, _, _):
         """Function to be called by signal.alarm to kill the plugin"""
-
-        # Nop for these variables
-        discarded = discarded2
-        discarded2 = discarded
 
         end(CRITICAL, "logserver plugin has self terminated after exceeding " \
                     + "the timeout (%s seconds)" % self.timeout)
