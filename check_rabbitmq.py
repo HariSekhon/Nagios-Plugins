@@ -69,7 +69,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5'
+__version__ = '0.5.0'
 
 
 class CheckRabbitMQ(PubSubNagiosPlugin):
@@ -172,8 +172,6 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
     def process_args(self):
         self.host = self.get_opt('host')
         self.port = self.get_opt('port')
-        # pika library requires int type
-        self.port = self.port
         self.user = self.get_opt('user')
         self.password = self.get_opt('password')
         validate_host(self.host)
