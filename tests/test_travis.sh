@@ -51,7 +51,9 @@ run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/Nagios-Plugin-Kafka
 run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/spark-apps
 
 echo "checking no builds returned:"
-run_fail 3 ./check_travis_ci_last_build.py -r harisekhon/Nagios-Plugins -v
+# looks like this is now case insensitive and detects the builds
+#run_fail 3 ./check_travis_ci_last_build.py -r harisekhon/Nagios-Plugins -v
+run_fail 3 ./check_travis_ci_last_build.py -r harisekhon/nonexistent -v
 
 echo "checking wrong repo name/format:"
 run_usage ./check_travis_ci_last_build.py -r test -v
