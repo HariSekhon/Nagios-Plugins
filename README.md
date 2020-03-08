@@ -12,8 +12,8 @@ Advanced Nagios Plugins Collection
 <!-- only counts Python lines of code, underestimates by at least half
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_Nagios-Plugins&metric=ncloc)](https://sonarcloud.io/dashboard?id=HariSekhon_Nagios-Plugins)
 -->
-[![PyUp](https://pyup.io/repos/github/HariSekhon/Nagios-Plugins/shield.svg)](https://pyup.io/account/repos/github/HariSekhon/Nagios-Plugins/)
 [![Python 3](https://pyup.io/repos/github/HariSekhon/Nagios-Plugins/python-3-shield.svg)](https://pyup.io/repos/github/HariSekhon/Nagios-Plugins/)
+[![PyUp](https://pyup.io/repos/github/HariSekhon/Nagios-Plugins/shield.svg)](https://pyup.io/account/repos/github/HariSekhon/Nagios-Plugins/)
 
 [![Linux](https://img.shields.io/badge/OS-Linux-blue?logo=linux)](https://github.com/HariSekhon/Nagios-Plugins)
 [![Mac](https://img.shields.io/badge/OS-Mac-blue?logo=apple)](https://github.com/HariSekhon/Nagios-Plugins)
