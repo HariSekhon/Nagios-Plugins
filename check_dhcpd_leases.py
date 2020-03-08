@@ -14,7 +14,7 @@ be used to alert on the delegation of IPs to non-recognized MACs or Hostnames"""
 
 __author__  = "Hari Sekhon"
 __title__   = "Nagios Plugin for DHCPd Server Leases"
-__version__ = '0.8.3'
+__version__ = '0.8.4'
 
 # Due to the limited of characters that Nagios accepts from a plugin, this
 # output will be cut short if you have a lot of dhcp clients, which is why
@@ -164,12 +164,8 @@ class DhcpdLeaseTester:
         setattr(self, "mac_" + colourlist, maclist)
 
 
-    def sighandler(self, discarded, discarded2):
+    def sighandler(self, _, _):
         """Function to be called by signal.alarm to kill the plugin"""
-
-        # Nop for these variables
-        discarded = discarded2
-        discarded2 = discarded
 
         end(CRITICAL, "plugin has self terminated after exceeding " \
                     + "the timeout (%s seconds)" % self.timeout)
