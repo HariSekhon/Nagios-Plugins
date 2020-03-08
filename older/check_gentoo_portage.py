@@ -33,7 +33,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Gentoo Portage"
-__version__ = "0.9.0"
+__version__ = "0.9.1"
 
 # Standard Nagios return codes
 OK = 0
@@ -235,12 +235,9 @@ class PortageTester(object):
         signal.signal(signal.SIGALRM, self.sighandler)
         signal.alarm(self.timeout)
 
-    def sighandler(self, discarded, discarded2):
+    def sighandler(self, _, _):
         """Function to be called by signal.alarm to kill the plugin"""
 
-        # Nop for these variables
-        discarded = discarded2
-        discarded2 = discarded
         end(CRITICAL, "Gentoo portage plugin has self terminated after " \
                     + "exceeding the timeout (%s seconds)" % self.timeout)
 
