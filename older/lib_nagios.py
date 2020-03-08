@@ -207,12 +207,8 @@ class NagiosTester(object):
         signal.alarm(self.timeout)
 
 
-    def sighandler(self, discarded, discarded2):
+    def sighandler(self, _, _):
         """Function to be called by signal.alarm to kill the plugin"""
-
-        # Nop for these variables
-        discarded = discarded2
-        discarded2 = discarded
 
         if self.timeout == 1:
             timeout = "(1 second)"
