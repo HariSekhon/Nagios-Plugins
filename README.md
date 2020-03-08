@@ -9,7 +9,9 @@ Advanced Nagios Plugins Collection
 [![GitHub stars](https://img.shields.io/github/stars/harisekhon/nagios-plugins.svg)](https://github.com/harisekhon/nagios-plugins/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/harisekhon/nagios-plugins.svg)](https://github.com/harisekhon/nagios-plugins/network)
 
+<!-- only counts Python lines of code, underestimates by at least half
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_Nagios-Plugins&metric=ncloc)](https://sonarcloud.io/dashboard?id=HariSekhon_Nagios-Plugins)
+-->
 [![PyUp](https://pyup.io/repos/github/HariSekhon/Nagios-Plugins/shield.svg)](https://pyup.io/account/repos/github/HariSekhon/Nagios-Plugins/)
 [![Python 3](https://pyup.io/repos/github/HariSekhon/Nagios-Plugins/python-3-shield.svg)](https://pyup.io/repos/github/HariSekhon/Nagios-Plugins/)
 
