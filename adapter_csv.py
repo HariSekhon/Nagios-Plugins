@@ -138,9 +138,9 @@ class AdapterCSV(CLI):
         elif returncode in ERRORS:
             self._status = returncode
         else:
-            log.info("non-standard exit code detected, resetting to CRITICAL")
+            log.info("non-standard exit code detected, resetting to UNKNOWN")
             # this is a property that can handle either type not a real variable
-            self._status = 'UNKNOWN'  # pylint: disable=redefined-variable-type
+            self._status = 'UNKNOWN'
 
     def cmd(self, cmdline):
         log.info("cmd: %s", cmdline)
@@ -169,7 +169,7 @@ class AdapterCSV(CLI):
         except subprocess.CalledProcessError as _:
             log.info("subprocess.CalledProcessError, resetting to UNKNOWN")
             # this is a property that can handle either type not a real variable
-            self.status = "UNKNOWN"  # pylint: disable=redefined-variable-type
+            self.status = "UNKNOWN"
             self.message = str(_)
         except OSError as _:
             log.info("OSError, resetting to UNKNOWN")
