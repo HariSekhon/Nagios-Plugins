@@ -29,7 +29,7 @@ current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 run $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 
 # Travis CI runs in a detached head which throws CriticalError
-if is_travis; then
+if is_travis || is_azure_devops; then
     ERRCODE=2 run_grep "CRITICAL: HEAD is a detached symbolic reference as it points to '[a-z0-9]+'" ./check_git_checkout_branch.py -d . -b "$current_branch"
 else
     run ./check_git_checkout_branch.py -d . -b "$current_branch"
