@@ -109,7 +109,7 @@ class CheckPuppet
       begin
           o.parse!(ARGV)
       rescue
-          quit "UNKNOWN", "parsing error: " + $!
+          quit "UNKNOWN", "parsing error: " + $!.to_s
       end
     end
 
