@@ -35,7 +35,7 @@ install:
 #
 #  adding "|| :" to the end of these commands causes them to be silently ignored!
 - sudo sed -i '/https:\/\/packages.microsoft.com\/ubuntu\/.*\/mssql-server/d' /etc/apt/sources.list
-- sudo apt purge -qy mssql-server
+- sudo apt purge -qy --allow-change-held-packages mssql-server
 - sudo apt update -qq
 - sudo apt install -qy git make
 - make
