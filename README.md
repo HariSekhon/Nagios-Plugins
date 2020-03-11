@@ -19,7 +19,7 @@ Advanced Nagios Plugins Collection
 [![Linux](https://img.shields.io/badge/OS-Linux-blue?logo=linux)](https://github.com/HariSekhon/Nagios-Plugins)
 [![Mac](https://img.shields.io/badge/OS-Mac-blue?logo=apple)](https://github.com/HariSekhon/Nagios-Plugins)
 [![Docker](https://img.shields.io/badge/container-Docker-blue?logo=docker)](https://hub.docker.com/r/harisekhon/nagios-plugins/)
-[![DockerHub Pulls](https://img.shields.io/docker/pulls/harisekhon/centos-github?label=DockerHub%20pulls&logo=docker)](https://hub.docker.com/r/harisekhon/nagios-plugins)
+[![DockerHub Pulls](https://img.shields.io/docker/pulls/harisekhon/nagios-plugins?label=DockerHub%20pulls&logo=docker)](https://hub.docker.com/r/harisekhon/nagios-plugins)
 [![DockerHub Build Automated](https://img.shields.io/docker/automated/harisekhon/nagios-plugins.svg)](https://hub.docker.com/r/harisekhon/nagios-plugins/)
 [![Docker Build Status](https://img.shields.io/docker/build/harisekhon/nagios-plugins.svg)](https://hub.docker.com/r/harisekhon/nagios-plugins/builds)
 [![MicroBadger](https://images.microbadger.com/badges/image/harisekhon/nagios-plugins.svg)](http://microbadger.com/#/images/harisekhon/nagios-plugins)
