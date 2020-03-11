@@ -48,6 +48,9 @@ export HBASE_THRIFT_UI_PORT_DEFAULT=9095
 export HAPROXY_THRIFT_UI_PORT_DEFAULT=9095
 export ZOOKEEPER_PORT_DEFAULT=2181
 
+# in case it's set in ~/.bashrc for other tools, don't docker exec to this user as it probably won't exist in the container
+unset DOCKER_USER
+
 check_docker_available
 
 trap_debug_env hbase
@@ -84,9 +87,9 @@ test_hbase(){
     VERSION="$version" docker-compose up -d
     hr
     # HBase 0.9x / 2.x uses RegionServer port 16030, 1.x series changed to 16301 then changed back in 2.x
-    if [[ "${version:0:2}" =~ ^1\. ]]; then
-        local export HBASE_REGIONSERVER_PORT_DEFAULT=16301
-    elif [[ "${version:0:3}" =~ ^0\.9 ]]; then
+    #if [[ "${version:0:2}" =~ ^1\. ]]; then
+    #    local export HBASE_REGIONSERVER_PORT_DEFAULT=16301
+    if [[ "${version:0:3}" =~ ^0\.9 ]]; then
         local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
     fi
     # HBase <= 0.99 uses older port numbers
