@@ -39,6 +39,7 @@ nagios_plugins_start_time="$(start_timer)"
 . tests/excluded.sh
 
 # must be included so that local exclude function can take precedence
+# shellcheck disable=SC1091
 . bash-tools/check_all.sh
 
 #is_travis ||
@@ -54,23 +55,38 @@ tests_failed=""
 
 SECONDS=0
 
-#test_scripts="$(find tests -name 'test*.sh' | sort)"
-#if is_CI && [ $((RANDOM % 2)) = 0 ]; then
-#    echo "Reversing test script list to give more likely coverage to scripts at the end of the list within the limited build time limits"
-#    test_scripts="$(tail -r <<< "$test_scripts")"
-#fi
+# time limited CI builds
+is_CI_limited(){
+    if is_CI &&
+       ! is_azure_devops &&
+       ! is_github_action &&
+       ! is_buildkite; then
+        return 0
+    fi
+    return 1
+}
 
-# better than above
-# randomize and take top 5 results since we need to limit runtime
-# more important than deterministic ordering and better than random ordered skips
-test_scripts="$(find tests -name 'test*.sh' | perl -MList::Util=shuffle -e 'print shuffle<STDIN>' | head -n 5)"
+if is_CI_limited; then
+    #if is_CI && [ $((RANDOM % 2)) = 0 ]; then
+    #    echo "Reversing test script list to give more likely coverage to scripts at the end of the list within the limited build time limits"
+    #    test_scripts="$(tail -r <<< "$test_scripts")"
+    #fi
+
+    # better than above
+    # randomize and take top 5 results since we need to limit runtime
+    # more important than deterministic ordering and better than random ordered skips
+    test_scripts="$(find tests -name 'test*.sh' | perl -MList::Util=shuffle -e 'print shuffle<STDIN>' | head -n 5)"
+else
+    test_scripts="$(find tests -name 'test*.sh' | sort)"
+fi
 
 for script in $test_scripts; do
     if [ -n "${NOTESTS:-}" ] && [ "$script" = "run_tests.sh" ]; then
         echo "NOTESTS env var specified, skipping dockerized tests"
         continue
     fi
-    if is_CI; then
+    if is_CI_limited; then
+    #if is_CI && [ $((RANDOM % 2)) = 0 ]; then
         # limiting test scripts above now due to too many builds and cumulative run times causing failures
         #[ $((RANDOM % 4)) = 0 ] || continue
         max_mins=5
@@ -94,7 +110,7 @@ $script"
     fi
 done
 
-if is_CI; then
+if is_CI_limited; then
     echo
     echo "Tests Run:
 $tests_run"
