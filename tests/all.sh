@@ -85,11 +85,11 @@ for script in $test_scripts; do
         echo "NOTESTS env var specified, skipping dockerized tests"
         continue
     fi
-    if is_CI_limited; then
+    if is_CI; then
     #if is_CI && [ $((RANDOM % 2)) = 0 ]; then
         # limiting test scripts above now due to too many builds and cumulative run times causing failures
         #[ $((RANDOM % 4)) = 0 ] || continue
-        max_mins=5
+        max_mins=50
         if is_travis && [ $SECONDS -gt $((max_mins*60)) ]; then
             echo "Build has been running for longer than $max_mins minutes and is inside Travis CI, skipping rest of test_*.sh scripts"
             break
@@ -110,7 +110,7 @@ $script"
     fi
 done
 
-if is_CI_limited; then
+if is_CI; then
     echo
     echo "Tests Run:
 $tests_run"
