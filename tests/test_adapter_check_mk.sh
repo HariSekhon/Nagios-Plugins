@@ -43,7 +43,10 @@ run_grep '^0 ' ./adapter_check_mk.py -n 'basic shell test' --shell "echo 'test m
 
 run ./adapter_check_mk.py $perl -T ./check_disk_write.pl -d .
 
-run ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$(git branch | awk '/^\*/{print $2}')"
+# copied from tests/test_git.sh
+current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
+
+run ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 
 echo "testing stripping of numbered Python interpreter:"
 if type -P python2.7 &>/dev/null; then
@@ -53,7 +56,8 @@ elif type -P python2.6 &>/dev/null; then
 else
     python=python
 fi
-run_grep '^0 check_git_checkout_branch.py' ./adapter_check_mk.py $python ./check_git_checkout_branch.py -d . -b "$(git branch | awk '/^\*/{print $2}')"
+
+run_grep '^0 check_git_checkout_branch.py' ./adapter_check_mk.py $python ./check_git_checkout_branch.py -d . -b "$current_branch"
 
 echo "Testing failure detection of wrong git branch (perl):"
 run_grep '^2 check_git_checkout_branch.pl ' ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
