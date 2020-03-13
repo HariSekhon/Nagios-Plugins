@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 #  vim:ts=4:sts=4:sw=4:et
+#  shellcheck disable=SC2086
 #
 #  Author: Hari Sekhon
 #  Date: 2016-12-14 00:39:35 +0000 (Wed, 14 Dec 2016)
@@ -19,6 +20,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
+# shellcheck disable=SC1091
 . ./tests/utils.sh
 
 section "C h e c k   M K   A d a p t e r"
@@ -41,12 +43,15 @@ run_grep '^4 ' ./adapter_check_mk.py -n 'basic test result 4' --result 4 'test 4
 
 run_grep '^0 ' ./adapter_check_mk.py -n 'basic shell test' --shell "echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'"
 
+# defined in lib/perl.sh (imported by utils.sh)
+# shellcheck disable=SC2154
 run ./adapter_check_mk.py $perl -T ./check_disk_write.pl -d .
 
 # copied from tests/test_git.sh
 current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 
 run ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
+run_group '^0 check_git_checkout_branch.pl ' ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 
 echo "testing stripping of numbered Python interpreter:"
 if type -P python2.7 &>/dev/null; then
@@ -57,6 +62,7 @@ else
     python=python
 fi
 
+run ./adapter_check_mk.py $python ./check_git_checkout_branch.py -d . -b "$current_branch"
 run_grep '^0 check_git_checkout_branch.py' ./adapter_check_mk.py $python ./check_git_checkout_branch.py -d . -b "$current_branch"
 
 echo "Testing failure detection of wrong git branch (perl):"
@@ -91,6 +97,8 @@ run_grep '^3 ' ./adapter_check_mk.py --shell nonexistentcommand arg1 arg2
 
 run_grep '^3 ' ./adapter_check_mk.py $perl -T check_disk_write.pl --help
 
+# defined in lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count Check_MK adapter tests"
 echo
 echo "All Check_MK adapter tests passed succesfully"
