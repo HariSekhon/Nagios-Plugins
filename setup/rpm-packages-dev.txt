@@ -19,6 +19,9 @@
 gcc-c++
 libev-devel
 
+# postgres pg_config
+libpq-devel
+
 # to build DBD::mysql if building from CPAN
 mysql-devel
 
