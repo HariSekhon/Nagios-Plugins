@@ -51,7 +51,7 @@ run ./adapter_check_mk.py $perl -T ./check_disk_write.pl -d .
 current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 
 run ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
-run_group '^0 check_git_checkout_branch.pl ' ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
+run_grep '^0 check_git_checkout_branch.pl ' ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 
 echo "testing stripping of numbered Python interpreter:"
 if type -P python2.7 &>/dev/null; then
