@@ -19,6 +19,7 @@ python-git
 python-happybase
 python-humanize
 python-jenkins
+python-psycopg2
 python-thrift
 
 # for ndg-httpsclient
