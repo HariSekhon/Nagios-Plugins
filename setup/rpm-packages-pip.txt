@@ -28,6 +28,9 @@ python-thrift
 python2-pika
 python2-psutil
 
+python2-psycopg2
+python3-psycopg2
+
 # for ndg-httpsclient
 python-pyasn1
 
