@@ -48,6 +48,11 @@ run_grep '^0 ' ./adapter_check_mk.py -n 'basic shell test' --shell "echo 'test m
 run ./adapter_check_mk.py $perl -T ./check_disk_write.pl -d .
 
 # copied from tests/test_git.sh
+if is_CI; then
+    echo '> git branch'
+    git branch
+    echo
+fi
 current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 
 run ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
