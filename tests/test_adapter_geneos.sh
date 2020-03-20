@@ -43,7 +43,14 @@ run_grep '^echo,OK,test message,10,5,1008$' ./adapter_geneos.py --shell "echo 't
 
 run ./adapter_geneos.py $perl -T ./check_disk_write.pl -d .
 
-run ./adapter_geneos.py $perl -T ./check_git_checkout_branch.pl -d . -b "$(git branch | awk '/^*/{print $2}')"
+if is_CI; then
+    echo '> git branch'
+    git branch
+    echo
+fi
+current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
+
+run ./adapter_geneos.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 
 echo "Testing failure detection of wrong git branch (perl):"
 run_grep '^perl,CRITICAL,' ./adapter_geneos.py $perl -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
