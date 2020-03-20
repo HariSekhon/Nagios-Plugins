@@ -24,6 +24,11 @@ cd "$srcdir/..";
 section "G i t"
 
 # ============================================================================ #
+if is_CI; then
+    echo '> git branch'
+    git branch
+    echo
+fi
 current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 
 run $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
