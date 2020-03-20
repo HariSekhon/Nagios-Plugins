@@ -110,12 +110,7 @@ class AWSUsersUnused(NagiosPlugin):
         filehandle = StringIO(unicode(csv_content))
         filehandle.seek(0)
         csvreader = csv.reader(filehandle)
-        try:
-            # Python 2
-            headers = csvreader.next()
-        except AttributeError:
-            # Python 3
-            headers = next(csvreader)
+        headers = next(csvreader)
         assert headers[0] == 'user'
         assert headers[4] == 'password_last_used'
         assert headers[10] == 'access_key_1_last_used_date'
