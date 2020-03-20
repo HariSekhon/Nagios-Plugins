@@ -43,6 +43,7 @@ run_grep '^echo,OK,test message,10,5,1008$' ./adapter_geneos.py --shell "echo 't
 
 run ./adapter_geneos.py $perl -T ./check_disk_write.pl -d .
 
+# copied from tests/test_git.sh
 if is_CI; then
     echo '> git branch'
     git branch
