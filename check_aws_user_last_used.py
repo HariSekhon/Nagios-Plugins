@@ -64,7 +64,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 
 
 class AWSuserLastUsed(NagiosPlugin):
@@ -113,7 +113,12 @@ class AWSuserLastUsed(NagiosPlugin):
         filehandle = StringIO(unicode(csv_content))
         filehandle.seek(0)
         csvreader = csv.reader(filehandle)
-        headers = csvreader.next()
+        try:
+            # Python 2
+            headers = csvreader.next()
+        except AttributeError:
+            # Python 3
+            headers = next(csvreader)
         assert headers[0] == 'user'
         assert headers[4] == 'password_last_used'
         assert headers[10] == 'access_key_1_last_used_date'
