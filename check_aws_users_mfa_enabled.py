@@ -100,12 +100,7 @@ class AWSUsersMFA(NagiosPlugin):
         filehandle = StringIO(unicode(csv_content))
         filehandle.seek(0)
         csvreader = csv.reader(filehandle)
-        try:
-            # Python 2
-            headers = csvreader.next()
-        except AttributeError:
-            # Python 3
-            headers = next(csvreader)
+        headers = next(csvreader)
         assert headers[0] == 'user'
         assert headers[3] == 'password_enabled'
         assert headers[7] == 'mfa_active'
