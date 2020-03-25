@@ -44,7 +44,7 @@ import time
 import traceback
 try:
     # pylint: disable=wrong-import-position
-    import happybase  # pylint: disable=unused-import
+    import happybase  # lgtm [py/unused-import]  pylint: disable=unused-import
     # happybase.hbase.ttypes.IOError no longer there in Happybase 1.0
     try:
         # this is only importable after happybase module
