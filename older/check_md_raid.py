@@ -32,7 +32,7 @@ UNKNOWN = 3
 # Full path to the mdadm utility check on the Raid state
 BIN = "/sbin/mdadm"
 
-def end(status, message):
+def end(status, message):  # lgtm [py/similar-function]
     """exits the plugin with first arg as the return code and the second
     arg as the message to output"""
 
