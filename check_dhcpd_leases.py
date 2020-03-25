@@ -44,7 +44,7 @@ RE_HOSTNAME             = re.compile(r'client-hostname')
 RE_MAC                  = re.compile(r'hardware\sethernet')
 RE_IP_ADDRESS           = re.compile(r'(\d{1,3}.){3}\d{1,3}')
 
-def end(status, message):
+def end(status, message):  # lgtm [py/similar-function]
     """Exits the plugin with first arg as the return code and the second
     arg as the message to output"""
 
