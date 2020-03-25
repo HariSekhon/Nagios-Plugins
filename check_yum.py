@@ -32,7 +32,7 @@ try:
     from subprocess import Popen, PIPE, STDOUT
 except ImportError:
     OLD_PYTHON = True
-    import subprocess
+    from subprocess import getstatusoutput
 from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
@@ -162,7 +162,7 @@ class YumTester(object):
             self.vprint(3, "subprocess not available, probably old python " \
                          + "version, using shell instead")
             os.environ['LANG'] = "en_US"
-            returncode, stdout = subprocess.getstatusoutput(cmd)
+            returncode, stdout = getstatusoutput(cmd)
             if returncode >= 256:
                 returncode = returncode / 256
         else:
