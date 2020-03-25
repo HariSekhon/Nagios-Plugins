@@ -52,7 +52,7 @@ support_msg = "Please make sure you have upgraded to the latest version from " +
               "please raise a ticket at https://github.com/harisekhon/nagios-plugins/issues "+ \
               "with the full -vvv output"
 
-def end(status, message):
+def end(status, message):  # lgtm [py/similar-function]
     """Exits the plugin with first arg as the return code and the second
     arg as the message to output"""
 
