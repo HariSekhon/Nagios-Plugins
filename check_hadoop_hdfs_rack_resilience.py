@@ -108,8 +108,9 @@ class CheckHadoopHdfsRackResilience(NagiosPlugin):
                 #ip = match.group(1)
                 host = match.group(2)
                 log.info('found host: %s', host)
-                if not rack:
-                    raise UnknownError('node regex matched before rack was detected!! {}'.format(support_msg()))
+                # already checked above
+                #if not rack:
+                #    raise UnknownError('node regex matched before rack was detected!! {}'.format(support_msg()))
                 if rack not in racks:
                     racks[rack] = []
                 racks[rack].append(host)
