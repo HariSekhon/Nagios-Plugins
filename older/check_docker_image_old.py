@@ -125,7 +125,7 @@ class CheckDockerImage(NagiosPlugin):
         self.check_id(docker_image_line)
         self.check_size(docker_image_line)
 
-    def check_id(self, docker_image_line):
+    def check_id(self, docker_image_line):  # lgtm [py/similar-function]
         #_id = output[1][name_len + 10:name_len + 10 + 20].strip()
         _id = docker_image_line.split()[2]
         log.debug('id: %s', _id)
