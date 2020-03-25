@@ -453,8 +453,8 @@ class YumTester(object):
         """Tests for all updates, and returns a tuple
         of the status code and output"""
 
-        status = UNKNOWN
-        message = "code error. " + support_msg
+        #status = UNKNOWN
+        #message = "code error. " + support_msg
 
         number_updates = self.get_all_updates()
         if number_updates == 0:
@@ -476,8 +476,8 @@ class YumTester(object):
         """Tests for security updates and returns a tuple
         of the status code and output"""
 
-        status = UNKNOWN
-        message = "code error. " + support_msg
+        #status = UNKNOWN
+        #message = "code error. " + support_msg
 
         number_security_updates, number_other_updates = \
                                                     self.get_security_updates()
