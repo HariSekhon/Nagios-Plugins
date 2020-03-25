@@ -26,6 +26,11 @@ srcdir="$srcdir2"
 
 section "H B a s e"
 
+if [ "${HBASE_IMAGE:-}" = hbase ]; then
+    export HBASE_IMAGE
+    export DOCKER_SKIP_EXEC=1  # don't run local tests which requires harisekhon/hbase-dev containing pre-built dependencies
+fi
+
 export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-0.98 1.0 1.1 1.2 1.3 1.4 2.0 2.1 latest}}"
 if ! is_CI; then
     export HBASE_VERSIONS="0.90 0.92 0.94 0.95 0.96 $HBASE_VERSIONS"
