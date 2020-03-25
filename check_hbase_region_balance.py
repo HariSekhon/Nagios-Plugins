@@ -146,7 +146,7 @@ class CheckHBaseRegionBalance(NagiosPlugin):
                 num_regions = cols[num_regions_index].text
                 if not isInt(num_regions):
                     qquit('UNKNOWN', "parsing error - got '{0}' for num regions".format(num_regions) +
-                          " for server '{1}', was expecting integer.".format(server) +
+                          " for server '{}', was expecting integer.".format(server) +
                           " UI format must have changed" + support_msg())
                 num_regions = int(num_regions)
                 log.debug('%-50s\t%s', server, num_regions)
