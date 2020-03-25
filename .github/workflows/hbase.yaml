@@ -1,0 +1,53 @@
+#
+#  Author: Hari Sekhon
+#  Date: Tue Feb 4 09:53:28 2020 +0000
+#
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+name: CI HBase
+
+#env:
+#  DEBUG: 1
+
+on: # [push]
+  push:
+    branches:
+      - master
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '0 10 * * *'
+
+jobs:
+  build:
+    #name: build
+    timeout-minutes: 180
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/cache@v1
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-nagios-plugins  # ${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-nagios-plugins
+    - uses: actions/cache@v1
+      with:
+        path: ~/.cpanm
+        key: ${{ runner.os }}-cpanm-nagios-plugins-${{ hashFiles('**/cpan-requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-cpanm-nagios-plugins
+    - name: build
+      run: make
+    - name: zookeeper
+      run: make zookeeper
+    - name: test hbase
+      run: HBASE_IMAGE=hbase tests/test_hbase.sh
+    - name: test hbase dev
+      run: tests/test_hbase.sh
