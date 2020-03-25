@@ -60,7 +60,7 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from harisekhon.utils import UnknownError, support_msg_api, isList, plural
+    from harisekhon.utils import UnknownError, support_msg_api, isList
     from harisekhon import RestNagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
