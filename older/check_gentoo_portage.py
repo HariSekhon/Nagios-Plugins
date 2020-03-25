@@ -464,7 +464,7 @@ class PortageTester(object):
     def test_for_updates(self):
         """Starts tests"""
 
-        status = UNKNOWN
+        #status = UNKNOWN
         message = ""
         self.validate_all_variables()
         self.set_timeout()
