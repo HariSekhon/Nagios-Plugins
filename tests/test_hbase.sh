@@ -27,6 +27,7 @@ srcdir="$srcdir2"
 section "H B a s e"
 
 if [ "${HBASE_IMAGE:-}" = hbase ]; then
+    echo "checking harisekhon/hbase image, skipping docker exec checks..."
     export HBASE_IMAGE
     export DOCKER_SKIP_EXEC=1  # don't run local tests which requires harisekhon/hbase-dev containing pre-built dependencies
 fi
