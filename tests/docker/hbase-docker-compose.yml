@@ -18,7 +18,9 @@ services:
     extends:
       file: common.yml
       service: common
-    image: harisekhon/${IMAGE:-hbase-dev}:${VERSION:-latest}
+    # local tests require exec to hbase-dev with dependencies built-in, but can use
+    # HBASE_IMAGE=hbase DOCKER_SKIP_EXEC=1 to test the regular harisekhon/hbase images
+    image: harisekhon/${HBASE_IMAGE:-hbase-dev}:${VERSION:-latest}
     ports:
       - 2181
       - 8080
