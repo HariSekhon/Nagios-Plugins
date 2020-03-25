@@ -22,23 +22,23 @@ import sys
 from subprocess import Popen, PIPE, STDOUT
 from optparse import OptionParser
 
-__author__  = "Hari Sekhon"
-__title__   = "Nagios Plugin for SFTP"
+__author__ = "Hari Sekhon"
+__title__ = "Nagios Plugin for SFTP"
 __version__ = "0.6.0"
 
 # Nagios Standard Exit Codes
-OK       = 0
-WARNING  = 1
+OK = 0
+WARNING = 1
 CRITICAL = 2
-UNKNOWN  = 3
+UNKNOWN = 3
 
 # Default option variables
-default_port    = 22
+default_port = 22
 default_timeout = 30
 strictkeyoption = ""
 
 
-def sighandler(discarded, discarded2):
+def sighandler(_discarded, _discarded2):  # pylint: disable=unused-argument
     """function to be called by signal.alarm to kill the plugin"""
 
     print("SFTP CRITICAL: plugin has self terminated after exceeding the \
@@ -84,7 +84,7 @@ def run(cmd, verbosity):
         print("%s" % cmd)
 
     process = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-    output  = process.communicate("ls -la")[0]
+    output = process.communicate("ls -la")[0]
 
     if verbosity >= 3:
         print("%s" % output)
@@ -92,6 +92,7 @@ def run(cmd, verbosity):
     return process.returncode, output
 
 
+# pylint: disable=unused-variable,unused-argument
 def test_sftp(sftp, server, port, user, sshkey, nostricthostkey, \
                                                      files, dirs, verbosity):
 
@@ -134,7 +135,7 @@ def test_sftp(sftp, server, port, user, sshkey, nostricthostkey, \
     output2 = output2.lstrip("Connecting to %s..." % server)
     output2 = output2.replace("\r", "")
 
-    if verbosity < 2 :
+    if verbosity < 2:
         output2 = output2.replace("\n", ", ")
         output2 = output2.lstrip(", ")
         output2 = output2.rstrip(", ")
@@ -144,52 +145,30 @@ def test_sftp(sftp, server, port, user, sshkey, nostricthostkey, \
         end(CRITICAL, output2)
 
     if files:
-        test_files(output, files, verbosity)
+        test_items(output, files, verbosity)
     if dirs:
-        test_dirs(output, dirs, verbosity)
+        test_items(output, dirs, verbosity)
 
     end(result, output2)
 
     return UNKNOWN
 
 
-def test_files(output, files, verbosity):
-    """takes the output of the sftp directory listing and a list of files and
-    verifies the files exist in the listing of the output"""
-
-    lines = output.split("\n")
-
-    for filename in files:
-        found = False
-        for line in lines:
-            line = line.split()
-            if len(line) == 9:
-                if filename == line[8] and line[0][0] == "-":
-                    found = True
-                    if verbosity >= 2:
-                        print("found file '%s'" % filename)
-                    continue
-        if not found:
-            end(CRITICAL, "file '%s' not found on sftp server" % filename)
-
-    return OK
-
-
-def test_dirs(output, dirs, verbosity):
+def test_items(output, items, verbosity):
     """takes the output of the sftp directory listing and a list of dirs and
     verifies the dirs exist in the listing of the output"""
 
     lines = output.split("\n")
 
-    for directory in dirs:
+    for item in items:
         found = False
         for line in lines:
             line = line.split()
             if len(line) == 9:
-                if directory == line[8] and line[0][0] == "d":
+                if item == line[8] and line[0][0] == "d":
                     found = True
                     if verbosity >= 2:
-                        print("found directory '%s'" % directory)
+                        print("found '%s'" % (item))
                     continue
         if not found:
             end(CRITICAL, "directory '%s' not found on sftp server" % dir)
@@ -203,43 +182,42 @@ def main():
     parser = OptionParser()
     parser.add_option("-H", dest="server", help="server name or ip address")
     parser.add_option("-p", dest="port",
-        help="port number of the sftp service on the server (defaults to %s)" \
-                                                                % default_port)
+                      help="port number of the sftp service on the server (defaults to %s)" % default_port)
     parser.add_option("-U", dest="user",
-        help="user name to connect as (defaults to current user)")
+                      help="user name to connect as (defaults to current user)")
     parser.add_option("-P", dest="password",
-        help="password to use (not implemented yet)")
+                      help="password to use (not implemented yet)")
     parser.add_option("-k", dest="sshkey",
-        help="ssh private key to use for authentication")
+                      help="ssh private key to use for authentication")
     parser.add_option("-f", action="append", dest="file",
-        help="test for the existence of a file. Can use multiple times to \
+                      help="test for the existence of a file. Can use multiple times to \
  check for the existence of multiple files")
     parser.add_option("-d", action="append", dest="directory",
-        help="test for the existence of a directory. Can use multiple times \
+                      help="test for the existence of a directory. Can use multiple times \
 to check for the existence of multiple directories")
     parser.add_option("-s", action="store_true", dest="nostricthostkey",
-        help="disable strict host key checking. This will auto-accept the \
+                      help="disable strict host key checking. This will auto-accept the \
 remote host key. Otherwise you first have to add the ssh host key of the sftp \
 server to known hosts before running the test or it will fail (although by \
 default you will be prompted to accept the host key if it is run \
 interactively)")
     parser.add_option("-t", dest="timeout",
-        help="sets a timeout after which the plugin will exit (defaults to %s)"\
+                      help="sets a timeout after which the plugin will exit (defaults to %s)"\
                                                             % default_timeout)
     parser.add_option("-v", action="count", dest="verbosity",
-        help="adds verbosity. Use multiple times for cumulative effect. \
+                      help="adds verbosity. Use multiple times for cumulative effect. \
 By default only 1 line of output is printed")
 
     options, args = parser.parse_args()
 
-    server          = options.server
-    port            = options.port
-    user            = options.user
-    sshkey          = options.sshkey
-    files           = options.file
-    directories     = options.directory
-    timeout         = options.timeout
-    verbosity       = options.verbosity
+    server = options.server
+    port = options.port
+    user = options.user
+    sshkey = options.sshkey
+    files = options.file
+    directories = options.directory
+    timeout = options.timeout
+    verbosity = options.verbosity
     nostricthostkey = options.nostricthostkey
 
     if args:
@@ -265,8 +243,8 @@ By default only 1 line of output is printed")
     sftp = which("sftp")
 
     if not sftp:
-        end(UNKNOWN,"sftp could not be found in the path")
-    elif not os.access(sftp,os.X_OK):
+        end(UNKNOWN, "sftp could not be found in the path")
+    elif not os.access(sftp, os.X_OK):
         end(UNKNOWN, "%s is not executable" % sftp)
 
     if not server:
@@ -288,7 +266,7 @@ By default only 1 line of output is printed")
             print("using private ssh key for authentication '%s'" % sshkey)
         if not os.path.isfile(sshkey):
             end(UNKNOWN, "cannot find ssh key file \"%s\"" % sshkey)
-        elif not os.access(sshkey,os.R_OK):
+        elif not os.access(sshkey, os.R_OK):
             end(UNKNOWN, "ssh key file \"%s\" is not readable" % sshkey)
 
 
