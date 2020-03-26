@@ -29,6 +29,7 @@ services:
       - 9095
       - 16000
       - 16010
+      - 16020
       - 16030 # HBase 2.x RegionServer
       - 16201
       - 16301 # HBase 1.x RegionServer standalone
