@@ -59,7 +59,7 @@ run ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$curr
 
 if [[ "$current_branch" =~ HEAD[[:space:]]+detached[[:space:]]+at[[:space:]] ]]; then
     echo "running in detached head"
-    run_grep '^2 check_git_checkout_branch.pl_' ./adapter_check_mk.py --shell "$perl -T ./check_git_checkout_branch.pl -d . -b '$current_branch'"
+    run_grep '^[02] check_git_checkout_branch.pl_' ./adapter_check_mk.py --shell "$perl -T ./check_git_checkout_branch.pl -d . -b '$current_branch'"
 else
     run_grep '^0 check_git_checkout_branch.pl ' ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 fi
