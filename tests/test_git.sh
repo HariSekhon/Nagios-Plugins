@@ -31,13 +31,20 @@ if is_CI; then
 fi
 current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 
-run $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
+# Travis CI / Azure DevOps run from detached heads
+if [[ "$current_branch" =~ HEAD[[:space:]]+detached[[:space:]]+at[[:space:]] ]]; then
+    echo "running in a detached head"
+    run_fail 2 $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 
-# Travis CI runs in a detached head which throws CriticalError
-if is_travis || is_azure_devops; then
     ERRCODE=2 run_grep "CRITICAL: HEAD is a detached symbolic reference as it points to '[a-z0-9]+'" ./check_git_checkout_branch.py -d . -b "$current_branch"
+
+    run_fail 2 ./check_git_checkout_not_detached.py --directory .
 else
+    run $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
+
     run ./check_git_checkout_branch.py -d . -b "$current_branch"
+
+    run ./check_git_checkout_not_detached.py --directory .
 fi
 
 run ./check_git_repo_bare.py --directory . --not-bare
@@ -46,12 +53,6 @@ run_fail 2 ./check_git_repo_bare.py --directory .
 
 # probably dirty
 run_fail "0 2" ./check_git_checkout_dirty.py --directory .
-
-if is_travis; then
-    run_fail 2 ./check_git_checkout_not_detached.py --directory .
-else
-    run ./check_git_checkout_not_detached.py --directory .
-fi
 
 run_fail "0 2" ./check_git_checkout_not_remote.py --directory .
 
@@ -111,8 +112,6 @@ hr
 
 run ./check_git_repo_bare.py -d "$GIT_TMP_BARE"
 
-run ./check_git_checkout_branch.py -d "$GIT_TMP" -b "$current_branch"
-
 run ./check_git_checkout_dirty.py -d "$GIT_TMP"
 
 echo "will fail because there is no first HEAD commit:"
@@ -122,8 +121,6 @@ run ./check_git_uncommitted_changes.py -d "$GIT_TMP"
 
 gitfile="myfile"
 touch "$GIT_TMP/$gitfile"
-
-run ./check_git_checkout_branch.py -d "$GIT_TMP" -b "$current_branch"
 
 echo "check_git_checkout_dirty.py doesn't count untracked files:"
 run ./check_git_checkout_dirty.py -d "$GIT_TMP"
