@@ -56,7 +56,13 @@ fi
 current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 
 run ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
-run_grep '^0 check_git_checkout_branch.pl ' ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
+
+if [[ "$current_branch" =~ HEAD[[:space:]]+detached[[:space:]]+at[[:space:]] ]]; then
+    echo "running in detached head"
+    run_grep '^2 check_git_checkout_branch.pl_' ./adapter_check_mk.py --shell "$perl -T ./check_git_checkout_branch.pl -d . -b '$current_branch'"
+else
+    run_grep '^0 check_git_checkout_branch.pl ' ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
+fi
 
 echo "testing stripping of numbered Python interpreter:"
 if type -P python2.7 &>/dev/null; then
@@ -68,7 +74,13 @@ else
 fi
 
 run ./adapter_check_mk.py $python ./check_git_checkout_branch.py -d . -b "$current_branch"
-run_grep '^0 check_git_checkout_branch.py' ./adapter_check_mk.py $python ./check_git_checkout_branch.py -d . -b "$current_branch"
+
+if [[ "$current_branch" =~ HEAD[[:space:]]+detached[[:space:]]+at[[:space:]] ]]; then
+    echo "running in detached head"
+    run_grep '^2 check_git_checkout_branch.py' ./adapter_check_mk.py --shell "$python ./check_git_checkout_branch.py -d . -b '$current_branch'"
+else
+    run_grep '^0 check_git_checkout_branch.py' ./adapter_check_mk.py --shell "$python ./check_git_checkout_branch.py -d . -b '$current_branch'"
+fi
 
 echo "Testing failure detection of wrong git branch (perl):"
 run_grep '^2 check_git_checkout_branch.pl ' ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
