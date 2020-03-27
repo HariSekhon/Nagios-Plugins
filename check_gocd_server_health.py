@@ -46,11 +46,11 @@ __version__ = '0.1'
 
 
 # pylint: disable=too-few-public-methods
-class CheckGocdServerHealth(RestNagiosPlugin):
+class CheckGoCDServerHealth(RestNagiosPlugin):
 
     def __init__(self):
         # Python 2.x
-        super(CheckGocdServerHealth, self).__init__()
+        super(CheckGoCDServerHealth, self).__init__()
         # Python 3.x
         # super().__init__()
         self.name = 'GoCD'
@@ -68,4 +68,4 @@ class CheckGocdServerHealth(RestNagiosPlugin):
 
 
 if __name__ == '__main__':
-    CheckGocdServerHealth().main()
+    CheckGoCDServerHealth().main()
