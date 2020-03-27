@@ -34,7 +34,7 @@ current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 # Travis CI / Azure DevOps run from detached heads
 if [[ "$current_branch" =~ HEAD[[:space:]]+detached[[:space:]]+at[[:space:]] ]]; then
     echo "running in a detached head"
-    run_fail 2 $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
+    run_fail "0 2" $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 
     ERRCODE=2 run_grep "CRITICAL: HEAD is a detached symbolic reference as it points to '[a-z0-9]+'" ./check_git_checkout_branch.py -d . -b "$current_branch"
 
