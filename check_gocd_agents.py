@@ -42,7 +42,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2.0'
 
 
 class CheckGoCDServerHealth(RestNagiosPlugin):
@@ -81,14 +81,21 @@ class CheckGoCDServerHealth(RestNagiosPlugin):
             'Missing': 0,
             'Unknown': 0
         }
+        num_agents_working = 0
         for agent in agents:
             agent_state = agent['agent_state']
             agent_states[agent_state] += 1
-        self.msg = 'GoCD agents = {}'.format(num_agents)
+            if agent_state in ('LostContact', 'Missing', 'Unknown'):
+                continue
+            if agent['agent_config_state'] != 'Enabled':
+                continue
+            num_agents_working += 1
+        self.msg = 'GoCD agents = {}/{}'.format(num_agents_working, num_agents)
+        self.check_thresholds(num_agents_working)
         self.msg += ', enabled = {}'.format(num_agents_enabled)
-        self.check_thresholds(num_agents_enabled)
         perfdata = ' | num_agents={}'.format(num_agents)
         perfdata += ' num_agents_enabled={}'.format(num_agents_enabled)
+        perfdata += ' num_agents_working={}'.format(num_agents_working)
         perfdata += '{}'.format(self.get_perf_thresholds(boundary='lower'))
         for state in sorted(agent_states):
             self.msg += ', {} = {}'.format(state, agent_states[state])
