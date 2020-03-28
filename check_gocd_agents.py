@@ -99,7 +99,7 @@ class CheckGoCDServerHealth(RestNagiosPlugin):
         perfdata += '{}'.format(self.get_perf_thresholds(boundary='lower'))
         for state in sorted(agent_states):
             self.msg += ', {} = {}'.format(state, agent_states[state])
-            perfdata += ', {}={}'.format(state, agent_states[state])
+            perfdata += ' {}={}'.format(state, agent_states[state])
         self.msg += perfdata
 
 
