@@ -53,4 +53,6 @@ else
 fi
 echo
 
+"$srcdir/../bash-tools/perl_cpanm_install_if_absent.sh" openssl
+
 "$srcdir/../bash-tools/perl_cpanm_install_if_absent.sh" DBD::mysql
