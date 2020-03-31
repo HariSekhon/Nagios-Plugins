@@ -25,6 +25,12 @@ snappy-devel
 # CentOS 8
 csnappy-devel
 
+# postgres pg_config
+# CentOS 8
+libpq-devel
+# CentOS 7
+postgresql-devel
+
 cyrus-sasl-devel
 yum-security
 yum-plugin-security
