@@ -59,7 +59,6 @@ build : init
 	@echo Nagios Plugins Build
 	@echo ====================
 	@$(MAKE) git-summary
-	@echo
 
 	@# doesn't exit Make anyway, just line, and don't wanna use oneshell
 	@# doubles build time
