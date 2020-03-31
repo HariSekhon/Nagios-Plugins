@@ -58,7 +58,7 @@ build : init
 	@echo ====================
 	@echo Nagios Plugins Build
 	@echo ====================
-	@bash-tools/git_summary_line.sh
+	@$(MAKE) git-summary
 	@echo
 
 	@# doesn't exit Make anyway, just line, and don't wanna use oneshell
