@@ -53,6 +53,10 @@ else
 fi
 echo
 
-"$srcdir/../bash-tools/brew_install_packages.sh" openssl
+"$srcdir/../bash-tools/brew_install_packages.sh" openssl || :
+
+brew unlink mysql || :
+
+"$srcdir/../bash-tools/brew_install_packages.sh" mysql-connector-c || :
 
 "$srcdir/../bash-tools/perl_cpanm_install_if_absent.sh" DBD::mysql
