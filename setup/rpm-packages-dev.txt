@@ -19,8 +19,5 @@
 gcc-c++
 libev-devel
 
-# postgres pg_config
-libpq-devel
-
 # needed to build Net::SSLeay for IO::Socket::SSL for Net::LDAPS
 openssl-devel
