@@ -79,7 +79,7 @@ Specialised plugins for AWS, Hadoop, Big Data & NoSQL technologies, written by a
 Supports most major open source NoSQL technologies, Pub-Sub / Message Buses, CI, Web and Linux based infrastructure, including:
 
 - [AWS](https://aws.amazon.com/)
-- [Hadoop](http://hadoop.apache.org/) - extensive API integration to all major Hadoop vendors ([Cloudera](http://www.cloudera.com), [Hortonworks](http://www.hortonworks.com), [MapR](http://www.mapr.com), [IBM BigInsights](http://www-03.ibm.com/software/products/en/ibm-biginsights-for-apache-hadoop))
+- [Hadoop](http://hadoop.apache.org/) - extensive API integration to all major Hadoop vendors ([Cloudera](http://www.cloudera.com), [Hortonworks](http://www.hortonworks.com), [MapR](http://www.mapr.com), [IBM BigInsights](https://www.ibm.com/support/knowledgecenter/SSPT3X_4.0.0/com.ibm.swg.im.infosphere.biginsights.product.doc/doc/c0057605.html))
 - [Docker](https://www.docker.com/)
 - [Kafka](http://kafka.apache.org/)
 - [RabbitMQ](http://www.rabbitmq.com/)
