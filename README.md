@@ -890,7 +890,7 @@ The following enterprise monitoring systems are compatible with Nagios Plugins a
 
 * [GroundWork Monitor](http://www.gwos.com/) - commercial Nagios-based monitoring distribution with RRD metrics graphing and [InfluxDB integration](https://kb.groundworkopensource.com/display/DOC72/How+to+configure+GroundWork+InfluxDB)
 
-* [Geneos](https://www.itrsgroup.com/products/geneos-overview) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```adapter_geneos.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program
+* [Geneos](https://www.itrsgroup.com/products/geneos) - proprietary non-standard monitoring, was used by a couple of banks I worked for. Geneos does not follow Nagios standards so integration is provided via ```adapter_geneos.py``` which if preprended to any standard nagios plugin command will execute and translate the results to the CSV format that Geneos expects, so Geneos can utilize any Nagios Plugin using this program
 
 * [SolarWinds](https://www.solarwinds.com/) - proprietary monitoring solution but can take Nagios Plugins, see [doc](http://www.solarwinds.com/documentation/en/flarehelp/sam/content/SAM-Nagios-Script-Monitor-sw3266.htm)
 
