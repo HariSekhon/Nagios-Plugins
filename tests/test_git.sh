@@ -26,7 +26,7 @@ section "G i t"
 # ============================================================================ #
 if is_CI; then
     echo '> git branch'
-    git branch
+    git --no-pager branch
     echo
 fi
 current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
