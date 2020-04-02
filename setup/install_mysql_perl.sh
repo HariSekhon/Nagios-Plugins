@@ -21,7 +21,8 @@ sudo=""
 [ $EUID -eq 0 ] || sudo=sudo
 
 if [ "$(uname -s)" != Darwin ]; then
-    echo "OS is not Mac, skipping mysql_config workaround, install DBD::mysql normally via cpanm"
+    echo "OS is not Mac, skipping mysql_config workaround, installing DBD::mysql normally via cpanm"
+    "$srcdir/../bash-tools/perl_cpanm_install_if_absent.sh" DBD::mysql
     exit 0
 fi
 
