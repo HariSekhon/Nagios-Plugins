@@ -57,8 +57,8 @@ echo
 set +e -x
 brew install --force openssl
 brew unlink mysql
-brew install --force  mysql-connector-c
-brew link mysql-connector-c
+brew install --force mysql-connector-c
+brew link --force mysql-connector-c
 set -e +x
 
 "$srcdir/../bash-tools/perl_cpanm_install_if_absent.sh" DBD::mysql
