@@ -98,8 +98,8 @@ class CheckElasticsearchTasksSlow(RestNagiosPlugin):
         warning_threshold = self.get_threshold('warning').get_simple()
         critical_threshold = self.get_threshold('critical').get_simple()
         # convert threshold in secs to nanos to compare with running time
-        warn_nanos = warning_threshold * 1000 * 1000
-        crit_nanos = critical_threshold * 1000 * 1000
+        warn_nanos = warning_threshold * 1000 * 1000 * 1000
+        crit_nanos = critical_threshold * 1000 * 1000 * 1000
         nodes = json_data['nodes']
         selected_node = self.get_opt('node')
         #found_node = 0
