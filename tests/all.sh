@@ -45,6 +45,10 @@ nagios_plugins_start_time="$(start_timer)"
 #is_travis ||
 time tests/help.sh
 
+if is_buildkite; then
+    exit 0
+fi
+
 # try to minimize time by skipping this as Travis CI is killing the build during testing after 50 mins
 #is_travis ||
 tests/test_docker.sh
