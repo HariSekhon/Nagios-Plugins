@@ -39,6 +39,7 @@ isExcluded(){
     [[ "$prog" =~ ^\.[[:alnum:]] ]] && return 0
     [[ "$prog" = "check_puppet.rb" ]] && return 0
     [[ "$prog" =~ ./inc/* ]] && return 0
+    [[ "$prog" =~ ./dev/* ]] && return 0
     # temporarily disable check_kafka.pl check as there is an upstream library breakage
     # library bug is not auto fixed in Makefile due to Mac's new System Integrity Protection
     is_mac && [[ "$prog" =~ "check_kafka.pl" ]] && return 0
