@@ -24,7 +24,7 @@ cd "$srcdir/..";
 section "T r a v i s   C I"
 
 # this repo should always be working
-run ./check_travis_ci_last_build.py -r HariSekhon/DevOps-Bash-tools
+#run ./check_travis_ci_last_build.py -r HariSekhon/DevOps-Bash-tools
 
 run_fail "0 2" ./check_travis_ci_last_build.py -r HariSekhon/Nagios-Plugins
 
