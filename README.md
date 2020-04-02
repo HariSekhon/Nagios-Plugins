@@ -958,3 +958,5 @@ This is a list of the best and most interesting 3rd party plugins, several of wh
 ### Stargazers over time
 
 [![Stargazers over time](https://starchart.cc/HariSekhon/Nagios-Plugins.svg)](https://starchart.cc/HariSekhon/Nagios-Plugins)
+
+[git.io/nagios-plugins](https://git.io/nagios-plugins)
