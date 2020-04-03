@@ -21,7 +21,8 @@ sudo=""
 [ $EUID -eq 0 ] || sudo=sudo
 
 if [ "$(uname -s)" != Darwin ]; then
-    echo "OS is not Mac, skipping mysql_config workaround, install DBD::mysql normally via cpanm"
+    echo "OS is not Mac, skipping mysql_config workaround, installing DBD::mysql normally via cpanm"
+    "$srcdir/../bash-tools/perl_cpanm_install_if_absent.sh" DBD::mysql
     exit 0
 fi
 
@@ -53,10 +54,11 @@ else
 fi
 echo
 
-"$srcdir/../bash-tools/brew_install_packages.sh" openssl || :
-
-brew unlink mysql || :
-
-"$srcdir/../bash-tools/brew_install_packages.sh" mysql-connector-c || :
+set +e -x
+brew install --force openssl
+brew unlink mysql
+brew install --force mysql-connector-c
+brew link --force mysql-connector-c
+set -e +x
 
 "$srcdir/../bash-tools/perl_cpanm_install_if_absent.sh" DBD::mysql

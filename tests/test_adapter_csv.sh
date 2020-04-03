@@ -43,7 +43,15 @@ run_grep '^OK,test message,10,5,1008$' ./adapter_csv.py --shell "echo 'test mess
 
 run ./adapter_csv.py $perl -T ./check_disk_write.pl -d .
 
-run ./adapter_csv.py $perl -T ./check_git_checkout_branch.pl -d . -b "$(git branch | awk '/^*/{print $2}')"
+# copied from tests/test_git.sh
+if is_CI; then
+    echo '> git branch'
+    git --no-pager branch
+    echo
+fi
+current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
+
+run ./adapter_csv.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 
 echo "Testing failure detection of wrong git branch (perl)"
 run_grep '^CRITICAL,' ./adapter_csv.py $perl -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
