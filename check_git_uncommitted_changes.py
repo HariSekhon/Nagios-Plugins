@@ -50,7 +50,6 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from git import InvalidGitRepositoryError
     from harisekhon.utils import CriticalError, validate_directory, plural
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -58,7 +57,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.1.1'
 
 
 class CheckGitUncommittedChanges(NagiosPlugin):
@@ -81,7 +80,7 @@ class CheckGitUncommittedChanges(NagiosPlugin):
         directory = os.path.abspath(directory)
         try:
             repo = git.Repo(directory)
-        except InvalidGitRepositoryError as _:
+        except git.InvalidGitRepositoryError as _:
             raise CriticalError("directory '{}' does not contain a valid Git repository!".format(directory))
         try:
             untracked_files = repo.untracked_files
@@ -89,7 +88,7 @@ class CheckGitUncommittedChanges(NagiosPlugin):
             changed_files = [item.a_path for item in repo.index.diff(None)]
             changed_files = [filename for filename in changed_files if filename not in untracked_files]
             num_changed_files = len(changed_files)
-        except InvalidGitRepositoryError as _:
+        except git.InvalidGitRepositoryError as _:
             raise CriticalError(_)
         except TypeError as _:
             raise CriticalError(_)
