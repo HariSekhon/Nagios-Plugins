@@ -189,6 +189,7 @@ class LogServerTester(object):
         signal.alarm(self.timeout)
 
 
+    # pylint: disable=unused-argument
     def sighandler(self, _discarded, _discarded2):
         """Function to be called by signal.alarm to kill the plugin"""
 
