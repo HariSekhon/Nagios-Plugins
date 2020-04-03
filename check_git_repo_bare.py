@@ -42,7 +42,6 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from git import InvalidGitRepositoryError
     from harisekhon.utils import CriticalError, validate_directory
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -50,7 +49,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.1.1'
 
 
 class CheckGitRepoBare(NagiosPlugin):
@@ -74,7 +73,7 @@ class CheckGitRepoBare(NagiosPlugin):
         directory = os.path.abspath(directory)
         try:
             repo = git.Repo(directory)
-        except InvalidGitRepositoryError:
+        except git.InvalidGitRepositoryError:
             raise CriticalError("directory '{}' does not contain a valid Git repository!".format(directory))
         is_bare = repo.bare
         self.msg = "git checkout bare = '{}' for directory '{}'".format(is_bare, directory)
