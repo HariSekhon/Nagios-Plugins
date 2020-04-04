@@ -15,11 +15,11 @@
 
 # Alpine / Wget:
 #
-# wget https://raw.githubusercontent.com/HariSekhon/DevOps-Bash-tools/master/setup/bootstrap.sh && sh bootstrap.sh
+# wget https://raw.githubusercontent.com/HariSekhon/Nagios-Plugins/master/setup/bootstrap.sh && sh bootstrap.sh
 #
 # Curl:
 #
-# curl https://raw.githubusercontent.com/HariSekhon/DevOps-Bash-tools/master/setup/bootstrap.sh | sh
+# curl https://raw.githubusercontent.com/HariSekhon/Nagios-Plugins/master/setup/bootstrap.sh | sh
 
 set -eu
 [ -n "${DEBUG:-}" ] && set -x
