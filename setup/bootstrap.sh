@@ -59,4 +59,4 @@ else
     cd "$directory"
 fi
 
-make
+make build zookeeper
