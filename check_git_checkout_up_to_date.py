@@ -45,7 +45,6 @@ libdir = os.path.join(srcdir, 'pylib')
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
-    from git import InvalidGitRepositoryError, GitCommandError
     from harisekhon.utils import CriticalError, log, validate_directory, validate_chars
     from harisekhon import NagiosPlugin
 except ImportError as _:
@@ -53,7 +52,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.1.1'
 
 
 class CheckGitCheckoutUpToDate(NagiosPlugin):
@@ -71,7 +70,7 @@ class CheckGitCheckoutUpToDate(NagiosPlugin):
         self.add_opt('-r', '--remote', default=self.remote,
                      help='Remote to check against (default: {})'.format(self.remote))
         self.add_opt('-f', '--no-fetch', action='store_true',
-                     help="Don't git fetch from remote (it's slow sometimes, " +
+                     help="Don't git fetch from remote (it's slow sometimes, " + \
                           "but this means you may not detect when you are commits behind upstream)")
 
     def run(self):
@@ -83,7 +82,7 @@ class CheckGitCheckoutUpToDate(NagiosPlugin):
         validate_chars(self.remote, 'remote', r'A-Za-z0-9_\.-')
         try:
             repo = git.Repo(directory)
-        except InvalidGitRepositoryError as _:
+        except git.InvalidGitRepositoryError as _:
             raise CriticalError("directory '{}' does not contain a valid Git repository!".format(directory))
         try:
             if not self.get_opt('no_fetch'):
@@ -98,7 +97,7 @@ class CheckGitCheckoutUpToDate(NagiosPlugin):
         # happens with detached HEAD checkout like Travis CI does
         except TypeError as _:
             raise CriticalError(_)
-        except GitCommandError as _:
+        except git.GitCommandError as _:
             raise CriticalError(', '.join(str(_.stderr).split('\n')))
         self.msg = "git checkout branch '{}' is ".format(branch)
         if num_commits_ahead + num_commits_behind == 0:

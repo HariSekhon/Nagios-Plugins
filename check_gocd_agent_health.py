@@ -19,10 +19,6 @@
 
 Nagios Plugin to check the health of a GoCD agent via its API
 
-Doesn't work at this time due to bug in GoCD:
-
-    https://github.com/gocd/gocd/issues/7931
-
 Tested on GoCD 20.2.0
 
 """
