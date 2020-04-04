@@ -44,7 +44,7 @@ if [ "$(uname -s)" = Darwin ]; then
     #export OPENSSL_INCLUDE=/usr/local/opt/openssl/include
     #export OPENSSL_LIB=/usr/local/opt/openssl/lib
     #export LIBRARY_PATH="${LIBRARY_PATH:-}:/usr/local/opt/openssl/lib/"
-    "$srcdir/../bash-tools/python_pip_install.sh" MySQL-python
+    "$srcdir/../bash-tools/python_pip_install.sh" mysqlclient  # forked replacement for MySQL-python with Python 3 support
     brew unlink mysql-connector-c
     brew link --overwrite mysql
     check_mysql_python
