@@ -42,10 +42,10 @@ fi
 "$mysql_config" || :
 
 echo
-if ! mysql_config | grep -q -- '--libs.*-lmysqlclient'; then
+if ! mysql_config | grep -q -- '--libs.*-lmysqlclient.*-L.*openssl'; then
     echo "patching mysql_config: $mysql_config"
     # shellcheck disable=SC2016
-    $sudo sed -ibak 's/^libs="$libs/libs="$libs -lmysqlclient/' "$mysql_config"
+    $sudo sed -ibak 's/^libs="$libs/libs="$libs -lmysqlclient -L\/usr\/local\/opt\/openssl\/lib/' "$mysql_config"
     echo
     "$mysql_config" || :
     echo
