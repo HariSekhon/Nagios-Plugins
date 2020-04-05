@@ -115,7 +115,7 @@ perl-libs:
 	@setup/install_mysql_perl.sh
 
 	@bash-tools/perl_cpanm_install_if_absent.sh setup/cpan-requirements.txt setup/cpan-requirements-packaged.txt
-	@. bash-tools/lib/utils.sh; if is_CI and is_mac; then bash-tools/perl_cpanm_install.sh Digest::CRC; fi  # to work around "Can't locate loadable object for module Digest::CRC in @INC"
+	@. bash-tools/lib/ci.sh; . bash-tools/lib/os.sh; if is_CI and is_mac; then bash-tools/perl_cpanm_install.sh Digest::CRC; fi  # to work around "Can't locate loadable object for module Digest::CRC in @INC"
 
 	# packaged version is not new enough:
 	# ./check_mongodb_master.pl:  CRITICAL: IO::Socket::IP version 0.32 required--this is only version 0.21 at /usr/local/share/perl5/MongoDB/_Link.pm line 53.
