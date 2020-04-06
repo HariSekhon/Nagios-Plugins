@@ -88,7 +88,7 @@ perl : init
 
 .PHONY: perl-libs
 perl-libs:
-	cd lib && make
+	cd lib && make build test
 
 	# XXX: there is a bug in the Readonly module that MongoDB::MongoClient uses. It tries to call Readonly::XS but there is some kind of MAGIC_COOKIE mismatch and Readonly::XS errors out with:
 	#
@@ -156,7 +156,7 @@ python: init
 
 .PHONY: python-libs
 python-libs:
-	cd pylib && make
+	cd pylib && make build test
 
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
