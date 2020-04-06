@@ -949,7 +949,7 @@ This is a list of the best and most interesting 3rd party plugins, several of wh
 - [Jolokia](https://jolokia.org/) - JMX-HTTP bridge to make monitoring JMX easier via Rest calls from non-JVM scripting languages. This is far more scalable than running lots of JVM Nagios Plugins which have higher startup overhead
   - [check_jmx4perl](https://exchange.nagios.org/directory/Plugins/Java-Applications-and-Servers/check_jmx4perl/details) - use with Jolokia
 - [Percona plugins](https://www.percona.com/doc/percona-monitoring-plugins/latest/index.html) - MySQL plugins from MySQL specialists
-- [check_drbd](https://exchange.nagios.org/directory/Plugins/Operating-Systems/Linux/check_drbd/details) - can't remember if this is the plugin I used to use but I used to love it telling me when DRBD was behind by how much and caught up
+- [check_drbd](https://exchange.nagios.org/directory/Plugins/Operating-Systems/Linux/check_drbd/details) - can't remember if this is the DRBD plugin I used to use, but iirc it was good at tracking lack on secondary and catch-up
 - [check_tsd](https://github.com/OpenTSDB/opentsdb/blob/master/tools/check_tsd) - OpenTSDB metrics query
 - [check_prometheus_metric.sh](https://github.com/prometheus/nagios_plugins/blob/master/check_prometheus_metric.sh) - I don't normally rate bash scripts as Nagios Plugins but this is in the official project so it's worth a look
 - [collectd-nagios](https://collectd.org/documentation/manpages/collectd-nagios.1.shtml) - queries Collectd metrics for Nagios alerting
