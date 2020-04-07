@@ -45,8 +45,10 @@ jobs:
           ${{ runner.os }}-cpanm-nagios-plugins
     - name: brew update
       run: which brew && brew update || echo
+    - name: init
+      run: make init
     - name: build
-      run: make
+      run: make ci
     - name: zookeeper
       run: make zookeeper
     - name: fatpacks
