@@ -1,0 +1,49 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2020-04-07 12:57:04 +0100 (Tue, 07 Apr 2020)
+#
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  https://github.com/harisekhon/nagios-plugins
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
+#
+#  https://www.linkedin.com/in/harisekhon
+#
+
+name: CI Perl 5.14
+
+#env:
+#  DEBUG: 1
+
+on:
+  push:
+    branches:
+      - master
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '0 7 * * *'
+
+jobs:
+  build:
+    #name: build
+    timeout-minutes: 240
+    runs-on: ubuntu-latest
+    container: perl:5.14
+    env:
+      repo: nagios-plugins
+    steps:
+    # untars repo in docker container so git submodule update fails
+    #- uses: actions/checkout@v2
+    - name: install git & make
+      run: apt-get update && apt-get install -y git make
+    - name: git clone
+      run: cd /tmp && git clone "https://github.com/harisekhon/$repo"
+    - name: init
+      run: cd "/tmp/$repo" && git submodule update --init --recursive
+    - name: build
+      run: cd "/tmp/$repo" && make ci
+    - name: fatpacks
+      run: cd "/tmp/$repo" && make fatpacks
+    - name: test
+      run: cd "/tmp/$repo" && make test
