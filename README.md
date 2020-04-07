@@ -68,7 +68,22 @@ Advanced Nagios Plugins Collection
 [![CI Alpine](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Alpine/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Alpine%22)
 [![CI Alpine 3](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Alpine%203/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Alpine+3%22)
 [![CI Python 2.7](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Python%202.7/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Python+2.7%22)
+[![CI Python 3.5](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Python%203.5/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Python+3.5%22)
 [![CI Python 3.6](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Python%203.6/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Python+3.6%22)
+[![CI Python 3.7](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Python%203.7/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Python+3.7%22)
+[![CI Python 3.8](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Python%203.8/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Python+3.8%22)
+[![CI PyPy 2](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20PyPy%202/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+PyPy+2%22)
+[![CI PyPy 3](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20PyPy%203/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+PyPy+3%22)
+[![CI Perl 5.10](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Perl%205.10/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Perl+5.10%22)
+[![CI Perl 5.12](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Perl%205.12/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Perl+5.12%22)
+[![CI Perl 5.14](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Perl%205.14/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Perl+5.14%22)
+[![CI Perl 5.16](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Perl%205.16/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Perl+5.16%22)
+[![CI Perl 5.18](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Perl%205.18/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Perl+5.18%22)
+[![CI Perl 5.20](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Perl%205.20/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Perl+5.20%22)
+[![CI Perl 5.22](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Perl%205.22/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Perl+5.22%22)
+[![CI Perl 5.24](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Perl%205.24/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Perl+5.24%22)
+[![CI Perl 5.26](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Perl%205.26/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Perl+5.26%22)
+[![CI Perl 5.28](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Perl%205.28/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Perl+5.28%22)
 
 <!-- broken handling of Elasticsearch major version for Python library -->
 
