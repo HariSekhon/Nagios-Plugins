@@ -27,12 +27,12 @@ on:
 jobs:
   build:
     #name: build
-    timeout-minutes: 180
+    timeout-minutes: 240
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest]
-        #python-version: [2.7, 3.6, 3.7, 3.8, pypy2, pypy3]
+        #python-version: [2.7, 3.5, 3.6, 3.7, 3.8, pypy2, pypy3]
         python-version: [2.7]
     steps:
     - uses: actions/checkout@v2
@@ -42,17 +42,13 @@ jobs:
     - uses: actions/cache@v1
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-pip-nagios-plugins  # -${{ hashFiles('**/requirements.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-
-    - uses: actions/cache@v1
-      with:
-        path: ~/.cpanm
-        key: ${{ runner.os }}-cpanm-${{ hashFiles('**/cpan-requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-cpanm-
+          ${{ runner.os }}-pip-nagios-plugins
+    - name: init
+      run: make init
     - name: build
-      run: make
+      run: make ci
     - name: zookeeper
       run: make zookeeper
     - name: fatpacks
