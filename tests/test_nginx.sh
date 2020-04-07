@@ -76,11 +76,11 @@ test_nginx(){
 
     run_conn_refused ./check_nginx_version.py -e "$version"
 
-    run $perl -T ./check_nginx_stats.pl -u /status
+    run "$perl" -T ./check_nginx_stats.pl -u /status
 
-    run_fail 2 $perl -T ./check_nginx_stats.pl -u /nonexistent
+    run_fail 2 "$perl" -T ./check_nginx_stats.pl -u /nonexistent
 
-    run_conn_refused $perl -T ./check_nginx_stats.pl -u /status
+    run_conn_refused "$perl" -T ./check_nginx_stats.pl -u /status
 
     echo "Completed $run_count Nginx tests"
     hr

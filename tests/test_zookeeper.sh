@@ -94,12 +94,12 @@ test_zookeeper(){
 
 zookeeper_tests(){
     if [ "${version:0:3}" = "3.3" ]; then
-        run_fail 3 $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
+        run_fail 3 "$perl" -T ./check_zookeeper.pl -s -w 50 -c 100 -v
     else
-        run $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
+        run "$perl" -T ./check_zookeeper.pl -s -w 50 -c 100 -v
     fi
 
-    run_conn_refused $perl -T ./check_zookeeper.pl -s -w 50 -c 100 -v
+    run_conn_refused "$perl" -T ./check_zookeeper.pl -s -w 50 -c 100 -v
 
     docker_exec check_zookeeper_config.pl -H localhost -C "/zookeeper/conf/zoo.cfg" -v
 

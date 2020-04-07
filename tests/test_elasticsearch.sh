@@ -59,7 +59,7 @@ startupwait 120
 remove_shard_replicas(){
         echo "removing replicas of all indices to avoid failing tests with unassigned shards:"
         set +o pipefail
-        $perl -T ./check_elasticsearch_index_exists.pl --list-indices |
+        "$perl" -T ./check_elasticsearch_index_exists.pl --list-indices |
         tail -n +2 |
         grep -v "^[[:space:]]*$" |
         while read index; do
@@ -116,7 +116,7 @@ test_elasticsearch(){
     # always returns 0 and I don't wanna parse the json error
     #if ! curl -s "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX" &>/dev/null; then
     if [ -z "${NODOCKER:-}" ]; then
-        if ! $perl -T ./check_elasticsearch_index_exists.pl --list-indices | grep "^[[:space:]]*$ELASTICSEARCH_INDEX[[:space:]]*$"; then
+        if ! "$perl" -T ./check_elasticsearch_index_exists.pl --list-indices | grep "^[[:space:]]*$ELASTICSEARCH_INDEX[[:space:]]*$"; then
             echo "creating test Elasticsearch index '$ELASTICSEARCH_INDEX'"
             # Elasticsearch 6.0 insists on application/json header otherwise index is not created
             curl -iv -u "${ELASTICSEARCH_USER:-}:${ELASTICSEARCH_PASSWORD:-}" -H "content-type: application/json" -XPUT "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX/" -d '
@@ -156,11 +156,11 @@ test_elasticsearch(){
 }
 
 elasticsearch_tests(){
-    run $perl -T ./check_elasticsearch.pl -v --es-version "$version"
+    run "$perl" -T ./check_elasticsearch.pl -v --es-version "$version"
 
-    run_fail 2 $perl -T ./check_elasticsearch.pl -v --es-version "fail-version"
+    run_fail 2 "$perl" -T ./check_elasticsearch.pl -v --es-version "fail-version"
 
-    run_conn_refused $perl -T ./check_elasticsearch.pl -v --es-version "$version"
+    run_conn_refused "$perl" -T ./check_elasticsearch.pl -v --es-version "$version"
 
     if [ "$X_PACK" = 1 ] || [  "${version:0:1}" -ge 7 ]; then
         local license_opts="--trial"
@@ -212,141 +212,141 @@ elasticsearch_tests(){
     # Listing checks return UNKNOWN
     set +e
     # _cat/fielddata API is no longer outputs lines for 0b fielddata nodes in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
-    #export ELASTICSEARCH_NODE="$(DEBUG='' $perl -T ./check_elasticsearch_fielddata.pl --list-nodes | grep -v -e '^Nodes' -e '^Hostname' -e '^[[:space:]]*$' | awk '{print $1; exit}' )"
+    #export ELASTICSEARCH_NODE="$(DEBUG='' "$perl" -T ./check_elasticsearch_fielddata.pl --list-nodes | grep -v -e '^Nodes' -e '^Hostname' -e '^[[:space:]]*$' | awk '{print $1; exit}' )"
     # this works too but let's test the --list-nodes from one of the plugins
     #export ELASTICSEARCH_NODE="$(curl -s $HOST:9200/_nodes | python -c 'import json, sys; print json.load(sys.stdin)["nodes"].values()[0]["node"]')"
     # taking hostname not node name here, ip is $2, node name is $3
-    export ELASTICSEARCH_NODE="$(DEBUG='' $perl -T ./check_elasticsearch_node_disk_percent.pl --list-nodes | grep -vi -e '^Elasticsearch Nodes' -e '^Hostname' -e '^[[:space:]]*$' | awk '{print $1; exit}' )"
+    export ELASTICSEARCH_NODE="$(DEBUG='' "$perl" -T ./check_elasticsearch_node_disk_percent.pl --list-nodes | grep -vi -e '^Elasticsearch Nodes' -e '^Hostname' -e '^[[:space:]]*$' | awk '{print $1; exit}' )"
     [ -n "$ELASTICSEARCH_NODE" ] || die "failed to determine Elasticsearch node name from API!"
     set -e
     echo "determined Elasticsearch node => $ELASTICSEARCH_NODE"
     hr
-    run_fail 3 $perl -T ./check_elasticsearch_index_exists.pl --list-indices
+    run_fail 3 "$perl" -T ./check_elasticsearch_index_exists.pl --list-indices
 
-    run_conn_refused $perl -T ./check_elasticsearch_index_exists.pl --list-indices
+    run_conn_refused "$perl" -T ./check_elasticsearch_index_exists.pl --list-indices
 
-    run $perl -T ./check_elasticsearch_cluster_disk_balance.pl -v
+    run "$perl" -T ./check_elasticsearch_cluster_disk_balance.pl -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_cluster_disk_balance.pl -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_cluster_disk_balance.pl -v
 
     # recent versions of Elasticsearch create indices with shard replicas later so call this again late to ensure we don't hit unassigned shards
     remove_shard_replicas
 
     # no longer necessary since reducing monitoring index replication to zero
     #echo "waiting for shards to be allocated (takes longer in Elasticsearch 6.0):"
-    #retry 10 $perl -T ./check_elasticsearch_cluster_shards.pl -v
+    #retry 10 "$perl" -T ./check_elasticsearch_cluster_shards.pl -v
     hr
 
-    run $perl -T ./check_elasticsearch_cluster_shards.pl -v
+    run "$perl" -T ./check_elasticsearch_cluster_shards.pl -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_cluster_shards.pl -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_cluster_shards.pl -v
 
     # no longer necessary since reducing monitoring index replication to zero
     #echo "waiting for shard balance (takes longer in Elasticsearch 6.0):"
-    #retry 10 $perl -T ./check_elasticsearch_cluster_shard_balance.pl -v
+    #retry 10 "$perl" -T ./check_elasticsearch_cluster_shard_balance.pl -v
     #hr
 
-    run $perl -T ./check_elasticsearch_cluster_shard_balance.pl -v
+    run "$perl" -T ./check_elasticsearch_cluster_shard_balance.pl -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_cluster_shard_balance.pl -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_cluster_shard_balance.pl -v
 
-    run $perl -T ./check_elasticsearch_cluster_stats.pl -v
+    run "$perl" -T ./check_elasticsearch_cluster_stats.pl -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_cluster_stats.pl -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_cluster_stats.pl -v
 
     # travis has yellow status
-    run_fail "0 1" $perl -T ./check_elasticsearch_cluster_status.pl -v
+    run_fail "0 1" "$perl" -T ./check_elasticsearch_cluster_status.pl -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_cluster_status.pl -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_cluster_status.pl -v
 
     remove_shard_replicas
     # didn't help with default monitoring index due to replication factor > 1 node, setting replication to zero was the fix
     #echo "waiting for cluster status, nodes and shards to pass (takes longer on Elasticsearch 6.0):"
-    #retry 10 $perl -T ./check_elasticsearch_cluster_status_nodes_shards.pl -v
+    #retry 10 "$perl" -T ./check_elasticsearch_cluster_status_nodes_shards.pl -v
     #hr
 
-    run $perl -T ./check_elasticsearch_cluster_status_nodes_shards.pl -v
+    run "$perl" -T ./check_elasticsearch_cluster_status_nodes_shards.pl -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_cluster_status_nodes_shards.pl -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_cluster_status_nodes_shards.pl -v
 
-    run $perl -T ./check_elasticsearch_data_nodes.pl -w 1 -v
+    run "$perl" -T ./check_elasticsearch_data_nodes.pl -w 1 -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_data_nodes.pl -w 1 -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_data_nodes.pl -w 1 -v
 
-    run $perl -T ./check_elasticsearch_doc_count.pl -v
+    run "$perl" -T ./check_elasticsearch_doc_count.pl -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_doc_count.pl -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_doc_count.pl -v
 
     # _cat/fielddata API is no longer outputs lines for 0b fielddata nodes in Elasticsearch 5.0 - https://github.com/elastic/elasticsearch/issues/21564
-    run $perl -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
+    run "$perl" -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_fielddata.pl -N "$ELASTICSEARCH_NODE" -v
 
-    run $perl -T ./check_elasticsearch_index_exists.pl -v
+    run "$perl" -T ./check_elasticsearch_index_exists.pl -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_index_exists.pl -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_index_exists.pl -v
 
     # the field for this is not available in Elasticsearch 1.3
     if [ "$version" != 1.3  ]; then
-        run $perl -T ./check_elasticsearch_index_age.pl -v -w 0:1
+        run "$perl" -T ./check_elasticsearch_index_age.pl -v -w 0:1
     fi
 
-    run_conn_refused $perl -T ./check_elasticsearch_index_age.pl -v -w 0:1
+    run_conn_refused "$perl" -T ./check_elasticsearch_index_age.pl -v -w 0:1
 
     #run perl -T ./check_elasticsearch_index_health.pl -v
 
     #run_conn_refused perl -T ./check_elasticsearch_index_health.pl -v
 
-    run $perl -T ./check_elasticsearch_index_replicas.pl -w 0 -v
+    run "$perl" -T ./check_elasticsearch_index_replicas.pl -w 0 -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_index_replicas.pl -w 0 -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_index_replicas.pl -w 0 -v
 
-    run $perl -T ./check_elasticsearch_index_settings.pl -v
+    run "$perl" -T ./check_elasticsearch_index_settings.pl -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_index_settings.pl -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_index_settings.pl -v
 
-    run $perl -T ./check_elasticsearch_index_shards.pl -v
+    run "$perl" -T ./check_elasticsearch_index_shards.pl -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_index_shards.pl -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_index_shards.pl -v
 
-    run $perl -T ./check_elasticsearch_index_stats.pl -v
+    run "$perl" -T ./check_elasticsearch_index_stats.pl -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_index_stats.pl -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_index_stats.pl -v
 
-    run $perl -T ./check_elasticsearch_master_node.pl -v
+    run "$perl" -T ./check_elasticsearch_master_node.pl -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_master_node.pl -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_master_node.pl -v
 
-    run $perl -T ./check_elasticsearch_nodes.pl -v -w 1
+    run "$perl" -T ./check_elasticsearch_nodes.pl -v -w 1
 
-    run_conn_refused $perl -T ./check_elasticsearch_nodes.pl -v -w 1
+    run_conn_refused "$perl" -T ./check_elasticsearch_nodes.pl -v -w 1
 
-    run $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 99 -c 99
+    run "$perl" -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 99 -c 99
 
-    run_conn_refused $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 99 -c 99
+    run_conn_refused "$perl" -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 99 -c 99
 
     echo "checking threshold failure warning:"
-    run_fail 1 $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 1 -c 99
+    run_fail 1 "$perl" -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 1 -c 99
 
     echo "checking threshold failure critical:"
-    run_fail 2 $perl -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 1 -c 2
+    run_fail 2 "$perl" -T ./check_elasticsearch_node_disk_percent.pl -N "$ELASTICSEARCH_NODE" -v -w 1 -c 2
 
-    run $perl -T ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
+    run "$perl" -T ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_node_shards.pl -N "$ELASTICSEARCH_NODE" -v
 
-    run $perl -T ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
+    run "$perl" -T ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_node_stats.pl -N "$ELASTICSEARCH_NODE" -v
 
 
-    run $perl -T ./check_elasticsearch_shards_state_detail.pl -v
+    run "$perl" -T ./check_elasticsearch_shards_state_detail.pl -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_shards_state_detail.pl -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_shards_state_detail.pl -v
 
-    run $perl -T ./check_elasticsearch_tasks_pending.pl -v
+    run "$perl" -T ./check_elasticsearch_tasks_pending.pl -v
 
-    run_conn_refused $perl -T ./check_elasticsearch_tasks_pending.pl -v
+    run_conn_refused "$perl" -T ./check_elasticsearch_tasks_pending.pl -v
 
     run ./check_elasticsearch_tasks_slow.py
 

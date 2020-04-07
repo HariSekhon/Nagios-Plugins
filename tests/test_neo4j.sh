@@ -94,35 +94,35 @@ test_neo4j_main(){
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
-    run $perl -T ./check_neo4j_version.pl -v -e "^$version"
+    run "$perl" -T ./check_neo4j_version.pl -v -e "^$version"
 
-    run_fail 2 $perl -T ./check_neo4j_version.pl -v -e 'fail-version'
+    run_fail 2 "$perl" -T ./check_neo4j_version.pl -v -e 'fail-version'
 
-    run $perl -T ./check_neo4j_readonly.pl -v
+    run "$perl" -T ./check_neo4j_readonly.pl -v
 
     # TODO: SSL checks
-    #run $perl -T ./check_neo4j_readonly.pl -v -S -P 7473
+    #run "$perl" -T ./check_neo4j_readonly.pl -v -S -P 7473
 
-    run $perl -T ./check_neo4j_remote_shell_enabled.pl -v
+    run "$perl" -T ./check_neo4j_remote_shell_enabled.pl -v
 
-    run $perl -T ./check_neo4j_stats.pl -v
+    run "$perl" -T ./check_neo4j_stats.pl -v
 
-    run $perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 1:20 -v
+    run "$perl" -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 1:20 -v
 
     # Neo4J on Travis doesn't seem to return anything resulting in "'attributes' field not returned by Neo4J" error
-    run $perl -T ./check_neo4j_store_sizes.pl -v
+    run "$perl" -T ./check_neo4j_store_sizes.pl -v
 
-    run_conn_refused $perl -T ./check_neo4j_version.pl -v -e "^$version"
+    run_conn_refused "$perl" -T ./check_neo4j_version.pl -v -e "^$version"
 
-    run_conn_refused $perl -T ./check_neo4j_readonly.pl -v
+    run_conn_refused "$perl" -T ./check_neo4j_readonly.pl -v
 
-    run_conn_refused $perl -T ./check_neo4j_remote_shell_enabled.pl -v
+    run_conn_refused "$perl" -T ./check_neo4j_remote_shell_enabled.pl -v
 
-    run_conn_refused $perl -T ./check_neo4j_stats.pl -v
+    run_conn_refused "$perl" -T ./check_neo4j_stats.pl -v
 
-    run_conn_refused $perl -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v
+    run_conn_refused "$perl" -T ./check_neo4j_stats.pl -s NumberOfNodeIdsInUse -c 0:1 -v
 
-    run_conn_refused $perl -T ./check_neo4j_store_sizes.pl -v
+    run_conn_refused "$perl" -T ./check_neo4j_store_sizes.pl -v
 
     [ -n "${KEEPDOCKER:-}" ] ||
     docker-compose down

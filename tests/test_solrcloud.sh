@@ -107,10 +107,10 @@ solrcloud_tests(){
     run_fail 2 ./check_solr_version.py -e "fail-version"
 
     echo "will try cluster status for up to $startupwait secs to give cluster and collection chance to initialize properly:"
-    retry $startupwait $perl -T ./check_solrcloud_cluster_status.pl
+    retry $startupwait "$perl" -T ./check_solrcloud_cluster_status.pl
     hr
 
-    run $perl -T ./check_solrcloud_cluster_status.pl -v
+    run "$perl" -T ./check_solrcloud_cluster_status.pl -v
 
     docker_exec check_solrcloud_cluster_status_zookeeper.pl -H localhost -P 9983 -b / -v
 
@@ -130,12 +130,12 @@ solrcloud_tests(){
     fi
 
     # FIXME: why is only 1 node up instead of 2
-    run $perl -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
+    run "$perl" -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
 
     docker_exec check_solrcloud_live_nodes_zookeeper.pl -H localhost -P 9983 -b / -w 1 -c 1 -v
 
     # docker is running slow
-    run $perl -T ./check_solrcloud_overseer.pl -t 60 -v
+    run "$perl" -T ./check_solrcloud_overseer.pl -t 60 -v
 
     docker_exec check_solrcloud_overseer_zookeeper.pl -H localhost -P 9983 -b / -v
 
@@ -157,9 +157,9 @@ solrcloud_tests(){
 
 solrcloud_conn_refused_tests(){
     run_conn_refused ./check_solr_version.py -e "$version"
-    run_conn_refused $perl -T ./check_solrcloud_cluster_status.pl -v
-    run_conn_refused $perl -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
-    run_conn_refused $perl -T ./check_solrcloud_overseer.pl -t 60 -v
+    run_conn_refused "$perl" -T ./check_solrcloud_cluster_status.pl -v
+    run_conn_refused "$perl" -T ./check_solrcloud_live_nodes.pl -w 1 -c 1 -t 60 -v
+    run_conn_refused "$perl" -T ./check_solrcloud_overseer.pl -t 60 -v
 }
 
 run_test_versions SolrCloud

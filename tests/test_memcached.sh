@@ -78,17 +78,17 @@ test_memcached(){
     fi
     hr
     # MEMCACHED_HOST obtained via .travis.yml
-    run $perl -T ./check_memcached_write.pl -v
+    run "$perl" -T ./check_memcached_write.pl -v
 
-    run_conn_refused $perl -T ./check_memcached_write.pl -v
+    run_conn_refused "$perl" -T ./check_memcached_write.pl -v
 
-    run $perl -T ./check_memcached_key.pl -k myKey -e hari -v
+    run "$perl" -T ./check_memcached_key.pl -k myKey -e hari -v
 
-    run_conn_refused $perl -T ./check_memcached_key.pl -k myKey -e hari -v
+    run_conn_refused "$perl" -T ./check_memcached_key.pl -k myKey -e hari -v
 
-    run $perl -T ./check_memcached_stats.pl -w 15 -c 20 -v
+    run "$perl" -T ./check_memcached_stats.pl -w 15 -c 20 -v
 
-    run_conn_refused $perl -T ./check_memcached_stats.pl -w 15 -c 20 -v
+    run_conn_refused "$perl" -T ./check_memcached_stats.pl -w 15 -c 20 -v
 
     echo "Completed $run_count Memcached tests"
     hr

@@ -34,13 +34,13 @@ current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 # Travis CI / Azure DevOps run from detached heads
 if [[ "$current_branch" =~ HEAD[[:space:]]+detached[[:space:]]+at[[:space:]] ]]; then
     echo "running in a detached head"
-    run_fail "0 2" $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
+    run_fail "0 2" "$perl" -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 
     ERRCODE=2 run_grep "CRITICAL: HEAD is a detached symbolic reference as it points to '[a-z0-9]+'" ./check_git_checkout_branch.py -d . -b "$current_branch"
 
     run_fail 2 ./check_git_checkout_not_detached.py --directory .
 else
-    run $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
+    run "$perl" -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 
     run ./check_git_checkout_branch.py -d . -b "$current_branch"
 
@@ -70,14 +70,14 @@ run_fail 2 ./check_git_checkout_valid.py -d /tmp
 
 # ============================================================================ #
 echo "Testing failure detection of wrong git branch:"
-run_fail 2 $perl -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
+run_fail 2 "$perl" -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
 
 # in Travis this will result in CRITICAL: HEAD is a detached symbolic reference as it points to '<hashref>' but will still pass with the right exit code
 run_fail 2          ./check_git_checkout_branch.py -d . -b nonexistentbranch
 
 # ============================================================================ #
 echo "checking directory not defined results in usage error:"
-run_usage $perl -T ./check_git_checkout_branch.pl -b "$current_branch"
+run_usage "$perl" -T ./check_git_checkout_branch.pl -b "$current_branch"
 
 run_usage          ./check_git_checkout_branch.py -b "$current_branch"
 

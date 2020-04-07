@@ -140,32 +140,32 @@ test_db(){
 }
 
 mysql_tests(){
-    run $perl -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v $extra_opt
+    run "$perl" -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v $extra_opt
 
-    run_conn_refused $perl -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v $extra_opt
+    run_conn_refused "$perl" -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v $extra_opt
 
     #echo "$perl -T ./check_mysql_query.pl -q \"SHOW TABLES IN information_schema like 'C%'\" -o CHARACTER_SETS -v"
-    run $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema like 'C%'" -o CHARACTER_SETS -v
+    run "$perl" -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema like 'C%'" -o CHARACTER_SETS -v
 
-    run $perl -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -r "'(root|mysql.sys)'@'(%|localhost)'" -v
+    run "$perl" -T ./check_mysql_query.pl -d information_schema -q "SELECT * FROM user_privileges LIMIT 1"  -r "'(root|mysql.sys)'@'(%|localhost)'" -v
 
-    run_fail 2 $perl -T ./check_mysql_query.pl -q "SELECT FAILURE" -v
+    run_fail 2 "$perl" -T ./check_mysql_query.pl -q "SELECT FAILURE" -v
 
     echo "checking non SELECT / SHOW query triggers unknown usage result:"
-    run_usage $perl -T ./check_mysql_query.pl -q "INVALID_QUERY" -v
+    run_usage "$perl" -T ./check_mysql_query.pl -q "INVALID_QUERY" -v
 
     echo "checking invalid query hits MySQL error resulting in critical error:"
-    run_fail 2 $perl -T ./check_mysql_query.pl -q "SHOW INVALID_QUERY" -v
+    run_fail 2 "$perl" -T ./check_mysql_query.pl -q "SHOW INVALID_QUERY" -v
 
-    run_conn_refused $perl -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema like 'C%'" -o CHARACTER_SETS -v
+    run_conn_refused "$perl" -T ./check_mysql_query.pl -q "SHOW TABLES IN information_schema like 'C%'" -o CHARACTER_SETS -v
 
-    run_usage $perl -T ./check_mysql_query.pl -d mysql -q "DROP table haritest" -r 1 -v
+    run_usage "$perl" -T ./check_mysql_query.pl -d mysql -q "DROP table haritest" -r 1 -v
 
-    run_usage $perl -T ./check_mysql_query.pl -d mysql -q "DELETE FROM haritest where 1=1" -r 1 -v
+    run_usage "$perl" -T ./check_mysql_query.pl -d mysql -q "DELETE FROM haritest where 1=1" -r 1 -v
 
-    run_usage $perl -T ./check_mysql_query.pl -d mysql -q "SELECT * FROM (DROP TABLE haritest)" -r 1 -v
+    run_usage "$perl" -T ./check_mysql_query.pl -d mysql -q "SELECT * FROM (DROP TABLE haritest)" -r 1 -v
 
-    run_usage $perl -T ./check_mysql_query.pl -d mysql -q "SELECT * FROM (DELETE FROM haritest where 1=1)" -r 1 -v
+    run_usage "$perl" -T ./check_mysql_query.pl -d mysql -q "SELECT * FROM (DELETE FROM haritest where 1=1)" -r 1 -v
 
     # TODO: add socket test - must mount on a compiled system, ie replace the docker image with a custom test one
     # this breaks subsequent iterations of this function

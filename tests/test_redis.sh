@@ -95,9 +95,9 @@ EOF
 }
 
 redis_tests(){
-    run $perl -T ./check_redis_version.pl -v # -e "$version"  TODO: change to regex and enable this with .* for latest
+    run "$perl" -T ./check_redis_version.pl -v # -e "$version"  TODO: change to regex and enable this with .* for latest
 
-    run_fail 2 $perl -T ./check_redis_version.pl -v -e 'fail-version'
+    run_fail 2 "$perl" -T ./check_redis_version.pl -v -e 'fail-version'
 
     # there is no redis.conf in the Docker container :-/
     #docker cp "$DOCKER_CONTAINER":/etc/redis.conf /tmp/redis.conf
@@ -107,34 +107,34 @@ redis_tests(){
     #$perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v | grep -v -e '^debug:' | sed 's/.*extra config found on running server://;s/=/ /g' | tr ',' '\n' | grep -v requirepass | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tee /tmp/.check_redis_config.conf
     run++
     echo "$perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v | grep -v -e '^debug:' | sed 's/.*extra config found on running server://;s/=/ /g' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tee /tmp/.check_redis_config.conf"
-    $perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v | grep -v -e '^debug:' | sed 's/.*extra config found on running server://;s/=/ /g' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tee /tmp/.check_redis_config.conf
-    run $perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -vv
+    "$perl" -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -v | grep -v -e '^debug:' | sed 's/.*extra config found on running server://;s/=/ /g' | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | tee /tmp/.check_redis_config.conf
+    run "$perl" -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf --no-warn-extra -vv
 
-    run $perl -T ./check_redis_clients.pl -v
+    run "$perl" -T ./check_redis_clients.pl -v
 
-    run $perl -T ./check_redis_stats.pl -v
+    run "$perl" -T ./check_redis_stats.pl -v
 
-    run $perl -T ./check_redis_key.pl -k myKey -e hari -v
+    run "$perl" -T ./check_redis_key.pl -k myKey -e hari -v
 
-    run $perl -T ./check_redis_publish_subscribe.pl -v
+    run "$perl" -T ./check_redis_publish_subscribe.pl -v
 
-    run $perl -T ./check_redis_stats.pl -s connected_clients -c 1:1 -v
+    run "$perl" -T ./check_redis_stats.pl -s connected_clients -c 1:1 -v
 
-    run $perl -T ./check_redis_write.pl -v
+    run "$perl" -T ./check_redis_write.pl -v
 
     echo "checking for no code failure masking root cause in catch quit handler"
-    ERRCODE=2 run_grep 'Connection refused' $perl -T ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v
+    ERRCODE=2 run_grep 'Connection refused' "$perl" -T ./check_redis_stats.pl -P 9999 -s connected_clients -c 1:1 -v
 }
 
 redis_test_conn_refused(){
-    run_conn_refused $perl -T ./check_redis_version.pl -v
-    run_conn_refused $perl -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf
-    run_conn_refused $perl -T ./check_redis_clients.pl -v
-    run_conn_refused $perl -T ./check_redis_stats.pl -v
-    run_conn_refused $perl -T ./check_redis_key.pl -k myKey -e hari -v
-    run_conn_refused $perl -T ./check_redis_publish_subscribe.pl -v
-    run_conn_refused $perl -T ./check_redis_stats.pl -s connected_clients -c 1:1 -v
-    run_conn_refused $perl -T ./check_redis_write.pl -v
+    run_conn_refused "$perl" -T ./check_redis_version.pl -v
+    run_conn_refused "$perl" -T ./check_redis_config.pl -H $REDIS_HOST -C /tmp/.check_redis_config.conf
+    run_conn_refused "$perl" -T ./check_redis_clients.pl -v
+    run_conn_refused "$perl" -T ./check_redis_stats.pl -v
+    run_conn_refused "$perl" -T ./check_redis_key.pl -k myKey -e hari -v
+    run_conn_refused "$perl" -T ./check_redis_publish_subscribe.pl -v
+    run_conn_refused "$perl" -T ./check_redis_stats.pl -s connected_clients -c 1:1 -v
+    run_conn_refused "$perl" -T ./check_redis_write.pl -v
 }
 
 run_test_versions Redis

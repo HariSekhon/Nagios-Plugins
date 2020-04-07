@@ -64,14 +64,14 @@ test_mongo(){
     # not part of a replica set so this returns CRITICAL
     # TODO: more specific CLI runs to valid critical and output
     hr
-    run_fail "0 2" $perl -T ./check_mongodb_master.pl
+    run_fail "0 2" "$perl" -T ./check_mongodb_master.pl
 
-    run_fail "0 2" $perl -T ./check_mongodb_master_rest.pl
+    run_fail "0 2" "$perl" -T ./check_mongodb_master_rest.pl
 
     # Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
     if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
         # cannot run this one in taint mode due to insecure dependency in Sub/Quote.pm line 3
-        run $perl ./check_mongodb_write.pl -v
+        run "$perl" ./check_mongodb_write.pl -v
     fi
 
     [ -n "${KEEPDOCKER:-}" ] ||
@@ -114,15 +114,15 @@ EOF
     # not part of a replica set so this returns CRITICAL
     # TODO: more specific CLI runs to valid critical and output
     hr
-    run_fail "0 2" $perl -T ./check_mongodb_master.pl
+    run_fail "0 2" "$perl" -T ./check_mongodb_master.pl
 
     # TODO: Fails - authentication not supported, basic auth doesn't seem to work
-    run_fail "0 2" $perl -T ./check_mongodb_master_rest.pl -v
+    run_fail "0 2" "$perl" -T ./check_mongodb_master_rest.pl -v
 
     # Type::Tiny::XS currently doesn't build on Perl 5.8 due to a bug
     if [ "$PERL_MAJOR_VERSION" != "5.8" ]; then
         # cannot run this one in taint mode due to insecure dependency in Sub/Quote.pm line 3
-        run $perl ./check_mongodb_write.pl -v
+        run "$perl" ./check_mongodb_write.pl -v
     fi
     hr
     [ -n "${KEEPDOCKER:-}" ] ||

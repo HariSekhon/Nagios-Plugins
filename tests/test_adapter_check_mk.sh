@@ -45,7 +45,7 @@ run_grep '^0 ' ./adapter_check_mk.py -n 'basic shell test' --shell "echo 'test m
 
 # defined in lib/perl.sh (imported by utils.sh)
 # shellcheck disable=SC2154
-run ./adapter_check_mk.py $perl -T ./check_disk_write.pl -d .
+run ./adapter_check_mk.py "$perl" -T ./check_disk_write.pl -d .
 
 # copied from tests/test_git.sh
 if is_CI; then
@@ -55,13 +55,13 @@ if is_CI; then
 fi
 current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 
-run ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
+run ./adapter_check_mk.py "$perl" -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 
 if [[ "$current_branch" =~ HEAD[[:space:]]+detached[[:space:]]+at[[:space:]] ]]; then
     echo "running in detached head"
     run_grep '^[02] check_git_checkout_branch.pl_' ./adapter_check_mk.py --shell "$perl -T ./check_git_checkout_branch.pl -d . -b '$current_branch'"
 else
-    run_grep '^0 check_git_checkout_branch.pl ' ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
+    run_grep '^0 check_git_checkout_branch.pl ' ./adapter_check_mk.py "$perl" -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 fi
 
 echo "testing stripping of numbered Python interpreter:"
@@ -83,17 +83,17 @@ else
 fi
 
 echo "Testing failure detection of wrong git branch (perl):"
-run_grep '^2 check_git_checkout_branch.pl ' ./adapter_check_mk.py $perl -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
+run_grep '^2 check_git_checkout_branch.pl ' ./adapter_check_mk.py "$perl" -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
 
 echo "Testing failure detection of wrong git branch (python):"
 run_grep '^2 check_git_checkout_branch.py ' ./adapter_check_mk.py python ./check_git_checkout_branch.py -d . -b nonexistentbranch
 
 tmpfile="$(mktemp /tmp/adapter_check_mk.txt.XXXXXX)"
 echo test > "$tmpfile"
-run ./adapter_check_mk.py $perl -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
+run ./adapter_check_mk.py "$perl" -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
 rm -f "$tmpfile"
 
-run ./adapter_check_mk.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
+run ./adapter_check_mk.py "$perl" -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
 
 echo "Testing induced failures:"
 echo
@@ -112,7 +112,7 @@ run_grep '^3 ' ./adapter_check_mk.py nonexistentcommand arg1 arg2
 
 run_grep '^3 ' ./adapter_check_mk.py --shell nonexistentcommand arg1 arg2
 
-run_grep '^3 ' ./adapter_check_mk.py $perl -T check_disk_write.pl --help
+run_grep '^3 ' ./adapter_check_mk.py "$perl" -T check_disk_write.pl --help
 
 # defined in lib/utils.sh
 # shellcheck disable=SC2154

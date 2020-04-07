@@ -34,27 +34,27 @@ trap_debug_env ambari
 
 echo "running connection refused tests first:"
 echo
-run_conn_refused $perl -T check_ambari_cluster_alerts_host_summary.pl
+run_conn_refused "$perl" -T check_ambari_cluster_alerts_host_summary.pl
 
-run_conn_refused $perl -T check_ambari_cluster_alerts_summary.pl
+run_conn_refused "$perl" -T check_ambari_cluster_alerts_summary.pl
 
 run_conn_refused ./check_ambari_cluster_hdfs_rack_resilience.py
 
-run_conn_refused $perl -T check_ambari_cluster_health_report.pl
+run_conn_refused "$perl" -T check_ambari_cluster_health_report.pl
 
-run_conn_refused $perl -T check_ambari_cluster_kerberized.pl
+run_conn_refused "$perl" -T check_ambari_cluster_kerberized.pl
 
-run_conn_refused $perl -T check_ambari_cluster_service_config_compatible.pl
+run_conn_refused "$perl" -T check_ambari_cluster_service_config_compatible.pl
 
-run_conn_refused $perl -T check_ambari_cluster_total_hosts.pl
+run_conn_refused "$perl" -T check_ambari_cluster_total_hosts.pl
 
-run_conn_refused $perl -T check_ambari_cluster_version.pl
+run_conn_refused "$perl" -T check_ambari_cluster_version.pl
 
-run_conn_refused $perl -T check_ambari_config_stale.pl
+run_conn_refused "$perl" -T check_ambari_config_stale.pl
 
-run_conn_refused $perl -T check_ambari_nodes.pl
+run_conn_refused "$perl" -T check_ambari_nodes.pl
 
-run_conn_refused $perl -T check_ambari_services.pl
+run_conn_refused "$perl" -T check_ambari_services.pl
 
 
 echo
@@ -83,29 +83,29 @@ else
     [ "$AMBARI_CLUSTER" = "$SANDBOX_CLUSTER" ] && set +e
     echo "testing Ambari server $AMBARI_HOST"
     hr
-    run_fail "0 1 2" $perl -T check_ambari_cluster_alerts_host_summary.pl
+    run_fail "0 1 2" "$perl" -T check_ambari_cluster_alerts_host_summary.pl
 
-    run_fail "0 1 2" $perl -T check_ambari_cluster_alerts_summary.pl
+    run_fail "0 1 2" "$perl" -T check_ambari_cluster_alerts_summary.pl
 
-    run_fail "0 1 2" $perl -T check_ambari_cluster_health_report.pl
+    run_fail "0 1 2" "$perl" -T check_ambari_cluster_health_report.pl
 
     run_fail "0 1" ./check_ambari_cluster_hdfs_rack_resilience.py
 
-    run_fail "0 2" $perl -T check_ambari_cluster_kerberized.pl
+    run_fail "0 2" "$perl" -T check_ambari_cluster_kerberized.pl
 
-    run_fail "0 2" $perl -T check_ambari_cluster_service_config_compatible.pl
+    run_fail "0 2" "$perl" -T check_ambari_cluster_service_config_compatible.pl
 
-    run $perl -T check_ambari_cluster_total_hosts.pl
+    run "$perl" -T check_ambari_cluster_total_hosts.pl
 
-    run $perl -T check_ambari_cluster_version.pl
+    run "$perl" -T check_ambari_cluster_version.pl
 
-    run_fail 2 $perl -T check_ambari_cluster_version.pl --expected 'fail-version'
+    run_fail 2 "$perl" -T check_ambari_cluster_version.pl --expected 'fail-version'
 
-    run_fail "0 1" $perl -T check_ambari_config_stale.pl
+    run_fail "0 1" "$perl" -T check_ambari_config_stale.pl
 
-    run_fail "0 1 2" $perl -T check_ambari_nodes.pl
+    run_fail "0 1 2" "$perl" -T check_ambari_nodes.pl
 
-    run_fail "0 1 2" $perl -T check_ambari_services.pl
+    run_fail "0 1 2" "$perl" -T check_ambari_services.pl
 fi
 
 echo

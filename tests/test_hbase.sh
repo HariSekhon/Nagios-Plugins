@@ -445,17 +445,17 @@ EOF
     when_url_content "http://$HBASE_HOST:$HBASE_STARGATE_PORT/" HexStringSplitTable
     hr
 
-    run $perl -T ./check_hbase_regionservers.pl
+    run "$perl" -T ./check_hbase_regionservers.pl
 
-    run_conn_refused $perl -T ./check_hbase_regionservers.pl
+    run_conn_refused "$perl" -T ./check_hbase_regionservers.pl
 
     if [ "$version" = "0.90" ]; then
-        run_404 $perl -T ./check_hbase_regionservers_jsp.pl
+        run_404 "$perl" -T ./check_hbase_regionservers_jsp.pl
     else
-        run $perl -T ./check_hbase_regionservers_jsp.pl
+        run "$perl" -T ./check_hbase_regionservers_jsp.pl
     fi
 
-    run_conn_refused $perl -T ./check_hbase_regionservers_jsp.pl
+    run_conn_refused "$perl" -T ./check_hbase_regionservers_jsp.pl
 
     run ./check_hbase_regionservers_requests_balance.py
 
@@ -506,9 +506,9 @@ EOF
     # ./check_hbase_cell_thrift.pl is only a symlink to check_hbase_cell.pl so just check it's still there and working
     # HBase 0.94 fails to retrieve cell
     if [ "$version" = "0.94" ]; then
-        run_fail "0 2" $perl -T ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+        run_fail "0 2" "$perl" -T ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
     else
-        run $perl -T ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+        run "$perl" -T ./check_hbase_cell_thrift.pl -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
     fi
 
 # ============================================================================ #
@@ -569,40 +569,40 @@ EOF
     # HBase <= 0.94 doesn't have this mbean
     if ! [[ "$version" =~ ^0\.9[0-4]$ ]]; then
         # have to use --host and --port here as this is a generic program with specific environment variables like we're setting and don't want to set $HOST and $PORT
-        run $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
+        run "$perl" -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
 
-        run $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics -t 20 | sed 's/|.*$//'
+        run "$perl" -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --bean Hadoop:service=HBase,name=RegionServer,sub=Server --all-metrics -t 20 | sed 's/|.*$//'
     fi
 
     # too long exceeds Travis CI max log length due to the 100 region HexStringSplitTable multiplying out the available metrics
     if [ "$version" = "0.90" ]; then
-        run_404 $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --all-metrics -t 20 | sed 's/|.*$//'
+        run_404 "$perl" -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --all-metrics -t 20 | sed 's/|.*$//'
     else
-        run $perl -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --all-metrics -t 20 | sed 's/|.*$//'
+        run "$perl" -T ./check_hadoop_jmx.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --all-metrics -t 20 | sed 's/|.*$//'
     fi
 
-    run_conn_refused $perl -T ./check_hadoop_jmx.pl --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
+    run_conn_refused "$perl" -T ./check_hadoop_jmx.pl --bean Hadoop:service=HBase,name=RegionServer,sub=Server -m compactionQueueLength
 
     ######################
     # use newer Python version "check_hbase_table.py" for Hbase 0.95+ instead of older plugins in this section
     if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
-        run $perl -T ./check_hbase_tables.pl
+        run "$perl" -T ./check_hbase_tables.pl
     else
-        run_fail 2 $perl -T ./check_hbase_tables.pl
+        run_fail 2 "$perl" -T ./check_hbase_tables.pl
     fi
 
     if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
-        run $perl -T ./check_hbase_tables_thrift.pl
+        run "$perl" -T ./check_hbase_tables_thrift.pl
 
-        run $perl -T ./check_hbase_tables_stargate.pl
+        run "$perl" -T ./check_hbase_tables_stargate.pl
 
-        run $perl -T ./check_hbase_tables_jsp.pl
+        run "$perl" -T ./check_hbase_tables_jsp.pl
     else
-        run_fail 2 $perl -T ./check_hbase_tables_thrift.pl
+        run_fail 2 "$perl" -T ./check_hbase_tables_thrift.pl
 
-        run_fail 2 $perl -T ./check_hbase_tables_stargate.pl
+        run_fail 2 "$perl" -T ./check_hbase_tables_stargate.pl
 
-        run_fail 2 $perl -T ./check_hbase_tables_jsp.pl
+        run_fail 2 "$perl" -T ./check_hbase_tables_jsp.pl
     fi
 
     ######################
@@ -636,15 +636,15 @@ EOF
 
     if is_zookeeper_built; then
         # This also checks that check_hbase_write.py deleted correctly
-        run $perl -T ./check_hbase_table_rowcount.pl -T EmptyTable --hbase-bin /hbase/bin/hbase -w 0:0 -c 0:0 -t 30
+        run "$perl" -T ./check_hbase_table_rowcount.pl -T EmptyTable --hbase-bin /hbase/bin/hbase -w 0:0 -c 0:0 -t 30
 
-        run $perl -T ./check_zookeeper_znode.pl -H "$HBASE_HOST" -z /hbase -v -n --child-znodes
+        run "$perl" -T ./check_zookeeper_znode.pl -H "$HBASE_HOST" -z /hbase -v -n --child-znodes
 
-        run_conn_refused $perl -T ./check_zookeeper_znode.pl -z /hbase -v -n --child-znodes
+        run_conn_refused "$perl" -T ./check_zookeeper_znode.pl -z /hbase -v -n --child-znodes
 
-        run $perl -T ./check_zookeeper_child_znodes.pl -H "$HBASE_HOST" -z /hbase/rs -v -w 1:1 -c 1:1
+        run "$perl" -T ./check_zookeeper_child_znodes.pl -H "$HBASE_HOST" -z /hbase/rs -v -w 1:1 -c 1:1
 
-        run_conn_refused $perl -T ./check_zookeeper_child_znodes.pl -z /hbase/rs -v -w 1:1 -c 1:1
+        run_conn_refused "$perl" -T ./check_zookeeper_child_znodes.pl -z /hbase/rs -v -w 1:1 -c 1:1
 
         # XXX: not present all the time
         #$perl -T ./check_hbase_unassigned_regions_znode.pl
@@ -670,11 +670,11 @@ EOF
     # give these more time as error reminds these metrics aren't available soon after start
     # TODO: perhaps this only works on some versions now??? Test and re-enable for those versions
     # XXX: this used to work, now cannot find metrics
-    run_fail "0 2 3" $perl -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" --all-metrics
-    run_fail "0 2 3" $perl -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" -m compactionQueueLength
+    run_fail "0 2 3" "$perl" -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" --all-metrics
+    run_fail "0 2 3" "$perl" -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" -m compactionQueueLength
 
-    run_fail "0 2 3" $perl -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --all-metrics
-    run_fail "0 2 3" $perl -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" -m compactionQueueLength
+    run_fail "0 2 3" "$perl" -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --all-metrics
+    run_fail "0 2 3" "$perl" -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" -m compactionQueueLength
 
 # ============================================================================ #
 
@@ -704,20 +704,20 @@ EOF
     done
     hr
     echo "waiting for Stargate info to get updated for downed RegionServer:"
-    retry 20 ! $perl -T ./check_hbase_regionservers.pl
+    retry 20 ! "$perl" -T ./check_hbase_regionservers.pl
     hr
     # default critical = 1 but will raise critical if there are no more live regionservers
-    run_fail 2 $perl -T ./check_hbase_regionservers.pl
+    run_fail 2 "$perl" -T ./check_hbase_regionservers.pl
 
     # should still exit critical as there are no remaining regionservers live
-    run_fail 2 $perl -T ./check_hbase_regionservers.pl -w 2 -c 2
+    run_fail 2 "$perl" -T ./check_hbase_regionservers.pl -w 2 -c 2
 
 # ============================================================================ #
 
-    run_fail 2 $perl -T ./check_hbase_regionservers_jsp.pl
+    run_fail 2 "$perl" -T ./check_hbase_regionservers_jsp.pl
 
     # should still exit critical as there are no remaining regionservers live
-    run_fail 2 $perl -T ./check_hbase_regionservers_jsp.pl -w 2 -c 2
+    run_fail 2 "$perl" -T ./check_hbase_regionservers_jsp.pl -w 2 -c 2
 
 # ============================================================================ #
 

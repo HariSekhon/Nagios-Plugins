@@ -42,25 +42,25 @@ trap_debug_env cm
 
 echo "checking connection refused tests first:"
 echo
-run_conn_refused $perl -T check_cloudera_manager_version.pl -e "$CM_VERSION"
+run_conn_refused "$perl" -T check_cloudera_manager_version.pl -e "$CM_VERSION"
 
-run_conn_refused $perl -T check_cloudera_manager.pl --api-ping
+run_conn_refused "$perl" -T check_cloudera_manager.pl --api-ping
 
-run_conn_refused $perl -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs
+run_conn_refused "$perl" -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs
 
-run_conn_refused $perl -T check_cloudera_manager_cluster_version.pl
+run_conn_refused "$perl" -T check_cloudera_manager_cluster_version.pl
 
-run_conn_refused $perl -T check_cloudera_manager_config_stale.pl -S "hdfs"
+run_conn_refused "$perl" -T check_cloudera_manager_config_stale.pl -S "hdfs"
 
-run_conn_refused $perl -T check_cloudera_manager_config_validation.pl -S "hdfs"
+run_conn_refused "$perl" -T check_cloudera_manager_config_validation.pl -S "hdfs"
 
-run_conn_refused $perl -T check_cloudera_manager_health.pl -S "hdfs"
+run_conn_refused "$perl" -T check_cloudera_manager_health.pl -S "hdfs"
 
-run_conn_refused $perl -T check_cloudera_manager_license.pl
+run_conn_refused "$perl" -T check_cloudera_manager_license.pl
 
-run_conn_refused $perl -T check_cloudera_manager_metrics.pl -S "hdfs" -a
+run_conn_refused "$perl" -T check_cloudera_manager_metrics.pl -S "hdfs" -a
 
-run_conn_refused $perl -T check_cloudera_manager_status.pl -S "hdfs"
+run_conn_refused "$perl" -T check_cloudera_manager_status.pl -S "hdfs"
 
 echo
 
@@ -82,23 +82,23 @@ else
     fi
     hr
 
-    run $perl -T check_cloudera_manager_version.pl -e "$CM_VERSION"
+    run "$perl" -T check_cloudera_manager_version.pl -e "$CM_VERSION"
 
-    run $perl -T check_cloudera_manager.pl --api-ping
+    run "$perl" -T check_cloudera_manager.pl --api-ping
 
-    run_fail 3 $perl -T check_cloudera_manager.pl --list-clusters
+    run_fail 3 "$perl" -T check_cloudera_manager.pl --list-clusters
 
-    run $perl -T check_cloudera_manager.pl --list-users
+    run "$perl" -T check_cloudera_manager.pl --list-users
 
-    run_fail 3 $perl -T check_cloudera_manager.pl --list-hosts
+    run_fail 3 "$perl" -T check_cloudera_manager.pl --list-hosts
 
-    run_fail 3 $perl -T check_cloudera_manager.pl --list-services
+    run_fail 3 "$perl" -T check_cloudera_manager.pl --list-services
 
-    run_fail 3 $perl -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs
+    run_fail 3 "$perl" -T check_cloudera_manager_config_stale.pl --list-roles -S hdfs
 
-    run $perl -T check_cloudera_manager_cluster_version.pl
+    run "$perl" -T check_cloudera_manager_cluster_version.pl
 
-    run_fail 2 $perl -T check_cloudera_manager_cluster_version.pl --expected 'fail-version'
+    run_fail 2 "$perl" -T check_cloudera_manager_cluster_version.pl --expected 'fail-version'
 
     echo
 
@@ -135,26 +135,26 @@ else
     # ============================================================================ #
 
     hr
-    run $perl -T check_cloudera_manager_config_stale.pl -S "$service"
+    run "$perl" -T check_cloudera_manager_config_stale.pl -S "$service"
 
-    run $perl -T check_cloudera_manager_config_validation.pl -S "$service"
+    run "$perl" -T check_cloudera_manager_config_validation.pl -S "$service"
 
     if [ "$CM_CLUSTER" = "$QUICKSTART_CLUSTER" ]; then
-        run_fail 2 $perl -T check_cloudera_manager_health.pl -S "$service"
+        run_fail 2 "$perl" -T check_cloudera_manager_health.pl -S "$service"
 
         # do not WARN if license is trial, do not warn if license reverts to free
-        run $perl -T check_cloudera_manager_license.pl --license-trial --license-free
+        run "$perl" -T check_cloudera_manager_license.pl --license-trial --license-free
 
-        run_fail "0 2" $perl -T check_cloudera_manager_status.pl -S "$service"
+        run_fail "0 2" "$perl" -T check_cloudera_manager_status.pl -S "$service"
     else
-        run $perl -T check_cloudera_manager_health.pl -S "$service"
+        run "$perl" -T check_cloudera_manager_health.pl -S "$service"
 
-        run $perl -T check_cloudera_manager_license.pl
+        run "$perl" -T check_cloudera_manager_license.pl
 
-        run $perl -T check_cloudera_manager_status.pl -S "$service"
+        run "$perl" -T check_cloudera_manager_status.pl -S "$service"
     fi
 
-    run $perl -T check_cloudera_manager_metrics.pl -S "$service" -a
+    run "$perl" -T check_cloudera_manager_metrics.pl -S "$service" -a
 
 fi
 echo

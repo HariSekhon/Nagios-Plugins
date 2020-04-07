@@ -43,57 +43,57 @@ if [ "$MAPR_CLUSTER" = "$SANDBOX_CLUSTER" -o -n "$NO_SSL" ]; then
     PROTOCOL="http"
 fi
 
-run_conn_refused $perl -T check_mapr-fs_space.pl $no_ssl
+run_conn_refused "$perl" -T check_mapr-fs_space.pl $no_ssl
 
-run_conn_refused $perl -T check_mapr-fs_volume.pl $no_ssl
+run_conn_refused "$perl" -T check_mapr-fs_volume.pl $no_ssl
 
-run_conn_refused $perl -T check_mapr-fs_volume_mirroring.pl $no_ssl -L "fake-volume"
+run_conn_refused "$perl" -T check_mapr-fs_volume_mirroring.pl $no_ssl -L "fake-volume"
 
-run_conn_refused $perl -T check_mapr-fs_volume_replication.pl $no_ssl -L "fake-volume"
+run_conn_refused "$perl" -T check_mapr-fs_volume_replication.pl $no_ssl -L "fake-volume"
 
-run_conn_refused $perl -T check_mapr-fs_volume_snapshots.pl $no_ssl -L "fake-volume"
+run_conn_refused "$perl" -T check_mapr-fs_volume_snapshots.pl $no_ssl -L "fake-volume"
 
-run_conn_refused $perl -T check_mapr-fs_volume_space_used.pl $no_ssl -L "fake-volume"
+run_conn_refused "$perl" -T check_mapr-fs_volume_space_used.pl $no_ssl -L "fake-volume"
 
-run_conn_refused $perl -T check_mapr_alarms.pl $no_ssl
+run_conn_refused "$perl" -T check_mapr_alarms.pl $no_ssl
 
-run_conn_refused $perl -T check_mapr_cluster_version.pl $no_ssl -e "$MAPR_VERSION"
+run_conn_refused "$perl" -T check_mapr_cluster_version.pl $no_ssl -e "$MAPR_VERSION"
 
-run_conn_refused $perl -T check_mapr_dashboard.pl $no_ssl
+run_conn_refused "$perl" -T check_mapr_dashboard.pl $no_ssl
 
-run_conn_refused $perl -T check_mapr_dialhome.pl $no_ssl
-
-# must be run_conn_refused locally
-#run_conn_refused $perl -T check_mapr_disk_balancer_metrics.pl
-
-run_conn_refused $perl -T check_mapr_license.pl $no_ssl
-
-run_conn_refused $perl -T check_mapr_mapreduce_mode.pl $no_ssl
-
-run_conn_refused $perl -T check_mapr_memory_utilization.pl $no_ssl
-
-run_conn_refused $perl -T check_mapr_node_alarms.pl $no_ssl
-
-run_conn_refused $perl -T check_mapr_node_failed_disks.pl $no_ssl
-
-run_conn_refused $perl -T check_mapr_node_health.pl $no_ssl
-
-run_conn_refused $perl -T check_mapr_node_heartbeats.pl $no_ssl
-
-run_conn_refused $perl -T check_mapr_node_mapr-fs_disks.pl $no_ssl -N "fake-node"
-
-run_conn_refused $perl -T check_mapr_node_services.pl $no_ssl -N "fake-node"
-
-run_conn_refused $perl -T check_mapr_nodes.pl $no_ssl
+run_conn_refused "$perl" -T check_mapr_dialhome.pl $no_ssl
 
 # must be run_conn_refused locally
-#run_conn_refused $perl -T check_mapr_role_balancer.pl $no_ssl
+#run_conn_refused "$perl" -T check_mapr_disk_balancer_metrics.pl
+
+run_conn_refused "$perl" -T check_mapr_license.pl $no_ssl
+
+run_conn_refused "$perl" -T check_mapr_mapreduce_mode.pl $no_ssl
+
+run_conn_refused "$perl" -T check_mapr_memory_utilization.pl $no_ssl
+
+run_conn_refused "$perl" -T check_mapr_node_alarms.pl $no_ssl
+
+run_conn_refused "$perl" -T check_mapr_node_failed_disks.pl $no_ssl
+
+run_conn_refused "$perl" -T check_mapr_node_health.pl $no_ssl
+
+run_conn_refused "$perl" -T check_mapr_node_heartbeats.pl $no_ssl
+
+run_conn_refused "$perl" -T check_mapr_node_mapr-fs_disks.pl $no_ssl -N "fake-node"
+
+run_conn_refused "$perl" -T check_mapr_node_services.pl $no_ssl -N "fake-node"
+
+run_conn_refused "$perl" -T check_mapr_nodes.pl $no_ssl
 
 # must be run_conn_refused locally
-#run_conn_refused $perl -T check_mapr_role_balancer_metrics.pl $no_ssl
+#run_conn_refused "$perl" -T check_mapr_role_balancer.pl $no_ssl
+
+# must be run_conn_refused locally
+#run_conn_refused "$perl" -T check_mapr_role_balancer_metrics.pl $no_ssl
 
 # when inheriting $MAPR_CLUSTER=demo.mapr.com it doesn't get back services, only when omitting --cluster / -C
-run_conn_refused $perl -T check_mapr_services.pl $no_ssl -C ""
+run_conn_refused "$perl" -T check_mapr_services.pl $no_ssl -C ""
 
 if [ -z "${MAPR_HOST:-}" ]; then
     echo
@@ -154,65 +154,65 @@ fi
 
 # ============================================================================ #
 
-run $perl -T check_mapr-fs_space.pl $no_ssl
+run "$perl" -T check_mapr-fs_space.pl $no_ssl
 
-run $perl -T check_mapr-fs_volume.pl $no_ssl
+run "$perl" -T check_mapr-fs_volume.pl $no_ssl
 
-run $perl -T check_mapr-fs_volume_mirroring.pl $no_ssl -L $volume
+run "$perl" -T check_mapr-fs_volume_mirroring.pl $no_ssl -L $volume
 
 if [ "$MAPR_CLUSTER" = "$SANDBOX_CLUSTER" ]; then
-    run_fail 2 $perl -T check_mapr-fs_volume_replication.pl $no_ssl -L $volume
+    run_fail 2 "$perl" -T check_mapr-fs_volume_replication.pl $no_ssl -L $volume
 
-    run_fail "0 3" $perl -T check_mapr-fs_volume_snapshots.pl $no_ssl -L $volume
+    run_fail "0 3" "$perl" -T check_mapr-fs_volume_snapshots.pl $no_ssl -L $volume
 
-    run_fail "0 1" $perl -T check_mapr_dialhome.pl $no_ssl
+    run_fail "0 1" "$perl" -T check_mapr_dialhome.pl $no_ssl
 else
-    run $perl -T check_mapr-fs_volume_replication.pl $no_ssl -L $volume
+    run "$perl" -T check_mapr-fs_volume_replication.pl $no_ssl -L $volume
 
-    run $perl -T check_mapr-fs_volume_snapshots.pl $no_ssl -L $volume
+    run "$perl" -T check_mapr-fs_volume_snapshots.pl $no_ssl -L $volume
 
-    run $perl -T check_mapr_dialhome.pl $no_ssl
+    run "$perl" -T check_mapr_dialhome.pl $no_ssl
 fi
 
-run $perl -T check_mapr-fs_volume_space_used.pl $no_ssl -L $volume
+run "$perl" -T check_mapr-fs_volume_space_used.pl $no_ssl -L $volume
 
-run $perl -T check_mapr_alarms.pl $no_ssl
+run "$perl" -T check_mapr_alarms.pl $no_ssl
 
-run $perl -T check_mapr_cluster_version.pl $no_ssl -e "$MAPR_VERSION"
+run "$perl" -T check_mapr_cluster_version.pl $no_ssl -e "$MAPR_VERSION"
 
-run $perl -T check_mapr_dashboard.pl $no_ssl
-
-# must be run locally
-#run $perl -T check_mapr_disk_balancer_metrics.pl
-
-run $perl -T check_mapr_license.pl $no_ssl
-
-run $perl -T check_mapr_mapreduce_mode.pl $no_ssl
-
-run $perl -T check_mapr_memory_utilization.pl $no_ssl
-
-run $perl -T check_mapr_node_alarms.pl $no_ssl
-
-run $perl -T check_mapr_node_failed_disks.pl $no_ssl
-
-run $perl -T check_mapr_node_health.pl $no_ssl
-
-run $perl -T check_mapr_node_heartbeats.pl $no_ssl
-
-run $perl -T check_mapr_node_mapr-fs_disks.pl $no_ssl -N $node
-
-run $perl -T check_mapr_node_services.pl $no_ssl -N $node
-
-run $perl -T check_mapr_nodes.pl $no_ssl
+run "$perl" -T check_mapr_dashboard.pl $no_ssl
 
 # must be run locally
-#run $perl -T check_mapr_role_balancer.pl $no_ssl
+#run "$perl" -T check_mapr_disk_balancer_metrics.pl
+
+run "$perl" -T check_mapr_license.pl $no_ssl
+
+run "$perl" -T check_mapr_mapreduce_mode.pl $no_ssl
+
+run "$perl" -T check_mapr_memory_utilization.pl $no_ssl
+
+run "$perl" -T check_mapr_node_alarms.pl $no_ssl
+
+run "$perl" -T check_mapr_node_failed_disks.pl $no_ssl
+
+run "$perl" -T check_mapr_node_health.pl $no_ssl
+
+run "$perl" -T check_mapr_node_heartbeats.pl $no_ssl
+
+run "$perl" -T check_mapr_node_mapr-fs_disks.pl $no_ssl -N $node
+
+run "$perl" -T check_mapr_node_services.pl $no_ssl -N $node
+
+run "$perl" -T check_mapr_nodes.pl $no_ssl
 
 # must be run locally
-#run $perl -T check_mapr_role_balancer_metrics.pl $no_ssl
+#run "$perl" -T check_mapr_role_balancer.pl $no_ssl
+
+# must be run locally
+#run "$perl" -T check_mapr_role_balancer_metrics.pl $no_ssl
 
 # when inheriting $MAPR_CLUSTER=demo.mapr.com it doesn't get back services, only when omitting --cluster / -C
-run $perl -T check_mapr_services.pl $no_ssl -C ""
+run "$perl" -T check_mapr_services.pl $no_ssl -C ""
 
 echo "Completed $run_count MapR tests"
 echo

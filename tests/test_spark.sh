@@ -91,21 +91,21 @@ test_spark(){
     retry $startupwait ./check_spark_cluster.pl -c 1: -v
     hr
 
-    run $perl -T ./check_spark_cluster.pl -c 1: -v
+    run "$perl" -T ./check_spark_cluster.pl -c 1: -v
 
-    run_conn_refused $perl -T ./check_spark_cluster.pl -c 1: -v
+    run_conn_refused "$perl" -T ./check_spark_cluster.pl -c 1: -v
 
-    run $perl -T ./check_spark_cluster_dead_workers.pl -w 0 -c 1 -v
+    run "$perl" -T ./check_spark_cluster_dead_workers.pl -w 0 -c 1 -v
 
-    run_conn_refused $perl -T ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v
+    run_conn_refused "$perl" -T ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v
 
-    run $perl -T ./check_spark_cluster_memory.pl -w 80 -c 90 -v
+    run "$perl" -T ./check_spark_cluster_memory.pl -w 80 -c 90 -v
 
-    run_conn_refused $perl -T ./check_spark_cluster_memory.pl -w 80 -c 90 -v
+    run_conn_refused "$perl" -T ./check_spark_cluster_memory.pl -w 80 -c 90 -v
 
-    run $perl -T ./check_spark_worker.pl -w 80 -c 90 -v
+    run "$perl" -T ./check_spark_worker.pl -w 80 -c 90 -v
 
-    run_conn_refused $perl -T ./check_spark_worker.pl -w 80 -c 90 -v
+    run_conn_refused "$perl" -T ./check_spark_worker.pl -w 80 -c 90 -v
 
     if [ -n "${KEEPDOCKER:-}" ]; then
         echo
@@ -116,7 +116,7 @@ test_spark(){
     docker exec "$DOCKER_CONTAINER" pkill -9 -f org.apache.spark.deploy.worker.Worker
     hr
     echo "Now waiting for Spark Worker failure to be detected:"
-    retry 10 ! $perl -T ./check_spark_cluster_dead_workers.pl
+    retry 10 ! "$perl" -T ./check_spark_cluster_dead_workers.pl
     run++
     hr
     echo "Completed $run_count Spark tests"

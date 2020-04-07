@@ -39,24 +39,24 @@ echo
 
 hr
 echo "A record resolve:"
-run $perl -T ./check_dns.pl --server "$nameservers" --record google.com
+run "$perl" -T ./check_dns.pl --server "$nameservers" --record google.com
 
 echo "PTR record resolve:"
-run $perl -T ./check_dns.pl --server "$nameservers" --record 4.2.2.1 --type PTR
+run "$perl" -T ./check_dns.pl --server "$nameservers" --record 4.2.2.1 --type PTR
 
 echo "check giving same IP record without --type PTR returns 'unknown' exit code"
-run_usage $perl -T ./check_dns.pl --server "$nameservers" --record 4.2.2.1
+run_usage "$perl" -T ./check_dns.pl --server "$nameservers" --record 4.2.2.1
 
 echo "randomizing servers:"
-run $perl -T ./check_dns.pl --server "$nameservers" --record google.com --randomize-servers
+run "$perl" -T ./check_dns.pl --server "$nameservers" --record google.com --randomize-servers
 
 echo "MX record resolve:"
-run $perl -T ./check_dns.pl --server "$nameservers" --record google.com --type MX
+run "$perl" -T ./check_dns.pl --server "$nameservers" --record google.com --type MX
 
-run $perl -T ./check_dns.pl --server "$nameservers" --record google.com --type NS --randomize-servers
+run "$perl" -T ./check_dns.pl --server "$nameservers" --record google.com --type NS --randomize-servers
 
-#run $perl -T ./check_dns.pl --server "$nameservers" --record telenor.rs --type TXT --expected-regex '.*spf.*|[A-Za-z0-9+]+==|google-site-verification=[A-Za-z0-9-]+'
-run $perl -T ./check_dns.pl --server "$nameservers" --record telenor.rs --type TXT --expected-regex '.+'
+#run "$perl" -T ./check_dns.pl --server "$nameservers" --record telenor.rs --type TXT --expected-regex '.*spf.*|[A-Za-z0-9+]+==|google-site-verification=[A-Za-z0-9-]+'
+run "$perl" -T ./check_dns.pl --server "$nameservers" --record telenor.rs --type TXT --expected-regex '.+'
 
 if [ "$nameservers" = "4.2.2.1,4.2.2.2,4.2.2.3,4.2.2.4" ]; then
     echo "replacing default nameservers with their FQDNs to test the pre-resolve nameservers code path"
@@ -65,10 +65,10 @@ if [ "$nameservers" = "4.2.2.1,4.2.2.2,4.2.2.3,4.2.2.4" ]; then
     hr
 fi
 echo "A record resolve with FDQN dns servers requiring pre-resolving:"
-run $perl -T ./check_dns.pl --server "$nameservers" --record google.com --randomize-servers
+run "$perl" -T ./check_dns.pl --server "$nameservers" --record google.com --randomize-servers
 
 echo "MX record resolve with FQDN dns servers requiring pre-resolving:"
-run $perl -T ./check_dns.pl --server "$nameservers" --record google.com --type MX
+run "$perl" -T ./check_dns.pl --server "$nameservers" --record google.com --type MX
 
 echo
 echo "Completed $run_count DNS tests"

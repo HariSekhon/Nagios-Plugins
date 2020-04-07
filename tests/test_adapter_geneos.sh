@@ -41,7 +41,7 @@ run_grep '^test,DEPENDENT,test 4 message,10,5,1007$' ./adapter_geneos.py --resul
 
 run_grep '^echo,OK,test message,10,5,1008$' ./adapter_geneos.py --shell "echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1008'"
 
-run ./adapter_geneos.py $perl -T ./check_disk_write.pl -d .
+run ./adapter_geneos.py "$perl" -T ./check_disk_write.pl -d .
 
 # copied from tests/test_git.sh
 if is_CI; then
@@ -51,10 +51,10 @@ if is_CI; then
 fi
 current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 
-run ./adapter_geneos.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
+run ./adapter_geneos.py "$perl" -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 
 echo "Testing failure detection of wrong git branch (perl):"
-run_grep '^perl,CRITICAL,' ./adapter_geneos.py $perl -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
+run_grep '^perl,CRITICAL,' ./adapter_geneos.py "$perl" -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
 
 echo "Testing failure detection of wrong git branch (python):"
 run_grep '^check_git_checkout_branch.py,CRITICAL,' ./adapter_geneos.py ./check_git_checkout_branch.py -d . -b nonexistentbranch
@@ -62,12 +62,12 @@ run_grep '^check_git_checkout_branch.py,CRITICAL,' ./adapter_geneos.py ./check_g
 tmpfile="$(mktemp /tmp/adapter_geneos.txt.XXXXXX)"
 echo test > "$tmpfile"
 
-run ./adapter_geneos.py $perl -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
+run ./adapter_geneos.py "$perl" -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
 
 rm -vf "$tmpfile"
 hr
 
-run ./adapter_geneos.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
+run ./adapter_geneos.py "$perl" -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
 
 echo "Testing induced failures:"
 echo
@@ -86,7 +86,7 @@ run_grep '^nonexistentcommand,UNKNOWN,' ./adapter_geneos.py nonexistentcommand a
 
 run_grep '^nonexistentcommand,UNKNOWN,' ./adapter_geneos.py --shell nonexistentcommand arg1 arg2
 
-run_grep '^perl,UNKNOWN,usage: check_disk_write.pl ' ./adapter_geneos.py $perl -T check_disk_write.pl --help
+run_grep '^perl,UNKNOWN,usage: check_disk_write.pl ' ./adapter_geneos.py "$perl" -T check_disk_write.pl --help
 
 echo "Completed $run_count Geneos adapter tests"
 echo

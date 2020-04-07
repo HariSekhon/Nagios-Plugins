@@ -141,28 +141,28 @@ test_kafka(){
 
 #    run_fail 2 ./check_kafka_topic_exists.py -B "localhost:9999" -T "$KAFKA_TOPIC" -v
 
-    run_fail 3 $perl -T ./check_kafka.pl -v --list-topics
+    run_fail 3 "$perl" -T ./check_kafka.pl -v --list-topics
 
-    run_fail 3 $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions
+    run_fail 3 "$perl" -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions
 
-    run_fail 3 $perl -T ./check_kafka.pl -v --list-partitions
+    run_fail 3 "$perl" -T ./check_kafka.pl -v --list-partitions
 
-    ERRCODE=2 run_grep "Cannot get metadata" $perl -T ./check_kafka.pl -H localhost -P 9999 -v --list-partitions
+    ERRCODE=2 run_grep "Cannot get metadata" "$perl" -T ./check_kafka.pl -H localhost -P 9999 -v --list-partitions
 
-    ERRCODE=2 run_grep "Cannot get metadata" $perl -T ./check_kafka.pl -H localhost -P 9999 -v
+    ERRCODE=2 run_grep "Cannot get metadata" "$perl" -T ./check_kafka.pl -H localhost -P 9999 -v
 
     KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" KAFKA_HOST="" KAFKA_PORT="" \
-    run $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
+    run "$perl" -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
 
-    run $perl -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
+    run "$perl" -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
 
-    run $perl -T ./check_kafka.pl -v
+    run "$perl" -T ./check_kafka.pl -v
 
     run_conn_refused ./check_kafka.py -v
 
     echo "checking custom connection refused:"
     # Perl library error doesn't give a usual connection refused / failed to connect msg
-    ERRCODE=2 run_grep "Cannot get metadata" $perl -T ./check_kafka.pl -v -P 9999
+    ERRCODE=2 run_grep "Cannot get metadata" "$perl" -T ./check_kafka.pl -v -P 9999
 
     echo "Completed $run_count Kafka tests"
     hr

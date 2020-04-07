@@ -85,19 +85,19 @@ test_minio(){
 
 minio_tests(){
     export AWS_PORT="$MINIO_PORT"
-    run $perl -T check_aws_s3_file.pl -b bucket1 -f minio.txt --no-ssl
+    run "$perl" -T check_aws_s3_file.pl -b bucket1 -f minio.txt --no-ssl
 
-    run $perl -T check_aws_s3_file.pl -b bucket1 -f minio.txt --no-ssl --get
+    run "$perl" -T check_aws_s3_file.pl -b bucket1 -f minio.txt --no-ssl --get
 
     echo "check fails if using SSL against Minio:"
-    run_fail 2 $perl -T check_aws_s3_file.pl -b bucket1 -f minio.txt
+    run_fail 2 "$perl" -T check_aws_s3_file.pl -b bucket1 -f minio.txt
 
-    run_conn_refused $perl -T ./check_aws_s3_file.pl -b bucket1 -f minio.txt --no-ssl
+    run_conn_refused "$perl" -T ./check_aws_s3_file.pl -b bucket1 -f minio.txt --no-ssl
 
-    run_usage $perl -T check_aws_s3_file.pl -b bucket.1 -f minio.txt
-    run_usage $perl -T check_aws_s3_file.pl -b bucket1
-    run_usage $perl -T check_aws_s3_file.pl -f minio.txt
-    run_usage $perl -T check_aws_s3_file.pl
+    run_usage "$perl" -T check_aws_s3_file.pl -b bucket.1 -f minio.txt
+    run_usage "$perl" -T check_aws_s3_file.pl -b bucket1
+    run_usage "$perl" -T check_aws_s3_file.pl -f minio.txt
+    run_usage "$perl" -T check_aws_s3_file.pl
 }
 
 run_test_versions "Minio"

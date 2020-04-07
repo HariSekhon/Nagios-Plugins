@@ -77,40 +77,40 @@ test_mesos(){
         exit 1
     fi
     hr
-    run $perl -T ./check_mesos_activated_slaves.pl -P "$MESOS_MASTER_PORT" -v
+    run "$perl" -T ./check_mesos_activated_slaves.pl -P "$MESOS_MASTER_PORT" -v
 
-    run_conn_refused $perl -T ./check_mesos_activated_slaves.pl -v
+    run_conn_refused "$perl" -T ./check_mesos_activated_slaves.pl -v
 
-    #run $perl -T ./check_mesos_chronos_jobs.pl -P "$cronos_port" -v
+    #run "$perl" -T ./check_mesos_chronos_jobs.pl -P "$cronos_port" -v
 
-    run $perl -T ./check_mesos_deactivated_slaves.pl -v
+    run "$perl" -T ./check_mesos_deactivated_slaves.pl -v
 
-    run_conn_refused $perl -T ./check_mesos_deactivated_slaves.pl -v
+    run_conn_refused "$perl" -T ./check_mesos_deactivated_slaves.pl -v
 
-    run $perl -T ./check_mesos_master_health.pl -v
+    run "$perl" -T ./check_mesos_master_health.pl -v
 
-    run_conn_refused $perl -T ./check_mesos_master_health.pl -v
+    run_conn_refused "$perl" -T ./check_mesos_master_health.pl -v
 
-    run $perl -T ./check_mesos_master_state.pl -v
+    run "$perl" -T ./check_mesos_master_state.pl -v
 
-    run_conn_refused $perl -T ./check_mesos_master_state.pl -v
+    run_conn_refused "$perl" -T ./check_mesos_master_state.pl -v
 
     # must specify ports here as calling generic base plugin
     echo "checking master metrics:"
-    run $perl -T ./check_mesos_metrics.pl -P "$MESOS_MASTER_PORT" -v
+    run "$perl" -T ./check_mesos_metrics.pl -P "$MESOS_MASTER_PORT" -v
 
-    run_conn_refused $perl -T ./check_mesos_metrics.pl -v
+    run_conn_refused "$perl" -T ./check_mesos_metrics.pl -v
 
     echo "checking SLAVE metrics:"
-    run $perl -T ./check_mesos_metrics.pl -P "$MESOS_SLAVE_PORT" -v
+    run "$perl" -T ./check_mesos_metrics.pl -P "$MESOS_SLAVE_PORT" -v
 
-    run $perl -T ./check_mesos_master_metrics.pl -v
+    run "$perl" -T ./check_mesos_master_metrics.pl -v
 
-    run_conn_refused $perl -T ./check_mesos_master_metrics.pl -v
+    run_conn_refused "$perl" -T ./check_mesos_master_metrics.pl -v
 
-    run $perl -T ./check_mesos_slave_metrics.pl  -v
+    run "$perl" -T ./check_mesos_slave_metrics.pl  -v
 
-    run_conn_refused $perl -T ./check_mesos_slave_metrics.pl  -v
+    run_conn_refused "$perl" -T ./check_mesos_slave_metrics.pl  -v
 
     set +e
     slave="$(./check_mesos_slave.py -l | awk '/=/{print $1; exit}')"
@@ -121,14 +121,14 @@ test_mesos(){
     run_conn_refused ./check_mesos_slave.py -v -s "$slave"
 
     # Not implemented yet
-    #run $perl -T ./check_mesos_registered_framework.py -v
+    #run "$perl" -T ./check_mesos_registered_framework.py -v
 
     # Not implemented yet
-    #run $perl -T ./check_mesos_slave_container_statistics.pl -v
+    #run "$perl" -T ./check_mesos_slave_container_statistics.pl -v
 
-    run $perl -T ./check_mesos_slave_state.pl -v -P "$MESOS_SLAVE_PORT"
+    run "$perl" -T ./check_mesos_slave_state.pl -v -P "$MESOS_SLAVE_PORT"
 
-    run_conn_refused $perl -T ./check_mesos_slave_state.pl -v
+    run_conn_refused "$perl" -T ./check_mesos_slave_state.pl -v
 
     echo "Completed $run_count Mesos tests"
     hr

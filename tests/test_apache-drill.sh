@@ -202,9 +202,9 @@ test_drill(){
 
     # ============================================================================ #
 
-    run $perl -T ./check_apache_drill_metrics.pl -v
+    run "$perl" -T ./check_apache_drill_metrics.pl -v
 
-    run_conn_refused $perl -T ./check_apache_drill_metrics.pl -v
+    run_conn_refused "$perl" -T ./check_apache_drill_metrics.pl -v
 
     # ============================================================================ #
 

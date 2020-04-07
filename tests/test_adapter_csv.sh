@@ -41,7 +41,7 @@ run_grep '^DEPENDENT,test 4 message,10,5,1007$' ./adapter_csv.py --result 4 'tes
 
 run_grep '^OK,test message,10,5,1008$' ./adapter_csv.py --shell "echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1008'"
 
-run ./adapter_csv.py $perl -T ./check_disk_write.pl -d .
+run ./adapter_csv.py "$perl" -T ./check_disk_write.pl -d .
 
 # copied from tests/test_git.sh
 if is_CI; then
@@ -51,20 +51,20 @@ if is_CI; then
 fi
 current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 
-run ./adapter_csv.py $perl -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
+run ./adapter_csv.py "$perl" -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 
 echo "Testing failure detection of wrong git branch (perl)"
-run_grep '^CRITICAL,' ./adapter_csv.py $perl -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
+run_grep '^CRITICAL,' ./adapter_csv.py "$perl" -T ./check_git_checkout_branch.pl -d . -b nonexistentbranch
 
 echo "Testing failure detection of wrong git branch (python)"
 run_grep '^CRITICAL', ./adapter_csv.py ./check_git_checkout_branch.py -d . -b nonexistentbranch
 
 tmpfile="$(mktemp /tmp/adapter_csv.txt.XXXXXX)"
 echo test > "$tmpfile"
-run ./adapter_csv.py $perl -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
+run ./adapter_csv.py "$perl" -T ./check_file_md5.pl -f "$tmpfile" -v -c 'd8e8fca2dc0f896fd7cb4cb0031ba249'
 rm -vf "$tmpfile"
 hr
-run ./adapter_csv.py $perl -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
+run ./adapter_csv.py "$perl" -T ./check_timezone.pl -T "$(readlink /etc/localtime | sed 's/.*zoneinfo\///')" -A "$(date +%Z)" -T "$(readlink /etc/localtime)"
 
 echo "Testing induced failures:"
 echo
@@ -83,7 +83,7 @@ run_grep '^UNKNOWN,' ./adapter_csv.py nonexistentcommand arg1 arg2
 
 run_grep '^UNKNOWN,' ./adapter_csv.py --shell nonexistentcommand arg1 arg2
 
-run_grep '^UNKNOWN,usage: check_disk_write.pl ' ./adapter_csv.py $perl -T check_disk_write.pl --help
+run_grep '^UNKNOWN,usage: check_disk_write.pl ' ./adapter_csv.py "$perl" -T check_disk_write.pl --help
 
 echo "Completed $run_count CSV adapter tests"
 echo

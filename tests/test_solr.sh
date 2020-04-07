@@ -108,20 +108,20 @@ solr_tests(){
 
     # not available in Solr 3.x and collection not loaded in 4.10 above due to lack of bin/post command
     if ! [[ "$version" =~ ^3|^4 ]]; then
-        run $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
+        run "$perl" -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
     fi
 
     # core / collection not created above in versions < 5
     if ! [[ "$version" =~ ^3|^4 ]]; then
-        run $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
+        run "$perl" -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
     fi
 
     if ! [[ "$version" =~ ^3|^4 ]]; then
-        run $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
+        run "$perl" -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
 
         # several categories return no metrics at this point
         for category in $(./check_solr_metrics.pl --list-categories | tail -n +3 | egrep -v -e 'CONTAINER|QUERYPARSER|SPELLCHECKER|SEARCHER|TLOG|INDEX|DIRECTORY|HTTP|OTHER'); do
-            run $perl -T ./check_solr_metrics.pl --category $category
+            run "$perl" -T ./check_solr_metrics.pl --category $category
         done
     fi
 
@@ -130,20 +130,20 @@ solr_tests(){
     [ "$version" = "3.1" ] && num_expected_docs=0
     # core / collection not created above in versions < 5
     if ! [[ "$version" =~ ^3|^4 ]]; then
-        run $perl -T ./check_solr_query.pl -n 0:$num_expected_docs -w 200 -v
+        run "$perl" -T ./check_solr_query.pl -n 0:$num_expected_docs -w 200 -v
 
-        run $perl -T ./check_solr_write.pl -v -w 1000 # because Travis is slow
+        run "$perl" -T ./check_solr_write.pl -v -w 1000 # because Travis is slow
     fi
 
 }
 
 solr_conn_refused_tests(){
     run_conn_refused ./check_solr_version.py -e "$version"
-    run_conn_refused $perl -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
-    run_conn_refused $perl -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
-    run_conn_refused $perl -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
-    run_conn_refused $perl -T ./check_solr_query.pl -n 0:$num_expected_docs -w 200 -v
-    run_conn_refused $perl -T ./check_solr_write.pl -v -w 1000
+    run_conn_refused "$perl" -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
+    run_conn_refused "$perl" -T ./check_solr_core.pl -v --index-size 100 --heap-size 100 --num-docs 10 -w 2000
+    run_conn_refused "$perl" -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
+    run_conn_refused "$perl" -T ./check_solr_query.pl -n 0:$num_expected_docs -w 200 -v
+    run_conn_refused "$perl" -T ./check_solr_write.pl -v -w 1000
 }
 
 run_test_versions Solr

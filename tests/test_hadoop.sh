@@ -178,40 +178,40 @@ EOF
 
     run_conn_refused ./check_hadoop_datanode_version.py -v -e "$version"
 
-    run $perl -T ./check_hadoop_datanode_version.pl --node "$hostname" -v -e "$version"
+    run "$perl" -T ./check_hadoop_datanode_version.pl --node "$hostname" -v -e "$version"
 
-    run_conn_refused $perl -T ./check_hadoop_datanode_version.pl --node "$hostname" -v -e "$version"
+    run_conn_refused "$perl" -T ./check_hadoop_datanode_version.pl --node "$hostname" -v -e "$version"
 
-    run $perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "$version"
+    run "$perl" -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "$version"
 
-    run_fail 2 $perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "fail-version"
+    run_fail 2 "$perl" -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "fail-version"
 
-    run_conn_refused $perl -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "$version"
+    run_conn_refused "$perl" -T ./check_hadoop_yarn_resource_manager_version.pl -v -e "$version"
 
     # TODO: add node manager version test
 
     docker_exec check_hadoop_balance.pl -w 5 -c 10 --hadoop-bin /hadoop/bin/hdfs --hadoop-user root -t 60
 
-    run $perl -T ./check_hadoop_checkpoint.pl
+    run "$perl" -T ./check_hadoop_checkpoint.pl
 
-    run_conn_refused $perl -T ./check_hadoop_checkpoint.pl
+    run_conn_refused "$perl" -T ./check_hadoop_checkpoint.pl
 
     echo "testing failure of checkpoint time:"
     #if ! [[ "$version" =~ ^2\.[23]$ ]]; then
     if [ "$version" = "2.2" -o "$version" = "2.3" ]; then
         # for some reason this doesn't checkpoint when starting up in older versions
-        run_fail 1 $perl -T ./check_hadoop_checkpoint.pl -w 1000000: -c 1:
+        run_fail 1 "$perl" -T ./check_hadoop_checkpoint.pl -w 1000000: -c 1:
 
-        run_fail 2 $perl -T ./check_hadoop_checkpoint.pl -w 30000000: -c 20000000:
+        run_fail 2 "$perl" -T ./check_hadoop_checkpoint.pl -w 30000000: -c 20000000:
     else
-        run_fail 1 $perl -T ./check_hadoop_checkpoint.pl -w 1000: -c 1:
+        run_fail 1 "$perl" -T ./check_hadoop_checkpoint.pl -w 1000: -c 1:
 
-        run_fail 2 $perl -T ./check_hadoop_checkpoint.pl -w 3000: -c 2000:
+        run_fail 2 "$perl" -T ./check_hadoop_checkpoint.pl -w 3000: -c 2000:
     fi
 
-    run $perl -T ./check_hadoop_datanode_jmx.pl --all-metrics
+    run "$perl" -T ./check_hadoop_datanode_jmx.pl --all-metrics
 
-    run_conn_refused $perl -T ./check_hadoop_datanode_jmx.pl --all-metrics
+    run_conn_refused "$perl" -T ./check_hadoop_datanode_jmx.pl --all-metrics
 
     run ./check_hadoop_datanodes_block_balance.py -w 5 -c 10
 
@@ -225,11 +225,11 @@ EOF
 
     run_conn_refused ./check_hadoop_hdfs_balance.py -w 5 -c 10
 
-    run $perl -T ./check_hadoop_datanodes.pl
+    run "$perl" -T ./check_hadoop_datanodes.pl
 
-    run $perl -T ./check_hadoop_datanodes.pl --stale-threshold 0
+    run "$perl" -T ./check_hadoop_datanodes.pl --stale-threshold 0
 
-    run_conn_refused $perl -T ./check_hadoop_datanodes.pl
+    run_conn_refused "$perl" -T ./check_hadoop_datanodes.pl
 
     run ./check_hadoop_datanode_last_contact.py --node "$hostname"
 
@@ -266,19 +266,19 @@ EOF
     # only check logs for each version as there is no latest fsck log as it would be a duplicate of the highest version number
     echo "version = $version"
     if ! is_latest_version; then
-        run $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log"
+        run "$perl" -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log"
 
-        run $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --stats
+        run "$perl" -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --stats
 
-        run_fail 1 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --last-fsck -w 1 -c 999999999
+        run_fail 1 "$perl" -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --last-fsck -w 1 -c 999999999
 
-        run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --last-fsck -w 1 -c 1
+        run_fail 2 "$perl" -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --last-fsck -w 1 -c 1
 
-        run $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --max-blocks -w 1 -c 2
+        run "$perl" -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --max-blocks -w 1 -c 2
 
-        run_fail 1 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --max-blocks -w 0 -c 1
+        run_fail 1 "$perl" -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --max-blocks -w 0 -c 1
 
-        run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --max-blocks -w 0 -c 0
+        run_fail 2 "$perl" -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_log" --max-blocks -w 0 -c 0
     fi
 
     docker_exec check_hadoop_hdfs_fsck.pl -f /tmp/hdfs-fsck.log
@@ -300,24 +300,24 @@ EOF
     #docker exec $DOCKER_CONTAINER pip install docker
     ERRCODE="0 1" docker_exec check_hadoop_hdfs_rack_resilience.py
 
-    run $perl -T ./check_hadoop_hdfs_space.pl
+    run "$perl" -T ./check_hadoop_hdfs_space.pl
 
-    run_conn_refused $perl -T ./check_hadoop_hdfs_space.pl
+    run_conn_refused "$perl" -T ./check_hadoop_hdfs_space.pl
 
     run ./check_hadoop_hdfs_space.py
 
     run_conn_refused ./check_hadoop_hdfs_space.py
 
     # XXX: these ports must be left as this plugin is generic and has no default port, nor does it pick up any environment variables more specific than $PORT
-    run $perl -T ./check_hadoop_jmx.pl --all -P "$HADOOP_NAMENODE_PORT"
+    run "$perl" -T ./check_hadoop_jmx.pl --all -P "$HADOOP_NAMENODE_PORT"
 
-    run $perl -T ./check_hadoop_jmx.pl --all -P "$HADOOP_DATANODE_PORT"
+    run "$perl" -T ./check_hadoop_jmx.pl --all -P "$HADOOP_DATANODE_PORT"
 
-    run $perl -T ./check_hadoop_jmx.pl --all -P "$HADOOP_YARN_RESOURCE_MANAGER_PORT"
+    run "$perl" -T ./check_hadoop_jmx.pl --all -P "$HADOOP_YARN_RESOURCE_MANAGER_PORT"
 
-    run $perl -T ./check_hadoop_jmx.pl --all -P "$HADOOP_YARN_NODE_MANAGER_PORT"
+    run "$perl" -T ./check_hadoop_jmx.pl --all -P "$HADOOP_YARN_NODE_MANAGER_PORT"
 
-    run_conn_refused $perl -T ./check_hadoop_jmx.pl --all
+    run_conn_refused "$perl" -T ./check_hadoop_jmx.pl --all
 
     run ./check_hadoop_namenode_failed_namedirs.py
 
@@ -325,37 +325,37 @@ EOF
 
     run_conn_refused ./check_hadoop_namenode_failed_namedirs.py
 
-    run $perl -T ./check_hadoop_namenode_heap.pl
+    run "$perl" -T ./check_hadoop_namenode_heap.pl
 
-    run $perl -T ./check_hadoop_namenode_heap.pl --non-heap
+    run "$perl" -T ./check_hadoop_namenode_heap.pl --non-heap
 
-    run_conn_refused $perl -T ./check_hadoop_namenode_heap.pl
+    run_conn_refused "$perl" -T ./check_hadoop_namenode_heap.pl
 
-    run $perl -T ./check_hadoop_namenode_jmx.pl --all-metrics
+    run "$perl" -T ./check_hadoop_namenode_jmx.pl --all-metrics
 
-    run_conn_refused $perl -T ./check_hadoop_namenode_jmx.pl --all-metrics
+    run_conn_refused "$perl" -T ./check_hadoop_namenode_jmx.pl --all-metrics
 
-    run_conn_refused $perl -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10
+    run_conn_refused "$perl" -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10
 
-    run $perl -T ./check_hadoop_namenode_safemode.pl
+    run "$perl" -T ./check_hadoop_namenode_safemode.pl
 
-    run_conn_refused $perl -T ./check_hadoop_namenode_safemode.pl
+    run_conn_refused "$perl" -T ./check_hadoop_namenode_safemode.pl
 
     if [ "$version" != "2.2" ]; then
-        ERRCODE=2 run_grep "CRITICAL: namenode security enabled 'false'" $perl -T ./check_hadoop_namenode_security_enabled.pl
+        ERRCODE=2 run_grep "CRITICAL: namenode security enabled 'false'" "$perl" -T ./check_hadoop_namenode_security_enabled.pl
     fi
 
-    run $perl -T ./check_hadoop_namenode_ha_state.pl
+    run "$perl" -T ./check_hadoop_namenode_ha_state.pl
 
-    run_conn_refused $perl -T ./check_hadoop_namenode_ha_state.pl
+    run_conn_refused "$perl" -T ./check_hadoop_namenode_ha_state.pl
 
-    run $perl -T ./check_hadoop_namenode_ha_state.pl --active
+    run "$perl" -T ./check_hadoop_namenode_ha_state.pl --active
 
-    run_fail 2 $perl -T ./check_hadoop_namenode_ha_state.pl --standby
+    run_fail 2 "$perl" -T ./check_hadoop_namenode_ha_state.pl --standby
 
-    run $perl -T ./check_hadoop_replication.pl
+    run "$perl" -T ./check_hadoop_replication.pl
 
-    run_conn_refused $perl -T ./check_hadoop_replication.pl
+    run_conn_refused "$perl" -T ./check_hadoop_replication.pl
 
     run ./check_hadoop_namenode_java_gc.py
     run ./check_hadoop_datanode_java_gc.py
@@ -508,67 +508,67 @@ EOF
 
     # ================================================
 
-    run $perl -T ./check_hadoop_yarn_app_stats.pl
+    run "$perl" -T ./check_hadoop_yarn_app_stats.pl
 
-    run_conn_refused $perl -T ./check_hadoop_yarn_app_stats.pl
-
-    # ================================================
-
-    run $perl -T ./check_hadoop_yarn_app_stats_queue.pl
-
-    run_conn_refused $perl -T ./check_hadoop_yarn_app_stats_queue.pl
+    run_conn_refused "$perl" -T ./check_hadoop_yarn_app_stats.pl
 
     # ================================================
 
-    run $perl -T ./check_hadoop_yarn_metrics.pl
+    run "$perl" -T ./check_hadoop_yarn_app_stats_queue.pl
 
-    run_conn_refused $perl -T ./check_hadoop_yarn_metrics.pl
-
-    # ================================================
-
-    run $perl -T ./check_hadoop_yarn_node_manager.pl
-
-    run_conn_refused $perl -T ./check_hadoop_yarn_node_manager.pl
+    run_conn_refused "$perl" -T ./check_hadoop_yarn_app_stats_queue.pl
 
     # ================================================
 
-    run $perl -T ./check_hadoop_yarn_node_managers.pl -w 1 -c 1
+    run "$perl" -T ./check_hadoop_yarn_metrics.pl
 
-    run_conn_refused $perl -T ./check_hadoop_yarn_node_managers.pl -w 1 -c 1
-
-    # ================================================
-
-    run $perl -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname"
-
-    run_conn_refused $perl -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname"
+    run_conn_refused "$perl" -T ./check_hadoop_yarn_metrics.pl
 
     # ================================================
 
-    run $perl -T ./check_hadoop_yarn_queue_capacity.pl
+    run "$perl" -T ./check_hadoop_yarn_node_manager.pl
 
-    run $perl -T ./check_hadoop_yarn_queue_capacity.pl --queue default
-
-    run_conn_refused $perl -T ./check_hadoop_yarn_queue_capacity.pl
+    run_conn_refused "$perl" -T ./check_hadoop_yarn_node_manager.pl
 
     # ================================================
 
-    run $perl -T ./check_hadoop_yarn_queue_state.pl
+    run "$perl" -T ./check_hadoop_yarn_node_managers.pl -w 1 -c 1
 
-    run $perl -T ./check_hadoop_yarn_queue_state.pl --queue default
-
-    run_conn_refused $perl -T ./check_hadoop_yarn_queue_state.pl
+    run_conn_refused "$perl" -T ./check_hadoop_yarn_node_managers.pl -w 1 -c 1
 
     # ================================================
 
-    run $perl -T ./check_hadoop_yarn_resource_manager_heap.pl
+    run "$perl" -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname"
 
-    run_conn_refused $perl -T ./check_hadoop_yarn_resource_manager_heap.pl
+    run_conn_refused "$perl" -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname"
+
+    # ================================================
+
+    run "$perl" -T ./check_hadoop_yarn_queue_capacity.pl
+
+    run "$perl" -T ./check_hadoop_yarn_queue_capacity.pl --queue default
+
+    run_conn_refused "$perl" -T ./check_hadoop_yarn_queue_capacity.pl
+
+    # ================================================
+
+    run "$perl" -T ./check_hadoop_yarn_queue_state.pl
+
+    run "$perl" -T ./check_hadoop_yarn_queue_state.pl --queue default
+
+    run_conn_refused "$perl" -T ./check_hadoop_yarn_queue_state.pl
+
+    # ================================================
+
+    run "$perl" -T ./check_hadoop_yarn_resource_manager_heap.pl
+
+    run_conn_refused "$perl" -T ./check_hadoop_yarn_resource_manager_heap.pl
 
     # ================================================
     # returns -1 for NonHeapMemoryUsage max
-    run_fail 3 $perl -T ./check_hadoop_yarn_resource_manager_heap.pl --non-heap
+    run_fail 3 "$perl" -T ./check_hadoop_yarn_resource_manager_heap.pl --non-heap
 
-    run_conn_refused $perl -T ./check_hadoop_yarn_resource_manager_heap.pl --non-heap
+    run_conn_refused "$perl" -T ./check_hadoop_yarn_resource_manager_heap.pl --non-heap
 
     # ================================================
 
@@ -576,9 +576,9 @@ EOF
 
     # ================================================
 
-    run $perl -T ./check_hadoop_yarn_resource_manager_state.pl
+    run "$perl" -T ./check_hadoop_yarn_resource_manager_state.pl
 
-    run_conn_refused $perl -T ./check_hadoop_yarn_resource_manager_state.pl
+    run_conn_refused "$perl" -T ./check_hadoop_yarn_resource_manager_state.pl
 
     # ================================================
     echo "Now killing DataNode and NodeManager to run worker failure tests:"
@@ -590,11 +590,11 @@ EOF
     # ================================================
     echo "Now waiting for masters to detect worker failures:"
     echo "waiting for NameNode to detect DataNode failure:"
-    ERRCODE=1 retry 30 $perl -T ./check_hadoop_datanodes.pl
+    ERRCODE=1 retry 30 "$perl" -T ./check_hadoop_datanodes.pl
     hr
 
     echo "datanodes should be in warning state at this point due to being stale with contact lag but not yet marked dead:"
-    ERRCODE=1 run_grep '1 stale' $perl -T ./check_hadoop_datanodes.pl
+    ERRCODE=1 run_grep '1 stale' "$perl" -T ./check_hadoop_datanodes.pl
 
     # typically 10-20 secs since last contact by this point
     run_fail 1 ./check_hadoop_datanode_last_contact.py --node "$hostname" -w 5
@@ -604,9 +604,9 @@ EOF
     # ================================================
     # TODO: submit job to get stuck in ACCEPTED state and test yarn apps plugins again
     echo "waiting for Yarn Resource Manager to detect NodeManager failure:"
-    ERRCODE=1 RETRY_INTERVAL=3 retry 60 $perl -T ./check_hadoop_yarn_node_managers.pl -w 0 -c 1
+    ERRCODE=1 RETRY_INTERVAL=3 retry 60 "$perl" -T ./check_hadoop_yarn_node_managers.pl -w 0 -c 1
     hr
-    ERRCODE=2 retry 10 $perl -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname"
+    ERRCODE=2 retry 10 "$perl" -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname"
     hr
     # ================================================
     # API endpoint not available in Hadoop 2.2
@@ -619,26 +619,26 @@ EOF
         ERRCODE=2 docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
     fi
 
-    run_fail 2 $perl -T ./check_hadoop_yarn_node_manager.pl
+    run_fail 2 "$perl" -T ./check_hadoop_yarn_node_manager.pl
 
     # ================================================
 
-    run_fail 1 $perl -T ./check_hadoop_yarn_node_managers.pl -w 0 -c 1
+    run_fail 1 "$perl" -T ./check_hadoop_yarn_node_managers.pl -w 0 -c 1
 
-    run_fail 2 $perl -T ./check_hadoop_yarn_node_managers.pl -w 0 -c 0
+    run_fail 2 "$perl" -T ./check_hadoop_yarn_node_managers.pl -w 0 -c 0
 
     # ================================================
 
-    run_fail 2 $perl -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname"
+    run_fail 2 "$perl" -T ./check_hadoop_yarn_node_manager_via_rm.pl --node "$hostname"
 
     # ================================================
 
     echo "Now waiting on datanode to be marked as dead:"
     # NN 2 * heartbeatRecheckInterval (10) + 10 * 1000 * heartbeatIntervalSeconds == 50 secs
-    ERRCODE=2 retry 50 $perl -T ./check_hadoop_datanodes.pl -c 0
+    ERRCODE=2 retry 50 "$perl" -T ./check_hadoop_datanodes.pl -c 0
     hr
 
-    run_fail 2 $perl -T ./check_hadoop_datanodes.pl -c 0
+    run_fail 2 "$perl" -T ./check_hadoop_datanodes.pl -c 0
 
     # ================================================
     # stuff from here will must be tested after worker
@@ -678,40 +678,40 @@ EOF
         ERRCODE=2 docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
     fi
 
-    ERRCODE=2 retry 20 $perl -T ./check_hadoop_hdfs_space.pl
+    ERRCODE=2 retry 20 "$perl" -T ./check_hadoop_hdfs_space.pl
 
-    run_fail 2 $perl -T ./check_hadoop_hdfs_space.pl
+    run_fail 2 "$perl" -T ./check_hadoop_hdfs_space.pl
 
     run_fail 2 ./check_hadoop_hdfs_space.py
 
-    run_fail 2 $perl -T ./check_hadoop_replication.pl
+    run_fail 2 "$perl" -T ./check_hadoop_replication.pl
 
     if [[ "$version" =~ ^2\.[0-6]$ ]]; then
         echo
         echo "Now running legacy checks against failure scenarios:"
         echo
-        run_fail 3 $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
+        run_fail 3 "$perl" -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
 
-        run_fail 3 $perl -T ./check_hadoop_datanodes_blockcounts.pl
+        run_fail 3 "$perl" -T ./check_hadoop_datanodes_blockcounts.pl
 
-        run_fail 1 $perl -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10
+        run_fail 1 "$perl" -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10
 
-        run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --hdfs-space
+        run_fail 2 "$perl" -T ./check_hadoop_namenode.pl -v --hdfs-space
 
-        run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --replication -w 10 -c 20
+        run_fail 2 "$perl" -T ./check_hadoop_namenode.pl -v --replication -w 10 -c 20
 
-        run_fail 3 $perl -T ./check_hadoop_namenode.pl -v --datanode-blocks
+        run_fail 3 "$perl" -T ./check_hadoop_namenode.pl -v --datanode-blocks
 
-        run_fail 3 $perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20
+        run_fail 3 "$perl" -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20
 
-        run_fail 3 $perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20 -v
+        run_fail 3 "$perl" -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20 -v
 
-        run_fail 1 $perl -T ./check_hadoop_namenode.pl -v --node-count -w 1 -c 0
+        run_fail 1 "$perl" -T ./check_hadoop_namenode.pl -v --node-count -w 1 -c 0
 
         echo "checking node count (expecting critical < 1 nodes)"
-        run_fail 2 $perl -t ./check_hadoop_namenode.pl -v --node-count -w 2 -c 1
+        run_fail 2 "$perl" -t ./check_hadoop_namenode.pl -v --node-count -w 2 -c 1
 
-        run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --node-list $hostname
+        run_fail 2 "$perl" -T ./check_hadoop_namenode.pl -v --node-list $hostname
     fi
 
     # This takes ages and we aren't going to git commit the collected log from Jenkins or Travis CI
@@ -757,9 +757,9 @@ EOF
         fi
     fi
     if [ -f "$fsck_fail_log" ]; then
-        run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_fail_log"
+        run_fail 2 "$perl" -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_fail_log"
 
-        run_fail 2 $perl -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_fail_log" --stats
+        run_fail 2 "$perl" -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_fail_log" --stats
     fi
     echo "Completed $run_count Hadoop tests"
     hr
@@ -803,74 +803,74 @@ check_older_plugins(){
     # XXX: Hadoop doesn't expose this information in the same way any more via dfshealth.jsp so these plugins are end of life with Hadoop 2.6
     if [[ "$version" =~ ^2\.[0-6]$ ]]; then
         # gets 404 not found on newer Hadoop versions
-        run $perl -T ./check_hadoop_datanode_blockcount.pl
+        run "$perl" -T ./check_hadoop_datanode_blockcount.pl
 
-        run_conn_refused $perl -T ./check_hadoop_datanode_blockcount.pl
+        run_conn_refused "$perl" -T ./check_hadoop_datanode_blockcount.pl
 
-        run $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
+        run "$perl" -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
 
-        run $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10 -v
+        run "$perl" -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10 -v
 
-        run_conn_refused $perl -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
+        run_conn_refused "$perl" -T ./check_hadoop_datanodes_block_balance.pl -w 5 -c 10
 
-        run $perl -T ./check_hadoop_datanodes_blockcounts.pl
+        run "$perl" -T ./check_hadoop_datanodes_blockcounts.pl
 
-        run_conn_refused $perl -T ./check_hadoop_datanodes_blockcounts.pl
+        run_conn_refused "$perl" -T ./check_hadoop_datanodes_blockcounts.pl
 
         # on a real cluster thresholds should be set to millions+, no defaults as must be configured based on NN heap allocated
         # XXX: Total Blocks are not available via blockScannerReport from Hadoop 2.7
-        run $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 10 -c 20
+        run "$perl" -T ./check_hadoop_hdfs_total_blocks.pl -w 10 -c 20
 
-        run_conn_refused $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 10 -c 20
+        run_conn_refused "$perl" -T ./check_hadoop_hdfs_total_blocks.pl -w 10 -c 20
 
         echo "testing failure scenarios:"
-        run_fail 1 $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 4
+        run_fail 1 "$perl" -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 4
 
-        run_fail 2 $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 0
+        run_fail 2 "$perl" -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 0
 
-        run_conn_refused $perl -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 1
+        run_conn_refused "$perl" -T ./check_hadoop_hdfs_total_blocks.pl -w 0 -c 1
 
-        run $perl -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10
+        run "$perl" -T ./check_hadoop_namenode.pl -v --balance -w 5 -c 10
 
-        run $perl -T ./check_hadoop_namenode.pl -v --hdfs-space
+        run "$perl" -T ./check_hadoop_namenode.pl -v --hdfs-space
 
-        run $perl -T ./check_hadoop_namenode.pl -v --replication -w 10 -c 20
+        run "$perl" -T ./check_hadoop_namenode.pl -v --replication -w 10 -c 20
 
-        run $perl -T ./check_hadoop_namenode.pl -v --datanode-blocks
+        run "$perl" -T ./check_hadoop_namenode.pl -v --datanode-blocks
 
-        run $perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20
+        run "$perl" -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20
 
-        run $perl -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20 -v
+        run "$perl" -T ./check_hadoop_namenode.pl --datanode-block-balance -w 5 -c 20 -v
 
-        run $perl -T ./check_hadoop_namenode.pl -v --node-count -w 1 -c 1
+        run "$perl" -T ./check_hadoop_namenode.pl -v --node-count -w 1 -c 1
 
         echo "checking node count (expecting warning < 2 nodes):"
-        run_fail 1 $perl -t ./check_hadoop_namenode.pl -v --node-count -w 2 -c 1
+        run_fail 1 "$perl" -t ./check_hadoop_namenode.pl -v --node-count -w 2 -c 1
 
         echo "checking node count (expecting critical < 2 nodes):"
-        run_fail 2 $perl -t ./check_hadoop_namenode.pl -v --node-count -w 2 -c 2
+        run_fail 2 "$perl" -t ./check_hadoop_namenode.pl -v --node-count -w 2 -c 2
 
-        run $perl -T ./check_hadoop_namenode.pl -v --node-list $hostname
+        run "$perl" -T ./check_hadoop_namenode.pl -v --node-list $hostname
 
-        run $perl -T ./check_hadoop_namenode.pl -v --heap-usage -w 80 -c 90
+        run "$perl" -T ./check_hadoop_namenode.pl -v --heap-usage -w 80 -c 90
 
         echo "checking we can trigger warning on heap usage:"
-        run_fail 1 $perl -T ./check_hadoop_namenode.pl -v --heap-usage -w 1 -c 90
+        run_fail 1 "$perl" -T ./check_hadoop_namenode.pl -v --heap-usage -w 1 -c 90
 
         echo "checking we can trigger critical on heap usage:"
-        run_fail 2 $perl -T ./check_hadoop_namenode.pl -v --heap-usage -w 0 -c 1
+        run_fail 2 "$perl" -T ./check_hadoop_namenode.pl -v --heap-usage -w 0 -c 1
 
-        run $perl -T ./check_hadoop_namenode.pl -v --non-heap-usage -w 80 -c 90
+        run "$perl" -T ./check_hadoop_namenode.pl -v --non-heap-usage -w 80 -c 90
 
         # these won't trigger as NN has no max non-heap
 #        echo "checking we can trigger warning on non-heap usage"
 #        set +e
-#        $perl -T ./check_hadoop_namenode.pl - P"$HADOOP_NAMENODE_PORT" -v --non-heap-usage -w 1 -c 90
+#        "$perl" -T ./check_hadoop_namenode.pl - P"$HADOOP_NAMENODE_PORT" -v --non-heap-usage -w 1 -c 90
 #        check_exit_code 1
 #        hr
 #        echo "checking we can trigger critical on non-heap usage"
 #        set +e
-#        $perl -T ./check_hadoop_namenode.pl -P "$HADOOP_NAMENODE_PORT" -v --non-heap-usage -w 0 -c 1
+#        "$perl" -T ./check_hadoop_namenode.pl -P "$HADOOP_NAMENODE_PORT" -v --non-heap-usage -w 0 -c 1
 #        check_exit_code 2
 #        set -e
 #        hr

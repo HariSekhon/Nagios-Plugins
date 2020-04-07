@@ -65,7 +65,7 @@ test_riak(){
     when_url_content "http://$RIAK_HOST:$HAPROXY_PORT/ping" OK
     hr
     echo "waiting for up to $startupwait secs for Riak to come fully up:"
-    retry $startupwait $perl -T check_riak_write.pl -v
+    retry $startupwait "$perl" -T check_riak_write.pl -v
     hr
     if [ -z "${NOSETUP:-}" ]; then
         # Riak 2.x
@@ -118,47 +118,47 @@ test_riak(){
 }
 
 riak_tests(){
-    run $perl -T check_riak_version.pl -v -e "$version"
+    run "$perl" -T check_riak_version.pl -v -e "$version"
 
-    run_fail 2 $perl -T check_riak_version.pl -v -e 'fail-version'
+    run_fail 2 "$perl" -T check_riak_version.pl -v -e 'fail-version'
 
-    run_conn_refused $perl -T check_riak_version.pl -v
+    run_conn_refused "$perl" -T check_riak_version.pl -v
 
-    run $perl -T check_riak_api_ping.pl
+    run "$perl" -T check_riak_api_ping.pl
 
-    run_conn_refused $perl -T check_riak_api_ping.pl
+    run_conn_refused "$perl" -T check_riak_api_ping.pl
 
     # riak-admin doesn't work in Dockerized environments, fails trying to stat '/proc/sys/net/core/wmem_default'
     #docker_exec check_riak_diag.pl --ignore-warnings -v
     # must attempt to check this locally if available - but may get "CRITICAL: 'riak-admin diag' returned 1 -  Node is not running!"
     if type -P riak-admin; then
-        run_fail "0 2" $perl -T check_riak_diag.pl --ignore-warnings -v
+        run_fail "0 2" "$perl" -T check_riak_diag.pl --ignore-warnings -v
     else
         echo "WARNING: riak-admin not available locally, skipping test of check_riak_diag.pl as it doesn't work in dockerized environments (fails to stat  '/proc/sys/net/core/wmem_default')"
         hr
     fi
 
-    run $perl -T check_riak_key.pl -b myBucket -k myKey -e hari -v
+    run "$perl" -T check_riak_key.pl -b myBucket -k myKey -e hari -v
 
-    run_conn_refused $perl -T check_riak_key.pl -b myBucket -k myKey -e hari -v
+    run_conn_refused "$perl" -T check_riak_key.pl -b myBucket -k myKey -e hari -v
 
     docker_exec check_riak_member_status.pl -v
 
     docker_exec check_riak_ringready.pl -v
 
-    run $perl -T check_riak_stats.pl --all -v
+    run "$perl" -T check_riak_stats.pl --all -v
 
-    run_conn_refused $perl -T check_riak_stats.pl --all -v
+    run_conn_refused "$perl" -T check_riak_stats.pl --all -v
 
-    run $perl -T check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
+    run "$perl" -T check_riak_stats.pl -s ring_num_partitions -c 64:64 -v
 
     if [ "${version:0:1}" != 1 ]; then
-        run $perl -T check_riak_stats.pl -s disk.0.size -c 1024: -v
+        run "$perl" -T check_riak_stats.pl -s disk.0.size -c 1024: -v
     fi
 
-    run $perl -T check_riak_write.pl -v
+    run "$perl" -T check_riak_write.pl -v
 
-    run_conn_refused $perl -T check_riak_write.pl -v
+    run_conn_refused "$perl" -T check_riak_write.pl -v
 
     docker_exec check_riak_write_local.pl -v
 }

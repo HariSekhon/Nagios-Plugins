@@ -82,25 +82,25 @@ h2o_tests(){
     docker_compose_version_test h2o "$version"
     hr
 
-    run $perl -T ./check_h2o_cluster.pl
+    run "$perl" -T ./check_h2o_cluster.pl
 
-    run $perl -T ./check_h2o_jobs.pl
+    run "$perl" -T ./check_h2o_jobs.pl
 
-    run $perl -T ./check_h2o_node_health.pl
+    run "$perl" -T ./check_h2o_node_health.pl
 
-    run $perl -T ./check_h2o_node_stats.pl
+    run "$perl" -T ./check_h2o_node_stats.pl
 
-    run $perl -T ./check_h2o_nodes_last_contact.pl
+    run "$perl" -T ./check_h2o_nodes_last_contact.pl
 
-    run_conn_refused $perl -T ./check_h2o_cluster.pl
+    run_conn_refused "$perl" -T ./check_h2o_cluster.pl
 
-    run_conn_refused $perl -T ./check_h2o_jobs.pl
+    run_conn_refused "$perl" -T ./check_h2o_jobs.pl
 
-    run_conn_refused $perl -T ./check_h2o_node_health.pl
+    run_conn_refused "$perl" -T ./check_h2o_node_health.pl
 
-    run_conn_refused $perl -T ./check_h2o_node_stats.pl
+    run_conn_refused "$perl" -T ./check_h2o_node_stats.pl
 
-    run_conn_refused $perl -T ./check_h2o_nodes_last_contact.pl
+    run_conn_refused "$perl" -T ./check_h2o_nodes_last_contact.pl
 }
 
 run_test_versions H2O
