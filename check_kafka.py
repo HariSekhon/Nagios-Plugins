@@ -63,7 +63,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.3'
+__version__ = '0.5.4'
 
 
 class CheckKafka(PubSubNagiosPlugin):
@@ -92,6 +92,8 @@ class CheckKafka(PubSubNagiosPlugin):
         self.timeout_ms = None
         self.start_offset = None
         self.sleep_secs = 0
+        self.sleep_usage = 'Sleep in seconds between producing and consuming from given topic' + \
+                           ' (optional, default: {} secs)'.format(self.default_sleep_secs)
 
     def add_options(self):
         # super(CheckKafka, self).add_options()
@@ -111,8 +113,6 @@ class CheckKafka(PubSubNagiosPlugin):
                      help='Acks to require from Kafka. Valid options are \'1\' for Kafka ' +
                      'partition leader, or \'all\' for all In-Sync Replicas (may block causing ' +
                      'timeout if replicas aren\'t available, default: 1)')
-        self.add_opt('-s', '--sleep', metavar='secs',
-                     help='Sleep in seconds between producing and consuming from given topic (optional)')
         self.add_opt('--list-topics', action='store_true', help='List Kafka topics from broker(s) and exit')
         self.add_opt('--list-partitions', action='store_true',
                      help='List Kafka topic paritions from broker(s) and exit')
