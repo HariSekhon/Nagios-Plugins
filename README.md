@@ -75,6 +75,7 @@ Advanced Nagios Plugins Collection
 [![CI Python 3.8](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Python%203.8/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Python+3.8%22)
 [![CI PyPy 2](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20PyPy%202/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+PyPy+2%22)
 [![CI PyPy 3](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20PyPy%203/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+PyPy+3%22)
+[![CI Perl](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Perl/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Perl%22)
 [![CI Perl 5.10](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Perl%205.10/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Perl+5.10%22)
 [![CI Perl 5.12](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Perl%205.12/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Perl+5.12%22)
 [![CI Perl 5.14](https://github.com/HariSekhon/Nagios-Plugins/workflows/CI%20Perl%205.14/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22CI+Perl+5.14%22)
