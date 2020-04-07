@@ -19,7 +19,9 @@ kafka-python==1.4.7
 # MySQL-python is dead and replaced by fork mysqlclient which has Python 3 support
 #MySQL-python==1.2.5
 mysqlclient==1.4.6
-pika==1.1.0
+# requires code changes in new version :-/
+#pika==1.1.0
+pika==0.10.0
 # requires pg_config to build from source
 #psycopg2==2.7.3.1
 #psycopg2-binary==2.7.3.1
