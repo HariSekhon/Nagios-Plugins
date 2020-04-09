@@ -19,7 +19,8 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "B l u e   T a l o n"
 
@@ -92,6 +93,8 @@ else
     echo "WARNING: Blue Talon host $BLUE_TALON_HOST:$BLUE_TALON_PORT not available, skipping checks..."
     echo
 fi
+# defined and tracked in bash-tools/lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count Blue Talon tests"
 echo
 echo "All Blue Talon tests completed successfully"
