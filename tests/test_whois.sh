@@ -19,11 +19,17 @@ srcdir2="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir2/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 srcdir="$srcdir2"
 
-[ -n "${DEBUG:-}" -o -n "${TRAVIS:-}" ] && verbose="-vvv" || verbose=""
+if [ -n "${DEBUG:-}" ] ||
+   is_travis; then
+    verbose="-vvv"
+else
+    verbose=""
+fi
 
 #[ `uname -s` = "Linux" ] || exit 0
 
@@ -35,8 +41,8 @@ export DOCKER_CONTAINER="nagios-plugins-whois-test"
 export DOCKER_MOUNT_DIR="/pl"
 
 startupwait 0
-DOCKER_OPTS="-v $srcdir/..:$DOCKER_MOUNT_DIR"
-DOCKER_CMD="tail -f /dev/null"
+export DOCKER_OPTS="-v $srcdir/..:$DOCKER_MOUNT_DIR"
+export DOCKER_CMD="tail -f /dev/null"
 check_whois="run ./check_whois.pl"
 using_docker=""
 
@@ -51,12 +57,12 @@ if ! type -P jwhois &>/dev/null || is_mac; then
     echo "jwhois not found in \$PATH, attempting to use Dockerized test instead"
     launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
     #docker exec -ti "$DOCKER_CONTAINER" ls -l /pl
-    check_whois="run docker exec -ti "$DOCKER_CONTAINER" $DOCKER_MOUNT_DIR/check_whois.pl"
+    check_whois="run docker exec -ti $DOCKER_CONTAINER $DOCKER_MOUNT_DIR/check_whois.pl"
     using_docker=1
 fi
 
 set +eo pipefail
-if $check_whois -d google.com | fgrep '[Unable to connect to remote host]'; then
+if $check_whois -d google.com | grep -F '[Unable to connect to remote host]'; then
     echo
     echo "WARNING: Whois port appears blocked outbound, skipping whois checks..."
     echo
@@ -187,8 +193,8 @@ idv.tw
 domains="$domains
 $(
     sed 's/#.*//;/^[[:space:]]*$/d' <<< "$tlds" |
-    while read tld; do
-        echo google.$tld
+    while read -r tld; do
+        echo "google.$tld"
     done
 )
 "
@@ -205,15 +211,15 @@ $(
 domains_no_nameservers="
 $(
     sed 's/#.*//;/^[[:space:]]*$/d' <<< "$tlds_no_nameservers" |
-    while read tld; do
-        echo google.$tld
+    while read -r tld; do
+        echo "google.$tld"
     done
 )
 "
 
 echo "Testing Domains including expiry:"
 for domain in $domains; do
-    [ "$(($RANDOM % 20))" = 0 ] || continue
+    [ "$((RANDOM % 20))" = 0 ] || continue
     # for some reason .cn domains often fail on Travis, probably blacklisted
     is_CI && [[ -z "$ALL" && "$domain" =~ \.cn$ ]] && continue
     printf "%-20s  " "$domain:"
@@ -221,11 +227,11 @@ for domain in $domains; do
     run++
     set +eo pipefail
     # don't want people with 25 days left on their domains raising errors here, setting thresholds lower to always pass
-    output=`$check_whois -d $domain -w 10 -c 2 -t 30 -v $verbose`
+    output="$($check_whois -d "$domain" -w 10 -c 2 -t 30 -v $verbose)"
     result=$?
     echo "$output"
-    if [ $result -ne 0 -a $result -eq 3 ]; then
-        egrep -qi 'denied|quota|exceeded|blacklisted' <<< "$output" && continue
+    if [ $result -ne 0 ] && [ $result -eq 3 ]; then
+        grep -Eqi 'denied|quota|exceeded|blacklisted' <<< "$output" && continue
         exit 1
     fi
     set -e
@@ -240,7 +246,7 @@ done
 #    result=$?
 #    echo "$output"
 #    if [ $result -ne 0 -a $result -eq 3 ]; then
-#        egrep -qi 'denied|quota|exceeded|blacklisted' <<< "$output" && continue
+#        grep -Eqi 'denied|quota|exceeded|blacklisted' <<< "$output" && continue
 #        exit 1
 #    fi
 #    set -e
@@ -248,15 +254,17 @@ done
 
 echo "Testing Domains excluding nameservers:"
 for domain in $domains_no_nameservers; do
-    [ -z "$ALL" -a "$(($RANDOM % 2))" = 0 ] || continue
+    if [ -z "$ALL" ] && [ "$((RANDOM % 2))" = 0 ]; then
+        continue
+    fi
     # counter is lost in subshell but we need to capture so increment here
     run++
     set +eo pipefail
-    output=`$check_whois -d $domain -w 10 -c 2 --no-nameservers -t 30 -v $verbose`
+    output="$($check_whois -d "$domain" -w 10 -c 2 --no-nameservers -t 30 -v $verbose)"
     result=$?
     echo "$output"
-    if [ $result -ne 0 -a $result -eq 3 ]; then
-        egrep -qi 'denied|quota|exceeded|blacklisted' <<< "$output" && continue
+    if [ $result -ne 0 ] && [ $result -eq 3 ]; then
+        grep -Eqi 'denied|quota|exceeded|blacklisted' <<< "$output" && continue
         exit 1
     fi
     set -e
@@ -270,6 +278,8 @@ if [ -n "$using_docker" ]; then
 fi
 
 echo
+# defined and tracked in bash-tools/lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count Whois tests"
 echo
 echo "All Whois tests passed successfully"
