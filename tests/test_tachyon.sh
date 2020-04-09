@@ -19,11 +19,12 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "T a c h y o n"
 
-export TACHYON_VERSIONS="${@:-${TACHYON_VERSIONS:-0.7 0.8 latest}}"
+export TACHYON_VERSIONS="${*:-${TACHYON_VERSIONS:-0.7 0.8 latest}}"
 
 TACHYON_HOST="${DOCKER_HOST:-${TACHYON_HOST:-${HOST:-localhost}}}"
 TACHYON_HOST="${TACHYON_HOST##*/}"
@@ -59,11 +60,14 @@ test_tachyon(){
     fi
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
-        local version="$(dockerhub_latest_version tachyon)"
+        local version
+        version="$(dockerhub_latest_version tachyon)"
         echo "expecting version '$version'"
     fi
     hr
     echo "waiting on Tachyon Master to give Tachyon time to properly initialize:"
+    # defined in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     RETRY_INTERVAL=2 retry "$startupwait" ./check_tachyon_master_version.py -v -e "$version" -t 2
     hr
     echo "expect Tachyon Worker to also be up by this point:"
@@ -118,6 +122,8 @@ test_tachyon(){
 
     if [ -n "${KEEPDOCKER:-}" ]; then
         echo
+        # defined and tracked in bash-tools/lib/utils.sh
+        # shellcheck disable=SC2154
         echo "Completed $run_count Tachyon tests"
         return
     fi
@@ -151,6 +157,8 @@ test_tachyon(){
 
         run_fail 2 ./check_tachyon_worker_heartbeat.py --node "$node" -w 1 -c 1
     fi
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Tachyon tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
