@@ -72,6 +72,8 @@ sleep 15
 cd "$srcdir/..";
 echo
 hr
+# $perl defined in lib/perl.sh (imported by utils.sh)
+# shellcheck disable=SC2154
 $perl -T ./check_spark_cluster.pl -c 1: -v
 hr
 $perl -T ./check_spark_cluster_dead_workers.pl -w 1 -c 1 -v
