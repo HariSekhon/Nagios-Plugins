@@ -103,3 +103,7 @@ opentsdb_tests(){
 }
 
 run_test_versions "OpenTSDB"
+
+if is_CI; then
+    docker_rmi_grep '.*opentsdb' || :
+fi
