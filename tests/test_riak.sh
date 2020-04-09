@@ -19,11 +19,12 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "R I A K"
 
-export RIAK_VERSIONS="${@:-${RIAK_VERSIONS:-1.4 2.0 2.1 latest}}"
+export RIAK_VERSIONS="${*:-${RIAK_VERSIONS:-1.4 2.0 2.1 latest}}"
 
 # RIAK_HOST no longer obtained via .travis.yml, some of these require local riak-admin tool so only makes more sense to run all tests locally
 RIAK_HOST="${DOCKER_HOST:-${RIAK_HOST:-${HOST:-localhost}}}"
@@ -57,6 +58,7 @@ test_riak(){
     docker_compose_port Riak
     DOCKER_SERVICE=riak-haproxy docker_compose_port HAProxy
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$RIAK_HOST" "$RIAK_PORT" "$HAPROXY_PORT"
     hr
     when_url_content "http://$RIAK_HOST:$RIAK_PORT/ping" OK
@@ -64,8 +66,12 @@ test_riak(){
     echo "checking HAProxy Riak:"
     when_url_content "http://$RIAK_HOST:$HAPROXY_PORT/ping" OK
     hr
+    # defined in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "waiting for up to $startupwait secs for Riak to come fully up:"
-    retry $startupwait "$perl" -T check_riak_write.pl -v
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154
+    retry "$startupwait" "$perl" -T check_riak_write.pl -v
     hr
     if [ -z "${NOSETUP:-}" ]; then
         # Riak 2.x
@@ -91,7 +97,8 @@ test_riak(){
     fi
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
-        local version="$(dockerhub_latest_version riak-dev)"
+        local version
+        version="$(dockerhub_latest_version riak-dev)"
         echo "expecting version '$version'"
         # TODO: fix and remove
         version=".*"
@@ -107,6 +114,8 @@ test_riak(){
     RIAK_PORT="$HAPROXY_PORT" \
     riak_tests
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Riak tests"
     hr
     echo
