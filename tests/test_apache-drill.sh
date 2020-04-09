@@ -260,3 +260,7 @@ test_drill(){
 startupwait 120
 
 run_test_versions "Apache Drill"
+
+if is_CI; then
+    docker_rmi_grep apache-drill || :
+fi
