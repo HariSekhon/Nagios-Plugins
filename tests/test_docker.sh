@@ -318,3 +318,11 @@ if is_docker_available; then
     echo "now checking all programs within the docker image run --help without missing dependencies:"
     run docker run --rm -e DEBUG="$DEBUG" -e NO_GIT=1 -e TRAVIS="${TRAVIS:-}" "$DOCKER_IMAGE" tests/help.sh
 fi
+
+if is_CI; then
+    docker_rmi_grep harisekhon/nagios-plugins || :
+    docker_rmi_grep harisekhon/tools || :
+    docker_rmi_grep harisekhon/pytools || :
+    docker_rmi_grep harisekhon/perl-tools || :
+    docker_rmi_grep harisekhon/bash-tools || :
+fi
