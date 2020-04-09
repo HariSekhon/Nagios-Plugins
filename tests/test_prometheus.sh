@@ -20,11 +20,12 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "P r o m e t h e u s"
 
-export PROMETHEUS_VERSIONS="${@:-${PROMETHEUS_VERSIONS:-v1.0.0 v1.1.3 v1.2.3 v1.3.1 v1.4.0 v1.5.3 v1.6.3 v1.7.2 v1.8.2 v2.1.0 latest}}"
+export PROMETHEUS_VERSIONS="${*:-${PROMETHEUS_VERSIONS:-v1.0.0 v1.1.3 v1.2.3 v1.3.1 v1.4.0 v1.5.3 v1.6.3 v1.7.2 v1.8.2 v2.1.0 latest}}"
 # 0.9.0 does not have node_exporter_build_info
 # 0.10.0 tag is broken with a Go error: https://github.com/prometheus/node_exporter/issues/804
 # 0.12.0 and earlier tags have been removed from DockerHub, there was no 0.11 but 0.12 was tested successfully with node exporter version plugin
@@ -62,6 +63,7 @@ test_prometheus(){
     DOCKER_SERVICE=prometheus-node-exporter docker_compose_port "Node Exporter"
     DOCKER_SERVICE=prometheus-telegraf docker_compose_port Telegraf
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$PROMETHEUS_HOST" "$PROMETHEUS_PORT" "$HAPROXY_PORT" "$COLLECTD_PORT" "$NODE_EXPORTER_PORT"
     hr
     when_url_content "http://$PROMETHEUS_HOST:$PROMETHEUS_PORT/graph" "Prometheus"
@@ -121,6 +123,8 @@ test_prometheus(){
     PROMETHEUS_PORT="$HAPROXY_PORT" \
     prometheus_tests
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Prometheus tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
