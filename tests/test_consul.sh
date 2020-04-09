@@ -231,3 +231,7 @@ consul_dev_tests(){
 }
 
 run_test_versions Consul
+
+if is_CI; then
+    docker_rmi_grep consul || :
+fi
