@@ -155,3 +155,7 @@ solr_conn_refused_tests(){
 }
 
 run_test_versions Solr
+
+if is_CI; then
+    docker_rmi_grep harisekhon/solr || :
+fi
