@@ -19,7 +19,8 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "T r a v i s   C I"
 
@@ -67,6 +68,8 @@ run_usage ./check_travis_ci_last_build.py -r tools -v
 echo "checking nonexistent repo:"
 run_fail 3 ./check_travis_ci_last_build.py -r nonexistent/repo -v
 
+# defined and tracked in bash-tools/lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count Travis CI tests"
 echo
 echo "All Travis CI tests passed successfully"
