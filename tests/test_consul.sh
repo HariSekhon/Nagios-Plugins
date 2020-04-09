@@ -19,11 +19,12 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "C o n s u l"
 
-export CONSUL_VERSIONS="${@:-${CONSUL_VERSIONS:-0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 latest}}"
+export CONSUL_VERSIONS="${*:-${CONSUL_VERSIONS:-0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 latest}}"
 
 CONSUL_HOST="${DOCKER_HOST:-${CONSUL_HOST:-${HOST:-localhost}}}"
 CONSUL_HOST="${CONSUL_HOST##*/}"
@@ -54,6 +55,7 @@ test_consul(){
     docker_compose_port "Consul"
     DOCKER_SERVICE=consul-haproxy docker_compose_port HAProxy
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$CONSUL_HOST" "$CONSUL_PORT" "$HAPROXY_PORT"
     hr
     # older versions say Consul Agent
@@ -69,7 +71,8 @@ test_consul(){
     expected_version="$version"
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
-        local expected_version="$(dockerhub_latest_version consul)"
+        local expected_version
+        expected_version="$(dockerhub_latest_version consul)"
         echo "expecting version '$expected_version'"
     fi
 
@@ -89,6 +92,8 @@ test_consul(){
     consul_dev_tests
 
     hr
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Consul tests"
     hr
     echo
@@ -151,7 +156,8 @@ consul_tests(){
     run_fail 2 ./check_consul_service_leader_elected.py -k "$testkey"
 
     echo "creating session:"
-    local session="$(curl -s -X PUT -d '{"Name": "nagios"}' "http://$CONSUL_HOST:$CONSUL_PORT/v1/session/create" | awk -F'"' '/ID/{print $4}')"
+    local session
+    session="$(curl -s -X PUT -d '{"Name": "nagios"}' "http://$CONSUL_HOST:$CONSUL_PORT/v1/session/create" | awk -F'"' '/ID/{print $4}')"
     echo
     echo "deleting last session lock if it exists:"
     set +o pipefail
@@ -161,7 +167,8 @@ consul_tests(){
     echo
     echo
     echo "creating leader key $leader_lock:"
-    local result="$(curl -s -X PUT -d '<body>' "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$leader_lock?acquire=$session")"
+    local result
+    result="$(curl -s -X PUT -d '<body>' "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$leader_lock?acquire=$session")"
     if [ "$result" != "true" ]; then
         echo "Failed to acquire leader lock!"
         echo
@@ -182,7 +189,8 @@ consul_tests(){
     run_fail 2 ./check_consul_service_leader_elected.py -k "$leader_lock" -r 'wronghost'
 
     echo "releasing leader lock:"
-    local result="$(curl -s -X PUT -d '<body>' "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$leader_lock?release=$session")"
+    local result
+    result="$(curl -s -X PUT -d '<body>' "http://$CONSUL_HOST:$CONSUL_PORT/v1/kv/$leader_lock?release=$session")"
     if [ "$result" != "true" ]; then
         echo "Failed to release leader lock!"
         exit 1
@@ -201,8 +209,11 @@ consul_tests(){
 consul_dev_tests(){
     section2 "Setting up Consul-dev $version test container"
     local DOCKER_SERVICE="$DOCKER_SERVICE-dev"
-    local COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-docker-compose.yml"
+    export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-docker-compose.yml"
     if is_CI || [ -n "${DOCKER_PULL:-}" ]; then
+        # $docker_compose_quiet defined in bash-tools/lib/docker.sh
+        # $docker_compose_quiet shouldn't be quoted as this will pass a blank arg rather than no arg
+        # shellcheck disable=SC2154,SC2086
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
     VERSION="$version" docker-compose up -d
