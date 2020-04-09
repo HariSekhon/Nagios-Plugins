@@ -64,3 +64,7 @@ echo
 echo "All Gentoo tests completed successfully"
 echo
 echo
+
+if is_CI; then
+    docker_rmi_grep gentoo || :
+fi
