@@ -19,7 +19,8 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 # using Docker now so runs on Mac too
 #[ `uname -s` = "Linux" ] || exit 0
@@ -63,6 +64,8 @@ docker_exec check_yum.py -C -v -t 60
 
 ERRCODE="0 2" docker_exec check_yum.py -C --all-updates -v -t 60
 
+# defined and tracked in bash-tools/lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count Yum tests"
 hr
 [ -n "${KEEPDOCKER:-}" ] ||
