@@ -194,3 +194,7 @@ if [ "${0##*/}" = "$test_mariadb_sh" ]; then
 else
     run_test_versions MySQL
 fi
+
+if is_CI; then
+    docker_rmi_grep 'mysql|mariadb' || :
+fi
