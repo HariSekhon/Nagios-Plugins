@@ -149,7 +149,7 @@ test_alluxio(){
 
     run_fail 2 ./check_alluxio_running_workers.py -v -w 1
 
-    run_fail 1 ./check_alluxio_worker_heartbeat.py --node "$node" -w 1
+    run_fail 1 ./check_alluxio_worker_heartbeat.py --node "$node" -w 1 -c 500
 
     run_fail 2 ./check_alluxio_worker_heartbeat.py --node "$node" -w 1 -c 1
 
