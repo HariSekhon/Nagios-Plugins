@@ -20,13 +20,14 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "K a f k a"
 
 # TODO: latest container 2.11_0.10 doesn't work yet, no leader takes hold
-#export KAFKA_VERSIONS="${@:-2.11_0.10 2.11_0.10 latest}"
-export KAFKA_VERSIONS="${@:-${KAFKA_VERSIONS:-2.10-0.8 2.11-0.8 2.10-0.9 2.11-0.9 latest}}"
+#export KAFKA_VERSIONS="${*:-2.11_0.10 2.11_0.10 latest}"
+export KAFKA_VERSIONS="${*:-${KAFKA_VERSIONS:-2.10-0.8 2.11-0.8 2.10-0.9 2.11-0.9 latest}}"
 
 KAFKA_HOST="${DOCKER_HOST:-${KAFKA_HOST:-${HOST:-localhost}}}"
 KAFKA_HOST="${KAFKA_HOST##*/}"
@@ -58,7 +59,7 @@ test_kafka(){
     if [ -z "${NOSETUP:-}" ]; then
         echo "checking if Kafka topic already exists:"
         set +o pipefail
-        if docker-compose exec "$DOCKER_SERVICE" kafka-topics.sh --zookeeper localhost:2181 --list | tee /dev/stderr | grep -q "^[[:space:]]*$KAFKA_TOPIC[[:space:]]*$"; then
+        if docker-compose exec "$DOCKER_SERVICE" kafka-topics.sh --zookeeper localhost:2181 --list | tee /dev/stderr | grep -q "^[[:space:]]*${KAFKA_TOPIC}[[:space:]]*$"; then
             echo "Kafka topic $KAFKA_TOPIC already exists, continuing"
         else
             echo "creating Kafka test topic:"
@@ -83,7 +84,8 @@ test_kafka(){
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
         # TODO: improve this for Kafka specifically
-        local version="$(dockerhub_latest_version kafka)"
+        local version
+        version="$(dockerhub_latest_version kafka)"
         echo "expecting version '$version'"
     fi
     hr
@@ -141,6 +143,8 @@ test_kafka(){
 
 #    run_fail 2 ./check_kafka_topic_exists.py -B "localhost:9999" -T "$KAFKA_TOPIC" -v
 
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154
     run_fail 3 "$perl" -T ./check_kafka.pl -v --list-topics
 
     run_fail 3 "$perl" -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v --list-partitions
@@ -151,6 +155,7 @@ test_kafka(){
 
     ERRCODE=2 run_grep "Cannot get metadata" "$perl" -T ./check_kafka.pl -H localhost -P 9999 -v
 
+    # shellcheck disable=SC2097,SC2098
     KAFKA_BROKERS="$KAFKA_HOST:$KAFKA_PORT" KAFKA_HOST="" KAFKA_PORT="" \
     run "$perl" -T ./check_kafka.pl -T "$KAFKA_TOPIC" -v
 
@@ -164,6 +169,8 @@ test_kafka(){
     # Perl library error doesn't give a usual connection refused / failed to connect msg
     ERRCODE=2 run_grep "Cannot get metadata" "$perl" -T ./check_kafka.pl -v -P 9999
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Kafka tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
