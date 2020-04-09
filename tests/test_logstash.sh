@@ -194,3 +194,7 @@ test_logstash(){
 }
 
 run_test_versions Logstash
+
+if is_CI; then
+    docker_rmi_grep '.*logstash' || :
+fi
