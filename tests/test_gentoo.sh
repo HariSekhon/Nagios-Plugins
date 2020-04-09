@@ -19,7 +19,8 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "G e n t o o"
 
@@ -46,8 +47,8 @@ if ! is_docker_available; then
 fi
 
 echo "Setting up Gentoo test container"
-DOCKER_OPTS="-v $srcdir/..:$DOCKER_MOUNT_DIR"
-DOCKER_CMD="tail -f /dev/null"
+export DOCKER_OPTS="-v $srcdir/..:$DOCKER_MOUNT_DIR"
+export DOCKER_CMD="tail -f /dev/null"
 launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
 #docker exec "$DOCKER_CONTAINER" yum makecache fast
 if [ -n "${NOTESTS:-}" ]; then
