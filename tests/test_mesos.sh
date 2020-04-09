@@ -143,3 +143,7 @@ test_mesos(){
 }
 
 run_test_versions Mesos
+
+if is_CI; then
+    docker_rmi_grep harisekhon/mesos || :
+fi
