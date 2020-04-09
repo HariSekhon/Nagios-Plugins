@@ -19,10 +19,13 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "S S L   C e r t"
 
+# $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+# shellcheck disable=SC2154
 run "$perl" -T ./check_ssl_cert.pl -H google.com -w 2 -c 1
 
 run "$perl" -T ./check_ssl_cert.pl -H www.google.com --domain www.google.com -w 2 -c 1 -v # -t 20
