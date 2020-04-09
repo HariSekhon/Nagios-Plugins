@@ -19,11 +19,12 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "V a u l t"
 
-export VAULT_VERSIONS="${@:-${VAULT_VERSIONS:-0.6.5 0.7.3 0.8.3 0.9.5 latest}}"
+export VAULT_VERSIONS="${*:-${VAULT_VERSIONS:-0.6.5 0.7.3 0.8.3 0.9.5 latest}}"
 
 VAULT_HOST="${DOCKER_HOST:-${VAULT_HOST:-${HOST:-localhost}}}"
 VAULT_HOST="${VAULT_HOST##*/}"
@@ -47,6 +48,7 @@ test_vault(){
     docker_compose_port "Vault"
     DOCKER_SERVICE=vault-haproxy docker_compose_port HAProxy
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$VAULT_HOST" "$VAULT_PORT" "$HAPROXY_PORT"
     hr
     when_url_content "http://$VAULT_HOST:$VAULT_PORT/v1/sys/health" "cluster_name"
@@ -75,6 +77,8 @@ test_vault(){
     docker-compose down
     hr
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Vault tests"
     hr
     echo
