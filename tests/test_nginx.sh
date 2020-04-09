@@ -19,14 +19,15 @@ srcdir2="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir2/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 # because including bash-tools/util.sh resets the srcdir
 srcdir="$srcdir2"
 
 section "N g i n x"
 
-export NGINX_VERSIONS="${@:-${NGINX_VERSIONS:-1.10 1.11.0 latest}}"
+export NGINX_VERSIONS="${*:-${NGINX_VERSIONS:-1.10 1.11.0 latest}}"
 
 NGINX_HOST="${DOCKER_HOST:-${NGINX_HOST:-${HOST:-localhost}}}"
 NGINX_HOST="${NGINX_HOST##*/}"
@@ -61,6 +62,7 @@ test_nginx(){
     echo "getting Nginx dynamic port mapping:"
     docker_compose_port Nginx
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$NGINX_HOST" "$NGINX_PORT"
     hr
     if [ -n "${NOTESTS:-}" ]; then
@@ -76,12 +78,16 @@ test_nginx(){
 
     run_conn_refused ./check_nginx_version.py -e "$version"
 
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154
     run "$perl" -T ./check_nginx_stats.pl -u /status
 
     run_fail 2 "$perl" -T ./check_nginx_stats.pl -u /nonexistent
 
     run_conn_refused "$perl" -T ./check_nginx_stats.pl -u /status
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Nginx tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
