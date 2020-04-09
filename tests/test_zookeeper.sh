@@ -19,11 +19,12 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "Z o o K e e p e r"
 
-export ZOOKEEPER_VERSIONS="${@:-${ZOOKEEPER_VERSIONS:-3.3 3.4 latest}}"
+export ZOOKEEPER_VERSIONS="${*:-${ZOOKEEPER_VERSIONS:-3.3 3.4 latest}}"
 
 ZOOKEEPER_HOST="${DOCKER_HOST:-${ZOOKEEPER_HOST:-${HOST:-localhost}}}"
 ZOOKEEPER_HOST="${ZOOKEEPER_HOST##*/}"
@@ -51,6 +52,7 @@ test_zookeeper(){
     docker_compose_port "ZooKeeper"
     DOCKER_SERVICE=zookeeper-haproxy docker_compose_port HAProxy
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$ZOOKEEPER_HOST" "$ZOOKEEPER_PORT" "$HAPROXY_PORT"
     hr
     if [ -n "${NOTESTS:-}" ]; then
@@ -59,7 +61,8 @@ test_zookeeper(){
     expected_version="$version"
     if [ "$expected_version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
-        local expected_version="$(dockerhub_latest_version zookeeper-dev)"
+        local expected_version
+        expected_version="$(dockerhub_latest_version zookeeper-dev)"
         echo "expecting version '$expected_version'"
     fi
     hr
@@ -86,6 +89,8 @@ test_zookeeper(){
     ZOOKEEPER_PORT="$HAPROXY_PORT" \
     zookeeper_tests
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count ZooKeeper tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
@@ -94,6 +99,8 @@ test_zookeeper(){
 
 zookeeper_tests(){
     if [ "${version:0:3}" = "3.3" ]; then
+        # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+        # shellcheck disable=SC2154
         run_fail 3 "$perl" -T ./check_zookeeper.pl -s -w 50 -c 100 -v
     else
         run "$perl" -T ./check_zookeeper.pl -s -w 50 -c 100 -v
