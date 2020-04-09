@@ -50,7 +50,7 @@ test_memcached(){
     when_ports_available "$MEMCACHED_HOST" "$MEMCACHED_PORT"
     hr
     echo "creating test Memcached key-value"
-    echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc "$MEMCACHED_HOST" "$MEMCACHED_PORT"
+    echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc -v "$MEMCACHED_HOST" "$MEMCACHED_PORT"
     echo done
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
