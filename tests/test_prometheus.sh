@@ -145,3 +145,7 @@ prometheus_tests(){
 }
 
 run_test_versions "Prometheus"
+
+if is_CI; then
+    docker_rmi_grep prom/ || :
+fi
