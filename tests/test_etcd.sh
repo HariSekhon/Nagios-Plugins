@@ -19,11 +19,12 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "E t c d"
 
-export ETCD_VERSIONS="${@:-${ETCD_VERSIONS:-v2.0.13 v2.1.3 v2.2.5 v2.3.8 v3.0 latest}}"
+export ETCD_VERSIONS="${*:-${ETCD_VERSIONS:-v2.0.13 v2.1.3 v2.2.5 v2.3.8 v3.0 latest}}"
 
 ETCD_HOST="${DOCKER_HOST:-${ETCD_HOST:-${HOST:-localhost}}}"
 ETCD_HOST="${ETCD_HOST##*/}"
@@ -53,6 +54,7 @@ test_etcd(){
     DOCKER_SERVICE=etcd1 docker_compose_port "Etcd" "Etcd1"
     DOCKER_SERVICE=etcd-haproxy docker_compose_port HAProxy
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$ETCD_HOST" "$ETCD_PORT" "$HAPROXY_PORT"
     hr
     # Etcd 2.x /version:
@@ -90,6 +92,8 @@ test_etcd(){
     hr
 
     hr
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Etcd tests"
     hr
     echo
