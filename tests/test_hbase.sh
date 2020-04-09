@@ -820,3 +820,7 @@ EOF
 }
 
 run_test_versions HBase
+
+if is_CI; then
+    docker_rmi_grep harisekhon/hbase || :
+fi
