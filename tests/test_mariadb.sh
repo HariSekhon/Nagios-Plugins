@@ -19,18 +19,19 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 test_mariadb_sh="test_mariadb.sh"
 
-if [ ${0##*/} = "$test_mariadb_sh" ]; then
+if [ "${0##*/}" = "$test_mariadb_sh" ]; then
     section "M a r i a D B"
 else
     section "M y S Q L"
 fi
 
-export MYSQL_VERSIONS="${@:-${MYSQL_VERSIONS:-5.5 5.6 5.7 8.0 latest}}"
-export MARIADB_VERSIONS="${@:-${MARIADB_VERSIONS:-5.5 10.1 10.2 10.3 latest}}"
+export MYSQL_VERSIONS="${*:-${MYSQL_VERSIONS:-5.5 5.6 5.7 8.0 latest}}"
+export MARIADB_VERSIONS="${*:-${MARIADB_VERSIONS:-5.5 10.1 10.2 10.3 latest}}"
 
 MYSQL_HOST="${DOCKER_HOST:-${HOST:-localhost}}"
 MYSQL_HOST="${MYSQL_HOST##*/}"
@@ -67,7 +68,7 @@ test_mariadb(){
 test_db(){
     local name="$1"
     local version="$2"
-    name_lower="$(tr 'A-Z' 'a-z' <<< "$name")"
+    name_lower="$(tr '[:upper:]' '[:lower:]' <<< "$name")"
     local export COMPOSE_FILE="$srcdir/docker/$name_lower-docker-compose.yml"
     section2 "Setting up $name $version test container"
     docker_compose_pull
@@ -77,6 +78,7 @@ test_db(){
     docker_compose_port MYSQL_PORT "$name"
     DOCKER_SERVICE=mysql-haproxy docker_compose_port HAProxy
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$MYSQL_HOST" "$MYSQL_PORT" "$HAPROXY_PORT"
     hr
     # kind of an abuse of the protocol but good extra validation step
@@ -131,6 +133,8 @@ test_db(){
     rm -vf "/tmp/$MYSQL_CONFIG_FILE"
     hr
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count $name tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
@@ -140,8 +144,12 @@ test_db(){
 }
 
 mysql_tests(){
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154,SC2086
     run "$perl" -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v $extra_opt
 
+    # want splitting
+    # shellcheck disable=SC2086
     run_conn_refused "$perl" -T ./check_mysql_config.pl -c "/tmp/$MYSQL_CONFIG_FILE" --warn-on-missing -v $extra_opt
 
     #echo "$perl -T ./check_mysql_query.pl -q \"SHOW TABLES IN information_schema like 'C%'\" -o CHARACTER_SETS -v"
@@ -175,13 +183,13 @@ mysql_tests(){
 
 # This will get called twice in each of 2 separate Travis CI builds, once for MySQL and once for MariaDB, so skip one build in each to save time
 if is_travis; then
-    if [ $(($RANDOM % 2)) = 0 ]; then
+    if [ $((RANDOM % 2)) = 0 ]; then
         echo "detected Travis CI, skipping build this time"
         exit 0
     fi
 fi
 
-if [ ${0##*/} = "$test_mariadb_sh" ]; then
+if [ "${0##*/}" = "$test_mariadb_sh" ]; then
     run_test_versions MariaDB
 else
     run_test_versions MySQL
