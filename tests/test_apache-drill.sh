@@ -20,11 +20,12 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "A p a c h e   D r i l l"
 
-export APACHE_DRILL_VERSIONS="${@:-${APACHE_DRILL_VERSIONS:-0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 1.10 1.11 1.12 1.13 1.14 1.15 latest}}"
+export APACHE_DRILL_VERSIONS="${*:-${APACHE_DRILL_VERSIONS:-0.7 0.8 0.9 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 1.8 1.9 1.10 1.11 1.12 1.13 1.14 1.15 latest}}"
 
 APACHE_DRILL_HOST="${DOCKER_HOST:-${APACHE_DRILL_HOST:-${HOST:-localhost}}}"
 APACHE_DRILL_HOST="${APACHE_DRILL_HOST##*/}"
@@ -53,6 +54,7 @@ test_apache_drill(){
     docker_compose_port "Apache Drill"
     DOCKER_SERVICE=apache-drill-haproxy docker_compose_port HAProxy
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$APACHE_DRILL_HOST" "$APACHE_DRILL_PORT" "$HAPROXY_PORT"
     hr
     when_url_content "http://$APACHE_DRILL_HOST:$APACHE_DRILL_PORT/status" "Running"
@@ -73,6 +75,8 @@ test_apache_drill(){
     APACHE_DRILL_PORT="$HAPROXY_PORT" \
     test_drill
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Apache Drill tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
@@ -84,11 +88,12 @@ test_drill(){
     expected_version="$version"
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
-        local expected_version="$(dockerhub_latest_version apache-drill)"
+        local expected_version
+        expected_version="$(dockerhub_latest_version apache-drill)"
         echo "expecting version '$expected_version'"
     fi
     # API endpoint not available < 1.10
-    if egrep -q '^0|^1\.[0-9]$' <<< "$version"; then
+    if grep -Eq '^0|^1\.[0-9]$' <<< "$version"; then
         run_fail 2 ./check_apache_drill_version.py -v -e "$expected_version"
     else
         run ./check_apache_drill_version.py -v -e "$expected_version"
@@ -119,7 +124,7 @@ test_drill(){
 
     local node="not_set"
     # API endpoint not available < 1.10
-    if egrep -q '^0|^1\.[0-9]$' <<< "$version"; then
+    if grep -Eq '^0|^1\.[0-9]$' <<< "$version"; then
         run_fail 2 ./check_apache_drill_cluster_nodes.py -w 1
 
         run_fail 2 ./check_apache_drill_cluster_nodes.py
@@ -134,7 +139,8 @@ test_drill(){
 
         run_fail 3 ./check_apache_drill_cluster_node.py --list
 
-        local node="$(./check_apache_drill_cluster_node.py -l | sed -n '6p' | awk '{print $1}')"
+        local node
+        node="$(./check_apache_drill_cluster_node.py -l | sed -n '6p' | awk '{print $1}')"
         run ./check_apache_drill_cluster_node.py --node "$node"
     fi
 
@@ -192,7 +198,7 @@ test_drill(){
     # ============================================================================ #
 
     # API endpoint not available < 1.10
-    if egrep -q '^0|^1\.[0-9]$' <<< "$version"; then
+    if grep -Eq '^0|^1\.[0-9]$' <<< "$version"; then
         run_fail 2 ./check_apache_drill_cluster_mismatched_versions.py
     else
         run ./check_apache_drill_cluster_mismatched_versions.py
@@ -202,6 +208,8 @@ test_drill(){
 
     # ============================================================================ #
 
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154
     run "$perl" -T ./check_apache_drill_metrics.pl -v
 
     run_conn_refused "$perl" -T ./check_apache_drill_metrics.pl -v
