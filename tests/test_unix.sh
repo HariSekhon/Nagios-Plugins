@@ -19,10 +19,13 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "U n i x"
 
+# $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+# shellcheck disable=SC2154
 run "$perl" -T ./check_disk_write.pl -d .
 
 # ============================================================================ #
@@ -48,7 +51,9 @@ rm -vf "$tmpfile"
 hr
 
 # test real login against HP iLO or similar if local environment is configured for it
-if [ -n "${SSH_HOST:-}" -a -n "${SSH_USER:-}" -a -n "${SSH_PASSWORD:-}" ]; then
+if [ -n "${SSH_HOST:-}" ] &&
+   [ -n "${SSH_USER:-}" ] &&
+   [ -n "${SSH_PASSWORD:-}" ]; then
     run "$perl" -T ./check_ssh_login.pl -H "$SSH_HOST" -u "$SSH_USER" -p "$SSH_PASSWORD"
     echo "testing via environment variables:"
     run "$perl" -T ./check_ssh_login.pl
@@ -63,11 +68,10 @@ timezone="$(date +%Z)"
 set -e
 [ -z "$localtime" ] && localtime="$timezone"
 set +eo pipefail
-run "$perl" -T ./check_timezone.pl --timezone "$localtime" --alternate "$timezone"
-if [ $? -ne 0 ]; then
+if ! run "$perl" -T ./check_timezone.pl --timezone "$localtime" --alternate "$timezone"; then
     hr
     echo "above time check failed, retrying in case of mismatch between timezone and file"
-    timezone_file="$(find /usr/share/zoneinfo -type f | xargs md5sum | grep $(md5sum /etc/localtime | awk '{print $1}') | head -n1 | awk '{print $2}')"
+    timezone_file="$(find /usr/share/zoneinfo -type f print0 | xargs -0 md5sum | grep "$(md5sum /etc/localtime | awk '{print $1}')" | head -n1 | awk '{print $2}')"
     # Alpine doesn't have this by default - could 'apk add tzdata', otherwise just hack it back to /etc/localtime
     [ -n "$timezone_file" ] || timezone_file="/etc/localtime"
     # let the above shell pipeline fail and only set -e from here as the plugin will give better feedback if timezone_file is empty
@@ -75,6 +79,8 @@ if [ $? -ne 0 ]; then
     run "$perl" -T ./check_timezone.pl --timezone "$localtime" --alternate "$timezone" --zoneinfo-file "$timezone_file"
 fi
 
+# defined and tracked in bash-tools/lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count Unix tests"
 echo
 echo "All Unix tests passed successfully"
