@@ -113,3 +113,7 @@ test_memcached(){
 }
 
 run_test_versions Memcached
+
+if is_CI; then
+    docker_rmi_grep memcached || :
+fi
