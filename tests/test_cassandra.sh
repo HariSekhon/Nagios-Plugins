@@ -19,11 +19,12 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "C a s s a n d r a"
 
-export CASSANDRA_VERSIONS="${@:-${CASANDRA_VERSIONS:-1.2 2.0 2.1 2.2 3.0 3.5 3.6 3.7 3.9 3.10 3.11 latest}}"
+export CASSANDRA_VERSIONS="${*:-${CASANDRA_VERSIONS:-1.2 2.0 2.1 2.2 3.0 3.5 3.6 3.7 3.9 3.10 3.11 latest}}"
 
 CASSANDRA_HOST="${DOCKER_HOST:-${CASSANDRA_HOST:-${HOST:-localhost}}}"
 CASSANDRA_HOST="${CASSANDRA_HOST##*/}"
@@ -54,6 +55,7 @@ test_cassandra(){
     docker_compose_port "Cassandra JMX"
     DOCKER_SERVICE=cassandra-haproxy docker_compose_port HAPROXY "HAProxy CQL"
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$CASSANDRA_HOST" "$CASSANDRA_PORT" "$HAPROXY_PORT" # "$CASSANDRA_JMX_PORT" binds to 127.0.0.1
     hr
     if [ -n "${NOTESTS:-}" ]; then
@@ -61,7 +63,8 @@ test_cassandra(){
     fi
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
-        local version="$(dockerhub_latest_version cassandra-dev)"
+        local version
+        version="$(dockerhub_latest_version cassandra-dev)"
         echo "expecting version '$version'"
     fi
     hr
@@ -116,6 +119,8 @@ test_cassandra(){
     echo "checking connection refused:"
     ERRCODE=2 docker_exec check_cassandra_tpstats.pl -P 719
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Cassandra tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
