@@ -19,7 +19,8 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "M o n g o D B"
 
@@ -27,7 +28,7 @@ section "M o n g o D B"
 echo "WARNING: mongodb tests broken, skipping for now"
 exit 0
 
-export MONGO_VERSIONS="${@:-${MONGO_VERSIONS:-2.6 3.0 3.2 3.3 latest}}"
+export MONGO_VERSIONS="${*:-${MONGO_VERSIONS:-2.6 3.0 3.2 3.3 latest}}"
 
 # TODO: add support for shorter MONGO_HOST to mongo plugins
 MONGODB_HOST="${DOCKER_HOST:-${MONGODB_HOST:-${HOST:-localhost}}}"
@@ -53,7 +54,10 @@ test_mongo(){
     local version="$1"
     section2 "Setting up MongoDB $version test container"
     local DOCKER_CMD="--rest"
+    # want splitting
+    # shellcheck disable=SC2086
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER" $MONGO_PORTS
+    # shellcheck disable=SC2086
     when_ports_available "$MONGODB_HOST" $MONGO_PORTS
     if [ -n "${ENTER:-}" ]; then
         docker exec -ti "$DOCKER_CONTAINER" bash
@@ -64,6 +68,8 @@ test_mongo(){
     # not part of a replica set so this returns CRITICAL
     # TODO: more specific CLI runs to valid critical and output
     hr
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154
     run_fail "0 2" "$perl" -T ./check_mongodb_master.pl
 
     run_fail "0 2" "$perl" -T ./check_mongodb_master_rest.pl
@@ -90,7 +96,9 @@ test_mongo_auth(){
     local version="$1"
     section2 "Setting up MongoDB $version authenticated test container"
     local DOCKER_CMD="mongod --auth --rest"
+    # shellcheck disable=SC2086
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER-auth" $MONGO_PORTS
+    # shellcheck disable=SC2086
     when_ports_available "$MONGODB_HOST" $MONGO_PORTS
     echo "setting up test user"
     docker exec -i "$DOCKER_CONTAINER-auth" mongo --host localhost <<EOF
@@ -129,8 +137,11 @@ EOF
     delete_container "$DOCKER_CONTAINER-auth"
 }
 
+# shellcheck disable=SC2086
 for version in $(ci_sample $MONGO_VERSIONS); do
     test_mongo $version
     test_mongo_auth $version
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count MongoDB tests"
 done
