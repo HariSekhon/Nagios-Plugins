@@ -28,6 +28,7 @@ Data::HexDump::Range
 Sub::Util
 
 Compress::Snappy
+Compress::Zlib
 Digest::Adler32
 Kafka
 Net::SSH::Expect
