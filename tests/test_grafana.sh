@@ -20,11 +20,12 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "G r a f a n a"
 
-export GRAFANA_VERSIONS="${@:-${GRAFANA_VERSIONS:-latest}}"
+export GRAFANA_VERSIONS="${*:-${GRAFANA_VERSIONS:-latest}}"
 
 GRAFANA_HOST="${DOCKER_HOST:-${GRAFANA_HOST:-${HOST:-localhost}}}"
 GRAFANA_HOST="${GRAFANA_HOST##*/}"
@@ -50,6 +51,7 @@ test_grafana(){
     docker_compose_port "Grafana"
     DOCKER_SERVICE=grafana-haproxy docker_compose_port HAProxy
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$GRAFANA_HOST" "$GRAFANA_PORT" "$HAPROXY_PORT"
     hr
     when_url_content "http://$GRAFANA_HOST:$GRAFANA_PORT" "Grafana"
@@ -67,6 +69,8 @@ test_grafana(){
     GRAFANA_PORT="$HAPROXY_PORT" \
     grafana_tests
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Grafana tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
