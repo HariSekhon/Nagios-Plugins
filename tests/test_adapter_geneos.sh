@@ -19,7 +19,8 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "G e n e o s   A d a p t e r"
 
@@ -41,6 +42,8 @@ run_grep '^test,DEPENDENT,test 4 message,10,5,1007$' ./adapter_geneos.py --resul
 
 run_grep '^echo,OK,test message,10,5,1008$' ./adapter_geneos.py --shell "echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1008'"
 
+# $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+# shellcheck disable=SC2154
 run ./adapter_geneos.py "$perl" -T ./check_disk_write.pl -d .
 
 # copied from tests/test_git.sh
@@ -88,6 +91,8 @@ run_grep '^nonexistentcommand,UNKNOWN,' ./adapter_geneos.py --shell nonexistentc
 
 run_grep '^perl,UNKNOWN,usage: check_disk_write.pl ' ./adapter_geneos.py "$perl" -T check_disk_write.pl --help
 
+# defined and tracked in bash-tools/lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count Geneos adapter tests"
 echo
 echo "All Geneos adapter tests completed successfully"
