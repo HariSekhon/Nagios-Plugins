@@ -364,3 +364,7 @@ EOF
 }
 
 run_test_versions RabbitMQ
+
+if is_CI; then
+    docker_rmi_grep '.*rabbitmq' || :
+fi
