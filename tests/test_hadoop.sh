@@ -888,3 +888,7 @@ check_older_plugins(){
 }
 
 run_test_versions Hadoop
+
+if is_CI; then
+    docker_rmi_grep harisekhon/hadoop || :
+fi
