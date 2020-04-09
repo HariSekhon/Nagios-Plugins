@@ -20,6 +20,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 is_travis && exit 0
@@ -42,6 +43,8 @@ trap_debug_env cm
 
 echo "checking connection refused tests first:"
 echo
+# $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+# shellcheck disable=SC2154
 run_conn_refused "$perl" -T check_cloudera_manager_version.pl -e "$CM_VERSION"
 
 run_conn_refused "$perl" -T check_cloudera_manager.pl --api-ping
@@ -158,6 +161,8 @@ else
 
 fi
 echo
+# defined and tracked in bash-tools/lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count Cloudera Manager tests"
 echo
 echo "All Cloudera Manager tests passed successfully"
