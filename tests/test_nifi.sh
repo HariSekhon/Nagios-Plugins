@@ -19,11 +19,12 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "N i f i"
 
-export NIFI_VERSIONS="${@:-${NIFI_VERSIONS:-0.5 0.6 0.7 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 latest}}"
+export NIFI_VERSIONS="${*:-${NIFI_VERSIONS:-0.5 0.6 0.7 1.0 1.1 1.2 1.3 1.4 1.5 1.6 1.7 latest}}"
 
 NIFI_HOST="${DOCKER_HOST:-${NIFI_HOST:-${HOST:-localhost}}}"
 NIFI_HOST="${NIFI_HOST##*/}"
@@ -48,6 +49,7 @@ test_nifi(){
     docker_compose_port "Nifi"
     hr
     # ============================================================================ #
+    # shellcheck disable=SC2153
     when_ports_available "$NIFI_HOST" "$NIFI_PORT"
     hr
     when_url_content "http://$NIFI_HOST:$NIFI_PORT/nifi/" "nifi"
@@ -91,6 +93,8 @@ test_nifi(){
 
     run_conn_refused ./check_nifi_processor_load_average.py
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Nifi tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
