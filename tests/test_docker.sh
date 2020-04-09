@@ -20,8 +20,11 @@ srcdir="$(cd "$(dirname "$0")" && pwd)"
 
 cd "$srcdir/.."
 
-. "bash-tools/lib/docker.sh"
-. "bash-tools/lib/utils.sh"
+# shellcheck disable=SC1090
+. "$srcdir/../bash-tools/lib/docker.sh"
+
+# shellcheck disable=SC1090
+. "$srcdir/../bash-tools/lib/utils.sh"
 
 section "Docker Image"
 
@@ -29,7 +32,10 @@ export DOCKER_IMAGE="harisekhon/nagios-plugins"
 export DOCKER_IMAGE_TAGS="latest centos debian ubuntu alpine"
 export DOCKER_IMAGES=(harisekhon/tools harisekhon/pytools harisekhon/nagios-plugins)
 if is_CI; then
-    export DOCKER_IMAGES="$(ci_sample ${DOCKER_IMAGES[*]})"
+    # want splitting
+    # shellcheck disable=SC2086,SC2178
+    DOCKER_IMAGES="$(ci_sample ${DOCKER_IMAGES[*]})"
+    export DOCKER_IMAGES
 fi
 
 stdout="/dev/stdout"
@@ -177,8 +183,8 @@ if is_docker_available; then
         num_manager_nodes=$(./check_docker_swarm_nodes.py --manager | sed 's/^[^=]*= //;s/ .*//')
         echo "determined number of Docker Swarm manager nodes to be '$num_manager_nodes'"
         set -o pipefail
-        let worker_threshold=$num_worker_nodes+1
-        let manager_threshold=$num_manager_nodes+1
+        ((worker_threshold=num_worker_nodes+1))
+        ((manager_threshold=num_manager_nodes+1))
 
         run_fail 1 ./check_docker_swarm_nodes.py -w "$worker_threshold"
         run_fail 2 ./check_docker_swarm_nodes.py -c "$worker_threshold"
@@ -305,6 +311,8 @@ if is_docker_available; then
     run docker run --rm -e DEBUG="$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl -H google.com -w 2 -c 1
 
     echo
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Docker tests"
     echo
     echo "now checking all programs within the docker image run --help without missing dependencies:"
