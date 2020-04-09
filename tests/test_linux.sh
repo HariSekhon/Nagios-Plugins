@@ -19,7 +19,8 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 #[ `uname -s` = "Linux" ] || exit 0
 
@@ -118,6 +119,8 @@ EOF
 
         docker_exec check_yum.py -C --all-updates -v -t 30 || :
     fi
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Linux tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
@@ -126,17 +129,17 @@ EOF
 }
 
 if [ $# -gt 1 ]; then
-    if ! [[ ${valid_distros[*]} =~ "$1" ]]; then
+    if ! [[ ${valid_distros[*]} =~ $1 ]]; then
         echo "INVALID distro argument given, must be one of: ${valid_distros[*]}"
         exit 1
     fi
     distro="$1"
     shift
-    for version in $@; do
+    for version in "$@"; do
         test_linux "$distro" "$version"
     done
-elif [ $# -eq 1 -a "${1:-}" != "latest" ]; then
-    if [[ ${valid_distros[*]} =~ "$1" ]]; then
+elif [ $# -eq 1 ] && [ "${1:-}" != "latest" ]; then
+    if [[ ${valid_distros[*]} =~ $1 ]]; then
         test_linux "$1" "latest"
     else
         echo "INVALID distro argument given, must be one of: ${valid_distros[*]}"
