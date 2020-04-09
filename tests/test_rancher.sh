@@ -19,11 +19,12 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "R a n c h e r"
 
-export RANCHER_VERSIONS="${@:-${RANCHER_VERSIONS:-v1.0.2 v1.1.4 v1.2.4 v1.3.5 v1.4.3 v1.5.9 v1.6.14 stable latest}}"
+export RANCHER_VERSIONS="${*:-${RANCHER_VERSIONS:-v1.0.2 v1.1.4 v1.2.4 v1.3.5 v1.4.3 v1.5.9 v1.6.14 stable latest}}"
 
 RANCHER_HOST="${DOCKER_HOST:-${RANCHER_HOST:-${HOST:-localhost}}}"
 RANCHER_HOST="${RANCHER_HOST##*/}"
@@ -49,6 +50,7 @@ test_rancher(){
     docker_compose_port "Rancher"
     DOCKER_SERVICE=rancher-haproxy docker_compose_port HAProxy
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$RANCHER_HOST" "$RANCHER_PORT" "$HAPROXY_PORT"
     hr
     when_url_content "http://$RANCHER_HOST:$RANCHER_PORT/ping" "pong"
@@ -69,6 +71,8 @@ test_rancher(){
     RANCHER_PORT="$HAPROXY_PORT" \
     rancher_tests
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Rancher tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
