@@ -19,7 +19,8 @@ srcdir2="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir2/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 srcdir="$srcdir2"
 
@@ -42,6 +43,8 @@ echo "testing detection of failing repo build:"
 run_fail 2 ./check_dockerhub_repo_build_status.py -r harisekhon/ci_intentionally_broken_test_do_not_use -v
 
 echo
+# defined and tracked in bash-tools/lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count DockerHub tests"
 echo
 echo "DockerHub tests completed successfully"
