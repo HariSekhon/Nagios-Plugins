@@ -20,12 +20,13 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "I n f l u x D B"
 
 # there is no alpine version of 0.12
-export INFLUXDB_VERSIONS="${@:-${INFLUXDB_VERSIONS:-0.12 0.13-alpine 1.0-alpine 1.1-alpine 1.2-alpine 1.3-alpine 1.4-alpine 1.5-alpine alpine}}"
+export INFLUXDB_VERSIONS="${*:-${INFLUXDB_VERSIONS:-0.12 0.13-alpine 1.0-alpine 1.1-alpine 1.2-alpine 1.3-alpine 1.4-alpine 1.5-alpine alpine}}"
 
 INFLUXDB_HOST="${DOCKER_HOST:-${INFLUXDB_HOST:-${HOST:-localhost}}}"
 INFLUXDB_HOST="${INFLUXDB_HOST##*/}"
@@ -48,6 +49,7 @@ test_influxdb(){
     docker_compose_port "InfluxDB"
     DOCKER_SERVICE=influxdb-haproxy docker_compose_port HAProxy
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$INFLUXDB_HOST" "$INFLUXDB_PORT" "$HAPROXY_PORT"
     hr
     when_url_content "http://$INFLUXDB_HOST:$INFLUXDB_PORT/query?q=show%20databases" "results"
@@ -65,6 +67,8 @@ test_influxdb(){
     INFLUXDB_PORT="$HAPROXY_PORT" \
     influxdb_tests
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count InfluxDB tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
@@ -74,18 +78,23 @@ test_influxdb(){
 
 influxdb_tests(){
     expected_version="${version%-alpine}"
-    if [ "$version" = "latest" -o "$version" = "alpine" ]; then
+    if [ "$version" = "latest" ] || [ "$version" = "alpine" ]; then
         expected_version=".*"
     fi
     build=""
-    # TODO: do bash utils float comparison function
     if [[ "$version" = "latest" || "$version" = "alpine" ]]; then # || "${version:0:3}" -ge 1.4 ]]; then
         build="--build OSS"
     fi
+    # want splitting
+    # shellcheck disable=SC2086
     run ./check_influxdb_version.py -v -e "$expected_version" $build
 
+    # want splitting
+    # shellcheck disable=SC2086
     run_fail 2 ./check_influxdb_version.py -v -e "fail-version" $build
 
+    # want splitting
+    # shellcheck disable=SC2086
     run_conn_refused ./check_influxdb_version.py -v -e "$expected_version" $build
 
     run ./check_influxdb_api_ping.py
