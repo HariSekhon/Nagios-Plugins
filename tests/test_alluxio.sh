@@ -19,11 +19,12 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "A l l u x i o"
 
-export ALLUXIO_VERSIONS="${@:-${ALLUXIO_VERSIONS:-1.0 1.1 1.2 1.3 1.4 1.5 1.6 latest}}"
+export ALLUXIO_VERSIONS="${*:-${ALLUXIO_VERSIONS:-1.0 1.1 1.2 1.3 1.4 1.5 1.6 latest}}"
 
 ALLUXIO_HOST="${DOCKER_HOST:-${ALLUXIO_HOST:-${HOST:-localhost}}}"
 ALLUXIO_HOST="${ALLUXIO_HOST##*/}"
@@ -59,11 +60,14 @@ test_alluxio(){
     fi
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
-        local version="$(dockerhub_latest_version alluxio)"
+        local version
+        version="$(dockerhub_latest_version alluxio)"
         echo "expecting version '$version'"
     fi
     hr
     echo "waiting on Alluxio Master to give Alluxio time to properly initialize:"
+    # defined in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     RETRY_INTERVAL=2 retry "$startupwait" ./check_alluxio_master_version.py -v -e "$version" -t 2
     hr
     echo "expect Alluxio Worker to also be up by this point:"
@@ -116,6 +120,8 @@ test_alluxio(){
 
     if [ -n "${KEEPDOCKER:-}" ]; then
         echo
+        # defined and tracked in bash-tools/lib/utils.sh
+        # shellcheck disable=SC2154
         echo "Completed $run_count Alluxio tests"
         return
     fi
@@ -148,6 +154,8 @@ test_alluxio(){
     run_fail 2 ./check_alluxio_worker_heartbeat.py --node "$node" -w 1 -c 1
 
     fi
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Alluxio tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
@@ -156,3 +164,7 @@ test_alluxio(){
 }
 
 run_test_versions Alluxio
+
+if is_github_actions; then
+  docker_rmi_grep alluxio
+fi
