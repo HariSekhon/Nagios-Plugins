@@ -71,3 +71,7 @@ hr
 [ -n "${KEEPDOCKER:-}" ] ||
 docker-compose down
 echo; echo
+
+if is_CI; then
+    docker_rmi_grep harisekhon/nagios-plugins || :
+fi
