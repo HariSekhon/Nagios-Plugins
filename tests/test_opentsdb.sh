@@ -20,11 +20,12 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "O p e n T S D B"
 
-export OPENTSDB_VERSIONS="${@:-${OPENTSDB_VERSIONS:-2.2 latest}}"
+export OPENTSDB_VERSIONS="${*:-${OPENTSDB_VERSIONS:-2.2 latest}}"
 
 OPENTSDB_HOST="${DOCKER_HOST:-${OPENTSDB_HOST:-${HOST:-localhost}}}"
 OPENTSDB_HOST="${OPENTSDB_HOST##*/}"
@@ -50,6 +51,7 @@ test_opentsdb(){
     docker_compose_port "OpenTSDB"
     DOCKER_SERVICE=opentsdb-haproxy docker_compose_port HAProxy
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$OPENTSDB_HOST" "$OPENTSDB_PORT" "$HAPROXY_PORT"
     hr
     when_url_content "http://$OPENTSDB_HOST:$OPENTSDB_PORT" "OpenTSDB"
@@ -67,6 +69,8 @@ test_opentsdb(){
     OPENTSDB_PORT="$HAPROXY_PORT" \
     opentsdb_tests
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count OpenTSDB tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
