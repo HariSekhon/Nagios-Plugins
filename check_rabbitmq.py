@@ -69,7 +69,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.1'
+__version__ = '0.5.2'
 
 
 class CheckRabbitMQ(PubSubNagiosPlugin):
@@ -160,6 +160,7 @@ class CheckRabbitMQ(PubSubNagiosPlugin):
                           .format(default_conn_attempts=self.default_conn_attempts))
         self.add_opt('-r', '--retry-delay', default=self.default_retry_delay,
                      help='Retry delay between connection attempts (default: {default_retry_delay})')
+        self.add_opt('-s', '--sleep', type=float, default=1.0, metavar='secs', help=self.sleep_usage)
         self.add_thresholds(default_warning=1, default_critical=2)
 
     def run(self):

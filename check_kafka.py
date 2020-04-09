@@ -63,7 +63,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.4'
+__version__ = '0.5.5'
 
 
 class CheckKafka(PubSubNagiosPlugin):
@@ -113,6 +113,7 @@ class CheckKafka(PubSubNagiosPlugin):
                      help='Acks to require from Kafka. Valid options are \'1\' for Kafka ' +
                      'partition leader, or \'all\' for all In-Sync Replicas (may block causing ' +
                      'timeout if replicas aren\'t available, default: 1)')
+        self.add_opt('-s', '--sleep', type=float, default=1.0, metavar='secs', help=self.sleep_usage)
         self.add_opt('--list-topics', action='store_true', help='List Kafka topics from broker(s) and exit')
         self.add_opt('--list-partitions', action='store_true',
                      help='List Kafka topic paritions from broker(s) and exit')
