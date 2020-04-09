@@ -167,3 +167,7 @@ test_tachyon(){
 }
 
 run_test_versions Tachyon
+
+if is_CI; then
+    docker_rmi_grep harisekhon/tachyon || :
+fi
