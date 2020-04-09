@@ -33,7 +33,9 @@ for x in *.pl */*.pl; do
     fi
     #printf "%-50s" "$x:"
     #$perl -TWc ./$x
-    $perl -Tc ./$x
+    # defined in lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154
+    "$perl" -Tc "./$x"
 done
 
 srcdir="$srcdir_nagios_plugins_syntax"
