@@ -19,11 +19,12 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "S o l r"
 
-export SOLR_VERSIONS="${@:-${SOLR_VERSIONS:-3.1 3.6 4.10 5.5 6.0 6.1 6.2 6.3 6.4 6.5 6.6 7.0 7.1 7.2 7.3 7.4 7.5 7.6 latest}}"
+export SOLR_VERSIONS="${*:-${SOLR_VERSIONS:-3.1 3.6 4.10 5.5 6.0 6.1 6.2 6.3 6.4 6.5 6.6 7.0 7.1 7.2 7.3 7.4 7.5 7.6 latest}}"
 
 SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
@@ -51,14 +52,16 @@ test_solr(){
     docker_compose_port SOLR_PORT "Solr HTTP"
     DOCKER_SERVICE=solr-haproxy docker_compose_port HAProxy
     hr
-    when_ports_available $SOLR_HOST $SOLR_PORT
+    # shellcheck disable=SC2153
+    when_ports_available "$SOLR_HOST" "$SOLR_PORT"
     hr
     when_url_content "http://$SOLR_HOST:$SOLR_PORT/solr/" "Solr Admin"
     hr
     echo "checking HAProxy Solr:"
     when_url_content "http://$SOLR_HOST:$HAPROXY_PORT/solr/" "Solr Admin"
     hr
-    if [ "$version" != "3.1" -a -z "${NOSETUP:-}" ]; then
+    if [ "$version" != "3.1" ] &&
+       [ -z "${NOSETUP:-}" ]; then
         echo "attempting to create Solr Core"
         # excluding from 3.1 test due to following error:
         # rpc error: code = 2 desc = oci runtime error: exec failed: container_linux.go:247: starting container process caused "exec: \"solr\": executable file not found in $PATH"
@@ -84,6 +87,8 @@ test_solr(){
     SOLR_PORT="$HAPROXY_PORT" \
     solr_tests
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Solr tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
@@ -95,7 +100,8 @@ test_solr(){
 solr_tests(){
     if [ "${version:0:1}" != "3" ]; then
         if [ "$version" = "latest" ]; then
-            local version="$(dockerhub_latest_version solr)"
+            local version
+            version="$(dockerhub_latest_version solr)"
         fi
         # 4.x+
         run ./check_solr_version.py -e "$version"
@@ -108,6 +114,8 @@ solr_tests(){
 
     # not available in Solr 3.x and collection not loaded in 4.10 above due to lack of bin/post command
     if ! [[ "$version" =~ ^3|^4 ]]; then
+        # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+        # shellcheck disable=SC2154
         run "$perl" -T ./check_solr_api_ping.pl -v -w 1000 -c 2000
     fi
 
@@ -120,8 +128,8 @@ solr_tests(){
         run "$perl" -T ./check_solr_metrics.pl --cat CACHE -K queryResultCache -s cumulative_hits
 
         # several categories return no metrics at this point
-        for category in $(./check_solr_metrics.pl --list-categories | tail -n +3 | egrep -v -e 'CONTAINER|QUERYPARSER|SPELLCHECKER|SEARCHER|TLOG|INDEX|DIRECTORY|HTTP|OTHER'); do
-            run "$perl" -T ./check_solr_metrics.pl --category $category
+        for category in $(./check_solr_metrics.pl --list-categories | tail -n +3 | grep -Ev -e 'CONTAINER|QUERYPARSER|SPELLCHECKER|SEARCHER|TLOG|INDEX|DIRECTORY|HTTP|OTHER'); do
+            run "$perl" -T ./check_solr_metrics.pl --category "$category"
         done
     fi
 
