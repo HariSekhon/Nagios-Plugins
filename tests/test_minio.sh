@@ -20,11 +20,12 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "M i n i o"
 
-export MINIO_VERSIONS="${@:-${MINIO_VERSIONS:-latest}}"
+export MINIO_VERSIONS="${*:-${MINIO_VERSIONS:-latest}}"
 
 AWS_HOST="${DOCKER_HOST:-${AWS_HOST:-${HOST:-localhost}}}"
 AWS_HOST="${AWS_HOST##*/}"
@@ -58,6 +59,7 @@ test_minio(){
     docker_compose_port "Minio"
     DOCKER_SERVICE=minio-haproxy docker_compose_port HAProxy
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$MINIO_HOST" "$MINIO_PORT" "$HAPROXY_PORT"
     hr
     when_url_content "http://$MINIO_HOST:$MINIO_PORT/minio/login" "minio"
@@ -76,6 +78,8 @@ test_minio(){
     MINIO_PORT="$HAPROXY_PORT" \
     minio_tests
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Minio tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
@@ -85,6 +89,8 @@ test_minio(){
 
 minio_tests(){
     export AWS_PORT="$MINIO_PORT"
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154
     run "$perl" -T check_aws_s3_file.pl -b bucket1 -f minio.txt --no-ssl
 
     run "$perl" -T check_aws_s3_file.pl -b bucket1 -f minio.txt --no-ssl --get
