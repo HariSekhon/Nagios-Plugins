@@ -19,11 +19,12 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "$srcdir/..";
 
+# shellcheck disable=SC1091
 . ./tests/utils.sh
 
 section "M e m c a c h e d"
 
-export MEMCACHED_VERSIONS="${@:-${MEMCACHED_VERSIONS:-1.4 1.5 latest}}"
+export MEMCACHED_VERSIONS="${*:-${MEMCACHED_VERSIONS:-1.4 1.5 latest}}"
 
 MEMCACHED_HOST="${DOCKER_HOST:-${MEMCACHED_HOST:-${HOST:-localhost}}}"
 MEMCACHED_HOST="${MEMCACHED_HOST##*/}"
@@ -47,11 +48,20 @@ test_memcached(){
     echo "getting Memcached dynamic port mapping:"
     docker_compose_port Memcached
     hr
+    # inferred and defined by docker_compose_post
+    # shellcheck disable=SC2153
     when_ports_available "$MEMCACHED_HOST" "$MEMCACHED_PORT"
     hr
     echo "creating test Memcached key-value"
-    echo -ne "add myKey 0 100 4\r\nhari\r\n" | nc -v "$MEMCACHED_HOST" "$MEMCACHED_PORT"
-    echo done
+    echo -ne "add myKey 0 100 4\r\nhari\r\n" |
+    # function wrapper defined in bash-tools/lib/utils.sh to call gtimeout on Mac
+    if type timeout &>/dev/null; then
+        # -k=60 gives 'Abort trap 6' error on Mac
+        timeout -k 60 10 nc -v "$MEMCACHED_HOST" "$MEMCACHED_PORT"
+    else
+        nc -v "$MEMCACHED_HOST" "$MEMCACHED_PORT"
+    fi
+    echo "Done"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
     fi
@@ -78,6 +88,8 @@ test_memcached(){
     fi
     hr
     # MEMCACHED_HOST obtained via .travis.yml
+    # defined in bash-tools/lib/perl.sh
+    # shellcheck disable=SC2154
     run "$perl" -T ./check_memcached_write.pl -v
 
     run_conn_refused "$perl" -T ./check_memcached_write.pl -v
@@ -90,6 +102,8 @@ test_memcached(){
 
     run_conn_refused "$perl" -T ./check_memcached_stats.pl -w 15 -c 20 -v
 
+    # defined and incremented in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Memcached tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
