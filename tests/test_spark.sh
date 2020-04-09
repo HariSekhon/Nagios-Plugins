@@ -20,11 +20,12 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "S p a r k"
 
-export SPARK_VERSIONS="${@:-${SPARK_VERSIONS:-1.3 1.4 1.5 1.6 latest}}"
+export SPARK_VERSIONS="${*:-${SPARK_VERSIONS:-1.3 1.4 1.5 1.6 latest}}"
 
 SPARK_HOST="${DOCKER_HOST:-${SPARK_HOST:-${HOST:-localhost}}}"
 SPARK_HOST="${SPARK_HOST##*/}"
@@ -54,10 +55,12 @@ test_spark(){
     hr
     echo "getting Spark dynamic port mappings:"
     printf "Spark Master Port => "
-    export SPARK_MASTER_PORT="`docker-compose port "$DOCKER_SERVICE" "$SPARK_MASTER_PORT_DEFAULT" | sed 's/.*://'`"
+    SPARK_MASTER_PORT="$(docker-compose port "$DOCKER_SERVICE" "$SPARK_MASTER_PORT_DEFAULT" | sed 's/.*://')"
+    export SPARK_MASTER_PORT
     echo "$SPARK_MASTER_PORT"
     printf "Spark Worker Port => "
-    export SPARK_WORKER_PORT="`docker-compose port "$DOCKER_SERVICE" "$SPARK_WORKER_PORT_DEFAULT" | sed 's/.*://'`"
+    SPARK_WORKER_PORT="$(docker-compose port "$DOCKER_SERVICE" "$SPARK_WORKER_PORT_DEFAULT" | sed 's/.*://')"
+    export SPARK_WORKER_PORT
     echo "$SPARK_WORKER_PORT"
     hr
     when_ports_available "$SPARK_HOST" "$SPARK_MASTER_PORT" "$SPARK_WORKER_PORT"
@@ -71,7 +74,8 @@ test_spark(){
     fi
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
-        local version="$(dockerhub_latest_version spark)"
+        local version
+        version="$(dockerhub_latest_version spark)"
         echo "expecting version '$version'"
     fi
     hr
@@ -87,10 +91,14 @@ test_spark(){
 
     run_conn_refused ./check_spark_worker_version.py -e "$version"
 
+    # defined in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "trying check_spark_cluster.pl for up to $startupwait secs to give cluster worker a chance to initialize:"
-    retry $startupwait ./check_spark_cluster.pl -c 1: -v
+    retry "$startupwait" ./check_spark_cluster.pl -c 1: -v
     hr
 
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154
     run "$perl" -T ./check_spark_cluster.pl -c 1: -v
 
     run_conn_refused "$perl" -T ./check_spark_cluster.pl -c 1: -v
@@ -109,6 +117,8 @@ test_spark(){
 
     if [ -n "${KEEPDOCKER:-}" ]; then
         echo
+        # defined and tracked in bash-tools/lib/utils.sh
+        # shellcheck disable=SC2154
         echo "Completed $run_count Spark tests"
         return
     fi
@@ -119,6 +129,8 @@ test_spark(){
     retry 10 ! "$perl" -T ./check_spark_cluster_dead_workers.pl
     run++
     hr
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Spark tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
