@@ -20,12 +20,13 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "A p a c h e   M e s o s"
 
 # TODO: docker images for 0.25 and 0.26 need fixes
-export MESOS_VERSIONS="${@:-${MESOS_VERSIONS:-${VERSIONS:-0.23 0.24 0.27 0.28 latest}}}"
+export MESOS_VERSIONS="${*:-${MESOS_VERSIONS:-${VERSIONS:-0.23 0.24 0.27 0.28 latest}}}"
 
 MESOS_HOST="${DOCKER_HOST:-${MESOS_HOST:-${HOST:-localhost}}}"
 MESOS_HOST="${MESOS_HOST##*/}"
@@ -63,7 +64,8 @@ test_mesos(){
     hr
     if [ "$version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
-        local version="$(dockerhub_latest_version mesos)"
+        local version
+        version="$(dockerhub_latest_version mesos)"
         echo "expecting version '$version'"
     fi
     hr
@@ -71,12 +73,14 @@ test_mesos(){
     echo "found Mesos version '$found_version'"
     hr
     if [[ "$found_version" =~ $version* ]]; then
-        echo "$name docker version matches expected (found '$found_version', expected '$version')"
+        echo "Mesos docker container version matches expected (found '$found_version', expected '$version')"
     else
-        echo "Docker container version does not match expected version! (found '$found_version', expected '$version')"
+        echo "Mesos docker container version does not match expected version! (found '$found_version', expected '$version')"
         exit 1
     fi
     hr
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154
     run "$perl" -T ./check_mesos_activated_slaves.pl -P "$MESOS_MASTER_PORT" -v
 
     run_conn_refused "$perl" -T ./check_mesos_activated_slaves.pl -v
@@ -130,6 +134,8 @@ test_mesos(){
 
     run_conn_refused "$perl" -T ./check_mesos_slave_state.pl -v
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Mesos tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
