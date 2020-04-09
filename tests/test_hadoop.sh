@@ -19,11 +19,12 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "H a d o o p"
 
-export HADOOP_VERSIONS="${@:-${HADOOP_VERSIONS:-2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 latest}}"
+export HADOOP_VERSIONS="${*:-${HADOOP_VERSIONS:-2.2 2.3 2.4 2.5 2.6 2.7 2.8 2.9 latest}}"
 
 HADOOP_HOST="${DOCKER_HOST:-${HADOOP_HOST:-${HOST:-localhost}}}"
 HADOOP_HOST="${HADOOP_HOST##*/}"
@@ -83,13 +84,16 @@ test_hadoop(){
     #docker_compose_port HADOOP_NAMENODE_PORT "HDFS NN"
     #local export HADOOP_NAMENODE_PORT="$(COMPOSE_PROJECT_NAME=nagios-plugins docker-compose -f "$srcdir/tests/docker/hadoop-docker-compose.yml" port hadoop-haproxy "$HADOOP_NAMENODE_PORT")"
     echo -n "HADOOP_NAMENODE_HAPROXY_PORT => "
-    export HADOOP_NAMENODE_PORT="$(docker-compose port hadoop-haproxy "$HADOOP_NAMENODE_PORT_DEFAULT" | sed 's/.*://')"
+    HADOOP_NAMENODE_PORT="$(docker-compose port hadoop-haproxy "$HADOOP_NAMENODE_PORT_DEFAULT" | sed 's/.*://')"
+    export HADOOP_NAMENODE_PORT
     echo "$HADOOP_NAMENODE_PORT"
     docker_compose_port HADOOP_DATANODE_PORT "HDFS DN"
     docker_compose_port HADOOP_YARN_RESOURCE_MANAGER_PORT "Yarn RM"
     docker_compose_port HADOOP_YARN_NODE_MANAGER_PORT "Yarn NM"
     export HADOOP_PORTS="$HADOOP_NAMENODE_PORT $HADOOP_DATANODE_PORT $HADOOP_YARN_RESOURCE_MANAGER_PORT $HADOOP_YARN_NODE_MANAGER_PORT"
     hr
+    # want splitting
+    # shellcheck disable=SC2086
     when_ports_available "$HADOOP_HOST" $HADOOP_PORTS
     hr
     # needed for version tests, also don't return container to user before it's ready if NOTESTS
@@ -151,7 +155,8 @@ EOF
     fi
     if is_latest_version; then
         echo "latest version, fetching latest version from DockerHub master branch"
-        local version="$(dockerhub_latest_version hadoop-dev)"
+        local version
+        version="$(dockerhub_latest_version hadoop-dev)"
         # 2.8.2 => 2.8 so that $version matches hdfs-fsck-2.8.log for check_hadoop_hdfs_fsck.pl check further down
         version="${version%.*}"
         echo "expecting version '$version'"
@@ -178,6 +183,8 @@ EOF
 
     run_conn_refused ./check_hadoop_datanode_version.py -v -e "$version"
 
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154
     run "$perl" -T ./check_hadoop_datanode_version.pl --node "$hostname" -v -e "$version"
 
     run_conn_refused "$perl" -T ./check_hadoop_datanode_version.pl --node "$hostname" -v -e "$version"
@@ -198,7 +205,7 @@ EOF
 
     echo "testing failure of checkpoint time:"
     #if ! [[ "$version" =~ ^2\.[23]$ ]]; then
-    if [ "$version" = "2.2" -o "$version" = "2.3" ]; then
+    if [ "$version" = "2.2" ] || [ "$version" = "2.3" ]; then
         # for some reason this doesn't checkpoint when starting up in older versions
         run_fail 1 "$perl" -T ./check_hadoop_checkpoint.pl -w 1000000: -c 1:
 
@@ -443,6 +450,7 @@ EOF
     local max_wait_job_running_secs=30
     # -a '.*' keeps getting expanded incorrectly in shell inside retry(), cannot quote inside retry() and escaping '.\*' or ".\*" doesn't work either it appears as those the backslash is passed in literally to the program
     RETRY_INTERVAL=3 retry "$max_wait_job_running_secs" ./check_hadoop_yarn_app_running.py -a "monte"
+    # shellcheck disable=SC2181
     if [ $? -ne 0 ]; then
         # Job can get stuck in Accepted state with no NM to run on if disk > 90% full it gets marked as bad dir - Docker images have been updated to permit 100% / not check disk utilization so there is more chance of this working on machines with low disk space left, eg. your laptop
         echo "FAILED: MapReduce job was not detected as running after $max_wait_job_running_secs secs (is disk >90% full?)"
@@ -711,7 +719,7 @@ EOF
         echo "checking node count (expecting critical < 1 nodes)"
         run_fail 2 "$perl" -t ./check_hadoop_namenode.pl -v --node-count -w 2 -c 1
 
-        run_fail 2 "$perl" -T ./check_hadoop_namenode.pl -v --node-list $hostname
+        run_fail 2 "$perl" -T ./check_hadoop_namenode.pl -v --node-list "$hostname"
     fi
 
     # This takes ages and we aren't going to git commit the collected log from Jenkins or Travis CI
@@ -761,6 +769,8 @@ EOF
 
         run_fail 2 "$perl" -T ./check_hadoop_hdfs_fsck.pl -f "$fsck_fail_log" --stats
     fi
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Hadoop tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
@@ -850,7 +860,7 @@ check_older_plugins(){
         echo "checking node count (expecting critical < 2 nodes):"
         run_fail 2 "$perl" -t ./check_hadoop_namenode.pl -v --node-count -w 2 -c 2
 
-        run "$perl" -T ./check_hadoop_namenode.pl -v --node-list $hostname
+        run "$perl" -T ./check_hadoop_namenode.pl -v --node-list "$hostname"
 
         run "$perl" -T ./check_hadoop_namenode.pl -v --heap-usage -w 80 -c 90
 
