@@ -20,6 +20,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 is_travis && exit 0
@@ -38,11 +39,13 @@ PROTOCOL="https"
 trap_debug_env mapr
 
 no_ssl=""
-if [ "$MAPR_CLUSTER" = "$SANDBOX_CLUSTER" -o -n "$NO_SSL" ]; then
+if [ "$MAPR_CLUSTER" = "$SANDBOX_CLUSTER" ] || [ -n "$NO_SSL" ]; then
     no_ssl="--no-ssl"
     PROTOCOL="http"
 fi
 
+# $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+# shellcheck disable=SC2154
 run_conn_refused "$perl" -T check_mapr-fs_space.pl $no_ssl
 
 run_conn_refused "$perl" -T check_mapr-fs_volume.pl $no_ssl
@@ -140,6 +143,7 @@ echo "Volumes:
 $volumes
 "
 
+# shellcheck disable=SC2086
 volume="$(bash-tools/random_select.sh $volumes)"
 
 echo "Selected volume for tests: $volume"
@@ -158,23 +162,23 @@ run "$perl" -T check_mapr-fs_space.pl $no_ssl
 
 run "$perl" -T check_mapr-fs_volume.pl $no_ssl
 
-run "$perl" -T check_mapr-fs_volume_mirroring.pl $no_ssl -L $volume
+run "$perl" -T check_mapr-fs_volume_mirroring.pl $no_ssl -L "$volume"
 
 if [ "$MAPR_CLUSTER" = "$SANDBOX_CLUSTER" ]; then
-    run_fail 2 "$perl" -T check_mapr-fs_volume_replication.pl $no_ssl -L $volume
+    run_fail 2 "$perl" -T check_mapr-fs_volume_replication.pl $no_ssl -L "$volume"
 
-    run_fail "0 3" "$perl" -T check_mapr-fs_volume_snapshots.pl $no_ssl -L $volume
+    run_fail "0 3" "$perl" -T check_mapr-fs_volume_snapshots.pl $no_ssl -L "$volume"
 
     run_fail "0 1" "$perl" -T check_mapr_dialhome.pl $no_ssl
 else
-    run "$perl" -T check_mapr-fs_volume_replication.pl $no_ssl -L $volume
+    run "$perl" -T check_mapr-fs_volume_replication.pl $no_ssl -L "$volume"
 
-    run "$perl" -T check_mapr-fs_volume_snapshots.pl $no_ssl -L $volume
+    run "$perl" -T check_mapr-fs_volume_snapshots.pl $no_ssl -L "$volume"
 
     run "$perl" -T check_mapr_dialhome.pl $no_ssl
 fi
 
-run "$perl" -T check_mapr-fs_volume_space_used.pl $no_ssl -L $volume
+run "$perl" -T check_mapr-fs_volume_space_used.pl $no_ssl -L "$volume"
 
 run "$perl" -T check_mapr_alarms.pl $no_ssl
 
@@ -199,9 +203,9 @@ run "$perl" -T check_mapr_node_health.pl $no_ssl
 
 run "$perl" -T check_mapr_node_heartbeats.pl $no_ssl
 
-run "$perl" -T check_mapr_node_mapr-fs_disks.pl $no_ssl -N $node
+run "$perl" -T check_mapr_node_mapr-fs_disks.pl $no_ssl -N "$node"
 
-run "$perl" -T check_mapr_node_services.pl $no_ssl -N $node
+run "$perl" -T check_mapr_node_services.pl $no_ssl -N "$node"
 
 run "$perl" -T check_mapr_nodes.pl $no_ssl
 
@@ -214,6 +218,8 @@ run "$perl" -T check_mapr_nodes.pl $no_ssl
 # when inheriting $MAPR_CLUSTER=demo.mapr.com it doesn't get back services, only when omitting --cluster / -C
 run "$perl" -T check_mapr_services.pl $no_ssl -C ""
 
+# defined and tracked in bash-tools/lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count MapR tests"
 echo
 echo "All MapR tests completed successfully"
