@@ -20,12 +20,13 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "0 x d a t a   H 2 O"
 
 # TODO: updates for H2O 3.x required
-export H2O_VERSIONS="${@:-${H2O_VERSIONS:-2.6 2}}"
+export H2O_VERSIONS="${*:-${H2O_VERSIONS:-2.6 2}}"
 
 H2O_HOST="${DOCKER_HOST:-${H2O_HOST:-${HOST:-localhost}}}"
 H2O_HOST="${H2O_HOST##*/}"
@@ -51,6 +52,7 @@ test_h2o(){
     docker_compose_port "H2O"
     DOCKER_SERVICE=h2o-haproxy docker_compose_port HAProxy
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$H2O_HOST" "$H2O_PORT" "$HAPROXY_PORT"
     hr
     # 2.x h2o, 3.x H2O Flow
@@ -72,6 +74,8 @@ test_h2o(){
     H2O_PORT="$HAPROXY_PORT" \
     h2o_tests
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count H2O tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
@@ -82,6 +86,8 @@ h2o_tests(){
     docker_compose_version_test h2o "$version"
     hr
 
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154
     run "$perl" -T ./check_h2o_cluster.pl
 
     run "$perl" -T ./check_h2o_jobs.pl
