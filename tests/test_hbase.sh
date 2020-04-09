@@ -20,6 +20,7 @@ srcdir2="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir2/.."
 
+# shellcheck disable=SC1090
 . "$srcdir2/utils.sh"
 
 srcdir="$srcdir2"
@@ -32,7 +33,7 @@ if [ "${HBASE_IMAGE:-}" = hbase ]; then
     export DOCKER_SKIP_EXEC=1  # don't run local tests which requires harisekhon/hbase-dev containing pre-built dependencies
 fi
 
-export HBASE_VERSIONS="${@:-${HBASE_VERSIONS:-0.98 1.0 1.1 1.2 1.3 1.4 2.0 2.1 latest}}"
+export HBASE_VERSIONS="${*:-${HBASE_VERSIONS:-0.98 1.0 1.1 1.2 1.3 1.4 2.0 2.1 latest}}"
 if ! is_CI; then
     export HBASE_VERSIONS="0.90 0.92 0.94 0.95 0.96 $HBASE_VERSIONS"
 fi
@@ -118,6 +119,8 @@ test_hbase(){
     #docker_compose_port ZOOKEEPER_PORT "HBase ZooKeeper"
     export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT"
     hr
+    # want splitting
+    # shellcheck disable=SC2086
     when_ports_available "$HBASE_HOST" $HBASE_PORTS
     hr
     if [ "$version" = "0.90" ]; then
@@ -156,7 +159,8 @@ test_hbase(){
     when_url_content "http://$HBASE_HOST:$HAPROXY_THRIFT_UI_PORT/thrift.jsp" "HBase.+Thrift"
     hr
     # tr occasionally errors out due to weird input chars, base64 for safety, but still remove chars like '+' which will ruin --expected regex
-    local uniq_val=$(< /dev/urandom base64 | tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)
+    local uniq_val
+    uniq_val="$(< /dev/urandom base64 | tr -dc 'a-zA-Z0-9' 2>/dev/null | head -c32 || :)"
     # gets ValueError: file descriptor cannot be a negative integer (-1), -T should be the workaround but hangs
     #docker-compose exec -T "$DOCKER_SERVICE" /bin/bash <<-EOF
     [ -n "${NOSETUP:-}" ] ||
@@ -200,7 +204,8 @@ EOF
     echo "starting tests for version $version"
     if is_latest_version; then
         echo "latest version, fetching latest version from DockerHub master branch"
-        local version="$(dockerhub_latest_version hbase-dev)"
+        local version
+        version="$(dockerhub_latest_version hbase-dev)"
         echo "expecting version '$version'"
     fi
     hr
@@ -445,6 +450,8 @@ EOF
     when_url_content "http://$HBASE_HOST:$HBASE_STARGATE_PORT/" HexStringSplitTable
     hr
 
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154
     run "$perl" -T ./check_hbase_regionservers.pl
 
     run_conn_refused "$perl" -T ./check_hbase_regionservers.pl
@@ -466,41 +473,41 @@ EOF
     for x in "$perl -T ./check_hbase_cell.pl" ./check_hbase_cell.py "$perl -T ./check_hbase_cell_stargate.pl"; do
         # HBase <= 0.94 fails to retrieve cell
         if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
-            run_fail "0 2" eval $x -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+            run_fail "0 2" eval "$x" -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
             # TODO: fix up the rest of these checks to work
             continue
         else
-            run eval $x -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+            run eval "$x" -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
         fi
 
-        run_conn_refused eval $x -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
+        run_conn_refused eval "$x" -T t1 -R r1 -C cf1:q1 -e "$uniq_val"
 
         # HBase <= 0.94 fails to retrieve cell
         if [[ "$version" =~ ^0\.9[0-4]$ ]]; then
-            run_fail "0 2" eval $x -T t1 -R r2 -C cf1:q1 --expected test --precision 3
+            run_fail "0 2" eval "$x" -T t1 -R r2 -C cf1:q1 --expected test --precision 3
 
-            run_fail "0 2" eval $x -T t1 -R r3 -C cf1:q1 -e 5 -w 5 -c 10 -g -u ms
+            run_fail "0 2" eval "$x" -T t1 -R r3 -C cf1:q1 -e 5 -w 5 -c 10 -g -u ms
         else
-            run eval $x -T t1 -R r2 -C cf1:q1 --expected test --precision 3
+            run eval "$x" -T t1 -R r2 -C cf1:q1 --expected test --precision 3
 
-            run eval $x -T t1 -R r3 -C cf1:q1 -e 5 -w 5 -c 10 -g -u ms
+            run eval "$x" -T t1 -R r3 -C cf1:q1 -e 5 -w 5 -c 10 -g -u ms
         fi
 
-        run_fail 1 eval $x -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 10
+        run_fail 1 eval "$x" -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 10
 
-        run_fail 2 eval $x -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 4
+        run_fail 2 eval "$x" -T t1 -R r3 -C cf1:q1 -e 5 -w 4 -c 4
 
-        run_fail 2 eval $x -T t1 -R nonExistentRow -C cf1:q1
+        run_fail 2 eval "$x" -T t1 -R nonExistentRow -C cf1:q1
 
-        run_fail 2 eval $x -T t1 -R r1 -C nonExistentCF:q1
+        run_fail 2 eval "$x" -T t1 -R r1 -C nonExistentCF:q1
 
-        run_fail 2 eval $x -T t1 -R r1 -C cf1:nonExistentQF
+        run_fail 2 eval "$x" -T t1 -R r1 -C cf1:nonExistentQF
 
-        run_fail 2 eval $x -T NonExistentTable -R r1 -C cf1:q1
+        run_fail 2 eval "$x" -T NonExistentTable -R r1 -C cf1:q1
 
-        run_fail 2 eval $x -T DisabledTable -R r1 -C cf1:q1
+        run_fail 2 eval "$x" -T DisabledTable -R r1 -C cf1:q1
 
-        run_fail 2 eval $x -T EmptyTable -R r1 -C cf1:q1
+        run_fail 2 eval "$x" -T EmptyTable -R r1 -C cf1:q1
     done
 
     # ./check_hbase_cell_thrift.pl is only a symlink to check_hbase_cell.pl so just check it's still there and working
@@ -670,16 +677,18 @@ EOF
     # give these more time as error reminds these metrics aren't available soon after start
     # TODO: perhaps this only works on some versions now??? Test and re-enable for those versions
     # XXX: this used to work, now cannot find metrics
-    run_fail "0 2 3" "$perl" -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" --all-metrics
-    run_fail "0 2 3" "$perl" -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_MASTER_PORT" -m compactionQueueLength
+    run_fail "0 2 3" "$perl" -T ./check_hbase_metrics.pl -H "$HBASE_HOST" -P "$HBASE_MASTER_PORT" --all-metrics
+    run_fail "0 2 3" "$perl" -T ./check_hbase_metrics.pl -H "$HBASE_HOST" -P "$HBASE_MASTER_PORT" -m compactionQueueLength
 
-    run_fail "0 2 3" "$perl" -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" --all-metrics
-    run_fail "0 2 3" "$perl" -T ./check_hbase_metrics.pl -H $HBASE_HOST -P "$HBASE_REGIONSERVER_PORT" -m compactionQueueLength
+    run_fail "0 2 3" "$perl" -T ./check_hbase_metrics.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" --all-metrics
+    run_fail "0 2 3" "$perl" -T ./check_hbase_metrics.pl -H "$HBASE_HOST" -P "$HBASE_REGIONSERVER_PORT" -m compactionQueueLength
 
 # ============================================================================ #
 
     if [ -n "${KEEPDOCKER:-}" ]; then
         echo
+        # defined and tracked in bash-tools/lib/utils.sh
+        # shellcheck disable=SC2154
         echo "Completed $run_count HBase tests"
         return
     fi
@@ -799,6 +808,8 @@ EOF
 #            fi
 #        fi
 #    fi
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count HBase tests"
     hr
     # will return further above and not use this
