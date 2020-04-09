@@ -19,8 +19,8 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "$srcdir/..";
 
-# shellcheck disable=SC1091
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "M e m c a c h e d"
 
@@ -81,14 +81,14 @@ test_memcached(){
     echo "found Memcached version '$found_version'"
     hr
     if [[ "$found_version" =~ $version ]]; then
-        echo "$name docker version matches expected (found '$found_version', expected '$version')"
+        echo "Memcached docker container version matches expected (found '$found_version', expected '$version')"
     else
-        echo "Docker container version does not match expected version! (found '$found_version', expected '$version')"
+        echo "Memcached docker container version does not match expected version! (found '$found_version', expected '$version')"
         exit 1
     fi
     hr
     # MEMCACHED_HOST obtained via .travis.yml
-    # defined in bash-tools/lib/perl.sh
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
     # shellcheck disable=SC2154
     run "$perl" -T ./check_memcached_write.pl -v
 
