@@ -20,6 +20,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "A t t i v i o"
@@ -65,10 +66,10 @@ if [ -z "${ATTIVIO_AIE_PERFMON_HOST:-}" ]; then
     echo "WARNING: \$ATTIVIO_AIE_PERFMON_HOST not set, skipping real Attivio AIE PerfMon metric checks"
 else
     if when_ports_available "$ATTIVIO_AIE_PERFMON_HOST" "$ATTIVIO_AIE_PERFMON_PORT"; then
-        echo "./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -P "$ATTIVIO_AIE_PERFMON_PORT" -l |"
+        echo "./check_attivio_aie_metrics.py -H $ATTIVIO_AIE_PERFMON_HOST -P $ATTIVIO_AIE_PERFMON_PORT -l |"
         ./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -P "$ATTIVIO_AIE_PERFMON_PORT" -l |
         tail -n +3 |
-        while read metric; do
+        while read -r metric; do
             run ./check_attivio_aie_metrics.py -H "$ATTIVIO_AIE_PERFMON_HOST" -P "$ATTIVIO_AIE_PERFMON_PORT" -m "$metric" -v
         done
     else
@@ -76,6 +77,8 @@ else
     fi
 fi
 echo
+# defined and tracked in bash-tools/lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count Attivio tests"
 echo
 echo "All Attivio tests completed successfully"
