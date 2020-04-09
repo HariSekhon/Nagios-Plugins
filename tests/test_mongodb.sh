@@ -145,3 +145,7 @@ for version in $(ci_sample $MONGO_VERSIONS); do
     # shellcheck disable=SC2154
     echo "Completed $run_count MongoDB tests"
 done
+
+if is_CI; then
+    docker_rmi_grep mongo || :
+fi
