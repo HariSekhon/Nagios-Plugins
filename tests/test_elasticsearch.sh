@@ -19,14 +19,15 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "E l a s t i c s e a r c h"
 
 # Elasticsearch 6.0+ only available on new docker.elastic.co which uses full sub-version x.y.z and does not have x.y tags
 # Any version given as x.y.z will use docker.elastic.co repo, otherwise old dockerhub images
 # Platinum edition with X-Pack is only available from 6.x onwards from docker.elastic.co - no longer available in 7.x due to being rolled in to standard
-export ELASTICSEARCH_VERSIONS="${@:-${ELASTICSEARCH_VERSIONS:-
+export ELASTICSEARCH_VERSIONS="${*:-${ELASTICSEARCH_VERSIONS:-
     1.3 1.4 1.5 1.6 1.7 2.0 2.1 2.2 2.3 2.4 5.0 5.1 5.2 5.3 5.4 5.5 5.6
         5.2.1 5.3.3 5.4.3 5.5.3 5.6.8 6.0.1 6.1.4 6.2.4 6.3.2 6.4.3 6.5.4 6.6.2 6.7.2 6.8.0 7.0.1 7.1.1
             6.0.1-x-pack 6.1.4-x-pack 6.2.4-x-pack
@@ -59,11 +60,14 @@ startupwait 120
 remove_shard_replicas(){
         echo "removing replicas of all indices to avoid failing tests with unassigned shards:"
         set +o pipefail
+        # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+        # shellcheck disable=SC2154
         "$perl" -T ./check_elasticsearch_index_exists.pl --list-indices |
         tail -n +2 |
         grep -v "^[[:space:]]*$" |
-        while read index; do
+        while read -r index; do
             echo "reducing replicas for index '$index'"
+            # shellcheck disable=SC2153
             curl -u "${ELASTICSEARCH_USER:-}:${ELASTICSEARCH_PASSWORD:-}" -H "content-type: application/json" -XPUT "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$index/_settings" -d '
             {
                 "index": {
@@ -81,11 +85,11 @@ test_elasticsearch(){
     section2 "Setting up Elasticsearch $version test container"
     # re-enable this when Elastic.co finally support 'latest' tag
     #if [ "$version" != "latest" ] && [ "${version:0:1}" -ge 6 ]; then
-    if egrep -q '^[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$' <<< "$version"; then
+    if grep -Eq '^[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+$' <<< "$version"; then
         local export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-elastic.co-docker-compose.yml"
-    elif egrep -q '^[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+-x-pack$' <<< "$version"; then
+    elif grep -Eq '^[[:digit:]]+\.[[:digit:]]+\.[[:digit:]]+-x-pack$' <<< "$version"; then
         local version="${version%-x-pack}"
-        local export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-platinum-docker-compose.yml"
+        export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-platinum-docker-compose.yml"
         export ELASTICSEARCH_USER="elastic"
         export ELASTICSEARCH_PASSWORD="password"
         local export HAPROXY_USER="elastic"
@@ -116,7 +120,7 @@ test_elasticsearch(){
     # always returns 0 and I don't wanna parse the json error
     #if ! curl -s "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX" &>/dev/null; then
     if [ -z "${NODOCKER:-}" ]; then
-        if ! "$perl" -T ./check_elasticsearch_index_exists.pl --list-indices | grep "^[[:space:]]*$ELASTICSEARCH_INDEX[[:space:]]*$"; then
+        if ! "$perl" -T ./check_elasticsearch_index_exists.pl --list-indices | grep "^[[:space:]]*${ELASTICSEARCH_INDEX}[[:space:]]*$"; then
             echo "creating test Elasticsearch index '$ELASTICSEARCH_INDEX'"
             # Elasticsearch 6.0 insists on application/json header otherwise index is not created
             curl -iv -u "${ELASTICSEARCH_USER:-}:${ELASTICSEARCH_PASSWORD:-}" -H "content-type: application/json" -XPUT "http://$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/$ELASTICSEARCH_INDEX/" -d '
@@ -149,6 +153,8 @@ test_elasticsearch(){
     elasticsearch_tests
     # TODO: run fail auth tests for all plugins and add run_fail_auth to bash-tools/utils.sh with run_grep string
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Elasticsearch tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
@@ -216,7 +222,8 @@ elasticsearch_tests(){
     # this works too but let's test the --list-nodes from one of the plugins
     #export ELASTICSEARCH_NODE="$(curl -s $HOST:9200/_nodes | python -c 'import json, sys; print json.load(sys.stdin)["nodes"].values()[0]["node"]')"
     # taking hostname not node name here, ip is $2, node name is $3
-    export ELASTICSEARCH_NODE="$(DEBUG='' "$perl" -T ./check_elasticsearch_node_disk_percent.pl --list-nodes | grep -vi -e '^Elasticsearch Nodes' -e '^Hostname' -e '^[[:space:]]*$' | awk '{print $1; exit}' )"
+    ELASTICSEARCH_NODE="$(DEBUG='' "$perl" -T ./check_elasticsearch_node_disk_percent.pl --list-nodes | grep -vi -e '^Elasticsearch Nodes' -e '^Hostname' -e '^[[:space:]]*$' | awk '{print $1; exit}' )"
+    export ELASTICSEARCH_NODE
     [ -n "$ELASTICSEARCH_NODE" ] || die "failed to determine Elasticsearch node name from API!"
     set -e
     echo "determined Elasticsearch node => $ELASTICSEARCH_NODE"
