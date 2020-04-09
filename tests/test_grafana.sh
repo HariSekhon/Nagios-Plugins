@@ -96,3 +96,7 @@ grafana_tests(){
 }
 
 run_test_versions "Grafana"
+
+if is_CI; then
+    docker_rmi_grep grafana || :
+fi
