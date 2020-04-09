@@ -20,6 +20,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 is_travis && exit 0
@@ -57,7 +58,7 @@ else
         ./check_zaloni_bedrock_workflow.py -l |
         tail -n +6 |
         sed 's/.*[[:space:]]\{4\}\([[:digit:]]\+\)[[:space:]]\{4\}.*/\1/' |
-        while read workflow_id; do
+        while read -r workflow_id; do
             # TODO: fix - won't increment due to subshell
             run_fail "0 2" ./check_zaloni_bedrock_workflow.py -I "$workflow_id" -v --min-runtime 0
         done
@@ -65,7 +66,7 @@ else
         ./check_zaloni_bedrock_workflow.py -l |
         tail -n +6 |
         sed 's/[[:space:]]\{4\}[[:digit:]]\+[[:space:]]\{4\}.*//' |
-        while read workflow_name; do
+        while read -r workflow_name; do
             # TODO: fix - won't increment due to subshell
             run_fail "0 2" ./check_zaloni_bedrock_workflow.py -N "$workflow_name" -v --min-runtime 0
         done
@@ -75,6 +76,8 @@ else
     fi
 fi
 echo
+# defined and tracked in bash-tools/lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count Zaloni tests"
 echo
 echo "All Zaloni tests passed successfully"
