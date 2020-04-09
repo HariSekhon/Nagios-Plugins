@@ -19,13 +19,14 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "C o u c h D B"
 
 # 1.6 and 2.1 were getting the following error, seem to be behaving now:
 # ERROR: Get https://registry-1.docker.io/v2/: dial tcp: lookup registry-1.docker.io on 194.239.134.83:53: server misbehaving
-export COUCHDB_VERSIONS="${@:-${COUCHDB_VERSIONS:-1.6 2.1 latest}}"
+export COUCHDB_VERSIONS="${*:-${COUCHDB_VERSIONS:-1.6 2.1 latest}}"
 
 COUCHDB_HOST="${DOCKER_HOST:-${COUCHDB_HOST:-${HOST:-localhost}}}"
 COUCHDB_HOST="${COUCHDB_HOST##*/}"
@@ -55,6 +56,7 @@ test_couchdb(){
     docker_compose_port "CouchDB"
     hr
     # ============================================================================ #
+    # shellcheck disable=SC2153
     when_ports_available "$COUCHDB_HOST" "$COUCHDB_PORT"
     hr
     when_url_content "http://$COUCHDB_HOST:$COUCHDB_PORT/" "couchdb"
@@ -159,6 +161,8 @@ test_couchdb(){
     #run_grep 'compact_running=1' ./check_couchdb_database_stats.py --database "$COUCHDB_DATABASE"
     #ERRCODE=1 run_grep 'compact_running=1' ./check_couchdb_database_compaction_running.py --database "$COUCHDB_DATABASE"
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count CouchDB tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
