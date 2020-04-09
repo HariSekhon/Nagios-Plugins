@@ -19,13 +19,14 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "L o g s t a s h"
 
 # Logstash 6.0+ only available on new docker.elastic.co which uses full sub-version x.y.z and does not have x.y tags
 # Rest API 5.x onwards
-export LOGSTASH_VERSIONS="${@:-${LOGSTASH_VERSIONS:-5.0 5.1 5.2 5.3 5.4 5.5 5.6 6.0.1 6.1.1 latest}}"
+export LOGSTASH_VERSIONS="${*:-${LOGSTASH_VERSIONS:-5.0 5.1 5.2 5.3 5.4 5.5 5.6 6.0.1 6.1.1 latest}}"
 
 LOGSTASH_HOST="${DOCKER_HOST:-${LOGSTASH_HOST:-${HOST:-localhost}}}"
 LOGSTASH_HOST="${LOGSTASH_HOST##*/}"
@@ -43,7 +44,7 @@ test_logstash(){
     local version="$1"
     section2 "Setting up Logstash $version test container"
     # TODO: change latest if Elastic.co finally support 'latest' tag, otherwise it points to 5.x on dockerhub
-    if ! [ "$version" = "latest" -o "${version:0:1}" = 5 ]; then
+    if ! [ "$version" = "latest" ] || [ "${version:0:1}" = 5 ]; then
         local export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-elastic.co-docker-compose.yml"
     fi
     docker_compose_pull
@@ -54,6 +55,7 @@ test_logstash(){
     echo "getting Logstash dynamic port mapping:"
     docker_compose_port "Logstash"
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$LOGSTASH_HOST" "$LOGSTASH_PORT"
     hr
     when_url_content "http://$LOGSTASH_HOST:$LOGSTASH_PORT" "build_date"
@@ -93,7 +95,7 @@ test_logstash(){
     # API changed between Logstash 5 and 6
     local logstash_5=""
     # TODO: re-enable on latest if Elastic.co finally support 'latest' tag, otherwise it points to 5.x on dockerhub
-    if [ "$version" = "latest" -o "${version:0:1}" = 5 ]; then
+    if [ "$version" = "latest" ] || [ "${version:0:1}" = 5 ]; then
         logstash_5="--logstash-5"
     fi
     # ============================================================================ #
@@ -129,7 +131,7 @@ test_logstash(){
     run_fail 1 ./check_logstash_pipeline.py -v --pipeline "$pipeline" -w 99 $logstash_5
 
     # TODO: re-enable on latest if Elastic.co finally support 'latest' tag, otherwise it points to 5.x on dockerhub
-    if [ "$version" = "latest" -o "${version:0:1}" = 5 ]; then
+    if [ "$version" = "latest" ] || [ "${version:0:1}" = 5 ]; then
         run_usage ./check_logstash_pipeline.py -v --pipeline "$pipeline" --dead-letter-queue-enabled $logstash_5
 
         run_usage ./check_logstash_pipeline.py -v --pipeline "nonexistent_pipeline" $logstash_5
@@ -183,6 +185,8 @@ test_logstash(){
 
     run_conn_refused ./check_logstash_hot_threads.py -v
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Logstash tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
