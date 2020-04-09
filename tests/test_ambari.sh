@@ -20,6 +20,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "A m b a r i"
@@ -34,6 +35,8 @@ trap_debug_env ambari
 
 echo "running connection refused tests first:"
 echo
+# $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+# shellcheck disable=SC2154
 run_conn_refused "$perl" -T check_ambari_cluster_alerts_host_summary.pl
 
 run_conn_refused "$perl" -T check_ambari_cluster_alerts_summary.pl
@@ -63,7 +66,7 @@ if [ -z "${AMBARI_HOST:-}" ]; then
     echo "WARNING: \$AMBARI_HOST not set, skipping real Ambari checks"
 else
     # should be available immediately if pre-running
-    if ! when_ports_available 5 "$AMBARI_HOST" $AMBARI_PORT; then
+    if ! when_ports_available 5 "$AMBARI_HOST" "$AMBARI_PORT"; then
         echo "WARNING: Ambari host $AMBARI_HOST:$AMBARI_PORT not up, skipping Ambari checks"
         echo
         echo
@@ -109,6 +112,8 @@ else
 fi
 
 echo
+# defined and tracked in bash-tools/lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count Ambari tests"
 echo
 echo "All Ambari tests completed successfully"
