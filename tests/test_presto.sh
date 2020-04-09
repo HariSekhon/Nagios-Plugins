@@ -19,12 +19,13 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "P r e s t o   S Q L"
 
 export PRESTO_TERADATA_VERSIONS="0.152 0.157 0.167 0.179 latest"
-export PRESTO_VERSIONS="${@:-${PRESTO_VERSIONS:-$PRESTO_TERADATA_VERSIONS}}"
+export PRESTO_VERSIONS="${*:-${PRESTO_VERSIONS:-$PRESTO_TERADATA_VERSIONS}}"
 
 PRESTO_HOST="${DOCKER_HOST:-${PRESTO_HOST:-${HOST:-localhost}}}"
 PRESTO_HOST="${PRESTO_HOST##*/}"
@@ -51,7 +52,8 @@ trap_debug_env presto
 startupwait 90
 
 presto_worker_tests(){
-    if ! [ "$PRESTO_HOST" != "$PRESTO_WORKER_HOST" -o "$PRESTO_PORT" != "$PRESTO_WORKER_PORT" ]; then
+    if ! [ "$PRESTO_HOST" != "$PRESTO_WORKER_HOST" ] ||
+         [ "$PRESTO_PORT" != "$PRESTO_WORKER_PORT" ]; then
         echo "Presto worker is not a separate host, skipping Presto Worker only checks"
         return 0
     fi
@@ -71,8 +73,8 @@ presto_worker_tests(){
     run ./check_presto_environment.py --expected development -P "$PRESTO_WORKER_PORT"
 
     # endpoint only found on Presto 0.128 onwards
-    if [ "$version" = "latest" -o \
-         "$version" = "NODOCKER" ] ||
+    if [ "$version" = "latest" ] ||
+       [ "$version" = "NODOCKER" ] ||
        [ "${version#0.}" -ge 128 ]; then
         run ./check_presto_state.py -P "$PRESTO_WORKER_PORT"
     else
@@ -120,8 +122,8 @@ presto_worker_tests(){
     if [ "${version#0.}" = 74 ]; then
         # gets "UNKNOWN: ValueError: No JSON object could be decoded." for Presto 0.74, there is just a smiley face ":)" in the returned output
         run_fail 3 ./check_presto_unfinished_queries.py -P "$PRESTO_WORKER_PORT"
-    elif [ "$version" != "latest" -a \
-           "$version" != "NODOCKER" ] &&
+    elif [ "$version" != "latest" ] &&
+         [ "$version" != "NODOCKER" ] &&
          [ "${version#0.}" -le 148 ]; then
         # succeeds with zero queries on versions <= 0.148, not sure why yet - is this another Presto bug?
         run ./check_presto_unfinished_queries.py -P "$PRESTO_WORKER_PORT"
@@ -180,8 +182,8 @@ test_presto2(){
     when_url_content "http://$PRESTO_HOST:$PRESTO_PORT/v1/service/presto/general" nodeId
     hr
     expected_version="$version"
-    if [ "$version" = "latest" -o \
-         "$version" = "NODOCKER" ]; then
+    if [ "$version" = "latest" ] ||
+       [ "$version" = "NODOCKER" ]; then
         if [ "$teradata_distribution" = 1 ]; then
             echo "latest version, fetching latest version from DockerHub master branch"
             expected_version="$(dockerhub_latest_version presto)"
@@ -207,8 +209,8 @@ test_presto2(){
     run_conn_refused ./check_presto_version.py --expected "$expected_version(-t.\d+.\d+)?"
 
     # coordinator field not available in Presto 0.93
-    if [ "$version" = "latest" -o \
-         "$version" = "NODOCKER" ] ||
+    if [ "$version" = "latest" ] ||
+       [ "$version" = "NODOCKER" ] ||
        [ "${version#0.}" -ge 94 ]; then
         run ./check_presto_coordinator.py
     else
@@ -242,7 +244,8 @@ test_presto2(){
 
     run_fail 3 ./check_presto_queries.py --list
 
-    if [ -n "${NODOCKER:-}" -o -n "${KEEPDOCKER:-}" ]; then
+    if [ -n "${NODOCKER:-}" ] ||
+       [ -n "${KEEPDOCKER:-}" ]; then
         run_fail "0 1 2" ./check_presto_queries.py --running
         run_fail "0 1 2" ./check_presto_queries.py --failed
         run_fail "0 1 2" ./check_presto_queries.py --blocked
@@ -256,8 +259,8 @@ test_presto2(){
     fi
 
     # endpoint only found on Presto 0.128 onwards
-    if [ "$version" = "latest" -o \
-         "$version" = "NODOCKER" ] ||
+    if [ "$version" = "latest" ] ||
+       [ "$version" = "NODOCKER" ] ||
        [ "${version#0.}" -ge 128 ]; then
         run ./check_presto_state.py
     else
@@ -286,6 +289,8 @@ test_presto2(){
         echo
         echo "External Presto, skipping worker setup + teardown checks..."
         echo
+        # defined and tracked in bash-tools/lib/utils.sh
+        # shellcheck disable=SC2154
         echo "Completed $run_count Presto tests"
         return 0
     fi
@@ -479,6 +484,8 @@ EOF
 
     run_fail "1 2" ./check_presto_worker_nodes_recent_failures.py
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Presto tests"
     hr
     [ -z "${KEEPDOCKER:-}" ] || return 0
@@ -512,11 +519,12 @@ test_presto(){
             fi
         done
     fi
-    if [ "$teradata_distribution" = "1" -a $facebook_only -eq 0 ]; then
+    if [ "$teradata_distribution" = "1" ] &&
+       [ "$facebook_only" -eq 0 ]; then
         echo "Testing Teradata's Presto distribution version:  '$version'"
         COMPOSE_FILE="$srcdir/docker/presto-docker-compose.yml" test_presto2 "$version"
         # must call this manually here as we're sneaking in an extra batch of tests that run_test_versions is generally not aware of
-        let total_run_count+=$run_count
+        ((total_run_count+=run_count))
         # reset this so it can be used in test_presto to detect now testing Facebook
         teradata_distribution=0
     fi
