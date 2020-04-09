@@ -19,7 +19,8 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "G i t"
 
@@ -34,6 +35,8 @@ current_branch="$(git branch | grep '^\*' | sed 's/^*[[:space:]]*//;s/[()]//g')"
 # Travis CI / Azure DevOps run from detached heads
 if [[ "$current_branch" =~ HEAD[[:space:]]+detached[[:space:]]+at[[:space:]] ]]; then
     echo "running in a detached head"
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154
     run_fail "0 2" "$perl" -T ./check_git_checkout_branch.pl -d . -b "$current_branch"
 
     ERRCODE=2 run_grep "CRITICAL: HEAD is a detached symbolic reference as it points to '[a-z0-9]+'" ./check_git_checkout_branch.py -d . -b "$current_branch"
@@ -98,7 +101,7 @@ echo "setting up git root in /tmp for git checks:"
 GIT_TMP="$(mktemp -d /tmp/git.XXXXXX)"
 GIT_TMP2="$GIT_TMP-clone"
 GIT_TMP_BARE="$GIT_TMP-bare"
-trap "rm -vfr $GIT_TMP $GIT_TMP2" EXIT
+trap 'rm -vfr $GIT_TMP $GIT_TMP2' EXIT
 
 pushd "$GIT_TMP"
 echo "initializing test repo:"
@@ -149,11 +152,11 @@ global=""
 if is_inside_docker; then
     global="--global"
 fi
-if [ -z "`git config user.name`" ]; then
+if [ -z "$(git config user.name)" ]; then
     echo "setting git user.name Hari Sekhon in local repo to allow commit"
     git config $global user.name "Hari Sekhon"
 fi
-if [ -z "`git config user.email`" ]; then
+if [ -z "$(git config user.email)" ]; then
     echo "setting git user.email harisekhon@gmail.com in local repo to allow commit"
     git config $global user.email "harisekhon@gmail.com"
 fi
@@ -207,6 +210,8 @@ trap '' EXIT
 
 # ============================================================================ #
 
+# defined and tracked in bash-tools/lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count Git tests"
 echo
 echo "All Git tests passed successfully"
