@@ -20,8 +20,8 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-# shellcheck disable=SC1091
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "C h e c k   M K   A d a p t e r"
 
@@ -43,7 +43,7 @@ run_grep '^4 ' ./adapter_check_mk.py -n 'basic test result 4' --result 4 'test 4
 
 run_grep '^0 ' ./adapter_check_mk.py -n 'basic shell test' --shell "echo 'test message | perf1=10s;1;2 perf2=5%;80;90;0;100 perf3=1000'"
 
-# defined in lib/perl.sh (imported by utils.sh)
+# $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
 # shellcheck disable=SC2154
 run ./adapter_check_mk.py "$perl" -T ./check_disk_write.pl -d .
 
