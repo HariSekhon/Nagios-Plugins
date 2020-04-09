@@ -20,11 +20,12 @@ srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "R a b b i t M Q"
 
-export RABBITMQ_VERSIONS="${@:-${RABBITMQ_VERSIONS:-3.4 3.5 3.6 latest}}"
+export RABBITMQ_VERSIONS="${*:-${RABBITMQ_VERSIONS:-3.4 3.5 3.6 latest}}"
 
 RABBITMQ_HOST="${DOCKER_HOST:-${RABBITMQ_HOST:-${HOST:-localhost}}}"
 RABBITMQ_HOST="${RABBITMQ_HOST##*/}"
@@ -72,16 +73,19 @@ test_rabbitmq(){
     local DOCKER_CONTAINER="${DOCKER_CONTAINER//-}"
     echo "getting RabbitMQ dynamic port mappings:"
     docker_compose_port RabbitMQ
-    printf "RabbitMQ node 2 port -> $RABBITMQ_PORT_DEFAULT => "
-    export RABBITMQ_PORT2="`docker-compose port "$DOCKER_SERVICE2" "$RABBITMQ_PORT_DEFAULT" | sed 's/.*://'`"
+    printf "RabbitMQ node 2 port -> %S => " "$RABBITMQ_PORT_DEFAULT"
+    RABBITMQ_PORT2="$(docker-compose port "$DOCKER_SERVICE2" "$RABBITMQ_PORT_DEFAULT" | sed 's/.*://')"
+    export RABBITMQ_PORT2
     echo "$RABBITMQ_PORT2"
     docker_compose_port "RabbitMQ HTTP"
-    printf "RabbitMQ node 2 HTTP port -> $RABBITMQ_HTTP_PORT_DEFAULT => "
-    export RABBITMQ_HTTP_PORT2="`docker-compose port "$DOCKER_SERVICE2" "$RABBITMQ_HTTP_PORT_DEFAULT" | sed 's/.*://'`"
+    printf "RabbitMQ node 2 HTTP port -> %s => " "$RABBITMQ_HTTP_PORT_DEFAULT"
+    RABBITMQ_HTTP_PORT2="$(docker-compose port "$DOCKER_SERVICE2" "$RABBITMQ_HTTP_PORT_DEFAULT" | sed 's/.*://')"
+    export RABBITMQ_HTTP_PORT2
     echo "$RABBITMQ_HTTP_PORT2"
     docker_compose_port "RabbitMQ HAProxy"
     docker_compose_port "RabbitMQ HAProxy HTTP"
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$RABBITMQ_HOST" "$RABBITMQ_PORT" "$RABBITMQ_HTTP_PORT" "$RABBITMQ_PORT2" "$RABBITMQ_HTTP_PORT2" "$RABBITMQ_HAPROXY_PORT" "$RABBITMQ_HAPROXY_HTTP_PORT"
     hr
 #    SECONDS=0
@@ -158,9 +162,11 @@ EOF
     version="${version%management}"
     version="${version%-}"
     local expected_version="$version"
-    if [ -z "$expected_version" -o "$expected_version" = "latest" ]; then
+    if [ -z "$expected_version" ] ||
+       [ "$expected_version" = "latest" ]; then
         echo "latest version, fetching latest version from DockerHub master branch"
-        local expected_version="$(dockerhub_latest_version rabbitmq-cluster)"
+        local expected_version
+        expected_version="$(dockerhub_latest_version rabbitmq-cluster)"
         echo "expecting version '$expected_version'"
     fi
     hr
@@ -174,6 +180,8 @@ EOF
     echo
     RABBITMQ_PORT="$RABBITMQ_HAPROXY_PORT" RABBITMQ_HTTP_PORT="$RABBITMQ_HAPROXY_HTTP_PORT" rabbitmq_tests
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count RabbitMQ tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
@@ -337,8 +345,8 @@ EOF
     echo "version: $version"
     hr
     if [ "$version" = "latest" ] ||
-        [ ${version:0:1} -gt 3 ] ||
-        [ ${version:0:1} -eq 3 -a ${version:2:1} -ge 5 ]; then
+        [ "${version:0:1}" -gt 3 ] ||
+        [ "${version:0:1}" -eq 3 -a "${version:2:1}" -ge 5 ]; then
         echo "(RabbitMQ 3.5+ only):"
         run ./check_rabbitmq_stats_db_event_queue.py
 
@@ -347,8 +355,8 @@ EOF
 
         # 3.6+ only
         if [ "$version" = "latest" ] ||
-            [ ${version:0:1} -gt 3 ] ||
-            [ ${version:0:1} -eq 3 -a ${version:2:1} -ge 6 ]; then
+            [ "${version:0:1}" -gt 3 ] ||
+            [ "${version:0:1}" -eq 3 -a "${version:2:1}" -ge 6 ]; then
             echo "(RabbitMQ 3.6+ only):"
             run ./check_rabbitmq_healthchecks.py
         fi
