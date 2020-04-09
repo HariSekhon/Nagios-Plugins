@@ -179,3 +179,7 @@ test_kafka(){
 }
 
 run_test_versions Kafka
+
+if is_CI; then
+    docker_rmi_grep '.*kafka' || :
+fi
