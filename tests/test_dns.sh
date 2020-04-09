@@ -19,7 +19,8 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "D N S"
 
@@ -39,6 +40,8 @@ echo
 
 hr
 echo "A record resolve:"
+# $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+# shellcheck disable=SC2154
 run "$perl" -T ./check_dns.pl --server "$nameservers" --record google.com
 
 echo "PTR record resolve:"
@@ -71,6 +74,8 @@ echo "MX record resolve with FQDN dns servers requiring pre-resolving:"
 run "$perl" -T ./check_dns.pl --server "$nameservers" --record google.com --type MX
 
 echo
+# defined and tracked in bash-tools/lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count DNS tests"
 echo
 echo "All DNS tests completed successfully"
