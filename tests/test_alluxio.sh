@@ -165,6 +165,6 @@ test_alluxio(){
 
 run_test_versions Alluxio
 
-if is_github_actions; then
-  docker_rmi_grep alluxio
+if is_CI; then
+    docker_rmi_grep alluxio || :
 fi
