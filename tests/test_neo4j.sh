@@ -19,11 +19,12 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "N e o 4 J"
 
-export NEO4J_VERSIONS="${@:-${NEO4J_VERSIONS:-2.3 3.0 3.1 3.2 latest}}"
+export NEO4J_VERSIONS="${*:-${NEO4J_VERSIONS:-2.3 3.0 3.1 3.2 latest}}"
 
 NEO4J_HOST="${DOCKER_HOST:-${NEO4J_HOST:-${HOST:-localhost}}}"
 NEO4J_HOST="${NEO4J_HOST##*/}"
@@ -61,6 +62,7 @@ test_neo4j_main(){
     docker_compose_port NEO4J_HTTPS_PORT "Neo4J HTTPS"
     docker_compose_port "Neo4J Bolt"
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$NEO4J_HOST" "$NEO4J_PORT" "$NEO4J_HTTPS_PORT" "$NEO4J_BOLT_PORT"
     hr
     when_url_content "http://$NEO4J_HOST:$NEO4J_PORT/browser/" "Neo4j Browser"
@@ -73,7 +75,7 @@ test_neo4j_main(){
     hr
     if [ -z "${NOSETUP:-}" ]; then
         echo "creating test Neo4J node"
-        if [ "${version:0:3}" = "2.3" -o "${version:0:3}" = "3.0" ]; then
+        if [ "${version:0:3}" = "2.3" ] || [ "${version:0:3}" = "3.0" ]; then
             # port 1337 - gets connection refused in newer versions as there is nothing listening on 1337
             docker-compose exec "$DOCKER_SERVICE" /var/lib/neo4j/bin/neo4j-shell -host localhost -c 'CREATE (p:Person { name: "Hari Sekhon" });'
         else
@@ -84,6 +86,8 @@ test_neo4j_main(){
                 # API 1.25+
                 auth_env="-e NEO4J_USERNAME=$NEO4J_USERNAME -e NEO4J_PASSWORD=$NEO4J_PASSWORD"
             fi
+            # want splitting
+            # shellcheck disable=SC2086
             docker exec -i $auth_env "$DOCKER_CONTAINER" /var/lib/neo4j/bin/cypher-shell <<< 'CREATE (p:Person { name: "Hari Sekhon" });'
         fi
         hr
@@ -94,6 +98,8 @@ test_neo4j_main(){
     if [ "$version" = "latest" ]; then
         local version=".*"
     fi
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154
     run "$perl" -T ./check_neo4j_version.pl -v -e "^$version"
 
     run_fail 2 "$perl" -T ./check_neo4j_version.pl -v -e 'fail-version'
@@ -137,6 +143,8 @@ test_neo4j(){
     test_neo4j_main "$version"
     NEO4J_AUTH="$NEO4J_USERNAME/$NEO4J_PASSWORD" \
         test_neo4j_main "$version"
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count Neo4J tests"
 }
 
