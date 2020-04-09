@@ -19,13 +19,14 @@ srcdir2="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir2/.."
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 srcdir="$srcdir2"
 
 section "S o l r C l o u d"
 
-export SOLRCLOUD_VERSIONS="${@:-${SOLRCLOUD_VERSIONS:-4.10 5.5 6.0 6.1 6.2 6.3 6.4 6.5 6.6 7.0 7.1 7.2 7.3 7.4 7.5 7.6 latest}}"
+export SOLRCLOUD_VERSIONS="${*:-${SOLRCLOUD_VERSIONS:-4.10 5.5 6.0 6.1 6.2 6.3 6.4 6.5 6.6 7.0 7.1 7.2 7.3 7.4 7.5 7.6 latest}}"
 
 SOLR_HOST="${DOCKER_HOST:-${SOLR_HOST:-${HOST:-localhost}}}"
 SOLR_HOST="${SOLR_HOST##*/}"
@@ -49,7 +50,7 @@ trap_debug_env solr zookeeper
 test_solrcloud(){
     local version="$1"
     # SolrCloud 4.x needs some different args / locations
-    if [ ${version:0:1} = 4 ]; then
+    if [ "${version:0:1}" = 4 ]; then
         four=true
         export SOLR_COLLECTION="collection1"
     else
@@ -65,6 +66,7 @@ test_solrcloud(){
     docker_compose_port "Solr ZooKeeper"
     DOCKER_SERVICE=solrcloud-haproxy docker_compose_port HAProxy
     hr
+    # shellcheck disable=SC2153
     when_ports_available "$SOLR_HOST" "$SOLR_PORT" "$SOLR_ZOOKEEPER_PORT"
     hr
     when_url_content "http://$SOLR_HOST:$SOLR_PORT/solr/" "Solr Admin"
@@ -72,7 +74,8 @@ test_solrcloud(){
     echo "checking HAProxy SolrCloud:"
     when_url_content "http://$SOLR_HOST:$HAPROXY_PORT/solr/" "Solr Admin"
     hr
-    local DOCKER_CONTAINER="$(docker-compose ps | grep -v haproxy | sed -n '3s/ .*//p')"
+    local DOCKER_CONTAINER
+    DOCKER_CONTAINER="$(docker-compose ps | grep -v haproxy | sed -n '3s/ .*//p')"
     echo "container is $DOCKER_CONTAINER"
     if [ -n "${NOTESTS:-}" ]; then
         exit 0
@@ -93,6 +96,8 @@ test_solrcloud(){
     SOLR_PORT="$HAPROXY_PORT" \
     solrcloud_tests
 
+    # defined and tracked in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "Completed $run_count SolrCloud tests"
     hr
     [ -n "${KEEPDOCKER:-}" ] ||
@@ -106,8 +111,12 @@ solrcloud_tests(){
 
     run_fail 2 ./check_solr_version.py -e "fail-version"
 
+    # defined in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     echo "will try cluster status for up to $startupwait secs to give cluster and collection chance to initialize properly:"
-    retry $startupwait "$perl" -T ./check_solrcloud_cluster_status.pl
+    # $perl defined in bash-tools/lib/perl.sh (imported by utils.sh)
+    # shellcheck disable=SC2154
+    retry "$startupwait" "$perl" -T ./check_solrcloud_cluster_status.pl
     hr
 
     run "$perl" -T ./check_solrcloud_cluster_status.pl -v
@@ -121,7 +130,8 @@ solrcloud_tests(){
         # TODO: review why there is no solrcloud example config - this was the closest one I found via:
         # find /solr/ -name solrconfig.xml | while read filename; dirname=$(dirname $filename); do echo $dirname; /pl/check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C gettingstarted -d $dirname -v; echo; done
         set +o pipefail
-        if [ "$version" = "latest" -o "${version:0:1}" -ge 7 ]; then
+        if [ "$version" = "latest" ] ||
+           [ "${version:0:1}" -ge 7 ]; then
             ERRCODE=2 docker_exec check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C "$SOLR_COLLECTION" -d "$SOLR_HOME/server/solr/configsets/sample_techproducts_configs/conf" -v
         else
             ERRCODE=2 docker_exec check_solrcloud_config_zookeeper.pl -H localhost -P 9983 -b / -C "$SOLR_COLLECTION" -d "$SOLR_HOME/server/solr/configsets/data_driven_schema_configs/conf" -v #| grep -F '1 file only found in ZooKeeper but not local directory (configoverlay.json)'
