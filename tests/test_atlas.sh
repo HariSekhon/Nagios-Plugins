@@ -20,6 +20,7 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/.."
 
+# shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
 section "A t l a s"
@@ -93,6 +94,8 @@ else
     run ./check_atlas_entity.py -I "$id"
 fi
 echo
+# defined and tracked in bash-tools/lib/utils.sh
+# shellcheck disable=SC2154
 echo "Completed $run_count Apache Atlas tests"
 echo
 echo "All Apache Atlas tests completed successfully"
