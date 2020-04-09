@@ -285,3 +285,7 @@ echo
 echo "All Whois tests passed successfully"
 echo
 echo
+
+if is_CI; then
+    docker_rmi_grep harisekhon/nagios-plugins || :
+fi
