@@ -73,7 +73,7 @@ test_rabbitmq(){
     local DOCKER_CONTAINER="${DOCKER_CONTAINER//-}"
     echo "getting RabbitMQ dynamic port mappings:"
     docker_compose_port RabbitMQ
-    printf "RabbitMQ node 2 port -> %S => " "$RABBITMQ_PORT_DEFAULT"
+    printf "RabbitMQ node 2 port -> %s => " "$RABBITMQ_PORT_DEFAULT"
     RABBITMQ_PORT2="$(docker-compose port "$DOCKER_SERVICE2" "$RABBITMQ_PORT_DEFAULT" | sed 's/.*://')"
     export RABBITMQ_PORT2
     echo "$RABBITMQ_PORT2"
