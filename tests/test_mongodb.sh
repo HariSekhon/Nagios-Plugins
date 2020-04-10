@@ -50,6 +50,12 @@ if ! is_docker_available; then
     exit 0
 fi
 
+if is_CI; then
+    # want splitting
+    # shellcheck disable=SC2086
+    trap 'docker_rmi_grep mongo' $TRAP_SIGNALS
+fi
+
 test_mongo(){
     local version="$1"
     section2 "Setting up MongoDB $version test container"
@@ -145,7 +151,3 @@ for version in $(ci_sample $MONGO_VERSIONS); do
     # shellcheck disable=SC2154
     echo "Completed $run_count MongoDB tests"
 done
-
-if is_CI; then
-    docker_rmi_grep mongo || :
-fi
