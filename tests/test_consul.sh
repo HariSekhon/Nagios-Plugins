@@ -230,10 +230,9 @@ consul_dev_tests(){
     docker-compose down
 }
 
-if is_CI; then
-    # want splitting
-    # shellcheck disable=SC2086
-    trap 'docker_rmi_grep harisekhon/consul' $TRAP_SIGNALS
-fi
-
 run_test_versions Consul
+
+if is_CI; then
+    docker_image_cleanup
+    echo
+fi
