@@ -106,8 +106,10 @@ minio_tests(){
     run_usage "$perl" -T check_aws_s3_file.pl
 }
 
-run_test_versions "Minio"
-
 if is_CI; then
-    docker_rmi_grep minio || :
+    # want splitting
+    # shellcheck disable=SC2086
+    trap 'docker_rmi_grep minio' $TRAP_SIGNALS
 fi
+
+run_test_versions "Minio"
