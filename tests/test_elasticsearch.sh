@@ -385,5 +385,6 @@ elasticsearch_tests(){
 run_test_versions Elasticsearch
 
 if is_CI; then
-    docker_rmi_grep '.*elasticsearch' || :
+    docker_image_cleanup
+    echo
 fi

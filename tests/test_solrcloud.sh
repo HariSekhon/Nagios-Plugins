@@ -175,5 +175,6 @@ solrcloud_conn_refused_tests(){
 run_test_versions SolrCloud
 
 if is_CI; then
-    docker_rmi_grep harisekhon/solr || :
+    docker_image_cleanup
+    echo
 fi

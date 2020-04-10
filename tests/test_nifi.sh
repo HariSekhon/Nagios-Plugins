@@ -105,5 +105,6 @@ test_nifi(){
 run_test_versions Nifi
 
 if is_CI; then
-    docker_rmi_grep harisekhon/nifi || :
+    docker_image_cleanup
+    echo
 fi

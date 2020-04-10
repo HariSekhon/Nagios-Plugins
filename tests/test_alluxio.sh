@@ -166,5 +166,6 @@ test_alluxio(){
 run_test_versions Alluxio
 
 if is_CI; then
-    docker_rmi_grep alluxio || :
+    docker_image_cleanup
+    echo
 fi

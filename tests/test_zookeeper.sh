@@ -117,5 +117,6 @@ zookeeper_tests(){
 run_test_versions ZooKeeper
 
 if is_CI; then
-    docker_rmi_grep harisekhon/zookeeper || :
+    docker_image_cleanup
+    echo
 fi

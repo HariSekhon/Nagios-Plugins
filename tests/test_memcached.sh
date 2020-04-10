@@ -53,6 +53,7 @@ test_memcached(){
     when_ports_available "$MEMCACHED_HOST" "$MEMCACHED_PORT"
     hr
     echo "creating test Memcached key-value"
+    # shellcheck disable=SC1117
     echo -ne "add myKey 0 100 4\r\nhari\r\n" |
     # function wrapper defined in bash-tools/lib/utils.sh to call gtimeout on Mac
     if type timeout &>/dev/null; then
@@ -68,8 +69,8 @@ test_memcached(){
     hr
     if [ "$version" = "latest" ]; then
         version=".*"
-        echo "expecting version '$version'"
     fi
+    echo "expecting version '$version'"
     hr
     # --version doesn't work in older versions eg. 1.4
     set +e
@@ -115,5 +116,6 @@ test_memcached(){
 run_test_versions Memcached
 
 if is_CI; then
-    docker_rmi_grep memcached || :
+    docker_image_cleanup
+    echo
 fi

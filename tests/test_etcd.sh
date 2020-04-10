@@ -110,5 +110,6 @@ etcd_tests(){
 run_test_versions Etcd
 
 if is_CI; then
-    docker_rmi_grep '.*etcd' || :
+    docker_image_cleanup
+    echo
 fi

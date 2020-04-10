@@ -109,5 +109,6 @@ minio_tests(){
 run_test_versions "Minio"
 
 if is_CI; then
-    docker_rmi_grep minio || :
+    docker_image_cleanup
+    echo
 fi

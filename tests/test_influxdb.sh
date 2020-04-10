@@ -105,5 +105,6 @@ influxdb_tests(){
 run_test_versions "InfluxDB"
 
 if is_CI; then
-    docker_rmi_grep influxdb || :
+    docker_image_cleanup
+    echo
 fi

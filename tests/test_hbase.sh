@@ -44,6 +44,7 @@ HBASE_HOST="${HBASE_HOST%%:*}"
 export HBASE_HOST
 export HBASE_MASTER_PORT_DEFAULT=16010
 export HAPROXY_MASTER_PORT_DEFAULT=16010
+export HBASE_REGIONSERVER_TCP_PORT_DEFAULT=16020
 export HBASE_REGIONSERVER_PORT_DEFAULT=16030
 export HBASE_STARGATE_PORT_DEFAULT=8080
 export HAPROXY_STARGATE_PORT_DEFAULT=8080
@@ -107,6 +108,7 @@ test_hbase(){
     echo "getting HBase dynamic port mappings:"
     docker_compose_port "HBase Master"
     docker_compose_port "HBase RegionServer"
+    docker_compose_port "HBase RegionServer TCP"
     docker_compose_port "HBase Stargate"
     docker_compose_port "HBase Stargate UI"
     docker_compose_port "HBase Thrift"
@@ -117,7 +119,7 @@ test_hbase(){
     DOCKER_SERVICE=hbase-haproxy docker_compose_port HAPROXY_THRIFT_PORT "HAProxy Thrift"
     DOCKER_SERVICE=hbase-haproxy docker_compose_port HAPROXY_THRIFT_UI_PORT "HAProxy Thrift UI"
     #docker_compose_port ZOOKEEPER_PORT "HBase ZooKeeper"
-    export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT"
+    export HBASE_PORTS="$HBASE_MASTER_PORT $HBASE_REGIONSERVER_PORT $HBASE_REGIONSERVER_TCP_PORT $HBASE_STARGATE_PORT $HBASE_THRIFT_PORT"
     hr
     # want splitting
     # shellcheck disable=SC2086
@@ -822,5 +824,6 @@ EOF
 run_test_versions HBase
 
 if is_CI; then
-    docker_rmi_grep harisekhon/hbase || :
+    docker_image_cleanup
+    echo
 fi

@@ -262,5 +262,6 @@ startupwait 120
 run_test_versions "Apache Drill"
 
 if is_CI; then
-    docker_rmi_grep apache-drill || :
+    docker_image_cleanup
+    echo
 fi

@@ -142,5 +142,6 @@ test_spark(){
 run_test_versions Spark
 
 if is_CI; then
-    docker_rmi_grep harisekhon/spark || :
+    docker_image_cleanup
+    echo
 fi

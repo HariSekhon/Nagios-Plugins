@@ -173,5 +173,6 @@ test_couchdb(){
 run_test_versions CouchDB
 
 if is_CI; then
-    docker_rmi_grep couchdb || :
+    docker_image_cleanup
+    echo
 fi

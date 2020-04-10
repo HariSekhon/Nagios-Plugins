@@ -151,5 +151,6 @@ test_neo4j(){
 run_test_versions Neo4J
 
 if is_CI; then
-    docker_rmi_grep neo4j || :
+    docker_image_cleanup
+    echo
 fi

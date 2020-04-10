@@ -133,5 +133,6 @@ test_cassandra(){
 run_test_versions Cassandra
 
 if is_CI; then
-    docker_rmi_grep cassandra || :
+    docker_image_cleanup
+    echo
 fi

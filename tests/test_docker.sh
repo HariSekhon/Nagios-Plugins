@@ -45,6 +45,19 @@ fi
 
 if is_docker_available; then
     [ -n "${NO_DOCKER:-}" ] && exit 0
+
+    if is_CI; then
+        # want splitting
+        # shellcheck disable=SC2086
+        trap '
+            docker_rmi_grep harisekhon/nagios-plugins
+            docker_rmi_grep harisekhon/tools
+            docker_rmi_grep harisekhon/pytools
+            docker_rmi_grep harisekhon/perl-tools
+            docker_rmi_grep harisekhon/bash-tools
+        ' $TRAP_SIGNALS
+    fi
+
     # ============================================================================ #
 
     run ./check_docker_api_ping.py
@@ -317,12 +330,4 @@ if is_docker_available; then
     echo
     echo "now checking all programs within the docker image run --help without missing dependencies:"
     run docker run --rm -e DEBUG="$DEBUG" -e NO_GIT=1 -e TRAVIS="${TRAVIS:-}" "$DOCKER_IMAGE" tests/help.sh
-fi
-
-if is_CI; then
-    docker_rmi_grep harisekhon/nagios-plugins || :
-    docker_rmi_grep harisekhon/tools || :
-    docker_rmi_grep harisekhon/pytools || :
-    docker_rmi_grep harisekhon/perl-tools || :
-    docker_rmi_grep harisekhon/bash-tools || :
 fi
