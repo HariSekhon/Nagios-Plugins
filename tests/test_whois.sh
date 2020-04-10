@@ -54,6 +54,7 @@ if ! type -P jwhois &>/dev/null || is_mac; then
         echo
         exit 0
     fi
+    trap 'docker_rmi_grep harisekhon/nagios-plugins' $TRAP_SIGNALS
     echo "jwhois not found in \$PATH, attempting to use Dockerized test instead"
     launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
     #docker exec -ti "$DOCKER_CONTAINER" ls -l /pl
@@ -285,7 +286,3 @@ echo
 echo "All Whois tests passed successfully"
 echo
 echo
-
-if is_CI; then
-    docker_rmi_grep harisekhon/nagios-plugins || :
-fi
