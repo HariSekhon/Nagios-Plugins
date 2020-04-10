@@ -53,6 +53,7 @@ test_memcached(){
     when_ports_available "$MEMCACHED_HOST" "$MEMCACHED_PORT"
     hr
     echo "creating test Memcached key-value"
+    # shellcheck disable=SC1117
     echo -ne "add myKey 0 100 4\r\nhari\r\n" |
     # function wrapper defined in bash-tools/lib/utils.sh to call gtimeout on Mac
     if type timeout &>/dev/null; then
@@ -112,10 +113,9 @@ test_memcached(){
     echo
 }
 
-if is_CI; then
-    # want splitting
-    # shellcheck disable=SC2086
-    trap 'docker_rmi_grep memcached' $TRAP_SIGNALS
-fi
-
 run_test_versions Memcached
+
+if is_CI; then
+    docker_image_cleanup
+    echo
+fi
