@@ -109,10 +109,9 @@ h2o_tests(){
     run_conn_refused "$perl" -T ./check_h2o_nodes_last_contact.pl
 }
 
-if is_CI; then
-    # want splitting
-    # shellcheck disable=SC2086
-    trap 'docker_rmi_grep harisekhon/h2o' $TRAP_SIGNALS
-fi
-
 run_test_versions H2O
+
+if is_CI; then
+    docker_image_cleanup
+    echo
+fi
