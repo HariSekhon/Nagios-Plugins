@@ -24,6 +24,11 @@ cd "$srcdir/..";
 
 section "M e m c a c h e d"
 
+if is_CI; then
+    echo "Skipping Memcached checks as they sometimes hang in CI"
+    exit 0
+fi
+
 export MEMCACHED_VERSIONS="${*:-${MEMCACHED_VERSIONS:-1.4 1.5 latest}}"
 
 MEMCACHED_HOST="${DOCKER_HOST:-${MEMCACHED_HOST:-${HOST:-localhost}}}"
