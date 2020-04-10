@@ -111,5 +111,6 @@ vault_tests(){
 run_test_versions Vault
 
 if is_CI; then
-    docker_rmi_grep vault || :
+    docker_image_cleanup
+    echo
 fi
