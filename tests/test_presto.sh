@@ -541,5 +541,6 @@ test_presto(){
 run_test_versions Presto
 
 if is_CI; then
-    docker_rmi_grep harisekhon/presto || :
+    docker_image_cleanup
+    echo
 fi
