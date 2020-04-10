@@ -148,5 +148,6 @@ redis_test_conn_refused(){
 run_test_versions Redis
 
 if is_CI; then
-    docker_rmi_grep redis || :
+    docker_image_cleanup
+    echo
 fi
