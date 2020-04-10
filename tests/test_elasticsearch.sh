@@ -382,10 +382,9 @@ elasticsearch_tests(){
     run_conn_refused ./check_elasticsearch_tasks_slow.py
 }
 
-if is_CI; then
-    # want splitting
-    # shellcheck disable=SC2086
-    trap 'docker_rmi_grep ".*elasticsearch"' $TRAP_SIGNALS
-fi
-
 run_test_versions Elasticsearch
+
+if is_CI; then
+    docker_image_cleanup
+    echo
+fi
