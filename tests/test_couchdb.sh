@@ -170,10 +170,9 @@ test_couchdb(){
     echo
 }
 
-if is_CI; then
-    # want splitting
-    # shellcheck disable=SC2086
-    trap 'docker_rmi_grep ".*couchdb"' $TRAP_SIGNALS
-fi
-
 run_test_versions CouchDB
+
+if is_CI; then
+    docker_image_cleanup
+    echo
+fi
