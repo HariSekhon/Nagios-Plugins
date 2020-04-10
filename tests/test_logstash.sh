@@ -193,10 +193,9 @@ test_logstash(){
     docker-compose down
 }
 
-if is_CI; then
-    # want splitting
-    # shellcheck disable=SC2086
-    trap 'docker_rmi_grep ".*logstash"' $TRAP_SIGNALS
-fi
-
 run_test_versions Logstash
+
+if is_CI; then
+    docker_image_cleanup
+    echo
+fi
