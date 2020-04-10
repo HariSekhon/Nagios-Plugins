@@ -181,7 +181,7 @@ test_kafka(){
 if is_CI; then
     # want splitting
     # shellcheck disable=SC2086
-    trap 'docker_rmi_grep .*kafka' $TRAP_SIGNALS
+    trap 'docker_rmi_grep ".*kafka"' $TRAP_SIGNALS
 fi
 
 run_test_versions Kafka
