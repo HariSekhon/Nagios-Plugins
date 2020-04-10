@@ -18,8 +18,14 @@ from __future__ import print_function
 # pylint: disable=wrong-import-position
 import os
 import sys
-import subprocess
 from optparse import OptionParser
+# pylint: disable=ungrouped-imports
+try:
+    # Python 2
+    from commands import getstatusoutput  # pylint: disable=no-name-in-module
+except ImportError:
+    # Python 3
+    from subprocess import getstatusoutput  # pylint: disable=no-name-in-module
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for LSI MegaRAID"
@@ -81,7 +87,7 @@ def make_megadev(devicenode):
     cmd = "mknod /dev/megadev0 c %s 2" % major_number
     print("running in shell: %s" % cmd, file=sys.stderr)
     try:
-        result, output = subprocess.getstatusoutput(cmd)
+        result, output = getstatusoutput(cmd)
         if result != 0:
             end(UNKNOWN, "Error making device node '%s' - %s" \
                                                         % (devicenode, output))
@@ -113,7 +119,7 @@ def run(args):
         print("- no cmd supplied for Lsi MegaRaid utility")
         sys.exit(UNKNOWN)
     cmd = "%s %s -nolog" % (BIN, args)
-    result, output = subprocess.getstatusoutput(cmd)
+    result, output = getstatusoutput(cmd)
     lines = output.split("\n")
     if result != 0:
         if lines[0][-25:] == "No such file or directory":
