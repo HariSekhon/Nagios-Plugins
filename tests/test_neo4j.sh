@@ -148,8 +148,10 @@ test_neo4j(){
     echo "Completed $run_count Neo4J tests"
 }
 
-run_test_versions Neo4J
-
 if is_CI; then
-    docker_rmi_grep neo4j || :
+    # want splitting
+    # shellcheck disable=SC2086
+    trap 'docker_rmi_grep neo4j' $TRAP_SIGNALS
 fi
+
+run_test_versions Neo4J
