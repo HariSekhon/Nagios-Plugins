@@ -130,8 +130,10 @@ test_cassandra(){
     echo
 }
 
-run_test_versions Cassandra
-
 if is_CI; then
-    docker_rmi_grep cassandra || :
+    # want splitting
+    # shellcheck disable=SC2086
+    trap 'docker_rmi_grep cassandra' $TRAP_SIGNALS
 fi
+
+run_test_versions Cassandra
