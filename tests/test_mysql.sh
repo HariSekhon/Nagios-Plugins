@@ -189,14 +189,13 @@ if is_travis; then
     fi
 fi
 
-if is_CI; then
-    # want splitting
-    # shellcheck disable=SC2086
-    trap 'docker_rmi_grep "mysql|mariadb"' $TRAP_SIGNALS
-fi
-
 if [ "${0##*/}" = "$test_mariadb_sh" ]; then
     run_test_versions MariaDB
 else
     run_test_versions MySQL
+fi
+
+if is_CI; then
+    docker_image_cleanup
+    echo
 fi
