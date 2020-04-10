@@ -46,6 +46,12 @@ if ! is_docker_available; then
     exit 0
 fi
 
+if is_CI; then
+    # want splitting
+    # shellcheck disable=SC2086
+    trap 'docker_rmi_grep gentoo' $TRAP_SIGNALS
+fi
+
 echo "Setting up Gentoo test container"
 export DOCKER_OPTS="-v $srcdir/..:$DOCKER_MOUNT_DIR"
 export DOCKER_CMD="tail -f /dev/null"
@@ -64,7 +70,3 @@ echo
 echo "All Gentoo tests completed successfully"
 echo
 echo
-
-if is_CI; then
-    docker_rmi_grep gentoo || :
-fi
