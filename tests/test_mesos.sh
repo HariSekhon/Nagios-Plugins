@@ -142,8 +142,10 @@ test_mesos(){
     docker-compose down
 }
 
-run_test_versions Mesos
-
 if is_CI; then
-    docker_rmi_grep harisekhon/mesos || :
+    # want splitting
+    # shellcheck disable=SC2086
+    trap 'docker_rmi_grep harisekhon/mesos' $TRAP_SIGNALS
 fi
+
+run_test_versions Mesos
