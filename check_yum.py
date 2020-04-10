@@ -32,12 +32,18 @@ try:
     from subprocess import Popen, PIPE, STDOUT
 except ImportError:
     OLD_PYTHON = True
-    from subprocess import getstatusoutput
+    # pylint: disable=ungrouped-imports
+    try:
+        # Python 2
+        from commands import getstatusoutput  # pylint: disable=no-name-in-module
+    except ImportError:
+        # Python 3
+        from subprocess import getstatusoutput  # pylint: disable=no-name-in-module
 from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.10.2"
+__version__ = "0.10.3"
 
 # Standard Nagios return codes
 OK = 0
