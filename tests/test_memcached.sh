@@ -68,8 +68,8 @@ test_memcached(){
     hr
     if [ "$version" = "latest" ]; then
         version=".*"
-        echo "expecting version '$version'"
     fi
+    echo "expecting version '$version'"
     hr
     # --version doesn't work in older versions eg. 1.4
     set +e
