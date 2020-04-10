@@ -107,8 +107,10 @@ etcd_tests(){
     run_conn_refused ./check_etcd_version.py -v --expected "$expected_version"
 }
 
-run_test_versions Etcd
-
 if is_CI; then
-    docker_rmi_grep '.*etcd' || :
+    # want splitting
+    # shellcheck disable=SC2086
+    trap 'docker_rmi_grep ".*etcd"' $TRAP_SIGNALS
 fi
+
+run_test_versions Etcd
