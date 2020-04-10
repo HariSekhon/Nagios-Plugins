@@ -102,10 +102,9 @@ influxdb_tests(){
     run_conn_refused ./check_influxdb_api_ping.py
 }
 
-if is_CI; then
-    # want splitting
-    # shellcheck disable=SC2086
-    trap 'docker_rmi_grep influxdb' $TRAP_SIGNALS
-fi
-
 run_test_versions "InfluxDB"
+
+if is_CI; then
+    docker_image_cleanup
+    echo
+fi
