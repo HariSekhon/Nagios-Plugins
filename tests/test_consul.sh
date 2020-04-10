@@ -230,8 +230,10 @@ consul_dev_tests(){
     docker-compose down
 }
 
-run_test_versions Consul
-
 if is_CI; then
-    docker_rmi_grep consul || :
+    # want splitting
+    # shellcheck disable=SC2086
+    trap 'docker_rmi_grep ".*consul"' $TRAP_SIGNALS
 fi
+
+run_test_versions Consul
