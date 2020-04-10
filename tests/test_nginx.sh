@@ -99,5 +99,6 @@ test_nginx(){
 run_test_versions Nginx
 
 if is_CI; then
-    docker_rmi_grep nginx || :
+    docker_image_cleanup
+    echo
 fi
