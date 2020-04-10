@@ -95,8 +95,10 @@ grafana_tests(){
 
 }
 
-run_test_versions "Grafana"
-
 if is_CI; then
-    docker_rmi_grep grafana || :
+    # want splitting
+    # shellcheck disable=SC2086
+    trap 'docker_rmi_grep grafana' $TRAP_SIGNALS
 fi
+
+run_test_versions "Grafana"
