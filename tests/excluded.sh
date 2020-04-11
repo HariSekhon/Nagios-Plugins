@@ -37,7 +37,7 @@ isExcluded(){
     [[ "$prog" =~ ^\* ]] && return 0
     [[ "$prog" =~ ^\.\/\. ]] && return 0
     [[ "$prog" =~ ^\.[[:alnum:]] ]] && return 0
-    [[ "$prog" = check_puppet\.rb ]] && return 0
+    [[ "$prog" =~ check_puppet\.rb ]] && return 0
     # these start with these and word boundaries are not portable :-/
     [[ "$prog" =~ inc/ ]] && return 0
     [[ "$prog" =~ dev/ ]] && return 0
