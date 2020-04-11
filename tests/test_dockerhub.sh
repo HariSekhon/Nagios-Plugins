@@ -15,14 +15,14 @@
 
 set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
-srcdir2="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-cd "$srcdir2/..";
+cd "$srcdir/..";
 
 # shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
-srcdir="$srcdir2"
+srcdir="$srcdir"
 
 #[ `uname -s` = "Linux" ] || exit 0
 
