@@ -18,8 +18,13 @@ set -eu
 srcdir_nagios_plugins_utils="${srcdir:-}"
 srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# shellcheck disable=SC1090
 . "$srcdir/excluded.sh"
+
+# shellcheck disable=SC1090
 . "$srcdir/../bash-tools/lib/utils.sh"
+
+# shellcheck disable=SC1090
 . "$srcdir/../bash-tools/lib/docker.sh"
 
 export COMPOSE_PROJECT_NAME="nagios-plugins"
@@ -29,7 +34,7 @@ export PROJECT="nagios-plugins"
 check(){
     cmd=$1
     msg=$2
-    if eval $cmd; then
+    if eval "$cmd"; then
         echo "SUCCESS: $msg"
     else
         echo "FAILED: $msg"
