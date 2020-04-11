@@ -22,8 +22,12 @@ cd "$srcdir/..";
 
 # pulled in by utils -> bash-tools/lib/utils.sh -> perl.sh
 #. ./bash-tools/lib/perl.sh
-. ./tests/excluded.sh
-. ./tests/utils.sh
+
+# shellcheck disable=SC1090
+. "$srcdir/excluded.sh"
+
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 EXT="${EXT:-all}"
 
@@ -38,13 +42,16 @@ help_start_time="$(start_timer)"
 test_help(){
     local prog="$1"
 
-    if [ "$EXT" != "all" -a "$EXT" != "${prog##*.}" ]; then
+    if [ "$EXT" != "all" ] &&
+       [ "$EXT" != "${prog##*.}" ]; then
         return 0
     fi
 
     optional_cmd=""
     # for Travis CI running in a perlbrew we must use the perl we find
     if [[ $prog =~ .*\.pl$ ]]; then
+        # defined in bash-tools/lib/perl.sh
+        # shellcheck disable=SC2154
         optional_cmd="$perl -T"
     fi
 
@@ -59,7 +66,8 @@ test_help(){
           "$prog" =~ check_svn.py           ||
           "$prog" =~ check_vnc.py           ||
           "$prog" =~ check_yum.py ]]; then
-        run $optional_cmd ./$prog --help
+        # shellcheck disable=SC2086
+        run $optional_cmd "./$prog" --help
     elif [[ "$prog" =~ check_3ware_raid.py ]]; then # && $EUID != 0 ]]; then
         echo "skipping check_3ware_raid.py" # which needs root as $USER has \$EUID $EUID != 0"
     elif [[ "$prog" =~ check_md_raid.py ]]; then # && $EUID != 0 ]]; then
@@ -71,7 +79,8 @@ test_help(){
     elif [[ "$prog" =~ /lib_.*.py ]]; then
         echo "skipping $x"
     else
-        run_usage $optional_cmd ./$prog --help
+        # shellcheck disable=SC2086
+        run_usage $optional_cmd "./$prog" --help
     fi
 }
 
@@ -94,14 +103,16 @@ upload_logs(){
     fi
 }
 
+# shellcheck disable=SC2086
 trap upload_logs $TRAP_SIGNALS
 
-for x in ${@:-$(ls *.pl *.py *.rb */*.pl */*.py */*.rb 2>/dev/null | sort)}; do
+for x in ${*:-$(ls ./*.pl ./*.py ./*.rb ./*/*.pl ./*/*.py ./*/*.rb 2>/dev/null | sort)}; do
     isExcluded "$x" && continue
     # this is taking too much time and failing Travis CI builds
     if is_travis; then
-        [ $(($RANDOM % 3)) = 0 ] || continue
+        [ $((RANDOM % 3)) = 0 ] || continue
     fi
+    # shellcheck disable=SC2069
     test_help "$x" 2>&1 >> "$log"
 done
 
