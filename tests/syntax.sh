@@ -20,11 +20,12 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
-. ./tests/utils.sh
+# shellcheck disable=SC1090
+. "$srcdir/utils.sh"
 
 section "Perl Syntax Checks"
 
-perl_sync_start_time="$(start_timer)"
+perl_syntax_start_time="$(start_timer)"
 
 for x in *.pl */*.pl; do
     # this call is expensive, skip it when in CI as using fresh git checkouts
