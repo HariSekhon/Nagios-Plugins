@@ -19,10 +19,11 @@ srcdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd "$srcdir/..";
 
+# shellcheck disable=SC2016
 grep -Hn 'check_' tests/test_*.sh |
 sed 's/#.*// ; s/[[:space:]]>[[:space:]].*//' |
 # could put these all in one big alternation regex but separately is easier to maintain
-egrep -v -e '\.sh:[[:digit:]]+:[[:space:]]*$' \
+grep -Ev -e '\.sh:[[:digit:]]+:[[:space:]]*$' \
          -e '\.sh:[[:digit:]]+:([[:space:]]*|.*=")run(_grep|_fail)?[[:space:]]' \
          -e '\.sh:[[:digit:]]+:[[:space:]]*docker_exec[[:space:]]' \
          -e '\.sh:[[:digit:]]+:[[:space:]]*check_docker_available' \
