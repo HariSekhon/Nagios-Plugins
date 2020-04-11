@@ -42,8 +42,8 @@ blocks:
           commands:
             - checkout
             - make init
-            - make ci
-            - make test
+            - PATH="/bin:/usr/bin:$PATH" make ci
+            - PATH="/bin:/usr/bin:$PATH" make test
       epilogue:
         commands:
           - cache store
