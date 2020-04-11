@@ -14,7 +14,6 @@
 #
 
 set -euo pipefail
-DEBUG="${DEBUG:-}"
 [ -n "${DEBUG:-}" ] && set -x
 srcdir="$(cd "$(dirname "$0")" && pwd)"
 
