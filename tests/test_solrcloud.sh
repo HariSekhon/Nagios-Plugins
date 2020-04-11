@@ -20,7 +20,7 @@ srcdir2="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$srcdir2/.."
 
 # shellcheck disable=SC1090
-. "$srcdir/utils.sh"
+. "$srcdirr/utils.sh"
 
 srcdir="$srcdir2"
 
