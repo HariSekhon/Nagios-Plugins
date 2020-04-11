@@ -49,7 +49,7 @@ test_redis(){
     local version="$1"
     section2 "Setting up Redis $version test container"
     docker_compose_pull
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     echo "getting Redis dynamic port mapping:"
     docker_compose_port Redis

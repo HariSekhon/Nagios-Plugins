@@ -47,7 +47,7 @@ test_alluxio(){
     if [ -z "${KEEPDOCKER:-}" ]; then
         docker-compose down || :
     fi
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     echo "getting Alluxio dynamic port mappings:"
     docker_compose_port "Alluxio Master"

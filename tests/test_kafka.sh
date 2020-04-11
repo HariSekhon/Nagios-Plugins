@@ -52,7 +52,7 @@ test_kafka(){
     section2 "Setting up Apache Kafka $version test container"
     export ADVERTISED_HOSTNAME="$KAFKA_HOST"
     docker_compose_pull
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     when_ports_available "$KAFKA_HOST" "$KAFKA_PORT"
     hr

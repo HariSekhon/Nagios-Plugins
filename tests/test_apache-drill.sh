@@ -48,7 +48,7 @@ test_apache_drill(){
     docker_compose_pull
     # protects against using a stale ZooKeeper storage plugin config from a higher version which will result in an error as see in DRILL-4383
     #docker-compose down
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     echo "getting Apache Drill dynamic port mappings:"
     docker_compose_port "Apache Drill"

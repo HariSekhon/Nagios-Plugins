@@ -46,7 +46,7 @@ test_h2o(){
     local version="$1"
     section2 "Setting up H2O $version test container"
     docker_compose_pull
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     echo "getting H2O dynamic port mapping:"
     docker_compose_port "H2O"

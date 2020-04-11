@@ -166,7 +166,7 @@ test_presto2(){
         docker_compose_pull
         # reset container as we start a presto worker inside later so we don't want to start successive workers on compounding failed runs
         [ -n "${KEEPDOCKER:-}" ] || VERSION="$version" docker-compose down || :
-        VERSION="$version" docker-compose up -d
+        VERSION="$version" docker-compose up -d --remove-orphans
         echo "getting Presto dynamic port mapping:"
         docker_compose_port PRESTO "Presto Coordinator"
         DOCKER_SERVICE=presto-haproxy docker_compose_port HAProxy

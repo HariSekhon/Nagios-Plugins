@@ -49,7 +49,7 @@ test_consul(){
     local version="$1"
     section2 "Setting up Consul $version test container"
     docker_compose_pull
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     echo "getting Consul dynamic port mapping:"
     docker_compose_port "Consul"
@@ -216,7 +216,7 @@ consul_dev_tests(){
         # shellcheck disable=SC2154,SC2086
         VERSION="$version" docker-compose pull $docker_compose_quiet
     fi
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     #export CONSUL_PORT="`docker-compose port "$DOCKER_SERVICE" "$CONSUL_PORT_DEFAULT" | sed 's/.*://'`"
     docker_compose_port "Consul"

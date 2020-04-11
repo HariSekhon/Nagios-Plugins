@@ -48,7 +48,7 @@ export COMPOSE_FILE="$srcdir/docker/$distro-github-docker-compose.yml"
 
 docker_compose_pull
 
-docker-compose up -d
+docker-compose up -d --remove-orphans
 
 docker-compose exec "centos-github" yum makecache fast
 

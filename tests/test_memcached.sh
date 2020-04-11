@@ -48,7 +48,7 @@ test_memcached(){
     local version="$1"
     section2 "Setting up Memcached $version test container"
     docker_compose_pull
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     echo "getting Memcached dynamic port mapping:"
     docker_compose_port Memcached

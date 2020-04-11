@@ -55,7 +55,7 @@ test_neo4j_main(){
     # otherwise repeated attempts create more nodes and break the NumberOfNodeIdsInUse upper threshold
     docker-compose down &>/dev/null || :
     docker_compose_pull
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     echo "getting Neo4J dynammic port mappings:"
     docker_compose_port NEO4J_PORT "Neo4J HTTP"

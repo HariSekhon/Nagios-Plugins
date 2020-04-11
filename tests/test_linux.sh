@@ -40,7 +40,7 @@ test_linux(){
     export DOCKER_CONTAINER="nagiosplugins_$distro-github_1"
     export COMPOSE_FILE="$srcdir/docker/$distro-github-docker-compose.yml"
     docker_compose_pull
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     echo "mounting ramdisks for read only disk mounts check:"
     #docker exec "$DOCKER_CONTAINER" yum install -y net-tools

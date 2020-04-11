@@ -64,7 +64,7 @@ test_rabbitmq(){
     # so shut down any already existing containers for safety
     #docker-compose down
     docker_compose_pull
-    VERSION="$VERSION" docker-compose up -d
+    VERSION="$VERSION" docker-compose up -d --remove-orphans
     hr
     local DOCKER_SERVICE="rabbit1"
     local DOCKER_SERVICE2="rabbit2"

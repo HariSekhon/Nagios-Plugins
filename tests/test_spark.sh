@@ -51,7 +51,7 @@ test_spark(){
     if [ -z "${KEEPDOCKER:-}" ]; then
         docker-compose down || :
     fi
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     echo "getting Spark dynamic port mappings:"
     printf "Spark Master Port => "

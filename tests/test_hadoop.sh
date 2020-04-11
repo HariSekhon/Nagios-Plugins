@@ -73,7 +73,7 @@ test_hadoop(){
     # reset state as things like checkpoint age, blocks counts and job states, no history, succeeded etc depend on state
     docker-compose down || :
     docker_compose_pull
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     if [ "${version:0:1}" = 3 ]; then
         local export HADOOP_NAMENODE_PORT_DEFAULT=9870

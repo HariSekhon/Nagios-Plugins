@@ -53,7 +53,7 @@ test_minio(){
     # protects against using a stale ZooKeeper storage plugin config from a higher version which will result in an error as see in MINIO-4383
     #docker-compose down
     MINIO_ACCESS_KEY=$AWS_ACCESS_KEY MINIO_SECRET_KEY=$AWS_SECRET_KEY \
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     echo "getting Minio dynamic port mappings:"
     docker_compose_port "Minio"

@@ -50,7 +50,7 @@ test_nginx(){
     # ensure we start fresh otherwise the first nginx stats stub failure test will fail as it finds the old stub config
     VERSION="$version" docker-compose down || :
     docker_compose_pull
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     # Configure Nginx stats stub so watch_nginx_stats.pl now passes
     VERSION="$version" docker-compose stop

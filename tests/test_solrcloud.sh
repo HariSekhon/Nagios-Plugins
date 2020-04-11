@@ -59,7 +59,7 @@ test_solrcloud(){
     fi
     section2 "Setting up SolrCloud $version docker test container"
     docker_compose_pull
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     echo "getting SolrCloud dynamic port mappings:"
     docker_compose_port SOLR_PORT "Solr HTTP"

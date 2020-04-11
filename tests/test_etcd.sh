@@ -45,9 +45,9 @@ test_etcd(){
     section2 "Setting up Etcd $version test container"
     docker_compose_pull
     if [ "${version:0:3}" = "v2." ]; then
-        VERSION="$version" docker-compose -f "$srcdir/docker/etcd2-docker-compose.yml" up -d
+        VERSION="$version" docker-compose -f "$srcdir/docker/etcd2-docker-compose.yml" up -d --remove-orphans
     else
-        VERSION="$version" docker-compose up -d
+        VERSION="$version" docker-compose up -d --remove-orphans
     fi
     hr
     echo "getting Etcd dynamic port mapping:"

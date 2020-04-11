@@ -43,7 +43,7 @@ test_nifi(){
     local version="$1"
     section2 "Setting up Nifi $version test container"
     docker_compose_pull
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     echo "getting Nifi dynamic port mapping:"
     docker_compose_port "Nifi"

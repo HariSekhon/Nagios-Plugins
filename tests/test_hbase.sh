@@ -92,7 +92,7 @@ test_hbase(){
     if [ -z "${KEEPDOCKER:-}" ]; then
         docker-compose down || :
     fi
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     # HBase 0.9x / 2.x uses RegionServer port 16030, 1.x series changed to 16301 then changed back in 2.x
     #if [[ "${version:0:2}" =~ ^1\. ]]; then

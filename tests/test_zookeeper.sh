@@ -46,7 +46,7 @@ test_zookeeper(){
     local version="$1"
     section2 "Setting up ZooKeeper $version test container"
     docker_compose_pull
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     echo "getting ZooKeeper dynammic port mapping:"
     docker_compose_port "ZooKeeper"

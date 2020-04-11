@@ -47,7 +47,7 @@ test_mesos(){
     local version="${1:-latest}"
     section2 "Setting up Mesos $version test container"
     docker_compose_pull
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     echo "getting Mesos dynamic port mappings:"
     docker_compose_port "Mesos Master"
     docker_compose_port "Mesos Slave"

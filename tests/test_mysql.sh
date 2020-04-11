@@ -72,7 +72,7 @@ test_db(){
     local export COMPOSE_FILE="$srcdir/docker/$name_lower-docker-compose.yml"
     section2 "Setting up $name $version test container"
     docker_compose_pull
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     echo "getting $name dynamic port mapping:"
     docker_compose_port MYSQL_PORT "$name"

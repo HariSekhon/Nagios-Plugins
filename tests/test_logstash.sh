@@ -50,7 +50,7 @@ test_logstash(){
     docker_compose_pull
     # force restarting the container so the uptime so the check_logstash_status.py checks get the right success and failure results for the amount of uptime
     [ -n "${NODOCKER:-}" ] || docker-compose stop || :
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     hr
     echo "getting Logstash dynamic port mapping:"
     docker_compose_port "Logstash"

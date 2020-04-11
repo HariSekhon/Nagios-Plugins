@@ -47,7 +47,7 @@ test_solr(){
     local version="$1"
     section2 "Setting up Solr $version docker test container"
     docker_compose_pull
-    VERSION="$version" docker-compose up -d
+    VERSION="$version" docker-compose up -d --remove-orphans
     echo "getting Solr dynamic port mapping:"
     docker_compose_port SOLR_PORT "Solr HTTP"
     DOCKER_SERVICE=solr-haproxy docker_compose_port HAProxy
