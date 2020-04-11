@@ -19,7 +19,7 @@
 
 set -eu
 [ -n "${DEBUG:-}" ] && set -x
-srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+#srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 ${perl:-perl} -e 'use Net::ZooKeeper' &>/dev/null && zookeeper_built="true" || zookeeper_built=""
 
@@ -43,8 +43,8 @@ isExcluded(){
     [[ "$prog" =~ dev/ ]] && return 0
     # temporarily disable check_kafka.pl check as there is an upstream library breakage
     # library bug is not auto fixed in Makefile due to Mac's new System Integrity Protection
-    is_mac && [[ "$prog" =~ "check_kafka.pl" ]] && return 0
-    [[ "$prog" =~ *TODO* ]] && return 0
+    is_mac && [[ "$prog" =~ check_kafka\.pl ]] && return 0
+    [[ "$prog" =~ TODO ]] && return 0
     # Kafka module requires Perl >= 5.10, skip when running tests on 5.8 for CentOS 5 for which everything else works
     if [ "${PERL_MAJOR_VERSION:-}" = "5.8" ]; then
         if [ "$prog" = "check_kafka.pl" ]; then
