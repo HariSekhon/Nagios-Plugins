@@ -49,11 +49,11 @@ if is_docker_available; then
         # want splitting
         # shellcheck disable=SC2086
         trap '
-            docker_rmi_grep harisekhon/nagios-plugins
-            docker_rmi_grep harisekhon/tools
-            docker_rmi_grep harisekhon/pytools
-            docker_rmi_grep harisekhon/perl-tools
-            docker_rmi_grep harisekhon/bash-tools
+            docker_rmi_grep harisekhon/nagios-plugins || :
+            docker_rmi_grep harisekhon/tools || :
+            docker_rmi_grep harisekhon/pytools || :
+            docker_rmi_grep harisekhon/perl-tools || :
+            docker_rmi_grep harisekhon/bash-tools || :
         ' $TRAP_SIGNALS
     fi
 
