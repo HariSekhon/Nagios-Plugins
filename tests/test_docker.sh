@@ -278,7 +278,7 @@ if is_docker_available; then
     run ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:latest"
 
     for image in ${DOCKER_IMAGES[*]}; do
-        max_size=$((1500 * 1024 * 1024))
+        max_size=$((2000 * 1024 * 1024))
 #        if grep nagios <<< "$image"; then
 #            max_size=$((600 * 1024 * 1024))
 #        fi
@@ -318,9 +318,9 @@ if is_docker_available; then
     run_fail 2 ./check_docker_image.py --docker-image "$DOCKER_IMAGE:latest" --id "wrongid"
     run_fail 2 ./older/check_docker_image_old.py --docker-image "$DOCKER_IMAGE:latest" --id "wrongid"
 
-    run_usage docker run --rm -e DEBUG="$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl --help
+    run_usage docker run --rm -e DEBUG "$DOCKER_IMAGE" check_ssl_cert.pl --help
 
-    run docker run --rm -e DEBUG="$DEBUG" "$DOCKER_IMAGE" check_ssl_cert.pl -H google.com -w 2 -c 1
+    run docker run --rm -e DEBUG "$DOCKER_IMAGE" check_ssl_cert.pl -H google.com -w 2 -c 1
 
     echo
     # defined and tracked in bash-tools/lib/utils.sh
