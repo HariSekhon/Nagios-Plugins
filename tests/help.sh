@@ -104,7 +104,7 @@ upload_logs(){
 }
 
 # shellcheck disable=SC2086
-trap upload_logs $TRAP_SIGNALS
+#trap upload_logs $TRAP_SIGNALS
 
 for x in ${*:-$(ls ./*.pl ./*.py ./*.rb ./*/*.pl ./*/*.py ./*/*.rb 2>/dev/null | sort)}; do
     isExcluded "$x" && continue
@@ -113,12 +113,12 @@ for x in ${*:-$(ls ./*.pl ./*.py ./*.rb ./*/*.pl ./*/*.py ./*/*.rb 2>/dev/null |
         [ $((RANDOM % 3)) = 0 ] || continue
     fi
     # shellcheck disable=SC2069
-    test_help "$x" 2>&1 >> "$log"
+    test_help "$x" # 2>&1 >> "$log"
 done
 
 untrap
 
-upload_logs
+#upload_logs
 
 srcdir="$srcdir_nagios_plugins_help"
 
