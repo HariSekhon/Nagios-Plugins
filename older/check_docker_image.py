@@ -42,7 +42,7 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, CriticalError, UnknownError, support_msg
-    from harisekhon.utils import expand_units, which, validate_chars
+    from harisekhon.utils import expand_units, which, validate_chars, isPythonMinVersion
     from harisekhon import NagiosPlugin
 except ImportError as _:
     print(traceback.format_exc(), end='')
@@ -98,7 +98,11 @@ class CheckDockerImage(NagiosPlugin):
         self.parse(stdout)
 
     def parse(self, stdout):
-        output = [_ for _ in str(stdout).split('\n') if _]
+        if isPythonMinVersion(3):
+            output = [_ for _ in str(stdout).split(r'\n') if _]
+        else:
+            output = [_ for _ in str(stdout).split('\n') if _]
+        log.debug('output = %s', output)
         if len(output) < 2:
             raise CriticalError("docker image '{repo}' not found! Does not exist or has not been pulled yet?"\
                                 .format(repo=self.docker_image))
