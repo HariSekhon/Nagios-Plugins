@@ -49,7 +49,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.5.2'
+__version__ = '0.5.3'
 
 
 class CheckDockerImage(NagiosPlugin):
@@ -98,18 +98,22 @@ class CheckDockerImage(NagiosPlugin):
         self.parse(stdout)
 
     def parse(self, stdout):
-        output = [_ for _ in stdout.split('\n') if _]
+        output = [_ for _ in str(stdout).split(r'\n') if _]
         if len(output) < 2:
             raise CriticalError("docker image '{repo}' not found! Does not exist or has not been pulled yet?"\
                                 .format(repo=self.docker_image))
-        name_len = len(self.docker_image)
-        if len(output) > 2:
-            tags = set([line[name_len:name_len + 10].strip() for line in output[1:]])
-            tags = [tag for tag in tags if tag != '<none>']
-            tags = sorted(list(tags))
-            if log.isEnabledFor(logging.DEBUG):
-                for tag in tags:
-                    log.debug('found tag: %s', tag)
+        tags = set()
+        for line in output[1:]:
+            log.debug('line: %s', line)
+            line_parts = line.split()
+            if len(line_parts) > 1:
+                tags.add(line_parts[1])
+        tags = [tag for tag in tags if tag and tag != '<none>']
+        tags = sorted(list(tags))
+        if log.isEnabledFor(logging.DEBUG):
+            for tag in tags:
+                log.debug('found tag: %s', tag)
+        if len(tags) > 1:
             raise UnknownError('too many results returned - did you forget to suffix a specific :tag to ' + \
                                '--docker-image? (eg. :latest, :1.1). The following tags were found: ' + \
                                ', '.join(tags)
