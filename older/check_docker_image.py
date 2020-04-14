@@ -98,7 +98,7 @@ class CheckDockerImage(NagiosPlugin):
         self.parse(stdout)
 
     def parse(self, stdout):
-        output = [_ for _ in str(stdout).split(r'\n') if _]
+        output = [_ for _ in str(stdout).split('\n') if _]
         if len(output) < 2:
             raise CriticalError("docker image '{repo}' not found! Does not exist or has not been pulled yet?"\
                                 .format(repo=self.docker_image))
