@@ -164,7 +164,8 @@ python-libs:
 	#$(SUDO) easy_install pip || :
 
 	# fixes bug in cffi version detection when installing requests-kerberos
-	$(SUDO_PIP) pip install --quiet --upgrade pip
+	#$(SUDO_PIP) pip install --quiet --upgrade pip
+	PIP_OPTS="--quiet --upgrade" bash-tools/python_pip_install.sh pip
 
 	setup/install_mysql_python.sh
 
@@ -172,6 +173,9 @@ python-libs:
 	#$(SUDO_PIP) pip install --quiet --upgrade -r requirements.txt
 	#$(SUDO_PIP) pip install --quiet -r requirements.txt
 	bash-tools/python_pip_install_if_absent.sh requirements.txt
+
+	@echo "forcing Pika PyPI module version install because of Python 3.7 compatibility issue"
+	PIP_OPTS="--upgrade" bash-tools/python_pip_install.sh `sed 's/^#.*//' requirements.txt | grep ^pika==`
 
 	@# python-krbV dependency doesn't build on Mac any more and is unmaintained and not ported to Python 3
 	@# python_pip_install_if_absent.sh would import snakebite module and not trigger to build the enhanced snakebite with [kerberos] bit
@@ -182,8 +186,10 @@ python-libs:
 	#$(SUDO_PIP) pip install --quiet cassandra-driver scales blist lz4 python-snappy
 
 	# prevents https://urllib3.readthedocs.io/en/latest/security.html#insecureplatformwarning
-	$(SUDO_PIP) pip install --quiet --upgrade ndg-httpsclient || \
-	$(SUDO_PIP) pip install --quiet --upgrade ndg-httpsclient
+	#$(SUDO_PIP) pip install --quiet --upgrade ndg-httpsclient || \
+	#$(SUDO_PIP) pip install --quiet --upgrade ndg-httpsclient
+	PIP_OPTS="--quiet --upgrade" bash-tools/python_pip_install.sh ndg-httpsclient || \
+	PIP_OPTS="--quiet --upgrade" bash-tools/python_pip_install.sh ndg-httpsclient
 
 	#. tests/utils.sh; $(SUDO) $$perl couchbase-csdk-setup
 	#$(SUDO_PIP) pip install --quiet couchbase
@@ -197,7 +203,10 @@ python-libs:
 
 	# must downgrade happybase library to work on Python 2.6
 	#if [ "$$(python -c 'import sys; sys.path.append("pylib"); import harisekhon; print(harisekhon.utils.getPythonVersion())')" = "2.6" ]; then $(SUDO_PIP) pip install --upgrade "happybase==0.9"; fi
-	if python -V 2>&1 | grep -q '^Python 2.6'; then $(SUDO_PIP) pip install --quiet --upgrade "happybase==0.9"; fi
+	if python -V 2>&1 | grep -q '^Python 2.6'; then \
+		#$(SUDO_PIP) pip install --quiet --upgrade "happybase==0.9"; \
+		PIP_OPTS="--quiet --upgrade" bash-tools/python_pip_install.sh "happybase==0.9"; \
+	fi
 
 	@echo
 	unalias mv 2>/dev/null; \
