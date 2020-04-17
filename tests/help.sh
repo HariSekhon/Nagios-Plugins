@@ -29,6 +29,9 @@ cd "$srcdir/..";
 # shellcheck disable=SC1090
 . "$srcdir/utils.sh"
 
+# shellcheck disable=SC1090
+. "$srcdir/../bash-tools/lib/python.sh"
+
 EXT="${EXT:-all}"
 
 section "Testing --help for $EXT programs"
@@ -53,6 +56,10 @@ test_help(){
         # defined in bash-tools/lib/perl.sh
         # shellcheck disable=SC2154
         optional_cmd="$perl -T"
+    elif [[ $prog =~ .*\.py$ ]]; then
+        # defined in bash-tools/lib/perl.sh
+        # shellcheck disable=SC2154
+        optional_cmd="$python"
     fi
 
     # quick hack for older programs which return zero for --help due to python OptParse module
