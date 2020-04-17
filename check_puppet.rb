@@ -29,7 +29,7 @@ require "puppet/defaults"
 # require 'sys/proctable'
 # include Sys
 
-PUPPETD     = [ "/usr/sbin/puppetd", "/usr/bin/puppet" ]
+PUPPETD     = [ "/usr/sbin/puppetd", "/usr/bin/puppet", "/opt/puppetlabs/bin/puppet"]
 PUPPET_CONF = "/etc/puppet/puppet.conf"
 
 # Standard Nagios Exit Codes
