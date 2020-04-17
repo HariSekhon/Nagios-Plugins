@@ -19,7 +19,16 @@
 #[ -n "${DEBUG:-}" ] && set -x
 srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-while read line; do
-    export "$line"
-done < <(yq r "$srcdir/rabbitmq-common.yml" 'services.rabbitmq-common.environment' |
-         sed 's/#.*//; s/^-[[:space:]]*//; /^[[:space:]]*$/d')
+load_rabbit_env(){
+    local filename="$1"
+    local query="$2"
+    while read -r line; do
+        export "${line?}"
+    done < <(yq r "$filename" "$query" |
+             sed 's/#.*//; s/^-[[:space:]]*//; /^[[:space:]]*$/d')
+}
+
+
+load_rabbit_env "$srcdir/rabbitmq-common.yml" 'services.rabbitmq-common.environment'
+
+load_rabbit_env "$srcdir/rabbitmq-docker-compose.yml" 'services.rabbit2.environment'
