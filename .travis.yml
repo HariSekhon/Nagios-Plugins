@@ -39,30 +39,30 @@ matrix:
         # other CPAN modules are broken for Perl 5.8, re-visit
         #- "5.8"
 
-#    - os: osx
-#      language: perl
-#      perl:
-#        - "5.10"
+    - os: osx
+      language: perl
+      perl:
+        - "5.24"
 
     - os: linux
       language: python
       # numpy has gone 2.7+ only now
       python: "2.7"
 
-#    - os: linux
-#      language: python
-#      python: "3.6"
+    - os: linux
+      language: python
+      python: "3.6"
 
-#    - os: linux
-#      language: python
-#      python: "pypy"
-#
-#    - os: linux
-#      language: python
-#      python: "pypy3"
+    - os: linux
+      language: python
+      python: "pypy"
 
-#    - os: linux
-#      language: generic
+    - os: linux
+      language: python
+      python: "pypy3"
+
+    - os: linux
+      language: generic
 
     # Travis CI doesn't support Python virtual envs on Mac OS X yet, workaround is to use generic and install to system python
     # results in a duplicate matrix multiplier giving 2 x osx generic
@@ -71,12 +71,9 @@ matrix:
 
   allow_failures:
     - os: osx
-    - python: "3.6"
     - python: "pypy"
     - python: "pypy3"
-    # TODO: remove these once I figure out why builds are failing
     - language: generic
-    - python: "2.7"
 
 #os:
 #  - linux
