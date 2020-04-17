@@ -23,7 +23,7 @@ load_rabbit_env(){
     local filename="$1"
     local query="$2"
     while read -r line; do
-        export "${line?}"
+        eval "export $line"
     done < <(yq r "$filename" "$query" |
              sed 's/#.*//; s/^-[[:space:]]*//; /^[[:space:]]*$/d')
 }
