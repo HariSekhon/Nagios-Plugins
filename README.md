@@ -687,7 +687,7 @@ If installing the Perl CPAN or Python PyPI modules via your package manager or b
 You can install the full list of CPAN modules using this command:
 
 ```
-sudo cpan $(sed 's/#.*//' < setup/cpan-requirements.txt
+sudo cpan $(sed 's/#.*//' < setup/cpan-requirements.txt)
 ```
 
 and install the full list of PyPI modules using this command:
