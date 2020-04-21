@@ -574,20 +574,20 @@ mv -vf lib nagios-plugins/
 
 Proceed to install CPAN and PyPI modules for whichever programs you want to use using your usual procedure - usually an internal mirror or proxy server to CPAN and PyPI, or rpms / debs (some libraries are packaged by Linux distributions).
 
-All CPAN modules are listed in ```setup/cpan-requirements.txt```.
+All CPAN modules are listed in ```setup/cpan-requirements*.txt``` and ```lib/setup/cpan-requirements*.txt```.
 
-All PyPI modules are listed in ```requirements.txt```.
+All PyPI modules are listed in ```requirements.txt``` and ```pylib/requirements.txt```.
 
 Internal PyPI Mirror example ([JFrog Artifactory](https://jfrog.com/artifactory/), [CloudRepo](https://cloudrepo.io) or similar):
 
 ```
-sudo pip install --index https://host.domain.com/api/pypi/repo/simple --trusted host.domain.com -r requirements.txt
+sudo pip install --index https://host.domain.com/api/pypi/repo/simple --trusted host.domain.com -r requirements.txt -r pylib/requirements.txt
 ```
 
 Proxy example:
 
 ```
-sudo pip install --proxy hari:mypassword@proxy-host:8080 -r requirements.txt
+sudo pip install --proxy hari:mypassword@proxy-host:8080 -r requirements.txt -r pylib/requirements.txt
 ```
 
 
@@ -687,13 +687,13 @@ If installing the Perl CPAN or Python PyPI modules via your package manager or b
 You can install the full list of CPAN modules using this command:
 
 ```
-sudo cpan $(sed 's/#.*//' < setup/cpan-requirements.txt)
+sudo cpan $(sed 's/#.*//' setup/cpan-requirements*.txt lib/setup/cpan-requirements*.txt)
 ```
 
 and install the full list of PyPI modules using this command:
 
 ```
-sudo pip install -r requirements.txt
+sudo pip install -r requirements.txt -r pylib/requirements.txt
 ```
 
 ###### Net::ZooKeeper (for various ZooKeeper content checks for Kafka, HBase, SolrCloud etc) ######
