@@ -79,7 +79,7 @@ matrix:
 #  - linux
 #  - osx
 
-dist: trusty
+#dist: trusty
 
 sudo: required
 
