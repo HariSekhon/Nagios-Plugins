@@ -71,9 +71,9 @@ matrix:
 
   allow_failures:
     - os: osx
-    - python: "pypy"
-    - python: "pypy3"
     - language: generic
+    #- python: "pypy"
+    #- python: "pypy3"
 
 #os:
 #  - linux
