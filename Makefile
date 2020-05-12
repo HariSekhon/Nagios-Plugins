@@ -162,8 +162,9 @@ python-libs:
 	#$(SUDO) easy_install pip || :
 
 	# fixes bug in cffi version detection when installing requests-kerberos
-	#$(SUDO_PIP) pip install --quiet --upgrade pip
-	PIP_OPTS="--quiet --upgrade" bash-tools/python_pip_install.sh pip
+	$(SUDO_PIP) pip install --quiet --upgrade pip
+	# on Travis CI /opt/pyenv/shims/pip: Could not install packages due to an EnvironmentError: [Errno 13] Permission denied: '/usr/bin/pip'
+	#PIP_OPTS="--quiet --upgrade" bash-tools/python_pip_install.sh pip
 
 	setup/install_mysql_python.sh
 
