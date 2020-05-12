@@ -112,35 +112,33 @@ perl-libs:
 	# You may need to set this to get the DBD::mysql module to install if you have mysql installed locally to /usr/local/mysql
 	#export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/usr/local/mysql/lib/"
 
-	@setup/install_mysql_perl.sh
+	setup/install_mysql_perl.sh
 
-	@bash-tools/perl_cpanm_install_if_absent.sh setup/cpan-requirements.txt setup/cpan-requirements-packaged.txt
-	@. bash-tools/lib/ci.sh; . bash-tools/lib/os.sh; if is_CI and is_mac; then bash-tools/perl_cpanm_install.sh Digest::CRC; fi  # to work around "Can't locate loadable object for module Digest::CRC in @INC"
+	bash-tools/perl_cpanm_install_if_absent.sh setup/cpan-requirements.txt setup/cpan-requirements-packaged.txt
+
+	# to work around "Can't locate loadable object for module Digest::CRC in @INC"
+	@. bash-tools/lib/ci.sh; \
+		. bash-tools/lib/os.sh; \
+		if is_CI and is_mac; then \
+			bash-tools/perl_cpanm_install.sh Digest::CRC; \
+		fi
 
 	# packaged version is not new enough:
 	# ./check_mongodb_master.pl:  CRITICAL: IO::Socket::IP version 0.32 required--this is only version 0.21 at /usr/local/share/perl5/MongoDB/_Link.pm line 53.
-	@#$(SUDO_PERL) $(CPANM) --notest IO::Socket::IP
-	@bash-tools/perl_cpanm_install.sh IO::Socket::IP
+	bash-tools/perl_cpanm_install.sh IO::Socket::IP
 
-	# Fix for Kafka dependency bug in NetAddr::IP::InetBase
-	#
-	# This now fails with permission denied even with sudo to root on Mac OSX Sierra due to System Integrity Protection:
-	#
-	# csrutil status
-	#
-	# would need to disable to edit system InetBase as documented here:
-	#
-	# https://developer.apple.com/library/content/documentation/Security/Conceptual/System_Integrity_Protection_Guide/ConfiguringSystemIntegrityProtection/ConfiguringSystemIntegrityProtection.html
-	#
-	libfilepath=`perl -MNetAddr::IP::InetBase -e 'print $$INC{"NetAddr/IP/InetBase.pm"}'`; grep -q 'use Socket' "$$libfilepath" || $(SUDO_PERL) sed -i.bak "s/use strict;/use strict; use Socket;/" "$$libfilepath" || : # doesn't work on Mac right now
+	setup/fix_perl_netaddr_ip_inetbase.sh
 
-	@setup/mac_symlink_nagios_plugins_libexec.sh
+	setup/mac_symlink_nagios_plugins_libexec.sh
 
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins perl)"
 	@echo
 	@echo
 
+.PHONY: fatpacks-local
+fatpacks-local:
+	setup/fix_perl_netaddr_ip_inetbase.sh
 
 .PHONY: python
 python: init
