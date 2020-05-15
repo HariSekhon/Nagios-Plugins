@@ -71,15 +71,15 @@ matrix:
 
   allow_failures:
     - os: osx
-    - python: "pypy"
-    - python: "pypy3"
     - language: generic
+    #- python: "pypy"
+    #- python: "pypy3"
 
 #os:
 #  - linux
 #  - osx
 
-dist: trusty
+#dist: trusty
 
 sudo: required
 
@@ -126,7 +126,9 @@ install:
   - sudo chown -fR travis /usr/local /usr/lib/python*
   # hitting 60 min timeout overall across all builds, retries will mask real error and cut off at random points making debugging harder
   #- travis_retry make && travis_retry make zookeeper
-  - make build zookeeper fatpacks
+  - make
+  - make zookeeper
+  - make fatpacks
 
 script:
   - sudo sysctl -w net.ipv4.conf.all.forwarding=1
@@ -141,6 +143,7 @@ after_failure:
   #- for x in /home/travis/.cpanm/work/*/build.log; do echo "uploading $x"; curl -sT "$x" transfer.sh || :; done
   # now requires authentication
   #curl -sT "$x" chunk.io || :
+  - make printenv || :
 
 services:
   # docker breaks cassandra, mysql, probably everything
