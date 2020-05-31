@@ -29,7 +29,7 @@ Requires ZooKeeper 3.4 onwards due to isro and mntr 4lw checks only being availa
 Tested on Apache ZooKeeper 3.4.5, 3.4.6, 3.4.8, 3.4.11 and on Cloudera, Hortonworks and MapR.
 ";
 
-$VERSION = "0.8.2";
+$VERSION = "0.8.3";
 
 use strict;
 use warnings;
@@ -277,7 +277,7 @@ foreach(sort keys %mntr){
             next;
         }
     }
-    $mntr{$_} =~ /^\d+$/ or quit "UNKNOWN", "invalid value found for mntr $_ '$mntr{$_}'";
+    isFloat($mntr{$_}, "negative allowed") or quit "UNKNOWN", "invalid value found for mntr $_ '$mntr{$_}'";
 }
 vlog2;
 
