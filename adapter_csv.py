@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.6.2'
+__version__ = '0.6.3'
 
 
 class AdapterCSV(CLI):
@@ -152,6 +152,10 @@ class AdapterCSV(CLI):
             else:
                 proc = subprocess.Popen(cmdline.split(), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             (stdout, stderr) = proc.communicate()
+            if isinstance(stdout, bytes):
+                stdout = str(stdout.decode('utf-8'))
+            if isinstance(stderr, bytes):
+                stderr = str(stderr.decode('utf-8'))
             log.debug("stdout: %s", stdout)
             log.debug("stderr: %s", stderr)
             returncode = proc.wait()
