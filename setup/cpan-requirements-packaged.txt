@@ -17,6 +17,9 @@
 # https://rt.cpan.org/Public/Bug/Display.html?id=114819
 Net::DNS@1.05
 
+# needed for DBD::mysql which now fails without it due to not pulling in the dependency automatically on Mac
+DBI
+
 # TODO: consider switching DBD::mysql to DBD::MariaDB which is a fork with fixes
 #DBD::MariaDB
 DBD::mysql
