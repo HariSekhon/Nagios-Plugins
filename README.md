@@ -292,8 +292,8 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
 
 If running docker checks from within the [nagios plugins docker image](https://hub.docker.com/r/harisekhon/nagios-plugins/) then you will need to expose the socket within the container, like so:
 ```
-docker run -v /var/run/docker.sock:/var/run/docker.sock harisekhon/nagios-plugins check_docker_images.py -H unix:///var/run/docker.sock
-OK: Docker images = 296 | docker_images=296;; query_time=0.1568s
+docker run -v /var/run/docker.sock:/var/run/docker.sock harisekhon/nagios-plugins check_docker_container_status.py -H unix:///var/run/docker.sock --container myContainer
+ OK: Docker container 'myContainer' status = 'running', started at '2020-06-03T14:03:09.78303932Z' | query_time=0.0038s
 ```
 
 See also DockerHub build status nagios plugin further down in the [CI section](https://github.com/HariSekhon/nagios-plugins#ci---continuous-integration--build-systems---git-jenkins-travis-ci--dockerhub-automated-builds).
