@@ -114,6 +114,8 @@ perl-libs:
 
 	setup/install_mysql_perl.sh
 
+	@# pre-installing DBI module since DBD-mysql fails without it and it comes later in the ordered module list
+	bash-tools/perl_cpanm_install_if_absent.sh DBI
 	bash-tools/perl_cpanm_install_if_absent.sh setup/cpan-requirements.txt setup/cpan-requirements-packaged.txt
 
 	# to work around "Can't locate loadable object for module Digest::CRC in @INC"
