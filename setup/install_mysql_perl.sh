@@ -61,4 +61,12 @@ brew install --force mysql-connector-c
 brew link --force --overwrite mysql-connector-c
 set -e +x
 
+# installing DBI module even if provided by system since DBD-mysql fails without it:
+#
+# ./dbdimp.h:20:10: fatal error: 'DBIXS.h' file not found
+# #include <DBIXS.h>  /* installed by the DBI module */
+#
+# system provided DBI module doesn't provide this header but installing DBI module does on systems like Mac OS X
+"$srcdir/../bash-tools/perl_cpanm_install.sh" DBI
+
 "$srcdir/../bash-tools/perl_cpanm_install_if_absent.sh" DBD::mysql
