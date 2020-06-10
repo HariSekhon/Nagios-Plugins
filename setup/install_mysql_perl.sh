@@ -66,7 +66,12 @@ set -e +x
 # ./dbdimp.h:20:10: fatal error: 'DBIXS.h' file not found
 # #include <DBIXS.h>  /* installed by the DBI module */
 #
-# system provided DBI module doesn't provide this header but installing DBI module does on systems like Mac OS X
+# system provided DBI module's location on Mac isn't found, but is for example:
+#
+# /Library/Developer/CommandLineTools/SDKs/MacOSX10.14.sdk/System/Library/Perl/Extras/5.18/darwin-thread-multi-2level/auto/DBI/DBIXS.h
+# /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/System/Library/Perl/Extras/5.18/darwin-thread-multi-2level/auto/DBI/DBIXS.h
+#
+# so could add some hackiness to the path or otherwise just install DBI manually where it'll be naturally found
 "$srcdir/../bash-tools/perl_cpanm_install.sh" DBI
 
 "$srcdir/../bash-tools/perl_cpanm_install_if_absent.sh" DBD::mysql
