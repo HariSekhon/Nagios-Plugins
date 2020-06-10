@@ -63,8 +63,10 @@ set -e +x
 
 # installing DBI module even if provided by system since DBD-mysql fails without it:
 #
+# cc -c  -I/System/Library/Perl/Extras/5.18/darwin-thread-multi-2level/auto/DBI -I/usr/local/include/mysql -DDBD_MYSQL_WITH_SSL -g  -g -pipe -fno-common -DPERL_DARWIN -fno-strict-aliasing -fstack-protector -Os   -DVERSION=\"4.050\" -DXS_VERSION=\"4.050\"  -iwithsysroot "/System/Library/Perl/5.18/darwin-thread-multi-2level/CORE"   dbdimp.c
+# In file included from dbdimp.c:15:
 # ./dbdimp.h:20:10: fatal error: 'DBIXS.h' file not found
-# #include <DBIXS.h>  /* installed by the DBI module */
+# #include <DBIXS.h>  /* installed by the DBI module                        */
 #
 # system provided DBI module's location on Mac isn't found, but is for example:
 #
