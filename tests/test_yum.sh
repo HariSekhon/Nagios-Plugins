@@ -43,7 +43,7 @@ section2 "Setting up CentOS test container"
 
 distro=centos
 
-export DOCKER_CONTAINER="nagiosplugins_$distro-github_1"
+export DOCKER_CONTAINER="nagios-plugins_$distro-github_1"
 export COMPOSE_FILE="$srcdir/docker/$distro-github-docker-compose.yml"
 
 docker_compose_pull
@@ -56,13 +56,13 @@ if [ -n "${NOTESTS:-}" ]; then
     exit 0
 fi
 
-docker_exec older/check_yum.pl -C -v -t 60
+ERRCODE="0 1 2" docker_exec older/check_yum.pl -C -v -t 60
 
-ERRCODE="0 2" docker_exec older/check_yum.pl -C --all-updates -v -t 60
+ERRCODE="0 1 2" docker_exec older/check_yum.pl -C --all-updates -v -t 60
 
-docker_exec check_yum.py -C -v -t 60
+ERRCODE="0 1 2" docker_exec check_yum.py -C -v -t 60
 
-ERRCODE="0 2" docker_exec check_yum.py -C --all-updates -v -t 60
+ERRCODE="0 1 2" docker_exec check_yum.py -C --all-updates -v -t 60
 
 # defined and tracked in bash-tools/lib/utils.sh
 # shellcheck disable=SC2154
