@@ -37,7 +37,7 @@ test_linux(){
     local distro="$1"
     local version="$2"
     section2 "Setting up Linux $distro $version test container"
-    export DOCKER_CONTAINER="nagiosplugins_$distro-github_1"
+    export DOCKER_CONTAINER="nagios-plugins_$distro-github_1"
     export COMPOSE_FILE="$srcdir/docker/$distro-github-docker-compose.yml"
     docker_compose_pull
     VERSION="$version" docker-compose up -d --remove-orphans
@@ -111,13 +111,13 @@ EOF
         docker-compose exec "centos-github" yum makecache fast
         hr
 
-        docker_exec check_yum.pl -C -v -t 30
+        ERRCODE="0 1 2" docker_exec older/check_yum.pl -C -v -t 30
 
-        docker_exec check_yum.pl -C --all-updates -v -t 30 || :
+        ERRCODE="0 1 2" docker_exec older/check_yum.pl -C --all-updates -v -t 30
 
-        docker_exec check_yum.py -C -v -t 30
+        ERRCODE="0 1 2" docker_exec check_yum.py -C -v -t 30
 
-        docker_exec check_yum.py -C --all-updates -v -t 30 || :
+        ERRCODE="0 1 2" docker_exec check_yum.py -C --all-updates -v -t 30
     fi
     # defined and tracked in bash-tools/lib/utils.sh
     # shellcheck disable=SC2154
