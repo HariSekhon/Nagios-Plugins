@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#  vim:ts=4:sts=4:sw=4:et
 #
 #  Author: Hari Sekhon
 #  Date: 2008-04-29 17:21:08 +0100 (Tue, 29 Apr 2008)
@@ -7,18 +8,25 @@
 #
 #  License: see accompanying LICENSE file
 #
+#  If you're using my code you're welcome to connect with me on LinkedIn
+#  and optionally send me feedback to help steer this or other code I publish
+#
+#  https://www.linkedin.com/in/harisekhon
+#
 
 """
 Nagios plugin to test for Yum updates on RedHat / CentOS Linux.
 
 Can optionally alert on any available updates as well as just security related updates
 
-See also: check_yum.pl (also part of the Advanced Nagios Plugins Collection)
-
 Updated for DNF on RHEL 8
 
 Tested on CentOS 5 / 6 / 7 / 8
 """
+
+# Updates Info vs RHEL versions (Caveat - contrary to that page, 'yum updateinfo' isn't available on CentOS 6):
+#
+# https://access.redhat.com/solutions/10021
 
 from __future__ import print_function
 
@@ -43,7 +51,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.10.3"
+__version__ = "0.11.0"
 
 # Standard Nagios return codes
 OK = 0
@@ -91,6 +99,8 @@ def check_yum_usable():
         end(UNKNOWN, "%s is not executable" % YUM)
 
 
+# maintain Python 2 compatability
+# pylint: disable=useless-object-inheritance,too-many-instance-attributes
 class YumTester(object):
     """Class to hold all portage test functions and state"""
 
@@ -142,25 +152,26 @@ class YumTester(object):
             end(UNKNOWN, "Internal python error - " \
                        + "no cmd supplied for run function")
 
-        if self.no_cache_update:
-            cmd += " -C"
+        if 'updateinfo' not in cmd:
+            if self.no_cache_update:
+                cmd += " -C"
 
-        if self.enable_repo:
-            for repo in self.enable_repo.split(","):
-                cmd += " --enablerepo=%s" % repo
-        if self.disable_repo:
-            for repo in self.disable_repo.split(","):
-                cmd += " --disablerepo=%s" % repo
+            if self.enable_repo:
+                for repo in self.enable_repo.split(","):
+                    cmd += " --enablerepo=%s" % repo
+            if self.disable_repo:
+                for repo in self.disable_repo.split(","):
+                    cmd += " --disablerepo=%s" % repo
 
-        if self.disable_plugin:
-            # --disableplugin can take a comma separated list directly
-            #for plugin in self.disable_plugin.split(","):
-                #cmd += " --disableplugin=%s" % plugin
-            cmd += " --disableplugin=%s" % self.disable_plugin
+            if self.disable_plugin:
+                # --disableplugin can take a comma separated list directly
+                #for plugin in self.disable_plugin.split(","):
+                    #cmd += " --disableplugin=%s" % plugin
+                cmd += " --disableplugin=%s" % self.disable_plugin
 
-        if self.yum_config:
-            for repo in self.yum_config.split(","):
-                cmd += " --config=%s" % repo
+            if self.yum_config:
+                for repo in self.yum_config.split(","):
+                    cmd += " --config=%s" % repo
 
         self.vprint(3, "running command: %s" % cmd)
 
@@ -182,6 +193,8 @@ class YumTester(object):
                 end(UNKNOWN, "Error trying to run utility '%s' - %s" \
                                                   % (cmd.split()[0], error))
 
+            # don't comment this out even when replacing content as it'll pass None returncode to check_returncode
+            # which will then fail the check
             output = process.communicate()
             # for using debug outputs, either do not comment above line or explicitly set exit code below
             #output = [open(os.path.dirname(__file__) + '/test_input.txt').read(), '']
@@ -229,8 +242,9 @@ class YumTester(object):
                 end(UNKNOWN, 'connectivity issue to repos: \'No more mirrors to try\'. ' + \
                              'You could also try running --cache-only and ' + \
                              'scheduling a separate \'yum makecache\' via cron or similar')
-            elif (not ('Loading "security" plugin' in output or 'Loaded plugins:.*security' in output)) \
-               or "Command line error: no such option: --security" in output:
+            elif "Command line error: no such option: --security" in output or \
+                 (not ('Loading "security" plugin' in output or 'Loaded plugins:.*security' in output) \
+                  and not os.path.exists(DNF)):
                 end(UNKNOWN, "Security plugin for yum is required. Try to "    \
                            + "'yum install yum-security' (RHEL5) or " \
                            + "'yum install yum-plugin-security' (RHEL6) and then re-run " \
@@ -239,7 +253,7 @@ class YumTester(object):
                            + "plugin, try --all-updates")
             else:
                 output = self.strip_output(output)
-                end(UNKNOWN, "%s" % output)
+                end(UNKNOWN, "exit code: %s, output: %s" % (returncode, output))
 
 
     def strip_output(self, output):
@@ -282,13 +296,13 @@ class YumTester(object):
         self.vprint(2, "checking for any security updates")
 
         if self.all_updates:
-            number_security_updates, number_other_updates = \
+            num_security_updates, num_other_updates = \
                                                         self.get_all_updates()
         else:
-            number_other_updates = self.get_security_updates()
-            number_security_updates = 0
+            num_other_updates = self.get_security_updates()
+            num_security_updates = 0
 
-        return number_security_updates, number_other_updates
+        return num_security_updates, num_other_updates
 
 
     def get_all_updates(self):
@@ -310,7 +324,7 @@ class YumTester(object):
                 re.search(r'Loading\s+".+"\s+plugin', output2[0])):
             end(WARNING, "Yum output signature does not match current known "  \
                        + "format. " + support_msg)
-        number_packages = 0
+        num_packages = 0
         if len(output2) == 1:
             # There are no updates but we have passed
             # the loading and setting up of repositories
@@ -320,11 +334,11 @@ class YumTester(object):
                 if len(line.split()) > 1 and \
                    line[0:1] != " " and \
                    "Obsoleting Packages" not in line:
-                    number_packages += 1
+                    num_packages += 1
 
         try:
-            number_packages = int(number_packages)
-            if number_packages < 0:
+            num_packages = int(num_packages)
+            if num_packages < 0:
                 raise ValueError
         except ValueError:
             end(UNKNOWN, "Error parsing package information, invalid package " \
@@ -346,6 +360,7 @@ class YumTester(object):
         #        re.compile("^[\w-]+-kmod-\d[\d\.-]+.*\s+.+\s+.+$")
         obsoleting_packages = False
         for line in output:
+            # pylint: disable=no-else-continue
             if ' excluded ' in line:
                 continue
             elif obsoleting_packages and line[0:1] == " ":
@@ -359,12 +374,12 @@ class YumTester(object):
                 continue
             if re_package_format.match(line):
                 count += 1
-        if count != number_packages:
+        if count != num_packages:
             end(UNKNOWN, "Error parsing package information, inconsistent "    \
-                       + "package count (%d count vs %s num packages)" % (count, number_packages) \
+                       + "package count (%d count vs %s num packages)" % (count, num_packages) \
                        + ", yum output may have changed. " + support_msg)
 
-        return number_packages
+        return num_packages
 
 
     def get_security_updates(self):
@@ -387,26 +402,26 @@ class YumTester(object):
             _ = re_summary_rhel6.match(line)
             if _:
                 summary_line_found = True
-                number_security_updates = _.group(1)
-                number_total_updates = _.group(2)
+                num_security_updates = _.group(1)
+                num_total_updates = _.group(2)
                 break
             _ = re_no_sec_updates.match(line)
             if _:
                 summary_line_found = True
-                number_security_updates = 0
-                number_total_updates = _.group(1)
+                num_security_updates = 0
+                num_total_updates = _.group(1)
                 break
             _ = re_no_sec_updates_dnf.match(line)
             if _:
                 summary_line_found = True
-                number_security_updates = 0
-                number_total_updates = _.group(1)
+                num_security_updates = 0
+                num_total_updates = _.group(1)
                 break
             _ = re_security_summary.match(line)
             if _:
                 summary_line_found = True
-                number_security_updates = _.group(1)
-                number_total_updates = _.group(2)
+                num_security_updates = _.group(1)
+                num_total_updates = _.group(2)
                 break
             _ = re_kernel_update.match(line)
             if _:
@@ -414,30 +429,74 @@ class YumTester(object):
 
         if not summary_line_found:
             if os.path.exists(DNF) and re.match('Last metadata expiration check: ', ''.join(output)):
-                number_total_updates = 0
-                number_security_updates = 0
+                num_total_updates = 0
+                num_security_updates = 0
+            elif os.path.exists(DNF) and re.match('Updating Subscription Management repositories.', ''.join(output)):
+                (num_security_updates, num_total_updates) = self.yum_updateinfo()
             else:
                 end(WARNING, "Cannot find summary line in yum output. " + support_msg)
-        if 'number_security_updates' not in locals():
+        if 'num_security_updates' not in locals():
             end(UNKNOWN, "parsing failed - number of security updates could not be determined. " + support_msg)
-        if 'number_total_updates' not in locals():
+        if 'num_total_updates' not in locals():
             end(UNKNOWN, "parsing failed - number of total updates could not be determined. " + support_msg)
 
         try:
-            number_security_updates = int(number_security_updates)
-            number_total_updates = int(number_total_updates)
+            num_security_updates = int(num_security_updates)
+            num_total_updates = int(num_total_updates)
         except ValueError:
             end(WARNING, "Error parsing package information, yum output " \
                        + "may have changed. " + support_msg)
 
-        number_other_updates = number_total_updates - number_security_updates
+        num_other_updates = num_total_updates - num_security_updates
 
+        excluded_regex = re.compile('|'.join(
+            ['Updating Subscription Management repositories',
+             'Last metadata expiration check',
+             'Obsoleting Packages',
+             'Failed to set locale',
+             'security updates? needed',
+             'updates? available',
+             r'^\s*$',
+             ]))
         from_excluded_regex = re.compile(' from .+ excluded ')
-        if len([_ for _ in output if not from_excluded_regex.search(_)]) > number_total_updates + 25:
-            end(WARNING, "Yum output signature is larger than current known "  \
-                       + "format. " + support_msg)
+        output = [_ for _ in output if not excluded_regex.search(_)]
+        output = [_ for _ in output if not from_excluded_regex.search(_)]
+        # only count unique packages (first token), as some packages are duplicated in their output,
+        # especially when on Redhat Network subscriptions, see sample output in #328
+        len_output = len({_.split()[0] for _ in output})
+        if len_output > num_total_updates:
+            #self.vprint(3, "security updates: %s, total updates: %s" % (num_security_updates, num_total_updates))
+            end(WARNING, "Yum output signature (%s unique lines) is larger than number of total updates (%s). " \
+                         % (len_output, num_total_updates) + support_msg)
 
-        return number_security_updates, number_other_updates
+        return num_security_updates, num_other_updates
+
+
+    # Warning: yum updateinfo returns no output even when yum --security check-update returns
+    #          'No security updates needed, but 1 update available'
+    # so we are only calling this on Redhat Network subscriptions where we have a sample output in #328 from a user
+    def yum_updateinfo(self):
+        """ runs 'yum updateinfo' and returns a tuple of the number of security updates and total updates """
+        output = self.run('yum updateinfo')
+        # for using debug outputs
+        #output = open(os.path.dirname(__file__) + '/yuminfo_input.txt').read().split('\n')
+        self.vprint(3, "yuminfo output: %s" % output)
+        num_total_updates = 0
+        num_security_updates = 0
+        re_security_notices = re.compile(r'^(\d+)\s+Security notice')
+        re_bugfix_notices = re.compile(r'^(\d+)\s+Bugfix notice')
+        #re_new_package_notices = r'^(\d+)\s+New Package notice'
+        #re_enhancement_notices = r'^(\d+)\s+Enhancement notice'
+        #if 'Updates Information Summary: available' in output:
+        for line in output:
+            _ = re_security_notices.match(line)
+            if _:
+                num_security_updates = int(_.group(1))
+            _ = re_bugfix_notices.match(line)
+            if _:
+                num_total_updates += int(_.group(1))
+
+        return (num_security_updates, num_total_updates)
 
 
     def test_yum_updates(self):
@@ -462,18 +521,18 @@ class YumTester(object):
         #status = UNKNOWN
         #message = "code error. " + support_msg
 
-        number_updates = self.get_all_updates()
-        if number_updates == 0:
+        num_updates = self.get_all_updates()
+        if num_updates == 0:
             status = OK
             message = "0 Updates Available"
         else:
             status = CRITICAL
-            if number_updates == 1:
+            if num_updates == 1:
                 message = "1 Update Available"
             else:
-                message = "%s Updates Available" % number_updates
+                message = "%s Updates Available" % num_updates
 
-        message += " | total_updates_available=%s" % number_updates
+        message += " | total_updates_available=%s" % num_updates
 
         return status, message
 
@@ -485,29 +544,29 @@ class YumTester(object):
         #status = UNKNOWN
         #message = "code error. " + support_msg
 
-        number_security_updates, number_other_updates = \
+        num_security_updates, num_other_updates = \
                                                     self.get_security_updates()
-        if number_security_updates == 0:
+        if num_security_updates == 0:
             status = OK
             message = "0 Security Updates Available"
         else:
             status = CRITICAL
-            if number_security_updates == 1:
+            if num_security_updates == 1:
                 message = "1 Security Update Available"
-            elif number_security_updates > 1:
+            elif num_security_updates > 1:
                 message = "%s Security Updates Available" \
-                                                    % number_security_updates
+                                                    % num_security_updates
 
-        if number_other_updates != 0:
+        if num_other_updates != 0:
             if self.warn_on_any_update and status != CRITICAL:
                 status = WARNING
-        if number_other_updates == 1:
+        if num_other_updates == 1:
             message += ". 1 Non-Security Update Available"
         else:
             message += ". %s Non-Security Updates Available" \
-                                                    % number_other_updates
+                                                    % num_other_updates
         message += " | security_updates_available=%s non_security_updates_available=%s total_updates_available=%s" \
-                   % (number_security_updates, number_other_updates, number_security_updates + number_other_updates)
+                   % (num_security_updates, num_other_updates, num_security_updates + num_other_updates)
 
         return status, message
 
@@ -620,6 +679,12 @@ def main():
                       dest="version",
                       help="Print version number and exit")
 
+    parser.add_option("-D",
+                      "--debug",
+                      action="store_true",
+                      dest="debug",
+                      help="Debug mode (same as -vvv)")
+
     (options, args) = parser.parse_args()
 
     if args:
@@ -636,6 +701,8 @@ def main():
     tester.timeout = options.timeout
     tester.verbosity = options.verbosity
     tester.warn_on_any_update = options.warn_on_any_update
+    if options.debug or ('DEBUG' in os.environ and os.environ['DEBUG']):
+        tester.verbosity = 3
 
     if options.version:
         print("%s - Version %s\nAuthor: %s\n" \
