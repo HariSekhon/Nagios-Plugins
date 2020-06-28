@@ -480,11 +480,11 @@ class YumTester(object):
         output = self.run('yum updateinfo')
         # for using debug outputs
         #output = open(os.path.dirname(__file__) + '/yuminfo_input.txt').read().split('\n')
-        self.vprint(3, "yuminfo output: %s" % output)
+        #self.vprint(3, "yuminfo output: %s" % output)
         num_total_updates = 0
         num_security_updates = 0
-        re_security_notices = re.compile(r'^(\d+)\s+Security notice')
-        re_bugfix_notices = re.compile(r'^(\d+)\s+Bugfix notice')
+        re_security_notices = re.compile(r'^\s*(\d+)\s+Security notice')
+        re_bugfix_notices = re.compile(r'^\s*(\d+)\s+Bugfix notice')
         #re_new_package_notices = r'^(\d+)\s+New Package notice'
         #re_enhancement_notices = r'^(\d+)\s+Enhancement notice'
         #if 'Updates Information Summary: available' in output:
