@@ -12,11 +12,7 @@
 
 $DESCRIPTION = "Nagios Plugin to check Yum security updates on RHEL5/6/7 based servers
 
-This is a rewrite of my original Python version for RHEL5 from early 2008
-
-Code is much shorter, a third the number of lines, and leverages my personal library for better validation, option/usage and self timeout handling
-
-See also: check_yum.py (the original, also part of the Advanced Nagios Plugins Collection)
+Deprecated, use instead check_yum.py at top level of this repo which is updated for RHEL 8 and DNF
 
 Tested on CentOS 5 / 6 / 7
 ";
