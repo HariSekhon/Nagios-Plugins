@@ -56,9 +56,9 @@ if [ -n "${NOTESTS:-}" ]; then
     exit 0
 fi
 
-docker_exec check_yum.pl -C -v -t 60
+docker_exec older/check_yum.pl -C -v -t 60
 
-ERRCODE="0 2" docker_exec check_yum.pl -C --all-updates -v -t 60
+ERRCODE="0 2" docker_exec older/check_yum.pl -C --all-updates -v -t 60
 
 docker_exec check_yum.py -C -v -t 60
 
