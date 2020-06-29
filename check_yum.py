@@ -450,18 +450,20 @@ class YumTester(object):
         num_other_updates = num_total_updates - num_security_updates
 
         excluded_regex = re.compile('|'.join(
-            ['Updating Subscription Management repositories',
+            [' from .+ excluded ',
+             r'^\s*\*\s*',
+             r'^\s*$',
+             'Updating Subscription Management repositories',
              'Last metadata expiration check',
+             'Loaded plugins',
+             'Loading mirror speeds from cached hostfile',
              'Obsoleting Packages',
              'Failed to set locale',
              'security updates? needed',
              'updates? available',
              'packages? available',
-             r'^\s*$',
              ]))
-        from_excluded_regex = re.compile(' from .+ excluded ')
         output = [_ for _ in output if not excluded_regex.search(_)]
-        output = [_ for _ in output if not from_excluded_regex.search(_)]
         # only count unique packages (first token), as some packages are duplicated in their output,
         # especially when on Redhat Network subscriptions, see sample output in #328
         #
@@ -469,6 +471,7 @@ class YumTester(object):
         # pylint: disable=consider-using-set-comprehension
         len_output = len(set([_.split()[0] for _ in output if _]))
         if len_output > num_total_updates:
+            self.vprint(3, "output lines not accounted for: %s" % output)
             #self.vprint(3, "security updates: %s, total updates: %s" % (num_security_updates, num_total_updates))
             end(WARNING, "Yum output signature (%s unique lines) is larger than number of total updates (%s). " \
                          % (len_output, num_total_updates) + support_msg)
