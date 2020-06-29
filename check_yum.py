@@ -51,7 +51,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.11.0"
+__version__ = "0.11.1"
 
 # Standard Nagios return codes
 OK = 0
@@ -463,7 +463,10 @@ class YumTester(object):
         output = [_ for _ in output if not from_excluded_regex.search(_)]
         # only count unique packages (first token), as some packages are duplicated in their output,
         # especially when on Redhat Network subscriptions, see sample output in #328
-        len_output = len({_.split()[0] for _ in output})
+        #
+        # Python 2.6 compatability for RHEL6 - don't use set comprehension, cast instead it's more portable
+        # pylint: disable=consider-using-set-comprehension
+        len_output = len(set([_.split()[0] for _ in output]))
         if len_output > num_total_updates:
             #self.vprint(3, "security updates: %s, total updates: %s" % (num_security_updates, num_total_updates))
             end(WARNING, "Yum output signature (%s unique lines) is larger than number of total updates (%s). " \
