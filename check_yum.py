@@ -197,7 +197,7 @@ class YumTester(object):
             # which will then fail the check
             output = process.communicate()
             # for using debug outputs, either do not comment above line or explicitly set exit code below
-            #output = [open(os.path.dirname(__file__) + '/test_input.txt').read(), '']
+            #output = [open(os.path.dirname(__file__) + '/yum_input.txt').read(), '']
             returncode = process.returncode
             stdout = output[0]
             # decode bytes to string for Python 3
@@ -456,6 +456,7 @@ class YumTester(object):
              'Failed to set locale',
              'security updates? needed',
              'updates? available',
+             'packages? available',
              r'^\s*$',
              ]))
         from_excluded_regex = re.compile(' from .+ excluded ')
@@ -466,7 +467,7 @@ class YumTester(object):
         #
         # Python 2.6 compatability for RHEL6 - don't use set comprehension, cast instead it's more portable
         # pylint: disable=consider-using-set-comprehension
-        len_output = len(set([_.split()[0] for _ in output]))
+        len_output = len(set([_.split()[0] for _ in output if _]))
         if len_output > num_total_updates:
             #self.vprint(3, "security updates: %s, total updates: %s" % (num_security_updates, num_total_updates))
             end(WARNING, "Yum output signature (%s unique lines) is larger than number of total updates (%s). " \
