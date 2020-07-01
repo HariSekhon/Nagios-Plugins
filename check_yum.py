@@ -51,7 +51,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.11.1"
+__version__ = "0.11.2"
 
 # Standard Nagios return codes
 OK = 0
@@ -209,6 +209,9 @@ class YumTester(object):
         self.vprint(3, "Returncode: '%s'\nOutput: '%s'" \
                                                      % (returncode, stdout))
         output = str(stdout).split("\n")
+        for _ in output:
+            if 'Permission denied' in _:
+                end(UNKNOWN, _)
         self.check_returncode(returncode, output)
 
         return output
