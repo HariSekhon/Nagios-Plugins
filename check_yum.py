@@ -458,6 +458,7 @@ class YumTester(object):
             [' from .+ excluded ',
              r'^\s*\*\s*',
              r'^\s*$',
+             'Determining fastest mirrors',
              'Updating Subscription Management repositories',
              'Last metadata expiration check',
              'Loaded plugins',
