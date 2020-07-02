@@ -51,7 +51,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.11.2"
+__version__ = "0.11.3"
 
 # Standard Nagios return codes
 OK = 0
@@ -211,6 +211,8 @@ class YumTester(object):
         output = str(stdout).split("\n")
         for _ in output:
             if 'Permission denied' in _:
+                end(UNKNOWN, _)
+            elif 'Skipping unreadable repository' in _:
                 end(UNKNOWN, _)
         self.check_returncode(returncode, output)
 
@@ -465,6 +467,9 @@ class YumTester(object):
              'security updates? needed',
              'updates? available',
              'packages? available',
+             'Limiting package lists to security relevant ones',
+             r'Repo [\w-]+ forced skip_if_unavailable=\w+ due to',
+             r'^\s*:\s+'
              ]))
         output = [_ for _ in output if not excluded_regex.search(_)]
         # only count unique packages (first token), as some packages are duplicated in their output,
