@@ -13,7 +13,7 @@ $DESCRIPTION = "Nagios Plugin to test a Linux Interface for errors, promisc mode
 
 Written for RHEL / CentOS 6, also tested on Debian Wheezy (7) / Jessie (8) and Ubuntu 14.04, 16.04
 
-Updated for RHEL / CentOS 7 as well as support for checking special interfaces such as loopback, bond and tunnel interfaces";
+Updated for RHEL / CentOS 7 as well as support for checking special interfaces such as loopback, bond and tunnel interfaces. Also tested on Debian Buster (10)";
 
 $VERSION = "0.9.2";
 
@@ -181,7 +181,7 @@ while(<$fh>){
         $stats{"RX_bytes"}   = $2;
     } elsif(/^\s*TX\s+packets\s+(\d+)\s+bytes\s+(\d+)\s/){
         $stats{"TX_packets"} = $1;
-        $stats{"TX_bytes"}   = $1;
+        $stats{"TX_bytes"}   = $2;
     } elsif(/^\s*RX\s+errors\s+(\d+)\s+dropped\s+(\d+)\s+overruns\s+(\d+)\s+frame\s+(\d+)\s*$/){
         $stats{"RX_errors"}   = $1;
         $stats{"RX_dropped"}  = $2;
