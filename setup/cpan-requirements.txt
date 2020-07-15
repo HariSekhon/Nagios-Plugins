@@ -27,6 +27,9 @@ Data::HexDump::Range
 # needed for Kafka execution on CentOS
 Sub::Util
 
+# needed for check_kafka.pl - transitive dependency not pull automatically
+Guard
+
 Compress::Snappy
 Compress::Zlib
 Digest::Adler32
