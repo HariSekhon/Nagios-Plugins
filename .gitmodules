@@ -13,3 +13,6 @@
 [submodule "haproxy-configs"]
 	path = haproxy-configs
 	url = https://github.com/harisekhon/haproxy-configs
+[submodule "sql"]
+	path = sql
+	url = https://github.com/HariSekhon/SQL-scripts
