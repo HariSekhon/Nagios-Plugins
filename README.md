@@ -135,7 +135,7 @@ Hari Sekhon
 
 Cloud & Big Data Contractor, United Kingdom
 
-[https://www.linkedin.com/in/harisekhon](https://www.linkedin.com/in/harisekhon)
+[![My LinkedIn](https://img.shields.io/badge/LinkedIn%20Profile-HariSekhon-blue?logo=linkedin)](https://www.linkedin.com/in/harisekhon/)
 ###### (you're welcome to connect with me on LinkedIn)
 
 ##### Make sure you run ```make update``` if updating and not just ```git pull``` as you will often need the latest library submodules and probably new upstream libraries too.
