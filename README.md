@@ -9,6 +9,7 @@ Advanced Nagios Plugins Collection
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_Nagios-Plugins&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_Nagios-Plugins)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_Nagios-Plugins&metric=security_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_Nagios-Plugins)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/HariSekhon/Nagios-Plugins.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HariSekhon/Nagios-Plugins/alerts/)
+[![Contributors](https://img.shields.io/github/contributors/HariSekhon/Nagios-Plugins)](https://github.com/HariSekhon/Nagios-Plugins/graphs/contributors)
 [![GitHub stars](https://img.shields.io/github/stars/harisekhon/nagios-plugins?logo=github)](https://github.com/harisekhon/nagios-plugins/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/harisekhon/nagios-plugins?logo=github)](https://github.com/harisekhon/nagios-plugins/network)
 [![Lines of Code](https://img.shields.io/badge/lines%20of%20code-80k-lightgrey?logo=codecademy)](https://github.com/HariSekhon/Nagios-Plugins)
