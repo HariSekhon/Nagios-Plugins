@@ -31,7 +31,6 @@ Advanced Nagios Plugins Collection
 [![Docker Build Status](https://img.shields.io/docker/build/harisekhon/nagios-plugins?logo=docker)](https://hub.docker.com/r/harisekhon/nagios-plugins/builds)
 [![MicroBadger](https://images.microbadger.com/badges/image/harisekhon/nagios-plugins.svg)](http://microbadger.com/#/images/harisekhon/nagios-plugins)
 [![StarTrack](https://img.shields.io/badge/Star-Track-blue?logo=github)](https://seladb.github.io/StarTrack-js/#/preload?r=HariSekhon,Nagios-Plugins&r=HariSekhon,DevOps-Python-tools&r=HariSekhon,DevOps-Perl-tools&r=HariSekhon,DevOps-Bash-tools&r=HariSekhon,Dockerfiles&r=HariSekhon,HAProxy-configs)
-[![CI Builds Overview](https://img.shields.io/badge/CI%20Builds-Overview%20Page-blue?logo=circleci)](https://bitbucket.org/harisekhon/devops-bash-tools/src/master/STATUS.md)
 
 [![Travis CI](https://img.shields.io/travis/harisekhon/Nagios-Plugins/master?logo=travis&label=Travis)](https://travis-ci.org/HariSekhon/Nagios-Plugins)
 [![AppVeyor](https://img.shields.io/appveyor/build/harisekhon/Nagios-Plugins/master?logo=appveyor&label=AppVeyor)](https://ci.appveyor.com/project/HariSekhon/Nagios-Plugins/branch/master)
@@ -50,6 +49,7 @@ Advanced Nagios Plugins Collection
 [![Jenkins](https://img.shields.io/badge/Jenkins-ready-blue?logo=jenkins)](https://github.com/HariSekhon/Nagios-Plugins/blob/master/Jenkinsfile)
 [![Concourse](https://img.shields.io/badge/Concourse-ready-blue?logo=concourse)](https://github.com/HariSekhon/Nagios-Plugins/blob/master/.concourse.yml)
 [![GoCD](https://img.shields.io/badge/GoCD-ready-blue?logo=go)](https://github.com/HariSekhon/Nagios-Plugins/blob/master/.gocd.yml)
+[![CI Builds Overview](https://img.shields.io/badge/CI%20Builds-Overview%20Page-blue?logo=circleci)](https://bitbucket.org/harisekhon/devops-bash-tools/src/master/STATUS.md)
 
 [![Azure DevOps Pipeline](https://dev.azure.com/harisekhon/GitHub/_apis/build/status/HariSekhon.Nagios-Plugins?branchName=master)](https://dev.azure.com/harisekhon/GitHub/_build/latest?definitionId=9&branchName=master)
 [![BitBucket Pipeline](https://img.shields.io/bitbucket/pipelines/harisekhon/nagios-plugins/master?logo=bitbucket&label=BitBucket)](https://bitbucket.org/harisekhon/Nagios-Plugins/addon/pipelines/home#!/)
