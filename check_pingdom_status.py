@@ -51,7 +51,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 
 class CheckPingdomStatus(RestNagiosPlugin):
@@ -116,9 +116,10 @@ class CheckPingdomStatus(RestNagiosPlugin):
         hostname = check['hostname']
         _id = check['id']
         self.msg = 'Pingdom check id {} status: {}, hostname: {}'.format(_id, status, hostname)
-        status_code = 0
-        if status == 'up':
-            status_code = 1
+        status_code = 1  # ok
+        if status != 'up':
+            status_code = 0
+            self.critical()
         self.msg += ' | status={}'.format(status_code)
 
 
