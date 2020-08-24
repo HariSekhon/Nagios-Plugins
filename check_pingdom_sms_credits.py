@@ -34,11 +34,8 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-#import logging
 import os
-#import re
 import sys
-#import time
 import traceback
 srcdir = os.path.abspath(os.path.dirname(__file__))
 libdir = os.path.join(srcdir, 'pylib')
@@ -52,7 +49,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.1.1'
 
 
 class CheckPingdomSmsCredits(RestNagiosPlugin):
