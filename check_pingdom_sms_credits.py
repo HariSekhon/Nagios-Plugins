@@ -17,7 +17,7 @@
 
 """
 
-Nagios Plugin to check Pingdom's remaining available SMS Credits
+Nagios Plugin to check Pingdom's remaining available SMS Credits via the Pingdom API
 
 Requires $PINGDOM_TOKEN
 
