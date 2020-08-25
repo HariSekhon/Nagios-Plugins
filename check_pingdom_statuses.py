@@ -21,7 +21,7 @@
 
 Nagios Plugin to check the status and max response time of all Pingdom checks via the Pingdom API
 
-Optional thresholds apply to the Pingdom check's max reported response time
+Optional thresholds apply to the Pingdom check's max reported response time in ms
 
 Requires $PINGDOM_TOKEN
 
@@ -100,14 +100,20 @@ class CheckPingdomStatuses(RestNagiosPlugin):
             'unknown': 0,
             'paused': 0
         }
+        max_response_time = 0
         for check in json_data['checks']:
             statuses[check['status']] += 1
+            last_response_time = check['lastresponsetime']
+            if last_response_time > max_response_time:
+                max_response_time = last_response_time
         self.msg = 'Pingdom total checks = {}'.format(total)
         self.msg += ', up = {}'.format(statuses['up'])
         self.msg += ', down = {}'.format(statuses['down'])
         self.msg += ', unconfirmed down = {}'.format(statuses['unconfirmed_down'])
         self.msg += ', unknown = {}'.format(statuses['unknown'])
         self.msg += ', paused = {}'.format(statuses['paused'])
+        self.msg += ', max response time = {}ms'.format(max_response_time)
+        self.check_thresholds(max_response_time)
         if statuses['down'] + statuses['unconfirmed_down'] > 0:
             self.critical()
         elif statuses['unknown'] + statuses['paused'] > 0:
@@ -118,6 +124,8 @@ class CheckPingdomStatuses(RestNagiosPlugin):
         self.msg += ' unknown={}'.format(statuses['unknown'])
         self.msg += ' paused={}'.format(statuses['paused'])
         self.msg += ' total={}'.format(total)
+        self.msg += ' max_response_time={}ms'.format(max_response_time)
+        self.msg += self.get_perf_thresholds()
 
 
 if __name__ == '__main__':
