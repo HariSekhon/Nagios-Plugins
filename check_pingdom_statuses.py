@@ -64,29 +64,27 @@ class CheckPingdomStatuses(RestNagiosPlugin):
         # Python 3.x
         # super().__init__()
         self.name = 'Pingdom'
-        self.default_host = 'api.pingdom.com'
-        self.default_port = 443
+        self.protocol = 'https'
+        self.host = 'api.pingdom.com'
+        self.port = 443
         self.path = '/api/3.1/checks'
         self.auth = False
         self.json = True
-        self.protocol = 'https'
         self.msg = 'Pingdom msg not defined yet'
 
     def add_options(self):
-        super(CheckPingdomStatuses, self).add_options()
         self.add_opt('-T', '--token', default=os.getenv('PINGDOM_TOKEN'),
                      help=r'Pingdom authentication token (\$PINGDOM_TOKEN)')
         self.add_thresholds()
 
     def process_options(self):
-        super(CheckPingdomStatuses, self).process_options()
         token = self.get_opt('token')
         if not token:
             self.usage('PINGDOM_TOKEN not set, cannot authenticate')
         log.info('setting authorization header')
         self.headers['Authorization'] = 'Bearer {}'.format(token)
         # breaks Pingdom API with 400 Bad Request
-        del self.headers['Content-Type']
+        #del self.headers['Content-Type']
         self.validate_thresholds(optional=True)
 
     def parse_json(self, json_data):
