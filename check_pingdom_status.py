@@ -15,6 +15,8 @@
 #  https://www.linkedin.com/in/HariSekhon
 #
 
+# https://docs.pingdom.com/api/#tag/Checks/paths/~1checks~1{checkid}/get
+
 """
 
 Nagios Plugin to check the status and response time of a Pingdom check via the Pingdom API
