@@ -19,7 +19,7 @@
 
 """
 
-Nagios Plugin to check the status and max response time of all Pingdom checks via the Pingdom API
+Nagios Plugin to check the status, average and max response times of all Pingdom checks via the Pingdom API
 
 Optional thresholds apply to the Pingdom check's max reported response time in ms
 
@@ -53,7 +53,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 
 
 class CheckPingdomStatuses(RestNagiosPlugin):
@@ -101,17 +101,21 @@ class CheckPingdomStatuses(RestNagiosPlugin):
             'paused': 0
         }
         max_response_time = 0
+        response_times = []
         for check in json_data['checks']:
             statuses[check['status']] += 1
             last_response_time = check['lastresponsetime']
+            response_times.append(last_response_time)
             if last_response_time > max_response_time:
                 max_response_time = last_response_time
+        average_response_time = int(sum(response_times) / len(response_times))
         self.msg = 'Pingdom total checks = {}'.format(total)
         self.msg += ', up = {}'.format(statuses['up'])
         self.msg += ', down = {}'.format(statuses['down'])
         self.msg += ', unconfirmed down = {}'.format(statuses['unconfirmed_down'])
         self.msg += ', unknown = {}'.format(statuses['unknown'])
         self.msg += ', paused = {}'.format(statuses['paused'])
+        self.msg += ', average response time = {}ms'.format(average_response_time)
         self.msg += ', max response time = {}ms'.format(max_response_time)
         self.check_thresholds(max_response_time)
         if statuses['down'] + statuses['unconfirmed_down'] > 0:
@@ -124,6 +128,7 @@ class CheckPingdomStatuses(RestNagiosPlugin):
         self.msg += ' unknown={}'.format(statuses['unknown'])
         self.msg += ' paused={}'.format(statuses['paused'])
         self.msg += ' total={}'.format(total)
+        self.msg += ' average_response_time={}ms'.format(average_response_time)
         self.msg += ' max_response_time={}ms'.format(max_response_time)
         self.msg += self.get_perf_thresholds()
 
