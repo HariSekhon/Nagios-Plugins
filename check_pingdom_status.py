@@ -17,7 +17,9 @@
 
 """
 
-Nagios Plugin to check the status of a Pingdom check via the Pingdom API
+Nagios Plugin to check the status and response time of a Pingdom check via the Pingdom API
+
+Optional thresholds apply to the Pingdom check's reported response time
 
 Requires $PINGDOM_TOKEN
 
@@ -51,7 +53,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1.1'
+__version__ = '0.2.0'
 
 
 class CheckPingdomStatus(RestNagiosPlugin):
@@ -76,6 +78,7 @@ class CheckPingdomStatus(RestNagiosPlugin):
         self.add_opt('-T', '--token', default=os.getenv('PINGDOM_TOKEN'),
                      help=r'Pingdom authentication token (\$PINGDOM_TOKEN)')
         self.add_opt('-l', '--list', action='store_true', help='List Pingdom checks and exit')
+        self.add_thresholds()
 
     def process_options(self):
         super(CheckPingdomStatus, self).process_options()
@@ -92,6 +95,7 @@ class CheckPingdomStatus(RestNagiosPlugin):
         del self.headers['Content-Type']
         if self.get_opt('list'):
             self.list_checks()
+        self.validate_thresholds(optional=True)
 
     def list_checks(self):
         self.path = '/api/3.1/checks'
@@ -113,14 +117,33 @@ class CheckPingdomStatus(RestNagiosPlugin):
     def parse_json(self, json_data):
         check = json_data['check']
         status = check['status']
+        last_response_time = check['lastresponsetime']
         hostname = check['hostname']
         _id = check['id']
-        self.msg = 'Pingdom check id {} status: {}, hostname: {}'.format(_id, status, hostname)
+        try:
+            proto = 'http'
+            if check['type']['http']['encryption']:
+                proto = 'https'
+            url = '{proto}://{host}:{port}{url}'.format(
+                proto=proto,
+                host=hostname,
+                port=check['type']['http']['port'],
+                url=check['type']['http']['url'])
+            self.msg = 'Pingdom check id {id} status = {status}, url = {url}'.format(
+                id=_id,
+                status=status,
+                url=url)
+        except KeyError:
+            self.msg = 'Pingdom check id {} status = {}, hostname = {}'.format(_id, status, hostname)
         status_code = 1  # ok
         if status != 'up':
             status_code = 0
             self.critical()
+        self.msg += ', last response time = {}ms'.format(last_response_time)
+        self.check_thresholds(last_response_time)
         self.msg += ' | status={}'.format(status_code)
+        self.msg += ' last_response_time={}ms'.format(last_response_time)
+        self.msg += self.get_perf_thresholds()
 
 
 if __name__ == '__main__':
