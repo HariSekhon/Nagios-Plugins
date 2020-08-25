@@ -42,6 +42,7 @@ import json
 import logging
 import os
 import sys
+import time
 import traceback
 srcdir = os.path.abspath(os.path.dirname(__file__))
 libdir = os.path.join(srcdir, 'pylib')
@@ -55,7 +56,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 
 
 class CheckPingdomStatus(RestNagiosPlugin):
@@ -72,11 +73,14 @@ class CheckPingdomStatus(RestNagiosPlugin):
         self.auth = False
         self.json = True
         self.protocol = 'https'
+        self.max_check_age = None
         self.msg = 'Pingdom msg not defined yet'
 
     def add_options(self):
         super(CheckPingdomStatus, self).add_options()
         self.add_opt('-i', '--check-id', help='ID of the Pingdom check (required, find this from --list)')
+        self.add_opt('-m', '--max-check-age', type=int, default=300,
+                     help='Max age of the pingdom check in seconds (default: 300)')
         self.add_opt('-T', '--token', default=os.getenv('PINGDOM_TOKEN'),
                      help=r'Pingdom authentication token (\$PINGDOM_TOKEN)')
         self.add_opt('-l', '--list', action='store_true', help='List Pingdom checks and exit')
@@ -98,6 +102,7 @@ class CheckPingdomStatus(RestNagiosPlugin):
         if self.get_opt('list'):
             self.list_checks()
         self.validate_thresholds(optional=True)
+        self.max_check_age = self.get_opt('max_check_age')
 
     def list_checks(self):
         self.path = '/api/3.1/checks'
@@ -121,6 +126,8 @@ class CheckPingdomStatus(RestNagiosPlugin):
         status = check['status']
         last_response_time = check['lastresponsetime']
         hostname = check['hostname']
+        last_test_time = check['lasttesttime']
+        last_tested_secs = int(time.time() - last_test_time)
         _id = check['id']
         try:
             proto = 'http'
@@ -138,11 +145,20 @@ class CheckPingdomStatus(RestNagiosPlugin):
         except KeyError:
             self.msg = 'Pingdom check id {} status = {}, hostname = {}'.format(_id, status, hostname)
         status_code = 1  # ok
+        # expand checks for available states:
+        # https://docs.pingdom.com/api/#tag/Checks/paths/~1checks/get
+        if status in ("unknown", "paused"):
+            self.unknown()
+            status_code = 0
         if status != 'up':
             status_code = 0
             self.critical()
         self.msg += ', last response time = {}ms'.format(last_response_time)
         self.check_thresholds(last_response_time)
+        self.msg += ', last tested {} secs ago'.format(last_tested_secs)
+        if last_tested_secs > self.max_check_age:
+            self.warning()
+            self.msg += ' (> 300)'
         self.msg += ' | status={}'.format(status_code)
         self.msg += ' last_response_time={}ms'.format(last_response_time)
         self.msg += self.get_perf_thresholds()
