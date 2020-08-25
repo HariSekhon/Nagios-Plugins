@@ -21,7 +21,7 @@
 
 Nagios Plugin to check the status and response time of a Pingdom check via the Pingdom API
 
-Optional thresholds apply to the Pingdom check's reported response time
+Optional thresholds apply to the Pingdom check's reported response time in ms
 
 Requires $PINGDOM_TOKEN
 
