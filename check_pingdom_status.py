@@ -67,17 +67,16 @@ class CheckPingdomStatus(RestNagiosPlugin):
         # Python 3.x
         # super().__init__()
         self.name = 'Pingdom'
-        self.default_host = 'api.pingdom.com'
-        self.default_port = 443
+        self.protocol = 'https'
+        self.host = 'api.pingdom.com'
+        self.port = 443
         self.path = '/api/3.1/checks/'
         self.auth = False
         self.json = True
-        self.protocol = 'https'
         self.max_check_age = None
         self.msg = 'Pingdom msg not defined yet'
 
     def add_options(self):
-        super(CheckPingdomStatus, self).add_options()
         self.add_opt('-i', '--check-id', help='ID of the Pingdom check (required, find this from --list)')
         self.add_opt('-m', '--max-check-age', type=int, default=300,
                      help='Max age of the pingdom check in seconds (default: 300)')
@@ -87,7 +86,6 @@ class CheckPingdomStatus(RestNagiosPlugin):
         self.add_thresholds()
 
     def process_options(self):
-        super(CheckPingdomStatus, self).process_options()
         _id = self.get_opt('check_id')
         if not isInt(_id):
             self.usage('non-integer given as check id')
@@ -98,7 +96,7 @@ class CheckPingdomStatus(RestNagiosPlugin):
         log.info('setting authorization header')
         self.headers['Authorization'] = 'Bearer {}'.format(token)
         # breaks Pingdom API with 400 Bad Request
-        del self.headers['Content-Type']
+        #del self.headers['Content-Type']
         if self.get_opt('list'):
             self.list_checks()
         self.validate_thresholds(optional=True)
