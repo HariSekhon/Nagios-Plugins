@@ -99,6 +99,8 @@ Advanced Nagios Plugins Collection
 
 <!-- broken handling of Elasticsearch major version for Python library -->
 
+[git.io/nagios-plugins](https://git.io/nagios-plugins)
+
 ##### Largest, most advanced collection of production-grade Nagios monitoring code (over 450 programs).
 
 Specialised plugins for AWS, Hadoop, Big Data & NoSQL technologies, written by a former Clouderan ([Cloudera](http://www.cloudera.com) was the first Hadoop Big Data vendor) and ex-[Hortonworks](http://www.hortonworks.com) consultant.
