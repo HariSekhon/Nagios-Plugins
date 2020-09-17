@@ -322,32 +322,24 @@ class YumTester(object):
         if self.verbosity >= 4:
             for section in output2:
                 print("\nSection:\n%s\n" % section)
-        if len(output2) > 2 or \
+        if len(output2) > 2 or (not self.no_cache_update and \
            not ("Setting up repositories" in output2[0] or \
                 "Loaded plugins: " in output2[0] or \
                 "Last metadata expiration check" in output2[0] or \
-                re.search(r'Loading\s+".+"\s+plugin', output2[0])):
+                re.search(r'Loading\s+".+"\s+plugin', output2[0]))):
             end(WARNING, "Yum output signature does not match current known "  \
                        + "format. " + support_msg)
         num_packages = 0
-        if len(output2) == 1:
+        if len(output2) == 1 and not self.no_cache_update:
             # There are no updates but we have passed
             # the loading and setting up of repositories
             pass
         else:
-            for line in output2[1].split("\n"):
+            for line in output2[-1].split("\n"):
                 if len(line.split()) > 1 and \
                    line[0:1] != " " and \
                    "Obsoleting Packages" not in line:
                     num_packages += 1
-
-        try:
-            num_packages = int(num_packages)
-            if num_packages < 0:
-                raise ValueError
-        except ValueError:
-            end(UNKNOWN, "Error parsing package information, invalid package " \
-                       + "number, yum output may have changed. " + support_msg)
 
         # Extra layer of checks. This is a security plugin so it's preferable
         # to fail on error rather than pass silently leaving you with an
