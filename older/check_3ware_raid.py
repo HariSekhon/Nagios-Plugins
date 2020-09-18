@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 #  Author: Hari Sekhon
 #  Date: 2007-02-20 17:49:00 +0000 (Tue, 20 Feb 2007)
@@ -29,7 +29,7 @@ except ImportError:
 
 __author__  = "Hari Sekhon"
 __title__   = "Nagios Plugin for 3ware RAID"
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 
 # Standard Nagios return codes
 OK       = 0
@@ -108,7 +108,7 @@ def run(cmd):
         end(UNKNOWN, "3ware utility process ended prematurely")
 
     try:
-        stdout, stderr = process.communicate(cmd)
+        stdout, stderr = process.communicate(str.encode(cmd))
     except OSError as error:
         end(UNKNOWN, "unable to communicate with 3ware utility - %s" % error)
 
@@ -116,6 +116,7 @@ def run(cmd):
     if not stdout:
         end(UNKNOWN, "No output from 3ware utility")
 
+    stdout = stdout.decode()
     output = str(stdout).split("\n")
 
     if output[1] == "No controller found.":
@@ -407,6 +408,7 @@ def main():
                        "--verbose",
                        action="count",
                        dest="verbosity",
+                       default=0,
                        help="Verbose mode. Good for testing plugin. By default\
  only one result line is printed as per Nagios standards")
 
