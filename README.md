@@ -187,6 +187,12 @@ You should tag the build locally as `:stable` or date-time stamped and run off t
 #### Automated Build from Source
 
 ```
+curl -L git.io/nagios-plugins-bootstrap | sh
+```
+
+or
+
+```
 
 git clone https://github.com/harisekhon/nagios-plugins
 
