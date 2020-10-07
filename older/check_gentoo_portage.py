@@ -221,7 +221,7 @@ class PortageTester(object):
                                  % (cmd.split()[0], process.returncode, stderr))
         else:
             self.vprint(3, "Returncode: '%s'\nOutput: '%s'" % (returncode, stdout))
-            return (returncode, str(stdout).split("\n"))
+            return (returncode, str(stdout.decode()).split("\n"))
 
     def set_timeout(self):
         """sets an alarm to time out the test"""
