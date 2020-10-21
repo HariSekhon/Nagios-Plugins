@@ -21,7 +21,7 @@ Checks:
 4. Subject Alternative Names supported by certificate (optional)
 5. SNI - Server Name Identification - supply hostname identifier for servers that contain multiple certificates to tell the server which SSL certificate to use (optional)";
 
-$VERSION = "0.9.19";
+$VERSION = "0.10.0";
 
 use warnings;
 use strict;
@@ -54,6 +54,7 @@ my $cert_domain_invalid;
 #my $openssl_output_for_shell_regex = qr/^[\w\s\_\:\;\=\@\*\.\,\/\(\)\{\}\<\>\[\]\r\n\#\^\$\&\%\~\|\\\!\"\`\+\-]+$/; # will be single quoted, don't allow single quotes in here
 my @subject_alt_names;
 my $subject_alt_names;
+my $starttls;
 my $verify_code = "";
 my $verify_msg  = "";
 my @output;
@@ -64,13 +65,14 @@ my @output;
     "d|domain=s"                    => [ \$expected_domain,     "Expected domain/FQDN registered to the certificate" ],
     "s|subject-alternative-names=s" => [ \$subject_alt_names,   "Additional FQDNs to require on the certificate (optional)" ],
     "S|SNI-hostname=s"              => [ \$sni_hostname,        "SNI hostname to tell a server with multiple certificates which one to use (eg. www.domain2.com, optional)" ],
+    "T|starttls=s"                  => [ \$starttls,            "Use openssl '-starttls <protocol>' option" ],
     "w|warning=s"                   => [ \$warning,             "The warning threshold in days before expiry (defaults to $default_warning)" ],
     "c|critical=s"                  => [ \$critical,            "The critical threshold in days before expiry (defaults to $default_critical)" ],
     "C|CApath=s"                    => [ \$CApath,              "Path to ssl root certs dir (will attempt to determine from openssl binary if not supplied)" ],
     "N|no-validate"                 => [ \$no_validate,         "Do not validate the SSL certificate chain" ],
     "cert-domain-invalid"           => [ \$cert_domain_invalid, "Do not check that the domain on the returned certicate is valid according to domain naming rules. This was added for Platfora which had 'localhost' as the domain name. An alternative is to add 'localhost' to lib/custom_tlds.txt" ]
 );
-@usage_order = qw/host port domain subject-alternative-names SNI-hostname warning critical CApath no-validate cert-domain-invalid/;
+@usage_order = qw/host port domain subject-alternative-names SNI-hostname starttls warning critical CApath no-validate cert-domain-invalid/;
 
 get_options();
 
@@ -98,6 +100,18 @@ if($subject_alt_names){
         } else {
             validate_domain($_);
         }
+    }
+}
+
+my @starttls_protocols=qw/pop3 imap smtp xmpp xmpp-server ftp irc postgres mysql lmtp nntp sieve ldap/;
+if(defined($starttls)){
+    # protocols from openssl s_client man page
+	my $starttls_protocols = join("|", @starttls_protocols);
+    print $starttls_protocols . "\n";
+    if ($starttls =~ /^($starttls_protocols)$/){
+        $starttls = $1;  # $starttls now untainted
+    } else {
+        quit "UNKNOWN","starttls protocol '$starttls' not supported. Supported protocols are:  " . join(" ", @starttls_protocols);
     }
 }
 
@@ -158,6 +172,7 @@ vlog2 "* checking validity of cert (chain of trust)";
 $cmd = "echo | $openssl s_client -connect $host:$port";
 $cmd .= " -CApath $CApath" if $CApath;
 $cmd .= " -servername $sni_hostname" if $sni_hostname;
+$cmd .= " -starttls $starttls" if $starttls;
 $cmd .= " 2>&1";
 
 @output = cmd($cmd);
