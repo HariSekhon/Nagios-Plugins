@@ -75,6 +75,8 @@ test_help(){
           "$prog" =~ check_yum.py ]]; then
         # shellcheck disable=SC2086
         run $optional_cmd "./$prog" --help
+    elif [[ "$prog" =~ /templates/ ]]; then
+        echo "skipping template '$prog'"
     elif [[ "$prog" =~ check_3ware_raid.py ]]; then # && $EUID != 0 ]]; then
         echo "skipping check_3ware_raid.py" # which needs root as $USER has \$EUID $EUID != 0"
     elif [[ "$prog" =~ check_md_raid.py ]]; then # && $EUID != 0 ]]; then
@@ -84,7 +86,7 @@ test_help(){
     elif [[ "$prog" =~ check_gentoo_portage.py ]]; then
         echo "skipping check_gentoo_portage.py"
     elif [[ "$prog" =~ /lib_.*.py ]]; then
-        echo "skipping $x"
+        echo "skipping $prog"
     else
         # shellcheck disable=SC2086
         run_usage $optional_cmd "./$prog" --help
