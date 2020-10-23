@@ -54,8 +54,10 @@ Advanced Nagios Plugins Collection
 <!--[![Wercker](https://img.shields.io/wercker/ci/5e58efbfd1f86d0900f13a3f/master?label=Wercker&logo=oracle)](https://app.wercker.com/harisekhon/Nagios-Plugins/runs)-->
 
 [![Azure DevOps Pipeline](https://dev.azure.com/harisekhon/GitHub/_apis/build/status/HariSekhon.Nagios-Plugins?branchName=master)](https://dev.azure.com/harisekhon/GitHub/_build/latest?definitionId=9&branchName=master)
-[![BitBucket Pipeline](https://img.shields.io/bitbucket/pipelines/harisekhon/nagios-plugins/master?logo=bitbucket&label=BitBucket%20CI)](https://bitbucket.org/harisekhon/Nagios-Plugins/addon/pipelines/home#!/)
 [![GitLab Pipeline](https://img.shields.io/gitlab/pipeline/harisekhon/Nagios-Plugins?logo=gitlab&label=GitLab%20CI)](https://gitlab.com/HariSekhon/Nagios-Plugins/pipelines)
+[![BitBucket Pipeline](https://img.shields.io/bitbucket/pipelines/harisekhon/nagios-plugins/master?logo=bitbucket&label=BitBucket%20CI)](https://bitbucket.org/harisekhon/Nagios-Plugins/addon/pipelines/home#!/)
+
+[![Repo on Azure DevOps](https://img.shields.io/badge/repo-Azure%20DevOps-0078D7?logo=azure%20devops)](https://dev.azure.com/harisekhon/GitHub/_git/Nagios-Plugins)
 [![Repo on GitHub](https://img.shields.io/badge/repo-GitHub-blue?logo=github)](https://github.com/HariSekhon/Nagios-Plugins)
 [![Repo on GitLab](https://img.shields.io/badge/repo-GitLab-blue?logo=gitlab)](https://gitlab.com/HariSekhon/Nagios-Plugins)
 [![Repo on BitBucket](https://img.shields.io/badge/repo-BitBucket-blue?logo=bitbucket)](https://bitbucket.org/HariSekhon/Nagios-Plugins)
