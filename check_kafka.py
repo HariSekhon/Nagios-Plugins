@@ -310,9 +310,9 @@ class CheckKafka(PubSubNagiosPlugin):
         log.debug('producer.send()')
         self.producer.send(
             self.topic,
-            key=self.key,
+            key=self.key.encode('utf-8'),
             partition=self.partition,
-            value=self.publish_message
+            value=self.publish_message.encode('utf-8')
             )
         log.debug('producer.flush()')
         self.producer.flush()
@@ -328,8 +328,8 @@ class CheckKafka(PubSubNagiosPlugin):
         msg = None
         try:
             for consumer_record in obj[self.topic_partition]:
-                if consumer_record.key == self.key:
-                    msg = consumer_record.value
+                if consumer_record.key == self.key.encode('utf-8'):
+                    msg = consumer_record.value.decode('utf-8')
                     break
         except KeyError:
             raise UnknownError('TopicPartition key was not found in response')
