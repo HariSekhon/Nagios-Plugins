@@ -59,6 +59,7 @@ my $ssl_ca_path;
 my $ssl_noverify;
 my $region;
 my $age;
+my $size;
 
 %options = (
     %hostoptions,
@@ -72,6 +73,7 @@ my $age;
     "ssl-CA-path=s"    => [ \$ssl_ca_path,      "Path to CA certificate directory for validating SSL certificate" ],
     "ssl-noverify"     => [ \$ssl_noverify,     "Do not verify SSL certificate from AWS S3 (not recommended)" ],
     "age=s"            => [ \$age,              "Maximum duration in seconds since the last-modified for the file to be deemed as valid" ],
+    "size=s"           => [ \$size,             "Minimum size in bytes for the file to be deemed as valid" ],
 );
 @usage_order = qw/host port bucket file aws-access-key aws-secret-key get no-ssl ssl-CA-path ssl-noverify region age/;
 
@@ -183,6 +185,10 @@ if($res->code eq 200){
     if($age and $age_secs > $age){
         critical;
         $msg .= " but it is too old ($age_secs > $age secs)";
+    }
+    if($size && $res->content_length < $size){
+        critical;
+        $msg .= " but is too small : " . ($res->content_length);
     }
     $msg .= " | query_time=${time_taken}s";
 } else {
