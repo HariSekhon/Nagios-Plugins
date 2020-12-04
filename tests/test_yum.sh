@@ -56,12 +56,16 @@ if [ -n "${NOTESTS:-}" ]; then
     exit 0
 fi
 
+ERRCODE="0 1 2" docker_exec older/check_yum.pl -v -t 120
 ERRCODE="0 1 2" docker_exec older/check_yum.pl -C -v -t 60
 
+ERRCODE="0 1 2" docker_exec older/check_yum.pl --all-updates -v -t 120
 ERRCODE="0 1 2" docker_exec older/check_yum.pl -C --all-updates -v -t 60
 
+ERRCODE="0 1 2" docker_exec check_yum.py -v -t 120
 ERRCODE="0 1 2" docker_exec check_yum.py -C -v -t 60
 
+ERRCODE="0 1 2" docker_exec check_yum.py --all-updates -v -t 120
 ERRCODE="0 1 2" docker_exec check_yum.py -C --all-updates -v -t 60
 
 # defined and tracked in bash-tools/lib/utils.sh
