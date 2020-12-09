@@ -13,11 +13,22 @@
 #  http://www.linkedin.com/in/harisekhon
 #
 
+# ============================================================================ #
+#                               T r a v i s   C I
+# ============================================================================ #
+
+# https://docs.travis-ci.com/user/customizing-the-build/
+
 version: ~> 1.0
 
+# =============================================
+# https://docs.travis-ci.com/user/build-matrix/
+# https://docs.travis-ci.com/user/build-stages/matrix-expansion/
 matrix:
   include:
 
+    # ===============================================
+    # https://docs.travis-ci.com/user/languages/perl/
     - os: linux
       language: perl
       # this build has thread support
@@ -25,9 +36,8 @@ matrix:
 
     - os: osx
       language: perl
-      perl:
-        # this build has thread support
-        - "5.24-shrplib"
+      # this build has thread support
+      perl: "5.24-shrplib"
 
     # matrix include doesn't seem to build the later perl array items for 5.10, so use a separate include for them
     #- os: linux
@@ -41,9 +51,10 @@ matrix:
 
     - os: osx
       language: perl
-      perl:
-        - "5.24"
+      perl: "5.24"
 
+    # =================================================
+    # https://docs.travis-ci.com/user/languages/python/
     - os: linux
       language: python
       # numpy has gone 2.7+ only now
@@ -64,38 +75,74 @@ matrix:
     - os: linux
       language: generic
 
+    # =========================================
+    # https://docs.travis-ci.com/user/multi-os/
     # Travis CI doesn't support Python virtual envs on Mac OS X yet, workaround is to use generic and install to system python
     # results in a duplicate matrix multiplier giving 2 x osx generic
     - os: osx
       language: generic
 
+  # ===================================================================================================
+  # https://docs.travis-ci.com/user/multi-os/#allowing-failures-on-jobs-running-on-one-operating-system
   allow_failures:
     - os: osx
     - language: generic
     #- python: "pypy"
     #- python: "pypy3"
 
+# ==============================================
 # https://docs.travis-ci.com/user/reference/osx/
 # macOS 10.15.7 - otherwise defaults to Mac macOS 10.13 with xcode9.4 otherwise - and HomeBrew update takes 50 minutes until the build times out :-/
 osx_image: xcode12.2
 
+# =========================================
+# https://docs.travis-ci.com/user/multi-os/
 #os:
 #  - linux
 #  - osx
 
-#dist: trusty
+# =======================================
+# https://docs.travis-ci.com/user/docker/
+services:
+  # docker breaks cassandra, mysql, probably everything
+  # => wholesale switch over to dockerized testing instead
+  - docker
+#  - cassandra
+#  #- couchdb
+#  - elasticsearch
+#  - memcached
+#  - mongodb
+#  - mysql
+#  #- postgreql
+#  - neo4j
+#  #- rabbitmq
+#  - redis
+#  - riak
 
-sudo: required
+# ======================================================
+# https://docs.travis-ci.com/user/environment-variables/
+env:
+  - DOCKER_COMPOSE_VERSION=1.16.1 PYTHONUNBUFFERED=1 PYTHON_USER_INSTALL=1
+#  - DEBUG=1
+# env vars are handled in docker test scripts now
+#  - MYSQL_DATABASE=mysql
+#  - MYSQL_PASSWORD=""
+#  - MYSQL_USER=travis
 
+# ==============================================
+# https://docs.travis-ci.com/user/notifications/
 notifications:
   email: false
 
-branches:
-  only:
-    - master
+# =================================================================================
+# https://docs.travis-ci.com/user/customizing-the-build/#building-specific-branches
+# https://docs.travis-ci.com/user/conditional-builds-stages-jobs
+#branches:
+#  only:
+#    - master
 
-env:
-  - DOCKER_COMPOSE_VERSION=1.16.1 PYTHONUNBUFFERED=1 PYTHON_USER_INSTALL=1
+# ==============================================
+# https://docs.travis-ci.com/user/job-lifecycle/
 
 before_install:
   - sudo rm -f /usr/local/bin/docker-compose
@@ -148,26 +195,3 @@ after_failure:
   # now requires authentication
   #curl -sT "$x" chunk.io || :
   - make printenv
-
-services:
-  # docker breaks cassandra, mysql, probably everything
-  # => wholesale switch over to dockerized testing instead
-  - docker
-#  - cassandra
-#  #- couchdb
-#  - elasticsearch
-#  - memcached
-#  - mongodb
-#  - mysql
-#  #- postgreql
-#  - neo4j
-#  #- rabbitmq
-#  - redis
-#  - riak
-
-#env:
-#  - DEBUG=1
-# env vars are handled in docker test scripts now
-#  - MYSQL_DATABASE=mysql
-#  - MYSQL_PASSWORD=""
-#  - MYSQL_USER=travis
