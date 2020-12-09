@@ -178,6 +178,9 @@ before_install:
   # avoid package checksum mismatches when installing packages
   - sudo rm -f "${TRAVIS_ROOT}/etc/apt/apt.conf.d/99-travis-apt-proxy"
   - sudo rm -rf "${TRAVIS_ROOT}/var/lib/apt/lists/"*
+  # /opt/pyenv/shims/pip doesn't trigger sudo or --user but one in the system seems to cause this error so remove it first:
+  # ERROR: Could not install packages due to an EnvironmentError: [Errno 13] Permission denied: '/usr/lib/python2.7/dist-packages/~ysqlclient-1.3.7.egg-info/PKG-INFO'
+  - "sudo pip uninstall mysqlclient || :"
 
 
 # after_failure doesn't trigger from install failure
