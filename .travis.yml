@@ -151,8 +151,9 @@ cache:
   - pip
   - directories:
     - $HOME/.cache
-    - $HOME/.cpanm
     - $HOME/.cpan
+    - $HOME/.cpanm
+    - $HOME/.gem
     - bash-tools/pytools_checks
 
 # ==============================================
