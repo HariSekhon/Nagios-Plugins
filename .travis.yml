@@ -141,6 +141,20 @@ notifications:
 #  only:
 #    - master
 
+# ========================================
+# https://docs.travis-ci.com/user/caching/
+
+before_cache:
+  - rm -f $HOME/.cache/pip/log/debug.log
+
+cache:
+  - pip
+  - directories:
+    - $HOME/.cache
+    - $HOME/.cpanm
+    - $HOME/.cpan
+    - bash-tools/pytools_checks
+
 # ==============================================
 # https://docs.travis-ci.com/user/job-lifecycle/
 
