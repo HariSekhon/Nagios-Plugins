@@ -155,7 +155,7 @@ Cloud & Big Data Contractor, United Kingdom
 ##### Make sure you run ```make update``` if updating and not just ```git pull``` as you will often need the latest library submodules and probably new upstream libraries too.
 
 
-### Quick Start ###
+## Quick Start
 
 1. Git clone this repo and compile dependencies by running ```make```<br>
       OR<br>
@@ -164,7 +164,7 @@ Cloud & Big Data Contractor, United Kingdom
 Execute each program on the command line with ```--help``` to see its options.
 
 
-#### Ready-to-run Docker Image #####
+### Ready-to-run Docker Image
 
 All plugins and their pre-compiled dependencies can be found ready-to-run on [DockerHub](https://hub.docker.com/r/harisekhon/nagios-plugins/), if you have [Docker](https://www.docker.com/) installed, fetch this project like so:
 
@@ -190,7 +190,7 @@ There are also `:centos` (`:latest`), `:alpine`, `:debian`, `:fedora` and `:ubun
 You should tag the build locally as `:stable` or date-time stamped and run off that tag to avoid it getting auto-replaced by newer `:latest` builds, to control updates to suit your schedule and prevent random delays from `docker run`s pulling down newer builds from DockerHub.
 
 
-#### Automated Build from Source
+### Automated Build from Source
 
 ```
 curl -L https://git.io/nagios-plugins-bootstrap | sh
