@@ -84,6 +84,8 @@ Advanced Nagios Plugins Collection
 [![Fedora](https://github.com/HariSekhon/Nagios-Plugins/workflows/Fedora/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Fedora%22)
 [![Alpine](https://github.com/HariSekhon/Nagios-Plugins/workflows/Alpine/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Alpine%22)
 [![Alpine 3](https://github.com/HariSekhon/Nagios-Plugins/workflows/Alpine%203/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Alpine+3%22)
+
+[![Python versions](https://img.shields.io/badge/Python-2.7+-3776AB?logo=python&logoColor=white)](https://github.com/HariSekhon/Nagios-Plugins)
 [![Python 2.7](https://github.com/HariSekhon/Nagios-Plugins/workflows/Python%202.7/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Python+2.7%22)
 [![Python 3.5](https://github.com/HariSekhon/Nagios-Plugins/workflows/Python%203.5/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Python+3.5%22)
 [![Python 3.6](https://github.com/HariSekhon/Nagios-Plugins/workflows/Python%203.6/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Python+3.6%22)
@@ -91,6 +93,8 @@ Advanced Nagios Plugins Collection
 [![Python 3.8](https://github.com/HariSekhon/Nagios-Plugins/workflows/Python%203.8/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Python+3.8%22)
 [![PyPy 2](https://github.com/HariSekhon/Nagios-Plugins/workflows/PyPy%202/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22PyPy+2%22)
 [![PyPy 3](https://github.com/HariSekhon/Nagios-Plugins/workflows/PyPy%203/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22PyPy+3%22)
+
+[![Perl versions](https://img.shields.io/badge/Perl-5.10+-39457E?logo=perl)](https://github.com/HariSekhon/Nagios-Plugins)
 [![Perl](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl%22)
 [![Perl 5.10](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl%205.10/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl+5.10%22)
 [![Perl 5.12](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl%205.12/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl+5.12%22)
