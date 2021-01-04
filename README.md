@@ -47,8 +47,8 @@ Advanced Nagios Plugins Collection
 [![CircleCI](https://circleci.com/gh/HariSekhon/Nagios-Plugins.svg?style=svg)](https://circleci.com/gh/HariSekhon/Nagios-Plugins)
 [![Codeship Status for HariSekhon/Nagios-Plugins](https://app.codeship.com/projects/e23f19f0-3c5f-0138-3476-32bf6ef9714a/status?branch=master)](https://app.codeship.com/projects/387256)
 [![Shippable](https://img.shields.io/shippable/5e52c63645c70f0007ff5152/master?label=Shippable&logo=jfrog)](https://app.shippable.com/github/HariSekhon/Nagios-Plugins/dashboard/jobs)
-[![Codefresh](https://g.codefresh.io/api/badges/pipeline/harisekhon/GitHub%2FNagios%20Plugins?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWU1MmM5OGNiM2FiOWUzM2Y3ZDZmYjM3.O69674cW7vYom3v5JOGKXDbYgCVIJU9EWhXUMHl3zwA&type=cf-1)](https://g.codefresh.io/pipelines/edit/new/builds?id=5e58e344353f5db981385bf4&pipeline=Nagios%20Plugins&projects=GitHub&projectId=5e52ca8ea284e00f882ea992&context=github&filter=page:1;pageSize:10;timeFrameStart:week)
 [![BuildKite](https://img.shields.io/buildkite/60cb2e7e00658d466df3957953eacfc6e1b61d606ed7a5d657/master?label=BuildKite&logo=buildkite)](https://buildkite.com/hari-sekhon/nagios-plugins)
+[![Codefresh](https://g.codefresh.io/api/badges/pipeline/harisekhon/GitHub%2FNagios%20Plugins?branch=master&key=eyJhbGciOiJIUzI1NiJ9.NWU1MmM5OGNiM2FiOWUzM2Y3ZDZmYjM3.O69674cW7vYom3v5JOGKXDbYgCVIJU9EWhXUMHl3zwA&type=cf-1)](https://g.codefresh.io/pipelines/edit/new/builds?id=5e58e344353f5db981385bf4&pipeline=Nagios%20Plugins&projects=GitHub&projectId=5e52ca8ea284e00f882ea992&context=github&filter=page:1;pageSize:10;timeFrameStart:week)
 [![buddy pipeline](https://app.buddy.works/harisekhon/nagios-plugins/pipelines/pipeline/246986/badge.svg?token=7f63afa3c423a65e6e39a79be0386959e98c4105ea1e20f7f8b05d6d6b587038 "buddy pipeline")](https://app.buddy.works/harisekhon/nagios-plugins/pipelines/pipeline/246986)
 [![Cirrus CI](https://img.shields.io/cirrus/github/HariSekhon/Nagios-Plugins/master?logo=Cirrus%20CI&label=Cirrus%20CI)](https://cirrus-ci.com/github/HariSekhon/Nagios-Plugins)
 [![Semaphore](https://harisekhon.semaphoreci.com/badges/Nagios-Plugins.svg)](https://harisekhon.semaphoreci.com/projects/Nagios-Plugins)
@@ -159,7 +159,7 @@ Cloud & Big Data Contractor, United Kingdom
 ##### Make sure you run ```make update``` if updating and not just ```git pull``` as you will often need the latest library submodules and probably new upstream libraries too.
 
 
-### Quick Start ###
+## Quick Start
 
 1. Git clone this repo and compile dependencies by running ```make```<br>
       OR<br>
@@ -168,7 +168,7 @@ Cloud & Big Data Contractor, United Kingdom
 Execute each program on the command line with ```--help``` to see its options.
 
 
-#### Ready-to-run Docker Image #####
+### Ready-to-run Docker Image
 
 All plugins and their pre-compiled dependencies can be found ready-to-run on [DockerHub](https://hub.docker.com/r/harisekhon/nagios-plugins/), if you have [Docker](https://www.docker.com/) installed, fetch this project like so:
 
@@ -194,7 +194,7 @@ There are also `:centos` (`:latest`), `:alpine`, `:debian`, `:fedora` and `:ubun
 You should tag the build locally as `:stable` or date-time stamped and run off that tag to avoid it getting auto-replaced by newer `:latest` builds, to control updates to suit your schedule and prevent random delays from `docker run`s pulling down newer builds from DockerHub.
 
 
-#### Automated Build from Source
+### Automated Build from Source
 
 ```
 curl -L https://git.io/nagios-plugins-bootstrap | sh
