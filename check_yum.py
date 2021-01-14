@@ -461,6 +461,7 @@ class YumTester(object):
              'updates? available',
              'packages? available',
              'Limiting package lists to security relevant ones',
+             'This system is receiving updates from RHN Classic or Red Hat Satellite.',
              r'Repo [\w-]+ forced skip_if_unavailable=\w+ due to',
              r'^\s*:\s+'
              ]))
