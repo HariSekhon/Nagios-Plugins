@@ -41,8 +41,8 @@ jobs:
       run: cd /tmp && git clone "https://github.com/harisekhon/$repo"
     - name: init
       run: cd "/tmp/$repo" && git submodule update --init --recursive
-    - name: build
-      run: cd "/tmp/$repo" && make ci
+    - name: build perl
+      run: cd "/tmp/$repo" && make perl
     - name: fatpacks
       run: cd "/tmp/$repo" && make fatpacks
     - name: test
