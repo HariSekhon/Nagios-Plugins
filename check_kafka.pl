@@ -202,7 +202,6 @@ try {
                                           #'timeout' => $timeout / 2,
                                           # XXX: API bug these two arguments don't allow zero attempts
                                           'SEND_MAX_ATTEMPTS'    => $send_max_attempts,
-                                          'RECEIVE_MAX_ATTEMPES' => $receive_max_attempts,
                                           'RETRY_BACKOFF'        => $retry_backoff,
                                           'AutoCreateTopicsEnable' => 0,
                                         ) or quit "CRITICAL", "failed to connect to Kafka broker$broker_name! $!";
@@ -280,7 +279,6 @@ try {
     vlog2 "connecting producer";
     $producer = Kafka::Producer->new(
                                       'Connection'    => $connection,
-                                      'CorrelationId' => int(time),
                                       'ClientId'      => "Hari Sekhon $progname version $main::VERSION",
                                       # XXX: Kafka doesn't wait for more acknowledgements than in-sync replicas
                                       'RequiredAcks'  => $RequiredAcks,
