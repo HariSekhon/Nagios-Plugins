@@ -42,7 +42,7 @@ jobs:
     - name: init
       run: cd "/tmp/$repo" && git submodule update --init --recursive
     - name: build perl
-      run: cd "/tmp/$repo" && make perl
+      run: cd "/tmp/$repo" && make build zookeeper
     - name: fatpacks
       run: cd "/tmp/$repo" && make fatpacks
     - name: test
