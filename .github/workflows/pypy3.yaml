@@ -47,7 +47,7 @@ jobs:
           ${{ runner.os }}-pip-nagios-plugins
     - name: init
       run: make init
-    - name: build python
-      run: make python
+    - name: build
+      run: make ci
     - name: test
       run: make test
