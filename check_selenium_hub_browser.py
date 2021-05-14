@@ -28,7 +28,7 @@ Example:
 
     ./check_selenium_hub_browser.py --host <selenium_hub_host> --browser chrome
 
-    ./check_selenium_hub_browser.py --hub-url https://<selenium_hub_host>:4444/wd/hub/ --browser firefox
+    ./check_selenium_hub_browser.py --hub-url http://<selenium_hub_host>:4444/wd/hub/ --browser firefox
 
 Where browsers are one or more of these and must be supported by the remote Selenium Hub:
 
@@ -55,6 +55,13 @@ Examples:
     ./check_selenium_hub_browser.py --host x.x.x.x --browser chrome --url google.com --content google
     ./check_selenium_hub_browser.py --host x.x.x.x --browser firefox --url google.com --regex 'goog.*'
 
+
+If Selenium Hub doesn't have a browser available for you in time, you'll end up waiting in the queue until you receive a generic timeout error:
+
+    UNKNOWN: self timed out after 30 seconds
+
+
+Tested on Selenium Grid Hub v.3.141.59, and Selenoid 1.10.1
 """
 
 from __future__ import absolute_import
@@ -68,6 +75,7 @@ import sys
 import time
 import traceback
 try:
+    import selenium
     from selenium import webdriver
     from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 except ImportError:
@@ -79,7 +87,7 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon import NagiosPlugin
     from harisekhon.utils import log, validate_host, validate_port, validate_url, validate_regex, validate_alnum
-    from harisekhon.utils import CriticalError
+    from harisekhon.utils import CriticalError, UnknownError
 except ImportError as _:
     print(traceback.format_exc(), end='')
     sys.exit(4)
@@ -165,28 +173,33 @@ class CheckSeleniumHubBrowser(NagiosPlugin):
         content = driver.page_source
         title = driver.title
         driver.quit()
+        self.msg = "Selenium Hub browser '{}' fetched web page".format(self.browser)
         if self.expected_regex:
             log.info("Checking url content matches regex")
             if not self.expected_regex.search(content):
-                raise CriticalError('ERROR: Page source content failed regex search')
+                self.warning()
+                self.msg += " but page html failed regex search"
         elif self.expected_content:
             log.info("Checking url content matches '%s'", self.expected_content)
             if self.expected_content not in content:
-                raise CriticalError('Page source content failed content match')
+                self.warning()
+                self.msg += " but page html failed content match"
         elif '404' in title:
-            raise CriticalError('ERROR: Page title contains a 404 / error ' +
-                                '(if this is expected, use --content / --regex instead): {}'.format(title))
-        log.info("Succeeded for browser '%s' against url '%s'", self.browser, self.url)
+            self.warning()
+            self.msg = "Selenium Hub browser '{}' received 404 in title for web page".format(self.browser) + \
+                       " (if this is expected, specify --content / --regex to check instead): {}".format(title)
 
     def run(self):
         self.ok()
         start_time = time.time()
-        self.check_selenium()
+        try:
+            self.check_selenium()
+        except selenium.common.exceptions.WebDriverException as _:
+            raise UnknownError('Selenium WebDriverException: {}'.format(_))
         query_time = time.time() - start_time
         log.info('Finished check in {:.2f} secs'.format(query_time))
-        self.msg = "Selenium Hub browser '{}' succeeded".format(self.browser)
         if self.verbose:
-            self.msg += " against url '{}'".format(self.url)
+            self.msg += " for url '{}'".format(self.url)
         self.msg += ' | query_time={:.2f}s'.format(query_time)
 
 
