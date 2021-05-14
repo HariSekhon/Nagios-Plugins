@@ -17,7 +17,6 @@
 #
 
 """
-
 Nagios Plugin to test a Selenium Grid Hub / Selenoid browser eg. FIREFOX, CHROME
 against a given URL and content (defaults to google.com)
 
@@ -56,7 +55,8 @@ Examples:
     ./check_selenium_hub_browser.py --host x.x.x.x --browser firefox --url google.com --regex 'goog.*'
 
 
-If Selenium Hub doesn't have a browser available for you in time, you'll end up waiting in the queue until you receive a generic timeout error:
+If Selenium Hub doesn't have a browser available for you in time,
+you'll end up waiting in the queue until you receive a generic timeout error:
 
     UNKNOWN: self timed out after 30 seconds
 
@@ -87,8 +87,8 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon import NagiosPlugin
     from harisekhon.utils import log, validate_host, validate_port, validate_url, validate_regex, validate_alnum
-    from harisekhon.utils import CriticalError, UnknownError
-except ImportError as _:
+    from harisekhon.utils import UnknownError
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
@@ -96,6 +96,7 @@ __author__ = 'Hari Sekhon'
 __version__ = '0.3'
 
 
+# pylint: disable=too-many-instance-attributes
 class CheckSeleniumHubBrowser(NagiosPlugin):
 
     def __init__(self):
