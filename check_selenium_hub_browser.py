@@ -173,7 +173,9 @@ class CheckSeleniumHubBrowser(NagiosPlugin):
         content = driver.page_source
         title = driver.title
         driver.quit()
-        self.msg = "Selenium Hub browser '{}' fetched web page".format(self.browser)
+        self.msg = "Selenium Hub browser '{}' fetched web page".format(self.browser.lower())
+        if self.verbose:
+            self.msg += " for url '{}'".format(self.url)
         if self.expected_regex:
             log.info("Checking url content matches regex")
             if not self.expected_regex.search(content):
@@ -186,8 +188,9 @@ class CheckSeleniumHubBrowser(NagiosPlugin):
                 self.msg += " but page html failed content match"
         elif '404' in title:
             self.warning()
-            self.msg = "Selenium Hub browser '{}' received 404 in title for web page".format(self.browser) + \
-                       " (if this is expected, specify --content / --regex to check instead): {}".format(title)
+            self.msg = "Selenium Hub browser '{}' received 404 in title ".format(self.browser.lower()) + \
+                       "for web page '{}' ".format(self.url) + \
+                       "(if this is expected, specify --content / --regex to check instead): {}".format(title)
 
     def run(self):
         self.ok()
@@ -198,8 +201,6 @@ class CheckSeleniumHubBrowser(NagiosPlugin):
             raise UnknownError('Selenium WebDriverException: {}'.format(_))
         query_time = time.time() - start_time
         log.info('Finished check in {:.2f} secs'.format(query_time))
-        if self.verbose:
-            self.msg += " for url '{}'".format(self.url)
         self.msg += ' | query_time={:.2f}s'.format(query_time)
 
 
