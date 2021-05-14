@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #  coding=utf-8
 #  vim:ts=4:sts=4:sw=4:et
-#  args: --browser chrome
+#  args: --browser chrome -v
 #
 #  Author: Hari Sekhon
 #  Date: 2021-05-12 09:55:01 +0100 (Wed, 12 May 2021)
@@ -185,6 +185,8 @@ class CheckSeleniumHubBrowser(NagiosPlugin):
         query_time = time.time() - start_time
         log.info('Finished check in {:.2f} secs'.format(query_time))
         self.msg = "Selenium Hub browser '{}' succeeded".format(self.browser)
+        if self.verbose:
+            self.msg += " against url '{}'".format(self.url)
         self.msg += ' | query_time={:.2f}s'.format(query_time)
 
 
