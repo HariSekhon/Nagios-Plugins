@@ -187,6 +187,10 @@ class CheckSeleniumHubBrowser(NagiosPlugin):
             if self.expected_content not in content:
                 self.warning()
                 self.msg += " but page html failed content match"
+        # not really recommended but in this case we cannot predict
+        # what to expect on a random url if not specified by --content/--regex:
+        #
+        # https://www.selenium.dev/documentation/en/worst_practices/http_response_codes/
         elif '404' in title:
             self.warning()
             self.msg = "Selenium Hub browser '{}' received 404 in title ".format(self.browser.lower()) + \
