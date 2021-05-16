@@ -61,7 +61,7 @@ you'll end up waiting in the queue until you receive a generic timeout error:
     UNKNOWN: self timed out after 30 seconds
 
 
-Tested on Selenium Grid Hub v.3.141.59, and Selenoid 1.10.1
+Tested on Selenium Grid Hub v.3.141.59, v4.0.0 and Selenoid 1.10.1
 """
 
 from __future__ import absolute_import
