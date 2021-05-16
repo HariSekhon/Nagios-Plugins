@@ -22,7 +22,7 @@ Nagios Plugin to check a Selenium Hub is up with a ready status
 Also prints status message from Hub software
 
 
-Tested on Selenium Grid Hub 3.141.59
+Tested on Selenium Grid Hub 3.141.59, 4.0.0 and Selenoid 1.10.1
 
 """
 
@@ -77,6 +77,7 @@ class CheckSeleniumHubReady(RestNagiosPlugin):
         ready = data['ready']
         #try:
         message = data['message']
+        message = message.rstrip('.')
         #except KeyError:
         #    message = None
         if ready:
