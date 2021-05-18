@@ -21,7 +21,8 @@ Nagios Plugin to check the number of nodes available on a Selenium Hub via its R
 
 Optional warning / critical thresholds apply to the lower bound number of nodes
 
-Nodes can also optionally be filtered by browser eg. 'firefox' or 'chrome' to check on each pool's availability
+Nodes can also optionally be filtered by those that support a specific browser
+(eg. 'firefox' or 'chrome') to check on each pool's availability
 
 Tested on Selenium Grid Hub 4.0.0 (API node info not available in 3.x or Selenoid 1.10)
 
@@ -47,7 +48,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 # pylint: disable=too-many-instance-attributes
@@ -95,9 +96,14 @@ class CheckSeleniumHubNodes(RestNagiosPlugin):
         total_nodes = 0
         available_nodes = 0
         for node in nodes:
-            if self.browser and \
-               node['slots'][0]['stereotype']['browserName'].lower() != self.browser.lower():
-                continue
+            if self.browser:
+                supports_browser = False
+                for slot in node['slots']:
+                    if slot['stereotype']['browserName'].lower() == self.browser.lower():
+                        supports_browser = True
+                        break
+                if not supports_browser:
+                    continue
             total_nodes += 1
             if node['availability'] == 'UP':
                 available_nodes += 1
