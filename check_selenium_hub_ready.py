@@ -17,7 +17,7 @@
 
 """
 
-Nagios Plugin to check a Selenium Hub is up with a ready status
+Nagios Plugin to check a Selenium Hub is up with a ready status via its Rest API
 
 Also prints status message from Hub software
 
