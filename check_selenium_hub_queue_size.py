@@ -21,7 +21,7 @@ Nagios Plugin to check the number of nodes available on a Selenium Hub via its R
 
 Optional warning / critical thresholds apply to the lower bound number of nodes
 
-Queue can also optionally be filtered by those that support a specific browser
+Outstanding queue requests can also optionally be filtered by a specific browser
 (eg. 'firefox' or 'chrome') to check on each pool's availability
 
 Tested on Selenium Grid Hub 4.0.0 (API node info not available in 3.x or Selenoid 1.10)
@@ -48,7 +48,7 @@ except ImportError as _:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.1'
+__version__ = '0.2'
 
 
 # pylint: disable=too-many-instance-attributes
@@ -68,26 +68,44 @@ class CheckSeleniumHubQueue(RestNagiosPlugin):
         self.auth = False
         self.json = True
         self.protocol = 'http'
+        self.browser = None
         self.msg = 'Selenium Hub Msg not defined yet'
 
     def add_options(self):
         super(CheckSeleniumHubQueue, self).add_options()
-        self.add_thresholds(default_warning=1, default_critical=1)
+        self.add_opt('-b', '--browser', help='Browser filter (eg. chrome, firefox)')
+        self.add_thresholds(default_warning=1, default_critical=20)
 
     def process_options(self):
         super(CheckSeleniumHubQueue, self).process_options()
         if int(self.port) == 443:
             log_option('ssl inferred by port', True)
             self.protocol = 'https'
+        self.browser = self.get_opt('browser')
+        log_option('browser filter', self.browser)
         self.validate_thresholds()
 
     def parse_json(self, json_data):
         items = json_data['value']
         if not isList(items):
-            raise UnknownError('non-list returned by API. {}'.format(support_msg_api()))
-        queue_size = len(items)
+            raise UnknownError('non-list items returned by API. {}'.format(support_msg_api()))
+        #queue_size = len(items)
+        queue_size = 0
+        for item in items:
+            if self.browser:
+                matches_browser = False
+                if not isList(item):
+                    raise UnknownError('non-list item returned by API. {}'.format(support_msg_api()))
+                for _ in items:
+                    if _['browserName'].lower() == self.browser.lower():
+                        matches_browser = True
+                        break
+                if not matches_browser:
+                    queue_size += 1
         self.ok()
         self.msg = 'Selenium Hub '
+        if self.browser:
+            self.msg += "'{}' ".format(self.browser)
         self.msg += 'queue size = {}'.format(queue_size)
         self.check_thresholds(queue_size)
         self.msg += ' | queue_size={}{}'\
