@@ -46,7 +46,7 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon import CLI
     from harisekhon.utils import prog, log, ERRORS
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
