@@ -71,7 +71,7 @@ try:
                                  validate_chars, validate_int, validate_float, \
                                  jsonpp, isList, isStr, ERRORS, support_msg_api, code_error, sec2human, plural
     from harisekhon import NagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

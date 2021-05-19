@@ -47,7 +47,7 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import log, UnknownError, validate_regex, isVersionLax, support_msg_api, jsonpp
     from harisekhon import DockerNagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

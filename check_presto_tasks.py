@@ -54,7 +54,7 @@ try:
     # pylint: disable=wrong-import-position
     #from harisekhon.utils import UnknownError, support_msg_api, isList
     from check_presto_unfinished_queries import CheckPrestoUnfinishedQueries
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

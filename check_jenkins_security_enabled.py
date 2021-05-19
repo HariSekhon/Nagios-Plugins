@@ -39,7 +39,7 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon import RestNagiosPlugin
     from harisekhon.utils import UnknownError, support_msg_api
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

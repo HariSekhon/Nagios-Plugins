@@ -54,7 +54,7 @@ try:
     from harisekhon.utils import support_msg
     from harisekhon import StatusNagiosPlugin
     from harisekhon import RequestHandler
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

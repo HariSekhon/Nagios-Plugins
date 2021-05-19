@@ -55,7 +55,7 @@ try:
     from harisekhon.utils import ERRORS, UnknownError, CriticalError, support_msg_api, \
                                  isList, isFloat, validate_float
     from harisekhon import RestNagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

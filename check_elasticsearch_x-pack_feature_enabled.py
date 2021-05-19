@@ -40,7 +40,7 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon import RestNagiosPlugin
     from harisekhon.utils import ERRORS, validate_alnum
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

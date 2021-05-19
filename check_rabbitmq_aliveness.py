@@ -47,7 +47,7 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import getenvs, validate_chars
     from harisekhon import RestNagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

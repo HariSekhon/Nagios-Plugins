@@ -38,7 +38,7 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from harisekhon import RestNagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

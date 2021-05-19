@@ -58,7 +58,7 @@ try:
     from harisekhon.utils import log, log_option, ERRORS, CriticalError, UnknownError
     from harisekhon.utils import validate_hostport, validate_int, get_topfile, random_alnum, validate_chars, isSet
     from harisekhon import PubSubNagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

@@ -73,7 +73,7 @@ try:
                                  jsonpp, isList, isDict, isStr, ERRORS, support_msg_api, code_error, \
                                  sec2human, plural, merge_dicts
     from harisekhon import NagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

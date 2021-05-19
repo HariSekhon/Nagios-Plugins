@@ -34,15 +34,14 @@ from __future__ import print_function
 
 import os
 import sys
+import traceback
 libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
 sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from check_tachyon_master import CheckTachyon
-except ImportError as _:
-    print('module import failed: %s' % _, file=sys.stderr)
-    print("Did you remember to build the project by running 'make'?", file=sys.stderr)
-    print("Alternatively perhaps you tried to copy this program out without it's adjacent libraries?", file=sys.stderr)
+except ImportError:
+    print(traceback.format_exc(), end='')
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'

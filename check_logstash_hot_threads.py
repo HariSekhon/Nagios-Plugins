@@ -52,7 +52,7 @@ try:
     from harisekhon.utils import UnknownError, support_msg_api
     from harisekhon.utils import isDict, isList
     from harisekhon import RestNagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

@@ -54,7 +54,7 @@ try:
     from harisekhon.utils import log, log_option, qquit, support_msg_api, isList, jsonpp
     from harisekhon.utils import validate_host, validate_port, validate_user, validate_password
     from harisekhon import NagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

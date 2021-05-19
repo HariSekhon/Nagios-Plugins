@@ -42,7 +42,7 @@ try:
     from harisekhon.utils import CriticalError, UnknownError
     from harisekhon.nagiosplugin import KeyCheckNagiosPlugin
     from harisekhon import RequestHandler
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

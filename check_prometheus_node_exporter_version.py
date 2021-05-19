@@ -43,7 +43,7 @@ try:
     from harisekhon import RestVersionNagiosPlugin
     #from harisekhon.utils import log, UnknownError, version_regex
     from harisekhon.utils import version_regex
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

@@ -53,7 +53,7 @@ try:
     from harisekhon.utils import isInt, qquit, plural, support_msg_api
     from harisekhon import NagiosPlugin
     from harisekhon import RequestHandler
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

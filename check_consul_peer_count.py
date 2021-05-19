@@ -39,7 +39,7 @@ try:
     from harisekhon.utils import CriticalError, UnknownError, validate_host, validate_port
     from harisekhon.nagiosplugin import NagiosPlugin
     from harisekhon import RequestHandler
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

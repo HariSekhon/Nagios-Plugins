@@ -49,7 +49,7 @@ import sys
 import traceback
 try:
     import docker
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 srcdir = os.path.abspath(os.path.dirname(__file__))
@@ -60,7 +60,7 @@ try:
     from harisekhon.utils import log, jsonpp, CriticalError, UnknownError, sec2human, support_msg_api
     from harisekhon.utils import validate_chars, validate_int
     from harisekhon import DockerNagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
