@@ -159,7 +159,7 @@ def parse_arguments():
     """parses args and calls func to test MD arrays"""
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-v", "--verbose", action="count", dest="verbosity", default=0, help="Verbose mode. Good for testing plugin. By default\ only one result line is printed as per Nagios standards")
+    parser.add_argument("-v", "--verbose", action="count", dest="verbosity", default=0, help="Verbose mode. Good for testing plugin. By default only one result line is printed as per Nagios standards")
     parser.add_argument("-V", "--version", action="store_true", dest="version", help="Print version number and exit")
 
     args = parser.parse_args()
