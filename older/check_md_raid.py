@@ -49,16 +49,14 @@ def end(status, message):  # lgtm [py/similar-function]
         print("UNKNOWN: %s" % message)
         sys.exit(UNKNOWN)
 
-
-if os.geteuid() != 0:
-    end(UNKNOWN, "You must be root to run this plugin")
-
 if not os.path.exists(BIN):
     end(UNKNOWN, "Raid utility '%s' cannot be found" % BIN)
 
 if not os.access(BIN, os.X_OK):
     end(UNKNOWN, "Raid utility '%s' is not executable" % BIN)
 
+if (os.geteuid() != 0):
+    BIN = "sudo -n " + BIN
 
 def find_arrays(verbosity):
     """finds all MD arrays on local machine using mdadm and returns a list of
@@ -66,10 +64,16 @@ def find_arrays(verbosity):
 
     if verbosity >= 3:
         print("finding all MD arrays via: %s --detail --scan" % BIN)
-    devices_output = os.popen("%s --detail --scan" % BIN).readlines()
+    devices_output = os.popen("%s --detail --scan 2>&1" % BIN).readlines()
     raid_devices = []
     for line in devices_output:
-        if "ARRAY" in line:
+        if verbosity >= 4:
+            print("got line %s" % line)
+        if "sudo: a password is required" in line:
+            end(UNKNOWN, "You must be root, or have passwordless sudo to run this plugin")
+        elif "mdadm: must be super-user to perform this action" in line:
+            end(UNKNOWN, "You must be root, or have working sudo to run this plugin")
+        elif "ARRAY" in line:
             raid_device = line.split()[1]
             if verbosity >= 2:
                 print("found array %s" % raid_device)
@@ -95,7 +99,7 @@ def test_raid(verbosity):
         if verbosity >= 2:
             print('Now testing raid device "%s"' % array)
 
-        detailed_output = os.popen("%s --detail %s" % (BIN, array)).readlines()
+        detailed_output = os.popen("%s --detail %s 2>&1" % (BIN, array)).readlines()
 
         if verbosity >= 3:
             for line in detailed_output:
