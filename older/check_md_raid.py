@@ -70,9 +70,11 @@ def find_arrays(verbosity):
         if verbosity >= 4:
             print("got line %s" % line)
         if "sudo: a password is required" in line:
-            end(UNKNOWN, "You must be root, or have passwordless sudo to run this plugin")
+            end(UNKNOWN, "You must be root, or have passwordless sudo to run\
+                           this plugin")
         elif "mdadm: must be super-user to perform this action" in line:
-            end(UNKNOWN, "You must be root, or have working sudo to run this plugin")
+            end(UNKNOWN, "You must be root, or have working sudo to run this\
+                           plugin")
         elif "ARRAY" in line:
             raid_device = line.split()[1]
             if verbosity >= 2:
@@ -99,7 +101,8 @@ def test_raid(verbosity):
         if verbosity >= 2:
             print('Now testing raid device "%s"' % array)
 
-        detailed_output = os.popen("%s --detail %s 2>&1" % (BIN, array)).readlines()
+        detailed_output = os.popen("%s --detail %s 2>&1" %
+                                   (BIN, array)).readlines()
 
         if verbosity >= 3:
             for line in detailed_output:
