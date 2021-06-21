@@ -55,7 +55,7 @@ if not os.path.exists(BIN):
 if not os.access(BIN, os.X_OK):
     end(UNKNOWN, "Raid utility '%s' is not executable" % BIN)
 
-if (os.geteuid() != 0):
+if os.geteuid() != 0:
     BIN = "sudo -n " + BIN
 
 def find_arrays(verbosity):
