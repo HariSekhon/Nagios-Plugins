@@ -15,7 +15,7 @@ from __future__ import print_function
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Linux MD Software RAID"
-__version__ = "0.7.4"
+__version__ = "0.7.5"
 
 # pylint: disable=wrong-import-position
 import os
@@ -70,11 +70,11 @@ def find_arrays(verbosity):
         if verbosity >= 4:
             print("got line %s" % line)
         if "sudo: a password is required" in line:
-            end(UNKNOWN, "You must be root, or have passwordless sudo to run\
-                           this plugin")
+            end(UNKNOWN, "You must be root, or have passwordless sudo to run" \
+                         + " this plugin")
         elif "mdadm: must be super-user to perform this action" in line:
-            end(UNKNOWN, "You must be root, or have working sudo to run this\
-                           plugin")
+            end(UNKNOWN, "You must be root, or have working sudo to run this" \
+                         + " plugin")
         elif "ARRAY" in line:
             raid_device = line.split()[1]
             if verbosity >= 2:
@@ -83,9 +83,8 @@ def find_arrays(verbosity):
 
     if not raid_devices:
         end(UNKNOWN, "no MD raid devices found on this machine")
-    else:
-        raid_devices.sort()
-        return raid_devices
+    raid_devices.sort()
+    return raid_devices
 
 
 def test_raid(verbosity):
@@ -166,11 +165,15 @@ def parse_arguments():
     """parses args and calls func to test MD arrays"""
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-v", "--verbose", action="count", dest="verbosity",
-                        default=0, help="Increase output verbosity, can be used\
-                         multiple times. Good for testing plugin. By default\
-                         only one result line is printed as per Nagios\
-                         standards")
+    parser.add_argument("-v", "--verbose",
+                        action="count",
+                        dest="verbosity",
+                        default=0,
+                        help="Increase output verbosity, can be used multiple" \
+                            + " times. Good for testing plugin. By default " \
+                            + " only one result line is printed as per " \
+                            + "Nagios  standards" \
+                        )
     parser.add_argument("-V", "--version", action="store_true", dest="version",
                         help="Print version number and exit")
 
