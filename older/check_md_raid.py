@@ -3,7 +3,7 @@
 #  Author: Hari Sekhon
 #  Date: 2007-02-21 16:15:32 +0000 (Wed, 21 Feb 2007)
 #
-#  http://github.com/harisekhon/nagios-plugins
+#  https://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
 #
@@ -113,7 +113,7 @@ def test_raid(verbosity):
                 state = line.split(":")[-1][1:-1]
                 state = state.rstrip()
         re_clean = re.compile('^clean|active(,.*)?$')
-        if not re_clean.match(state) and state != "active":
+        if re_clean.match(state) and state != "active":
             arrays_not_ok += 1
             raidlevel = detailed_output[3].split()[-1]
             shortname = array.split("/")[-1].upper()
