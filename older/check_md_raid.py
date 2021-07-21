@@ -125,7 +125,7 @@ def test_raid(verbosity):
                 extra_info = None
                 for line in detailed_output:
                     if "Rebuild Status" in line:
-                        extra_info = line
+                        extra_info = line.rstrip()
                 message += 'Array "%s" is in state ' % shortname
                 if extra_info:
                     message += '"%s" (%s) - %s' \
