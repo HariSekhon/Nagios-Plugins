@@ -110,7 +110,7 @@ def test_raid(verbosity):
         # Some possible states:
         # clean, degraded, recovering - was rebuilding
         # clean - after rebuilding
-        # clean, no-errors - Presumably, from https://github.com/HariSekhon/Nagios-Plugins/blame/cd686831d4d730bc58165339a7547602e6619f87/legacy/check_md_raid.py#L105
+        # clean, no-errors - Presumably, from https://github.com/HariSekhon/Nagios-Plugins/blob/cd686831d4d730bc58165339a7547602e6619f87/legacy/check_md_raid.py#L105
         # active - Presumably, from https://github.com/HariSekhon/Nagios-Plugins/blob/803b8de921c5254625f26a7107f82d9ba5279551/legacy/check_md_raid.py#L106
         state = "unknown"
         for line in detailed_output:
