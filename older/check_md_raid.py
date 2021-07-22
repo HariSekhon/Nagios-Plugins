@@ -119,8 +119,8 @@ def test_raid(verbosity):
             if "State :" in line:
                 state = line.split(":")[-1][1:-1]
                 state = state.rstrip()
-        re_clean = re.compile('^clean|active(,.*)?$')
-        if re_clean.match(state) and state != "active":
+        re_clean = re.compile('^clean(, no-errors)?$|^active$')
+        if not re_clean.match(state):
             arrays_not_ok += 1
             raidlevel = detailed_output[3].split()[-1]
             shortname = array.split("/")[-1].upper()
