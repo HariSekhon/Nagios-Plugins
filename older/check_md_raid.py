@@ -3,7 +3,7 @@
 #  Author: Hari Sekhon
 #  Date: 2007-02-21 16:15:32 +0000 (Wed, 21 Feb 2007)
 #
-#  http://github.com/harisekhon/nagios-plugins
+#  https://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
 #
@@ -107,13 +107,20 @@ def test_raid(verbosity):
             for line in detailed_output:
                 print(line,)
 
+        # Some possible states:
+        # clean, degraded, recovering - was rebuilding
+        # clean - after rebuilding
+        # clean, no-errors - Presumably, from
+        # https://github.com/HariSekhon/Nagios-Plugins/blob/cd686831d4d730bc58165339a7547602e6619f87/legacy/check_md_raid.py#L105
+        # active - Presumably, from
+        # https://github.com/HariSekhon/Nagios-Plugins/blob/803b8de921c5254625f26a7107f82d9ba5279551/legacy/check_md_raid.py#L106
         state = "unknown"
         for line in detailed_output:
             if "State :" in line:
                 state = line.split(":")[-1][1:-1]
                 state = state.rstrip()
-        re_clean = re.compile('^clean|active(,.*)?$')
-        if not re_clean.match(state) and state != "active":
+        re_clean = re.compile('^clean(, no-errors)?$|^active$')
+        if not re_clean.match(state):
             arrays_not_ok += 1
             raidlevel = detailed_output[3].split()[-1]
             shortname = array.split("/")[-1].upper()
@@ -125,7 +132,7 @@ def test_raid(verbosity):
                 extra_info = None
                 for line in detailed_output:
                     if "Rebuild Status" in line:
-                        extra_info = line
+                        extra_info = line.rstrip()
                 message += 'Array "%s" is in state ' % shortname
                 if extra_info:
                     message += '"%s" (%s) - %s' \
