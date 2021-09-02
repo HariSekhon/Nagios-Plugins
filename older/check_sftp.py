@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
-#  Author: Hari Sekhon
-#  Date: 2007-04-13 17:56:43 +0100 (Fri, 13 Apr 2007)
+#  Author: Hari Sekhon and Maxwgod
+#  Date: 2021-09-01 22:00:01 +0000 (Fri, 13 Apr 2007)
 #
 #  http://github.com/harisekhon/nagios-plugins
 #
@@ -9,7 +9,7 @@
 #
 
 """ This script is intended to be used with the open source OpenSSH client
-program "sftp". It is also intended to test an OpenSSH sftp server.
+program "sftp" and "sshpass". It is also intended to test an OpenSSH sftp server.
 Your mileage may vary if you try to use it with something else. -h """
 
 # TODO: meant to rewrite this with Paramiko years ago but didn't get round to it...
@@ -19,12 +19,14 @@ from __future__ import print_function
 import os
 import signal
 import sys
+import re
+import shutil
 from subprocess import Popen, PIPE, STDOUT
 from optparse import OptionParser
 
-__author__ = "Hari Sekhon"
-__title__ = "Nagios Plugin for SFTP"
-__version__ = "0.6.0"
+__author__ = "Hari Sekhon and MaxwNEBR"
+__title__ = "Nagios Plugin for SFTP/SSHPASS"
+__version__ = "1.9.0"
 
 # Nagios Standard Exit Codes
 OK = 0
@@ -63,7 +65,10 @@ def end(status, message):
     arg as the message to output"""
 
     if status == OK:
-        print("SFTP OK: logged in successfully")
+        if message:
+            print("OK: %s" % message)
+        else:
+            print("SFTP OK: logged in successfully")
         sys.exit(OK)
     elif status == WARNING:
         print("WARNING: %s" % message)
@@ -76,15 +81,43 @@ def end(status, message):
         sys.exit(UNKNOWN)
 
 
-def run(cmd, verbosity):
+def run(cmd, verbosity, dirs, files, grepcomd, server):
     """takes a command as the single argument, runs it and returns
     a tuple of the exitcode and the output"""
 
     if verbosity >= 2:
         print("%s" % cmd)
 
-    process = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
-    output = process.communicate("ls -la")[0]
+    process = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    if dirs and not files and not grepcomd:
+        (out, err) = process.communicate("ls -la %s" % dirs[0])
+        erro = err.lstrip("Connected to %s..." % server).strip()
+        if erro:
+            end(CRITICAL, "Directory not found %s" % dirs[0])
+        end(OK, "Directory found %s" % dirs[0])
+    elif grepcomd and files:
+        if os.path.isdir("./tempsftp"):
+            shutil.rmtree("./tempsftp")
+        os.mkdir("./tempsftp")
+        if dirs:
+            (out, err) = process.communicate("get %s/%s ./tempsftp/" % (dirs[0],files[0]))
+            process.wait()
+        else:
+            (out, err) = process.communicate("get %s ./tempsftp/" % files[0])
+            process.wait()
+        erro = err.lstrip("Connected to %s..." % server).strip()
+        if erro:
+            end(CRITICAL, erro)
+        save = []
+        with open('./tempsftp/%s' % files[0],'r') as f:
+            for line in f:
+                if any(s in line.split() for s in grepcomd):
+                    save.append([line.strip()])
+        if save:
+            end(CRITICAL, save)
+        end(OK, "Not find %s" % grepcomd)
+    else:
+        (output, err) = process.communicate("ls -la %s" % dirs[0])
 
     if verbosity >= 3:
         print("%s" % output)
@@ -93,8 +126,8 @@ def run(cmd, verbosity):
 
 
 # pylint: disable=unused-variable,unused-argument
-def test_sftp(sftp, server, port, user, sshkey, nostricthostkey, \
-                                                     files, dirs, verbosity):
+def test_sftp(sftp, server, port, user, password, sshkey, nostricthostkey, \
+                                                     files, dirs, verbosity, grepcomd):
 
     """tests the sftp server using the supplied args"""
 
@@ -111,16 +144,25 @@ def test_sftp(sftp, server, port, user, sshkey, nostricthostkey, \
         sshkeyoption = ""
 
     if nostricthostkey:
-        print("disabling strict host key checking")
+        if verbosity >= 1:
+            print("disabling strict host key checking")
         nostricthostkeyoption = "-oStrictHostKeyChecking=no "
     else:
         nostricthostkeyoption = ""
 
-
-    # NumberOfPasswordPrompts=0 would also do here.
-    # PasswordAuthentication=no doesn't work though.
-    # Preferred Authentications limits it to publickey only
-    cmd = "%(sftp)s \
+    if password:
+        # NumberOfPasswordPrompts=0 would also do here.
+        # PasswordAuthentication=no doesn't work though.
+        # Preferred Authentications limits it to publickey only
+        cmd = "sshpass -p%(password)s %(sftp)s \
+-oPort=%(port)s \
+%(useroption)s\
+%(sshkeyoption)s\
+-oPreferredAuthentications=password \
+%(nostricthostkeyoption)s\
+%(server)s" % vars()
+    else:
+        cmd = "%(sftp)s \
 -oPort=%(port)s \
 %(useroption)s\
 %(sshkeyoption)s\
@@ -128,7 +170,7 @@ def test_sftp(sftp, server, port, user, sshkey, nostricthostkey, \
 %(nostricthostkeyoption)s\
 %(server)s" % vars()
 
-    result, output = run(cmd, verbosity)
+    result, output = run(cmd, verbosity, dirs, files, grepcomd, server)
 
     output2 = output
 
@@ -139,39 +181,53 @@ def test_sftp(sftp, server, port, user, sshkey, nostricthostkey, \
         output2 = output2.replace("\n", ", ")
         output2 = output2.lstrip(", ")
         output2 = output2.rstrip(", ")
-
-
+    
     if result != OK:
         end(CRITICAL, output2)
 
-    if files:
-        test_items(output, files, verbosity)
-    if dirs:
-        test_items(output, dirs, verbosity)
+    if files or dirs:
+        test_items(output, files, dirs, verbosity)
 
     end(result, output2)
 
     return UNKNOWN
 
 
-def test_items(output, items, verbosity):
+def test_items(output, files, dirs, verbosity):
     """takes the output of the sftp directory listing and a list of dirs and
     verifies the dirs exist in the listing of the output"""
 
     lines = output.split("\n")
+    
+    if dirs and not files:
+        for item in dirs:
+            found = False
+            for line in lines:
+                line = line.split()
+                if len(line) == 9:
+                    if item == line[8] and line[0][0] == "d":
+                        found = True
+                        if verbosity >= 2:
+                            print("found '%s'" % (item))
+                        continue
+            if not found:
+                end(CRITICAL, "Directory '%s' not found on sftp server" % item)
+        end(OK,"Directorys found %s" % dirs)
 
-    for item in items:
-        found = False
-        for line in lines:
-            line = line.split()
-            if len(line) == 9:
-                if item == line[8] and line[0][0] == "d":
-                    found = True
-                    if verbosity >= 2:
-                        print("found '%s'" % (item))
-                    continue
-        if not found:
-            end(CRITICAL, "directory '%s' not found on sftp server" % dir)
+    if files:
+        for item in files:
+            found = False
+            for line in lines:
+                line = line.split()
+                if len(line) == 9:
+                    if item == line[8] and line[0][0] != "d":
+                        found = True
+                        if verbosity >= 2:
+                            print("found '%s'" % (item))
+                        continue
+            if not found:
+                end(CRITICAL, "File '%s' not found on sftp server" % item)
+        end(OK,"Files found %s" % files)
 
     return OK
 
@@ -186,15 +242,16 @@ def main():
     parser.add_option("-U", dest="user",
                       help="user name to connect as (defaults to current user)")
     parser.add_option("-P", dest="password",
-                      help="password to use (not implemented yet)")
+                      help="password to use SFTP.")
     parser.add_option("-k", dest="sshkey",
                       help="ssh private key to use for authentication")
+    parser.add_option("-d", action="append", dest="directory",
+                      help="test for the existence of a directory.")
     parser.add_option("-f", action="append", dest="file",
                       help="test for the existence of a file. Can use multiple times to \
- check for the existence of multiple files")
-    parser.add_option("-d", action="append", dest="directory",
-                      help="test for the existence of a directory. Can use multiple times \
-to check for the existence of multiple directories")
+ check for the existence of multiple files.")
+    parser.add_option("-g", action="append", dest="grepfiles",
+                      help="Texts to find in file. Can use multiple times.")
     parser.add_option("-s", action="store_true", dest="nostricthostkey",
                       help="disable strict host key checking. This will auto-accept the \
 remote host key. Otherwise you first have to add the ssh host key of the sftp \
@@ -213,9 +270,11 @@ By default only 1 line of output is printed")
     server = options.server
     port = options.port
     user = options.user
+    password = options.password
     sshkey = options.sshkey
     files = options.file
     directories = options.directory
+    grepcomd = options.grepfiles
     timeout = options.timeout
     verbosity = options.verbosity
     nostricthostkey = options.nostricthostkey
@@ -270,8 +329,8 @@ By default only 1 line of output is printed")
             end(UNKNOWN, "ssh key file \"%s\" is not readable" % sshkey)
 
 
-    test_sftp(sftp, server, port, user, sshkey, nostricthostkey, \
-                                                files, directories, verbosity)
+    test_sftp(sftp, server, port, user, password, sshkey, nostricthostkey, \
+                                                files, directories, verbosity, grepcomd)
 
     # Things should never fall through to here
     sys.exit(UNKNOWN)
