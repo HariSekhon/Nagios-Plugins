@@ -42,6 +42,8 @@ test_linux(){
     docker_compose_pull
     VERSION="$version" docker-compose up -d --remove-orphans
     hr
+    docker exec -i "$DOCKER_CONTAINER" bash -c 'cat /etc/*release'
+    hr
     echo "mounting ramdisks for read only disk mounts check:"
     #docker exec "$DOCKER_CONTAINER" yum install -y net-tools
     # this requires --privileged=true to work
