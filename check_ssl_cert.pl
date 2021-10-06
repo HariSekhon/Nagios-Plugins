@@ -21,7 +21,7 @@ Checks:
 4. Subject Alternative Names supported by certificate (optional)
 5. SNI - Server Name Identification - supply hostname identifier for servers that contain multiple certificates to tell the server which SSL certificate to use (optional)";
 
-$VERSION = "0.10.0";
+$VERSION = "0.10.1";
 
 use warnings;
 use strict;
@@ -197,10 +197,7 @@ $verify_msg  =~ s/,\s*$//;
 vlog2 "Verify return code: $verify_code ($verify_msg)\n";
 
 if (not $no_validate and $verify_code ne 0){
-    # Don't handle expiry as part of the cert chain, we want nicer output with more details later
-    if(not ( $verify_code eq 10 and $verify_msg =~ /certificate has expired/ ) ){
-        quit "CRITICAL", "Certificate validation failed, returned $verify_code ($verify_msg)";
-    }
+    quit "CRITICAL", "Certificate validation failed, returned $verify_code ($verify_msg)";
 }
 
 #my $output = join("\n", @output);
