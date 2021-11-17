@@ -49,7 +49,7 @@ try:
     from harisekhon.utils import CriticalError, UnknownError, support_msg
     from harisekhon.utils import ip_regex, host_regex, plural
     from harisekhon import NagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

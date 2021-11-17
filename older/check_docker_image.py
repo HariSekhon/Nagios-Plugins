@@ -44,7 +44,7 @@ try:
     from harisekhon.utils import log, CriticalError, UnknownError, support_msg
     from harisekhon.utils import expand_units, which, validate_chars, isPythonMinVersion
     from harisekhon import NagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

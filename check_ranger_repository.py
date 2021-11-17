@@ -55,7 +55,7 @@ try:
     from harisekhon.utils import isList
     from harisekhon.utils import ERRORS, CriticalError, UnknownError
     from harisekhon import RestNagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

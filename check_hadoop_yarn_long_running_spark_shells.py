@@ -53,7 +53,7 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import plural
     from check_hadoop_yarn_long_running_apps import CheckHadoopYarnLongRunningApps
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

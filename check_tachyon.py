@@ -38,7 +38,7 @@ import sys
 try:
     from bs4 import BeautifulSoup
     import requests
-except ImportError as _:
+except ImportError:
     print(_)
     sys.exit(4)
 libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
@@ -48,7 +48,7 @@ try:
     from harisekhon.utils import log, qquit, prog
     from harisekhon.utils import validate_host, validate_port, isStr, isVersion, space_prefix
     from harisekhon import NagiosPlugin
-except ImportError as _:
+except ImportError:
     print('module import failed: %s' % _, file=sys.stderr)
     print("Did you remember to build the project by running 'make'?", file=sys.stderr)
     print("Alternatively perhaps you tried to copy this program out without it's adjacent libraries?", file=sys.stderr)

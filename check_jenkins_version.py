@@ -47,7 +47,7 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon import RestVersionNagiosPlugin
     from harisekhon.utils import log, UnknownError, version_regex, support_msg
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

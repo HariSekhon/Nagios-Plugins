@@ -39,7 +39,7 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon.nagiosplugin import KeyWriteNagiosPlugin
     from check_consul_key import CheckConsulKey
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

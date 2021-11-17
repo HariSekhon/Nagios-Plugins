@@ -53,7 +53,7 @@ try:
     from harisekhon.utils import log, qquit, plural\
                                  #, validate_int #, support_msg_api
     from check_hbase_write import CheckHBaseWrite
-except ImportError as _:
+except ImportError:
     print('harisekhon module import error - did you try copying this program out without the adjacent pylib?\n\n'
           + traceback.format_exc(), end='')
     sys.exit(4)

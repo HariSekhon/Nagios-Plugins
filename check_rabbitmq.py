@@ -64,7 +64,7 @@ try:
     from harisekhon.utils import validate_host, validate_port, validate_user, validate_password, \
                                  validate_int, validate_chars
     from harisekhon import PubSubNagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

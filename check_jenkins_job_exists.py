@@ -49,7 +49,7 @@ try:
     from harisekhon.utils import log, ERRORS, CriticalError, jsonpp
     from harisekhon.utils import validate_chars
     from harisekhon import RestNagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

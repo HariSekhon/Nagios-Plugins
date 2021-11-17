@@ -41,7 +41,7 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from check_couchdb_database_stats import CheckCouchDBDatabaseStats
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

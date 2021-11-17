@@ -42,7 +42,7 @@ try:
     from harisekhon import RestNagiosPlugin
     from harisekhon.utils import validate_chars
     from harisekhon.utils import ERRORS
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

@@ -38,7 +38,7 @@ import traceback
 try:
     import docker
     import humanize
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 srcdir = os.path.abspath(os.path.dirname(__file__))
@@ -49,7 +49,7 @@ try:
     from harisekhon.utils import log, jsonpp, CriticalError, UnknownError, support_msg_api
     from harisekhon.utils import validate_chars
     from harisekhon import DockerNagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

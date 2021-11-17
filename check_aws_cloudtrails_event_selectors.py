@@ -48,7 +48,7 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import CriticalError, ERRORS, log, jsonpp
     from harisekhon import NagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

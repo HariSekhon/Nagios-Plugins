@@ -56,7 +56,7 @@ try:
         # pylint: disable=import-error,no-name-in-module,ungrouped-imports
         from happybase.hbase.ttypes import IOError as HBaseIOError
     from thriftpy.thrift import TException as ThriftException
-except ImportError as _:
+except ImportError:
     print('Happybase / thrift module import error - did you forget to build this project?\n\n'
           + traceback.format_exc(), end='')
     sys.exit(4)
@@ -69,7 +69,7 @@ try:
     from harisekhon.utils import validate_host, validate_port, validate_regex, validate_units, validate_int
     from harisekhon.hbase.utils import validate_hbase_table, validate_hbase_rowkey, validate_hbase_column_qualifier
     from harisekhon import NagiosPlugin
-except ImportError as _:
+except ImportError:
     print('harisekhon module import error - did you try copying this program out without the adjacent pylib?\n\n'
           + traceback.format_exc(), end='')
     sys.exit(4)

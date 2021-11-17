@@ -35,7 +35,7 @@ import os
 import sys
 try:
     from bs4 import BeautifulSoup
-except ImportError as _:
+except ImportError:
     print(_)
     sys.exit(4)
 libdir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'pylib'))
@@ -44,7 +44,7 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon.utils import ERRORS, UnknownError, CriticalError, validate_host, isInt, support_msg, code_error
     from harisekhon import RestNagiosPlugin
-except ImportError as _:
+except ImportError:
     print('module import failed: %s' % _, file=sys.stderr)
     print("Did you remember to build the project by running 'make'?", file=sys.stderr)
     print("Alternatively perhaps you tried to copy this program out without it's adjacent libraries?", file=sys.stderr)

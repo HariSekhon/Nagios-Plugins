@@ -44,7 +44,7 @@ try:
     from harisekhon.utils import log, qquit
     from harisekhon.utils import validate_host, validate_port, isJson, support_msg_api, jsonpp, dict_lines
     from harisekhon import NagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

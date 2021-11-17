@@ -42,10 +42,9 @@ Advanced Nagios Plugins Collection
 [![GoCD](https://img.shields.io/badge/GoCD-ready-blue?logo=go)](https://github.com/HariSekhon/Nagios-Plugins/blob/master/.gocd.yml)
 [![TeamCity](https://img.shields.io/badge/TeamCity-ready-blue?logo=teamcity)](https://github.com/HariSekhon/TeamCity-CI)
 
-[![Travis CI](https://img.shields.io/travis/harisekhon/Nagios-Plugins/master?logo=travis&label=Travis%20CI)](https://travis-ci.org/HariSekhon/Nagios-Plugins)
+[![CircleCI](https://circleci.com/gh/HariSekhon/Nagios-Plugins.svg?style=svg)](https://circleci.com/gh/HariSekhon/Nagios-Plugins)
 [![AppVeyor](https://img.shields.io/appveyor/build/harisekhon/Nagios-Plugins/master?logo=appveyor&label=AppVeyor)](https://ci.appveyor.com/project/HariSekhon/Nagios-Plugins/branch/master)
 [![Drone](https://img.shields.io/drone/build/HariSekhon/Nagios-Plugins/master?logo=drone&label=Drone)](https://cloud.drone.io/HariSekhon/Nagios-Plugins)
-[![CircleCI](https://circleci.com/gh/HariSekhon/Nagios-Plugins.svg?style=svg)](https://circleci.com/gh/HariSekhon/Nagios-Plugins)
 [![Codeship Status for HariSekhon/Nagios-Plugins](https://app.codeship.com/projects/e23f19f0-3c5f-0138-3476-32bf6ef9714a/status?branch=master)](https://app.codeship.com/projects/387256)
 [![Shippable](https://img.shields.io/shippable/5e52c63645c70f0007ff5152/master?label=Shippable&logo=jfrog)](https://app.shippable.com/github/HariSekhon/Nagios-Plugins/dashboard/jobs)
 [![BuildKite](https://img.shields.io/buildkite/60cb2e7e00658d466df3957953eacfc6e1b61d606ed7a5d657/master?label=BuildKite&logo=buildkite)](https://buildkite.com/hari-sekhon/nagios-plugins)
@@ -54,6 +53,7 @@ Advanced Nagios Plugins Collection
 [![Semaphore](https://harisekhon.semaphoreci.com/badges/Nagios-Plugins.svg)](https://harisekhon.semaphoreci.com/projects/Nagios-Plugins)
 [![Wercker](https://app.wercker.com/status/76887616b9d1ea67f640e9001cd71662/s/master "wercker status")](https://app.wercker.com/harisekhon/Nagios-Plugins/runs)
 [![Buddy](https://img.shields.io/badge/Buddy-ready-1A86FD?logo=buddy)](https://github.com/HariSekhon/Nagios-Plugins/blob/master/buddy.yml)
+[![Travis CI](https://img.shields.io/badge/TravisCI-legacy-lightgrey?logo=travis&label=Travis%20CI)](https://github.com/HariSekhon/Nagios-Plugins/blob/master/.travis.yml)
 <!--[![Wercker](https://img.shields.io/wercker/ci/5e58efbfd1f86d0900f13a3f/master?label=Wercker&logo=oracle)](https://app.wercker.com/harisekhon/Nagios-Plugins/runs)-->
 
 [![Azure DevOps Pipeline](https://dev.azure.com/harisekhon/GitHub/_apis/build/status/HariSekhon.Nagios-Plugins?branchName=master)](https://dev.azure.com/harisekhon/GitHub/_build/latest?definitionId=9&branchName=master)
@@ -360,6 +360,7 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 - ```check_travis_ci_last_build.py``` - [Travis CI](https://travis-ci.org/) repo's last build status - includes showing build number, build duration with optional thresholds, start/stop date & time, if there are currently any builds in progress and perfdata for graphing last build time and number of builds in progress. Verbose mode gives the commit details as well such as commit id and message
 - ```check_gocd_*.py``` - [GoCD](https://www.gocd.org/) server and agent health, pipeline, stage and job level status checks, and number of agents online, enabled, and in different states
 - ```check_dockerhub_repo_build_status.py``` - [DockerHub](https://hub.docker.com/u/harisekhon/) Automated Build status check for a given DockerHub repository's latest build or latest build for a given tag. Returns status and tag of last build along with perfdata for graphing build latency (time between build creation and completion) and query timing. Optionally also returns in verbose mode what triggered the build (webhook, revision control change, API / website trigger), created and last updated date timestamps and build URL to investigate
+- ```check_selenium_*.py``` - checks [Selenium Grid](https://www.selenium.dev/documentation/en/grid/) Hub / Node or [Selenoid](https://aerokube.com/selenoid/) status is ready, queue size, available node counts for all or specific browser types, and that browsers are available and fully functional by requesting a browser (eg. chrome or firefox), querying a url and optionally performing a content or regex match on the returned web page
 - ```check_git_*``` - checks a [Git](https://git-scm.com/) checkout is valid, up to date with upstream remote/origin, has no uncommitted changes (staged or unstaged), no untracked files, isn't dirty, is in the right branch, isn't remote, isn't detached, is / isn't bare. Useful for monitoring deployment servers running off Git checkouts (a common scenario for things like [PuppetMasters](https://puppet.com/), [Ansible](https://www.ansible.com/) [AWX](https://github.com/ansible/awx) / [Tower](https://www.ansible.com/products/tower) etc) to ensure your automation is deploying the right thing and that any ad-hoc modifications and tests have been properly backported to Git
 
 ##### Infrastructure - Internet - Web, DNS, SSL, Domains
@@ -872,9 +873,9 @@ sudo pip install certifi==2015.04.28
 
 * [Templates](https://github.com/HariSekhon/Templates) - dozens of Code & Config templates - AWS, GCP, Docker, Jenkins, Terraform, Vagrant, Puppet, Python, Bash, Go, Perl, Java, Scala, Groovy, Maven, SBT, Gradle, Make, GitHub Actions Workflows, CircleCI, Jenkinsfile, Makefile, Dockerfile, docker-compose.yml, M4 etc.
 
-* [Kubernetes templates](https://github.com/HariSekhon/Kubernetes-templates) - Kubernetes YAML templates - Best Practices, Tips & Tricks are baked right into the templates for future deployments
+* [Kubernetes configs](https://github.com/HariSekhon/Kubernetes-configs) - Kubernetes YAML configs - Best Practices, Tips & Tricks are baked right into the templates for future deployments
 
-* [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) - 80+ DevOps CLI tools for AWS, Hadoop, HBase, Spark, Log Anonymizer, Ambari Blueprints, AWS CloudFormation, Linux, Docker, Spark Data Converters & Validators (Avro / Parquet / JSON / CSV / INI / XML / YAML), Elasticsearch, Solr, Travis CI, Pig, IPython
+* [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) - 80+ DevOps CLI tools for AWS, GCP, Hadoop, HBase, Spark, Log Anonymizer, Ambari Blueprints, AWS CloudFormation, Linux, Docker, Spark Data Converters & Validators (Avro / Parquet / JSON / CSV / INI / XML / YAML), Elasticsearch, Solr, Travis CI, Pig, IPython
 
 * [DevOps Perl Tools](https://github.com/harisekhon/perl-tools) - 25+ DevOps CLI tools for Hadoop, HDFS, Hive, Solr/SolrCloud CLI, Log Anonymizer, Nginx stats & HTTP(S) URL watchers for load balanced web farms, Dockerfiles & SQL ReCaser (MySQL, PostgreSQL, AWS Redshift, Snowflake, Apache Drill, Hive, Impala, Cassandra CQL, Microsoft SQL Server, Oracle, Couchbase N1QL, Dockerfiles, Pig Latin, Neo4j, InfluxDB), Ambari FreeIPA Kerberos, Datameer, Linux...
 

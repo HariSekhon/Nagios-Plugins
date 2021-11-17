@@ -3,7 +3,7 @@
 #  Author: Hari Sekhon
 #  Date: 2007-02-21 16:15:32 +0000 (Wed, 21 Feb 2007)
 #
-#  http://github.com/harisekhon/nagios-plugins
+#  https://github.com/harisekhon/nagios-plugins
 #
 #  License: see accompanying LICENSE file
 #
@@ -15,7 +15,7 @@ from __future__ import print_function
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Linux MD Software RAID"
-__version__ = "0.7.4"
+__version__ = "0.7.5"
 
 # pylint: disable=wrong-import-position
 import os
@@ -49,16 +49,14 @@ def end(status, message):  # lgtm [py/similar-function]
         print("UNKNOWN: %s" % message)
         sys.exit(UNKNOWN)
 
-
-if os.geteuid() != 0:
-    end(UNKNOWN, "You must be root to run this plugin")
-
 if not os.path.exists(BIN):
     end(UNKNOWN, "Raid utility '%s' cannot be found" % BIN)
 
 if not os.access(BIN, os.X_OK):
     end(UNKNOWN, "Raid utility '%s' is not executable" % BIN)
 
+if os.geteuid() != 0:
+    BIN = "sudo -n " + BIN
 
 def find_arrays(verbosity):
     """finds all MD arrays on local machine using mdadm and returns a list of
@@ -66,10 +64,18 @@ def find_arrays(verbosity):
 
     if verbosity >= 3:
         print("finding all MD arrays via: %s --detail --scan" % BIN)
-    devices_output = os.popen("%s --detail --scan" % BIN).readlines()
+    devices_output = os.popen("%s --detail --scan 2>&1" % BIN).readlines()
     raid_devices = []
     for line in devices_output:
-        if "ARRAY" in line:
+        if verbosity >= 4:
+            print("got line %s" % line)
+        if "sudo: a password is required" in line:
+            end(UNKNOWN, "You must be root, or have passwordless sudo to run" \
+                         + " this plugin")
+        elif "mdadm: must be super-user to perform this action" in line:
+            end(UNKNOWN, "You must be root, or have working sudo to run this" \
+                         + " plugin")
+        elif "ARRAY" in line:
             raid_device = line.split()[1]
             if verbosity >= 2:
                 print("found array %s" % raid_device)
@@ -77,9 +83,8 @@ def find_arrays(verbosity):
 
     if not raid_devices:
         end(UNKNOWN, "no MD raid devices found on this machine")
-    else:
-        raid_devices.sort()
-        return raid_devices
+    raid_devices.sort()
+    return raid_devices
 
 
 def test_raid(verbosity):
@@ -95,19 +100,27 @@ def test_raid(verbosity):
         if verbosity >= 2:
             print('Now testing raid device "%s"' % array)
 
-        detailed_output = os.popen("%s --detail %s" % (BIN, array)).readlines()
+        detailed_output = os.popen("%s --detail %s 2>&1" %
+                                   (BIN, array)).readlines()
 
         if verbosity >= 3:
             for line in detailed_output:
                 print(line,)
 
+        # Some possible states:
+        # clean, degraded, recovering - was rebuilding
+        # clean - after rebuilding
+        # clean, no-errors - Presumably, from
+        # https://github.com/HariSekhon/Nagios-Plugins/blob/cd686831d4d730bc58165339a7547602e6619f87/legacy/check_md_raid.py#L105
+        # active - Presumably, from
+        # https://github.com/HariSekhon/Nagios-Plugins/blob/803b8de921c5254625f26a7107f82d9ba5279551/legacy/check_md_raid.py#L106
         state = "unknown"
         for line in detailed_output:
             if "State :" in line:
                 state = line.split(":")[-1][1:-1]
                 state = state.rstrip()
-        re_clean = re.compile('^clean|active(,.*)?$')
-        if not re_clean.match(state) and state != "active":
+        re_clean = re.compile('^clean(, no-errors)?$|^active$')
+        if not re_clean.match(state):
             arrays_not_ok += 1
             raidlevel = detailed_output[3].split()[-1]
             shortname = array.split("/")[-1].upper()
@@ -119,7 +132,7 @@ def test_raid(verbosity):
                 extra_info = None
                 for line in detailed_output:
                     if "Rebuild Status" in line:
-                        extra_info = line
+                        extra_info = line.rstrip()
                 message += 'Array "%s" is in state ' % shortname
                 if extra_info:
                     message += '"%s" (%s) - %s' \
@@ -159,8 +172,17 @@ def parse_arguments():
     """parses args and calls func to test MD arrays"""
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("-v", "--verbose", action="count", dest="verbosity", default=0, help="Verbose mode. Good for testing plugin. By default\ only one result line is printed as per Nagios standards")
-    parser.add_argument("-V", "--version", action="store_true", dest="version", help="Print version number and exit")
+    parser.add_argument("-v", "--verbose",
+                        action="count",
+                        dest="verbosity",
+                        default=0,
+                        help="Increase output verbosity, can be used multiple" \
+                            + " times. Good for testing plugin. By default " \
+                            + " only one result line is printed as per " \
+                            + "Nagios  standards" \
+                        )
+    parser.add_argument("-V", "--version", action="store_true", dest="version",
+                        help="Print version number and exit")
 
     args = parser.parse_args()
 

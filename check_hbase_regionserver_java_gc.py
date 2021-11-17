@@ -39,7 +39,7 @@ sys.path.append(libdir)
 try:
     # pylint: disable=wrong-import-position
     from check_hbase_master_java_gc import CheckHBaseMasterJavaGC
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

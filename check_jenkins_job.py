@@ -50,7 +50,7 @@ try:
     from harisekhon.utils import log, ERRORS, WarningError, CriticalError, UnknownError, sec2human, jsonpp
     from harisekhon.utils import validate_chars, validate_int, isInt, support_msg_api
     from harisekhon import RestNagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

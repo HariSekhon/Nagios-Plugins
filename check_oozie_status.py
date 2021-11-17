@@ -39,7 +39,7 @@ try:
     from harisekhon.utils import isJson
     from harisekhon import RequestHandler
     from harisekhon import StatusNagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

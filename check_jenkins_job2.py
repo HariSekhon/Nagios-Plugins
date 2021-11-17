@@ -44,7 +44,7 @@ try:
     from harisekhon import RestNagiosPlugin
     from harisekhon.utils import validate_chars, validate_int, isInt
     from harisekhon.utils import WarningError, UnknownError, ERRORS, sec2human, support_msg_api
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

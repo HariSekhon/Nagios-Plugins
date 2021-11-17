@@ -50,7 +50,7 @@ try:
     # pylint: disable=wrong-import-position
     from harisekhon import StatusNagiosPlugin
     from harisekhon import RequestHandler
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 

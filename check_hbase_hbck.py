@@ -57,7 +57,7 @@ try:
     from harisekhon.utils import log, qquit, isInt, support_msg
     from harisekhon.utils import validate_file, validate_int, sec2human
     from harisekhon import NagiosPlugin
-except ImportError as _:
+except ImportError:
     print(traceback.format_exc(), end='')
     sys.exit(4)
 
