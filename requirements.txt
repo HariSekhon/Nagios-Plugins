@@ -21,6 +21,7 @@ kafka-python==1.4.7
 mysqlclient==1.4.6
 # requires code changes in new version :-/
 #pika==1.1.0
+# pika 0.10 doesn't work on Python 3.7 due to async becoming keyword - https://github.com/pika/pika/issues/921
 pika==0.10.0
 # requires pg_config to build from source
 #psycopg2==2.7.3.1
