@@ -3,6 +3,8 @@ Advanced Nagios Plugins Collection
 
 [![Codacy](https://api.codacy.com/project/badge/Grade/e6fcf7cb4dcc4905ab0a4cb91567fdda)](https://www.codacy.com/app/harisekhon/nagios-plugins)
 [![CodeFactor](https://www.codefactor.io/repository/github/harisekhon/Nagios-Plugins/badge)](https://www.codefactor.io/repository/github/harisekhon/Nagios-Plugins)
+[![Codiga Grade](https://api.codiga.io/project/8841/status/svg)](https://app.codiga.io/project/8841/dashboard)
+[![Codiga Score](https://api.codiga.io/project/8841/score/svg)](https://app.codiga.io/project/8841/dashboard)
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/HariSekhon/Nagios-Plugins.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HariSekhon/Nagios-Plugins/context:python)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_Nagios-Plugins&metric=alert_status)](https://sonarcloud.io/dashboard?id=HariSekhon_Nagios-Plugins)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_Nagios-Plugins&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_Nagios-Plugins)
