@@ -233,7 +233,7 @@ The self-contained scripts will be available in the `fatpacks/` directory.
 
 There are over 400 programs in this repo so these are just some of the highlights.
 
-###### Quick Links:
+###### Quick Links
 
 * [Hadoop Ecosystem](https://github.com/HariSekhon/nagios-plugins#hadoop-ecosystem) - HDFS, Yarn, HBase, Ambari, Atlas, Ranger
   * [Hadoop Distributions](https://github.com/HariSekhon/nagios-plugins#hadoop-distributions) - Cloudera, Hortonworks, MapR, IBM BigInsights
