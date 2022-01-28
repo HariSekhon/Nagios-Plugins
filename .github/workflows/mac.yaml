@@ -48,7 +48,7 @@ jobs:
     - name: init
       run: make init
     - name: build
-      run: make ci
+      run: make ci zookeeper
     - name: zookeeper
       run: make zookeeper
     - name: fatpacks
