@@ -213,7 +213,7 @@ git clone https://github.com/harisekhon/nagios-plugins
 
 cd nagios-plugins
 
-make build zookeeper
+make
 
 ```
 
