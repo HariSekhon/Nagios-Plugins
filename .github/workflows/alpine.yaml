@@ -24,22 +24,7 @@ on:
 
 jobs:
   build:
-    #name: build
-    timeout-minutes: 60
-    runs-on: ubuntu-latest
-    container: alpine
-    env:
-      repo: Nagios-Plugins
-    steps:
-    # untars repo in docker container so git submodule update fails
-    #- uses: actions/checkout@v2
-    - name: install git & make
-      run: yum install -y git make
-    - name: git clone
-      run: cd /tmp && git clone "https://github.com/harisekhon/$repo"
-    - name: init
-      run: cd "/tmp/$repo" && git submodule update --init --recursive
-    - name: build
-      run: cd "/tmp/$repo" && make ci zookeeper
-    - name: test
-      run: cd "/tmp/$repo" && make test
+    name: Alpine
+    uses: HariSekhon/GitHub-Actions/.github/workflows/alpine.yaml@master
+    #with:
+    #  debug: 1
