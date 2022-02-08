@@ -85,6 +85,7 @@ perl : init
 	@#if [ -z "$(CPANM)" ]; then $(MAKE) perl; exit $$?; fi
 	$(MAKE) system-packages-perl
 	$(MAKE) perl-libs
+	$(MAKE) zookeeper
 
 .PHONY: perl-libs
 perl-libs:
