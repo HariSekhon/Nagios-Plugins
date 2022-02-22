@@ -45,7 +45,7 @@ steps:
     branches: master
     <<: [*std_retries]
   - wait
-  - command: make ci zookeeper
+  - command: make ci
     label: build
     timeout: 60
     branches: master
