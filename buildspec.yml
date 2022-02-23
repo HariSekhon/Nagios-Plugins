@@ -60,7 +60,7 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - make build zookeeper
+      - make
       - echo Build completed on `date`
       - make test
       - echo Tests completed on `date`
