@@ -36,4 +36,4 @@ jobs:
     name: Perl
     uses: HariSekhon/GitHub-Actions/.github/workflows/perl.yaml@master
     with:
-      version: 5.30
+      version: '5.30'  # without quotes, interprets as an int and passes the shortened form 5.3 which breaks docker pull
