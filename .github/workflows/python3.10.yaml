@@ -27,6 +27,9 @@ on:
   schedule:
     - cron: '0 7 * * *'
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
   cancel-in-progress: true
@@ -37,5 +40,5 @@ jobs:
     name: Python 3.10
     uses: HariSekhon/GitHub-Actions/.github/workflows/python.yaml@master
     with:
-      version: 3.10
+      version: "3.10"
       debug: ${{ github.event.inputs.debug || false }}
