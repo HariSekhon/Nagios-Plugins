@@ -71,6 +71,12 @@ Advanced Nagios Plugins Collection
 [![Validation](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/validate.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/validate.yaml)
 [![Semgrep](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/semgrep.yaml)
 
+[![Docker Build (Alpine)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_alpine.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_alpine.yaml)
+[![Docker Build (CentOS)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_centos.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_centos.yaml)
+[![Docker Build (Debian)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_debian.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_debian.yaml)
+[![Docker Build (Fedora)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_fedora.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_fedora.yaml)
+[![Docker Build (Ubuntu)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_ubuntu.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_ubuntu.yaml)
+
 [![GitHub Actions Ubuntu](https://github.com/HariSekhon/Nagios-Plugins/workflows/GitHub%20Actions%20Ubuntu/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22GitHub+Actions+Ubuntu%22)
 [![Mac](https://github.com/HariSekhon/Nagios-Plugins/workflows/Mac/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Mac%22)
 [![Mac 10.15](https://github.com/HariSekhon/Nagios-Plugins/workflows/Mac%2010.15/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Mac+10.15%22)
