@@ -12,7 +12,7 @@
 #
 
 ---
-name: DockerHub Build (Ubuntu)
+name: Docker Build (Ubuntu)
 
 on:
   push:
@@ -26,8 +26,11 @@ jobs:
     name: Docker Build
     uses: HariSekhon/GitHub-Actions/.github/workflows/docker_build.yaml@master
     with:
-      repo: harisekhon/nagios-plugins
-      tags: ubuntu latest
+      repo_tags: |
+        harisekhon/nagios-plugins:latest
+        harisekhon/nagios-plugins:ubuntu
+        ghcr.io/harisekhon/nagios-plugins:latest
+        ghcr.io/harisekhon/nagios-plugins:ubuntu
       dockerfile-repo: HariSekhon/Dockerfiles
       context: Dockerfiles/nagios-plugins-ubuntu
     secrets:
