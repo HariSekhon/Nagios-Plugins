@@ -12,7 +12,7 @@
 #
 
 ---
-name: DockerHub Build (Alpine)
+name: Docker Build (Alpine)
 
 on:
   push:
@@ -26,8 +26,9 @@ jobs:
     name: Docker Build
     uses: HariSekhon/GitHub-Actions/.github/workflows/docker_build.yaml@master
     with:
-      repo: harisekhon/nagios-plugins
-      tags: alpine
+      repo_tags: |
+        harisekhon/nagios-plugins:alpine
+        ghcr.io/harisekhon/nagios-plugins:alpine
       dockerfile-repo: HariSekhon/Dockerfiles
       context: Dockerfiles/nagios-plugins-alpine
     secrets:
