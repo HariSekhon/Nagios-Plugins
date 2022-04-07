@@ -134,7 +134,7 @@ class CheckLinuxDiskMountsReadOnly(NagiosPlugin):
         num_checked = 0
         num_read_only = 0
         read_only = {}
-        ro_regex = re.compile('(?:^ro,)|,ro[,$]')
+        ro_regex = re.compile('^ro,|,ro[,$]')
         ro_system_regex = re.compile('^/proc/|^/sys(?:/.+)?$')
         for mount_line in mount_lines:
             parts = mount_line.split()
