@@ -21,6 +21,9 @@ on: # [push]
   push:
     branches:
       - master
+      - main
+    paths:
+      - '**/*hbase*'
   schedule:
     - cron: '0 10 * * *'
 
