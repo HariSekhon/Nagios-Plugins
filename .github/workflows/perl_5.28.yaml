@@ -50,6 +50,7 @@ concurrency:
 
 jobs:
   build:
+    if: github.event.repository.fork == false
     name: Perl
     uses: HariSekhon/GitHub-Actions/.github/workflows/make.yaml@master
     with:
