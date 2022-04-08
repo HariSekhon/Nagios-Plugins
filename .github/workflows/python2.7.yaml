@@ -18,6 +18,17 @@ on:
   push:
     branches:
       - master
+      - main
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.pl'
+      - '**/*.rb'
+      - '**/*.go'
+      - '**/*.sh'
+  pull_request:
+    branches:
+      - master
+      - main
     paths-ignore:
       - '**/*.md'
       - '**/*.pl'
@@ -44,7 +55,7 @@ jobs:
   build:
     if: github.event.repository.fork == false
     name: Python 2.7
-    uses: HariSekhon/GitHub-Actions/.github/workflows/python.yaml@master
+    uses: HariSekhon/GitHub-Actions/.github/workflows/make.yaml@master
     with:
-      version: 2.7
+      python-version: 2.7
       debug: ${{ github.event.inputs.debug }}
