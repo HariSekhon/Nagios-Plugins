@@ -55,6 +55,6 @@ jobs:
     uses: HariSekhon/GitHub-Actions/.github/workflows/make.yaml@master
     with:
       container: perl:5.32
-      caches: apt cpanm
+      caches: apt cpan
       build-targets: ci fatpacks
       debug: ${{ github.event.inputs.debug }}
