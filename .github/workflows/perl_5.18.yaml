@@ -19,11 +19,28 @@ on:
     branches:
       - master
       - main
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.py'
+      - '**/*.rb'
+      - '**/*.go'
+      - '**/*.sh'
   pull_request:
     branches:
       - master
       - main
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.py'
+      - '**/*.rb'
+      - '**/*.go'
+      - '**/*.sh'
   workflow_dispatch:
+    inputs:
+      debug:
+        type: boolean
+        required: false
+        default: false
   schedule:
     - cron: '0 7 * * *'
 
@@ -34,6 +51,9 @@ concurrency:
 jobs:
   build:
     name: Perl
-    uses: HariSekhon/GitHub-Actions/.github/workflows/perl.yaml@master
+    uses: HariSekhon/GitHub-Actions/.github/workflows/make.yaml@master
     with:
-      version: 5.18
+      container: perl:5.16
+      caches: apt cpanm
+      build-targets: ci fatpacks
+      debug: ${{ github.event.inputs.debug }}
