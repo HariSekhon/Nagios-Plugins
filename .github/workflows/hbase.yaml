@@ -14,10 +14,7 @@
 ---
 name: CI HBase
 
-#env:
-#  DEBUG: 1
-
-on: # [push]
+on:
   push:
     branches:
       - master
