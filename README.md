@@ -55,7 +55,7 @@ Advanced Nagios Plugins Collection
 [![Wercker](https://app.wercker.com/status/76887616b9d1ea67f640e9001cd71662/s/master "wercker status")](https://app.wercker.com/harisekhon/Nagios-Plugins/runs)
 [![Buddy](https://img.shields.io/badge/Buddy-ready-1A86FD?logo=buddy)](https://github.com/HariSekhon/Nagios-Plugins/blob/master/buddy.yml)
 [![Shippable](https://img.shields.io/badge/Shippable-legacy-lightgrey?logo=jfrog&label=Shippable)](https://github.com/HariSekhon/Nagios-Plugins/blob/master/shippable.yml)
-[![Travis CI](https://img.shields.io/badge/TravisCI-legacy-lightgrey?logo=travis&label=Travis%20CI)](https://github.com/HariSekhon/Nagios-Plugins/blob/master/.travis.yml)
+[![Travis CI](https://img.shields.io/badge/TravisCI-ready-blue?logo=travis&label=Travis%20CI)](https://github.com/HariSekhon/Nagios-Plugins/blob/master/.travis.yml)
 <!--[![Wercker](https://img.shields.io/wercker/ci/5e58efbfd1f86d0900f13a3f/master?label=Wercker&logo=oracle)](https://app.wercker.com/harisekhon/Nagios-Plugins/runs)-->
 
 [![Azure DevOps Pipeline](https://dev.azure.com/harisekhon/GitHub/_apis/build/status/HariSekhon.Nagios-Plugins?branchName=master)](https://dev.azure.com/harisekhon/GitHub/_build/latest?definitionId=9&branchName=master)
