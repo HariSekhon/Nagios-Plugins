@@ -51,7 +51,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.12.2"
+__version__ = "0.12.3"
 
 # Standard Nagios return codes
 OK = 0
@@ -322,7 +322,8 @@ class YumTester(object):
         if self.verbosity >= 4:
             for section in output2:
                 print("\nSection:\n%s\n" % section)
-        # used to be len(output2) > 2 but CentOS 8 has a condition where is has a blank line and then another line with 'yum.noarch    4.7.0-4.el8    baseos'
+        # used to be len(output2) > 2 but CentOS 8 has a condition
+        # where is has a blank line and then another line with 'yum.noarch    4.7.0-4.el8    baseos'
         if len(output2) > 3 or (not self.no_cache_update and \
            not ("Setting up repositories" in output2[0] or \
                 "Loaded plugins: " in output2[0] or \
@@ -456,6 +457,7 @@ class YumTester(object):
              r'^\s*\*\s*',
              r'^\s*$',
              'Determining fastest mirrors',
+             '^Including mirror:',
              'Updating Subscription Management repositories',
              'Last metadata expiration check',
              'Loaded plugins',
