@@ -12,6 +12,7 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
+---
 version: '2.2'
 services:
   fluentd:
@@ -27,7 +28,7 @@ services:
     networks:
       - fluentd
     volumes:
-      -  ../conf/fluentd/fluent.conf:/fluentd/etc/fluent.conf
+      - ../conf/fluentd/fluent.conf:/fluentd/etc/fluent.conf
   fluentd-haproxy:
     image: haproxy:alpine
     command: -f /conf/10-global.cfg -f /conf/fluentd-http.cfg -f /conf/fluentd-monitor.cfg -d

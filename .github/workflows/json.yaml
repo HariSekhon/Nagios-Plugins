@@ -1,0 +1,46 @@
+#
+#  Author: Hari Sekhon
+#  Date: Tue Feb 4 09:53:28 2020 +0000
+#
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  https://github.com/HariSekhon/Nagios-Plugins
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
+#
+#  https://www.linkedin.com/in/HariSekhon
+#
+
+---
+name: JSON
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - '**/*.json'
+  pull_request:
+    branches:
+      - master
+      - main
+    paths:
+      - '**/*.json'
+  workflow_dispatch:
+    inputs:
+      debug:
+        type: boolean
+        required: false
+        default: false
+  schedule:
+    - cron: '0 0 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  check_json:
+    if: github.event.repository.fork == false
+    name: Check JSON
+    uses: HariSekhon/GitHub-Actions/.github/workflows/json.yaml@master

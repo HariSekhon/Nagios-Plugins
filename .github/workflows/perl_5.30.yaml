@@ -1,0 +1,60 @@
+#
+#  Author: Hari Sekhon
+#  Date: 2020-04-07 12:57:04 +0100 (Tue, 07 Apr 2020)
+#
+#  vim:ts=2:sts=2:sw=2:et
+#
+#  https://github.com/HariSekhon/Nagios-Plugins
+#
+#  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
+#
+#  https://www.linkedin.com/in/HariSekhon
+#
+
+---
+name: Perl 5.30
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.py'
+      - '**/*.rb'
+      - '**/*.go'
+      - '**/*.sh'
+  pull_request:
+    branches:
+      - master
+      - main
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.py'
+      - '**/*.rb'
+      - '**/*.go'
+      - '**/*.sh'
+  workflow_dispatch:
+    inputs:
+      debug:
+        type: boolean
+        required: false
+        default: false
+  schedule:
+    - cron: '0 7 * * *'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.event.repository.fork == false
+    name: Perl
+    uses: HariSekhon/GitHub-Actions/.github/workflows/make.yaml@master
+    with:
+      container: perl:5.30
+      caches: apt cpan
+      build-targets: ci fatpacks
+      debug: ${{ github.event.inputs.debug }}

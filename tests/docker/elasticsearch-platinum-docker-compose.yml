@@ -12,6 +12,7 @@
 #  https://www.linkedin.com/in/harisekhon
 #
 
+---
 version: '2.2'
 services:
   elasticsearch:
@@ -24,9 +25,8 @@ services:
       - 9200
     environment:
       - ELASTIC_PASSWORD=password
-    # starts quicker but doesn't enable API features needed for tests
-    # needed to boot now in 7.1
-    environment:
+      # starts quicker but doesn't enable API features needed for tests
+      # needed to boot now in 7.1
       - discovery.type=single-node
     networks:
       - elasticsearch

@@ -55,7 +55,7 @@ except ImportError:
     sys.exit(4)
 
 __author__ = 'Hari Sekhon'
-__version__ = '0.4'
+__version__ = '0.4.1'
 
 
 class CheckLinuxDiskMountsReadOnly(NagiosPlugin):

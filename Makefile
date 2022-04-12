@@ -85,6 +85,7 @@ perl : init
 	@#if [ -z "$(CPANM)" ]; then $(MAKE) perl; exit $$?; fi
 	$(MAKE) system-packages-perl
 	$(MAKE) perl-libs
+	$(MAKE) zookeeper
 
 .PHONY: perl-libs
 perl-libs:
@@ -222,7 +223,7 @@ python-libs:
 # https://issues.apache.org/jira/browse/ZOOKEEPER-2049
 ZOOKEEPER_VERSION = 3.4.12
 .PHONY: zookeeper
-zookeeper : perl zkperl
+zookeeper: zkperl
 	@:
 
 .PHONY: zookeeper-retry

@@ -37,5 +37,5 @@ steps:
       - '-c'
       - |
         setup/ci_bootstrap.sh &&
-        make build zookeeper test
+        make build test
     timeout: 3600s

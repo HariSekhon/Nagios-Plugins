@@ -21,7 +21,7 @@ Can optionally alert on any available updates as well as just security related u
 
 Updated for DNF on RHEL 8
 
-Tested on CentOS 5 / 6 / 7 / 8
+Tested on CentOS 5 / 6 / 7 / 8 and Alma Linux 8
 """
 
 # Updates Info vs RHEL versions (Caveat - contrary to that page, 'yum updateinfo' isn't available on CentOS 6):
@@ -51,7 +51,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.11.4"
+__version__ = "0.12.1"
 
 # Standard Nagios return codes
 OK = 0
@@ -424,8 +424,11 @@ class YumTester(object):
             if _:
                 end(CRITICAL, "Kernel security update is installed but requires a reboot")
 
+        using_dnf = False
+
         if not summary_line_found:
             if os.path.exists(DNF) and re.match('Last metadata expiration check: ', ''.join(output)):
+                using_dnf = True
                 num_total_updates = 0
                 num_security_updates = 0
             elif os.path.exists(DNF) and re.match('Updating Subscription Management repositories.', ''.join(output)):
@@ -463,9 +466,10 @@ class YumTester(object):
              'Limiting package lists to security relevant ones',
              'This system is receiving updates from RHN Classic or Red Hat Satellite.',
              r'Repo [\w-]+ forced skip_if_unavailable=\w+ due to',
+             r'Uploading Enabled Repositories Report',
              r'^\s*:\s+',
              r'^\s*'
-             ]))
+            ]))
         output = [_ for _ in output if not excluded_regex.search(_)]
         # only count unique packages (first token), as some packages are duplicated in their output,
         # especially when on Redhat Network subscriptions, see sample output in #328
@@ -474,10 +478,13 @@ class YumTester(object):
         # pylint: disable=consider-using-set-comprehension
         len_output = len(set([_.split()[0] for _ in output if _]))
         if len_output > num_total_updates:
-            self.vprint(3, "output lines not accounted for: %s" % output)
-            #self.vprint(3, "security updates: %s, total updates: %s" % (num_security_updates, num_total_updates))
-            end(WARNING, "Yum output signature (%s unique lines) is larger than number of total updates (%s). " \
-                         % (len_output, num_total_updates) + support_msg)
+            if using_dnf:
+                num_security_updates = len_output
+            else:
+                self.vprint(3, "output lines not accounted for: %s" % output)
+                #self.vprint(3, "security updates: %s, total updates: %s" % (num_security_updates, num_total_updates))
+                end(WARNING, "Yum output signature (%s unique lines) is larger than number of total updates (%s). " \
+                             % (len_output, num_total_updates) + support_msg)
 
         return num_security_updates, num_other_updates
 

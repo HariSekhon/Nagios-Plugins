@@ -4,48 +4,57 @@
 #
 #  vim:ts=2:sts=2:sw=2:et
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
+---
 name: Perl
-
-#env:
-#  DEBUG: 1
 
 on:
   push:
     branches:
       - master
+      - main
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.py'
+      - '**/*.rb'
+      - '**/*.go'
+      - '**/*.sh'
+  pull_request:
+    branches:
+      - master
+      - main
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.py'
+      - '**/*.rb'
+      - '**/*.go'
+      - '**/*.sh'
+  workflow_dispatch:
+    inputs:
+      debug:
+        type: boolean
+        required: false
+        default: false
   schedule:
-    # * is a special character in YAML so you have to quote this string
-    - cron:  '0 7 * * *'
+    - cron: '0 7 * * *'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
   build:
-    #name: build
-    timeout-minutes: 240
-    runs-on: ubuntu-latest
-    container: perl
-    env:
-      repo: nagios-plugins
-    steps:
-    # untars repo in docker container so git submodule update fails
-    #- uses: actions/checkout@v2
-    - name: install git & make
-      run: apt-get update && apt-get install -y git make
-    - name: git clone
-      run: cd /tmp && git clone "https://github.com/harisekhon/$repo"
-    - name: init
-      run: cd "/tmp/$repo" && git submodule update --init --recursive
-    - name: build
-      run: cd "/tmp/$repo" && make build
-    - name: zookeeper
-      run: cd "/tmp/$repo" && make zookeeper
-    - name: fatpacks
-      run: cd "/tmp/$repo" && make fatpacks
-    - name: test
-      run: cd "/tmp/$repo" && make test
+    if: github.event.repository.fork == false
+    name: Perl
+    uses: HariSekhon/GitHub-Actions/.github/workflows/make.yaml@master
+    with:
+      container: perl:latest
+      caches: apt cpan
+      build-targets: ci fatpacks
+      debug: ${{ github.event.inputs.debug }}
