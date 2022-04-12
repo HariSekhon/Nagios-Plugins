@@ -51,7 +51,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.12.0"
+__version__ = "0.12.1"
 
 # Standard Nagios return codes
 OK = 0
@@ -467,7 +467,8 @@ class YumTester(object):
              'This system is receiving updates from RHN Classic or Red Hat Satellite.',
              r'Repo [\w-]+ forced skip_if_unavailable=\w+ due to',
              r'Uploading Enabled Repositories Report',
-             r'^\s*:\s+'
+             r'^\s*:\s+',
+             r'^\s*'
             ]))
         output = [_ for _ in output if not excluded_regex.search(_)]
         # only count unique packages (first token), as some packages are duplicated in their output,
