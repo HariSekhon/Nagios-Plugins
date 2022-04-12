@@ -21,7 +21,7 @@ Can optionally alert on any available updates as well as just security related u
 
 Updated for DNF on RHEL 8
 
-Tested on CentOS 5 / 6 / 7 / 8 and Alma Linux 8
+Tested on CentOS 5 / 6 / 7 / 8, Rocky Linux 8, Alma Linux 8
 """
 
 # Updates Info vs RHEL versions (Caveat - contrary to that page, 'yum updateinfo' isn't available on CentOS 6):
@@ -51,7 +51,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.12.1"
+__version__ = "0.12.2"
 
 # Standard Nagios return codes
 OK = 0
@@ -326,9 +326,9 @@ class YumTester(object):
            not ("Setting up repositories" in output2[0] or \
                 "Loaded plugins: " in output2[0] or \
                 "Last metadata expiration check" in output2[0] or \
+                "Updating Subscription Management repositories" in output2[0] or \
                 re.search(r'Loading\s+".+"\s+plugin', output2[0]))):
-            end(WARNING, "Yum output signature does not match current known "  \
-                       + "format. " + support_msg)
+            end(WARNING, "Yum output signature does not match current known format. " + support_msg)
         num_packages = 0
         if len(output2) == 1 and not self.no_cache_update:
             # There are no updates but we have passed
@@ -432,6 +432,7 @@ class YumTester(object):
                 num_total_updates = 0
                 num_security_updates = 0
             elif os.path.exists(DNF) and re.match('Updating Subscription Management repositories.', ''.join(output)):
+                using_dnf = True
                 (num_security_updates, num_total_updates) = self.yum_updateinfo()
             else:
                 end(WARNING, "Cannot find summary line in yum output. " + support_msg)
@@ -467,8 +468,11 @@ class YumTester(object):
              'This system is receiving updates from RHN Classic or Red Hat Satellite.',
              r'Repo [\w-]+ forced skip_if_unavailable=\w+ due to',
              r'Uploading Enabled Repositories Report',
-             r'^\s*:\s+',
-             r'^\s*'
+             r'^Red Hat\s+',
+             r'^EPEL\d+\s+',
+             #r'^gitlab_gitlab-[\w-]+\s+.+\s+|\s+.+\d+:\d+$',
+             r'^[\w-]+\s+.+\s+|\s+.+\d+:\d+$',
+             r'^\s*:\s+'
             ]))
         output = [_ for _ in output if not excluded_regex.search(_)]
         # only count unique packages (first token), as some packages are duplicated in their output,
