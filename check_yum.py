@@ -322,7 +322,8 @@ class YumTester(object):
         if self.verbosity >= 4:
             for section in output2:
                 print("\nSection:\n%s\n" % section)
-        if len(output2) > 2 or (not self.no_cache_update and \
+        # used to be len(output2) > 2 but CentOS 8 has a condition where is has a blank line and then another line with 'yum.noarch    4.7.0-4.el8    baseos'
+        if len(output2) > 3 or (not self.no_cache_update and \
            not ("Setting up repositories" in output2[0] or \
                 "Loaded plugins: " in output2[0] or \
                 "Last metadata expiration check" in output2[0] or \
@@ -335,7 +336,7 @@ class YumTester(object):
             # the loading and setting up of repositories
             pass
         else:
-            for line in output2[-1].split("\n"):
+            for line in '\n'.join(output2[1:]).split("\n"):
                 if len(line.split()) > 1 and \
                    line[0:1] != " " and \
                    "Obsoleting Packages" not in line:
