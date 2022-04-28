@@ -23,6 +23,8 @@ on:
       - '**/*.pl'
       - '**/*.pm'
       - '**/*.t'
+      - 'setup/cpan-requirements*'
+      - .github/workflows/perl_5.10.yaml
   pull_request:
     branches:
       - master
@@ -31,6 +33,8 @@ on:
       - '**/*.pl'
       - '**/*.pm'
       - '**/*.t'
+      - 'setup/cpan-requirements*'
+      - .github/workflows/perl_5.10.yaml
   workflow_dispatch:
     inputs:
       debug:
