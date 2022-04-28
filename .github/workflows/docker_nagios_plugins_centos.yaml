@@ -19,7 +19,22 @@ on:
     branches:
       - master
       - main
+    paths-ignore:
+      - '**/*.md'
+      - .github/
+  pull_request:
+    branches:
+      - master
+      - main
+    paths-ignore:
+      - '**/*.md'
+      - .github/
   workflow_dispatch:
+    inputs:
+      debug:
+        type: boolean
+        required: false
+        default: false
 
 jobs:
   docker_build:
@@ -31,6 +46,7 @@ jobs:
         ghcr.io/harisekhon/nagios-plugins:centos
       dockerfile-repo: HariSekhon/Dockerfiles
       context: Dockerfiles/nagios-plugins-centos
+      debug: ${{ github.event.inputs.debug }}
     secrets:
       DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USER }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
