@@ -71,6 +71,7 @@ Advanced Nagios Plugins Collection
 [![Repo on BitBucket](https://img.shields.io/badge/repo-BitBucket-0052CC?logo=bitbucket)](https://bitbucket.org/HariSekhon/Nagios-Plugins)
 [![Validation](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/validate.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/validate.yaml)
 [![Semgrep](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/semgrep.yaml)
+[![Kics](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/kics.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/kics.yaml)
 
 [![Docker Build (Alpine)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_alpine.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_alpine.yaml)
 [![Docker Build (CentOS)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_centos.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_centos.yaml)
