@@ -8,7 +8,7 @@
 	branch = master
 [submodule "bash-tools"]
 	path = bash-tools
-	url = https://github.com/harisekhon/bash-tools
+	url = https://github.com/HariSekhon/DevOps-Bash-tools
 	branch = master
 [submodule "haproxy-configs"]
 	path = haproxy-configs
