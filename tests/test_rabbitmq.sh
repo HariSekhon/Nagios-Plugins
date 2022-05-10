@@ -26,6 +26,8 @@ cd "$srcdir/.."
 section "R a b b i t M Q"
 
 export RABBITMQ_VERSIONS="${*:-${RABBITMQ_VERSIONS:-3.4 3.5 3.6 latest}}"
+# newer versions require rewrites as pika library clashes with changes in Python 3.6 introducing async field
+#export RABBITMQ_VERSIONS="${*:-${RABBITMQ_VERSIONS:-3.4 3.5 3.6 3.7 3.8 latest}}"
 
 RABBITMQ_HOST="${DOCKER_HOST:-${RABBITMQ_HOST:-${HOST:-localhost}}}"
 RABBITMQ_HOST="${RABBITMQ_HOST##*/}"
@@ -53,7 +55,7 @@ check_docker_available
 trap_debug_env rabbitmq
 
 # needs to be longer to allow RabbitMQ Cluster to settle
-startupwait 40
+startupwait 90
 
 test_rabbitmq(){
     local version="$1"
@@ -70,7 +72,7 @@ test_rabbitmq(){
     local DOCKER_SERVICE2="rabbit2"
     local DOCKER_CONTAINER="${COMPOSE_PROJECT_NAME:-docker}_${DOCKER_SERVICE}_1"
     # nagios-plugins -> nagiosplugins
-    local DOCKER_CONTAINER="${DOCKER_CONTAINER//-}"
+    #local DOCKER_CONTAINER="${DOCKER_CONTAINER//-}"
     echo "getting RabbitMQ dynamic port mappings:"
     docker_compose_port RabbitMQ
     printf "RabbitMQ node 2 port -> %s => " "$RABBITMQ_PORT_DEFAULT"
