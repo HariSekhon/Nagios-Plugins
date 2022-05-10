@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2015-03-12 21:04:39 +0000 (Thu, 12 Mar 2015)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying LICENSE file
 #
@@ -21,7 +21,7 @@ Tested on Apache ZooKeeper 3.3.6, 3.4.5, 3.4.6, 3.4.8, 3.4.11 and on Hortonworks
 
 API / BUGS / Limitations:
 
-Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. Instructions for installing Net::ZooKeeper are found at https://github.com/harisekhon/nagios-plugins
+Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. Instructions for installing Net::ZooKeeper are found at https://github.com/HariSekhon/Nagios-Plugins
 
 Net::ZooKeeper API is slow, takes 5 seconds to create a connection object per ZooKeeper node specified (before it even tries to connect to ZooKeeper which happens sub-second). Unfortunately this is a limitation of the Net::ZooKeeper API
 ";

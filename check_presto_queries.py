@@ -5,14 +5,14 @@
 #  Author: Hari Sekhon
 #  Date: 2017-10-20 19:15:30 +0200 (Fri, 20 Oct 2017)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn
 #  and optionally send me feedback to help steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 """

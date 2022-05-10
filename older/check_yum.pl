@@ -5,7 +5,7 @@
 #  Rewrite  Date: 2012-12-30 13:02:35 +0000 (Sun, 30 Dec 2012)
 #  Original Date: 2008-04-29 17:21:08 +0100 (Tue, 29 Apr 2008)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying LICENSE file
 #
@@ -33,7 +33,7 @@ set_timeout_default(30);
 my $YUM = "/usr/bin/yum";
 
 # workaround to avoid foreign locale parsing, from:
-# https://github.com/HariSekhon/nagios-plugins/issues/155
+# https://github.com/HariSekhon/Nagios-Plugins/issues/155
 $ENV{"LANG"} = "en_US";
 
 my $all_updates;

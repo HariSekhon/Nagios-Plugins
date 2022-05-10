@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2012-04-12 11:29:56 +0100 (Thu, 12 Apr 2012)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying LICENSE file
 #
@@ -814,7 +814,7 @@ if($results{"domain"}){
     }
     if(%domain_mismatches){
         warning;
-        $msg = sprintf("mismatching domain found multiple (%d) times in registrar output: %s - raise a ticket on github for a fix https://github.com/harisekhon/nagios-plugins/issues. %s", scalar keys %domain_mismatches,  join(" vs ", sort keys %domain_mismatches), $msg);
+        $msg = sprintf("mismatching domain found multiple (%d) times in registrar output: %s - raise a ticket on github for a fix https://github.com/HariSekhon/Nagios-Plugins/issues. %s", scalar keys %domain_mismatches,  join(" vs ", sort keys %domain_mismatches), $msg);
     }
 }
 my @not_found_expected;

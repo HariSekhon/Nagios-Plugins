@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2015-11-26 19:44:32 +0000 (Thu, 26 Nov 2015)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying LICENSE file
 #
@@ -60,7 +60,7 @@ my %desired_service_config_versions = get_field_hash("Clusters.desired_service_c
 my %incompat;
 foreach my $service (sort keys %desired_service_config_versions){
     # not sure why this is a list, may cause overwrite if same service, multiple versions, current clusters don't have more than one item to test though
-    # if this hits you please raise a ticket at https://github.com/harisekhon/nagios-plugins/issues
+    # if this hits you please raise a ticket at https://github.com/HariSekhon/Nagios-Plugins/issues
     my @list = get_field2_array(\%desired_service_config_versions, "$service");
     foreach my $settings (@list){
         my %settings = %{$settings};

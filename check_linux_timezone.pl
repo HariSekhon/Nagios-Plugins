@@ -4,14 +4,14 @@
 #  Author: Hari Sekhon
 #  Date: 2011-12-07 14:52:59 +0000 (Wed, 07 Dec 2011)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying LICENSE file
 #
 
 # No longer checking /etc/sysconfig/clock as it's been removed from RHEL7:
 #
-# https://github.com/harisekhon/nagios-plugins/issues/66
+# https://github.com/HariSekhon/Nagios-Plugins/issues/66
 
 $DESCRIPTION = "Nagios Plugin to check a Linux Server's timezone is set as expected";
 

@@ -4,14 +4,14 @@
 #  Author: Hari Sekhon
 #  Date: 2008-04-29 17:21:08 +0100 (Tue, 29 Apr 2008)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn
 #  and optionally send me feedback to help steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 """
@@ -62,8 +62,8 @@ UNKNOWN = 3
 DEFAULT_TIMEOUT = 30
 
 support_msg = "Please make sure you have upgraded to the latest version from " + \
-              "https://github.com/harisekhon/nagios-plugins. If the problem persists, " + \
-              "please raise a ticket at https://github.com/harisekhon/nagios-plugins/issues "+ \
+              "https://github.com/HariSekhon/Nagios-Plugins. If the problem persists, " + \
+              "please raise a ticket at https://github.com/HariSekhon/Nagios-Plugins/issues "+ \
               "with the full -vvv output"
 
 def end(status, message):  # lgtm [py/similar-function]

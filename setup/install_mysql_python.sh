@@ -3,11 +3,11 @@
 #  Author: Hari Sekhon
 #  Date: 2019-09-16
 #
-#  https://github.com/harisekhon/devops-bash-tools
+#  https://github.com/HariSekhon/DevOps-Bash-tools
 #
 #  License: see accompanying LICENSE file
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 # Installs MySQL-python dependencies on Mac as needs 2 packages that conflict

@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2015-02-19 20:29:03 +0000 (Thu, 19 Feb 2015)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying LICENSE file
 #
@@ -26,7 +26,7 @@ Tested on ZooKeeper 3.4.5 / 3.4.6 with SolrCloud 4.7, 4.10, 5.4, 5.5, 6.0, 6.1, 
 
 API / BUGS / Limitations:
 
-Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. Instructions for installing Net::ZooKeeper are found at https://github.com/harisekhon/nagios-plugins
+Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. Instructions for installing Net::ZooKeeper are found at https://github.com/HariSekhon/Nagios-Plugins
 
 1. Net::ZooKeeper API is slow, takes 5 seconds to create a connection object per ZooKeeper node specified (before it even tries to connect to ZooKeeper which happenes sub-second). Unfortunately this is a limitation of the Net::ZooKeeper API
 2. Does not do a deep inspect to tell you what actual differences are between the configurations when not matching since this is a bit complicated both to compare and report on random type recursive structures. Currently only tells you that there are differences in the two file equivalents from local copy and ZooKeeper copy.

@@ -4,14 +4,14 @@
 #  Author: Hari Sekhon
 #  Date: 2020-01-17 16:46:43 +0000 (Fri, 17 Jan 2020)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn
 #  and optionally send me feedback to help steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 """
@@ -29,8 +29,8 @@ Uses the Boto python library, read here for the list of ways to configure your A
 
 See also various AWS tools in DevOps Bash Tools and DevOps Python tools repos
 
-- https://github.com/harisekhon/devops-bash-tools
-- https://github.com/harisekhon/devops-python-tools
+- https://github.com/HariSekhon/DevOps-Bash-tools
+- https://github.com/HariSekhon/DevOps-Python-tools
 
 """
 

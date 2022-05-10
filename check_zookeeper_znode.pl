@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2013-02-03 09:46:19 +0000 (Sun, 03 Feb 2013)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying LICENSE file
 #
@@ -108,7 +108,7 @@ http://blog.cloudera.com/blog/2013/10/what-are-hbase-znodes/
 
 API / BUGS / Limitations:
 
-Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. Instructions for installing Net::ZooKeeper are found at https://github.com/harisekhon/nagios-plugins
+Uses the Net::ZooKeeper perl module which leverages the ZooKeeper Client C API. Instructions for installing Net::ZooKeeper are found at https://github.com/HariSekhon/Nagios-Plugins
 
 1. Net::ZooKeeper API is slow, takes 5 seconds to create a connection object per ZooKeeper node specified (before it even tries to connect to ZooKeeper which happens sub-second). Unfortunately this is a limitation of the Net::ZooKeeper API
 2. API segfaults if you try to check the contents of a null znode such as those kept by SolrCloud servers eg. /solr/live_nodes/<hostname>:8983_solr, must use --null to skip checks other than existence

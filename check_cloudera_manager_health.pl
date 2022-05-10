@@ -5,7 +5,7 @@
 #  Date: 2013-11-14 11:58:18 +0000 (Thu, 14 Nov 2013)
 #  redo  2014-04-13 19:45:41 +0100 (Sun, 13 Apr 2014)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying LICENSE file
 #

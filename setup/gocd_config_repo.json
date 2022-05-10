@@ -4,7 +4,7 @@
   "material": {
     "type": "git",
     "attributes": {
-  	"url": "https://github.com/harisekhon/nagios-plugins",
+  	"url": "https://github.com/HariSekhon/Nagios-Plugins",
   	"branch": "master",
   	"auto_update": true
     }

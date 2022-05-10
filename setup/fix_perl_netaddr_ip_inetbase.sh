@@ -5,13 +5,13 @@
 #  Date: Thu Jun 2 12:38:36 2016 +0100
 #  (forked from Makefile)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 # Fix for Kafka dependency bug in NetAddr::IP::InetBase

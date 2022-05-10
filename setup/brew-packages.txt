@@ -3,11 +3,11 @@
 #  Author: Hari Sekhon
 #  Date: 2018-05-22 11:15:16 +0100 (Tue, 22 May 2018)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 # ============================================================================ #

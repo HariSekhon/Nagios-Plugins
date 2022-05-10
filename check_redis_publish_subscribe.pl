@@ -5,7 +5,7 @@
 #  Date: 2013-11-17 00:22:17 +0000 (Sun, 17 Nov 2013)
 #  Continuation an idea from Q3/Q4 2012, inspired by other similar NoSQL plugins developed a few years earlier
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying LICENSE file
 #

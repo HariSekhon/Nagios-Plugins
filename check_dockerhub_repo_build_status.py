@@ -5,14 +5,14 @@
 #  Author: Hari Sekhon
 #  Date: 2017-08-30 17:44:03 +0200 (Wed, 30 Aug 2017)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn
 #  and optionally send me feedback to help steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 """
@@ -138,7 +138,7 @@ class CheckDockerhubRepoBuildStatus(NagiosPlugin):
         if self.tag is not None:
             # if you have a tag which characters other than these then please raise a ticket for extension at:
             #
-            #   https://github.com/harisekhon/nagios-plugins/issues
+            #   https://github.com/HariSekhon/Nagios-Plugins/issues
             #
             self.tag = self.tag.lstrip(':')
             validate_chars(self.tag, 'tag', r'A-Za-z0-9/\._-')

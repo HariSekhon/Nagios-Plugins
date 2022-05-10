@@ -4,14 +4,14 @@
 #  Author: Hari Sekhon
 #  Date: 2019-12-16 17:56:43 +0000 (Mon, 16 Dec 2019)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn
 #  and optionally send me feedback to help steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 """
@@ -29,7 +29,7 @@ Uses the Boto python library, read here for the list of ways to configure your A
 See also:
 
     aws_users_pw_last_used.sh - from DevOps Bash Tools repo if you just want a list
-                              - https://github.com/harisekhon/devops-bash-tools
+                              - https://github.com/HariSekhon/DevOps-Bash-tools
 
 """
 

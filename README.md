@@ -1,8 +1,8 @@
 Advanced Nagios Plugins Collection
 ==================================
 
-[![GitHub stars](https://img.shields.io/github/stars/harisekhon/nagios-plugins?logo=github)](https://github.com/harisekhon/nagios-plugins/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/harisekhon/nagios-plugins?logo=github)](https://github.com/harisekhon/nagios-plugins/network)
+[![GitHub stars](https://img.shields.io/github/stars/harisekhon/nagios-plugins?logo=github)](https://github.com/HariSekhon/Nagios-Plugins/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/harisekhon/nagios-plugins?logo=github)](https://github.com/HariSekhon/Nagios-Plugins/network)
 [![Contributors](https://img.shields.io/github/contributors/HariSekhon/Nagios-Plugins?logo=github)](https://github.com/HariSekhon/Nagios-Plugins/graphs/contributors)
 [![Lines of Code](https://img.shields.io/badge/lines%20of%20code-80k-lightgrey?logo=codecademy)](https://github.com/HariSekhon/Nagios-Plugins)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/HariSekhon/Nagios-Plugins?logo=github)](https://github.com/HariSekhon/Nagios-Plugins/commits/master)
@@ -156,21 +156,21 @@ Supports most major open source NoSQL technologies, Pub-Sub / Message Buses, CI,
 - advanced DNS record checks (MX, NS, SRV etc)
 - [Git](https://git-scm.com/), [MySQL](https://www.mysql.com/) ... etc.
 
-Supports a a wide variety of [compatible Enterprise Monitoring systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems).
+Supports a a wide variety of [compatible Enterprise Monitoring systems](https://github.com/HariSekhon/Nagios-Plugins#enterprise-monitoring-systems).
 
 Most enterprise monitoring systems come with basic generic checks, while this project extends their monitoring capabilities significantly further in to advanced infrastructure, application layer, APIs etc.
 
 If running against services in Cloud or Kubernetes, just target the load balancer address or the Kubernetes Service or Ingress addresses.
 
-Also useful to be run on the command line for testing or in scripts for dependency availability checking, and comes with a selection of [advanced HAProxy configurations](https://github.com/harisekhon/haproxy-configs) for these technologies to make monitoring and scripting easier for clustered technologies.
+Also useful to be run on the command line for testing or in scripts for dependency availability checking, and comes with a selection of [advanced HAProxy configurations](https://github.com/HariSekhon/HAProxy-configs) for these technologies to make monitoring and scripting easier for clustered technologies.
 
-Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/harisekhon/nagios-plugins/issues) or [pull requests](https://github.com/harisekhon/nagios-plugins/pulls) (in which case GitHub will give you credit and mark you as a contributor to the project :) ).
+Fix requests, suggestions, updates and improvements are most welcome via Github [issues](https://github.com/HariSekhon/Nagios-Plugins/issues) or [pull requests](https://github.com/HariSekhon/Nagios-Plugins/pulls) (in which case GitHub will give you credit and mark you as a contributor to the project :) ).
 
 Hari Sekhon
 
 Cloud & Big Data Contractor, United Kingdom
 
-[![My LinkedIn](https://img.shields.io/badge/LinkedIn%20Profile-HariSekhon-blue?logo=linkedin)](https://www.linkedin.com/in/harisekhon/)
+[![My LinkedIn](https://img.shields.io/badge/LinkedIn%20Profile-HariSekhon-blue?logo=linkedin)](https://www.linkedin.com/in/HariSekhon/)
 ###### (you're welcome to connect with me on LinkedIn)
 
 ##### Make sure you run ```make update``` if updating and not just ```git pull``` as you will often need the latest library submodules and probably new upstream libraries too.
@@ -221,7 +221,7 @@ or
 
 ```
 
-git clone https://github.com/harisekhon/nagios-plugins
+git clone https://github.com/HariSekhon/Nagios-Plugins
 
 cd nagios-plugins
 
@@ -231,7 +231,7 @@ make
 
 Now run any plugin with ```--help``` to find out which switches to use.
 
-Make sure to read [Detailed Build Instructions](https://github.com/HariSekhon/nagios-plugins#detailed-build-instructions) further down for more information.
+Make sure to read [Detailed Build Instructions](https://github.com/HariSekhon/Nagios-Plugins#detailed-build-instructions) further down for more information.
 
 #### Optional: Generate self-contained Perl scripts with all dependencies built in to each file for easy distribution
 
@@ -249,20 +249,20 @@ There are over 400 programs in this repo so these are just some of the highlight
 
 ###### Quick Links
 
-- [Hadoop Ecosystem](https://github.com/HariSekhon/nagios-plugins#hadoop-ecosystem) - HDFS, Yarn, HBase, Ambari, Atlas, Ranger
-  * [Hadoop Distributions](https://github.com/HariSekhon/nagios-plugins#hadoop-distributions) - Cloudera, Hortonworks, MapR, IBM BigInsights
-  * [SQL-on-Hadoop](https://github.com/HariSekhon/nagios-plugins#sql-on-hadoop) - Hive, Drill, Presto
-- [Service Discovery & Coordination](https://github.com/HariSekhon/nagios-plugins#service-discovery--coordination) - ZooKeeper, Consul, Vault
-- [Cloud](https://github.com/HariSekhon/nagios-plugins#cloud) - AWS
-- [Docker / Containerization](https://github.com/HariSekhon/nagios-plugins#docker--containerization) - Docker & Docker Swarm, Mesos, Kubernetes
-- [Search](https://github.com/HariSekhon/nagios-plugins#search) - Elasticsearch, Solr / SolrCloud
-- [NoSQL](https://github.com/HariSekhon/nagios-plugins#nosql) - Cassandra, Redis, Riak, Memcached, CouchDB
-- [SQL Databases](https://github.com/HariSekhon/nagios-plugins#sql-databases) - MySQL
-- [Pub-Sub / Message Queues](https://github.com/HariSekhon/nagios-plugins#publish---subscribe--message-queues) - Kafka, Redis, RabbitMQ
-- [CI - Continuous Integration & Build Systems](https://github.com/HariSekhon/nagios-plugins#ci---continuous-integration--build-systems---git-jenkins-travis-ci--dockerhub-automated-builds) - Jenkins, Travis CI, GoCD, DockerHub, Git
-- [Infrastructure](https://github.com/HariSekhon/nagios-plugins#infrastructure---internet---web-dns-ssl-domains)
-  * [Internet](https://github.com/HariSekhon/nagios-plugins#infrastructure---internet---web-dns-ssl-domains) - Web, DNS, SSL & Domain Expiry
-  * [Linux](https://github.com/HariSekhon/nagios-plugins#infrastructure---linux---os-network-puppet-raid-ssh-clusters-yum-security-updates) - OS, Network, Puppet, RAID, SSH, Clusters, Yum Security Updates
+- [Hadoop Ecosystem](https://github.com/HariSekhon/Nagios-Plugins#hadoop-ecosystem) - HDFS, Yarn, HBase, Ambari, Atlas, Ranger
+  * [Hadoop Distributions](https://github.com/HariSekhon/Nagios-Plugins#hadoop-distributions) - Cloudera, Hortonworks, MapR, IBM BigInsights
+  * [SQL-on-Hadoop](https://github.com/HariSekhon/Nagios-Plugins#sql-on-hadoop) - Hive, Drill, Presto
+- [Service Discovery & Coordination](https://github.com/HariSekhon/Nagios-Plugins#service-discovery--coordination) - ZooKeeper, Consul, Vault
+- [Cloud](https://github.com/HariSekhon/Nagios-Plugins#cloud) - AWS
+- [Docker / Containerization](https://github.com/HariSekhon/Nagios-Plugins#docker--containerization) - Docker & Docker Swarm, Mesos, Kubernetes
+- [Search](https://github.com/HariSekhon/Nagios-Plugins#search) - Elasticsearch, Solr / SolrCloud
+- [NoSQL](https://github.com/HariSekhon/Nagios-Plugins#nosql) - Cassandra, Redis, Riak, Memcached, CouchDB
+- [SQL Databases](https://github.com/HariSekhon/Nagios-Plugins#sql-databases) - MySQL
+- [Pub-Sub / Message Queues](https://github.com/HariSekhon/Nagios-Plugins#publish---subscribe--message-queues) - Kafka, Redis, RabbitMQ
+- [CI - Continuous Integration & Build Systems](https://github.com/HariSekhon/Nagios-Plugins#ci---continuous-integration--build-systems---git-jenkins-travis-ci--dockerhub-automated-builds) - Jenkins, Travis CI, GoCD, DockerHub, Git
+- [Infrastructure](https://github.com/HariSekhon/Nagios-Plugins#infrastructure---internet---web-dns-ssl-domains)
+  * [Internet](https://github.com/HariSekhon/Nagios-Plugins#infrastructure---internet---web-dns-ssl-domains) - Web, DNS, SSL & Domain Expiry
+  * [Linux](https://github.com/HariSekhon/Nagios-Plugins#infrastructure---linux---os-network-puppet-raid-ssh-clusters-yum-security-updates) - OS, Network, Puppet, RAID, SSH, Clusters, Yum Security Updates
 
 ##### Hadoop Ecosystem
 
@@ -285,7 +285,7 @@ Attivio, Blue Talon, Datameer, Platfora, Zaloni plugins are also available for t
 ##### Hadoop Distributions
 
 - ```check_cloudera_manager_*.pl``` - Hadoop cluster checks via [Cloudera Manager](https://www.cloudera.com/) API - checks states and health of cluster services/roles/nodes, management services, config staleness, Cloudera Enterprise license expiry, Cloudera Manager and CDH cluster versions, utility switches to list clusters/services/roles/nodes as well as list users and their role privileges, fetch a wealth of Hadoop & OS monitoring metrics from Cloudera Manager and compare to thresholds. Disclaimer: I worked for Cloudera, but seriously CM collects an impressive amount of metrics making check_cloudera_manager_metrics.pl alone a very versatile program from which to create hundreds of checks to flexibly alert on
-- [Hortonworks](https://hortonworks.com/) - the standard modern Hadoop distribution - see ```check_ambari_*.pl``` in the [Hadoop Ecosystem](https://github.com/HariSekhon/nagios-plugins#hadoop-ecosystem) section above
+- [Hortonworks](https://hortonworks.com/) - the standard modern Hadoop distribution - see ```check_ambari_*.pl``` in the [Hadoop Ecosystem](https://github.com/HariSekhon/Nagios-Plugins#hadoop-ecosystem) section above
 - ```check_mapr*.pl``` - Hadoop cluster checks via [MapR](https://mapr.com/) Control System API - checks services and nodes, MapR-FS space (cluster and per volume), volume states, volume block replication, volume snapshots and mirroring, MapR-FS per disk space utilization on nodes, failed disks, CLDB heartbeats, MapR alarms, MapReduce mode and memory utilization, disk and role balancer metrics. These are noticeably faster than running equivalent maprcli commands (exceptions: disk/role balancer use maprcli).
 - ```check_ibm_biginsights_*.pl``` - Hadoop cluster checks via IBM BigInsights Console API - checks services, nodes, agents, BigSheets workbook runs, dfs paths and properties, HDFS space and block replication, BI console version, BI console applications deployed
 
@@ -338,7 +338,7 @@ docker run -v /var/run/docker.sock:/var/run/docker.sock harisekhon/nagios-plugin
  OK: Docker container 'myContainer' status = 'running', started at '2020-06-03T14:03:09.78303932Z' | query_time=0.0038s
 ```
 
-See also DockerHub build status nagios plugin further down in the [CI section](https://github.com/HariSekhon/nagios-plugins#ci---continuous-integration--build-systems---git-jenkins-travis-ci--dockerhub-automated-builds).
+See also DockerHub build status nagios plugin further down in the [CI section](https://github.com/HariSekhon/Nagios-Plugins#ci---continuous-integration--build-systems---git-jenkins-travis-ci--dockerhub-automated-builds).
 
 ##### Search
 
@@ -363,8 +363,8 @@ See also DockerHub build status nagios plugin further down in the [CI section](h
 
 These programs check these message brokers end-to-end via their API, by acting as both a producer and a consumer and checking that a unique generated message passes through the broker cluster and is received by the consumer at the other side successfully. They report the publish, consumer and total timings taken, against which thresholds can be applied, and are also available as perfdata for graphing.
 
-- ```check_kafka.py/.pl``` - [Kafka](https://kafka.apache.org/) brokers API write & read back with configurable topics/partition and producer behaviour for acks, sleep, retries, backoff, can also lists topics and partitions. See [Kafka Scala Nagios Plugin](https://github.com/HariSekhon/nagios-plugin-kafka) for a version with Kerberos support
-- ```check_redis_publish_subscribe.pl``` - [Redis](https://redis.io/) publish-subscribe API write & read back with configurable subscriber wait. See other Redis checks under [NoSQL](https://github.com/HariSekhon/nagios-plugins#nosql)
+- ```check_kafka.py/.pl``` - [Kafka](https://kafka.apache.org/) brokers API write & read back with configurable topics/partition and producer behaviour for acks, sleep, retries, backoff, can also lists topics and partitions. See [Kafka Scala Nagios Plugin](https://github.com/HariSekhon/Nagios-Plugin-Kafka) for a version with Kerberos support
+- ```check_redis_publish_subscribe.pl``` - [Redis](https://redis.io/) publish-subscribe API write & read back with configurable subscriber wait. See other Redis checks under [NoSQL](https://github.com/HariSekhon/Nagios-Plugins#nosql)
 - ```check_rabbitmq*.py``` - [RabbitMQ](https://www.rabbitmq.com/) brokers AMQP API write & read back with configurable vhost, exchange, exchange type, queue, routing key, durability, RabbitMQ 'confirms' protocol extension & standard AMQP transactions support. Checks via the RabbitMQ management API include aliveness queue health test, built-in health checks, cluster name, vhost, exchange with optional validation of exchange type (direct, fanout, headers, topic) and durability (true/false), user auth and permissions tags, stats db event queue
 <!--
 Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagios-plugins-rabbitmq` package
@@ -401,7 +401,7 @@ Debian / Ubuntu systems also have other unrelated RabbitMQ plugins in the `nagio
 
 This code base is under active development and there are many more cool plugins pending import.
 
-See also [other 3rd Party Nagios Plugins](https://github.com/HariSekhon/nagios-plugins#more-3rd-party-nagios-plugins) you might be interested in.
+See also [other 3rd Party Nagios Plugins](https://github.com/HariSekhon/Nagios-Plugins#more-3rd-party-nagios-plugins) you might be interested in.
 
 
 ##### Compatibility / Translation Plugins
@@ -419,7 +419,7 @@ All plugins come with `--help` which lists all options as well as giving a progr
 
 Environment variables are supported for convenience and also to hide credentials from being exposed in the process list eg. ```$PASSWORD```. These are indicated in the ```--help``` descriptions in brackets next to each option and often have more specific overrides with higher precedence eg. ```$ELASTICSEARCH_HOST``` takes priority over ```$HOST```, ```$REDIS_PASSWORD``` takes priority over ```$PASSWORD``` etc.
 
-Make sure to run the [automated build](https://github.com/harisekhon/nagios-plugins#automated-build-from-source) or install the required Perl CPAN / Python PyPI modules first before calling `--help`.
+Make sure to run the [automated build](https://github.com/HariSekhon/Nagios-Plugins#automated-build-from-source) or install the required Perl CPAN / Python PyPI modules first before calling `--help`.
 
 
 ### Kerberos Security Support ###
@@ -437,7 +437,7 @@ To use different kerberos credentials per plugin you can `export KRB5CCNAME=/dif
 
 Testing high availability and multi-master setups is best done through a load balancer.
 
-HAProxy configurations are provided for all the major technologies under the [haproxy-configs/](https://github.com/HariSekhon/haproxy-configs) directory for many of the technologies tested in this project, including:
+HAProxy configurations are provided for all the major technologies under the [haproxy-configs/](https://github.com/HariSekhon/HAProxy-configs) directory for many of the technologies tested in this project, including:
 
 - Hadoop HDFS NameNodes
 - Hadoop Yarn Resource Managers
@@ -454,9 +454,9 @@ HAProxy configurations are provided for all the major technologies under the [ha
 
 #### See Also
 
-The following is pulled from my [DevOps Python Tools repo](https://github.com/harisekhon/devops-python-tools) (currently one of my favourite repos):
+The following is pulled from my [DevOps Python Tools repo](https://github.com/HariSekhon/DevOps-Python-tools) (currently one of my favourite repos):
 
-- ```find_active_server.py``` - returns the first available healthy server or determines the active master in high availability setups. Configurable tests include socket, http, https, ping, url with optional regex content match and is multi-threaded for speed. Useful for pre-determining a server to be passed to tools that only take a single ```--host``` argument but for which the technology has later added multi-master support or active-standby masters (eg. Hadoop, HBase) or where you want to query cluster wide information available from any online peer (eg. Elasticsearch, RabbitMQ clusters). This is downloaded from my [DevOps Python Tools repo](https://github.com/harisekhon/devops-python-tools) as part of the build and placed at the top level. It has the ability to extend any nagios plugin to support multiple hosts in a generic way if you don't have a front end load balancer to run the check through. Example usage:
+- ```find_active_server.py``` - returns the first available healthy server or determines the active master in high availability setups. Configurable tests include socket, http, https, ping, url with optional regex content match and is multi-threaded for speed. Useful for pre-determining a server to be passed to tools that only take a single ```--host``` argument but for which the technology has later added multi-master support or active-standby masters (eg. Hadoop, HBase) or where you want to query cluster wide information available from any online peer (eg. Elasticsearch, RabbitMQ clusters). This is downloaded from my [DevOps Python Tools repo](https://github.com/HariSekhon/DevOps-Python-tools) as part of the build and placed at the top level. It has the ability to extend any nagios plugin to support multiple hosts in a generic way if you don't have a front end load balancer to run the check through. Example usage:
 
 ```
 ./check_elasticsearch_cluster_status.pl --host $(./find_active_server.py --http --port 9200 node1 node2 node3)
@@ -483,7 +483,7 @@ These are especially useful for ad-hoc scripting or quick command line tests.
 
 ### Configuration for Strict Domain / FQDN validation
 
-Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via the [Lib](https://github.com/harisekhon/lib) and [PyLib](https://github.com/harisekhon/pylib) submodules for Perl and Python plugins respectively - see those repos for details on configuring to permit custom TLDs like ```.local``` or ```.intranet``` (both already supported by default as they're quite common customizations).
+Strict validations include host/domain/FQDNs using TLDs which are populated from the official IANA list. This is done via the [Lib](https://github.com/HariSekhon/lib) and [PyLib](https://github.com/HariSekhon/pylib) submodules for Perl and Python plugins respectively - see those repos for details on configuring to permit custom TLDs like ```.local``` or ```.intranet``` (both already supported by default as they're quite common customizations).
 
 
 ### Quality ###
@@ -504,11 +504,11 @@ That naturally evolved in to this, a relatively Advanced Collection of Nagios Pl
 - `--warning/--critical` thresholds with range support, in form of `min:max` (`@` prefix inverts to expect value outside of this range)
 - support for use of `$USERNAME` and `$PASSWORD` environment variables as well as more specific overrides (eg. `$MYSQL_USERNAME`, `$REDIS_PASSWORD`) to give administrators the option to avoid leaking `--password` credentials in the process list for all users to see
 - self-timeouts
-- [Metrics Graphing integrations](https://github.com/HariSekhon/nagios-plugins#metrics-graphing-integrations)  - [Graphite](https://graphiteapp.org/), [InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/) and [PNP4Nagios](https://docs.pnp4nagios.org/) can all auto-graph the perfdata from these plugins
+- [Metrics Graphing integrations](https://github.com/HariSekhon/Nagios-Plugins#metrics-graphing-integrations)  - [Graphite](https://graphiteapp.org/), [InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/) and [PNP4Nagios](https://docs.pnp4nagios.org/) can all auto-graph the perfdata from these plugins
 - [Continuous Integration](https://travis-ci.org/HariSekhon/nagios-plugins) with tests for success and failure scenarios:
-  - unit tests for the custom supporting [perl](https://github.com/harisekhon/lib) and [python](https://github.com/harisekhon/pylib) libraries
+  - unit tests for the custom supporting [perl](https://github.com/HariSekhon/lib) and [python](https://github.com/HariSekhon/pylib) libraries
   - integration tests of the top level programs using the libraries for things like option parsing
-  - [functional tests](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) for the top level programs using [Docker containers](https://hub.docker.com/u/harisekhon/) for each technology (eg. Cassandra, Elasticsearch, Hadoop, HBase, ZooKeeper, Memcached, Neo4j, MongoDB, MySQL, Riak, Redis...)
+  - [functional tests](https://github.com/HariSekhon/Nagios-Plugins/tree/master/tests) for the top level programs using [Docker containers](https://hub.docker.com/u/harisekhon/) for each technology (eg. Cassandra, Elasticsearch, Hadoop, HBase, ZooKeeper, Memcached, Neo4j, MongoDB, MySQL, Riak, Redis...)
 - easy rapid development of new high quality robust Nagios plugins with minimal lines of code
 
 Several plugins have been merged together and replaced with symlinks to the unified plugins bookmarking their areas of functionality, similar to some plugins from the standard nagios plugins collection.
@@ -545,18 +545,18 @@ If you're new remember to check out the `older/` directory for more plugins that
 
 Feedback, Feature Requests, Improvements and Patches are welcome.
 
-Patches are accepted in the form of [Github pull requests](https://github.com/HariSekhon/nagios-plugins/pulls), for which you will receive attribution automatically as Github tracks these merges.
+Patches are accepted in the form of [Github pull requests](https://github.com/HariSekhon/Nagios-Plugins/pulls), for which you will receive attribution automatically as Github tracks these merges.
 
 
 ### Support for Updates / Bugs Fixes / Feature Requests ###
 
-Please raise a [Github Issue ticket](https://github.com/harisekhon/nagios-plugins/issues) for if you need updates, bug fixes or new features. [Github pull requests](https://github.com/HariSekhon/nagios-plugins/pulls) are more than welcome.
+Please raise a [Github Issue ticket](https://github.com/HariSekhon/Nagios-Plugins/issues) for if you need updates, bug fixes or new features. [Github pull requests](https://github.com/HariSekhon/Nagios-Plugins/pulls) are more than welcome.
 
 Since there are a lot of programs covering a lot of different technologies in this project, so remember to look at the software versions each program was written / tested against (documented in --help for each program, also found near the top of the source code in each program). Newer versions of software seem to change a lot these days especially in the Big Data & NoSQL space so plugins may require updates for newer versions.
 
-Please make sure you have run ```make update``` first to pull the latest updates including library sub-modules and build the latest CPAN / PyPI module dependencies, (see [Quick Setup](https://github.com/harisekhon/nagios-plugins#quick-setup) above).
+Please make sure you have run ```make update``` first to pull the latest updates including library sub-modules and build the latest CPAN / PyPI module dependencies, (see [Quick Setup](https://github.com/HariSekhon/Nagios-Plugins#quick-setup) above).
 
-Make sure you run the code by hand on the command line with ```-v -v -v``` for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` tool found in my [DevOps Perl Tools repo](https://github.com/harisekhon/devops-perl-tools).
+Make sure you run the code by hand on the command line with ```-v -v -v``` for additional debug output and paste the full output in to the issue ticket. If you want to anonymize your hostnames/IP addresses etc you may use the ```scrub.pl``` tool found in my [DevOps Perl Tools repo](https://github.com/HariSekhon/DevOps-Perl-tools).
 
 
 ### Detailed Build Instructions
@@ -565,7 +565,7 @@ Make sure you run the code by hand on the command line with ```-v -v -v``` for a
 
 ```
 
-git clone https://github.com/harisekhon/nagios-plugins
+git clone https://github.com/HariSekhon/Nagios-Plugins
 
 cd nagios-plugins
 
@@ -581,7 +581,7 @@ To build just the Perl or Python dependencies for the project you can do ` make 
 
 If you only want to use one plugin, you can do ` make perl-libs ` or ` make python-libs ` and then just install the potential one or two dependencies specific to that one plugin if it has any, which is much quicker than building the whole project.
 
-` make ` builds will install yum rpms / apt debs dependencies automatically as well as a load of Perl CPAN & Python PyPI libraries. To pick and choose what to install follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead
+` make ` builds will install yum rpms / apt debs dependencies automatically as well as a load of Perl CPAN & Python PyPI libraries. To pick and choose what to install follow the [Manual Build](https://github.com/HariSekhon/Nagios-Plugins#manual-build) section instead
 
 This has become quite a large project and will take at least 10 minutes to build. The build is automated and tested on RHEL / CentOS 5/6/7 & Debian / Ubuntu systems.
 
@@ -590,14 +590,14 @@ Make sure /usr/local/bin is in your ` $PATH ` when running make as otherwise it'
 
 ##### Python VirtualEnv / Perlbrew localized installs
 
-The automated build will use 'sudo' to install required Perl CPAN & Python PyPI libraries to the system unless running as root or it detects being inside Perlbrew or VirtualEnv. If you want to install some of the common Perl / Python libraries such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN / PyPI then follow the [Manual Build](https://github.com/harisekhon/nagios-plugins#manual-build) section instead.
+The automated build will use 'sudo' to install required Perl CPAN & Python PyPI libraries to the system unless running as root or it detects being inside Perlbrew or VirtualEnv. If you want to install some of the common Perl / Python libraries such as Net::DNS and LWP::* using your OS packages instead of installing from CPAN / PyPI then follow the [Manual Build](https://github.com/HariSekhon/Nagios-Plugins#manual-build) section instead.
 
 
 #### Offline Setup
 
 Download the Nagios Plugins, Lib and Pylib git repos as zip files:
 
-https://github.com/HariSekhon/nagios-plugins/archive/master.zip
+https://github.com/HariSekhon/Nagios-Plugins/archive/master.zip
 
 https://github.com/HariSekhon/lib/archive/master.zip
 
@@ -710,7 +710,7 @@ Fetch my library repos which are included as submodules (they're shared between 
 
 ```
 
-git clone https://github.com/harisekhon/nagios-plugins
+git clone https://github.com/HariSekhon/Nagios-Plugins
 
 cd nagios-plugins
 
@@ -722,12 +722,12 @@ git submodule update
 
 Then install the Perl CPAN and Python PyPI modules as listed in the next sections.
 
-For Mac OS X see the [Mac OS X](https://github.com/HariSekhon/nagios-plugins#mac-os-x) section from Automated Build instructions.
+For Mac OS X see the [Mac OS X](https://github.com/HariSekhon/Nagios-Plugins#mac-os-x) section from Automated Build instructions.
 
 
 ##### Perl CPAN Modules #####
 
-If installing the Perl CPAN or Python PyPI modules via your package manager or by hand instead of via the [Automated Build From Source](https://github.com/harisekhon/nagios-plugins#automated-build-from-source) section, then read the [requirements.txt](https://github.com/HariSekhon/nagios-plugins/blob/master/requirements.txt) and [setup/cpan-requirements.txt](https://github.com/HariSekhon/nagios-plugins/blob/master/setup/cpan-requirements.txt) files for the lists of Python PyPI and Perl CPAN modules respectively that you need to install.
+If installing the Perl CPAN or Python PyPI modules via your package manager or by hand instead of via the [Automated Build From Source](https://github.com/HariSekhon/Nagios-Plugins#automated-build-from-source) section, then read the [requirements.txt](https://github.com/HariSekhon/Nagios-Plugins/blob/master/requirements.txt) and [setup/cpan-requirements.txt](https://github.com/HariSekhon/Nagios-Plugins/blob/master/setup/cpan-requirements.txt) files for the lists of Python PyPI and Perl CPAN modules respectively that you need to install.
 
 You can install the full list of CPAN modules using this command:
 
@@ -804,10 +804,10 @@ If you update often and want to just quickly git pull + submodule update but ski
 There are full multi-level suites of tests against this repository and its libraries.
 
 [Continuous Integration](https://travis-ci.org/HariSekhon/nagios-plugins) is run on this repo with tests for success and failure scenarios:
-- Unit Tests - 1200+ unit tests covering the [Perl library](https://github.com/harisekhon/lib) and [Python library](https://githu.com/harisekhon/pylib)
+- Unit Tests - 1200+ unit tests covering the [Perl library](https://github.com/HariSekhon/lib) and [Python library](https://githu.com/harisekhon/pylib)
 - Integration tests checking dependency integration, usage `--help` generation etc.
 - Custom tests for various languages and build systems, linting, coding style, and other standardizations
-- Functional Tests - 800+ full functional [tests/](https://github.com/HariSekhon/nagios-plugins/tree/master/tests) using dozens of [Docker Images](https://hub.docker.com/u/harisekhon/) for full API testing of the various technologies
+- Functional Tests - 800+ full functional [tests/](https://github.com/HariSekhon/Nagios-Plugins/tree/master/tests) using dozens of [Docker Images](https://hub.docker.com/u/harisekhon/) for full API testing of the various technologies
 
 To trigger all tests run:
 
@@ -881,9 +881,9 @@ sudo pip install certifi==2015.04.28
 
 ### See Also ###
 
-- [Kafka Scala Nagios Plugin](https://github.com/HariSekhon/nagios-plugin-kafka) - Scala version of the Python and Perl Kafka plugins found here, build provides a self-contained jar with Kerberos support.
+- [Kafka Scala Nagios Plugin](https://github.com/HariSekhon/Nagios-Plugin-Kafka) - Scala version of the Python and Perl Kafka plugins found here, build provides a self-contained jar with Kerberos support.
 
-- [DevOps Bash Tools](https://github.com/harisekhon/devops-bash-tools) - 700+ DevOps Bash Scripts, Advanced `.bashrc`, `.vimrc`, `.screenrc`, `.tmux.conf`, `.gitconfig`, CI configs & Utility Code Library - AWS, GCP, Kubernetes, Docker, Kafka, Hadoop, SQL, BigQuery, Hive, Impala, PostgreSQL, MySQL, LDAP, DockerHub, Jenkins, Spotify API & MP3 tools, Git tricks, GitHub API, GitLab API, BitBucket API, Code & build linting, package management for Linux / Mac / Python / Perl / Ruby / NodeJS / Golang, and lots more random goodies
+- [DevOps Bash Tools](https://github.com/HariSekhon/DevOps-Bash-tools) - 700+ DevOps Bash Scripts, Advanced `.bashrc`, `.vimrc`, `.screenrc`, `.tmux.conf`, `.gitconfig`, CI configs & Utility Code Library - AWS, GCP, Kubernetes, Docker, Kafka, Hadoop, SQL, BigQuery, Hive, Impala, PostgreSQL, MySQL, LDAP, DockerHub, Jenkins, Spotify API & MP3 tools, Git tricks, GitHub API, GitLab API, BitBucket API, Code & build linting, package management for Linux / Mac / Python / Perl / Ruby / NodeJS / Golang, and lots more random goodies
 
 - [SQL Scripts](https://github.com/HariSekhon/SQL-scripts) - 100+ SQL Scripts - PostgreSQL, MySQL, AWS Athena, Google BigQuery
 
@@ -891,7 +891,7 @@ sudo pip install certifi==2015.04.28
 
 - [Kubernetes configs](https://github.com/HariSekhon/Kubernetes-configs) - Kubernetes YAML configs - Best Practices, Tips & Tricks are baked right into the templates for future deployments
 
-- [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) - 80+ DevOps CLI tools for AWS, GCP, Hadoop, HBase, Spark, Log Anonymizer, Ambari Blueprints, AWS CloudFormation, Linux, Docker, Spark Data Converters & Validators (Avro / Parquet / JSON / CSV / INI / XML / YAML), Elasticsearch, Solr, Travis CI, Pig, IPython
+- [DevOps Python Tools](https://github.com/HariSekhon/DevOps-Python-tools) - 80+ DevOps CLI tools for AWS, GCP, Hadoop, HBase, Spark, Log Anonymizer, Ambari Blueprints, AWS CloudFormation, Linux, Docker, Spark Data Converters & Validators (Avro / Parquet / JSON / CSV / INI / XML / YAML), Elasticsearch, Solr, Travis CI, Pig, IPython
 
 - [DevOps Perl Tools](https://github.com/harisekhon/perl-tools) - 25+ DevOps CLI tools for Hadoop, HDFS, Hive, Solr/SolrCloud CLI, Log Anonymizer, Nginx stats & HTTP(S) URL watchers for load balanced web farms, Dockerfiles & SQL ReCaser (MySQL, PostgreSQL, AWS Redshift, Snowflake, Apache Drill, Hive, Impala, Cassandra CQL, Microsoft SQL Server, Oracle, Couchbase N1QL, Dockerfiles, Pig Latin, Neo4j, InfluxDB), Ambari FreeIPA Kerberos, Datameer, Linux...
 
@@ -899,7 +899,7 @@ sudo pip install certifi==2015.04.28
 
 - [Dockerfiles](https://github.com/HariSekhon/Dockerfiles) - 50+ DockerHub public images for Docker & Kubernetes - Hadoop, Kafka, ZooKeeper, HBase, Cassandra, Solr, SolrCloud, Presto, Apache Drill, Nifi, Spark, Mesos, Consul, Riak, OpenTSDB, Jython, Advanced Nagios Plugins & DevOps Tools repos on Alpine, CentOS, Debian, Fedora, Ubuntu, Superset, H2O, Serf, Alluxio / Tachyon, FakeS3
 
-The [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) & [DevOps Perl Tools](https://github.com/harisekhon/devops-perl-tools) repos contain over 100 useful programs including:
+The [DevOps Python Tools](https://github.com/HariSekhon/DevOps-Python-tools) & [DevOps Perl Tools](https://github.com/HariSekhon/DevOps-Perl-tools) repos contain over 100 useful programs including:
 
 - ```anonymize.pl``` / ```anonymize.py``` - anonymizes configs / logs for posting online - replaces hostnames/domains/FQDNs, IPs, passwords/keys in Cisco/Juniper configs, custom extensible phrases like your name or your company name
 - ```validate_json/yaml/ini/xml/avro/parquet.py``` - validates JSON, YAML, INI (Java Properties), XML, Avro, Parquet including directory trees, standard input and even optionally 'single quoted json' and multi-record bulk JSON data formats as found in MongoDB and Hadoop / Big Data systems.
@@ -913,10 +913,10 @@ The [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) & [
 - AWS CloudFormation templates
 - DockerHub API tools including more search results and fetching repo tags (not available in official Docker tooling)
 
-- [My Perl library](https://github.com/harisekhon/lib) - used throughout this code as a submodule to make the programs in this repo short
-- [My Python library](https://github.com/harisekhon/pylib) - Python version of the above library, also heavily leveraged to keep programs in this repo short
+- [My Perl library](https://github.com/HariSekhon/lib) - used throughout this code as a submodule to make the programs in this repo short
+- [My Python library](https://github.com/HariSekhon/pylib) - Python version of the above library, also heavily leveraged to keep programs in this repo short
 <!--
-- [Spark => Elasticsearch](https://github.com/harisekhon/spark-apps) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of ```pig-text-to-elasticsearch.pig``` from my [DevOps Python Tools](https://github.com/harisekhon/devops-python-tools) repo
+- [Spark => Elasticsearch](https://github.com/harisekhon/spark-apps) - Scala application to index from Spark to Elasticsearch. Used to index data in Hadoop clusters or local data via Spark standalone. This started as a Scala Spark port of ```pig-text-to-elasticsearch.pig``` from my [DevOps Python Tools](https://github.com/HariSekhon/DevOps-Python-tools) repo
 -->
 
 ### Enterprise Monitoring Systems
@@ -980,7 +980,7 @@ The following enterprise monitoring systems are compatible with Nagios Plugins a
 
 Many monitoring systems will already auto-graph the performance metric data from these nagios plugins via [PNP4Nagios](http://docs.pnp4nagios.org/start) but you can also forward it to newer more specialised metrics monitoring and graphing systems such as [Graphite](https://graphiteapp.org/), [InfluxDB](https://www.influxdata.com/), [OpenTSDB](http://opentsdb.net/) and [Prometheus](https://prometheus.io/) (this last one is the most awkward as it requires pull rather than passively receiving).
 
-The above list of [enterprise monitoring systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems) documents each one's integration capabilities with links to their documentation.
+The above list of [enterprise monitoring systems](https://github.com/HariSekhon/Nagios-Plugins#enterprise-monitoring-systems) documents each one's integration capabilities with links to their documentation.
 
 ##### Metrics Collection Integrations
 
@@ -991,7 +991,7 @@ You can also execute these Nagios Plugins outside of any nagios-compatible monit
 
 ##### Other Metrics Integration Add-Ons
 
-- [PNP4Nagios](http://docs.pnp4nagios.org/start) - widely used open source auto-graphing add-on for Nagios open source and similar Nagios-based monitoring systems, see list of [enterprise monitoring systems](https://github.com/harisekhon/nagios-plugins#enterprise-monitoring-systems) above to see which ones bundle this
+- [PNP4Nagios](http://docs.pnp4nagios.org/start) - widely used open source auto-graphing add-on for Nagios open source and similar Nagios-based monitoring systems, see list of [enterprise monitoring systems](https://github.com/HariSekhon/Nagios-Plugins#enterprise-monitoring-systems) above to see which ones bundle this
 - [Graphios](https://github.com/shawn-sterling/graphios) - sends perfdata collected by Nagios to metrics graphing systems like [Graphite](https://graphiteapp.org/) or [InfluxDB](https://www.influxdata.com/) (via Graphite protocol)
 
 ###### Antiquated Monitoring Solutions You Probably Shouldn't Still Be Using Today

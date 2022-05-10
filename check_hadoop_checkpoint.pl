@@ -8,7 +8,7 @@
 #  Idea dates back a few years earlier at least circa 2010-2012 that I used to run
 #  but was never release grade and another implementation I initially started in 2013
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying LICENSE file
 #

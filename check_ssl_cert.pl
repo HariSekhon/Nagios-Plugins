@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2010-08-11 17:12:01 +0000 (Wed, 11 Aug 2010)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying LICENSE file
 #
@@ -125,7 +125,7 @@ $openssl = which($openssl, 1);
 # OpenSSL 1.0 / 1.1 on Ubuntu Trust 14.04 / Debian 9 Stetch shows /usr/lib/ssl/ but in fact requires /usr/lib/ssl/certs/, which caused
 # cert validation failure if using the inferred path location as newer OpenSSL appears to no longer recurse for CA certs, see:
 #
-# https://github.com/HariSekhon/nagios-plugins/issues/163
+# https://github.com/HariSekhon/Nagios-Plugins/issues/163
 #
 # Originally commented this block out to leave openssl to use its default location and only use -CApath if the user has specifically requested changing the path
 #

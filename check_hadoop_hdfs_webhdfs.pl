@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2013-10-27 17:48:22 +0000 (Sun, 27 Oct 2013)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying LICENSE file
 #
@@ -25,7 +25,7 @@ Checks:
 
 OR
 
-- HDFS writable - writes a small unique canary file to hdfs:///tmp to check that HDFS is fully available and not in Safe mode (implies enough DataNodes have checked in after startup to achieve 99.9% block availability by default). Deletes the canary file as part of the test to avoid build up of small files. However, if the operation times out on read back or delete then small files will be left in HDFS /tmp, so you should run a periodic cleanup of those (see hadoop_hdfs_retention_policy.pl in https://github.com/harisekhon/devops-perl-tools).
+- HDFS writable - writes a small unique canary file to hdfs:///tmp to check that HDFS is fully available and not in Safe mode (implies enough DataNodes have checked in after startup to achieve 99.9% block availability by default). Deletes the canary file as part of the test to avoid build up of small files. However, if the operation times out on read back or delete then small files will be left in HDFS /tmp, so you should run a periodic cleanup of those (see hadoop_hdfs_retention_policy.pl in https://github.com/HariSekhon/DevOps-Perl-tools).
 
 Supports Kerberos authentication but must have a valid kerberos ticket and must use the FQDN of the server, not an IP address and not a short name, otherwise you will get a \"401 Authentication required\" error.
 

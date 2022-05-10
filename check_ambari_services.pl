@@ -4,7 +4,7 @@
 #  Author: Hari Sekhon
 #  Date: 2013-12-02 20:31:30 +0000 (Mon, 02 Dec 2013)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying LICENSE file
 #
@@ -41,7 +41,7 @@ $ua->agent("Hari Sekhon $progname version $main::VERSION");
 #
 # Please raise a github ticket or even better submit a patch via a github pull request if you add to this list:
 #
-# https://github.com/harisekhon/nagios-plugins/issues
+# https://github.com/HariSekhon/Nagios-Plugins/issues
 #
 my @services_to_not_alert_on = qw(
                                     HCatalog

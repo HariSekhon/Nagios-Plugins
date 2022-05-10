@@ -2,14 +2,14 @@
 #  Author: Hari Sekhon
 #  Date: 2013-02-03 10:25:36 +0000 (Sun, 03 Feb 2013)
 #
-#  https://github.com/harisekhon/nagios-plugins
+#  https://github.com/HariSekhon/Nagios-Plugins
 #
 #  License: see accompanying Hari Sekhon LICENSE file
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback
 #  to help improve or steer this or other code I publish
 #
-#  https://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 # ===================
@@ -21,15 +21,15 @@
 #
 # Alpine:
 #
-#   apk add --no-cache git make && git clone https://github.com/harisekhon/nagios-plugins && cd nagios-plugins && make
+#   apk add --no-cache git make && git clone https://github.com/HariSekhon/Nagios-Plugins && cd nagios-plugins && make
 #
 # Debian / Ubuntu:
 #
-#   apt-get update && apt-get install -y git make && git clone https://github.com/harisekhon/nagios-plugins && cd nagios-plugins && make
+#   apt-get update && apt-get install -y git make && git clone https://github.com/HariSekhon/Nagios-Plugins && cd nagios-plugins && make
 #
 # RHEL / CentOS:
 #
-#   yum install -y git make && git clone https://github.com/harisekhon/nagios-plugins && cd nagios-plugins && make
+#   yum install -y git make && git clone https://github.com/HariSekhon/Nagios-Plugins && cd nagios-plugins && make
 
 # ===================
 
@@ -218,7 +218,7 @@ python-libs:
 	@echo
 	@echo
 
-# Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/harisekhon/nagios-plugins
+# Net::ZooKeeper must be done separately due to the C library dependency it fails when attempting to install directly from CPAN. You will also need Net::ZooKeeper for check_zookeeper_znode.pl to be, see README.md or instructions at https://github.com/HariSekhon/Nagios-Plugins
 # doesn't build on Mac < 3.4.7 / 3.5.1 / 3.6.0 but the others are in the public mirrors yet
 # https://issues.apache.org/jira/browse/ZOOKEEPER-2049
 ZOOKEEPER_VERSION = 3.4.12
@@ -245,11 +245,11 @@ jar-plugins:
 	@echo Fetching Kafka Scala Nagios Plugin
 	@echo fetching jar wrapper shell script
 	# if removing and re-uploading latest this would get 404 and exit immediately without the rest of the retries
-	#wget -c -t 5 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/blob/latest/check_kafka
-	for x in {1..6}; do wget -qc https://github.com/HariSekhon/nagios-plugin-kafka/blob/latest/check_kafka && break; sleep 10; done
+	#wget -c -t 5 --retry-connrefused https://github.com/HariSekhon/Nagios-Plugin-Kafka/blob/latest/check_kafka
+	for x in {1..6}; do wget -qc https://github.com/HariSekhon/Nagios-Plugin-Kafka/blob/latest/check_kafka && break; sleep 10; done
 	@echo fetching jar
-	#wget -qc -t 5 --retry-connrefused https://github.com/HariSekhon/nagios-plugin-kafka/releases/download/latest/check_kafka.jar
-	for x in {1..6}; do wget -qc https://github.com/HariSekhon/nagios-plugin-kafka/releases/download/latest/check_kafka.jar && break; sleep 10; done
+	#wget -qc -t 5 --retry-connrefused https://github.com/HariSekhon/Nagios-Plugin-Kafka/releases/download/latest/check_kafka.jar
+	for x in {1..6}; do wget -qc https://github.com/HariSekhon/Nagios-Plugin-Kafka/releases/download/latest/check_kafka.jar && break; sleep 10; done
 
 .PHONY: lib-test
 lib-test:
