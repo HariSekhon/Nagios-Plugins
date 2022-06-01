@@ -14,8 +14,7 @@ if ! type -P check_nt &>/dev/null; then
     echo "CRITICAL: check_nt was not found in path"
     exit "$CRITICAL"
 fi
-# shellcheck disable=SC2230
-check_nt="$(which check_nt)"
+check_nt="$(type -P check_nt)"
 
 
 if [ ! -f "$check_nt" ]; then
