@@ -25,13 +25,13 @@ usage: ${0##*/} <nagios_plugin> <args>
     exit 3
 }
 
-for x in $@; do
-    case $x in
+for x in "$@"; do
+    case "$x" in
          -h|--help) usage ;;
     esac
 done
 
-output="$($@ 2>&1)"
+output="$("$@" 2>&1)"
 result=$?
 if [ $result -eq 1 ]; then
     sed 's/^WARNING:/CRITICAL:/' <<< "$output"
