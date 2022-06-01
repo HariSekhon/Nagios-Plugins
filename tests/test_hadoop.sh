@@ -77,6 +77,7 @@ test_hadoop(){
     hr
     if [ "${version:0:1}" = 3 ]; then
         local export HADOOP_NAMENODE_PORT_DEFAULT=9870
+        #  shellcheck disable=SC2034
         local export HADOOP_DATANODE_PORT_DEFAULT=9868
     fi
     echo "getting Hadoop dynamic port mappings:"
@@ -794,6 +795,8 @@ check_newer_plugins(){
         # run inside Docker container so it can resolve redirect to DN
         docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost
 
+        # defined in bash-tools/lib/utils.sh
+        # shellcheck disable=SC2154
         ERRCODE=2 docker_exec check_hadoop_hdfs_write_webhdfs.pl -H localhost -P "$wrong_port"
 
         # Yarn RM HA state field not available in older versions of Hadoop
