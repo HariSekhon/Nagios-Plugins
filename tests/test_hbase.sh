@@ -665,6 +665,8 @@ EOF
 
         docker_exec check_zookeeper_znode.pl -H localhost -z /hbase -v -n --child-znodes
 
+        # defined in bash-tools/lib/utils.sh
+        # shellcheck disable=SC2154
         ERRCODE=2 docker_exec check_zookeeper_znode.pl -H localhost -z /hbase -v -n --child-znodes -P "$wrong_port"
 
         docker_exec check_zookeeper_child_znodes.pl -H localhost -z /hbase/rs -v -w 1:1 -c 1:1
