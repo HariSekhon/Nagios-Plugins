@@ -78,6 +78,8 @@ test_zookeeper(){
     docker_exec check_zookeeper_child_znodes.pl -H localhost -z / --no-ephemeral-check -v
 
     echo "checking connection refused:"
+    # defined in bash-tools/lib/utils.sh
+    # shellcheck disable=SC2154
     ERRCODE=2 docker_exec check_zookeeper_child_znodes.pl -H localhost -z / --no-ephemeral-check -v -P "$wrong_port"
 
     docker_exec check_zookeeper_znode.pl -H localhost -z / -v -n --child-znodes
