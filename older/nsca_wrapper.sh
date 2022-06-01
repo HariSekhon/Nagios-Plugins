@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 #
 #  Author: Hari Sekhon
 #  Date: A Very Long Time Ago (2007 - 2010?)
@@ -14,7 +14,7 @@
 # you need on one line in order to submit a passive service check for Nagios
 
 set -u
-srcdir=`dirname $0`
+srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 version=0.8
 
 # Fill in the following 3 variables below if if you do not want to have to
@@ -150,7 +150,7 @@ done
 [ -n "$service" ]  || die "You must supply a Service name exactly as it appears in Nagios"
 [ -n "$cmd" ]      || die "You must supply a command to execute"
 
-[ "$local_passive" = "true" -a -n "$nagios_server" ] && usage "Cannot specify local check and nagios server to send passive check to, they are mutually exclusive"
+[ "$local_passive" = "true" ] && [ -n "$nagios_server" ] && usage "Cannot specify local check and nagios server to send passive check to, they are mutually exclusive"
 
 if [ -z "$nagios_server" ]; then
     if [ -n "$NAGIOS_SERVER" ]; then
@@ -219,22 +219,22 @@ for x in $cmd; do
     done
 done
 
-which ${cmd%% *} >/dev/null 2>&1 || die "Command not found: ${cmd%% *}"
-output="`$cmd 2>&1`"
+type -P "${cmd%% *}" >/dev/null 2>&1 || die "Command not found: ${cmd%% *}"
+output="$("$cmd" 2>&1)"
 result=$?
 [ "$quiet_mode" = "true" ] || echo "$output"
-output="`echo "$output" | sed 's/%/%%/g'`"
+output="$(sed 's/%/%%/g' <<< "$output")"
 
 if [ "$local_passive" = "true" ]; then
     nagios_result="PROCESS_SERVICE_CHECK_RESULT;$host;$service;$result;$output"
-    printf "[%lu] $nagios_result\n" `date +%s` >> "$nagios_pipe"
+    printf "[%lu] $nagios_result\\n" "$(date +%s)" >> "$nagios_pipe"
 else
-    send_output=`printf "$host\t$service\t$result\t$output\n" | $send_nsca -H $nagios_server -c $send_nsca_config 2>&1`
+    send_output="$(printf '%s\t%s\t%s\t%s\n' "$host" "$service" " $result" "$output" | "$send_nsca" -H "$nagios_server" -c "$send_nsca_config" 2>&1)"
     send_result=$?
     [ "$quiet_mode" = "true" ] && echo "Sending to NSCA daemon: $send_output"
 fi
 
-if [ -n "$return_plugin_code" -o "$local_passive" = "true" ]; then
+if [ -n "$return_plugin_code" ] || [ "$local_passive" = "true" ]; then
     exit "$result"
 else
     exit "$send_result"
