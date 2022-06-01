@@ -22,7 +22,7 @@ cd "$srcdir2/.."
 # shellcheck disable=SC1090
 . "$srcdir2/utils.sh"
 
-srcdir="$srcdir2"
+#srcdir="$srcdir2"
 
 section "S o l r C l o u d"
 
