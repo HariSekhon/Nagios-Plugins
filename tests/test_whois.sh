@@ -54,6 +54,8 @@ if ! type -P jwhois &>/dev/null || is_mac; then
         echo
         exit 0
     fi
+    # want splitting
+    # shellcheck disable=SC2086
     trap 'docker_rmi_grep harisekhon/nagios-plugins || :' $TRAP_SIGNALS
     echo "jwhois not found in \$PATH, attempting to use Dockerized test instead"
     launch_container "$DOCKER_IMAGE" "$DOCKER_CONTAINER"
