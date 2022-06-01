@@ -101,6 +101,7 @@ export MONGODB_PASSWORD="testpw"
 test_mongo_auth(){
     local version="$1"
     section2 "Setting up MongoDB $version authenticated test container"
+    # shellcheck disable=SC2034
     local DOCKER_CMD="mongod --auth --rest"
     # shellcheck disable=SC2086
     launch_container "$DOCKER_IMAGE:$version" "$DOCKER_CONTAINER-auth" $MONGO_PORTS
