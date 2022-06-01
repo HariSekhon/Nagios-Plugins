@@ -28,28 +28,28 @@ test_name=""
 # Shortcut functions for convenience.
 # Override the test_name above to customize
 OK(){
-    message="${@:-Service OK}"
+    message="${*:-Service OK}"
     [ -n "${test_name:-}" ] && test_name="${test_name%% } "
     echo "${test_name}OK: $message"
     exit $OK
 }
 
 WARNING(){
-    message="${@:-Service in Warning State}"
+    message="${*:-Service in Warning State}"
     [ -n "${test_name:-}" ] && test_name="${test_name%% } "
     echo "${test_name}WARNING: $message"
     exit $WARNING
 }
 
 CRITICAL(){
-    message="${@:-Service in Critical State}"
+    message="${*:-Service in Critical State}"
     [ -n "${test_name:-}" ] && test_name="${test_name%% } "
     echo "${test_name}CRITICAL: $message"
     exit $CRITICAL
 }
 
 UNKNOWN(){
-    message="${@:-Service in Unknown State}"
+    message="${*:-Service in Unknown State}"
     [ -n "${test_name:-}" ] && test_name="${test_name%% } "
     echo "${test_name}UNKNOWN: $message"
     exit $UNKNOWN
@@ -61,7 +61,7 @@ UNKNOWN(){
 
 arg_err(){
     # Takes custom error message to output and then prints usage
-    echo "Argument Error: $@"
+    echo "Argument Error: $*"
     echo
     usage || die "NO USAGE HELP AVAILABLE. USAGE NOT DEFINED"
 }
@@ -99,12 +99,13 @@ resolve_name(){
     [ -n "$target" ] || { echo "no target given" >&2 ; exit 1; }
     #if ! [[ "$name" == [0-9]*.[0-9]*.[0-9]*.[0-9]* ]]; then
     # TODO Improve this Regex
-    if grep -E "([12]?[0-9]{1,2}\.){3}[12]?[0-9]{1,2}" <<< "$target" &>/dev/null; then
+    if grep -E '([12]?[0-9]{1,2}\.){3}[12]?[0-9]{1,2}' <<< "$target" &>/dev/null; then
         if ! type -P host &>/dev/null; then
             echo "Host command not found, unable to resolve ip to hostname for event handler"
             return 1
         fi
-        local name=`host "$target" | awk '{print $5}'`
+        local name
+        name="$(host "$target" | awk '{print $5}')"
         local name=${name%%.*}
         if [ -z "$name" ]; then
             echo "failed to resolve $target"
@@ -143,8 +144,8 @@ netsend(){
         return 1
     fi
     local host="$1"
-    local message="${@:2}"
-    smbclient -M $host <<< "$message" > /dev/null
+    local message="${*:2}"
+    smbclient -M "$host" <<< "$message" > /dev/null
     local result=$?
     if [ $result -ne 0 ]; then
         echo "ERROR: FAILED TO NET SEND $host"
@@ -159,9 +160,9 @@ netsend_msg(){
     #
     # netsend_msg "X has gone wrong with Y"
     #
-    WORKSTATIONS="$(sed 's/#.*//' < $(dirname $0)/netsendworkstations)"
+    WORKSTATIONS="$(sed 's/#.*//' < "$(dirname "$0")/netsendworkstations")"
     for workstation in $WORKSTATIONS; do
-        netsend $workstation <<< "$LOGFILE" &>/dev/null
+        netsend "$workstation" <<< "$LOGFILE" &>/dev/null
     done
 }
 
@@ -176,7 +177,7 @@ mail_msg(){
         echo "ERROR: MAIL COMMAND NOT FOUND IN PATH"
         return 1
     fi
-    mail -s "$@" $MAILTO < $LOGFILE
+    mail -s "$@" "$MAILTO" < "$LOGFILE"
     local result=$?
     if [ $result -ne 0 ]; then
         echo "ERROR SENDING EMAIL TO $MAILTO"
