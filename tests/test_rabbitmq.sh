@@ -346,6 +346,7 @@ EOF
     # 3.5+ only
     echo "version: $version"
     hr
+    # shellcheck disable=SC2166
     if [ "$version" = "latest" ] ||
         [ "${version:0:1}" -gt 3 ] ||
         [ "${version:0:1}" -eq 3 -a "${version:2:1}" -ge 5 ]; then
