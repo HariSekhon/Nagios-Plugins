@@ -10,7 +10,7 @@
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  http://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 # intended only to be sourced by utils.sh
@@ -34,8 +34,10 @@ is_zookeeper_built(){
 # This is a relatively expensive function do not overuse this
 isExcluded(){
     local prog="$1"
+    # false positive
+    # shellcheck disable=SC2049
     [[ "$prog" =~ ^\* ]] && return 0
-    [[ "$prog" =~ ^\.\/\. ]] && return 0
+    [[ "$prog" =~ ^\./\. ]] && return 0
     [[ "$prog" =~ ^\.[[:alnum:]] ]] && return 0
     [[ "$prog" =~ check_puppet\.rb ]] && return 0
     # RabbitMQ pika library clashes with Python 3.7 async field, requires update
