@@ -111,12 +111,12 @@ while [ "$#" -ge 1 ]; do
     shift
 done
 
-mandatory_users="`echo $mandatory_users | tr ',' ' '`"
-unauthorized_users="`echo $unauthorized_users | tr ',' ' '`"
-whitelist_users="`echo $whitelist_users | tr ',' ' '`"
+mandatory_users="$(tr ',' ' ' <<< "$mandatory_users")"
+unauthorized_users="$(tr ',' ' ' <<< "$unauthorized_users")"
+whitelist_users="$(tr ',' ' ' <<< "$whitelist_users")"
 
 # Must be a list of usernames only.
-userlist="`who|grep -v "^ *$"|awk '{print $1}'|sort`"
+userlist="$(who | grep -v '^ *$' | awk '{print $1}' | sort)"
 errormsg=""
 exitcode=$OK
 
@@ -129,9 +129,10 @@ if [ -n "$userlist" ]; then
                 exitcode=$CRITICAL
             fi
         done
-        for user in `echo $missing_users|tr " " "\n"|sort -u`; do
+        while read -r user; do
+            # shellcheck disable=SC2089
             errormsg="${errormsg}user '$user' not logged in. "
-        done
+        done < <(tr ' ' '\n' <<< "$missing_users" | sort -u)
     fi
 
     if [ -n "$unauthorized_users" ]; then
@@ -142,44 +143,48 @@ if [ -n "$userlist" ]; then
                 exitcode=$CRITICAL
             fi
         done
-        for user in `echo $blacklisted_users|tr " " "\n"|sort -u`; do
+        while read -r user; do
             errormsg="${errormsg}Unauthorized user '$user' is logged in! "
-        done
+        done < <(tr ' ' '\n' <<< "$blacklisted_users" | sort -u)
     fi
 
     if [ -n "$whitelist_users" ]; then
         unwanted_users=""
-        for user in `echo "$userlist"|sort -u`; do
-            if ! echo $whitelist_users|tr " " "\n"|grep "^$user$" >/dev/null 2>&1; then
+        while read -r user; do
+            if ! tr ' ' '\n' <<< "$whitelist_users" | grep -q "^$user$"; then
                 unwanted_users="$unwanted_users $user"
                 exitcode=$CRITICAL
             fi
-        done
-        for user in `echo $unwanted_users|tr " " "\n"|sort -u`; do
+        done < <(sort -u <<< "$userlist")
+        while read -r user; do
             errormsg="${errormsg}Unauthorized user '$user' detected! "
-        done
+        done < <(tr ' ' '\n' <<< "$unwanted_users" | sort -u)
     fi
 
     if [ "$simple" == "true" ]
         then
-        finallist=`echo "$userlist"|uniq`
+        finallist="$(uniq <<< "$userlist")"
     else
-        finallist=`echo "$userlist"|uniq -c|awk '{print $2"("$1")"}'`
+        finallist="$(uniq -c <<< "$userlist" | awk '{print $2"("$1")"}')"
     fi
 else
     finallist="no users logged in"
 fi
 
 if [ "$exitcode" -eq $OK ]; then
+    # shellcheck disable=SC2086,SC2027,SC2090
     echo "USERS OK:" $finallist
     exit $OK
 elif [ "$exitcode" -eq $WARNING ]; then
+    # shellcheck disable=SC2086,SC2027,SC2090
     echo "USERS WARNING:" $errormsg"[users: "$finallist"]"
     exit $WARNING
 elif [ "$exitcode" -eq $CRITICAL ]; then
+    # shellcheck disable=SC2086,SC2027,SC2090
     echo "USERS CRITICAL:" $errormsg"[users: "$finallist"]"
     exit $CRITICAL
 else
+    # shellcheck disable=SC2086,SC2027,SC2090
     echo "USERS UNKNOWN:" $errormsg"[users: "$finallist"]"
     exit $UNKNOWN
 fi
