@@ -12,18 +12,18 @@ export PATH=$PATH:/usr/lib64/nagios/plugins:/usr/lib/nagios/plugins:/usr/nagios/
 
 if ! type -P check_nt &>/dev/null; then
     echo "CRITICAL: check_nt was not found in path"
-    exit $CRITICAL
+    exit "$CRITICAL"
 fi
-check_nt=`which check_nt`
+# shellcheck disable=SC2230
+check_nt="$(which check_nt)"
 
 
 if [ ! -f "$check_nt" ]; then
     echo "CRITICAL: $check_nt cannot be found"
-    exit $CRITICAL
+    exit "$CRITICAL"
 fi
 
 if [ ! -x "$check_nt" ]; then
     echo "CRITICAL: $check_nt is not set executable!"
-    exit $CRITICAL
+    exit "$CRITICAL"
 fi
-
