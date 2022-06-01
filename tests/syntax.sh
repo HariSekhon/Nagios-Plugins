@@ -10,7 +10,7 @@
 #
 #  If you're using my code you're welcome to connect with me on LinkedIn and optionally send me feedback to help improve or steer this or other code I publish
 #
-#  http://www.linkedin.com/in/harisekhon
+#  https://www.linkedin.com/in/HariSekhon
 #
 
 set -eu
@@ -41,6 +41,8 @@ done
 
 srcdir="$srcdir_nagios_plugins_syntax"
 
+# defined in utils.sh
+# shellcheck disable=SC2154
 time_taken "$perl_syntax_start_time" "Help Checks Completed in $perl_syntax_time_taken secs"
 section2 "All Perl programs passed syntax check"
 echo
