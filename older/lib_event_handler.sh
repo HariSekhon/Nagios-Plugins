@@ -12,10 +12,13 @@
 
 # First things first, let's get all generic Nagios stuff
 lib="lib_nagios.sh"
-srcdir=`dirname $0`
+
+srcdir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# shellcheck disable=SC1090
 . "$srcdir"/$lib ||
     {   echo "Error Sourcing Nagios Library"
-        mail -s "$HOSTNAME: Event Handler Error Sourcing Nagios Library" ${MAILTO:-ops@mydomain.com} < /dev/null
+        mail -s "$HOSTNAME: Event Handler Error Sourcing Nagios Library" "${MAILTO:-ops@mydomain.com}" < /dev/null
         exit 3
     }
 
@@ -36,19 +39,21 @@ srcdir=`dirname $0`
 
 source_nrpe(){
     local lib="lib_check_nrpe.sh"
+    # shellcheck disable=SC1090
     . "$srcdir/$lib" ||
         {   echo "Event Handler: FAILED to source $lib properly"
-            mail -s "$HOSTNAME: Event Handler Error Sourcing Nrpe" $MAILTO < $LOGFILE
-            die
+            mail -s "$HOSTNAME: Event Handler Error Sourcing Nrpe" "$MAILTO" < "$LOGFILE"
+            die ""
         }
 }
 
 source_nt(){
     local lib="lib_check_nt.sh"
+    # shellcheck disable=SC1090
     . "$srcdir/$lib" ||
         {   echo "Event Handler: FAILED to source $lib properly"
-            mail -s "$HOSTNAME: Event Handler Error Sourcing Check_nt" $MAILTO < $LOGFILE
-            die
+            mail -s "$HOSTNAME: Event Handler Error Sourcing Check_nt" "$MAILTO" < "$LOGFILE"
+            die ""
         }
 }
 
@@ -140,22 +145,23 @@ validate_input(){
     #
     if [ -z "${HOST:-}" ]; then
         arg_err "You must supply a HOSTNAME/IP ADDRESS"
-    elif ! grep "^[A-Za-z0-9\.-]\+$" <<< "$HOST" &>/dev/null; then
+    elif ! grep -E '^[A-Za-z0-9\.-]+$' <<< "$HOST" &>/dev/null; then
         arg_err "'$HOST' is not a valid host name"
     fi
 
     if [ -z "${STATE:-}" ]; then
         arg_err "You must supply a SERVICESTATE"
-    elif [ "$STATE" != "OK"     \
-      -a "$STATE" != "WARNING"  \
-      -a "$STATE" != "CRITICAL" \
-      -a "$STATE" != "UNKNOWN" ]; then
+    elif [ "$STATE" != "OK" ]       &&\
+         [ "$STATE" != "WARNING" ]  && \
+         [ "$STATE" != "CRITICAL" ] && \
+         [ "$STATE" != "UNKNOWN" ]; then
         arg_err "STATE supplied is INVALID - must be one of the following: OK, WARNING, CRITICAL, UNKNOWN"
     fi
 
     if [ -z "${STATETYPE:-}" ]; then
         arg_err "You must supply a SERVICESTATETYPE (ie HARD or SOFT)"
-    elif [ "$STATETYPE" != "HARD" -a "$STATETYPE" != "SOFT" ]; then
+    elif [ "$STATETYPE" != "HARD" ] &&
+         [ "$STATETYPE" != "SOFT" ]; then
         arg_err "STATETYPE supplied is INVALID - must be either HARD or SOFT"
     fi
 
@@ -186,13 +192,14 @@ die(){
     # Expects MAILTO and LOGFILE to be set, otherwise defaults to ops@mydomain.com
     # and dev null for safety
     echo "$@"
-    local MAILTO=${MAILTO:-ops@mydomain.com}
-    local LOGFILE=${LOGFILE:-/dev/null}
-    if grep "^event_handler_[A-Za-z0-9]\+$" <<< "$0" &>/dev/null; then
-        local event_handler_name=`sed 's/event_//'`
+    local MAILTO="${MAILTO:-ops@mydomain.com}"
+    local LOGFILE="${LOGFILE:-/dev/null}"
+    if grep -E '^event_handler_[A-Za-z0-9]+$' <<< "$0" &>/dev/null; then
+        local event_handler_name
+        event_handler_name="$(sed 's/event_handler_//' <<< "$@")"
     else
-        local event_handler_name=""
+        local event_handler_name=''
     fi
-    mail -s "${HOSTNAME:-`hostname -s`}: $event_handler_name Event Handler Error" $MAILTO < $LOGFILE
-    exit $CRITICAL
+    mail -s "${HOSTNAME:-$(hostname -s)}: $event_handler_name Event Handler Error" "$MAILTO" < "$LOGFILE"
+    exit "$CRITICAL"
 }
