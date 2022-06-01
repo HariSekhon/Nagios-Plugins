@@ -23,6 +23,7 @@ on:
       - '**/*.pl'
       - '**/*.pm'
       - '**/*.t'
+      - lib
       - 'setup/cpan-requirements*'
       - .github/workflows/perl_5.34.yaml
   pull_request:
@@ -33,6 +34,7 @@ on:
       - '**/*.pl'
       - '**/*.pm'
       - '**/*.t'
+      - lib
       - 'setup/cpan-requirements*'
       - .github/workflows/perl_5.34.yaml
   workflow_dispatch:
