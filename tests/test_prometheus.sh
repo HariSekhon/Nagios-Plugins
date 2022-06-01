@@ -53,6 +53,7 @@ test_prometheus(){
     local version="$1"
     section2 "Setting up Prometheus $version test container"
     docker_compose_pull
+    # shellcheck disable=SC2034,SC2086
     local export NODE_EXPORTER_VERSION="${NODE_EXPORTER_VERSION:-$(bash-tools/random_select.sh $NODE_EXPORTER_VERSIONS)}"
     NODE_EXPORTER_VERSION="$NODE_EXPORTER_VERSION" VERSION="$version" docker-compose up -d --remove-orphans
     hr
