@@ -69,6 +69,7 @@ Advanced Nagios Plugins Collection
 [![Repo on GitHub](https://img.shields.io/badge/repo-GitHub-2088FF?logo=github)](https://github.com/HariSekhon/Nagios-Plugins)
 [![Repo on GitLab](https://img.shields.io/badge/repo-GitLab-FCA121?logo=gitlab)](https://gitlab.com/HariSekhon/Nagios-Plugins)
 [![Repo on BitBucket](https://img.shields.io/badge/repo-BitBucket-0052CC?logo=bitbucket)](https://bitbucket.org/HariSekhon/Nagios-Plugins)
+[![ShellCheck](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/shellcheck.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/shellcheck.yaml)
 [![Validation](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/validate.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/validate.yaml)
 [![Semgrep](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/semgrep.yaml)
 [![Kics](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/kics.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/kics.yaml)
