@@ -69,6 +69,7 @@ test_db(){
     local name="$1"
     local version="$2"
     name_lower="$(tr '[:upper:]' '[:lower:]' <<< "$name")"
+    # shellcheck disable=SC2034
     local export COMPOSE_FILE="$srcdir/docker/$name_lower-docker-compose.yml"
     section2 "Setting up $name $version test container"
     docker_compose_pull
