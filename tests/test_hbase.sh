@@ -98,12 +98,13 @@ test_hbase(){
     #if [[ "${version:0:2}" =~ ^1\. ]]; then
     #    local export HBASE_REGIONSERVER_PORT_DEFAULT=16301
     if [[ "${version:0:3}" =~ ^0\.9 ]]; then
-        export HBASE_REGIONSERVER_PORT_DEFAULT=60301
+        local export HBASE_REGIONSERVER_PORT_DEFAULT=60301
     fi
     # HBase <= 0.99 uses older port numbers
     if [[ "${version:0:4}" =~ ^0\.9[0-8]$ ]]; then
-        export HBASE_MASTER_PORT_DEFAULT=60010
-        export HAPROXY_MASTER_PORT_DEFAULT=60010
+        local export HBASE_MASTER_PORT_DEFAULT=60010
+        # shellcheck disable=SC2034
+        local export HAPROXY_MASTER_PORT_DEFAULT=60010
     fi
     echo "getting HBase dynamic port mappings:"
     docker_compose_port "HBase Master"
