@@ -14,6 +14,7 @@
 # I should really patch the C code and then make this wrapper
 # obsolete -h
 
+# shellcheck disable=SC2034
 VERSION=0.2
 
 # Standard Nagios exit codes
@@ -33,7 +34,7 @@ PLUGIN_PATHS="
 check_dhcp=""
 for path in $PLUGIN_PATHS; do
     if [ -f "$path/check_dhcp" ]; then
-        check_dhcp="$patch/check_dhcp"
+        check_dhcp="$path/check_dhcp"
         break
     fi
 done
@@ -43,11 +44,11 @@ done
 # than you have dhcp servers for, then you have a rogue DHCP server.
 DHCP_SERVERS=1
 
-output=`$check_dhcp $@`
+output="$($check_dhcp "$@")"
 result=$?
 
 # This depends on the output of the check_dhcp plugin which shouldn't change often
-OFFERS=`sed 's/.*Received //;s/\(.\)\+ .*/\1/' <<< "$output" `
+OFFERS="$(sed 's/.*Received //;s/\(.\)\+ .*/\1/' <<< "$output")"
 
 # Make sure we have a numeric number of offers from the sed above
 if [[ "$OFFERS" == [0-9] ]]; then
@@ -56,7 +57,7 @@ if [[ "$OFFERS" == [0-9] ]]; then
     # and the result of the test was 0 (ie the check_dhcp plugin thinks that this
     # is ok) then change it by outputting a warning and forcing the result to
     # a warning state
-    if [ "$OFFERS" -gt "$DHCP_SERVERS" -a "$result" == "$OK" ]; then
+    if [ "$OFFERS" -gt "$DHCP_SERVERS" ] && [ "$result" == "$OK" ]; then
         result=$WARNING
         output="$output Possible ROGUE DHCP Server Present!"
     fi
