@@ -45,6 +45,7 @@ test_logstash(){
     section2 "Setting up Logstash $version test container"
     # TODO: change latest if Elastic.co finally support 'latest' tag, otherwise it points to 5.x on dockerhub
     if ! [ "$version" = "latest" ] || [ "${version:0:1}" = 5 ]; then
+        # shellcheck disable=SC2034
         local export COMPOSE_FILE="$srcdir/docker/$DOCKER_SERVICE-elastic.co-docker-compose.yml"
     fi
     docker_compose_pull
