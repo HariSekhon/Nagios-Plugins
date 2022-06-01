@@ -41,7 +41,7 @@ check_installed(){
     echo "checking zkperl installation:"
     local cmd="perl -e 'use Net::ZooKeeper'"
     echo "$cmd"
-    eval $cmd
+    eval "$cmd"
 
 }
 
