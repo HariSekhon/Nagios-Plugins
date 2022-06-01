@@ -94,6 +94,7 @@ test_elasticsearch(){
         export ELASTICSEARCH_PASSWORD="password"
         local export HAPROXY_USER="elastic"
         local export HAPROXY_PASSWORD="password"
+        # shellcheck disable=SC2034
         local export X_PACK=1
     fi
     docker_compose_pull
