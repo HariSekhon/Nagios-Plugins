@@ -19,6 +19,7 @@ set -euo pipefail
 [ -n "${DEBUG:-}" ] && set -x
 
 OK=0
+# shellcheck disable=SC2034
 WARNING=1
 CRITICAL=2
 UNKNOWN=3
@@ -46,7 +47,7 @@ EOF
     exit "$UNKNOWN"
 }
 
-for x in $@; do
+for x in "$@"; do
     case "$x" in
         -*) usage
             ;;
@@ -62,9 +63,9 @@ if [ -z "$*" ]; then
     usage "no directories given as arguments"
 fi
 
-for directory in $@; do
+for directory in "$@"; do
     # could collect these in an array and print them all out but this is just a quick check
-    if ! grep -q "^[^[:space:]]\\+[[:space:]]\\+$directory[[:space:]]\\+" /proc/mounts; then
+    if ! grep -q "^[^[:space:]]\\+[[:space:]]\\+${directory}[[:space:]]\\+" /proc/mounts; then
         echo "CRITICAL: directory '$directory' not mounted"
         exit "$CRITICAL"
     fi
