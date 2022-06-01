@@ -64,7 +64,7 @@ presto_worker_tests(){
     #when_url_content "http://$PRESTO_HOST:$HAPROXY_PORT/v1/service/general/presto" environment # or "services" which is blank on worker
     #hr
     # this info is not available via the Presto worker API
-    run_fail 3 ./check_presto_version.py --expected "$version(-t.\d+.\d+)?" -P "$PRESTO_WORKER_PORT"
+    run_fail 3 ./check_presto_version.py --expected "$version(-t.\\d+.\\d+)?" -P "$PRESTO_WORKER_PORT"
 
     run_fail 2 ./check_presto_coordinator.py -P "$PRESTO_WORKER_PORT"
 
@@ -197,16 +197,16 @@ test_presto2(){
     # presto service not found in list of endpoints initially even after it's come up, hence reason for when_url_content test above
     if [ -n "${NODOCKER:-}" ]; then
         # custom compiled presto has a version like 'dc91f48' which results in UNKNOWN: Presto Coordinator version unrecognized 'dc91f48'
-        run_fail "0 3" ./check_presto_version.py --expected "$expected_version(-t.\d+.\d+)?"
+        run_fail "0 3" ./check_presto_version.py --expected "$expected_version(-t.\\d+.\\d+)?"
 
         run_fail "2 3" ./check_presto_version.py --expected "fail-version"
     else
-        run ./check_presto_version.py --expected "$expected_version(-t.\d+.\d+)?"
+        run ./check_presto_version.py --expected "$expected_version(-t.\\d+.\\d+)?"
 
         run_fail 2 ./check_presto_version.py --expected "fail-version"
     fi
 
-    run_conn_refused ./check_presto_version.py --expected "$expected_version(-t.\d+.\d+)?"
+    run_conn_refused ./check_presto_version.py --expected "$expected_version(-t.\\d+.\\d+)?"
 
     # coordinator field not available in Presto 0.93
     if [ "$version" = "latest" ] ||
