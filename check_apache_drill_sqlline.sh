@@ -24,10 +24,12 @@ for x in /opt/mapr/drill/drill-*/bin; do
 done
 
 OK=0
+# shellcheck disable=SC2034
 WARNING=1
 CRITICAL=2
 UNKNOWN=3
 
+# shellcheck disable=SC2064
 trap "echo 'CRITICAL: Apache Drill check failed'; exit $CRITICAL" EXIT
 
 # nice try but doesn't work
@@ -83,7 +85,7 @@ jdbc_url="${jdbc_url//\`}"
 
 check_bin(){
     local bin="$1"
-    if ! type -P $bin &>/dev/null; then
+    if ! type -P "$bin" &>/dev/null; then
         echo "'$bin' command not found in \$PATH ($PATH)"
         exit $UNKNOWN
     fi
