@@ -64,7 +64,7 @@ DISCLAIMER:
 # THERE IS A LOT OF REGEX. EVEN IF YOU ARE A REGEX MASTER YOU CANNOT PREDICT ALL SIDE EFFECTS
 # YOU MUST RELY ON THE ACCOMPANYING TESTS I HAVE WRITTEN IF YOU CHANGE ANYTHING AT ALL
 
-$VERSION = "0.11.6";
+$VERSION = "0.11.7";
 
 use strict;
 use warnings;
@@ -376,7 +376,7 @@ foreach(@output){
         $results{"expiry"} = "$day-$month-$year";
         vlog2("Expiry: $results{expiry}");
     # GoDaddy registration dates eg. 'Registrar Registration Expiration Date: 2015-09-02T16:50:03Z'
-    } elsif(/\b(?:Expiration|Registry Expiry|Registrar Registration Expiration|Expires On)(?:\s+Date)?.*?(\d{4})-(\d{2})-(\d{2})(?:[^\d]|$)/io){
+    } elsif(/\b(?:Expiration|Registry Expiry|Registrar Registration Expiration|Expires On|Expiry Date)(?:\s+Date)?.*?(\d{4})-(\d{2})-(\d{2})(?:[^\d]|$)/io){
         ($day, $month, $year) = ($3, $2, $1);
         $results{"expiry"} = "$day-$month-$year";
     } elsif (/^\s*(?:Query:|Domain(?:[ _]?Name)?\s*(?:\(ASCII\))?[.:]+)\s*(.+?)\s*$/io or
@@ -435,6 +435,7 @@ foreach(@output){
     } elsif (/(?:status|domaintype):\s*(\w[\w\s-]+\w)/io or
              /\[Status\]\s+(.+?)\s*$/o or
              /^\s*Estatus del dominio:\s*(.+?)\s*$/){
+        next if /^(?:elig|reach)status:/io;  # in .fr registrar this may be 'not identified', see issue #357
         my $domain_status = strip($1);
         $domain_status =~ s/\s+https?$//i;
         $domain_status =~ s/\s+--.*$//i;
