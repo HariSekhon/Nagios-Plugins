@@ -72,6 +72,7 @@ Advanced Nagios Plugins Collection
 [![ShellCheck](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/shellcheck.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/shellcheck.yaml)
 [![Validation](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/validate.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/validate.yaml)
 [![Semgrep](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/semgrep.yaml)
+[![Semgrep Cloud](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/semgrep-cloud.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/semgrep-cloud.yaml)
 [![Kics](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/kics.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/kics.yaml)
 
 [![Docker Build (Alpine)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_alpine.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_alpine.yaml)
