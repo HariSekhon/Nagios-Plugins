@@ -1,5 +1,4 @@
-Advanced Nagios Plugins Collection
-==================================
+# Advanced Nagios Plugins Collection
 
 [![GitHub stars](https://img.shields.io/github/stars/harisekhon/nagios-plugins?logo=github)](https://github.com/HariSekhon/Nagios-Plugins/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/harisekhon/nagios-plugins?logo=github)](https://github.com/HariSekhon/Nagios-Plugins/network)
