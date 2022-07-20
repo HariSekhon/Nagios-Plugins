@@ -277,7 +277,7 @@ foreach(sort keys %mntr){
             next;
         }
     }
-    isFloat($mntr{$_}, "negative allowed") or quit "UNKNOWN", "invalid value found for mntr $_ '$mntr{$_}'";
+    isFloat($mntr{$_}, "negative allowed") or isScientific($mntr{$_}, "negative allowed") or quit "UNKNOWN", "invalid value found for mntr $_ '$mntr{$_}'";
 }
 vlog2;
 
