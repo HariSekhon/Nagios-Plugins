@@ -51,7 +51,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.12.4"
+__version__ = "0.12.5"
 
 # Standard Nagios return codes
 OK = 0
@@ -436,6 +436,10 @@ class YumTester(object):
             elif os.path.exists(DNF) and re.match('Updating Subscription Management repositories.', ''.join(output)):
                 using_dnf = True
                 (num_security_updates, num_total_updates) = self.yum_updateinfo()
+            # for CloudLinux distro
+            elif 'This system is receiving updates from ' in ''.join(output):
+                num_total_updates = 0
+                num_security_updates = 0
             else:
                 end(WARNING, "Cannot find summary line in yum output. " + support_msg)
         if 'num_security_updates' not in locals():
