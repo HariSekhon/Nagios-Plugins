@@ -51,7 +51,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.12.3"
+__version__ = "0.12.4"
 
 # Standard Nagios return codes
 OK = 0
@@ -468,7 +468,9 @@ class YumTester(object):
              'updates? available',
              'packages? available',
              'Limiting package lists to security relevant ones',
-             'This system is receiving updates from RHN Classic or Red Hat Satellite.',
+             #'This system is receiving updates from RHN Classic or Red Hat Satellite.',
+             #'This system is receiving updates from CloudLinux Network server.',
+             'This system is receiving updates from .+',
              r'Repo [\w-]+ forced skip_if_unavailable=\w+ due to',
              r'Uploading Enabled Repositories Report',
              r'^Red Hat\s+',
