@@ -15,11 +15,11 @@
 
 # Alpine / Wget:
 #
-#   wget -O- https://raw.githubusercontent.com/HariSekhon/nagios-plugins/master/setup/bootstrap.sh | sh
+#   wget -O- https://raw.githubusercontent.com/HariSekhon/Nagios-Plugins/master/setup/bootstrap.sh | sh
 #
 # Curl:
 #
-#   curl https://raw.githubusercontent.com/HariSekhon/nagios-plugins/master/setup/bootstrap.sh | sh
+#   curl https://raw.githubusercontent.com/HariSekhon/Nagios-Plugins/master/setup/bootstrap.sh | sh
 
 set -eu
 [ -n "${DEBUG:-}" ] && set -x
@@ -81,4 +81,6 @@ else
     fi
 fi
 
-make build zookeeper
+if [ -z "${NO_MAKE:-}" ]; then
+    make
+fi
