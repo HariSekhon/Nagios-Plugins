@@ -197,7 +197,7 @@ class YumTester(object):
             # which will then fail the check
             output = process.communicate()
             # for using debug outputs, either do not comment above line or explicitly set exit code below
-            output = [open(os.path.dirname(__file__) + '/yum_input.txt').read(), '']
+            #output = [open(os.path.dirname(__file__) + '/yum_input.txt').read(), '']
             returncode = process.returncode
             stdout = output[0]
             # decode bytes to string for Python 3
