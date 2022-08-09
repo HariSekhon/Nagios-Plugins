@@ -51,7 +51,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.12.5"
+__version__ = "0.12.6"
 
 # Standard Nagios return codes
 OK = 0
@@ -197,7 +197,7 @@ class YumTester(object):
             # which will then fail the check
             output = process.communicate()
             # for using debug outputs, either do not comment above line or explicitly set exit code below
-            #output = [open(os.path.dirname(__file__) + '/yum_input.txt').read(), '']
+            output = [open(os.path.dirname(__file__) + '/yum_input.txt').read(), '']
             returncode = process.returncode
             stdout = output[0]
             # decode bytes to string for Python 3
@@ -427,18 +427,27 @@ class YumTester(object):
                 end(CRITICAL, "Kernel security update is installed but requires a reboot")
 
         using_dnf = False
+        using_cloud_linux = False
 
         if not summary_line_found:
             if os.path.exists(DNF) and re.match('Last metadata expiration check: ', ''.join(output)):
                 using_dnf = True
                 num_total_updates = 0
+                # this will be updated to num non-excluded lines further down
                 num_security_updates = 0
             elif os.path.exists(DNF) and re.match('Updating Subscription Management repositories.', ''.join(output)):
                 using_dnf = True
                 (num_security_updates, num_total_updates) = self.yum_updateinfo()
             # for CloudLinux distro
+            #elif 'This system is receiving updates from CloudLinux Network server' in ''.join(output):
+            elif 'This system is receiving updates from CloudLinux' in ''.join(output):
+                using_cloud_linux = True
+                num_total_updates = 0
+                # this will be updated to num non-excluded lines further down
+                num_security_updates = 0
             elif 'This system is receiving updates from ' in ''.join(output):
                 num_total_updates = 0
+                # default to zero unless we find package_lines further down
                 num_security_updates = 0
             else:
                 end(WARNING, "Cannot find summary line in yum output. " + support_msg)
@@ -491,7 +500,7 @@ class YumTester(object):
         # pylint: disable=consider-using-set-comprehension
         len_output = len(set([_.split()[0] for _ in output if _]))
         if len_output > num_total_updates:
-            if using_dnf:
+            if using_dnf or using_cloud_linux:
                 num_security_updates = len_output
             else:
                 self.vprint(3, "output lines not accounted for: %s" % output)
