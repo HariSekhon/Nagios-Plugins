@@ -51,7 +51,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.12.6"
+__version__ = "0.12.7"
 
 # Standard Nagios return codes
 OK = 0
@@ -173,7 +173,7 @@ class YumTester(object):
                 for repo in self.yum_config.split(","):
                     cmd += " --config=%s" % repo
 
-        self.vprint(3, "running command: %s" % cmd)
+        self.vprint(2, "running command: %s" % cmd)
 
         if OLD_PYTHON:
             self.vprint(3, "subprocess not available, probably old python " \
@@ -277,10 +277,10 @@ class YumTester(object):
         """sets an alarm to time out the test"""
 
         if self.timeout == 1:
-            self.vprint(3, "setting plugin timeout to %s second" \
+            self.vprint(2, "setting plugin timeout to %s second" \
                                                                 % self.timeout)
         else:
-            self.vprint(3, "setting plugin timeout to %s seconds"\
+            self.vprint(2, "setting plugin timeout to %s seconds"\
                                                                 % self.timeout)
 
         signal.signal(signal.SIGALRM, self.sighandler)
@@ -398,6 +398,10 @@ class YumTester(object):
         re_kernel_update = re.compile(r'^Security: kernel-.+ is an installed security update')
         summary_line_found = False
         for line in output:
+            _ = re_kernel_update.match(line)
+            if _:
+                end(CRITICAL, "Kernel security update is installed but requires a reboot")
+        for line in output:
             _ = re_summary_rhel6.match(line)
             if _:
                 summary_line_found = True
@@ -422,9 +426,6 @@ class YumTester(object):
                 num_security_updates = _.group(1)
                 num_total_updates = _.group(2)
                 break
-            _ = re_kernel_update.match(line)
-            if _:
-                end(CRITICAL, "Kernel security update is installed but requires a reboot")
 
         using_dnf = False
         using_cloud_linux = False
@@ -485,6 +486,10 @@ class YumTester(object):
              #'This system is receiving updates from CloudLinux Network server.',
              'This system is receiving updates from .+',
              r'Repo [\w-]+ forced skip_if_unavailable=\w+ due to',
+             r'^Security: kernel-.+ is the currently running version',
+             # do not exclude this line, it should be caught above otherwise you'll end up with a false negative of
+             # 'YUM OK: 0 Security Updates Available' when you haven't caught that the system needs to be rebooted
+             #r'^Security: kernel-.+ is an installed security update',
              r'Uploading Enabled Repositories Report',
              r'^Red Hat\s+',
              r'^EPEL\d+\s+',
@@ -503,7 +508,7 @@ class YumTester(object):
             if using_dnf or using_cloud_linux:
                 num_security_updates = len_output
             else:
-                self.vprint(3, "output lines not accounted for: %s" % output)
+                self.vprint(2, "output lines not accounted for: %s" % output)
                 #self.vprint(3, "security updates: %s, total updates: %s" % (num_security_updates, num_total_updates))
                 end(WARNING, "Yum output signature (%s unique lines) is larger than number of total updates (%s). " \
                              % (len_output, num_total_updates) + support_msg)
@@ -542,7 +547,7 @@ class YumTester(object):
         """Starts tests and controls logic flow"""
 
         check_yum_usable()
-        self.vprint(3, "%s - Version %s\nAuthor: %s\n" \
+        self.vprint(2, "%s - Version %s\nAuthor: %s\n" \
             % (__title__, __version__, __author__))
 
         self.validate_all_variables()
