@@ -1,5 +1,5 @@
 {
-  "id": "nagios-plugins",
+  "id": "Nagios-Plugins",
   "plugin_id": "yaml.config.plugin",
   "material": {
     "type": "git",
