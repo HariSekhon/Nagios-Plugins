@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #  vim:ts=4:sts=4:sw=4:et
 #  args: --password-length 12 --password-age 60 --password-reuse 10
 #

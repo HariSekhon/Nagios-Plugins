@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 #  Author: Hari Sekhon
 #  Date: 2008-03-06 15:20:22 +0000 (Thu, 06 Mar 2008)
