@@ -160,46 +160,46 @@ python-libs:
 	# newer version of setuptools (>=0.9.6) is needed to install cassandra-driver
 	# might need to specify /usr/bin/easy_install or make /usr/bin first in path as sometimes there are version conflicts with Python's easy_install
 	#$(SUDO) easy_install -U setuptools || $(SUDO_PIP) easy_install -U setuptools || :
-	#$(SUDO) easy_install pip || :
+	#$(SUDO) easy_install $(PIP) || :
 
 	# fixes bug in cffi version detection when installing requests-kerberos
-	$(SUDO_PIP) pip install --quiet --upgrade pip
+	$(SUDO_PIP) $(PIP) install --quiet --upgrade pip
 	# on Travis CI /opt/pyenv/shims/pip: Could not install packages due to an EnvironmentError: [Errno 13] Permission denied: '/usr/bin/pip'
-	#PIP_OPTS="--quiet --upgrade" bash-tools/python_pip_install.sh pip
+	#PIP=$(PIP) PIP_OPTS="--quiet --upgrade" bash-tools/python_pip_install.sh pip
 
 	setup/install_mysql_python.sh
 
 	# only install pip packages not installed via system packages
-	#$(SUDO_PIP) pip install --quiet --upgrade -r requirements.txt
-	#$(SUDO_PIP) pip install --quiet -r requirements.txt
-	bash-tools/python_pip_install_if_absent.sh requirements.txt
+	#$(SUDO_PIP) $(PIP) install --quiet --upgrade -r requirements.txt
+	#$(SUDO_PIP) $(PIP) install --quiet -r requirements.txt
+	PIP=$(PIP) bash-tools/python_pip_install_if_absent.sh requirements.txt
 
 	@echo "forcing Pika PyPI module version install because of Python 3.7 compatibility issue"
-	PIP_OPTS="--upgrade" bash-tools/python_pip_install.sh `sed 's/^#.*//' requirements.txt | grep ^pika==`
+	PIP=$(PIP) PIP_OPTS="--upgrade" bash-tools/python_pip_install.sh `sed 's/^#.*//' requirements.txt | grep ^pika==`
 
 	@# python-krbV dependency doesn't build on Mac any more and is unmaintained and not ported to Python 3
 	@# python_pip_install_if_absent.sh would import snakebite module and not trigger to build the enhanced snakebite with [kerberos] bit
-	bash-tools/setup/python_install_snakebite.sh
+	PIP=$(PIP) bash-tools/setup/python_install_snakebite.sh
 
 	# cassandra-driver is needed for check_cassandra_write.py + check_cassandra_query.py
 	# in requirements.txt now
-	#$(SUDO_PIP) pip install --quiet cassandra-driver scales blist lz4 python-snappy
+	#$(SUDO_PIP) $(PIP) install --quiet cassandra-driver scales blist lz4 python-snappy
 
 	# prevents https://urllib3.readthedocs.io/en/latest/security.html#insecureplatformwarning
-	#$(SUDO_PIP) pip install --quiet --upgrade ndg-httpsclient || \
-	#$(SUDO_PIP) pip install --quiet --upgrade ndg-httpsclient
-	PIP_OPTS="--quiet --upgrade" bash-tools/python_pip_install.sh ndg-httpsclient || \
-	PIP_OPTS="--quiet --upgrade" bash-tools/python_pip_install.sh ndg-httpsclient
+	#$(SUDO_PIP) $(PIP) install --quiet --upgrade ndg-httpsclient || \
+	#$(SUDO_PIP) $(PIP) install --quiet --upgrade ndg-httpsclient
+	PIP=$(PIP) PIP_OPTS="--quiet --upgrade" bash-tools/python_pip_install.sh ndg-httpsclient || \
+	PIP=$(PIP) PIP_OPTS="--quiet --upgrade" bash-tools/python_pip_install.sh ndg-httpsclient
 
 	#. tests/utils.sh; $(SUDO) $$perl couchbase-csdk-setup
-	#$(SUDO_PIP) pip install --quiet couchbase
+	#$(SUDO_PIP) $(PIP) install --quiet couchbase
 
 	# install MySQLdb python module for check_logserver.py / check_syslog_mysql.py
 	# fails if MySQL isn't installed locally
 	# Mac fails to import module, one workaround is:
 	# sudo install_name_tool -change libmysqlclient.18.dylib /usr/local/mysql/lib/libmysqlclient.18.dylib /Library/Python/2.7/site-packages/_mysql.so
 	# in requirements.txt now
-	#$(SUDO_PIP) pip install --quiet MySQL-python
+	#$(SUDO_PIP) $(PIP) install --quiet MySQL-python
 
 	# must downgrade happybase library to work on Python 2.6
 	setup/python2.6_happybase_downgrade.sh
