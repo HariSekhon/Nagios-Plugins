@@ -114,19 +114,6 @@
 
 [![Perl versions](https://img.shields.io/badge/Perl-5.10+-39457E?logo=perl)](https://github.com/HariSekhon/Nagios-Plugins)
 [![Perl](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl%22)
-[![Perl 5.10](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl%205.10/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl+5.10%22)
-[![Perl 5.12](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl%205.12/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl+5.12%22)
-[![Perl 5.14](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl%205.14/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl+5.14%22)
-[![Perl 5.16](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl%205.16/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl+5.16%22)
-[![Perl 5.18](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl%205.18/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl+5.18%22)
-[![Perl 5.20](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl%205.20/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl+5.20%22)
-[![Perl 5.22](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl%205.22/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl+5.22%22)
-[![Perl 5.24](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl%205.24/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl+5.24%22)
-[![Perl 5.26](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl%205.26/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl+5.26%22)
-[![Perl 5.28](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl%205.28/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl+5.28%22)
-[![Perl 5.30](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl%205.30/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl+5.30%22)
-[![Perl 5.32](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl%205.32/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl+5.32%22)
-[![Perl 5.34](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl%205.34/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl+5.34%22)
 
 <!-- broken handling of Elasticsearch major version for Python library -->
 
