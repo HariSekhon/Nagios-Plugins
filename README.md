@@ -75,7 +75,6 @@
 [![Kics](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/kics.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/kics.yaml)
 
 [![Docker Build (Alpine)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_alpine.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_alpine.yaml)
-[![Docker Build (CentOS)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_centos.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_centos.yaml)
 [![Docker Build (Debian)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_debian.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_debian.yaml)
 [![Docker Build (Fedora)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_fedora.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_fedora.yaml)
 [![Docker Build (Ubuntu)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_ubuntu.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/docker_nagios_plugins_ubuntu.yaml)
