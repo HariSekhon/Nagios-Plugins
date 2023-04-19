@@ -101,8 +101,6 @@
 [![Python 3.9](https://github.com/HariSekhon/Nagios-Plugins/workflows/Python%203.9/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Python+3.9%22)
 [![Python 3.10](https://github.com/HariSekhon/Nagios-Plugins/workflows/Python%203.10/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Python+3.10%22)
 [![Python 3.11](https://github.com/HariSekhon/Nagios-Plugins/workflows/Python%203.11/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Python+3.11%22)
-[![PyPy 2](https://github.com/HariSekhon/Nagios-Plugins/workflows/PyPy%202/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22PyPy+2%22)
-[![PyPy 3](https://github.com/HariSekhon/Nagios-Plugins/workflows/PyPy%203/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22PyPy+3%22)
 
 [![Perl versions](https://img.shields.io/badge/Perl-5.10+-39457E?logo=perl)](https://github.com/HariSekhon/Nagios-Plugins)
 [![Perl](https://github.com/HariSekhon/Nagios-Plugins/workflows/Perl/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions?query=workflow%3A%22Perl%22)
