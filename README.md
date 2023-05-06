@@ -8,13 +8,11 @@
 
 [![Codacy](https://app.codacy.com/project/badge/Grade/22d2175b89d8414d921d0196984307bd)](https://www.codacy.com/gh/HariSekhon/Nagios-Plugins/dashboard)
 [![CodeFactor](https://www.codefactor.io/repository/github/harisekhon/Nagios-Plugins/badge)](https://www.codefactor.io/repository/github/harisekhon/Nagios-Plugins)
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/HariSekhon/Nagios-Plugins.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HariSekhon/Nagios-Plugins/context:python)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_Nagios-Plugins&metric=alert_status)](https://sonarcloud.io/dashboard?id=HariSekhon_Nagios-Plugins)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_Nagios-Plugins&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_Nagios-Plugins)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_Nagios-Plugins&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_Nagios-Plugins)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_Nagios-Plugins&metric=security_rating)](https://sonarcloud.io/dashboard?id=HariSekhon_Nagios-Plugins)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_Nagios-Plugins&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=HariSekhon_Nagios-Plugins)
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/HariSekhon/Nagios-Plugins.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/HariSekhon/Nagios-Plugins/alerts/)
 
 <!-- only counts Python lines of code, underestimates by at least half
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=HariSekhon_Nagios-Plugins&metric=ncloc)](https://sonarcloud.io/dashboard?id=HariSekhon_Nagios-Plugins)
