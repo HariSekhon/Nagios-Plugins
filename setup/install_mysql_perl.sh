@@ -22,7 +22,7 @@ sudo=""
 
 if [ "$(uname -s)" != Darwin ]; then
     echo "OS is not Mac, skipping mysql_config workaround, installing DBD::mysql normally via cpanm"
-    "$srcdir/../bash-tools/perl_cpanm_install_if_absent.sh" DBD::mysql
+    "$srcdir/../bash-tools/perl/perl_cpanm_install_if_absent.sh" DBD::mysql
     exit 0
 fi
 
@@ -74,6 +74,6 @@ set -e +x
 # /Library/Developer/CommandLineTools/SDKs/MacOSX10.15.sdk/System/Library/Perl/Extras/5.18/darwin-thread-multi-2level/auto/DBI/DBIXS.h
 #
 # so could add some hackiness to the path or otherwise just install DBI manually where it'll be naturally found
-"$srcdir/../bash-tools/perl_cpanm_install.sh" DBI
+"$srcdir/../bash-tools/perl/perl_cpanm_install.sh" DBI
 
-"$srcdir/../bash-tools/perl_cpanm_install_if_absent.sh" DBD::mysql
+"$srcdir/../bash-tools/perl/perl_cpanm_install_if_absent.sh" DBD::mysql
