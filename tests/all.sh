@@ -40,7 +40,7 @@ nagios_plugins_start_time="$(start_timer)"
 
 # must be included so that local exclude function can take precedence
 # shellcheck disable=SC1091
-. bash-tools/check_all.sh
+. bash-tools/checks/check_all.sh
 
 #is_travis ||
 time tests/help.sh
