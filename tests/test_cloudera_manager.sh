@@ -126,8 +126,8 @@ else
     "
 
     # hbase service will be disabled in Quickstart VM
-    #service="$(bash-tools/random_select.sh "hdfs yarn hive zookeeper")"
-    service="$(bash-tools/random_select.sh "$services")"
+    #service="$(bash-tools/bin/random_select.sh "hdfs yarn hive zookeeper")"
+    service="$(bash-tools/bin/random_select.sh "$services")"
 
     echo "Selected service: $service"
 
