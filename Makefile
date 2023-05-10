@@ -115,18 +115,18 @@ perl-libs:
 
 	setup/install_mysql_perl.sh
 
-	bash-tools/perl_cpanm_install_if_absent.sh setup/cpan-requirements.txt setup/cpan-requirements-packaged.txt
+	bash-tools/perl/perl_cpanm_install_if_absent.sh setup/cpan-requirements.txt setup/cpan-requirements-packaged.txt
 
 	# to work around "Can't locate loadable object for module Digest::CRC in @INC"
 	@. bash-tools/lib/ci.sh; \
 		. bash-tools/lib/os.sh; \
 		if is_CI and is_mac; then \
-			bash-tools/perl_cpanm_install.sh Digest::CRC; \
+			bash-tools/perl/perl_cpanm_install.sh Digest::CRC; \
 		fi
 
 	# packaged version is not new enough:
 	# ./check_mongodb_master.pl:  CRITICAL: IO::Socket::IP version 0.32 required--this is only version 0.21 at /usr/local/share/perl5/MongoDB/_Link.pm line 53.
-	bash-tools/perl_cpanm_install.sh IO::Socket::IP
+	bash-tools/perl/perl_cpanm_install.sh IO::Socket::IP
 
 	setup/fix_perl_netaddr_ip_inetbase.sh
 
@@ -165,17 +165,17 @@ python-libs:
 	# fixes bug in cffi version detection when installing requests-kerberos
 	$(SUDO_PIP) $(PIP) install --quiet --upgrade pip
 	# on Travis CI /opt/pyenv/shims/pip: Could not install packages due to an EnvironmentError: [Errno 13] Permission denied: '/usr/bin/pip'
-	#PIP=$(PIP) PIP_OPTS="--quiet --upgrade" bash-tools/python_pip_install.sh pip
+	#PIP=$(PIP) PIP_OPTS="--quiet --upgrade" bash-tools/python/python_pip_install.sh pip
 
 	setup/install_mysql_python.sh
 
 	# only install pip packages not installed via system packages
 	#$(SUDO_PIP) $(PIP) install --quiet --upgrade -r requirements.txt
 	#$(SUDO_PIP) $(PIP) install --quiet -r requirements.txt
-	PIP=$(PIP) bash-tools/python_pip_install_if_absent.sh requirements.txt
+	PIP=$(PIP) bash-tools/python/python_pip_install_if_absent.sh requirements.txt
 
 	@echo "forcing Pika PyPI module version install because of Python 3.7 compatibility issue"
-	PIP=$(PIP) PIP_OPTS="--upgrade" bash-tools/python_pip_install.sh `sed 's/^#.*//' requirements.txt | grep ^pika==`
+	PIP=$(PIP) PIP_OPTS="--upgrade" bash-tools/python/python_pip_install.sh `sed 's/^#.*//' requirements.txt | grep ^pika==`
 
 	@# python-krbV dependency doesn't build on Mac any more and is unmaintained and not ported to Python 3
 	@# python_pip_install_if_absent.sh would import snakebite module and not trigger to build the enhanced snakebite with [kerberos] bit
@@ -188,8 +188,8 @@ python-libs:
 	# prevents https://urllib3.readthedocs.io/en/latest/security.html#insecureplatformwarning
 	#$(SUDO_PIP) $(PIP) install --quiet --upgrade ndg-httpsclient || \
 	#$(SUDO_PIP) $(PIP) install --quiet --upgrade ndg-httpsclient
-	PIP=$(PIP) PIP_OPTS="--quiet --upgrade" bash-tools/python_pip_install.sh ndg-httpsclient || \
-	PIP=$(PIP) PIP_OPTS="--quiet --upgrade" bash-tools/python_pip_install.sh ndg-httpsclient
+	PIP=$(PIP) PIP_OPTS="--quiet --upgrade" bash-tools/python/python_pip_install.sh ndg-httpsclient || \
+	PIP=$(PIP) PIP_OPTS="--quiet --upgrade" bash-tools/python/python_pip_install.sh ndg-httpsclient
 
 	#. tests/utils.sh; $(SUDO) $$perl couchbase-csdk-setup
 	#$(SUDO_PIP) $(PIP) install --quiet couchbase
@@ -228,7 +228,7 @@ zookeeper: zkperl
 
 .PHONY: zookeeper-retry
 zookeeper-retry:
-	bash-tools/retry.sh $(MAKE) zookeeper
+	bash-tools/bin/retry.sh $(MAKE) zookeeper
 
 .PHONY: zkperl
 zkperl:
@@ -263,7 +263,7 @@ test: lib-test
 
 .PHONY: basic-test
 basic-test: lib-test
-	. tests/excluded.sh; bash-tools/check_all.sh
+	. tests/excluded.sh; bash-tools/checks/check_all.sh
 	tests/help.sh
 
 .PHONY: install
