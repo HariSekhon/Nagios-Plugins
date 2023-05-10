@@ -40,11 +40,11 @@ if [ "$(uname -s)" = Darwin ]; then
     brew install --force mysql-connector-c || :
     brew link mysql-connector-c
     #sed -i -e 's/libs="$libs -l "/libs="$libs -lmysqlclient -lssl -lcrypto"/g' /usr/local/bin/mysql_config
-    # handled in ../bash-tools/python_pip_install.sh
+    # handled in ../bash-tools/python/python_pip_install.sh
     #export OPENSSL_INCLUDE=/usr/local/opt/openssl/include
     #export OPENSSL_LIB=/usr/local/opt/openssl/lib
     #export LIBRARY_PATH="${LIBRARY_PATH:-}:/usr/local/opt/openssl/lib/"
-    "$srcdir/../bash-tools/python_pip_install.sh" mysqlclient  # forked replacement for MySQL-python with Python 3 support
+    "$srcdir/../bash-tools/python/python_pip_install.sh" mysqlclient  # forked replacement for MySQL-python with Python 3 support
     brew unlink mysql-connector-c
     brew link --overwrite mysql
     check_mysql_python
