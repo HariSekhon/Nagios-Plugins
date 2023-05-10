@@ -144,7 +144,7 @@ $volumes
 "
 
 # shellcheck disable=SC2086
-volume="$(bash-tools/random_select.sh $volumes)"
+volume="$(bash-tools/bin/random_select.sh $volumes)"
 
 echo "Selected volume for tests: $volume"
 echo
