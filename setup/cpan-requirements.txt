@@ -33,7 +33,7 @@ Guard
 Compress::Snappy
 Compress::Zlib
 Digest::Adler32
-Kafka
+Kafka==1.3.5
 Net::SSH::Expect
 Ref::Util
 
