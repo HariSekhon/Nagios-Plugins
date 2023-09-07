@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 #  vim:ts=4:sts=4:sw=4:et
 #
 #  Author: Hari Sekhon
@@ -110,6 +110,7 @@ class YumTester(object):
         self.all_updates = False
         self.no_cache_update = False
         self.no_warn_on_lock = False
+        self.no_warn_on_updates = False
         self.enable_repo = ""
         self.disable_repo = ""
         self.disable_plugin = ""
@@ -570,7 +571,10 @@ class YumTester(object):
             status = OK
             message = "0 Updates Available"
         else:
-            status = CRITICAL
+            if self.no_warn_on_updates:
+                status = OK
+            else:
+                status = CRITICAL
             if num_updates == 1:
                 message = "1 Update Available"
             else:
@@ -594,7 +598,10 @@ class YumTester(object):
             status = OK
             message = "0 Security Updates Available"
         else:
-            status = CRITICAL
+            if self.no_warn_on_updates:
+                status = OK
+            else:
+                status = CRITICAL
             if num_security_updates == 1:
                 message = "1 Security Update Available"
             elif num_security_updates > 1:
@@ -603,7 +610,10 @@ class YumTester(object):
 
         if num_other_updates != 0:
             if self.warn_on_any_update and status != CRITICAL:
-                status = WARNING
+                if self.no_warn_on_updates:
+                    status = OK
+                else:
+                    status = WARNING
         if num_other_updates == 1:
             message += ". 1 Non-Security Update Available"
         else:
@@ -684,6 +694,15 @@ def main():
                          + "intermittently pop up when someone is running "   \
                          + "yum for package management")
 
+    parser.add_option("--no-warn-on-updates",
+	                  action="store_true",
+					  dest="no_warn_on_updates",
+                      help="Return OK instead of WARNING even when updates are" \
+					     + "available. This is not recommended from the security" \
+						 + "standpoint, but may be wanted to disable alerts while" \
+						 + "the plugin output still shows the number of available" \
+						 + "updates.")
+
     parser.add_option("-e",
                       "--enablerepo",
                       dest="repository_to_enable",
@@ -738,6 +757,7 @@ def main():
     tester.all_updates = options.all_updates
     tester.no_cache_update = options.no_cache_update
     tester.no_warn_on_lock = options.no_warn_on_lock
+    tester.no_warn_on_updates = options.no_warn_on_updates
     tester.enable_repo = options.repository_to_enable
     tester.disable_repo = options.repository_to_disable
     tester.disable_plugin = options.plugin_to_disable
