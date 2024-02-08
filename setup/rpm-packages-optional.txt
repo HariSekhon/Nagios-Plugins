@@ -42,7 +42,7 @@ redhat-rpm-config
 # ====================
 # CentOS 8 workaround:
 
-# if available choose to install this rather than mysql-devel and let setup/install_mysql_python.sh patch mysql.h to be compatible
+# if available choose to install this rather than mysql-devel and let install/install_mysql_python.sh patch mysql.h to be compatible
 mariadb-devel
 
 # to build DBD::mysql if building from CPAN
