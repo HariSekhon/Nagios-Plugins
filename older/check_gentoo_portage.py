@@ -51,6 +51,7 @@ EMERGE = "/usr/bin/emerge"
 # determining the last synced time, as emerge --info doesn't give this
 # in the older versions
 TIMESTAMP_LOCATIONS = (
+    "/var/db/repos/gentoo/metadata/timestamp.chk",
     "/usr/portage/metadata/timestamp.chk",
     "/var/cache/edb/dep/timestamp.chk"
 )
