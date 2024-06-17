@@ -45,3 +45,6 @@ python-jenkins==1.5.0
 #snakebite==2.11.0
 thriftpy==0.3.9
 #TravisPy==0.3.5
+certifi>=2023.7.22 # not directly required, pinned by Snyk to avoid a vulnerability
+idna>=3.7 # not directly required, pinned by Snyk to avoid a vulnerability
+requests>=2.31.0 # not directly required, pinned by Snyk to avoid a vulnerability
