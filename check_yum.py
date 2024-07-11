@@ -51,7 +51,7 @@ from optparse import OptionParser
 
 __author__ = "Hari Sekhon"
 __title__ = "Nagios Plugin for Yum updates on RedHat/CentOS systems"
-__version__ = "0.12.7"
+__version__ = "0.12.8"
 
 # Standard Nagios return codes
 OK = 0
@@ -175,17 +175,16 @@ class YumTester(object):
 
         self.vprint(2, "running command: %s" % cmd)
 
+        os.environ['LANG'] = 'en_US'
         if OLD_PYTHON:
             self.vprint(3, "subprocess not available, probably old python " \
                          + "version, using shell instead")
-            os.environ['LANG'] = "en_US"
             returncode, stdout = getstatusoutput(cmd)
             if returncode >= 256:
                 returncode = returncode / 256
         else:
             try:
-                env = {'LANG': 'en_US'}
-                process = Popen(cmd.split(), stdin=PIPE, stdout=PIPE, stderr=STDOUT, env=env)
+                process = Popen(cmd.split(), stdin=PIPE, stdout=PIPE, stderr=STDOUT)
             except OSError as error:
                 error = str(error)
                 if error == "No such file or directory":
