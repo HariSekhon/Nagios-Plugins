@@ -184,7 +184,7 @@ class YumTester(object):
                 returncode = returncode / 256
         else:
             try:
-                env = {'LANG': 'en_US'}
+                env = {'LANG': 'en_US', 'http_proxy': os.environ['http_proxy'], 'https_proxy': os.environ['https_proxy']}
                 process = Popen(cmd.split(), stdin=PIPE, stdout=PIPE, stderr=STDOUT, env=env)
             except OSError as error:
                 error = str(error)
