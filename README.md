@@ -974,11 +974,11 @@ This is a list of the best and most interesting 3rd party plugins, several of wh
 - [collectd exec-nagios.px](https://github.com/collectd/collectd/blob/master/contrib/exec-nagios.px) - executes a Nagios Plugin and returns the metrics to Collectd to forward on to one of the many compatible metrics graphing solutions
 - [Datameer](https://www.datameer.com) references this project in the [Datameer docs](https://www.datameer.com/documentation/current/Monitoring+Hadoop+and+Datameer+using+Nagios) from version 3 onwards. Datameer wrote 1 example nagios plugin on that page, then referenced the 9 additional plugins here in the links section at the bottom along with the official Nagios links
 
-### Stargazers over time
-
-[![Stargazers over time](https://starchart.cc/HariSekhon/Nagios-Plugins.svg)](https://starchart.cc/HariSekhon/Nagios-Plugins)
-
 [git.io/nagios-plugins](https://git.io/nagios-plugins)
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=HariSekhon/Nagios-Plugins&type=Date)](https://star-history.com/#HariSekhon/Nagios-Plugins&Date)
 
 ## More Core Repos
 
