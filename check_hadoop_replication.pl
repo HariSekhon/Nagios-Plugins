@@ -87,7 +87,7 @@ foreach(@beans){
     check_thresholds($under_repl);
     $msg .= sprintf(", excess: %d, replication pending: %d, scheduled: %d, deletion pending: %d, postponed misreplicated: %d | 'hdfs blocks missing'=%d 'hdfs blocks corrupt='%d 'hdfs blocks under-replicated'=%d", $excess, $pending_repl, $sched_repl, $pending_del, $post_misrepl, $missing, $corrupt, $under_repl);
     msg_perf_thresholds();
-    $msg .= sprintf(" 'hdfs excess blocks'=%d 'hdfs blocks pending replication'=%d 'hdfs blocks scheduled for replication'=%d 'hdfs blocks pending deletion'=%d 'hdfs blocks postponed misreplicated'=%d", $excess, $pending_repl, $sched_repl, $pending_del, $post_misrepl, $missing, $corrupt, $under_repl);
+    $msg .= sprintf(" 'hdfs excess blocks'=%d 'hdfs blocks pending replication'=%d 'hdfs blocks scheduled for replication'=%d 'hdfs blocks pending deletion'=%d 'hdfs blocks postponed misreplicated'=%d", $excess, $pending_repl, $sched_repl, $pending_del, $post_misrepl);
     last;
 }
 quit "UNKNOWN", "failed to find FSNamesystem mbean" unless $found_mbean;
