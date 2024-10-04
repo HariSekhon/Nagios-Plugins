@@ -113,7 +113,7 @@ perl-libs:
 	# You may need to set this to get the DBD::mysql module to install if you have mysql installed locally to /usr/local/mysql
 	#export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/usr/local/mysql/lib/"
 
-	install/install_mysql_perl.sh
+	setup/install_mysql_perl.sh
 
 	bash-tools/perl/perl_cpanm_install_if_absent.sh setup/cpan-requirements.txt setup/cpan-requirements-packaged.txt
 
@@ -167,7 +167,7 @@ python-libs:
 	# on Travis CI /opt/pyenv/shims/pip: Could not install packages due to an EnvironmentError: [Errno 13] Permission denied: '/usr/bin/pip'
 	#PIP=$(PIP) PIP_OPTS="--quiet --upgrade" bash-tools/python/python_pip_install.sh pip
 
-	install/install_mysql_python.sh
+	setup/install_mysql_python.sh
 
 	# only install pip packages not installed via system packages
 	#$(SUDO_PIP) $(PIP) install --quiet --upgrade -r requirements.txt
@@ -232,7 +232,7 @@ zookeeper-retry:
 
 .PHONY: zkperl
 zkperl:
-	ZOOKEEPER_VERSION="$(ZOOKEEPER_VERSION)" install/install_zookeeper_perl.sh
+	ZOOKEEPER_VERSION="$(ZOOKEEPER_VERSION)" setup/install_zookeeper_perl.sh
 	@echo
 	@echo "BUILD SUCCESSFUL (nagios-plugins zkperl)"
 	@echo
