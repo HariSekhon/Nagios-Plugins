@@ -68,6 +68,7 @@
 [![JSON](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/json.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/json.yaml)
 [![YAML](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/yaml.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/yaml.yaml)
 [![XML](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/xml.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/xml.yaml)
+[![Markdown](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/markdown.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/markdown.yaml)
 [![Validation](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/validate.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/validate.yaml)
 [![Kics](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/kics.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/kics.yaml)
 [![Grype](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/grype.yaml/badge.svg)](https://github.com/HariSekhon/Nagios-Plugins/actions/workflows/grype.yaml)
