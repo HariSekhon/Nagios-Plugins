@@ -31,18 +31,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/cache@v1
+      - uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-nagios-plugins  # ${{ hashFiles('**/requirements.txt') }}
+          key: pip-${{ runner.os }}-${{ runner.arch }}  # -${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-pip-nagios-plugins
+            pip-${{ runner.os }}-${{ runner.arch }}
       - uses: actions/cache@v1
         with:
           path: ~/.cpanm
-          key: ${{ runner.os }}-cpanm-nagios-plugins-${{ hashFiles('**/cpan-requirements.txt') }}
+          key: cpanm-${{ runner.os }}-${{ runner.arch }}  # -${{ hashFiles('**/cpan-requirements.txt') }}
           restore-keys: |
-            ${{ runner.os }}-cpanm-nagios-plugins
+            cpanm-${{ runner.os }}-${{ runner.arch }}
       - name: build
         run: make
       - name: zookeeper
