@@ -8,7 +8,7 @@ boto3==1.10.40
 #elasticsearch>=5.0.0,<6.0.0
 # Python >= 3
 #GitPython==3.0.3
-GitPython==2.1.15
+GitPython==3.1.35
 happybase==1.2.0
 humanize==0.5.1
 #impyla==0.16.0
