@@ -15,7 +15,7 @@ Written for RHEL / CentOS 6, also tested on Debian Wheezy (7) / Jessie (8) and U
 
 Updated for RHEL / CentOS 7 as well as support for checking special interfaces such as loopback, bond and tunnel interfaces. Also tested on Debian Buster (10)";
 
-$VERSION = "0.9.2";
+$VERSION = "0.9.3";
 
 use strict;
 use warnings;
@@ -57,9 +57,7 @@ my $exempted_interfaces = qr/^(lo|ip|sit|bond)/;
 
 get_options();
 
-# TODO: interface naming rules have changed, see new predictable naming conventions and determine if we can actually cover all cases
-#$interface = validate_interface($interface);
-$interface = validate_alnum($interface, "interface");
+$interface = validate_interface($interface);
 $msg = "interface '$interface' ";
 
 if(defined($expected_duplex)){
