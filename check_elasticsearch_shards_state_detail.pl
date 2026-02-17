@@ -93,7 +93,7 @@ $sep = "\n" if ($multiline and not $index);
 my @states = keys %shards;
 if(grep { "STARTED" ne $_ } @states){
     foreach(@states){
-        if($_ eq "STARTING" or $_ eq "INITIALIZING"){
+        if($_ eq "STARTING" or $_ eq "INITIALIZING" or $_ eq "RELOCATING"){
             warning;
         } else {
             critical;
