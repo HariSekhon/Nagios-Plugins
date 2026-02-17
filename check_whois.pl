@@ -64,7 +64,7 @@ DISCLAIMER:
 # THERE IS A LOT OF REGEX. EVEN IF YOU ARE A REGEX MASTER YOU CANNOT PREDICT ALL SIDE EFFECTS
 # YOU MUST RELY ON THE ACCOMPANYING TESTS I HAVE WRITTEN IF YOU CHANGE ANYTHING AT ALL
 
-$VERSION = "0.11.7";
+$VERSION = "0.11.8";
 
 use strict;
 use warnings;
@@ -81,6 +81,8 @@ my $whois;
 my $whois_server;
 my %expected_results;
 my $no_expiry = 0;
+my $proto_ipv4 = 0;
+my $proto_ipv6 = 0;
 my $no_nameservers = 0;
 my $default_whois_server_asia = "whois.nic.asia";
 my $default_whois_server_tel = "whois.nic.tel";
@@ -106,6 +108,8 @@ my @tlds_with_no_nameservers = qw/ac sh/;
     "w|warning=s"      => [ \$warning,          "Warning threshold in days for domain expiry (defaults to $default_warning days)"  ],
     "c|critical=s"     => [ \$critical,         "Critical threshold in days for domain expiry (defaults to $default_critical days)" ],
     "no-expiry"        => [ \$no_expiry,        "Do not check expiry. Do not use this except for those rubbish broken european TLDs whois like .fr" ],
+    "4|ipv4"           => [ \$proto_ipv4,       "Enforce using IPv4" ],
+    "6|ipv6"           => [ \$proto_ipv6,       "Enforce using IPv6" ],
     "no-nameservers"   => [ \$no_nameservers,   "Do not check for nameservers. You should not use this normally" ],
     "name-servers=s"   => [ \$expected_results{"nameservers"}, "Name servers to expect for domain, should be comma delimited list, no spaces"   ],
     "registrant=s"     => [ \$expected_results{"registrant"},  "Registrant to expect"  ],
@@ -158,8 +162,16 @@ unless($output[0] =~ /^jwhois\s+/){
     quit "UNKNOWN", "wrong whois version detected, please install/specify path to GNU jwhois";
 }
 
-my $cmd = "$whois -d $domain";
-$cmd    = "$whois -d -h $whois_server $domain" if $whois_server;
+my $cmd   = "$whois -d";
+$cmd     .= " -h $whois_server" if $whois_server;
+if ($proto_ipv4 != 0 && $proto_ipv6 == 0) {
+    $cmd .= " -4";
+} elsif ($proto_ipv4 == 0 && $proto_ipv6 != 0) {
+    $cmd .= " -6";
+} elsif ($proto_ipv4 != 0 && $proto_ipv6 != 0) {
+    quit "UNKNOWN", "-4|--ipv4 and -6|--ipv6 cannot be selected in parallel";
+};
+$cmd     .= " $domain";
 set_timeout($timeout, sub { pkill("$cmd") } );
 
 $status = "OK";
